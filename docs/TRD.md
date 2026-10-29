@@ -70,6 +70,11 @@ React Native / Expo
 | `latitude` | `numeric` | -90 이상 90 이하 |
 | `longitude` | `numeric` | -180 이상 180 이하 |
 | `place_name` | `text` | nullable |
+| `google_place_id` | `text` | nullable, Google 장소 식별자 |
+| `country_code` | `text` | nullable, ISO 국가 코드 |
+| `country_name` | `text` | nullable |
+| `region_name` | `text` | nullable, 시·도·주 등 |
+| `city_name` | `text` | nullable |
 | `source` | `text` | `exif`, `device`, `manual`, `google` 중 하나 |
 | `created_at` | `timestamptz` | 서버 기본값 |
 
@@ -79,10 +84,10 @@ React Native / Expo
 |---|---|---|
 | `id` | `uuid` | PK |
 | `owner_id` | `uuid` | `profiles.id` FK, not null |
-| `title` | `text` | not null, 길이 제한 |
+| `title` | `text` | nullable, 길이 제한 |
 | `content` | `text` | nullable, 길이 제한 |
-| `travel_date` | `date` | nullable |
-| `location_id` | `uuid` | `locations.id` FK, nullable |
+| `travel_date` | `date` | not null |
+| `location_id` | `uuid` | `locations.id` FK, not null |
 | `visibility` | `text` | `private` 또는 `public`, 기본 `private` |
 | `created_at` | `timestamptz` | 서버 기본값 |
 | `updated_at` | `timestamptz` | 변경 시 갱신 |
@@ -96,6 +101,8 @@ React Native / Expo
 | `owner_id` | `uuid` | 업로드 사용자 ID |
 | `original_path` | `text` | Storage 경로, not null |
 | `thumbnail_path` | `text` | Storage 경로, not null |
+| `is_cover` | `boolean` | not null, 기본 `false`, 여행 기록별 최대 하나 |
+| `display_order` | `integer` | not null, 기본 `0`, 0 이상 |
 | `captured_at` | `timestamptz` | EXIF 또는 수동값, nullable |
 | `exif_latitude` | `numeric` | nullable |
 | `exif_longitude` | `numeric` | nullable |
@@ -107,19 +114,31 @@ React Native / Expo
 
 사진의 최종 기록 위치는 `travel_records.location_id`가 담당한다. EXIF 원본 좌표는 감사·재처리를 위해 `photos`에 선택적으로 보존한다.
 
+### 3.5 필수 조건과 인덱스
+
+- 여행 기록 생성은 하나 이상의 사진, `travel_date`, `location_id`가 준비된 경우에만 완료한다.
+- `photos.is_cover = true`에 대해 `travel_record_id`별 부분 unique index를 생성해 대표사진을 최대 한 장으로 제한한다.
+- 대표사진을 선택하지 않으면 첫 번째 업로드 사진을 대표사진으로 지정한다.
+- `travel_records(owner_id, travel_date)`를 생성해 사용자별 날짜 필터를 지원한다.
+- `travel_records(visibility, travel_date)`를 생성해 공개 기록 날짜 필터를 지원한다.
+- `locations(country_code, region_name, city_name)`을 생성해 지역 필터를 지원한다.
+- `photos(travel_record_id, is_cover)`를 생성해 대표사진 조회를 지원한다.
+- 사진 최소 한 장 조건은 일반 FK만으로 보장되지 않으므로 생성 흐름의 완료 상태 검증 또는 서버 측 검증으로 보장한다.
+
 ## 4. 관계와 삭제 정책
 
 ```text
 auth.users 1 ── 1 profiles
 profiles  1 ── N travel_records
 travel_records 1 ── N photos
-travel_records N ── 0..1 locations
+travel_records N ── 1 locations
 ```
 
 - 프로필 삭제 시 소유자 데이터 삭제 정책은 운영 전 확정하되, MVP에서는 명시적 삭제 작업으로 처리한다.
 - 여행 기록 삭제 시 연결된 `photos` DB 레코드는 cascade 삭제한다.
 - Storage 파일은 DB cascade만으로 삭제되지 않으므로 삭제 작업에서 원본·썸네일을 함께 삭제한다.
 - DB 삭제 성공 후 Storage 삭제가 실패하면 고아 파일 정리 대상에 기록한다.
+- `locations`는 여러 여행 기록에서 재사용할 수 있으므로 여행 기록 삭제 시 위치 레코드를 자동 삭제하지 않는다.
 
 ## 5. RLS 권한 정책
 
@@ -131,7 +150,7 @@ travel_records N ── 0..1 locations
 ### `travel_records`
 
 - `select`: 소유자이거나 `visibility = public`
-- `insert`: `owner_id = auth.uid()`
+- `insert`: `owner_id = auth.uid()`이며 `travel_date`와 `location_id`가 존재해야 한다.
 - `update`: `owner_id = auth.uid()`
 - `delete`: `owner_id = auth.uid()`
 
@@ -141,6 +160,7 @@ travel_records N ── 0..1 locations
 - `insert`: `owner_id = auth.uid()`이고 연결 기록의 소유자
 - `update`: 소유자만
 - `delete`: 소유자만
+- `is_cover = true`인 사진은 연결된 여행 기록별 하나만 허용한다.
 
 RLS 우회가 필요한 서버 작업은 service role key를 Edge Function 내부에서만 사용한다.
 
@@ -157,6 +177,8 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 | 삭제 | `DELETE /rest/v1/travel_records?id=eq.{id}` | 소유자만 |
 | 사진 조회 | `GET /rest/v1/photos?travel_record_id=eq.{id}` | 기록 RLS 적용 |
 | 위치 생성 | `POST /rest/v1/locations` | 인증 사용자 |
+| 날짜 필터 | `GET /rest/v1/travel_records?travel_date=eq.{date}` | RLS 적용 |
+| 공개 기록 지역 필터 | `GET /rest/v1/travel_records?visibility=eq.public&select=*,locations!inner(*)&locations.region_name=eq.{region}` | 공개 기록·지역 조건을 모두 적용 |
 
 클라이언트에는 `anon key`만 제공한다. service role key는 절대 노출하지 않는다.
 

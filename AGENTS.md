@@ -13,6 +13,15 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 - service role key가 필요하거나 서버 비밀이 필요한 작업만 Supabase Edge Functions로 처리한다.
 - 요구사항과 설계 문서는 `docs/`에 둔다.
 
+### DB 핵심 구조 규칙
+
+- `profiles`는 Supabase Auth 사용자와 1:1로 연결한다.
+- `travel_records`는 `owner_id`, 필수 `travel_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 상태를 가진다.
+- `locations`는 위도·경도와 장소명, Google 장소 ID, 국가·지역·도시 필드를 저장해 지도 표시와 지역 필터를 지원한다.
+- `photos`는 여행 기록에 여러 장 연결하고 원본·썸네일 경로, EXIF 메타데이터, `is_cover`, `display_order`를 저장한다.
+- 여행 기록은 사진을 하나 이상 가져야 하며, 대표사진은 기록별 최대 하나만 허용한다.
+- 사진·여행 기록·Storage 파일의 소유권은 `owner_id`와 RLS 정책으로 검증한다.
+
 ## 기술 스택
 
 - **Frontend**: React Native, Expo, TypeScript, Expo Router
