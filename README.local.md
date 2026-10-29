@@ -202,6 +202,21 @@ profiles
 
 웹 테스트 통과만으로 Android 기능 완료로 판단하지 않는다.
 
+## AI 개발 도구와 MCP
+
+프로젝트 개발·검증을 위해 다음 MCP를 Codex 환경에 설정한다.
+
+| MCP | 용도 | 현재 설정 |
+|---|---|---|
+| Supabase MCP | PostgreSQL·migration·RLS·로그·타입 확인 | Test 프로젝트 전용, read-only |
+| Appium MCP | Android Emulator·실제 기기 UI 자동화 | Android SDK 경로와 함께 설정 |
+
+Supabase MCP는 Test 프로젝트의 DB 구조와 로그를 확인하는 용도로 사용한다. Production 프로젝트는 연결하지 않으며, 스키마 변경이나 데이터 변경 권한은 별도로 승인한 뒤에만 사용한다.
+
+Appium MCP는 Android Emulator를 AI가 직접 조작할 때 사용한다. Android Studio, Android SDK, `adb`, 실행 중인 Emulator가 필요하며, 카메라·GPS·OAuth·권한 동작은 실제 기기 검증을 병행한다.
+
+MCP 연결 설정은 프로젝트 코드가 아니라 개발자별 Codex 환경에 저장한다. Supabase OAuth 인증이나 Codex 재시작이 필요한 경우 연결 상태를 확인한 후 사용한다.
+
 ## 배포 방향
 
 - Supabase: PostgreSQL·Auth·Storage·PostgREST·필요한 Edge Functions
