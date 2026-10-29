@@ -86,7 +86,8 @@ React Native / Expo
 | `owner_id` | `uuid` | `profiles.id` FK, not null |
 | `title` | `text` | nullable, 길이 제한 |
 | `content` | `text` | nullable, 길이 제한 |
-| `travel_date` | `date` | not null |
+| `start_date` | `date` | not null, `end_date` 이하 |
+| `end_date` | `date` | not null, `start_date` 이상 |
 | `location_id` | `uuid` | `locations.id` FK, not null |
 | `visibility` | `text` | `private` 또는 `public`, 기본 `private` |
 | `created_at` | `timestamptz` | 서버 기본값 |
@@ -116,11 +117,15 @@ React Native / Expo
 
 ### 3.5 필수 조건과 인덱스
 
-- 여행 기록 생성은 하나 이상의 사진, `travel_date`, `location_id`가 준비된 경우에만 완료한다.
+- 여행 기록 생성은 하나 이상의 사진, `start_date`, `end_date`, `location_id`가 준비된 경우에만 완료한다.
+- `start_date <= end_date` check constraint를 적용한다.
+- 유효한 사진 촬영일이 있으면 최소 날짜를 `start_date`, 최대 날짜를 `end_date`로 계산한다.
+- 유효한 사진 촬영일이 모두 없으면 사용자가 `start_date`와 `end_date`를 직접 입력한다.
+- 대표 `location_id`는 첫 번째 업로드 사진의 위치를 우선 사용한다. 첫 사진 위치가 없으면 수동 위치 입력 전까지 기록을 완료하지 않는다.
 - `photos.is_cover = true`에 대해 `travel_record_id`별 부분 unique index를 생성해 대표사진을 최대 한 장으로 제한한다.
 - 대표사진을 선택하지 않으면 첫 번째 업로드 사진을 대표사진으로 지정한다.
-- `travel_records(owner_id, travel_date)`를 생성해 사용자별 날짜 필터를 지원한다.
-- `travel_records(visibility, travel_date)`를 생성해 공개 기록 날짜 필터를 지원한다.
+- `travel_records(owner_id, start_date, end_date)`를 생성해 사용자별 기간 필터를 지원한다.
+- `travel_records(visibility, start_date, end_date)`를 생성해 공개 기록 기간 필터를 지원한다.
 - `locations(country_code, region_name, city_name)`을 생성해 지역 필터를 지원한다.
 - `photos(travel_record_id, is_cover)`를 생성해 대표사진 조회를 지원한다.
 - 사진 최소 한 장 조건은 일반 FK만으로 보장되지 않으므로 생성 흐름의 완료 상태 검증 또는 서버 측 검증으로 보장한다.
@@ -150,7 +155,7 @@ travel_records N ── 1 locations
 ### `travel_records`
 
 - `select`: 소유자이거나 `visibility = public`
-- `insert`: `owner_id = auth.uid()`이며 `travel_date`와 `location_id`가 존재해야 한다.
+- `insert`: `owner_id = auth.uid()`이며 `start_date`, `end_date`, `location_id`가 존재해야 한다.
 - `update`: `owner_id = auth.uid()`
 - `delete`: `owner_id = auth.uid()`
 
@@ -177,7 +182,7 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 | 삭제 | `DELETE /rest/v1/travel_records?id=eq.{id}` | 소유자만 |
 | 사진 조회 | `GET /rest/v1/photos?travel_record_id=eq.{id}` | 기록 RLS 적용 |
 | 위치 생성 | `POST /rest/v1/locations` | 인증 사용자 |
-| 날짜 필터 | `GET /rest/v1/travel_records?travel_date=eq.{date}` | RLS 적용 |
+| 기간 필터 | `GET /rest/v1/travel_records?start_date=lte.{date}&end_date=gte.{date}` | 지정일을 포함하는 기록, RLS 적용 |
 | 공개 기록 지역 필터 | `GET /rest/v1/travel_records?visibility=eq.public&select=*,locations!inner(*)&locations.region_name=eq.{region}` | 공개 기록·지역 조건을 모두 적용 |
 
 클라이언트에는 `anon key`만 제공한다. service role key는 절대 노출하지 않는다.
@@ -206,15 +211,18 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 1. 클라이언트가 사진을 선택한다.
 2. Android/iOS에서 EXIF를 읽고 웹에서는 업로드 가능한 `File`을 확보한다.
 3. 촬영일·GPS가 있으면 초깃값으로 표시한다.
-4. 사용자가 값을 수정하거나 지도에서 위치를 선택한다.
-5. 원본과 썸네일을 Storage에 업로드한다.
-6. 사진 메타데이터와 여행 기록을 저장한다.
+4. 사진들의 촬영일 중 최소·최대 날짜를 여행 기간 초깃값으로 적용한다.
+5. 첫 번째 사진의 위치를 대표 위치 초깃값으로 적용한다.
+6. 사용자가 값을 수정하거나 지도에서 위치를 선택한다.
+7. 원본과 압축 썸네일을 Storage에 업로드한다.
+8. 사진 메타데이터와 여행 기록을 저장한다.
 
 정책:
 
 - EXIF GPS가 없으면 실패가 아니라 `null`로 처리한다.
 - iOS·메신저·편집 앱에서 GPS가 제거될 수 있음을 고려한다.
 - 최종 여행 위치는 수동 입력값을 우선한다.
+- 첫 번째 사진에 위치가 있으면 대표 위치의 기본값으로 사용한다. 다른 사진 위치는 사진별 EXIF 정보로만 보존한다.
 - 원본 EXIF를 별도 보존할지 여부는 개인정보 검토 후 결정하며, MVP에서는 필요한 필드만 저장한다.
 
 ## 9. 인증·지도 연동
@@ -268,16 +276,61 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 
 ### 백엔드: Vitest + Supabase Local
 
+#### 인증·프로필
+
+- Google OAuth 인증 후 Supabase 사용자 ID와 `profiles.id`가 일치하는지 확인
 - 인증 없는 요청 차단
-- 소유자 CRUD 성공
-- 타인 수정·삭제 차단
-- 비공개 기록 타인 조회 차단
-- 공개 기록 타인 조회 허용
-- 사진 메타데이터 null 허용
-- 위도·경도 범위 검증
-- Storage 경로 소유권 검증
-- 기록 삭제 후 사진 DB 관계 정리
-- 업로드 실패 후 재시도·고아 파일 처리
+- 잘못된 사용자 ID 또는 위조된 `owner_id` 차단
+
+#### 사진·Storage
+
+- 인증 사용자가 여러 사진을 업로드할 수 있는지 확인
+- 원본과 압축 썸네일이 Storage에 생성되는지 확인
+- 압축 후 허용 MIME type·파일 크기·이미지 크기가 저장되는지 확인
+- 사진 원본·썸네일 경로와 `photos` 레코드가 연결되는지 확인
+- EXIF 촬영일·GPS·이미지 크기·MIME type·파일 크기 조회 및 저장
+- EXIF 값이 없는 사진에서 nullable 메타데이터와 수동 입력을 허용
+- Storage 경로의 소유권 검증
+- Storage 업로드 실패 시 DB 레코드가 완료 상태로 남지 않는지 확인
+- DB 저장 실패 시 Storage 고아 파일 정리 대상이 되는지 확인
+
+#### 여행 기록 생성·집계
+
+- 사진이 0장인 여행 기록 생성을 차단
+- 제목 없이도 여행 기록 생성
+- `start_date`와 `end_date`가 모두 저장되는지 확인
+- 여러 사진의 촬영일 중 최소·최대 날짜가 여행 기간으로 집계되는지 확인
+- 촬영일이 없는 사진만 있을 때 수동 시작일·종료일을 허용
+- 일부 사진에만 촬영일이 있을 때 유효한 날짜만 집계
+- 첫 번째 사진 위치가 대표 `location_id`로 적용되는지 확인
+- 첫 번째 사진 위치가 없을 때 자동으로 다른 사진 위치를 사용하지 않고 수동 위치를 요구
+- 위도·경도 범위 및 `start_date <= end_date` 검증
+- 대표사진 미지정 시 첫 사진이 `is_cover = true`가 되는지 확인
+- 한 여행 기록에 대표사진이 두 개 이상 저장되지 않는지 확인
+
+#### RLS·조회
+
+- 소유자의 여행 기록 CRUD 성공
+- 소유자가 자신의 ID로 여행 기록·사진·위치 정보를 조회
+- 타인의 비공개 기록과 연결 사진 조회 차단
+- 타인의 공개 기록과 연결 사진 조회 허용
+- 다른 사용자가 타인의 기록을 수정·삭제하지 못하는지 확인
+- 다른 사용자 ID를 요청해도 전체 DB가 노출되지 않는지 확인
+- 날짜 범위 필터가 올바른 기록만 반환하는지 확인
+- 지역 필터가 올바른 기록만 반환하는지 확인
+
+#### 관계·삭제
+
+- 기록 삭제 후 연결된 `photos` DB 레코드가 cascade 삭제
+- 기록 삭제 후 원본·썸네일 Storage 파일 삭제 요청이 발생
+- 위치가 여러 기록에서 공유될 때 기록 삭제가 위치를 임의로 삭제하지 않는지 확인
+- 삭제 중 일부 실패가 발생해도 고아 파일 정리 대상으로 추적되는지 확인
+
+#### 외부 API 경계
+
+- Google Maps 장소 검색·Geocoding 호출은 외부 API 통합 테스트 또는 mock으로 분리
+- Google Maps API key 오류·쿼터 초과를 `EXTERNAL_SERVICE_ERROR`로 변환
+- Google OAuth 자체 성공 여부는 provider 설정 검증으로 확인하고, DB 테스트에서는 발급된 Supabase 세션을 사용
 
 TDD 순서:
 

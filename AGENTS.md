@@ -16,7 +16,7 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 ### DB 핵심 구조 규칙
 
 - `profiles`는 Supabase Auth 사용자와 1:1로 연결한다.
-- `travel_records`는 `owner_id`, 필수 `travel_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 상태를 가진다.
+- `travel_records`는 `owner_id`, 필수 `start_date`·`end_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 상태를 가진다.
 - `locations`는 위도·경도와 장소명, Google 장소 ID, 국가·지역·도시 필드를 저장해 지도 표시와 지역 필터를 지원한다.
 - `photos`는 여행 기록에 여러 장 연결하고 원본·썸네일 경로, EXIF 메타데이터, `is_cover`, `display_order`를 저장한다.
 - 여행 기록은 사진을 하나 이상 가져야 하며, 대표사진은 기록별 최대 하나만 허용한다.
@@ -185,8 +185,10 @@ adb logcat
 1. `docs/REQUIREMENT.md`: 요구사항 ID와 수용 기준의 기준 문서
 2. `docs/PRD.md`: 사용자 흐름, 제품 정책, MVP 범위
 3. `docs/TRD.md`: 데이터 모델, API, RLS, 환경변수, 테스트 계약
-4. `AGENTS.md`: 작업 규칙, 명령어, 보안·검증 절차
-5. `.env.example`: 환경변수 이름 또는 서비스 구성이 바뀐 경우
+4. `docs/TEST_CASE.md`: 요구사항과 기술 계약을 검증하는 백엔드 테스트 케이스
+5. `docs/API_SPEC.md`: 클라이언트가 사용하는 엔드포인트·요청·응답·권한 계약
+6. `AGENTS.md`: 작업 규칙, 명령어, 보안·검증 절차
+7. `.env.example`: 환경변수 이름 또는 서비스 구성이 바뀐 경우
 
 문서 변경 시 다음 항목을 확인한다.
 
@@ -196,6 +198,8 @@ adb logcat
 - `private`·`public`, 테이블명, Storage bucket명이 일치하는가
 - 환경변수명이 TRD와 `.env.example`에서 일치하는가
 - 테스트 케이스가 변경된 요구사항을 검증하는가
+- `docs/TEST_CASE.md`의 백엔드 테스트 케이스가 변경된 데이터·권한·API 규칙을 검증하는가
+- `docs/API_SPEC.md`의 엔드포인트·필드·권한·오류 코드가 TRD와 일치하는가
 - 비용·보안·개인정보 영향이 반영되었는가
 
 문서 동기화가 완료되기 전에는 관련 구현 코드를 수정하지 않는다.
@@ -212,7 +216,7 @@ adb logcat
 
 ## 테스트 규칙
 
-- 백엔드 핵심 도메인과 권한은 Vitest와 Supabase Local로 테스트한다.
+- 백엔드 핵심 도메인과 권한은 Vitest와 Supabase Local로 테스트한다. 사진 일자 집계, 첫 사진 위치 적용, 사진·Storage 일관성, RLS 공개 범위를 반드시 검증한다.
 - 웹 UI와 브라우저 흐름은 Playwright와 Expo Web으로 테스트한다.
 - 카메라·갤러리·GPS·Android OAuth 딥링크·네이티브 지도는 Android Studio와 실제 기기로 테스트한다.
 - TDD 순서는 실패하는 테스트 작성 → 최소 구현 → 통과 확인 → 리팩터링이다.
