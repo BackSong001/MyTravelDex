@@ -19,6 +19,7 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 - `travel_records`는 `owner_id`, 필수 `start_date`·`end_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 상태를 가진다.
 - `locations`는 위도·경도와 장소명, Google 장소 ID, 국가·지역·도시 필드를 저장해 지도 표시와 지역 필터를 지원한다.
 - `photos`는 여행 기록에 여러 장 연결하고 원본·썸네일 경로, EXIF 메타데이터, `is_cover`, `display_order`를 저장한다.
+- MVP 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행하고, 서버 측 이미지 처리는 필요한 경우에만 Edge Function으로 추가한다.
 - 여행 기록은 사진을 하나 이상 가져야 하며, 대표사진은 기록별 최대 하나만 허용한다.
 - 사진·여행 기록·Storage 파일의 소유권은 `owner_id`와 RLS 정책으로 검증한다.
 

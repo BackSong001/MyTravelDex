@@ -403,8 +403,10 @@ POST /storage/v1/object/travel-photos/{owner_id}/{travel_record_id}/{photo_id}/t
 
 **작업**:
 
-- 원본 이미지와 압축 썸네일을 Storage에 저장한다.
+- Expo 클라이언트가 생성한 원본 이미지와 압축 썸네일을 Storage에 저장한다.
 - 업로드 후 해당 경로를 `photos.original_path`, `photos.thumbnail_path`에 저장한다.
+
+**MVP 처리 주체**: 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행한다. 이 엔드포인트는 압축 결과를 저장하는 역할을 하며, 서버 측 이미지 변환은 필수 처리로 간주하지 않는다.
 
 **필수 헤더**:
 
@@ -485,7 +487,7 @@ MVP에서는 Places API (New) 또는 플랫폼별 Places SDK를 사용한다.
 
 ## 9. Edge Function 후보 엔드포인트
 
-다음 엔드포인트는 일반 CRUD가 아닌 서버 전용 처리가 필요할 때만 구현한다. 현재 문서는 후보 정의이며 실제 함수는 아직 작성하지 않는다.
+다음 엔드포인트는 일반 CRUD가 아닌 서버 전용 처리가 필요할 때만 구현한다. 현재 문서는 후보 정의이며 MVP에 필수로 배포하지 않는다.
 
 ### 9.1 사진 처리
 
@@ -500,6 +502,8 @@ POST /functions/v1/process-photo
 - 썸네일 생성
 - `photos` 메타데이터 저장
 - 실패한 Storage 파일 정리
+
+MVP에서는 이 함수 대신 Expo 클라이언트가 압축·썸네일 생성을 수행한다. 클라이언트 결과를 신뢰할 수 없거나 서버 표준화가 필요해질 때만 배포한다.
 
 ### 9.2 위치 보완
 
