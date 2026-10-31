@@ -1,0 +1,4 @@
+interface:
+  display_name: "MyTravelDex Prompt History"
+  short_description: "MyTravelDex 작업 이력을 docs/prompts.md에 기록"
+  default_prompt: "이 작업을 수행하고 프롬프트 요약, 답변 결과 요약, 변경 파일을 docs/prompts.md에 기록해줘."
