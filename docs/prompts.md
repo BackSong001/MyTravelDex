@@ -2,6 +2,26 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+## 2026-11-06 18:59 KST — 커밋 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 로그인 오류 재현·Expo 개발 환경값 우선순위 원인·--no-dev 실행 검증 이력을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 이번 변경은 문서 이력뿐이며 제품 코드 수정이나 테스트 재실행은 없다. 서버 실행 옵션은 Git 변경에 포함되지 않고 storyboard.png는 그대로 유지한다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`
+
+## 2026-11-06 18:59 KST
+
+프롬프트 원문:
+
+> 너가 직접 테스트해줘
+
+답변·결과 요약: 실제 UI에서 Google 로그인 버튼을 눌러 Android Expo Go 및 웹 8082·8083 개발 모드의 동일 오류를 재현했다. 기존 8083 서버 프로세스에는 원격 환경값이 있었지만 Expo 개발용 virtual env가 frontend/.env.local 값을 우선 병합해 브라우저 요청은 Local API 54321·google false였다. 제품 코드·환경 파일 수정 없이 직접 실행한 8083 서버만 --no-dev로 재시작한 뒤 원격 Auth settings HTTP 200·google true 및 Google 계정 입력 화면 진입을 실제 테스트 브라우저로 확인했다. 이전에 8083이 원격에 연결되었다고 안내한 확인 범위가 부족했음을 정정했다. 실제 Google 계정 입력·동의·복귀 완료는 미검증이며 Android 기존 로컬 실행은 그대로다.
+
+변경 파일: `docs/prompts.md`만 테스트 이력으로 갱신했다. 제품 코드·Supabase 설정·실제 .env·frontend/.env.local·사용자 storyboard.png는 수정하지 않았다. 화면 증거는 /tmp/google-login-local-error.png 및 /tmp/google-login-configured-no-dev.png에 저장했다. 서버 실행 옵션만 변경했으며 Git 커밋·푸시는 수행하지 않았다.
+
 ## 2026-11-06 18:46 KST
 
 프롬프트 원문:
