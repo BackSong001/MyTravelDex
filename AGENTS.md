@@ -16,12 +16,14 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 ### DB 핵심 구조 규칙
 
 - `profiles`는 Supabase Auth 사용자와 1:1로 연결한다.
-- `travel_records`는 `owner_id`, 필수 `start_date`·`end_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 상태를 가진다.
+- `travel_records`는 `owner_id`, 필수 `start_date`·`end_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 공개 상태, `draft`·`complete` 생성 상태를 가진다.
 - `locations`는 위도·경도와 장소명, Google 장소 ID, 국가·지역·도시 필드를 저장해 지도 표시와 지역 필터를 지원한다.
 - `photos`는 여행 기록에 여러 장 연결하고 원본·썸네일 경로, EXIF 메타데이터, `is_cover`, `display_order`를 저장한다.
 - MVP 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행하고, 서버 측 이미지 처리는 필요한 경우에만 Edge Function으로 추가한다.
 - 여행 기록은 사진을 하나 이상 가져야 하며, 대표사진은 기록별 최대 하나만 허용한다.
+- 사진 업로드 중인 `draft`는 소유자에게만 보이고, 사진·기간·대표 위치·대표사진 검증 후 `complete`로 전환한다.
 - 사진·여행 기록·Storage 파일의 소유권은 `owner_id`와 RLS 정책으로 검증한다.
+- 완료된 공개 기록은 비로그인·로그인 사용자에게 조회할 수 있지만, 공개 응답에서 원본 경로와 EXIF 정밀 위치를 제외한다.
 
 ## 기술 스택
 
@@ -219,11 +221,13 @@ adb logcat
 
 1. REQUIREMENT의 기능·비기능 요구사항을 확정한다.
 2. PRD의 사용자 흐름과 MVP 수용 기준을 갱신한다.
-3. TRD의 데이터·API·RLS·환경변수·테스트 계약을 갱신한다.
-4. Supabase Local과 TDD 테스트로 백엔드를 검증한다.
-5. Playwright로 웹 테스트를 진행한다.
-6. Android Studio Emulator와 실제 기기로 네이티브 기능을 검증한다.
-7. 세 문서와 환경변수 샘플의 일관성을 재검토한다.
+3. TRD의 데이터·API·RLS·환경변수·상태 전이 계약을 갱신한다.
+4. API_SPEC와 TEST_CASE의 요청·응답·권한·오류 검증을 갱신한다.
+5. README·README.local·planning·`.env.example`의 범위와 링크 영향을 확인한다.
+6. Supabase Local과 TDD 테스트로 백엔드를 검증한다.
+7. Playwright로 웹 테스트를 진행한다.
+8. Android Studio Emulator와 실제 기기로 네이티브 기능을 검증한다.
+9. 모든 문서와 환경변수 샘플의 일관성을 재검토한다.
 
 ## 테스트 규칙
 

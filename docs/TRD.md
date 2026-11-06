@@ -90,6 +90,7 @@ React Native / Expo
 | `end_date` | `date` | not null, `start_date` 이상 |
 | `location_id` | `uuid` | `locations.id` FK, not null |
 | `visibility` | `text` | `private` 또는 `public`, 기본 `private` |
+| `status` | `text` | `draft` 또는 `complete`, 기본 `draft` |
 | `created_at` | `timestamptz` | 서버 기본값 |
 | `updated_at` | `timestamptz` | 변경 시 갱신 |
 
@@ -117,7 +118,8 @@ React Native / Expo
 
 ### 3.5 필수 조건과 인덱스
 
-- 여행 기록 생성은 하나 이상의 사진, `start_date`, `end_date`, `location_id`가 준비된 경우에만 완료한다.
+- 여행 기록은 먼저 `draft`로 생성하고, 사진 하나 이상·`start_date`·`end_date`·`location_id`가 준비된 경우에만 원자적으로 `complete`로 전환한다.
+- `draft`는 소유자에게만 조회되며 공개 목록·공개 상세에는 반환하지 않는다.
 - `start_date <= end_date` check constraint를 적용한다.
 - 유효한 사진 촬영일이 있으면 최소 날짜를 `start_date`, 최대 날짜를 `end_date`로 계산한다.
 - 유효한 사진 촬영일이 모두 없으면 사용자가 `start_date`와 `end_date`를 직접 입력한다.
@@ -126,9 +128,10 @@ React Native / Expo
 - 대표사진을 선택하지 않으면 첫 번째 업로드 사진을 대표사진으로 지정한다.
 - `travel_records(owner_id, start_date, end_date)`를 생성해 사용자별 기간 필터를 지원한다.
 - `travel_records(visibility, start_date, end_date)`를 생성해 공개 기록 기간 필터를 지원한다.
+- `travel_records(status, visibility, start_date, end_date)`를 생성해 완료된 공개 기록 필터를 지원한다.
 - `locations(country_code, region_name, city_name)`을 생성해 지역 필터를 지원한다.
 - `photos(travel_record_id, is_cover)`를 생성해 대표사진 조회를 지원한다.
-- 사진 최소 한 장 조건은 일반 FK만으로 보장되지 않으므로 생성 흐름의 완료 상태 검증 또는 서버 측 검증으로 보장한다.
+- 사진 최소 한 장 조건은 일반 FK만으로 보장되지 않으므로 `finalize_travel_record` DB 함수에서 잠금·검증·상태 전환을 한 트랜잭션으로 처리한다.
 
 ## 4. 관계와 삭제 정책
 
@@ -154,10 +157,12 @@ travel_records N ── 1 locations
 
 ### `travel_records`
 
-- `select`: 소유자이거나 `visibility = public`
-- `insert`: `owner_id = auth.uid()`이며 `start_date`, `end_date`, `location_id`가 존재해야 한다.
+- `select`: 소유자이거나 `status = complete AND visibility = public`
+- `insert`: `owner_id = auth.uid()`이고 생성 상태는 `draft`다.
 - `update`: `owner_id = auth.uid()`
 - `delete`: `owner_id = auth.uid()`
+
+완료 전환은 일반 `PATCH`로 허용하지 않고 `finalize_travel_record(record_id)` 함수가 필수값·사진 수·대표사진을 검증한 뒤 수행한다.
 
 ### `photos`
 
@@ -166,6 +171,8 @@ travel_records N ── 1 locations
 - `update`: 소유자만
 - `delete`: 소유자만
 - `is_cover = true`인 사진은 연결된 여행 기록별 하나만 허용한다.
+
+공개 사진 응답은 `public_photos` 조회 계약으로 제한한다. 이 응답에는 `id`, `travel_record_id`, `thumbnail_path`, `is_cover`, `display_order`, `captured_at`만 포함하고 `original_path`, `exif_latitude`, `exif_longitude`는 포함하지 않는다.
 
 RLS 우회가 필요한 서버 작업은 service role key를 Edge Function 내부에서만 사용한다.
 
@@ -183,7 +190,8 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 | 사진 조회 | `GET /rest/v1/photos?travel_record_id=eq.{id}` | 기록 RLS 적용 |
 | 위치 생성 | `POST /rest/v1/locations` | 인증 사용자 |
 | 기간 필터 | `GET /rest/v1/travel_records?start_date=lte.{date}&end_date=gte.{date}` | 지정일을 포함하는 기록, RLS 적용 |
-| 공개 기록 지역 필터 | `GET /rest/v1/travel_records?visibility=eq.public&select=*,locations!inner(*)&locations.region_name=eq.{region}` | 공개 기록·지역 조건을 모두 적용 |
+| 공개 기록 지역 필터 | `GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=...&locations.region_name=eq.{region}` | 완료된 공개 기록·지역 조건을 모두 적용 |
+| 기록 완료 | `POST /rest/v1/rpc/finalize_travel_record` | 소유자, 필수값·사진·대표사진 검증 후 `complete` 전환 |
 
 클라이언트에는 `anon key`만 제공한다. service role key는 절대 노출하지 않는다.
 
@@ -204,6 +212,8 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 - MIME type과 파일 크기를 검증한다.
 - 목록에서는 썸네일 signed URL을 사용한다.
 - 공개 기록의 파일만 공개 조회 정책에 따라 제공한다.
+- 공개 기록은 썸네일만 공개 응답에 포함하고 원본은 signed URL 또는 인증 접근으로 제한한다.
+- 공개 사진 조회는 `public_photos` view 또는 동등한 allowlist 계약을 사용해 EXIF 정밀 좌표와 원본 경로를 반환하지 않는다.
 - 비공개 기록 파일은 소유자 인증 또는 짧은 만료시간의 signed URL로 제공한다.
 
 ## 8. 사진·EXIF 처리

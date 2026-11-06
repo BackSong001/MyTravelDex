@@ -94,7 +94,11 @@ Production 배포 전에는 migration, RLS, Storage 접근 정책, OAuth Redirec
 - [요구사항 명세](docs/REQUIREMENT.md)
 - [제품 요구사항](docs/PRD.md)
 - [기술 요구사항](docs/TRD.md)
+- [API 명세](docs/API_SPEC.md)
+- [백엔드 테스트 케이스](docs/TEST_CASE.md)
+- [제품 아이디어·후속 기획](docs/planning.md)
 - [개발·운영 규칙](AGENTS.md)
 - [팀 개발 가이드](README.local.md)
+- [프롬프트·작업 이력](docs/prompts.md)
 
-요구사항이 변경되면 REQUIREMENT → PRD → TRD → AGENTS → `.env.example` 순서로 관련 문서를 함께 갱신한다.
+MVP 계약은 `REQUIREMENT → PRD → TRD → API_SPEC → TEST_CASE` 순서로 갱신하고, 범위·운영 문서(`AGENTS`, `README`, `README.local`, `planning`, `.env.example`)의 영향을 함께 확인한다. 여행 기록은 사진 업로드 중 `draft`, 필수 조건 검증 후 `complete` 상태가 된다.

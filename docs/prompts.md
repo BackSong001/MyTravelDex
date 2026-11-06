@@ -2,6 +2,8 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+| 2026-11-06 14:56 KST | 현재 작성된 모든 문서랑 요구사항을 파악하고 ponytail을 이용해서 보완해줘 | 전체 문서의 MVP 계약을 대조하고 `draft → complete` 상태 전이, 공개 응답 개인정보 제한, 문서 간 링크·테스트 계약을 보완했다. | 변경 파일: `AGENTS.md`, `README.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/planning.md`, `docs/prompts.md` |
+
 ## 2026-10-27 14:01 KST
 
 프롬프트 원문:

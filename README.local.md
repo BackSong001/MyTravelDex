@@ -12,6 +12,8 @@ MVP 공개 정책은 다음과 같다.
 - `public`: 다른 사용자는 조회 가능, 수정·삭제는 작성자만 가능
 - 친구·팔로워·링크 전용 공유는 후속 기능
 
+여행 기록은 사진 업로드 중 `draft`로 유지하고, 사진·기간·대표 위치·대표사진 검증 후 `complete`로 전환한다. 완료된 공개 기록만 비로그인·로그인 사용자에게 조회되며, 공개 응답에는 원본 경로와 EXIF 정밀 좌표를 포함하지 않는다.
+
 ## 기술 스택
 
 - **Frontend**: React Native, Expo, TypeScript, Expo Router
@@ -97,6 +99,7 @@ profiles
 | `end_date` | 여행 종료일, 필수 |
 | `location_id` | 대표 위치 ID, 필수 |
 | `visibility` | `private` 또는 `public`, 기본 `private` |
+| `status` | `draft` 또는 `complete`, 기본 `draft` |
 | `created_at` | 생성일 |
 | `updated_at` | 수정일 |
 

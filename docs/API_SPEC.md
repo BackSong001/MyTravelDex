@@ -163,13 +163,20 @@ GET /rest/v1/locations?id=eq.{location_id}&select=*
 ### 5.1 여행 기록 목록 조회
 
 ```http
-GET /rest/v1/travel_records?select=*,locations(*),photos(*)&order=start_date.desc
+GET /rest/v1/travel_records?owner_id=eq.{session_user_id}&select=*,locations(*),photos(*)&order=start_date.desc
+```
+
+공개 목록은 다음 allowlist 조회를 사용한다.
+
+```http
+GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=id,title,content,start_date,end_date,location_id,created_at,updated_at,locations(id,place_name,country_name,region_name,city_name),public_photos(id,travel_record_id,thumbnail_path,is_cover,display_order,captured_at)&order=start_date.desc
 ```
 
 **작업**:
 
 - 소유자의 비공개·공개 기록을 조회한다.
-- 다른 사용자는 공개 기록만 조회한다.
+- 소유자는 `draft`도 조회해 업로드를 재개할 수 있다.
+- 다른 사용자와 비로그인 사용자는 `status = complete AND visibility = public`인 기록만 조회한다.
 - 응답에 대표 위치와 연결 사진을 포함할 수 있다.
 
 **권한**: RLS 적용
@@ -177,7 +184,7 @@ GET /rest/v1/travel_records?select=*,locations(*),photos(*)&order=start_date.des
 ### 5.2 여행 기록 상세 조회
 
 ```http
-GET /rest/v1/travel_records?id=eq.{travel_record_id}&select=*,locations(*),photos(*)
+GET /rest/v1/travel_records?id=eq.{travel_record_id}&owner_id=eq.{session_user_id}&select=*,locations(*),photos(*)
 ```
 
 **작업**: 여행 기록, 대표 위치, 연결 사진을 함께 조회한다.
@@ -186,6 +193,10 @@ GET /rest/v1/travel_records?id=eq.{travel_record_id}&select=*,locations(*),photo
 
 - 소유자: 본인 기록 조회
 - 타인: `visibility = public`인 기록만 조회
+
+소유자가 업로드를 재개하는 `draft` 상세 조회는 `owner_id=eq.{session_user_id}` 조건을 사용하며 타인에게 허용하지 않는다.
+
+타인·비로그인 공개 상세는 `status=eq.complete&visibility=eq.public`과 `public_photos(*)` allowlist를 사용해 조회한다.
 
 ### 5.3 여행 기록 생성
 
@@ -203,7 +214,8 @@ POST /rest/v1/travel_records
   "start_date": "2026-01-10",
   "end_date": "2026-01-15",
   "location_id": "location-uuid",
-  "visibility": "private"
+  "visibility": "private",
+  "status": "draft"
 }
 ```
 
@@ -221,9 +233,25 @@ POST /rest/v1/travel_records
 - `title`, `content`는 null을 허용한다.
 - `start_date <= end_date`여야 한다.
 - `visibility`는 `private` 또는 `public`만 허용한다.
-- 완료된 기록은 사진을 하나 이상 가져야 한다.
+- 생성 요청은 `status = draft`로만 허용한다. 클라이언트는 반환된 `id`로 사진을 연결한 뒤 완료 API를 호출한다.
 
 **권한**: 인증 사용자 본인만 생성 가능
+
+### 5.3.1 여행 기록 완료
+
+```http
+POST /rest/v1/rpc/finalize_travel_record
+```
+
+요청 예시:
+
+```json
+{
+  "record_id": "travel-record-uuid"
+}
+```
+
+함수는 소유자만 호출할 수 있으며, 연결 사진이 하나 이상이고 `start_date`, `end_date`, `location_id` 및 대표사진이 준비된 경우에만 `status`를 `complete`로 전환한다. 검증 실패 시 상태를 바꾸지 않는다.
 
 ### 5.4 여행 기록 수정
 
@@ -265,13 +293,13 @@ DELETE /rest/v1/travel_records?id=eq.{travel_record_id}
 특정 날짜를 포함하는 여행 기록:
 
 ```http
-GET /rest/v1/travel_records?start_date=lte.2026-01-12&end_date=gte.2026-01-12
+GET /rest/v1/travel_records?status=eq.complete&start_date=lte.2026-01-12&end_date=gte.2026-01-12
 ```
 
 기간과 겹치는 기록을 조회할 때:
 
 ```http
-GET /rest/v1/travel_records?start_date=lte.2026-01-20&end_date=gte.2026-01-10
+GET /rest/v1/travel_records?status=eq.complete&start_date=lte.2026-01-20&end_date=gte.2026-01-10
 ```
 
 **작업**: 여행도감과 여행지도에서 날짜 기준 필터를 제공한다.
@@ -281,10 +309,12 @@ GET /rest/v1/travel_records?start_date=lte.2026-01-20&end_date=gte.2026-01-10
 ### 5.7 지역으로 공개 여행 기록 조회
 
 ```http
-GET /rest/v1/travel_records?visibility=eq.public&select=*,locations!inner(*)&locations.region_name=eq.제주특별자치도
+GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=id,title,content,start_date,end_date,location_id,created_at,updated_at,locations(id,place_name,country_name,region_name,city_name),public_photos(id,travel_record_id,thumbnail_path,is_cover,display_order,captured_at)&locations.region_name=eq.제주특별자치도
 ```
 
-**작업**: 공개 상태이며 지정 지역에 속한 여행 기록을 조회한다.
+**작업**: 완료된 공개 상태이며 지정 지역에 속한 여행 기록과 썸네일을 조회한다.
+
+공개 응답에는 원본 Storage 경로와 사진 EXIF 정밀 좌표를 포함하지 않는다. 공개 사진 조회는 `public_photos` view 또는 동등한 allowlist 계약을 사용한다.
 
 **권한**: 공개 기록만 허용
 
@@ -325,6 +355,14 @@ GET /rest/v1/photos?travel_record_id=eq.{travel_record_id}&select=*&order=displa
 
 - 소유자: 본인 기록의 사진 조회
 - 타인: 공개 기록의 사진만 조회
+
+비로그인 사용자와 타인의 공개 사진 조회는 다음 allowlist를 사용한다.
+
+```http
+GET /rest/v1/public_photos?travel_record_id=eq.{travel_record_id}&select=id,travel_record_id,thumbnail_path,is_cover,display_order,captured_at&order=display_order.asc
+```
+
+`original_path`, `exif_latitude`, `exif_longitude`는 소유자 조회에서만 반환한다.
 
 ### 6.2 사진 메타데이터 생성
 
@@ -432,7 +470,7 @@ POST /storage/v1/object/sign/travel-photos/{path}
 }
 ```
 
-**작업**: 소유자 또는 공개 기록에 연결된 파일에 임시 접근 URL을 발급한다.
+**작업**: 소유자의 원본·썸네일 또는 공개 기록의 썸네일에만 임시 접근 URL을 발급한다. 공개 기록의 원본에는 발급하지 않는다.
 
 **권한**: Storage 정책과 연결 여행 기록의 공개 상태 적용
 
