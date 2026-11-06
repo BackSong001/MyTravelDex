@@ -2,6 +2,16 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+## 2026-11-06 15:45 KST
+
+프롬프트 원문:
+
+> 실패한 red테스트를 green 으로 동작하게끔 구현해줘
+
+답변·결과 요약: 로컬 초기 migration에 프로필 자동 생성·RLS와 인증 테스트에 필요한 기초 관계를 구현하고 인증 4개 및 추가 회귀 2개를 통과시켰다. 사진·Storage 등 후속 기능은 미완성이며 사진 쓰기는 차단했다.
+
+변경 파일: `backend/supabase/migrations/20261106155000_auth_profiles.sql`, `backend/tests/auth.test.ts`, `README.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
 ## 2026-11-06 15:41 KST
 
 프롬프트 원문:

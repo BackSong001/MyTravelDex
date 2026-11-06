@@ -155,7 +155,7 @@ Red는 Playwright로 사용자의 실패/성공 행동을 먼저 작성한다. G
 
 실행 순서: 로컬 Supabase 준비 → 1단계 Red/Green/Refactor → 2단계 Red/Green/Refactor → 3단계 Red/Green/Refactor → Android 별도 검증. 도구 설치 전에는 npx 명령이 동작한다고 가정하지 않는다. 로컬 DB reset은 테스트 데이터 삭제를 전제로 로컬 대상 확인 후에만 수행한다.
 
-현재 앱·도메인 migration은 없고 인증·프로필 테스트(`backend/tests/auth.test.ts`)부터 Red를 진행한다. 나머지 TC는 미작성·미실행이다. 손상 이미지·해상도 검증은 서버 콘텐츠 검증 보장이 아니며, 실제 OAuth·Maps·Android 검증에는 별도 환경·기기가 필요하다.
+현재 초기 인증 migration과 인증·프로필 테스트(`backend/tests/auth.test.ts`)가 있다. 나머지 TC는 미작성·미실행이다. 손상 이미지·해상도 검증은 서버 콘텐츠 검증 보장이 아니며, 실제 OAuth·Maps·Android 검증에는 별도 환경·기기가 필요하다.
 
 ## 7. 실행 이력 — 2026-11-06 15:41 KST
 
@@ -175,3 +175,18 @@ Red는 Playwright로 사용자의 실패/성공 행동을 먼저 작성한다. G
 환경 문제는 기능 Red에서 제외했다. 초기 CLI 3.0.0은 Linux 바이너리 패키지 누락, Vitest 5.1.0/Vite 8 조합은 테스트 수집 전 `Bus error`로 실행되지 않았다. 실행 가능한 CLI 2.122.1·Vitest 4.1.12·Vite 7.3.7로 고정했고 `npm audit`는 취약점 0건이다. 서버 준비 전 시도는 suite setup 오류·4 skipped였으며 기능 실패로 집계하지 않는다.
 
 다음 순서: profiles·Auth 연결·RLS 최소 구현(Green) → 같은 인증 묶음 재실행 → 도달하지 못한 권한 계약 해결 → 인증 묶음 통과 유지 리팩터링 → 사진·Storage 묶음 Red. 이번 요청은 인증 묶음 Red까지만 수행했다.
+
+## 8. 실행 이력 — 2026-11-06 15:45 KST
+
+로컬 Supabase 기동 후 `npx supabase migration up --local --workdir backend`로 초기 migration을 적용하고 `npm run test:auth`를 실행했다. DB reset이나 원격 배포는 수행하지 않았다.
+
+| TC | 결과 | 확인 내용 |
+|---|---|---|
+| TC-AUTH-001 | PASS | 두 Auth 사용자와 프로필 1:1 연결, 반복 로그인 후 유지 |
+| TC-AUTH-002 | PASS | 비로그인 쓰기·완료 호출 차단과 프로필 불변 |
+| TC-AUTH-003 | PASS | 타인 owner_id 위조, 기록 owner_id·프로필 id 변경 차단 |
+| TC-AUTH-004 | PASS | 타인·비로그인 프로필 조회·수정 차단 |
+
+추가 회귀 테스트 두 개에서 소유자의 허용 필드 수정, 사진 없는 기록 완료 및 직접 상태 변경 차단도 통과했다. 합계 6 passed·0 failed. 테스트 사용자·위치·기록은 해당 테스트가 생성한 UUID만 정리한다.
+
+초기 migration은 사진 쓰기를 거부하는 안전한 미완성 상태다. Storage 객체 메타데이터 검증·업로드·공개 사진 view·삭제 및 정리 기능·공유 위치 접근은 미구현이며, 나머지 55개 명세 TC와 실제 Google OAuth는 미실행이다. 사진·Storage Red를 작성하고 해당 계약을 완성하기 전에는 운영 배포하지 않는다.

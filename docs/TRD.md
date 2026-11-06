@@ -25,7 +25,7 @@
 
 ### 테스트
 
-현재 Red 테스트 실행 기반은 루트 package.json·package-lock.json과 `backend/tests/auth.test.ts`, `backend/supabase/config.toml`이다. Node.js 24 이상에서 `npm ci` 후 `npm run backend:start`, `npm run test:auth`로 인증 묶음을 실행한다. CLI 2.122.1·Vitest 4.1.12·Vite 7.3.7을 고정하며 도메인 migration은 Green 단계에서 작성한다. 실제 Google 로그인은 별도 TC-EXT-004에서 검증한다.
+현재 테스트 실행 기반은 루트 package.json·package-lock.json과 `backend/tests/auth.test.ts`, `backend/supabase/config.toml`이다. Node.js 24 이상에서 `npm ci`, `npm run backend:start`, `npx supabase migration up --local --workdir backend`, `npm run test:auth` 순으로 실행한다. CLI 2.122.1·Vitest 4.1.12·Vite 7.3.7을 고정한다. 초기 migration은 인증 테스트와 필요한 기초 관계만 구현한다. 사진 쓰기·Storage 검증·공개 사진 view·삭제/정리 RPC 및 공유 위치 접근은 후속 TDD 단계에서 완성해야 하며, 해당 기능 구현·테스트 전 배포하지 않는다. 실제 Google 로그인은 별도 TC-EXT-004에서 검증한다.
 
 - Vitest: 백엔드 도메인·권한·통합 테스트
 - Playwright: 웹 브라우저 E2E 테스트

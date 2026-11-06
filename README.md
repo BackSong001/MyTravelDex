@@ -48,7 +48,7 @@ React Native / Expo
 
 ## 빠른 시작
 
-현재 저장소에는 명세와 인증·프로필 Red 테스트가 있다. 도메인 migration·애플리케이션은 아직 없다. 로컬 테스트에는 Node.js 24 이상·npm·Docker가 필요하고 Supabase CLI·Vitest는 프로젝트 개발 의존성으로 설치한다.
+현재 저장소에는 명세, 인증·프로필 테스트와 해당 Green 단계의 초기 migration이 있다. 사진 업로드·Storage 연동 등 나머지 도메인과 애플리케이션은 아직 구현되지 않았다. 로컬 테스트에는 Node.js 24 이상·npm·Docker가 필요하고 Supabase CLI·Vitest는 프로젝트 개발 의존성으로 설치한다.
 
 - Node.js와 npm
 - Docker
@@ -72,6 +72,7 @@ cp .env.example .env
 ```bash
 npm ci
 npm run backend:start
+npx supabase migration up --local --workdir backend
 npm run test:auth
 npm run backend:stop
 ```

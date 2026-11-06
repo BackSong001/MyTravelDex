@@ -2,7 +2,7 @@
 
 ## 1. 범위와 공통 계약
 
-현재 문서는 구현 전 계약이다. CRUD는 PostgREST·RLS, 원자적 변경은 DB RPC, 파일 정리는 서버 전용 Edge Function을 사용한다. 기본 URL은 `EXPO_PUBLIC_SUPABASE_URL`이며 REST `/rest/v1`, Auth `/auth/v1`, Storage `/storage/v1`를 사용한다.
+이 문서는 목표 계약이며 전체 구현 완료를 의미하지 않는다. 현재 초기 migration은 인증·프로필과 인증 테스트에 필요한 기초 관계만 구현한다. 사진 쓰기는 차단되어 있고 Storage 객체 메타데이터 검증, 공개 사진 view, 삭제/정리 RPC, 공유 위치 접근은 미구현이다. 해당 단계의 테스트 통과 전 배포하지 않는다. CRUD는 PostgREST·RLS, 원자적 변경은 DB RPC, 파일 정리는 서버 전용 Edge Function을 사용한다. 기본 URL은 `EXPO_PUBLIC_SUPABASE_URL`이며 REST `/rest/v1`, Auth `/auth/v1`, Storage `/storage/v1`를 사용한다.
 
 요청에는 `apikey: <anon_key>`를 포함하고 소유자 요청에는 `Authorization: Bearer <access_token>`을 추가한다. JSON은 `Content-Type: application/json`, 생성·수정 결과 조회는 `Prefer: return=representation`을 사용한다. UUID는 실제 UUID로, 필터 값은 URL 인코딩해 전달한다. service role key는 클라이언트에 제공하지 않는다.
 

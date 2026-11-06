@@ -170,3 +170,47 @@ test('TC-AUTH-004: prevents other users and anonymous callers from reading or mo
   }
   expect(await ownProfile()).toEqual(profile);
 });
+
+test('profile owner can update permitted fields without changing identity', async () => {
+  const user = users[0];
+  const changed = await request(`/rest/v1/profiles?id=eq.${user.id}`, user.token, 'PATCH', {
+    display_name: 'Test traveler',
+  });
+  expect(changed.status).toBe(200);
+  expect(changed.data).toHaveLength(1);
+  expect(changed.data[0].id).toBe(user.id);
+  expect(changed.data[0].display_name).toBe('Test traveler');
+});
+
+test('draft cannot be completed without photos or through a direct status update', async () => {
+  const owner = users[0];
+  const location = await request('/rest/v1/locations', owner.token, 'POST', {
+    owner_id: owner.id, latitude: 37.5665, longitude: 126.9780, source: 'manual',
+  });
+  if (location.status === 201 && location.data[0]?.id) locations.push(location.data[0].id);
+  expect(location.status).toBe(201);
+  const created = await request('/rest/v1/travel_records', owner.token, 'POST', {
+    owner_id: owner.id, start_date: '2026-01-10', end_date: '2026-01-10',
+    location_id: location.data[0].id,
+  });
+  if (created.status === 201 && created.data[0]?.id) records.push(created.data[0].id);
+  expect(created.status).toBe(201);
+  const id = created.data[0].id;
+  const photoId = randomUUID();
+  const invalidPhoto = await request('/rest/v1/photos', owner.token, 'POST', {
+    id: photoId, travel_record_id: id, owner_id: owner.id, display_order: 0,
+    original_path: `${owner.id}/${id}/${photoId}/original.jpg`,
+    thumbnail_path: `${owner.id}/${id}/${photoId}/thumbnail.jpg`,
+    width: 1, height: 1, mime_type: 'image/jpeg', file_size_bytes: 1,
+  });
+  expect([400, 401, 403]).toContain(invalidPhoto.status);
+  const photos = await request(`/rest/v1/photos?travel_record_id=eq.${id}`, owner.token);
+  expect(photos.status).toBe(200);
+  expect(photos.data).toEqual([]);
+  expectDenied(await request(`/rest/v1/travel_records?id=eq.${id}`, owner.token, 'PATCH', { status: 'complete' }));
+  const result = await request('/rest/v1/rpc/finalize_travel_record', owner.token, 'POST', { record_id: id });
+  expect(result.status).toBe(400);
+  expect(result.data.code).toBe('23514');
+  const record = await request(`/rest/v1/travel_records?id=eq.${id}`, owner.token);
+  expect(record.data[0].status).toBe('draft');
+});
