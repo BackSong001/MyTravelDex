@@ -2,6 +2,31 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+## 2026-11-06 17:39 KST
+
+프롬프트 원문:
+
+> git 커밋 푸쉬해줘
+
+답변·결과 요약: 여행가방 디자인 문서·UI·OAuth 조정·지도 스타일·회귀 테스트와 원본 디자인 참고 이미지를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 검증은 자동 검사 75개 통과·실제 OAuth 1개 보류이며 이번 요청에서는 테스트를 재실행하지 않았다. 비밀값·환경변수 파일·생성 산출물은 제외하고 커밋·푸시 결과를 Git 상태로 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며, 커밋에는 앞서 작성한 프론트엔드·검증 코드·관련 문서와 `ui_inital.png`를 포함한다.
+
+## 2026-11-06 17:37 KST
+
+프롬프트 원문:
+
+> [Image #1] 를 확인해서 docs/DISAN.md 를 만들어주고, 프론트엔드 초안을 만들어줘. 현재 요구사항은 아래와 같아.
+> 1. 실제 구글 로그인
+> 2. 사진 추가 가능 (supabase 에 사진 저장)
+> 3. 구글 맵 UI 변경
+>
+> 단, 현재 구현된 기능은 통과되어야해
+
+답변·결과 요약: 첨부 `ui_inital.png`의 크림색·코랄색 여행 스크랩북 디자인을 DISAN에 정의하고 백팩 로고·로그인 소개·대표사진 도감·하단 탐색·실제 Google 지도 스타일을 구현했다. 기존 Storage 업로드·RLS·CRUD·초안 복구를 유지했고 기존 69개 검사 및 추가 OAuth 단위 2개·UI 4개가 통과했다(Vitest 56, 웹 19; 실제 OAuth 1개 보류). TypeScript·웹 export·Android 화면·네이티브 지도·자체 빌드 Maps key 설정 전달도 확인했다. 루트 .env의 Supabase 주소가 DNS ENOTFOUND여서 실제 Google 동의와 원격 Storage 검증은 완료하지 못했으며 설정 확인을 요청했다. 비밀값·원격 DB·기존 로컬 테스트 환경은 변경하지 않았다.
+
+변경 파일: `docs/DISAN.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`, `AGENTS.md`, `README.md`, `frontend/app/index.tsx`, `frontend/app/auth/callback.tsx`, `frontend/app.config.ts`, `frontend/src/Journal.tsx`, `frontend/src/theme.ts`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/e2e/travel.spec.ts`, `backend/tests/oauth.test.ts`, `backend/tests/photo.test.ts`。첨부 파일 `ui_inital.png`는 수정하지 않았다.
+
 ## 2026-11-06 16:48 KST
 
 프롬프트 원문:

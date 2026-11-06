@@ -2,6 +2,10 @@
 
 ## 1. 기술 방향
 
+여행가방 화면 초안은 `DISAN.md`를 따른다. 기존 PostgREST·RPC·Storage 계약을 재사용하고 지도 스타일을 Android/Web에서 공유한다. Google OAuth 복귀 코드는 auth 모듈이 교환을 소유하며 웹 callback과 Android 브라우저 복귀가 같은 코드를 중복 교환하지 않도록 한다. Android 인증 검증은 `mytraveldex` scheme을 포함한 자체 앱 빌드에서 수행한다.
+
+백팩 로고와 탐색 아이콘은 SDK 54 호환 `react-native-svg`로 Android/Web에서 동일하게 그린다. 프론트엔드 Auth 단위 검사도 포함하므로 전체 검증 전에는 루트와 `frontend/` 양쪽에서 `npm ci`를 실행한다. 기존 순수 백엔드 인증 테스트는 `npm run test:auth`로 따로 실행할 수 있다.
+
 ### 클라이언트
 
 - React Native

@@ -48,6 +48,8 @@ React Native / Expo
 
 ## 빠른 시작
 
+여행가방 UI 초안과 Google 로그인·사진·지도 연결 조건은 [DISAN.md](docs/DISAN.md)를 참고한다. 앱 표시명은 여행가방이며 기존 패키지와 `mytraveldex` OAuth scheme을 유지한다. 자체 Android 빌드의 Maps key는 `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY`를 설정하면 `frontend/app.config.ts`에서 전달한다. Expo Go 화면 확인과 실제 Google 동의·앱 복귀 검증을 구분한다.
+
 인증·사진·Storage·공개 조회·삭제 RPC와 Expo Android/Web 프로토타입이 구현되어 있다. 자동 검증과 실제 Google OAuth·실기기 수용 검증은 구분한다. 상세 결과와 남은 조건은 `docs/TEST_CASE.md` 마지막 실행 이력을 참고한다. 로컬 개발에는 Node.js 24 이상·npm·Docker가 필요하다.
 
 - Node.js와 npm
@@ -80,6 +82,8 @@ npm run backend:stop
 테스트는 `backend/supabase/config.toml`의 로컬 프로젝트와 `http://127.0.0.1:54321`만 사용하며 실제 `.env`나 원격 키를 읽지 않는다. 최초 실행은 Docker 이미지 다운로드가 필요하다. 로컬 상태에서 읽은 키는 출력·커밋하지 않는다. fixture로 만든 사용자·위치·기록만 정리하며 DB reset은 실행하지 않는다. 의도한 기능 실패와 환경 준비 실패는 `docs/TEST_CASE.md`의 실행 결과에서 구분한다.
 
 사진 테스트는 로컬 서비스와 migration 적용 후 `npx vitest run backend/tests/photo.test.ts`로 실행한다. Edge Function은 별도 터미널에서 `npx supabase functions serve --workdir backend`로 실행한다. `npm test`는 백엔드·HTTP·외부 경계 단위 테스트를 실행한다. 정리 함수는 서버 자격증명으로만 호출할 수 있으며 운영 1분 주기 스케줄과 Secret 등록은 배포 환경에서 별도로 설정해야 한다.
+
+전체 `npm test`에는 프론트엔드 OAuth 조정 검사도 포함된다. 최초 실행 시 루트 `npm ci`와 `npm --prefix frontend ci`를 모두 실행한다. 테스트 계정 인증 통과를 실제 Google OAuth 동의 완료로 해석하지 않는다.
 
 프론트엔드 실행·검증:
 

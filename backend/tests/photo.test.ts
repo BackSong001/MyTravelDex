@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test } from 'vitest';
 import { TravelApi } from '../../frontend/src/api';
-import { suggestRecord, validateRecord, readExif } from '../../frontend/src/domain';
+import { suggestRecord, validateRecord, readExif, validCoordinates } from '../../frontend/src/domain';
 
 const apiUrl = 'http://127.0.0.1:54321';
 // 실제 2×2 JPEG fixture. 이미지 생성·디코딩 검증은 TC-UI-008 범위다.
@@ -350,6 +350,9 @@ test('TC-TRAVEL-004: ignores missing dates and handles one valid date',()=>{
   expect(suggestRecord([{}, {captured_date:'2026-01-10'}])).toMatchObject({start_date:'2026-01-10',end_date:'2026-01-10'});
 });
 test('TC-TRAVEL-005: missing dates require manual input',()=>{
+  expect(validCoordinates(Number('-'),126)).toBe(false);
+  expect(validCoordinates(91,126)).toBe(false);
+  expect(validCoordinates(-90,-180)).toBe(true);
   expect(suggestRecord([{}]).start_date).toBe('');
   expect(suggestRecord([{captured_date:'2026-02-30'}]).start_date).toBe('');
   expect(()=>validateRecord({start_date:'2026-02-30',end_date:'2026-03-01',latitude:1,longitude:1},1)).toThrow();

@@ -1,4 +1,7 @@
 export type PhotoInput = { captured_date?: string | null; latitude?: number | null; longitude?: number | null };
+export function validCoordinates(latitude: number, longitude: number) {
+  return Number.isFinite(latitude) && Math.abs(latitude) <= 90 && Number.isFinite(longitude) && Math.abs(longitude) <= 180;
+}
 function validDate(value: string) {
   const parsed = new Date(value);
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
@@ -20,5 +23,5 @@ export function suggestRecord(photos: PhotoInput[]) {
 export function validateRecord(value: { start_date: string; end_date: string; latitude: number; longitude: number }, photos: number) {
   if (photos < 1 || photos > 20) throw new Error('사진은 1~20장 선택해 주세요.');
   if (!validDate(value.start_date) || !validDate(value.end_date) || value.start_date > value.end_date) throw new Error('여행 기간을 확인해 주세요.');
-  if (!Number.isFinite(value.latitude) || Math.abs(value.latitude) > 90 || !Number.isFinite(value.longitude) || Math.abs(value.longitude) > 180) throw new Error('위도와 경도를 확인해 주세요.');
+  if (!validCoordinates(value.latitude, value.longitude)) throw new Error('위도와 경도를 확인해 주세요.');
 }

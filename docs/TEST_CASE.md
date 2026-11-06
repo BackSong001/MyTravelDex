@@ -1,5 +1,21 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 최신 UI 변경 검증 — 2026-11-06 17:37 KST
+
+디자인 기준은 `DISAN.md`다. 기존 백엔드·HTTP 54개와 웹 15개가 새 여행가방 UI에서 계속 통과했다. 추가된 OAuth 교환 조정 단위 검사 2개와 UI 검사 4개를 포함해 **Vitest 56 passed / 1 skipped, Playwright 19 passed**다. TypeScript와 Expo Web export도 성공했다.
+
+| 추가 검사 | 검증 동작 |
+|---|---|
+| OAuth 단위 2개 | 브라우저 복귀/callback의 동일 PKCE 코드 중복 교환 방지, 실패 시 세션 미저장·새 로그인 재시도. SDK 경계 mock이며 실제 Google 로그인 증거가 아님 |
+| UI-JOURNAL-001 | 로그인 소개·공개 미리보기·미인증 추가 동작의 로그인 이동 |
+| UI-JOURNAL-002 | 도감/지도/MY 탐색·웹 선택 상태·지도 실패 후 재연결·수동 입력 안내 |
+| UI-JOURNAL-003 | 실제 Local Storage 업로드 후 대표 썸네일의 도감 표시·상세 이동 |
+| UI-JOURNAL-004 | OAuth 취소 callback 안내·복귀·여행 미생성 |
+
+새 UI 검사에서 웹 탭의 `aria-selected` 누락을 발견해 플랫폼 공통 접근성 상태와 웹 속성을 함께 제공했다. 화면 전환 시 이전 스크롤 위치가 남지 않도록 수정했다. 지도는 입력 중인 잘못된 좌표를 제외하고 기존 좌표 검증을 공유한다.
+
+Android Emulator에서 백팩 로고·새 로그인과 크림색 Google 네이티브 지도 표시를 확인했다. 실제 연결용 루트 `.env`의 Supabase 호스트는 DNS `ENOTFOUND`이므로 실제 Google 동의·원격 Storage 연결은 완료 판정하지 않았다. 로컬 API·Storage는 실제 HTTP로 검증했으며 운영 DB·RLS·migration을 변경하지 않았다. 기존 실기기·운영 장애 복구·의존성 보안 수용 보류 항목도 유지한다.
+
 ## 1. 목적과 실행 원칙
 
 개발 순서는 **백엔드 → 프론트엔드 HTTP 통신 → 프론트엔드 프로토타입**이다. 각 기능을 Red → Green → Refactor로 개발한다. 본문은 테스트 계약이며 실제 실행 범위·결과는 마지막 실행 이력에 별도로 기록한다.

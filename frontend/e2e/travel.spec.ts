@@ -62,3 +62,31 @@ test('TC-UI-008 손상된 이미지와 지원하지 않는 형식 거부',async(
  }
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
 });
+test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
+ await page.getByRole('button',{name:'내 계정',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await page.getByRole('button',{name:'로그인',exact:true}).click();
+ await expect(page.getByText('여행의 순간을 가방에 담아',{exact:false})).toBeVisible();
+ await page.screenshot({path:'test-results/journal-login.png',fullPage:true});
+ await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();
+ await expect(page.getByRole('tab',{name:'홈',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'기록 만들기',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
+});
+test('UI-JOURNAL-002 하단 도감과 지도 및 MY 탐색',async({page})=>{
+ await page.getByRole('tab',{name:'여행도감',exact:true}).click();await expect(page.getByRole('tab',{name:'여행도감',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.getByText('내가 다녀온 여행을 한 권의 도감처럼 모아봐요!',{exact:true})).toBeVisible();
+ await page.getByRole('tab',{name:'지도',exact:true}).click();await expect(page.getByText('지도 연결을 확인해 주세요.',{exact:false})).toBeVisible();
+ await page.getByRole('button',{name:'지도 다시 연결',exact:true}).click();await expect(page.getByText('지도 연결을 확인해 주세요.',{exact:false})).toBeVisible();
+ await page.getByRole('tab',{name:'MY',exact:true}).click();await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();
+});
+test('UI-JOURNAL-003 저장한 사진의 대표 썸네일을 도감에서 조회',async({page})=>{
+ await draft(page);await save(page);await page.getByRole('tab',{name:'여행도감',exact:true}).click();
+ const image=page.getByRole('img',{name:'제주 여행 대표사진',exact:true});await expect(image).toBeVisible();
+ await expect(page.getByRole('button',{name:'제주 여행',exact:true})).toBeVisible();
+ await page.screenshot({path:'test-results/journal-album.png',fullPage:true});
+ await page.getByRole('button',{name:'제주 여행',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();
+});
+test('UI-JOURNAL-004 OAuth 취소 후 다시 로그인',async({page})=>{
+ await page.goto('/auth/callback?error=access_denied');await expect(page.getByRole('alert')).toContainText('취소');
+ await page.getByRole('button',{name:'로그인 화면으로',exact:true}).click();
+ await expect(page.getByRole('button',{name:'내 계정',exact:true})).toBeVisible();
+ expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
+});
