@@ -2,11 +2,35 @@
 
 ## 1. 기술 방향
 
+### vNext UI·소셜 계약 — 설계만, 미구현
+
+현재 프론트엔드는 기능 검증용 프로토타입이다. 아래는 DISAN·FR-UI-001~011·FR-PROFILE-001·FR-SOCIAL-001·FR-STAMP-001의 후속 구현 목표다. 이번 문서 작업에서 코드·migration·환경변수·원격 서비스를 변경하지 않는다. 아래 기존 구현 설명과 구분한다.
+
+**디자인/지도:** 표시명은 여행가봥, package/scheme은 유지한다. 컬러 원본은 frontend/src/design/colors.json이며 런타임 연결 전이다. Google 지도(Android 기존 react-native-maps / Web 기존 Google Maps JS) + 기존 17개 WGS84 GeoJSON Polygon, 축척별 레이블, 기록별 대표사진/대표 좌표 마커와 군집을 사용한다. 한국 밖 기록은 실제 지도에서 유지하며 기존 SVG는 연결 실패 대체 보기다. 경계 출처·2018년 단순화 정확도 한계를 유지한다. 내 방문 테두리·스탬프는 본인 complete만 집계하고 친구 마커와 분리한다.
+
+**레이아웃/상태:** 하단 홈·여행도감·+·친구·My와 독립된 작성 패널 상태를 둔다. 사진/정보/검색 단계를 내부 전환하고 다른 탭에서는 최소화하여 입력과 진행 중 저장을 유지한다. 시스템 갤러리/권한 창은 하단 유지의 예외다. root 세션·저장 상태와 폼 수명을 분리해 탭 전환이 작성 데이터를 지우거나 저장 완료가 다른 탭을 강제 전환하지 않게 한다. 서버 draft 복구와 미등록 사진 재선택 정책은 유지한다.
+
+**profiles 확장:** public_profile_enabled boolean not null default false를 추가하는 additive migration을 계획한다. 기존 display_name·avatar_url과 본인 전용 RLS를 재사용한다. 공개 설정 시 이름은 trim 후 1~30자, 공백만 불가·중복 허용이다. 아바타는 null(기본) 또는 명시적으로 선택한 Google HTTPS 사진만 허용한다. 서버에서 Google 호스트/URL을 검사하고 임의 외부 URL·직접 업로드는 받지 않는다. 기존 사용자는 false로 유지하며 이름/사진을 자동 공개하지 않는다. 공개 설정 false는 기록 visibility를 변경하지 않는다.
+
+**public_profiles:** id·display_name·avatar_url만 반환하는 읽기 전용 security_barrier projection을 계획한다. 서버에서 public_profile_enabled=true를 고정하며 제한된 소유자 권한으로 projection만 제공한다. anon/authenticated는 SELECT만 가능하다. profiles 원본의 소유자 전용 RLS를 넓히거나 이메일/Auth 메타데이터를 포함하지 않는다. 미설정/비활성 작성자는 UI 기본 표시이며 기록 작성을 차단하지 않는다.
+
+**follows:** follower_id·followee_id(uuid, profiles FK)·created_at을 추가하고 (follower_id, followee_id) PK, 자기 팔로우 금지 check를 둔다. 관계는 profiles 삭제 시 cascade하되 기존 기록/계정 삭제 정책은 변경하지 않는다. authenticated만 본인이 follower인 행을 SELECT/INSERT/DELETE하며 UPDATE는 허용하지 않는다. INSERT는 공개 설정된 대상만 허용한다. 대상 프로필이 비공개가 되어도 기존 관계를 자동 제거하지 않고 소유자는 해제할 수 있다. 타인의 관계 열거·수정, anon 쓰기를 차단한다.
+
+**following_travel_records:** authenticated 읽기 전용 security_invoker view를 계획한다. 내부에서 follower_id=auth.uid() 관계, r.status=complete AND r.visibility=public을 고정하고 travel_records/locations RLS도 유지한다. 반환 필드는 기존 기록의 안전한 조회 필드와 location_id이며 사진은 public_photos와 photo-url을 사용한다. PostgREST FK 임베딩을 실제 HTTP로 검증한다. 기본 combined는 본인 complete 조회와 이 view를 합쳐 ID로 중복 제거한다. mine/following/public은 각각 본인/위 view/기존 공개 조회다. anon은 public만 사용한다.
+
+**위치:** geocode-location의 기존 query/좌표 역지오코딩 모드를 유지하고 place_id 상세 모드를 추가한다. 서버 Google Places Details로 ID·주소·좌표·행정구역을 정규화해 기존 locations 모델로 반환한다. 신규 UI는 장소명·주소·핀만 표시하고 내부 좌표는 기존 PostgREST 위치 생성에 전달한다. 수동 숫자 필드는 제거하되 레거시 API·좌표 범위·소유권 검증은 유지한다. EXIF 확인·파싱/압축은 기존 클라이언트 책임이며 서버에서 범위를 검증한다. 유효 EXIF 저장에 Google 조회를 의무화하지 않는다. 오류 시 이전 확정 위치/입력을 보존하고 주소를 추측하지 않는다.
+
+**스탬프:** 기존 대표 좌표의 17개 지역 판정으로 본인 complete만 재계산한다. 별도 획득 테이블·보상 API는 추가하지 않는다. 도감/지도에서 친구·공개 범위를 보더라도 내 스탬프에 합산하지 않는다.
+
+**접근성/비용:** DISAN의 대비 의미 토큰·48dp·320dp~태블릿·font scale 1.0/1.3/2.0·키보드/안전 영역·감소 설정을 따른다. 애니메이션 완료를 요청 실행의 조건으로 두지 않는다. 지도는 현재 화면에 필요한 썸네일을 우선 조회하고 만료 URL을 갱신한다. 필터/프로필 검색은 URL 인코딩·20개 페이지를 사용하고 관계는 사용자 ID로 식별한다. 새 서버 secret·지도 공급자·프로필 사진 bucket은 필요하지 않다. 기존 Maps API 제한·예산/사용량 검토는 유지한다.
+
+후속 순서: 문서 확정 → additive migration/RLS·서버 계약 Red/Green/Refactor → 실제 Local HTTP → 웹 UI → Android 자체 APK 검증. 기존 공개 조회·소유자 프로필·압축/삭제/재시도 검사를 포함하고 신규 수용 결과와 구분한다.
+
 ### Android 에뮬레이터 실행·사진 계약
 
 - 실제 프로젝트용 Android는 Expo Go 대신 `mytraveldex` scheme과 Android Maps key를 포함한 자체 APK를 설치한다. `npm --prefix frontend run android:configured`는 루트 .env의 공개 값만 사용해 release variant 테스트 APK를 빌드·설치한다. 로컬 테스트 환경과 비밀값은 변경하지 않는다. 이 APK는 개발용 서명이며 스토어 제출 빌드가 아니다.
 - 실제 환경의 웹 실행은 기본 --no-dev로 고정해 SDK 54 개발용 virtual env가 frontend/.env.local을 우선 적용하는 문제를 피한다. Android APK도 production JS를 내장해 Metro와 독립적으로 실행한다.
-- 사진 라이브러리·선택 사진의 위치 메타데이터 접근 권한을 요청한다. 사진 위치 접근은 실시간 GPS 권한과 구분한다. 사진/위치 권한 거부·제한·EXIF 누락 시 입력을 유지하고 시스템 선택기 또는 수동 기간/좌표 입력을 제공한다. 앱에 카메라·마이크 권한을 추가하지 않는다.
+- 사진 라이브러리·선택 사진의 위치 메타데이터 접근 권한을 요청한다. 사진 위치 접근은 실시간 GPS 권한과 구분한다. 현재 프로토타입은 수동 기간/좌표 입력을 제공하며 vNext는 기간·장소 검색/핀 보정으로 대체하고 입력을 유지한다. 앱에 카메라·마이크 권한을 추가하지 않는다.
 - Expo ImagePicker와 MediaLibrary로 선택 사진의 EXIF/위치를 읽는다. DateTimeOriginal을 우선하고 유효한 촬영 날짜의 최소/최대를 기간으로, 표시 첫 사진의 유효 GPS를 대표 위치로 제안한다. 첫 사진에 GPS가 없으면 다음 사진으로 자동 대체하지 않는다. Android가 이미 부호를 적용한 GPS를 다시 반전하지 않는다.
 - Android 전체 사진 접근을 허용하면 Expo DocumentPicker의 `ACTION_OPEN_DOCUMENT`로 MediaStore 문서 ID를 얻고 MediaLibrary로 허용된 원본 GPS를 조회한다. 기본 Photo Picker/클라우드 URI는 asset ID가 없고 GPS를 0·빈 방향값으로 마스킹할 수 있다. 제한 접근에서는 ImagePicker를 사용하고 마스킹된 GPS는 `null`로 처리한다. 실제 0도 좌표와 구분한다. Android의 GET_CONTENT 자동 Photo Picker 전환 때문에 ImagePicker의 legacy 옵션만으로는 보장하지 않는다.
 - 원본 대신 압축본만 보존한다는 사용자 결정에 따라 새 업로드는 JPEG 보관본(긴 변 2048px·최대 5 MiB, 초기 quality 0.8)과 JPEG 썸네일(512px·512 KiB)만 저장한다. 원본 파일은 업로드하지 않는다. 압축 전에 추출한 메타데이터를 DB에 저장하고 이미지 파일에서는 EXIF를 제거한다. 원본을 서버에서 복원할 수 없음을 UI에 안내한다.
@@ -15,7 +39,7 @@
 
 선택기 계약은 [Expo SDK 54 DocumentPicker의 ACTION_OPEN_DOCUMENT 구현](https://github.com/expo/expo/blob/sdk-54/packages/expo-document-picker/android/src/main/java/expo/modules/documentpicker/DocumentPickerModule.kt)을 따른다. 웹에서는 기존 ImagePicker를 사용한다.
 
-### 홈 시·도 지도 계약
+### 현재 프로토타입 홈 시·도 지도 계약
 
 웹 연결에 사용하는 `photo-url`, `cleanup-storage`, `geocode-location`은 OPTIONS preflight와 공통 CORS 응답을 제공한다. 실제 원격 Relay가 이를 대신 처리한다고 가정하지 않는다. CORS 응답과 별도로 각 함수의 사용자 JWT 또는 서버 전용 자격 검증을 유지한다.
 
@@ -26,7 +50,7 @@
 - 사진 추가 진입점은 하단 + 하나로 통합한다. 필터·기록 목록·초안 복구는 여행도감에 유지하며 기존 CRUD·업로드·완료·삭제 계약은 유지한다.
 - 실제 환경 실행과 로컬 회귀 실행의 설정을 분리한다. 실제 Google Provider 비활성·누락 테이블·관리 권한 오류를 진단하고 성공으로 위장하지 않는다. 원격 migration 전 대상과 dry-run을 검토한다.
 
-여행가방 화면 초안은 `DISAN.md`를 따른다. 기존 PostgREST·RPC·Storage 계약을 재사용하고 지도 스타일을 Android/Web에서 공유한다. Google OAuth 복귀 코드는 auth 모듈이 교환을 소유하며 웹 callback과 Android 브라우저 복귀가 같은 코드를 중복 교환하지 않도록 한다. Android 인증 검증은 `mytraveldex` scheme을 포함한 자체 앱 빌드에서 수행한다.
+여행가봥 재설계 초안은 `DISAN.md`와 위 vNext 계약을 따른다. 기존 PostgREST·RPC·Storage 및 OAuth 교환 소유권을 유지하면서 신규 공개 프로필·팔로우 계약을 추가한다. 현재 코드의 기존 지도/폼 동작을 신규 디자인의 구현 증거로 해석하지 않는다. Android 인증 검증은 `mytraveldex` scheme을 포함한 자체 앱 빌드에서 수행한다.
 
 백팩 로고와 탐색 아이콘은 SDK 54 호환 `react-native-svg`로 Android/Web에서 동일하게 그린다. 프론트엔드 Auth 단위 검사도 포함하므로 전체 검증 전에는 루트와 `frontend/` 양쪽에서 `npm ci`를 실행한다. 기존 순수 백엔드 인증 테스트는 `npm run test:auth`로 따로 실행할 수 있다.
 

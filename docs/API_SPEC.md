@@ -2,9 +2,9 @@
 
 ## 1. 범위와 공통 계약
 
-홈의 GeoJSON 시·도 집계는 기존 RLS로 조회한 완료 기록의 대표 좌표만 사용하며 신규 백엔드 엔드포인트를 추가하지 않는다. 사진 추가는 하단 +에서 기존 작성·업로드 API로 진입한다. Google 지도는 작성·상세 위치 보정에 유지한다.
+현재 프로토타입의 GeoJSON 시·도 집계는 기존 RLS로 조회한 완료 기록의 대표 좌표만 사용한다. 여행가봥 vNext는 아래 계획 절의 공개 프로필·팔로우·장소 상세 계약을 추가한다. 앱 내부 숫자 좌표 입력은 제거하되 내부 위치 모델·기존 좌표 API는 유지한다.
 
-`DISAN.md`의 화면 변경은 기존 API·RLS·사진 업로드·완료·삭제 계약을 유지한다. 사진 도감은 조회 가능한 대표사진의 ID로 기존 `photo-url`을 호출해 썸네일만 표시하며 익명 사용자에게 원본을 요청하지 않는다.
+`DISAN.md`의 화면 변경은 기존 저장·소유권·사진 업로드·완료·삭제 계약을 유지한다. 마커/도감은 조회 가능한 대표사진의 ID로 기존 `photo-url`을 호출해 썸네일만 표시하며 익명/타인에게 압축 본문이나 EXIF를 요청하지 않는다.
 
 이 문서는 목표 계약이며 전체 수용 검증 완료를 의미하지 않는다. 인증·사진 업로드·객체 메타데이터 검증·URL 발급·고아 파일 정리·공개 사진 view·사용자 삭제 RPC·공유 위치 접근과 Expo 프로토타입이 구현되어 있다. 실제 Google OAuth와 운영 설정 검증은 남아 있다. CRUD는 PostgREST·RLS, 원자적 변경은 DB RPC, 파일 정리는 서버 전용 Edge Function을 사용한다. 기본 URL은 `EXPO_PUBLIC_SUPABASE_URL`이며 REST `/rest/v1`, Auth `/auth/v1`, Storage `/storage/v1`를 사용한다.
 
@@ -13,6 +13,34 @@
 앱 Edge Function은 웹의 OPTIONS preflight에 204를 반환하고 성공·실패 응답 모두 CORS 헤더를 포함한다. Local Kong이 preflight를 먼저 처리하면 200일 수 있다. 허용 메서드는 POST/OPTIONS, 요청 헤더는 authorization·apikey·content-type·prefer·x-client-info다. 쿠키 자격증명은 사용하지 않고 Bearer/RLS 검증을 유지한다. CORS 허용이 인증·권한을 대신하지 않는다.
 
 ## 2. Auth·프로필·위치
+
+### vNext 추가 인터페이스 — 계획됨·미구현
+
+아래 테이블/view/필드/요청 모드는 이번 문서 작업에서 생성하지 않는다. 다음 기존 인터페이스 표는 현재 구현 계약이며 새 기능의 완료 증거가 아니다.
+
+| 동작 | 인터페이스 | 요청·응답·권한 |
+|---|---|---|
+| 공개 프로필 설정 | PATCH /rest/v1/profiles?id=eq.{me} | 본인 JWT, display_name·avatar_url·public_profile_enabled. representation은 본인 profile 배열 |
+| 공개 프로필 조회/검색 | GET /rest/v1/public_profiles | id·display_name·avatar_url만 담은 배열. 공개 설정된 행만 anon/authenticated 조회. id 또는 display_name ilike 검색, 정렬 display_name.asc,id.asc·limit 20/offset 페이지 |
+| 팔로잉 목록 | GET /rest/v1/follows?follower_id=eq.{me} | followee_id·created_at 조회, authenticated 본인 관계만. 다른 사용자의 관계 목록은 비노출 |
+| 팔로우 | POST /rest/v1/follows | {follower_id:me, followee_id:target}. 공개 프로필인 타인만, 성공 201/배열. 자기 관계 금지·유일한 쌍·소유권 검증 |
+| 팔로우 해제 | DELETE /rest/v1/follows?follower_id=eq.{me}&followee_id=eq.{target} | 본인 JWT. representation 배열; 이미 없는 본인 관계의 빈 배열은 해제 완료로 취급 |
+| 친구 완료 공개 기록 | GET /rest/v1/following_travel_records | authenticated, 서버가 본인 팔로잉·complete/public을 고정. 안전한 기록 필드 배열, 날짜/지역 필터·locations 관계 조회는 기존과 동일 |
+| 선택 장소 상세 | POST /functions/v1/geocode-location | 본인 JWT, {place_id:"선택한 Google 장소 ID"}. 서버 Places Details의 정규화된 위치 객체 반환 |
+
+공개 설정 기본값은 false이고 기존 Google/앱 프로필을 자동 공개하지 않는다. 공개 이름은 trim 후 1~30자·공백만 불가·중복 허용, avatar_url은 null(기본) 또는 서버 검증된 Google HTTPS 사진이다. 설정·사진 선택의 공개 안내 후 활성화한다. 이메일·Auth 메타데이터·공개 여부 외 내부 필드는 public_profiles에 포함하지 않는다. 비활성화하면 projection 0행·작성자 기본 표시이며 기록 visibility와 기존 관계는 유지한다. 새 팔로우 대상 검색에서는 제외한다.
+
+follows는 follower_id·followee_id·created_at과 사용자 쌍 PK를 가지며 UPDATE는 허용하지 않는다. 중복 INSERT의 409/23505는 본인의 같은 쌍이 실제 존재함을 조회 확인한 경우만 팔로우 완료로 처리한다. 이 처리를 일반 409 성공 처리로 확장하지 않는다. 타인 관계 INSERT는 RLS 거부, 조회/DELETE의 0행도 실제 데이터 불변으로 검증한다. 로그인 없이 팔로우를 시도하면 로그인으로 안내한다.
+
+following_travel_records는 id·owner_id·title·content·start_date·end_date·location_id·visibility·status·created_at·updated_at만 제공한다. 내부 조건을 요청 필터로 완화할 수 없다. 사진은 public_photos·photo-url, 작성자는 public_profiles를 사용한다. 임의 select·기본 photos/profiles 관계 조회로 우회하지 못해야 한다. 기본 combined 화면은 본인 complete와 친구 view를 합쳐 ID로 중복 제거하고, 비로그인은 기존 public만 조회한다. 내 스탬프는 본인 complete 대표 위치로만 계산하고 새 보상 API를 만들지 않는다.
+
+프로필 projection이 0행이어도 조회 가능한 기록을 숨기지 않고 기본 작성자를 표시한다. profile 관계의 inner join으로 기존 public 기록이나 본인의 미설정 기록을 누락시키지 않는다.
+
+place_id 모드는 기존 query 모드/좌표 역지오코딩 모드와 함께 하나만 요청한다. 서버는 ID를 URL 인코딩해 고정 Google 호스트에 조회하며 임의 URL이나 클라이언트가 주장한 주소/좌표를 장소 상세 결과로 신뢰하지 않는다. Place Details의 id·displayName·formattedAddress·location·addressComponents에 필요한 FieldMask만 사용한다. 정상 응답은 latitude·longitude·source=google·place_name·google_place_id·country_code·country_name·region_name·city_name의 기존 위치 형태다. 클라이언트는 장소명·주소만 표시하고 내부 값을 기존 locations POST에 사용한다. query/역지오코딩의 기존 요청·응답 형태는 유지한다.
+
+새 place_id 모드는 누락/공백/서로 충돌하는 모드 등 잘못된 입력에 400/VALIDATION_ERROR, 서버 key 부재에 503/EXTERNAL_SERVICE_ERROR, Google 실패/쿼터·검색된 ID 소멸에 502/EXTERNAL_SERVICE_ERROR, 미인증에 401/UNAUTHENTICATED를 사용한다. Google 응답을 확정할 수 없으면 위치를 바꾸지 않고 재검색·재시도한다. 오래된 SDK/REST 응답이 일괄 envelope라고 가정하지 않으며 기존 PostgREST 제약 오류는 기존 매핑을 따른다.
+
+### 현재 구현 인터페이스
 
 | 작업 | 인터페이스 | 권한·결과 |
 |---|---|---|
@@ -113,7 +141,7 @@ Storage REST 삭제는 `DELETE /storage/v1/object/travel-photos`와 prefixes 배
 
 captured_date는 촬영지 현지 날짜 또는 수동 날짜다. 오프셋 없는 EXIF를 임의 UTC로 변환하지 않고 captured_at은 null로 둔다. 최소·최대 날짜를 기간 초깃값으로 제안하며 사용자 최종 보정값이 우선한다.
 
-Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비밀이 필요하면 Edge Function을 사용한다. Maps 실패 시 수동 좌표 입력을 제공하고 지역값을 얻지 못하면 null로 저장한다. OAuth 실제 동의와 Maps 실제 호출은 로컬 DB 테스트와 분리한다.
+Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비밀이 필요하면 Edge Function을 사용한다. 현재 프로토타입은 수동 숫자 좌표를 제공하지만 vNext는 검색·핀 보정/재시도로 대체하며 기존 확정 위치·유효 EXIF를 보존한다. 지역값을 얻지 못하면 null로 두고 주소를 추측하지 않는다. OAuth 실제 동의와 Maps 실제 호출은 로컬 DB 테스트와 분리한다.
 
 `POST /functions/v1/geocode-location`은 인증 사용자만 호출한다. `{"query":"제주"}`는 Places 결과 배열(id·displayName·location)을, `{"latitude":33.5,"longitude":126.5}`는 정규화된 위치 객체를 반환한다. 서버의 `GOOGLE_MAPS_SERVER_API_KEY`가 없으면 503, 외부 서비스 실패는 502/EXTERNAL_SERVICE_ERROR, 입력 오류는 400/VALIDATION_ERROR다. 지역 조회 실패 시 좌표를 수동 확정할 수 있다.
 

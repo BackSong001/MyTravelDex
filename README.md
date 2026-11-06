@@ -2,6 +2,12 @@
 
 나만의 여행도감(MyTravelDex)은 갤러리 사진의 촬영일·위치정보를 활용해 여행 기록을 저장하고, 지도에서 다시 탐색하고 공유하는 모바일 앱이다.
 
+## 여행가봥 UI 재설계 초안
+
+목표 앱 표시명은 **여행가봥**이다. 현재 UI는 기능 검증용 프로토타입이며 새 디자인의 구현 완료 상태가 아니다. [DISAN.md](docs/DISAN.md)에 스토리보드·11개 요구사항·화면 윤곽·컬러·반응형·상호작용을 정리했다. [컬러 원본](frontend/src/design/colors.json)은 내용 변경 없이 배치했으며 앱에 연결하지 않았다. [스토리보드 사본](docs/design/storyboard.png)과 루트 원본을 유지한다.
+
+계획은 홈·여행도감·+·친구·My, Google 실제 지도+시·도 Polygon, 대표사진/작성자 마커, 하단 유지 작성 패널, 검색·핀 위치 보정, 일방 팔로우·공개 프로필·내 방문 스탬프다. 신규 데이터/API/TC는 문서만 정의했으며 코드·migration·원격 설정을 변경하지 않았다. 기존 자동 106개와 실 API 4개는 이전 기능의 검증 기록이고 신규 수용 결과는 TEST_CASE에서 별도로 관리한다.
+
 ## 프로젝트 목표
 
 - 사진을 선택하는 것만으로 여행 기록을 쉽게 시작한다.
@@ -62,7 +68,7 @@ npm --prefix frontend run configured -- --web --port 8083
 
 실제 웹 복귀 URL은 `http://localhost:8083/auth/callback` 또는 실제 사용한 origin의 `/auth/callback`으로 Supabase에 허용한다. Google Cloud의 callback은 해당 Supabase `/auth/v1/callback`이다. 진단에서 비활성/404가 나오면 Provider·migration 준비가 필요하다. 스크립트는 원격 설정·스키마를 변경하지 않으며 테스트용 8082 서버와 `frontend/.env.local`을 보존한다. 자체 Android OAuth 검증에는 scheme을 포함한 앱 빌드가 필요하다.
 
-여행가방 UI 초안과 Google 로그인·사진·지도 연결 조건은 [DISAN.md](docs/DISAN.md)를 참고한다. 앱 표시명은 여행가방이며 기존 패키지와 `mytraveldex` OAuth scheme을 유지한다. 자체 Android 빌드의 Maps key는 `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY`를 설정하면 `frontend/app.config.ts`에서 전달한다. Expo Go 화면 확인과 실제 Google 동의·앱 복귀 검증을 구분한다.
+현재 프로토타입의 표시명은 여행가방이며 재설계 목표는 여행가봥이다. 기존 패키지와 `mytraveldex` OAuth scheme을 유지한다. 자체 Android 빌드의 Maps key는 `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY`를 설정하면 `frontend/app.config.ts`에서 전달한다. Expo Go 화면 확인과 실제 Google 동의·앱 복귀 검증을 구분한다.
 
 인증·사진·Storage·공개 조회·삭제 RPC와 Expo Android/Web 프로토타입이 구현되어 있다. 자동 검증과 실제 Google OAuth·실기기 수용 검증은 구분한다. 상세 결과와 남은 조건은 `docs/TEST_CASE.md` 마지막 실행 이력을 참고한다. 로컬 개발에는 Node.js 24 이상·npm·Docker가 필요하다.
 

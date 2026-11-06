@@ -4,6 +4,14 @@
 
 MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으로 여행 기록을 등록하고 공유하는 앱이다. Android를 우선 개발하고 웹에서 공통 흐름을 테스트하며, 추후 iOS를 지원한다.
 
+## 여행가봥 vNext 설계 상태
+
+- 현재 UI는 기능 검증용 프로토타입이다. 재설계 기준은 `docs/DISAN.md`, `docs/design/storyboard.png`, `frontend/src/design/colors.json`이며 루트 스토리보드 원본은 유지한다. 컬러 JSON은 원본 자산이고 런타임 연결 전이다.
+- FR-UI-001~011·FR-PROFILE-001·FR-SOCIAL-001·FR-STAMP-001과 신규 API/TC는 계획됨·미구현이다. 문서 변경을 기능 완료·migration 적용·테스트 통과로 기록하지 않는다.
+- 목표 표시명은 여행가봥, 하단은 홈·여행도감·+·친구·My다. package/scheme은 유지한다. 앱 코드 구현이 요청될 때만 UI·migration을 변경하고 백엔드→실제 Local HTTP→웹→Android 순서로 Red→Green→Refactor를 검증한다.
+- 일방 팔로우는 complete/public만 조회하며 private/draft 접근 권한을 추가하지 않는다. 기존 profiles 본인 RLS를 열지 말고 공개 확인된 최소 projection만 별도로 제공한다. 관계 목록은 본인 전용이다.
+- 신규 화면의 수동 위치는 숫자 입력 대신 서버 검색·place_id 상세·핀 보정을 사용한다. 기존 좌표 API·EXIF 파싱/압축·UUID 재시도·초안 복구·Storage 정책은 유지한다.
+
 ## 프로젝트 구조
 
 - 프론트엔드와 백엔드는 디렉터리 수준에서 분리한다.
@@ -189,9 +197,9 @@ adb logcat
 
 ## 문서 일관성 규칙
 
-홈 지도는 `docs/TRD.md`의 17개 시·도 GeoJSON + SVG 계약을 따른다. 경계 데이터의 출처·라이선스·기준 연도를 유지한다. 지도 색칠은 현재 사용자에게 조회 가능한 완료 기록만 사용하고 사진 추가는 하단 +로 통합한다.
+현재 홈 지도는 `docs/TRD.md`의 프로토타입 17개 시·도 GeoJSON + SVG 계약을 따른다. vNext 목표는 Google 실제 지도+같은 경계 Polygon과 기존 대체 보기다. 출처·라이선스·기준 연도를 유지하고 내 스탬프는 친구/공개 범위와 별개로 본인 complete만 집계한다.
 
-여행가방 UI 초안의 기준은 `docs/DISAN.md`와 사용자 제공 `ui_inital.png`다. 디자인 변경은 Google OAuth·실제 Storage 업로드·기존 테스트 계약을 유지하고, 로컬 회귀 테스트를 위해 원격 프로젝트를 초기화하거나 환경을 자동 전환하지 않는다.
+여행가봥 재설계의 기준은 `docs/DISAN.md`와 사용자 스토리보드/컬러 자산이다. 기존 UI를 최종 시안으로 간주하지 않는다. 디자인 변경은 Google OAuth·실제 Storage 업로드·기존 테스트 계약을 유지하고, 로컬 회귀 테스트를 위해 원격 프로젝트를 초기화하거나 환경을 자동 전환하지 않는다.
 
 요구사항이 변경되면 다음 문서를 같은 작업에서 함께 검토·수정한다.
 

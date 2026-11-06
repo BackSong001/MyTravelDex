@@ -1,0 +1,79 @@
+{
+  "$schemaVersion": "1.0",
+  "screen": "main-map",
+  "appName": "여행가봥",
+  "theme": "light",
+  "colors": {
+    "background": "#FFF8F2",
+    "surface": "#FFFFFF",
+    "surfaceWarm": "#FFF4E8",
+    "primary": "#F59E8C",
+    "primaryPressed": "#E67F72",
+    "primaryLight": "#FFE2DC",
+    "textPrimary": "#4A3B32",
+    "textSecondary": "#8B7E76",
+    "textOnPrimary": "#FFFFFF",
+    "border": "#E5D7C9",
+    "shadow": "#4A3B321A",
+    "map": {
+      "ocean": "#A9DFFA",
+      "oceanHighlight": "#D7F2FF",
+      "landDefault": "#FFF4E8",
+      "regionBorder": "#FFFFFF",
+      "regionBorderSelected": "#5C9696",
+      "regionSelectedOverlay": "#FFFFFF33",
+      "regionPastels": [
+        "#FFE2B5",
+        "#DFF8D8",
+        "#FFD8E4",
+        "#E6D9FF",
+        "#D7F0FF",
+        "#FFF3C4",
+        "#D7F7DF",
+        "#FCE0CF",
+        "#DCE8FF",
+        "#F6DAF0",
+        "#D9F5F1",
+        "#FFE8D6"
+      ],
+      "visitedRegionBorder": "#6AADA4",
+      "unvisitedRegionOpacity": 0.78,
+      "visitedRegionOpacity": 1,
+      "locationPin": "#E87D87",
+      "locationPinBorder": "#FFFFFF",
+      "locationPinCenter": "#FFFFFF",
+      "mapLabel": "#4A3B32",
+      "mapLabelHalo": "#FFFFFF",
+      "waterDecoration": "#4E9FC1"
+    },
+    "navigation": {
+      "background": "#FFF9F4",
+      "activeIcon": "#E47F8B",
+      "inactiveIcon": "#806F65",
+      "activeLabel": "#B75C6A",
+      "inactiveLabel": "#806F65",
+      "border": "#E5D7C9"
+    },
+    "addButton": {
+      "background": "#EF8F91",
+      "pressed": "#DD747A",
+      "icon": "#FFFFFF",
+      "ring": "#FFFFFF",
+      "shadow": "#9E6A6A40"
+    },
+    "recordCard": {
+      "background": "#FFFFFF",
+      "title": "#4A3B32",
+      "description": "#8B7E76",
+      "border": "#E5D7C9"
+    }
+  },
+  "designNotes": {
+    "scope": "메인 지도 화면에만 적용. 로그인, 여행도감, 기록 작성 화면의 상세 디자인은 이 파일에서 정의하지 않음.",
+    "mapBackground": "대한민국 육지 주변 바다는 밝은 파란색으로 표현.",
+    "administrativeRegions": "시·도 및 시·군·구 경계 데이터가 실제로 제공되는 수준에서 regionPastels를 지역 ID 기준으로 안정적으로 할당. 인접 지역은 가능한 한 서로 다른 색을 사용.",
+    "visitedState": "방문 여부는 기존 기록 데이터에서 판별. 색상만으로 방문 여부를 구분하지 말고 핀·테두리 등 추가 시각적 신호를 사용.",
+    "floatingActionButton": "하단 내비게이션 중앙에 + 버튼 배치. 탭과 겹치지 않도록 안전 영역 고려. 누르면 기존 여행 기록 추가 흐름으로 이동.",
+    "implementationBoundary": "색상 및 시각적 제안일 뿐. 행정구역 데이터 구조, 방문 판정 규칙, API, 백엔드 및 기록 저장 로직은 변경하지 않음."
+  }
+}
