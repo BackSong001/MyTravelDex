@@ -1,10 +1,12 @@
 import { execFileSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
+import { randomUUID,createHmac } from 'node:crypto';
 import { afterAll, beforeAll, expect, test } from 'vitest';
+import {createClient} from '../../frontend/node_modules/@supabase/supabase-js';
 
 const apiUrl = 'http://127.0.0.1:54321';
 let anonKey: string;
 let serviceKey: string;
+let jwtSecret: string;
 const users: { id: string; email: string; password: string; token: string }[] = [];
 const locations: string[] = [];
 const records: string[] = [];
@@ -52,6 +54,7 @@ beforeAll(async () => {
   }
   anonKey = status.ANON_KEY;
   serviceKey = status.SERVICE_ROLE_KEY;
+  jwtSecret = status.JWT_SECRET;
   const health = await request('/auth/v1/health', null);
   if (health.status !== 200) throw new Error('Local Auth health check failed; not a TDD Red result.');
 
@@ -73,6 +76,20 @@ beforeAll(async () => {
     user.token = session.data.access_token;
   }
 }, 60_000);
+
+test('TC-HTTP-001: validly signed expired session refreshes over real Auth and revoked refresh requires login',async()=>{
+ const login=await request('/auth/v1/token?grant_type=password',null,'POST',{email:users[0].email,password:users[0].password});expect(login.status).toBe(200);
+ const claims=JSON.parse(Buffer.from(login.data.access_token.split('.')[1],'base64url').toString());
+ const signed=(exp:number)=>{const parts=[Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url'),Buffer.from(JSON.stringify({...claims,exp})).toString('base64url')];return [...parts,createHmac('sha256',jwtSecret).update(parts.join('.')).digest('base64url')].join('.');};
+ expect((await request('/auth/v1/user',signed(Math.floor(Date.now()/1000)+300))).status).toBe(200);
+ const expired=signed(Math.floor(Date.now()/1000)-60);const rejected=await request('/auth/v1/user',expired);expect(rejected.status).toBe(403);expect(rejected.data.msg??rejected.data.message).toMatch(/expired/i);
+ const sdk=createClient(apiUrl,anonKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+ const refreshed=await sdk.auth.setSession({access_token:expired,refresh_token:login.data.refresh_token});expect(refreshed.error).toBeNull();expect(refreshed.data.session?.user.id).toBe(users[0].id);
+ expect((await request('/auth/v1/user',refreshed.data.session!.access_token)).status).toBe(200);
+ const refresh=refreshed.data.session!.refresh_token;expect((await sdk.auth.signOut({scope:'local'})).error).toBeNull();
+ const denied=await sdk.auth.setSession({access_token:expired,refresh_token:refresh});expect(denied.error).not.toBeNull();expect(denied.data.session).toBeNull();
+ expect((await request('/auth/v1/token?grant_type=password',null,'POST',{email:users[0].email,password:users[0].password})).status).toBe(200);
+});
 
 afterAll(async () => {
   // 이 실행에서 생성한 UUID만 정리하며 기존 사용자·DB를 초기화하지 않는다.

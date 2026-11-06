@@ -1,5 +1,39 @@
 # MyTravelDex 프롬프트·작업 이력
 
+## 2026-11-06 20:29 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 저장 응답 유실 시 중복 기록 방지 수정, 추가 백엔드·웹·실 API 검사와 실행 기록을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 자동 106개·별도 실 API 4개 통과와 Android 검증 기록을 확인하고 diff·비밀값·변경 범위를 검사했다. 이번 요청에서는 테스트를 재실행하지 않는다. colors.json·storyboard.png와 환경 파일·생성 APK는 제외한다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 추가 검증·복구 수정 작업의 변경 파일 전체(커밋 대상)
+
+## 2026-11-06 20:26 KST — 남은 테스트 케이스 진행
+
+프롬프트 원문:
+
+> 그럼 남은 테스트 케이스 진행해줘
+
+실기기 연결 여부에 대한 추가 답변 원문:
+
+> 지금은 에뮬레이터로만 진행
+
+답변·결과 요약: 실제 로컬 Storage 장애의 1·5·30·60분 backoff/lease 복구와 정상 서명 만료 JWT의 refresh/revoke·재인증, 웹 대표사진 교체·비로그인 공개 조회·비공개 차단·키보드/접근성 트리·저장 단계별 응답 유실/요청 미도달 검사를 추가했다. 기록 생성 응답 유실 시 새 UUID로 중복 draft를 만드는 Red를 확인하고 요청 전 UUID 보존·같은 UUID 조회/재개로 수정했다. Vitest 전체 71 passed/외부 OAuth 자동 1 skipped, Playwright 전체 32 passed, 설정 3 passed로 자동 106개와 TypeScript·수정 APK build를 통과했다. 별도 Google 실제 Places/Geocoding 정상·잘못된 키 검사 4개가 통과했으며 실제 쿼터 소진은 하지 않았다. Android에서 사진 권한 거부·제한·설정 이동·입력 유지, 비행기/Wi-Fi 단절·복귀, 20장 업로드 중 첫 장 등록 후 force-stop·같은 서버 초안 복구·미등록 19장 재선택·같은 UUID 20장 완료를 확인했다. 별도 PKCE 흐름의 실제 Google 동의 취소·Supabase callback·앱 복귀/오류·기존 로그인 유지·여행 미생성도 확인했다. 시험 기록·파일 41개·알려진 미참조 위치·해당 정리 작업과 추가 합성 원본 20개만 정리했고 권한 flag·네트워크를 복원했다. 운영 정리 스케줄·production 키 제한/서명·실제 스크린리더 음성은 별도 증거가 필요하며 실기기는 사용자 지정으로 제외했다. 기존 colors.json·storyboard.png 및 미커밋 확인 이력을 유지했고 커밋·푸시는 수행하지 않았다.
+
+변경 파일: `backend/tests/auth.test.ts`, `backend/tests/photo.test.ts`, `frontend/e2e/travel.spec.ts`, `frontend/app/index.tsx`, `scripts/check-google-live.mjs`, `docs/TRD.md`, `docs/TEST_CASE.md`, `README.local.md`, `docs/prompts.md`
+
+## 2026-11-06 19:51 KST — 기능 테스트 완료 여부 확인
+
+프롬프트 원문:
+
+> 현재 테스트케이스 기반으로 기능테스트가 끝났는지 확인해줘
+
+답변·결과 요약: 커밋 4a8392a의 TEST_CASE 명세 59개 TC ID를 테스트 소스와 대조하고 기존 Vitest 69 passed/외부 OAuth 자동 1 skipped·Playwright 21 passed·실행 설정 3 passed 및 Android 실제 검증 기록을 확인했다. TC ID 연결은 모두 있으나 수용 조건 전체 완료는 아니며 실제 OAuth 취소/만료, Android 권한 거부/제한·실기기, 웹 대표사진 교체/비로그인 공개조회/키보드·스크린리더, 단계별 업로드 응답 유실·프로세스 종료 복구, Storage 장애 backoff/lease 및 운영 스케줄, Places/Geocoding 실 API·플랫폼 키/쿼터 검증이 남아 있다고 판정했다. 자동 검사 수를 TC 전체 수용률로 환산하지 않았다. 이번 작업은 소스·명세·기존 실행 결과 확인이며 테스트 재실행·구현 수정·커밋·푸시는 수행하지 않았다.
+
+변경 파일: `docs/prompts.md`
+
 ## 2026-11-06 19:49 KST — 커밋·푸시 요청
 
 프롬프트 원문:

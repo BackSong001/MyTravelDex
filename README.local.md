@@ -231,6 +231,8 @@ Production 배포 전에는 RLS, Storage 접근권한, OAuth, Google Maps key �
 
 ## 관련 명세서
 
+실제 Google 외부 경계 검사: 루트에서 `node scripts/check-google-live.mjs`. 루트 `.env`의 서버 Maps key로 Places/Geocoding 정상 두 번과 잘못된 키 두 번을 호출한다. Google 사용량이 발생하므로 로컬 기본 `npm test`에 포함하지 않는다. 실제 쿼터를 소진하거나 Cloud 설정을 변경하지 않는다.
+
 실제 프로젝트에 연결한 Android Emulator 테스트:
 
 ```bash

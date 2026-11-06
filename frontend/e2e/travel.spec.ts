@@ -106,3 +106,62 @@ test('UI-MAP-002 저장한 제주 기록을 지역 지도에서 선택하고 상
  await expect(page.getByText('제주 여행 · 1개',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'제주 여행',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();
 });
+test('TC-UI-004 화면에서 대표사진 교체 후 다른 사진 삭제',async({page})=>{
+ await draft(page,2);await save(page);
+ const record=(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`))[0];const photos=await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}&order=display_order`);
+ await page.getByRole('button',{name:'대표사진 지정',exact:true}).nth(1).click();
+ await expect.poll(async()=> (await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}&is_cover=eq.true`)).map((p:any)=>p.id)).toEqual([photos[1].id]);
+ await expect(page.getByText('대표사진',{exact:true})).toHaveCount(1);
+ await page.getByRole('button',{name:'사진 삭제',exact:true}).first().click();
+ await expect(page.getByRole('img',{name:'여행 사진',exact:true})).toHaveCount(1);
+ expect((await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}`))[0]).toMatchObject({id:photos[1].id,is_cover:true});
+});
+test('TC-UI-005 비로그인 사용자의 공개 상세 조회와 비공개 전환 후 차단',async({page,browser})=>{
+ await draft(page);await save(page);await page.getByRole('button',{name:'공개로 변경',exact:true}).click();await expect(page.getByRole('button',{name:'비공개로 변경',exact:true})).toBeVisible();
+ const context=await browser.newContext();const guest=await context.newPage();
+ try{
+  await guest.route('https://maps.googleapis.com/**',r=>r.abort());await guest.goto('/');await guest.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();await guest.getByRole('tab',{name:'여행도감',exact:true}).click();
+  await guest.getByRole('button',{name:'제주 여행',exact:true}).click();await expect(guest.getByRole('img',{name:'여행 사진',exact:true})).toBeVisible();
+  await expect(guest.getByLabel('제목 수정',{exact:true})).toHaveCount(0);await expect(guest.getByRole('button',{name:'기록 삭제',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'비공개로 변경',exact:true}).click();await expect(page.getByRole('button',{name:'공개로 변경',exact:true})).toBeVisible();
+  await guest.getByRole('button',{name:'목록으로',exact:true}).click();await expect(guest.getByText('첫 번째 여행을 펼쳐보세요')).toBeVisible();
+ }finally{await context.close();}
+});
+test('TC-UI-007 키보드로 작성 진입·입력 포커스·저장 및 접근성 트리 확인',async({page})=>{
+ const add=page.getByRole('button',{name:'기록 만들기',exact:true});await add.focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'사진 선택',exact:true})).toBeVisible();
+ const title=page.getByLabel('여행 제목',{exact:true});await title.focus();await expect(title).toBeFocused();await page.keyboard.press('Tab');await expect(page.getByLabel('여행 내용',{exact:true})).toBeFocused();
+ const snapshot=await page.locator('body').ariaSnapshot();expect(snapshot).toContain('textbox "여행 제목"');expect(snapshot).toContain('button "여행 저장"');
+ const submit=page.getByRole('button',{name:'여행 저장',exact:true});await submit.focus();await page.keyboard.press('Enter');await expect(page.getByRole('alert')).toContainText('사진은 1~20장');await expect(submit).toBeEnabled();
+});
+for(const phase of ['record','original','thumbnail','metadata','finalize']){
+ test(`TC-HTTP-006/UI-006 ${phase} 저장 응답 유실 후 동일 기록·사진으로 재시도`,async({page})=>{
+  await draft(page);let lost=false;
+  const pattern=phase==='record'?'**/rest/v1/travel_records':phase==='metadata'?'**/rest/v1/photos':phase==='finalize'?'**/rest/v1/rpc/finalize_travel_record':`**/storage/v1/object/travel-photos/**/${phase==='original'?'original':'thumbnail'}.jpg`;
+  await page.route(pattern,async route=>{if(!lost&&route.request().method()==='POST'){const response=await route.fetch();expect(response.ok()).toBe(true);lost=true;await route.abort('failed');}else await route.continue();});
+  await page.getByRole('button',{name:'여행 저장',exact:true}).click();await expect(page.getByRole('alert')).toContainText('연결');expect(lost).toBe(true);
+  const before=await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`);expect(before).toHaveLength(1);
+  await page.unroute(pattern);await save(page);
+  const after=await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`);expect(after).toHaveLength(1);expect(after[0]).toMatchObject({id:before[0].id,status:'complete'});
+  const photos=await admin(`/rest/v1/photos?travel_record_id=eq.${before[0].id}`);expect(photos).toHaveLength(1);
+  const objects=await admin('/storage/v1/object/list/travel-photos','POST',{prefix:`${userId}/${before[0].id}/${photos[0].id}`,limit:100});expect(objects.filter((o:any)=>o.id)).toHaveLength(2);
+ });
+}
+for(const revoked of [false,true]){
+ test(`TC-UI-001 세션 갱신 ${revoked?'폐기 시 로그인 안내와 재인증':'성공 시 로그인 유지'}`,async({page})=>{
+  const stored=await page.evaluate(()=>{const key=Object.keys(localStorage).find(k=>/^sb-.*-auth-token$/.test(k));if(!key)throw new Error('Missing SDK session');return {key,session:JSON.parse(localStorage.getItem(key)!)};});
+  if(revoked){const result=await fetch(`${status.API_URL}/auth/v1/logout?scope=local`,{method:'POST',headers:{apikey:status.ANON_KEY,Authorization:`Bearer ${stored.session.access_token}`}});expect(result.ok).toBe(true);}
+  await page.evaluate(({key,session})=>localStorage.setItem(key,JSON.stringify({...session,expires_at:1})),stored);
+  const response=page.waitForResponse(r=>r.url().includes('/auth/v1/token?grant_type=refresh_token'));await page.reload();const refreshed=await response;
+  if(revoked){
+   expect(refreshed.ok()).toBe(false);await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
+   await page.getByLabel('이메일',{exact:true}).fill(email);await page.getByLabel('비밀번호',{exact:true}).fill(password);await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();
+  }else expect(refreshed.ok()).toBe(true);
+  await expect(page.getByRole('button',{name:'내 계정',exact:true})).toBeVisible();await expect(page.getByTestId('province-map')).toBeVisible();
+ });
+}
+test('TC-HTTP-006 생성 요청이 서버에 도달하지 않아도 같은 UUID로 재시도',async({page})=>{
+ await draft(page);const ids:string[]=[];
+ await page.route('**/rest/v1/travel_records',async route=>{if(route.request().method()!=='POST')return route.continue();ids.push(route.request().postDataJSON().id);if(ids.length===1)await route.abort('failed');else await route.continue();});
+ await page.getByRole('button',{name:'여행 저장',exact:true}).click();await expect(page.getByRole('alert')).toContainText('연결');expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
+ await save(page);expect(ids).toHaveLength(2);expect(ids[1]).toBe(ids[0]);const rows=await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`);expect(rows).toHaveLength(1);expect(rows[0]).toMatchObject({id:ids[0],status:'complete'});
+});

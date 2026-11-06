@@ -59,8 +59,11 @@ export default function Home(){
  async function save(){
   validateRecord({start_date:start,end_date:end,latitude:latitude.trim()?Number(latitude):NaN,longitude:longitude.trim()?Number(longitude):NaN},photos.length+(pending?.existing??0));
   let record=pending;
-  if(!record){const loc=await api.request('/rest/v1/locations','POST',{owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:'manual',region_name:region||null});const id=Crypto.randomUUID();await api.request('/rest/v1/travel_records','POST',{id,owner_id:session.user.id,location_id:loc[0].id,start_date:start,end_date:end,title:title||null,content:content||null,visibility});record={id,location:loc[0].id,existing:0};setPending(record);}
-  else {const loc=await api.request('/rest/v1/locations','POST',{owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:'manual',region_name:region||null});await api.update(record.id,{location_id:loc[0].id,start_date:start,end_date:end,title:title||null,content:content||null,visibility});}
+  const values={start_date:start,end_date:end,title:title||null,content:content||null,visibility};
+  if(!record){const loc=await api.request('/rest/v1/locations','POST',{owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:'manual',region_name:region||null});record={id:Crypto.randomUUID(),location:loc[0].id,existing:0};setPending(record);}
+  const found=await api.request(`/rest/v1/travel_records?id=eq.${record.id}&select=id`);
+  if(!found.length)await api.request('/rest/v1/travel_records','POST',{id:record.id,owner_id:session.user.id,location_id:record.location,...values});
+  else {const loc=await api.request('/rest/v1/locations','POST',{owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:'manual',region_name:region||null});await api.update(record.id,{location_id:loc[0].id,...values});}
   for(let index=0;index<photos.length;index++){
    const p=photos[index];
    const main=await compressPhoto(p.asset,2048,5*1024*1024);const thumb=await compressPhoto(p.asset,512,512*1024);

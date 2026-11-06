@@ -447,6 +447,30 @@ test('TC-DB-005: cleanup can be repeated and cannot be invoked by users',async()
   expect((await call('/functions/v1/cleanup-storage',users[0].token,'POST',{})).status).toBe(403);
   for(let i=0;i<2;i++)expect((await call('/functions/v1/cleanup-storage',serviceKey,'POST',{})).status).toBe(200);
 });
+test('TC-DB-005: real Storage failures back off, respect leases and recover without losing paths',async()=>{
+  const {photos}=await completed();const path=photos[0].original_path;
+  await client().rpc('delete_travel_record',{record_id:recordId});
+  const name=`test_cleanup_${randomUUID().replaceAll('-','')}`;
+  const sql=(query:string)=>execFileSync('docker',['exec','supabase_db_mytraveldex','psql','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-c',query],{stdio:'pipe'});
+  const jobs=()=>call(`/rest/v1/storage_cleanup_jobs?object_path=eq.${path}`,serviceKey);
+  sql(`create function public.${name}() returns trigger language plpgsql as $$ begin if old.bucket_id = 'travel-photos' and old.name = '${path}' then raise exception 'Fixture Storage outage'; end if; return old; end $$; create trigger ${name} before delete on storage.objects for each row execute function public.${name}();`);
+  try{
+    for(const [index,minutes] of [1,5,30,60].entries()){
+      if(index)sql(`update public.storage_cleanup_jobs set next_attempt_at = now() - interval '1 second', locked_until = null where object_path = '${path}'`);
+      const started=Date.now();expect((await call('/functions/v1/cleanup-storage',serviceKey,'POST',{})).status).toBe(200);
+      const job=(await jobs()).data[0];expect(job).toMatchObject({attempts:index+1,locked_until:null,last_error:'Storage removal failed'});
+      expect(Date.parse(job.next_attempt_at)-started).toBeGreaterThan(minutes*60000-3000);
+      expect(Date.parse(job.next_attempt_at)-started).toBeLessThan(minutes*60000+10000);
+      expect((await stored(path)).status).toBe(200);
+      await call('/functions/v1/cleanup-storage',serviceKey,'POST',{});expect((await jobs()).data[0].attempts).toBe(index+1);
+    }
+    sql(`update public.storage_cleanup_jobs set next_attempt_at = now() - interval '1 second', locked_until = now() + interval '5 minutes' where object_path = '${path}'`);
+    expect((await call('/rest/v1/rpc/claim_orphan_photos',serviceKey,'POST',{})).data.some((j:any)=>j.object_path===path)).toBe(false);
+    sql(`update public.storage_cleanup_jobs set locked_until = now() - interval '1 second' where object_path = '${path}'`);
+  }finally{sql(`drop trigger ${name} on storage.objects; drop function public.${name}();`);}
+  expect((await call('/functions/v1/cleanup-storage',serviceKey,'POST',{})).status).toBe(200);
+  expect((await jobs()).data).toEqual([]);expect((await stored(path)).status).not.toBe(200);
+});
 test('TC-DB-006: unlinked private locations are hidden from other users',async()=>{
   expect((await call(`/rest/v1/locations?id=eq.${locationId}`,users[1].token)).data).toEqual([]);
   expect((await call(`/rest/v1/locations?id=eq.${locationId}`,users[0].token)).data).toHaveLength(1);
