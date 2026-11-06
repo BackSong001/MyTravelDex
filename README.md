@@ -48,7 +48,7 @@ React Native / Expo
 
 ## 빠른 시작
 
-현재 저장소는 백엔드 우선 명세 단계다. 구현 전 다음 도구가 필요하다.
+현재 저장소에는 명세와 인증·프로필 Red 테스트가 있다. 도메인 migration·애플리케이션은 아직 없다. 로컬 테스트에는 Node.js 24 이상·npm·Docker가 필요하고 Supabase CLI·Vitest는 프로젝트 개발 의존성으로 설치한다.
 
 - Node.js와 npm
 - Docker
@@ -67,9 +67,21 @@ cp .env.example .env
 
 ## 개발·테스트 순서
 
+현재 실행 가능한 인증·프로필 테스트:
+
 ```bash
-supabase start
-supabase db reset
+npm ci
+npm run backend:start
+npm run test:auth
+npm run backend:stop
+```
+
+테스트는 `backend/supabase/config.toml`의 로컬 프로젝트와 `http://127.0.0.1:54321`만 사용하며 실제 `.env`나 원격 키를 읽지 않는다. 최초 실행은 Docker 이미지 다운로드가 필요하다. 로컬 상태에서 읽은 키는 출력·커밋하지 않는다. fixture로 만든 사용자·위치·기록만 정리하며 DB reset은 실행하지 않는다. 의도한 기능 실패와 환경 준비 실패는 `docs/TEST_CASE.md`의 실행 결과에서 구분한다.
+
+이후 구현 단계의 명령 예시:
+
+```bash
+npm run backend:start
 npx vitest run
 npx expo start --web
 npx playwright test
@@ -77,6 +89,8 @@ npx expo run:android
 ```
 
 웹 테스트는 UI와 브라우저 흐름을 검증하고, Android 테스트는 카메라·갤러리·GPS·권한·OAuth 딥링크·네이티브 지도 SDK를 검증한다.
+
+Vitest 4.1.12·Vite 7.3.7·Supabase CLI 2.122.1을 고정한다. 이 환경에서 최신 Vitest 5/Vite 8 조합은 실행 전 `Bus error`, Supabase CLI 3 패키지는 Linux 바이너리 누락으로 실행되지 않아 사용하지 않는다.
 
 ## 배포 계획
 

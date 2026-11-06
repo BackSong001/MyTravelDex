@@ -25,6 +25,8 @@
 
 ### 테스트
 
+현재 Red 테스트 실행 기반은 루트 package.json·package-lock.json과 `backend/tests/auth.test.ts`, `backend/supabase/config.toml`이다. Node.js 24 이상에서 `npm ci` 후 `npm run backend:start`, `npm run test:auth`로 인증 묶음을 실행한다. CLI 2.122.1·Vitest 4.1.12·Vite 7.3.7을 고정하며 도메인 migration은 Green 단계에서 작성한다. 실제 Google 로그인은 별도 TC-EXT-004에서 검증한다.
+
 - Vitest: 백엔드 도메인·권한·통합 테스트
 - Playwright: 웹 브라우저 E2E 테스트
 - Supabase Local Development: 로컬 DB·Auth·Storage 검증

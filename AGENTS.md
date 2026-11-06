@@ -52,6 +52,8 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 
 ### Supabase 로컬 개발
 
+현재 로컬 설정은 `backend/supabase/config.toml`이다. 루트에서 `npm ci`, `npm run backend:start`, `npm run test:auth`, `npm run backend:stop`을 사용한다. 아래 CLI 명령을 직접 사용할 때는 프로젝트 의존성을 사용하고 `npx supabase <command> --workdir backend`로 경로를 지정한다. 실제 `.env`와 원격 연결 없이 테스트하며 로컬 키를 로그에 출력하지 않는다.
+
 ```bash
 supabase init
 supabase start
@@ -134,7 +136,7 @@ adb emu geo fix 126.9780 37.5665
 
 ### 테스트 순서
 
-필수 개발 단계는 백엔드 → 프론트엔드 HTTP 통신 → 프론트엔드 프로토타입이다. 각 단계에서 Red → Green → Refactor를 반복하고 이전 단계 회귀 테스트까지 통과한 후 다음 단계로 이동한다. 아래 명령은 구현·도구 설치 후의 실행 예시이며 현재 저장소에 실행 가능한 테스트가 있다는 뜻이 아니다.
+필수 개발 단계는 백엔드 → 프론트엔드 HTTP 통신 → 프론트엔드 프로토타입이다. 각 단계에서 Red → Green → Refactor를 반복하고 이전 단계 회귀 테스트까지 통과한 후 다음 단계로 이동한다. 아래 전체 흐름은 이후 구현 단계의 예시이며 현재 실행 범위는 `docs/TEST_CASE.md` 실행 이력을 따른다.
 
 ```text
 supabase start

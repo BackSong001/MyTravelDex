@@ -2,6 +2,17 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+## 2026-11-06 15:41 KST
+
+프롬프트 원문:
+
+> 현재 테스트 케이스 순서대로 테스트를 진행해줘. red 먼저 구현해줘.
+> 그리고 실패한 이유랑 해결방법도 알려줘
+
+답변·결과 요약: 로컬 전용 Vitest·Supabase 실행 기반과 TC-AUTH-001~004를 작성·실행했고 4개 모두 profiles 조회의 404/PGRST205에서 실패했다. TC-AUTH-001의 기능 부재 Red와 후속 권한 검증의 선행 조건 실패를 구분해 원인·Green 해결 순서를 기록했으며 도메인 구현은 하지 않았다.
+
+변경 파일: `.gitignore`, `package.json`, `package-lock.json`, `backend/supabase/.gitignore`, `backend/supabase/config.toml`, `backend/tests/auth.test.ts`, `AGENTS.md`, `README.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
 ## 2026-11-06 15:12 KST
 
 프롬프트 원문:
