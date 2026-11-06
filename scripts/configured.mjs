@@ -19,7 +19,7 @@ export function publicConfiguration(source) {
   }
   if (!anonymous) throw new Error('공개 publishable/anon key를 설정해 주세요. 서버 key는 사용할 수 없습니다.');
   const output = {};
-  for (const name of ['EXPO_PUBLIC_SUPABASE_URL','EXPO_PUBLIC_SUPABASE_ANON_KEY','EXPO_PUBLIC_GOOGLE_MAPS_WEB_API_KEY','EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY','EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY']) {
+  for (const name of ['EXPO_PUBLIC_SUPABASE_URL','EXPO_PUBLIC_SUPABASE_ANON_KEY']) {
     if (source[name]) output[name] = source[name];
   }
   return {...output, EXPO_PUBLIC_APP_ENV: 'development'};

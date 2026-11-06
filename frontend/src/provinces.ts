@@ -78,7 +78,7 @@ export const provinceColors: Record<string, string> = Object.fromEntries(
   Object.keys(provinceLabels).sort().map((id, index) => [id, palette.map.regionPastels[index % palette.map.regionPastels.length]]),
 );
 export function visibleProvinceLabels(zoom: number, selected: string | null) {
-  const candidates = Object.entries(provinceLabels).filter(([id]) => id === selected || (zoom < 8 ? ['KR-11','KR-26','KR-49'].includes(id) : zoom < 10));
+  const candidates = Object.entries(provinceLabels).filter(([id]) => id === selected || (zoom < 7 ? ['KR-11','KR-42','KR-44','KR-45','KR-47','KR-48','KR-26','KR-49'].includes(id) : true));
   candidates.sort(([a], [b]) => Number(b === selected) - Number(a === selected));
   const placed: {x:number; y:number; width:number}[] = [];
   return candidates.filter(([, label]) => {
@@ -87,15 +87,9 @@ export function visibleProvinceLabels(zoom: number, selected: string | null) {
     placed.push({x,y,width}); return true;
   });
 }
-export const provinceOpacity = (zoom: number) => zoom >= 10 ? .16 : zoom >= 8 ? .55 : palette.map.unvisitedRegionOpacity;
-export const travelMapStyle = [
-  {featureType:'water',elementType:'geometry',stylers:[{color:palette.map.ocean}]},
-  {featureType:'landscape',elementType:'geometry',stylers:[{color:palette.map.landDefault}]},
-  {featureType:'poi',elementType:'labels',stylers:[{visibility:'off'}]},
-  {featureType:'transit',stylers:[{visibility:'off'}]},
-];
 export type TravelMapProps = {
   records: any[];
+  landmarks?: {id:string;name:string;latitude:number;longitude:number}[];
   covers?: Record<string, string>;
   authors?: Record<string, {display_name: string | null; avatar_url: string | null}>;
   onSelect?: (record: any) => void;
@@ -106,7 +100,7 @@ export type TravelMapProps = {
   fullScreen?: boolean;
 };
 export function mapRecords(records: any[], correction = false) {
-  return records.filter(record => (record.status === 'complete' || (correction && record.status == null)) &&
+  return records.filter(record => record.locations?.source !== 'google' && (record.status === 'complete' || (correction && record.status == null)) &&
     record.locations?.latitude != null && record.locations?.longitude != null &&
     validCoordinates(Number(record.locations.latitude), Number(record.locations.longitude)));
 }
@@ -130,5 +124,3 @@ export function mapMarkerGroups(records: any[], zoom: number, correction = false
 export function visitedProvinceIds(records: any[], ownerId: string | null | undefined): string[] {
   return ownerId ? Object.keys(groupProvinceRecords(records.filter(record => record.owner_id === ownerId))).sort() : [];
 }
-
-export const mapStylesAtZoom = (zoom: number) => [...travelMapStyle, {featureType:'administrative',elementType:'labels',stylers:[{visibility:zoom >= 10 ? 'on' : 'off'}]}];

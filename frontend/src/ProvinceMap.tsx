@@ -12,7 +12,6 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
   const region=selected?provinceLabels[selected]:null, trips=selected?groups[selected]??[]:[];
   return <View testID="province-map" accessibilityLabel={!showHeading?`방문 지역 ${Object.keys(ownGroups).length} / 17`:undefined} style={s.container}>
     <Svg width="100%" height="100%" viewBox="0 0 440 650" preserveAspectRatio="xMidYMid meet" accessibilityLabel="대한민국 17개 시도 지도">
-      <Path d="M30 180q10-8 20 0t20 0M20 192q10-8 20 0t20 0M320 500q10-8 20 0t20 0M330 512q10-8 20 0t20 0M280 565q10-8 20 0t20 0" fill="none" stroke={c.sea} strokeWidth="1.4" opacity=".55"/>
       {provincePaths.map((province)=><Path key={province.id} d={province.path} fillRule="evenodd"
         fill={provinceColors[province.id]} fillOpacity={ownGroups[province.id]?.length?1:palette.map.unvisitedRegionOpacity}
         stroke={selected===province.id?palette.map.regionBorderSelected:ownGroups[province.id]?.length?palette.map.visitedRegionBorder:palette.map.regionBorder} strokeWidth={selected===province.id?2.5:ownGroups[province.id]?.length?1.8:.9} strokeLinejoin="round"
@@ -20,7 +19,6 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
       {Object.entries(provinceLabels).map(([id,label])=>{
         const [x,y]=project(label.point),[dx,dy]=label.offset??[0,0];
         return <G key={id} onPress={()=>{setSelected(id);setShowRegions(false);}}>
-          {!!label.offset&&<Path d={`M${x},${y}L${x+dx},${y+dy}`} stroke="#A48C70" strokeWidth=".7"/>}
           <SvgText x={x+dx} y={y+dy} fill={c.paper} fontSize="12" fontWeight={selected===id?'800':'600'} textAnchor="middle" stroke={c.paper} strokeWidth="3">{ownGroups[id]?.length?'✓ ':''}{label.name}</SvgText>
           <SvgText x={x+dx} y={y+dy} fill={c.ink} fontSize="12" fontWeight={selected===id?'800':'600'} textAnchor="middle">{ownGroups[id]?.length?'✓ ':''}{label.name}</SvgText>
         </G>;

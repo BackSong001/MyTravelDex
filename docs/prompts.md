@@ -1,5 +1,33 @@
 # MyTravelDex 프롬프트·작업 이력
 
+## 2026-11-07 00:04 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 직전 MapLibre·Geoapify 지도 전환, Google 포토 사진 선택, 지도 빈 화면·갱신 안정성 수정과 동기화 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 자동 검사 166 passed/1 skipped와 웹·Android 빌드 결과를 유지하고 이번 요청에서는 변경 범위·비밀값·diff 형식을 확인한다. 기존 원본 storyboard.png는 제외하며 실제 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 전체 변경 파일(커밋 대상).
+
+## 2026-11-06 23:53 KST — MapLibre 전환·Google 포토 및 빈 지도 화면 보완
+
+프롬프트 원문:
+
+> Implement the plan.
+
+추가 요청 원문:
+
+> 이어서 진행해줘. 현재 UI가 불안정해
+
+증상 설명 원문:
+
+> 지도 ui가 정확하지않고, 빈화면이 많음
+
+답변·결과 요약: frontend-design으로 본토·제주를 크게 보여주는 파스텔 GeoJSON 지도, MapLibre Native/Web·실제 좌표 썸네일/작성자 마커·줌·영역 선택을 구현했다. 지도 전체 스타일 재로딩을 레이어 갱신으로 바꾸고 확대 후 지역명 소실과 웹 import.meta/worker 빈 화면·Android 비트맵 마커 누락을 보완했다. Geoapify 검색·서버 장소 확인·주소/출처 저장과 기존 Google 위치 재확인 경로를 추가했다. 사용자가 로컬에 설정한 서버 키로 실제 검색을 검증하고 dry-run 후 원격 migration·Secret·함수를 반영했다. 시스템 Google 포토 선택기→사진 압축/저장→실제 좌표 마커→미리보기/상세→삭제를 Android에서 확인했고 테스트 데이터만 정리했다. 자동 검사 166 passed/1 skipped, TypeScript·웹 export·APK build/install을 통과했다. 전주한옥마을 자체의 정확한 이름 결과·클라우드 전용 사진·실기기 등 한계는 TEST_CASE에 구분했다. 커밋·푸시는 하지 않았다.
+
+변경 파일: `.env.example`, `.gitignore`, `AGENTS.md`, `README.local.md`, `README.md`, `backend/supabase/functions/_shared/geoapify.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/supabase/migrations/20261106164000_geoapify_locations.sql`, `backend/tests/geocode-vnext.test.ts`, `backend/tests/maplibre.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/photos-client.test.ts`, `backend/tests/photos-picker.test.ts`, `backend/tests/provinces.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/app.config.ts`, `frontend/app/index.tsx`, `frontend/babel.config.js`, `frontend/e2e/helpers.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/MapAttribution.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/mapStyle.ts`, `frontend/src/photos.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`, `scripts/check-geoapify-live.mjs`, `scripts/configured.mjs`, `scripts/configured.test.mjs`, `scripts/prepare-maplibre.mjs`
+
 ## 2026-11-06 23:07 KST — 커밋·푸시 요청
 
 프롬프트 원문:

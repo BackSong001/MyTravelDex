@@ -1,21 +1,33 @@
 import {beforeEach,expect,test,vi} from 'vitest';
-const {manipulate,read,permission,info,pick,size,library}=vi.hoisted(()=>({manipulate:vi.fn(),read:vi.fn(),permission:vi.fn(),info:vi.fn(),pick:vi.fn(),size:vi.fn(),library:vi.fn()}));
+const {manipulate,read,permission,info,pick,size,library,copy,uuid}=vi.hoisted(()=>({manipulate:vi.fn(),read:vi.fn(),permission:vi.fn(),info:vi.fn(),pick:vi.fn(),size:vi.fn(),library:vi.fn(),copy:vi.fn(),uuid:vi.fn()}));
+vi.mock('../../frontend/node_modules/expo-crypto',()=>({randomUUID:uuid}));
+vi.mock('../../frontend/node_modules/expo-file-system/legacy',()=>({copyAsync:copy}));
 vi.mock('../../frontend/node_modules/react-native',()=>({Platform:{OS:'android'},Image:{getSize:size}}));
 vi.mock('../../frontend/node_modules/expo-image-picker',()=>({launchImageLibraryAsync:library}));
 vi.mock('../../frontend/node_modules/expo-document-picker',()=>({getDocumentAsync:pick}));
 vi.mock('../../frontend/node_modules/expo-media-library',()=>({requestPermissionsAsync:permission,getAssetInfoAsync:info}));
 vi.mock('../../frontend/node_modules/expo-image-manipulator',()=>({manipulateAsync:manipulate,SaveFormat:{JPEG:'jpeg'}}));
-vi.mock('../../frontend/node_modules/expo-file-system',()=>({File:class{arrayBuffer=read;}}));
+vi.mock('../../frontend/node_modules/expo-file-system',()=>({
+ Paths:{cache:{uri:'file:///app/cache/'}},
+ File:class {
+  uri:string;
+  constructor(first:string|{uri:string},...parts:string[]){this.uri=typeof first==='string'?first:first.uri;for(const part of parts)this.uri=this.uri.replace(/\/$/,'')+'/'+part;}
+  exists=true;size=100;arrayBuffer=read;
+ },
+}));
 import {compressPhoto,photoMetadata,photoPermission,pickPhotos} from '../../frontend/src/photos';
 const asset={uri:'file:///selected.jpg',width:4000,height:3000,assetId:'123'};
-beforeEach(()=>{vi.resetAllMocks();});
-test('Android document selection keeps selected media ID and limited permission uses system picker',async()=>{
+beforeEach(()=>{vi.resetAllMocks();uuid.mockReturnValue('selected-photo');});
+test('explicit Android original selection caches bytes and keeps media ID; limited access uses system picker',async()=>{
  pick.mockResolvedValue({canceled:false,assets:[{uri:'content://com.android.providers.media.documents/document/image%3A36',name:'selected.jpg',size:100,mimeType:'image/jpeg'}]});size.mockResolvedValue({width:2400,height:1600});
  info.mockResolvedValue({width:2400,height:1600});
- expect((await pickPhotos(true)).assets?.[0]).toMatchObject({assetId:'36',width:2400,height:1600});
+ expect((await pickPhotos(true,'original')).assets?.[0]).toMatchObject({uri:'file:///app/cache/selected-photo.jpg',assetId:'36',width:2400,height:1600,fileSize:100});
  expect(pick).toHaveBeenCalledWith({type:['image/jpeg','image/png'],multiple:true,copyToCacheDirectory:false});
- library.mockResolvedValue({canceled:true,assets:null});expect((await pickPhotos(false)).canceled).toBe(true);
- pick.mockResolvedValue({canceled:true});expect((await pickPhotos(true)).canceled).toBe(true);
+ expect(copy).toHaveBeenCalledWith({from:'content://com.android.providers.media.documents/document/image%3A36',to:'file:///app/cache/selected-photo.jpg'});
+ expect(size).toHaveBeenCalledWith('file:///app/cache/selected-photo.jpg');
+ library.mockResolvedValue({canceled:true,assets:null});expect((await pickPhotos(false,'original')).canceled).toBe(true);
+ expect(library).toHaveBeenCalledWith({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true});
+ pick.mockResolvedValue({canceled:true});expect((await pickPhotos(true,'original')).canceled).toBe(true);
 });
 test('compression enforces actual output dimensions when Android reports a smaller source',async()=>{
  manipulate.mockResolvedValueOnce({uri:'file:///large.jpg',width:2400,height:1600}).mockResolvedValueOnce({uri:'file:///small.jpg',width:2048,height:1365});read.mockResolvedValue(new ArrayBuffer(90));

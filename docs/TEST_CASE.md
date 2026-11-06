@@ -1,5 +1,41 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 2026-11-06 23:53 KST — MapLibre·Geoapify·Google 포토 및 지도 표시 보완
+
+실행 결과: Vitest **109 passed / 1 skipped**, Playwright **52 passed**, 설정·로컬 worker 검사 **5 passed**. 합계 자동 검사 **166 passed / 1 skipped**. TypeScript·Expo Web export·Android 자체 APK build/install 성공. 건너뛴 기존 실제 OAuth CI 항목을 성공에 합산하지 않는다. 이번 Android 검증은 기존 Google 세션을 사용했으며 신규 동의 화면을 다시 검증한 것으로 계산하지 않는다.
+
+| TC | 요구사항 | 검증 내용과 결과 |
+|---|---|---|
+| TC-MAPLIBRE-001 | FR-MAPLIBRE-001 | 실제 WebGL로 로컬 모듈 worker·공유 파일, 17개 경계·색상·홀·섬 렌더링, Google 지도 요청 없음 통과. Expo export에도 worker 포함. 서버 Geoapify 키가 웹 번들에 없음을 확인. |
+| TC-MAPLIBRE-002 | FR-MAPLIBRE-002 | 실제 좌표 투영·줌·전체 보기·겹침 그룹·지역 도감·컨텍스트 손실 대체/재시도 통과. Android에서는 본토/제주 확대 초기 화면과 썸네일 마커·미리보기·상세 이동 확인. |
+| TC-MAPLIBRE-003 | FR-MAPLIBRE-003 | 실제 Local Auth/HTTP/DB와 외부 제공자 대역으로 검색/상세/역지오코딩·권한·오류·필드 저장 통과. 실제 키로 검색/상세 5건 확인하고 앱에서 전주 검색→주소 결과 선택→서버 저장까지 확인. |
+| TC-MAPLIBRE-004 | FR-MAPLIBRE-004 | 기존 Google source 제외·원본 데이터 미변경, 새 source·필드/RLS 회귀 통과. 소유자 상세에서 위치 재확인 경로 제공. 기존 원격 Google 기록을 일괄 변환하지 않았다. |
+| TC-MAPLIBRE-005 | FR-MAPLIBRE-005 | 실제 검색에서 경복궁·남산서울타워·해운대해수욕장·성산일출봉은 정확한 이름 결과 확인. **전주한옥마을은 마을 자체 대신 주차장/안내소 반환**. 자동 랜드마크에서 제외하고 공급자 결과를 이름·주소 그대로 표시한다. 5개 랜드마크 모두 정확히 확보한 것으로 판정하지 않는다. |
+| TC-MAPLIBRE-006 | FR-MAPLIBRE-002 | Red: 선택/내 기록 갱신 때 style.load가 1→3회. Green: 전체 스타일 재로딩 없이 레이어 갱신, 실제 WebGL에서 로드 횟수·중심·줌 불변. 초기 본토/제주 프레임·국내 이동 범위·확대 후 지역명 유지 적용. |
+| TC-PHOTO-CLOUD-001 | FR-PHOTO-CLOUD-001 | 전체 사진 권한 선요청 없이 시스템 선택기 사용 단위 검증. Android에서 **Search Google Photos**가 있는 실제 제공자 선택기 진입·선택·복귀 확인. 웹용 Google Photos OAuth는 범위 밖. |
+| TC-PHOTO-CLOUD-002 | FR-PHOTO-CLOUD-002 | 선택적 원본 문서의 ID/EXIF 보존·content URI 캐시 스트림 복사·실제 파일 크기·취소/오류 정리 단위 회귀 통과. 기존 EXIF/압축 테스트 유지. |
+| TC-PHOTO-CLOUD-003 | FR-PHOTO-CLOUD-003 | 시스템 제공자에서 앱 화면 캡처 1장을 선택→기간 직접 보정→Geoapify 장소 선택→실제 Supabase complete/private 저장. 압축 JPEG 1344×2048·126125 bytes·대표사진 1장 및 썸네일 저장 확인. 입력 보존/20장/재시도 자동 회귀 통과. **선택 사진이 기기에 없는 클라우드 전용 파일인지는 검증하지 않았다.** |
+
+Android에서 선택한 실제 위치는 공급자가 반환한 전주한옥마을 실내공영주차장(35.8181831, 127.1530423)이며 마을 중심으로 이름/좌표를 바꾸지 않았다. 확인용 기록·사진 1장·Storage 파일 2개·해당 정리 작업·고아 위치만 삭제하고 기존 사용자 기록은 보존했다.
+
+원격: additive migration `20261106164000_geoapify_locations.sql`을 로컬 회귀와 원격 dry-run 후 적용했고 Geoapify 서버 Secret·geocode-location 함수를 반영했다. 사용자 입력 없이 프로젝트를 바꾸거나 DB를 reset하지 않았다. Vercel/스토어 배포는 하지 않았다.
+
+발견·해결: v6 웹 모듈의 import.meta/worker 때문에 Expo 화면이 비는 문제는 Expo 공식 변환 옵션·동일 버전 로컬 worker 배포로 해결했다. 보안 취약점이 있는 v5 하향은 채택하지 않았다. Android ViewAnnotation의 빈 스냅샷은 실제 View 기반 Marker로 교체해 확인했다. 넓은 초기 바다 영역·확대 시 지역명 소실·선택 시 전체 스타일 재로딩을 보완했다. 상세 기본 줌은 주변 맥락이 남도록 8, 좌표 보정은 12다.
+
+미검증/한계: 실기기·실제 음성 스크린리더·production 서명·클라우드 전용 사진 다운로드·최신 법정 경계 정확도는 별도 검증이다. 경계는 KOSTAT 2018 단순화 자료이며 도로 타일이 없어서 매우 깊게 확대하면 지역색 중심 화면이 된다. 계정/EXIF에 GPS가 없으면 위치와 기간을 직접 보정한다. 실제 서비스 결과를 고정 대역 테스트 성공과 혼동하지 않는다.
+
+지도 안정성: 지역 선택·내 방문 목록 갱신은 지도 전체 스타일을 다시 로드하지 않고 해당 레이어만 갱신한다. 입력·사진 URL·목록 갱신 시 현재 중심과 확대 수준을 유지한다. TC-MAPLIBRE-006으로 실제 WebGL 스타일 로드 횟수·카메라 불변을 검증하고 Android 마커/선택을 별도로 확인한다.
+
+## MapLibre 전환 계약 (2026-11-06)
+
+이 절은 아래의 과거 Google 지도·검색 구현 설명보다 우선한다. Android는 MapLibre React Native, 웹은 MapLibre GL JS로 대한민국 WGS84 시·도 GeoJSON을 렌더링한다. Google 지도 SDK/로고/지도 키는 신규 화면에서 사용하지 않고 Google OAuth는 유지한다. 원본 팔레트·하단 메뉴·작성 패널을 유지하며 파스텔 면, 선택 지역 강조, 좌표 기반 썸네일/작성자 마커와 확대·축소·전체 보기를 제공한다. 도로·주변 국가·연결선은 그리지 않는다. GeoJSON은 KOSTAT 2018 단순화 자료로 최신 법정 경계나 측량 자료가 아니다.
+
+장소 검색은 인증된 geocode-location Edge Function에서 Geoapify로 처리한다. query 검색 → 이름·주소 결과 선택 → provider=geoapify/place_id 상세 확인 → 실제 좌표 저장 → 마커 표시 순서다. 서버 Secret은 GEOAPIFY_API_KEY이며 클라이언트에 노출하지 않는다. locations.source에 geoapify를 추가하고 address/provider_place_id/attribution을 보존한다. Google 유래 위치는 삭제·자동 재분류하지 않고 소유자 재확인 전 새 지도 표시에서 제외한다. EXIF/device/manual 위치는 그대로 표시한다. 검색 결과 없음·공급자 실패는 입력을 보존하고 지도 직접 선택을 제공한다. 초기 랜드마크 5개는 Geoapify에서 확인된 결과만 표시한다.
+
+사진 선택 기본값은 Android 시스템 Photo Picker이며 Google 포토 클라우드 제공자가 설정된 기기에서 원격 사진을 선택할 수 있다. 전체 갤러리 권한은 기본 선택의 전제조건이 아니다. 별도 원본 파일 선택으로 기존 메타데이터 조회를 유지한다. 클라우드 임시 파일은 캐시에 가져와 기존 JPEG 압축·썸네일·Storage 경로에 연결하며 취소/오류 시 기존 입력을 유지한다. 최대 20장, 메타데이터 미제공 시 기간/장소 수동 보정, 재선택 시 수동값 보존 규칙을 유지한다. 웹 Google Photos API/OAuth 연동은 범위 밖이다.
+
+검증은 백엔드 → HTTP → UI Red/Green/Refactor 순서다. 실제 Geoapify의 전주한옥마을 등 5개 장소 검색과 Android 클라우드 전용 사진 저장은 모의 테스트와 별도 기록한다. API 키·기기 계정이 없으면 완료로 계산하지 않는다. 기존 기록/권한/업로드/초안 회귀 검사를 유지한다.
+
 ## 여행가봥 UI·소셜 구현 검증 — 2026-11-06
 
 스토리보드·컬러 기반 UI와 공개 프로필·팔로우·장소 상세 계약을 구현했다. 최신 자동 검사는 **88 Vitest / 50 Playwright / 4 설정 = 142 passed**, 실제 Google OAuth를 CI에서 요구하지 않는 기존 **1 skipped**다. 기존 106개·실 API 4개는 과거 이력으로 보존하며 이번 통과 수에 과거 실 API 실행을 합산하지 않는다. 아래 상태는 구현 여부와 검증한 하위 조건의 범위를 구분하며 모든 플랫폼 조건의 수용 완료를 의미하지 않는다.

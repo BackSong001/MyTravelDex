@@ -1,14 +1,27 @@
 # MyTravelDex 기술 요구사항 문서
 
+지도 표시 보완: 초기 카메라는 실제 좌표의 본토·제주 중심 영역(동경 125.6~129.9, 북위 33.1~38.7)을 크게 보여주며, 대한민국 전체 보기에서는 데이터에 포함된 서해 도서·울릉도까지 포함한다. 이동 가능한 영역은 국내 주변으로 제한하고 화면 크기에 맞춰 초기 표시 영역을 자동 계산한다. 확대해도 지역명을 제거하지 않는다. 행정 경계는 기존 2018 자료의 한계가 있으며 좌표를 화면 중앙/도 중심으로 옮겨 정확도를 가장하지 않는다.
+
+지도 안정성: 지역 선택·내 방문 목록 갱신은 지도 전체 스타일을 다시 로드하지 않고 해당 레이어만 갱신한다. 입력·사진 URL·목록 갱신 시 현재 중심과 확대 수준을 유지한다. TC-MAPLIBRE-006으로 실제 WebGL 스타일 로드 횟수·카메라 불변을 검증하고 Android 마커/선택을 별도로 확인한다.
+
+## MapLibre 전환 계약 (2026-11-06)
+
+Android는 `@maplibre/maplibre-react-native` 11.5.1, 웹은 `maplibre-gl` 6.16.0으로 로컬 KOSTAT 2018 WGS84 17개 시·도 GeoJSON을 렌더링한다. 배경 타일·도로·주변 국가·연결선은 없으며 원본 브랜드 팔레트를 유지한다. 테두리는 선택 지역에만 표시하고 방문 여부는 면의 불투명도·체크·스탬프로 구분한다. 마커는 실제 대표 좌표에 놓고 군집 때문에 개별 좌표를 옮기지 않는다. 확대·축소·대한민국 전체 보기와 실패 시 국내 SVG 대체 보기·재시도를 제공한다. 경계는 단순화 자료이며 최신 법정 경계·측량 정확도를 보장하지 않는다.
+
+장소 검색·상세·역지오코딩은 인증된 `geocode-location` Edge Function과 서버 Secret `GEOAPIFY_API_KEY`를 사용한다. 검색은 `id/name/address/latitude/longitude/provider` 배열, 상세는 `{provider:"geoapify",place_id}` 요청과 정규화된 위치 객체다. `locations`에는 nullable `address/provider_place_id/attribution`과 `source=geoapify`를 추가하며 기존 열·Google 장소 ID·데이터·RLS는 유지한다. Google 유래 좌표는 자동 변경하지 않고 지도 표시에서 제외한다. 소유자가 상세의 `위치 다시 확인`으로 검색·핀 보정 후 새 위치를 저장한다. EXIF/device/manual 좌표는 유지한다.
+
+Android 기본 사진 선택은 시스템 Photo Picker이며 전체 갤러리 권한을 먼저 요청하지 않는다. Google 포토는 기기·계정·OS의 클라우드 제공자 설정이 지원할 때만 선택 가능하다. 선택적인 원본 파일 경로에서만 사진 권한을 요청하고, 허용된 MediaStore ID·EXIF를 원본 URI에서 먼저 확보한 뒤 문서 파일을 앱 캐시에 복사한다. 권한 부족 시 시스템 선택기로 진행한다. 클라우드/외부 파일의 메타데이터는 없을 수 있다. 최대 20장·수동 기간/장소 우선·취소/오류 시 입력 보존·기존 JPEG 압축/썸네일/Storage 흐름을 유지한다. 웹은 기존 파일 선택기이며 직접 Google Photos API/OAuth를 추가하지 않는다.
+
+2026-11-06 KST 기준 원격 migration·함수 배포와 Geoapify 서버 Secret 설정을 적용했다. Geoapify 키 추가 후 한국어 5개 검색 HTTP 200은 확인했으나 정확한 장소 확인·운영 수용 완료와 구분한다. 전주한옥마을 검색은 주차장/안내소를 반환해 정확한 마을 좌표로 간주할 수 없다. 검색 결과는 공급자 이름·주소 그대로 표시해 사용자가 선택한다. 랜드마크는 전주한옥마을·경복궁·남산서울타워·해운대해수욕장·성산일출봉의 이름만 런타임 후보로 두고, 로그인 후 Geoapify에서 공백을 제거한 이름이 정확히 일치하는 결과만 표시한다. 비일치·실패·미인증은 생략하며 좌표를 만들거나 결과 이름을 바꾸지 않는다. Android 클라우드 전용 사진 저장은 별도 기기 수용 항목이다. TC-MAPLIBRE-001~005·TC-PHOTO-CLOUD-001~003의 실행 증거는 TEST_CASE 담당자가 기록하며 기존 날짜별 검증 이력은 보존한다.
+
+
 ## 1. 기술 방향
 
 ### 여행가봥 UI·소셜 구현 계약
 
 DISAN·FR-UI-001~011·FR-PROFILE-001·FR-SOCIAL-001·FR-STAMP-001을 구현했다. `20261106163000_vnext_social.sql`은 공개 기본 false·소유자 관계 RLS·공개 projection·친구 view를 추가한다. 검증 범위와 남은 플랫폼 수용 조건은 TEST_CASE 최신 실행 절을 따른다.
 
-**디자인/지도:** 표시명은 여행가봥, package/scheme은 유지한다. 컬러 원본은 frontend/src/design/colors.json이며 원본을 유지한 채 런타임에 연결했다. Google 지도(Android 기존 react-native-maps / Web 기존 Google Maps JS) + 기존 17개 WGS84 GeoJSON Polygon, 축척별 레이블, 기록별 대표사진/대표 좌표 마커와 군집을 사용한다. 한국 밖 기록은 실제 지도에서 유지하며 기존 SVG는 연결 실패 대체 보기다. 경계 출처·2018년 단순화 정확도 한계를 유지한다. 내 방문 테두리·스탬프는 본인 complete만 집계하고 친구 마커와 분리한다.
-
-Android는 React Native 0.81.5의 Fabric과 `react-native-maps` 1.26.20을 고정해 사용한다. 기존 1.20.1의 Paper 크기 전달 경로에서는 실제 APK의 커스텀 마커가 100px로 잘렸으므로 Fabric 구현으로 교체했다. [공식 호환 표](https://github.com/react-native-maps/react-native-maps#fabric-new-architecture)의 RN 0.81.1 이상 조건을 따르며 Expo Go 대신 자체 APK로 검증한다. SDK 전체를 업그레이드하거나 갤러리·Auth 라이브러리를 변경하지 않는다.
+**디자인/지도:** 상단 MapLibre 전환 계약의 로컬 스타일·선택 테두리·실제 좌표 마커를 따른다. 표시명은 여행가봥이며 package/scheme과 컬러 원본을 유지한다. 자체 APK로 네이티브 수용을 검증한다. 과거 react-native-maps 검사 결과는 당시 실행 이력이며 현재 엔진 검증으로 대체하지 않는다.
 
 **레이아웃/상태:** 하단 홈·여행도감·+·친구·My와 독립된 작성 패널 상태를 둔다. 사진/정보/검색 단계를 내부 전환하고 다른 탭에서는 최소화하여 입력과 진행 중 저장을 유지한다. 시스템 갤러리/권한 창은 하단 유지의 예외다. root 세션·저장 상태와 폼 수명을 분리해 탭 전환이 작성 데이터를 지우거나 저장 완료가 다른 탭을 강제 전환하지 않게 한다. 서버 draft 복구와 미등록 사진 재선택 정책은 유지한다.
 
@@ -22,24 +35,24 @@ Android는 React Native 0.81.5의 Fabric과 `react-native-maps` 1.26.20을 고�
 
 **following_travel_records:** authenticated 읽기 전용 security_invoker view다. 내부에서 follower_id=auth.uid() 관계, r.status=complete AND r.visibility=public을 고정하고 travel_records/locations RLS도 유지한다. 반환 필드는 기존 기록의 안전한 조회 필드와 location_id이며 사진은 public_photos와 photo-url을 사용한다. PostgREST FK 임베딩을 실제 HTTP로 검증한다. 기본 combined는 본인 complete 조회와 이 view를 합쳐 ID로 중복 제거한다. mine/following/public은 각각 본인/위 view/기존 공개 조회다. anon은 public만 사용한다.
 
-**위치:** geocode-location의 기존 query/좌표 역지오코딩 모드를 유지하고 place_id 상세 모드를 추가한다. 서버 Google Places Details로 ID·주소·좌표·행정구역을 정규화해 기존 locations 모델로 반환한다. 신규 UI는 장소명·주소·핀만 표시하고 내부 좌표는 기존 PostgREST 위치 생성에 전달한다. 수동 숫자 필드는 제거하되 레거시 API·좌표 범위·소유권 검증은 유지한다. EXIF 확인·파싱/압축은 기존 클라이언트 책임이며 서버에서 범위를 검증한다. 유효 EXIF 저장에 Google 조회를 의무화하지 않는다. 오류 시 이전 확정 위치/입력을 보존하고 주소를 추측하지 않는다.
+**위치:** 장소 검색·상세·역지오코딩은 인증된 `geocode-location` Edge Function과 서버 Secret `GEOAPIFY_API_KEY`를 사용한다. 검색은 `id/name/address/latitude/longitude/provider` 배열, 상세는 `{provider:"geoapify",place_id}` 요청과 정규화된 위치 객체다. `locations`에는 nullable `address/provider_place_id/attribution`과 `source=geoapify`를 추가하며 기존 열·Google 장소 ID·데이터·RLS는 유지한다. Google 유래 좌표는 자동 변경하지 않고 지도 표시에서 제외한다. 소유자가 상세의 `위치 다시 확인`으로 검색·핀 보정 후 새 위치를 저장한다. EXIF/device/manual 좌표는 유지한다. 유효 EXIF 저장에는 외부 조회를 의무화하지 않는다. 숫자 좌표 입력 없이 장소 검색·핀 보정을 제공하고 오류 시 기존 입력을 유지한다.
 
 **스탬프:** 기존 대표 좌표의 17개 지역 판정으로 본인 complete만 재계산한다. 별도 획득 테이블·보상 API는 추가하지 않는다. 도감/지도에서 친구·공개 범위를 보더라도 내 스탬프에 합산하지 않는다.
 
-**접근성/비용:** DISAN의 대비 의미 토큰·48dp·320dp~태블릿·font scale 1.0/1.3/2.0·키보드/안전 영역·감소 설정을 따른다. 애니메이션 완료를 요청 실행의 조건으로 두지 않는다. 지도는 현재 화면에 필요한 썸네일을 우선 조회하고 만료 URL을 갱신한다. 필터/프로필 검색은 URL 인코딩·20개 페이지를 사용하고 관계는 사용자 ID로 식별한다. 새 서버 secret·지도 공급자·프로필 사진 bucket은 필요하지 않다. 기존 Maps API 제한·예산/사용량 검토는 유지한다.
+**접근성/비용:** DISAN의 대비 의미 토큰·48dp·320dp~태블릿·font scale 1.0/1.3/2.0·키보드/안전 영역·감소 설정을 따른다. 애니메이션 완료를 요청 실행의 조건으로 두지 않는다. 지도는 현재 화면에 필요한 썸네일을 우선 조회하고 만료 URL을 갱신한다. 필터/프로필 검색은 URL 인코딩·20개 페이지를 사용하고 관계는 사용자 ID로 식별한다. 지도 검색에는 서버 GEOAPIFY_API_KEY가 필요하며 프로필 사진 bucket은 추가하지 않는다. Geoapify 플랜·쿼터·예산/사용량을 검토한다. 기존 Google key를 보존하면 기존 제한을 해제하지 않는다.
 
 검증 순서: 문서 확정 → additive migration/RLS·서버 계약 Red/Green/Refactor → 실제 Local HTTP → 웹 UI → Android 자체 APK 검증. 기존 공개 조회·소유자 프로필·압축/삭제/재시도 검사를 포함하고 신규 수용 결과와 구분한다.
 
 ### Android 에뮬레이터 실행·사진 계약
 
-- 실제 프로젝트용 Android는 Expo Go 대신 `mytraveldex` scheme과 Android Maps key를 포함한 자체 APK를 설치한다. `npm --prefix frontend run android:configured`는 루트 .env의 공개 값만 사용해 release variant 테스트 APK를 빌드·설치한다. 로컬 테스트 환경과 비밀값은 변경하지 않는다. 이 APK는 개발용 서명이며 스토어 제출 빌드가 아니다.
+- 실제 프로젝트용 Android는 Expo Go 대신 `mytraveldex` scheme과 MapLibre 플러그인을 포함한 자체 APK를 설치한다. `npm --prefix frontend run android:configured`는 루트 .env의 공개 값만 사용해 release variant 테스트 APK를 빌드·설치한다. 로컬 테스트 환경과 비밀값은 변경하지 않는다. 이 APK는 개발용 서명이며 스토어 제출 빌드가 아니다.
 - 실제 환경의 웹 실행은 기본 --no-dev로 고정해 SDK 54 개발용 virtual env가 frontend/.env.local을 우선 적용하는 문제를 피한다. Android APK도 production JS를 내장해 Metro와 독립적으로 실행한다.
-- 사진 라이브러리·선택 사진의 위치 메타데이터 접근 권한을 요청한다. 사진 위치 접근은 실시간 GPS 권한과 구분한다. 기간 입력·장소 검색/핀 보정을 제공하며 숫자 좌표 입력을 노출하지 않는다. 유효 EXIF의 촬영 위치는 Google 조회 없이 유지한다. 앱에 카메라·마이크 권한을 추가하지 않는다.
+- 기본 시스템 사진 선택에는 전체 라이브러리 권한을 선요청하지 않는다. 선택적 원본 경로에서만 사진·메타데이터 권한을 요청한다. 사진 위치 접근은 실시간 GPS 권한과 구분한다. 기간 입력·장소 검색/핀 보정을 제공하며 숫자 좌표 입력을 노출하지 않는다. 유효 EXIF의 촬영 위치는 외부 장소 조회 없이 유지한다. 앱에 카메라·마이크 권한을 추가하지 않는다.
 - Expo ImagePicker와 MediaLibrary로 선택 사진의 EXIF/위치를 읽는다. DateTimeOriginal을 우선하고 유효한 촬영 날짜의 최소/최대를 기간으로, 표시 첫 사진의 유효 GPS를 대표 위치로 제안한다. 첫 사진에 GPS가 없으면 다음 사진으로 자동 대체하지 않는다. Android가 이미 부호를 적용한 GPS를 다시 반전하지 않는다.
-- Android 전체 사진 접근을 허용하면 Expo DocumentPicker의 `ACTION_OPEN_DOCUMENT`로 MediaStore 문서 ID를 얻고 MediaLibrary로 허용된 원본 GPS를 조회한다. 기본 Photo Picker/클라우드 URI는 asset ID가 없고 GPS를 0·빈 방향값으로 마스킹할 수 있다. 제한 접근에서는 ImagePicker를 사용하고 마스킹된 GPS는 `null`로 처리한다. 실제 0도 좌표와 구분한다. Android의 GET_CONTENT 자동 Photo Picker 전환 때문에 ImagePicker의 legacy 옵션만으로는 보장하지 않는다.
+- 별도 원본 파일 선택에서 Android 전체 사진 접근을 허용하면 Expo DocumentPicker의 `ACTION_OPEN_DOCUMENT`로 MediaStore 문서 ID를 얻고 MediaLibrary로 허용된 원본 GPS를 조회한다. 기본 Photo Picker/클라우드 URI는 asset ID가 없고 GPS를 0·빈 방향값으로 마스킹할 수 있다. 제한 접근에서는 ImagePicker를 사용하고 마스킹된 GPS는 `null`로 처리한다. 실제 0도 좌표와 구분한다. Android의 GET_CONTENT 자동 Photo Picker 전환 때문에 ImagePicker의 legacy 옵션만으로는 보장하지 않는다.
 - 원본 대신 압축본만 보존한다는 사용자 결정에 따라 새 업로드는 JPEG 보관본(긴 변 2048px·최대 5 MiB, 초기 quality 0.8)과 JPEG 썸네일(512px·512 KiB)만 저장한다. 원본 파일은 업로드하지 않는다. 압축 전에 추출한 메타데이터를 DB에 저장하고 이미지 파일에서는 EXIF를 제거한다. 원본을 서버에서 복원할 수 없음을 UI에 안내한다.
 - `original_path`, `original.jpg`, variant `original`은 기존 API 호환 이름을 유지하되 새 클라이언트에서는 압축 보관본을 의미한다. width/height/file_size_bytes는 압축된 실제 파일 기준이다. 기존 서버의 JPEG/PNG·20 MiB 제한과 기존 저장 데이터는 유지한다.
-- Android 크기 조회는 MediaStore 원본 크기를 우선 사용한다. 화면 이미지 로더가 축소된 크기를 반환할 수 있으므로 압축 결과의 실제 크기도 검사하고 긴 변 제한 초과 시 원래 선택 URI에서 다시 리사이즈한다.
+- Android 원본 파일 경로는 원본 URI에서 MediaStore ID·EXIF를 먼저 확보하고 캐시 복사본의 존재·양수 파일 크기·이미지 크기를 검사한다. 실패하면 해당 캐시를 정리하고 기존 입력을 유지한다. 압축 결과의 실제 긴 변도 검사하고 초과 시 선택 URI에서 다시 리사이즈한다.
 
 선택기 계약은 [Expo SDK 54 DocumentPicker의 ACTION_OPEN_DOCUMENT 구현](https://github.com/expo/expo/blob/sdk-54/packages/expo-document-picker/android/src/main/java/expo/modules/documentpicker/DocumentPickerModule.kt)을 따른다. 웹에서는 기존 ImagePicker를 사용한다.
 
@@ -47,7 +60,7 @@ Android는 React Native 0.81.5의 Fabric과 `react-native-maps` 1.26.20을 고�
 
 웹 연결에 사용하는 `photo-url`, `cleanup-storage`, `geocode-location`은 OPTIONS preflight와 공통 CORS 응답을 제공한다. 실제 원격 Relay가 이를 대신 처리한다고 가정하지 않는다. CORS 응답과 별도로 각 함수의 사용자 JWT 또는 서버 전용 자격 검증을 유지한다.
 
-- 홈/지도 탭은 상·하단 탐색을 제외한 전체 영역을 채우는 GeoJSON + `react-native-svg` 지도로 통합한다. Google 타일 스타일만으로 행정구역 일러스트를 만들지 않는다. 작성·상세 위치 보정에는 기존 Google 지도를 유지한다.
+- 홈/지도 탭은 상·하단 탐색을 제외한 전체 영역을 채우는 MapLibre 로컬 GeoJSON 지도로 통합한다. `react-native-svg`는 실패 시 국내 대체 보기에 사용한다. 작성·상세 위치 보정도 MapLibre와 Geoapify를 사용한다.
 - WGS84 GeoJSON Polygon/MultiPolygon과 내부 링을 보존하고 Mercator 투영으로 공통 SVG 좌표를 만든다. 도·특별/광역/특별자치시를 포함한 17개 지역을 구분한다. 오프라인 번들에 경계를 포함하며 실행 시 외부 경계 API를 호출하지 않는다.
 - 경계 출처는 southkorea-maps가 배포한 KOSTAT 2018 시·도 경계다. 출처·라이선스·단순화/반올림 내용을 함께 제공한다. 법정 최신 경계·측량·길 안내 정확도를 보장하는 데이터로 사용하지 않는다.
 - 완료 기록의 대표 좌표를 Polygon/MultiPolygon과 hole을 고려해 지역에 배정하고 권한이 허용한 현재 조회 결과만 집계한다. 공개 사진 EXIF·원본은 사용하지 않는다. 대한민국 밖 좌표는 국내 방문 수에 포함하지 않는다.
@@ -77,7 +90,7 @@ Android는 React Native 0.81.5의 Fabric과 `react-native-maps` 1.26.20을 고�
 ### 외부 서비스
 
 - Google OAuth
-- Google Maps Platform
+- MapLibre Native 11.5.1 / MapLibre GL JS 6.16.0 + Geoapify
 
 ### 테스트
 
@@ -96,13 +109,13 @@ React Native / Expo
         ├── Supabase PostgREST ── PostgreSQL
         ├── Supabase Storage
         ├── Edge Functions (선택)
-        └── Google Maps Platform
+        └── MapLibre + 로컬 GeoJSON / Geoapify 검색
 ```
 
 일반 CRUD는 PostgREST와 RLS를 사용한다. 다음 경우에만 Edge Function을 사용한다.
 
 - service role key가 필요한 작업
-- Google Maps 서버 키를 클라이언트에 노출하면 안 되는 작업
+- Geoapify 서버 Secret을 보호하는 장소 검색·상세·역지오코딩
 - 신뢰할 수 없는 클라이언트 입력을 서버에서 재검증해야 하는 작업
 - 이미지 후처리·고아 파일 정리 등 비동기 작업
 
@@ -131,12 +144,15 @@ React Native / Expo
 | `owner_id` | `uuid` | 생성자, `profiles.id` FK, not null, 변경 불가 |
 | `longitude` | `numeric` | -180 이상 180 이하 |
 | `place_name` | `text` | nullable |
-| `google_place_id` | `text` | nullable, Google 장소 식별자 |
+| `google_place_id` | `text` | nullable, 기존 Google 장소 식별자 보존 |
+| `address` | `text` | nullable, 공급자가 반환한 주소 |
+| `provider_place_id` | `text` | nullable, Geoapify 장소 식별자 |
+| `attribution` | `text` | nullable, 공급자 출처 표시 |
 | `country_code` | `text` | nullable, ISO 국가 코드 |
 | `country_name` | `text` | nullable |
 | `region_name` | `text` | nullable, 시·도·주 등 |
 | `city_name` | `text` | nullable |
-| `source` | `text` | `exif`, `device`, `manual`, `google` 중 하나 |
+| `source` | `text` | `exif`, `device`, `manual`, `google`, `geoapify` 중 하나 |
 | `created_at` | `timestamptz` | 서버 기본값 |
 
 ### 3.3 `travel_records`
@@ -337,13 +353,9 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 - 리디렉션 URL은 환경별로 관리한다.
 - OAuth 토큰은 앱이 직접 장기 보관하지 않고 Supabase 세션 관리에 위임한다.
 
-### Google Maps Platform
+### MapLibre·Geoapify
 
-- 클라이언트 지도 표시와 위치 선택에 사용한다.
-- 장소 검색·역지오코딩은 필요한 화면에서만 호출한다.
-- API key에는 플랫폼별 제한과 API별 제한을 설정한다.
-- 사용량과 결제 알림을 Google Cloud에서 관리한다.
-- 서버에서 호출해야 하는 Google API는 Edge Function 후보로 분리한다.
+상단 전환 계약과 14.4의 웹 worker 설정을 따른다. 지도 스타일·경계는 로컬 자산이며 검색·상세·역지오코딩만 서버 Geoapify를 호출한다. 외부 키는 클라이언트에 전달하지 않는다.
 
 ## 10. 환경변수와 비밀정보
 
@@ -351,13 +363,13 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 
 - `EXPO_PUBLIC_SUPABASE_URL`
 - `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-- 플랫폼 제한이 적용된 지도 브라우저 키
+- 현재 MapLibre 로컬 스타일은 지도 브라우저 키가 필요 없다. 기존 Google 지도 변수는 deprecated 호환 항목이다.
 
 서버 전용 값:
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 - Google OAuth Client Secret
-- 서버용 Google Maps API key
+- `GEOAPIFY_API_KEY` (Supabase Edge Function Secret)
 
 `.env` 파일과 비밀키는 Git에 커밋하지 않는다. 환경별 개발·테스트·운영 값을 분리한다.
 
@@ -372,7 +384,7 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 - `VALIDATION_ERROR`: 필수값·형식·범위 오류
 - `NOT_FOUND`: 존재하지 않거나 접근할 수 없는 리소스
 - `UPLOAD_FAILED`: Storage 업로드 실패
-- `EXTERNAL_SERVICE_ERROR`: Google OAuth·Maps 등 외부 서비스 실패
+- `EXTERNAL_SERVICE_ERROR`: Google OAuth·Geoapify 등 외부 서비스 실패
 - `INTERNAL_ERROR`: 예상하지 못한 서버 오류
 
 사용자에게는 이해 가능한 한국어 안내를 제공하되, 외부 서비스가 반환한 원문 에러는 로깅·디버깅 맥락에서 원문을 보존한다.
@@ -435,8 +447,8 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 
 #### 외부 API 경계
 
-- Google Maps 장소 검색·Geocoding 호출은 외부 API 통합 테스트 또는 mock으로 분리
-- Google Maps API key 오류·쿼터 초과를 `EXTERNAL_SERVICE_ERROR`로 변환
+- Geoapify 장소 검색·역지오코딩 호출은 외부 API 통합 테스트 또는 mock으로 분리
+- Geoapify API key 오류·쿼터 초과를 `EXTERNAL_SERVICE_ERROR`로 변환
 - Google OAuth 자체 성공 여부는 provider 설정 검증으로 확인하고, DB 테스트에서는 발급된 Supabase 세션을 사용
 
 TDD 순서:
@@ -448,7 +460,7 @@ TDD 순서:
 
 ### 2단계 프론트엔드 HTTP 통신: Vitest + Supabase Local
 
-화면 없이 실제 프론트엔드 요청 코드를 로컬 Auth·PostgREST·Storage에 연결한다. 로그인 세션·공개/소유자 조회·업로드·완료·대표사진 교체·삭제·오류 매핑·재시도를 테스트한다. Google OAuth·Maps는 외부 경계만 mock 또는 별도 테스트 환경으로 분리하며, 자체 백엔드 통신을 mock만으로 통과 처리하지 않는다.
+화면 없이 실제 프론트엔드 요청 코드를 로컬 Auth·PostgREST·Storage에 연결한다. 로그인 세션·공개/소유자 조회·업로드·완료·대표사진 교체·삭제·오류 매핑·재시도를 테스트한다. Google OAuth·Geoapify는 외부 경계만 mock 또는 별도 테스트 환경으로 분리하며, 자체 백엔드 통신을 mock만으로 통과 처리하지 않는다.
 
 ### 3단계 프론트엔드 프로토타입: Playwright + Expo Web
 
@@ -487,7 +499,7 @@ TDD 순서:
 ## 13. 모니터링·비용 관리
 
 - Supabase DB 용량, Storage 용량, Egress, MAU를 모니터링한다.
-- Google Maps API별 호출량과 비용 알림을 설정한다.
+- Geoapify 플랜·호출량·쿼터·비용을 확인한다.
 - 업로드 파일 크기와 이미지 해상도를 제한한다.
 - 실패한 비동기 작업과 고아 Storage 파일을 추적한다.
 - 무료 플랜의 최신 한도와 과금 조건은 배포 전 공식 요금표로 재확인한다.
@@ -534,28 +546,11 @@ TDD 순서:
 7. local·test·production Redirect URL을 분리한다.
 8. Client Secret은 서버 전용 환경변수로 관리한다.
 
-### 14.4 Google Maps API
+### 14.4 MapLibre·Geoapify 설정
 
-MVP 초기에는 다음 API만 활성화한다.
+MapLibre는 로컬 GeoJSON 스타일을 사용하므로 Google 지도 API 활성화·지도 key가 필요 없다. Geoapify 키는 Supabase `GEOAPIFY_API_KEY` Secret으로 설정하고 클라이언트에 전달하지 않는다. 기존 Google 지도 변수는 deprecated이며 과거 검사 도구 호환용으로만 남긴다. Google OAuth 설정은 14.3을 유지한다.
 
-| API | 사용 목적 |
-|---|---|
-| Maps JavaScript API | Expo Web 지도 표시와 지도 스타일 |
-| Maps SDK for Android | Android 네이티브 지도 |
-| Maps SDK for iOS | 추후 iOS 지도 |
-| Places API 또는 Places SDK | 장소 검색과 장소명 보완 |
-| Geocoding API | 좌표와 주소 변환 |
-
-초기에는 Routes API, Navigation SDK, Roads API, Street View API, Static Maps API, Elevation API, Map Tiles API를 활성화하지 않는다.
-
-API key는 다음처럼 분리한다.
-
-- Web key: HTTP referrer 제한
-- Android key: package name와 SHA-1 제한
-- iOS key: bundle identifier 제한
-- Server key: 서버 또는 Edge Function 전용 제한
-
-Google Maps API key에는 애플리케이션 제한과 API 제한을 모두 적용한다. 제한 없는 key는 사용하지 않는다.
+웹 6.16.0의 `import.meta`는 Expo Babel의 `unstable_transformImportMeta`로 변환한다. postinstall에서 worker와 공유 모듈을 설치 패키지로부터 `frontend/public/vendor/maplibre/`에 복사하고 `/vendor/maplibre/maplibre-gl-worker.mjs`로 worker URL을 지정해 Expo Web export에 포함한다. 외부 CDN을 사용하지 않는다. 5.24.0 다운그레이드는 보안 문제로 채택하지 않는다. 실제 번들·worker 로딩 검증 결과는 TEST_CASE 실행 이력을 따른다.
 
 ## 15. 환경변수 계약
 
@@ -566,6 +561,7 @@ Google Maps API key에는 애플리케이션 제한과 API 제한을 모두 적�
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Deprecated: 현재 지도에서 미사용, 기존 도구 호환용
 EXPO_PUBLIC_GOOGLE_MAPS_WEB_API_KEY=your_restricted_web_maps_api_key
 EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY=your_restricted_android_maps_api_key
 EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY=your_restricted_ios_maps_api_key
@@ -580,6 +576,8 @@ GOOGLE_OAUTH_CLIENT_ID_WEB=your_web_oauth_client_id
 GOOGLE_OAUTH_CLIENT_ID_ANDROID=your_android_oauth_client_id
 GOOGLE_OAUTH_CLIENT_ID_IOS=your_ios_oauth_client_id
 GOOGLE_OAUTH_CLIENT_SECRET=your_google_oauth_client_secret
+GEOAPIFY_API_KEY=your_geoapify_server_key
+# Deprecated: 기존 Google 검사 도구 전용, 현재 geocode-location에서 미사용
 GOOGLE_MAPS_SERVER_API_KEY=your_restricted_server_maps_api_key
 SUPABASE_PROJECT_REF=your_supabase_project_ref
 SUPABASE_DB_PASSWORD=your_supabase_database_password
@@ -595,7 +593,7 @@ GOOGLE_OAUTH_REDIRECT_URL_TEST=https://your-test-domain.example/auth/callback
 GOOGLE_OAUTH_REDIRECT_URL_PRODUCTION=https://your-production-domain.example/auth/callback
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY`, OAuth Client Secret, 서버용 Maps key는 앱 번들에 포함하지 않는다. `EXPO_PUBLIC_*` 값은 공개될 수 있으므로 반드시 제한된 key만 사용한다.
+`SUPABASE_SERVICE_ROLE_KEY`, OAuth Client Secret, `GEOAPIFY_API_KEY`와 deprecated Google 서버 key는 앱 번들에 포함하지 않는다. `EXPO_PUBLIC_*` 값은 공개될 수 있으므로 반드시 제한된 key만 사용한다.
 
 ## 16. Supabase CLI 명령어
 

@@ -23,13 +23,3 @@ export const colors = {
     inactiveLabel: '#74665E',
   },
 };
-
-export const googleMapStyle = [
-  { elementType: 'geometry', stylers: [{ color: colors.map.landDefault }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: colors.ink }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: colors.map.mapLabelHalo }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: colors.map.ocean }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: colors.sheet }] },
-  { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-];

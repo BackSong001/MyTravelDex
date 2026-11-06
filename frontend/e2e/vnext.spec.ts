@@ -151,7 +151,7 @@ test('TC-VNEXT-UI-007 저장 중 탭 이동해도 실제 완료는 한 번·입�
  await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveAttribute('aria-selected','true');
  const records=await admin(`/rest/v1/travel_records?owner_id=eq.${accounts[0].id}&select=*,locations(*)`);
  expect(records).toHaveLength(1);expect(records[0].status).toBe('complete');
- expect(records[0].locations).toMatchObject({latitude:33.4996,longitude:126.5312,google_place_id:'e2e-jeju-city-hall',region_name:'제주특별자치도'});
+ expect(records[0].locations).toMatchObject({latitude:33.4996,longitude:126.5312,provider_place_id:'e2e-jeju-city-hall',region_name:'제주특별자치도'});
  expect(await admin(`/rest/v1/photos?travel_record_id=eq.${records[0].id}`)).toHaveLength(1);
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
  await expect(page.getByText('0 / 20장 선택',{exact:true})).toBeVisible();

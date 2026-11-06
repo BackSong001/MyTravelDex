@@ -6,18 +6,18 @@ export const headers={apikey:status.SERVICE_ROLE_KEY,Authorization:`Bearer ${sta
 export async function admin(path:string,method='GET',body?:unknown){const r=await fetch(`${status.API_URL}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw new Error(`Local fixture request failed (${r.status})`);const t=await r.text();return t?JSON.parse(t):null;}
 export const jpeg=Buffer.from('/9j/4AAQSkZJRgABAgAAAQABAAD//gAQTGF2YzYwLjMxLjEwMgD/2wBDAAgEBAQEBAUFBQUFBQYGBgYGBgYGBgYGBgYHBwcICAgHBwcGBgcHCAgICAkJCQgICAgJCQoKCgwMCwsODg4RERT/xABLAAEBAAAAAAAAAAAAAAAAAAAABwEBAAAAAAAAAAAAAAAAAAAAABABAAAAAAAAAAAAAAAAAAAAABEBAAAAAAAAAAAAAAAAAAAAAP/AABEIAAIAAgMBIgACEQADEQD/2gAMAwEAAhEDEQA/AL+AD//Z','base64');
 
-// shortcut: UI 전용 장소 대역이며 실제 Edge/Google 경계 계약은 backend geocode-vnext 테스트에서 검증한다.
+// shortcut: UI 전용 장소 대역이며 실제 Edge/Geoapify 경계 계약은 backend geocode-vnext 테스트에서 검증한다.
 export async function choosePlace(page:Page) {
  const calls:unknown[]=[];
  await page.route('**/functions/v1/geocode-location',async route=>{
-  const body=route.request().postDataJSON();calls.push(body);
+  const body=route.request().postDataJSON();if(body.query&&body.query!=='제주 시청'){await route.fulfill({json:[]});return;}calls.push(body);
   expect(route.request().method()).toBe('POST');
   if('query' in body){
    expect(body).toEqual({query:'제주 시청'});
-   await route.fulfill({json:[{id:'e2e-jeju-city-hall',displayName:{text:'제주 시청'},formattedAddress:'대한민국 제주특별자치도 제주시',location:{latitude:0,longitude:0}}]});
+   await route.fulfill({json:[{id:'e2e-jeju-city-hall',name:'제주 시청',address:'대한민국 제주특별자치도 제주시',provider:'geoapify',latitude:0,longitude:0}]});
   }else{
-   expect(body).toEqual({place_id:'e2e-jeju-city-hall'});
-   await route.fulfill({json:{latitude:33.4996,longitude:126.5312,source:'google',place_name:'제주 시청',google_place_id:'e2e-jeju-city-hall',country_code:'KR',country_name:'대한민국',region_name:'제주특별자치도',city_name:'제주시'}});
+   expect(body).toEqual({provider:'geoapify',place_id:'e2e-jeju-city-hall'});
+   await route.fulfill({json:{latitude:33.4996,longitude:126.5312,source:'geoapify',place_name:'제주 시청',provider_place_id:'e2e-jeju-city-hall',address:'대한민국 제주특별자치도 제주시',attribution:'Powered by Geoapify | © OpenStreetMap contributors',country_code:'KR',country_name:'대한민국',region_name:'제주특별자치도',city_name:'제주시'}});
   }
  });
  await expect(page.getByLabel('위도',{exact:true})).toHaveCount(0);
@@ -26,7 +26,7 @@ export async function choosePlace(page:Page) {
  await page.getByRole('button',{name:'장소 찾기',exact:true}).click();
  await page.getByRole('button',{name:'제주 시청 대한민국 제주특별자치도 제주시',exact:true}).click();
  await expect(page.getByLabel('선택한 장소',{exact:true})).toContainText('제주 시청');
- expect(calls).toEqual([{query:'제주 시청'},{place_id:'e2e-jeju-city-hall'}]);
+ expect(calls).toEqual([{query:'제주 시청'},{provider:'geoapify',place_id:'e2e-jeju-city-hall'}]);
 }
 export async function login(page:Page,email:string,password:string) {
  await page.route('https://maps.googleapis.com/**',r=>r.abort());

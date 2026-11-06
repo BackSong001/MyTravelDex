@@ -1,12 +1,18 @@
 # MyTravelDex
 
-나만의 여행도감(MyTravelDex)은 갤러리 사진의 촬영일·위치정보를 활용해 여행 기록을 저장하고, 지도에서 다시 탐색하고 공유하는 모바일 앱이다.
+## 지도 전환·사진 선택 현황 (2026-11-06)
+
+Android MapLibre Native 11.5.1 / Web GL JS 6.16.0과 로컬 KOSTAT 2018 경계를 사용한다. 배경 타일 없이 브랜드 팔레트·선택 지역만의 테두리·실제 좌표 마커를 유지한다. 검색·상세·역지오코딩은 인증된 서버 Geoapify이며 Google OAuth는 유지한다. Google 유래 위치는 상세의 `위치 다시 확인`으로 소유자가 보정하기 전 지도에서 제외한다.
+
+Android 기본 시스템 사진 선택에는 전체 권한을 선요청하지 않는다. Google 포토는 기기 클라우드 제공자 설정에 따른다. 원본 파일 경로에서만 선택적으로 권한을 요청하고 MediaStore ID 확보 후 캐시로 복사한다. 웹 직접 Photos OAuth는 추가하지 않는다.
+
+원격 migration·함수는 아직 미적용이다. 키 추가 후 한국어 5개 검색 HTTP 200은 확인했으나 전주한옥마을은 주차장/안내소 결과여서 정확한 마을 랜드마크로 표시하지 않는다. 검색 결과는 공급자 이름·주소 그대로 선택하며 랜드마크는 공백을 제거한 이름이 정확히 일치할 때만 표시한다. Android 클라우드 전용 사진 저장 수용은 별도다. 상세 계약은 [TRD](docs/TRD.md)·[API_SPEC](docs/API_SPEC.md), 실행 증거는 [TEST_CASE](docs/TEST_CASE.md)를 따른다.
 
 ## 여행가봥 UI·소셜
 
 앱 표시명은 **여행가봥**이다. 스토리보드와 원본 컬러를 기준으로 UI를 구현했다. [DISAN.md](docs/DISAN.md)에 스토리보드·11개 요구사항·화면 윤곽·컬러·반응형·상호작용을 정리했다. [컬러 원본](frontend/src/design/colors.json)은 내용 변경 없이 보존하고 앱의 색상 토큰과 지도에 연결했다. [스토리보드 사본](docs/design/storyboard.png)과 루트 원본을 유지한다.
 
-구현 범위는 홈·여행도감·+·친구·My, Google 실제 지도+시·도 Polygon, 대표사진/작성자 마커, 하단 유지 작성 패널, 검색·핀 위치 보정, 일방 팔로우·공개 프로필·내 방문 스탬프다. 공개 프로필 opt-in·관계 RLS·장소 상세 API를 추가했다. 기존 자동 106개와 실 API 4개는 이전 검증 이력으로 보존하며 이번 실행 결과와 Android 미검증 조건은 TEST_CASE 최신 절에서 별도로 관리한다.
+구현 범위는 홈·여행도감·+·친구·My, MapLibre + 로컬 시·도 Polygon, 대표사진/작성자 마커, 하단 유지 작성 패널, 검색·핀 위치 보정, 일방 팔로우·공개 프로필·내 방문 스탬프다. 공개 프로필 opt-in·관계 RLS·장소 상세 API를 추가했다. 기존 자동 106개와 실 API 4개는 이전 검증 이력으로 보존하며 이번 실행 결과와 Android 미검증 조건은 TEST_CASE 최신 절에서 별도로 관리한다.
 
 ## 프로젝트 목표
 
@@ -23,7 +29,7 @@
 - Database: PostgreSQL
 - Authentication: Supabase Auth + Google OAuth
 - File storage: Supabase Storage
-- Map: Google Maps Platform
+- Map: MapLibre Native 11.5.1 / GL JS 6.16.0 + Geoapify
 - Backend testing: Vitest + Supabase Local
 - Web testing: Playwright + Expo Web
 - Android testing: Android Studio Emulator + 실제 Android 기기
@@ -36,7 +42,7 @@ React Native / Expo
         ├── Supabase PostgREST ── PostgreSQL
         ├── Supabase Storage
         ├── Supabase Edge Functions (필요한 경우)
-        └── Google Maps Platform
+        └── MapLibre 로컬 GeoJSON / Geoapify 검색
 ```
 
 일반 CRUD는 Supabase PostgREST와 PostgreSQL RLS로 처리한다. 서버 비밀키가 필요하거나 외부 API를 안전하게 호출해야 하는 기능만 Supabase Edge Functions를 사용한다.
@@ -54,7 +60,7 @@ React Native / Expo
 
 ## 빠른 시작
 
-홈은 17개 시·도 GeoJSON 전체 지도이며 사진 추가는 하단 +에서 시작한다. 목록·필터·초안 복구는 여행도감에서 사용한다. 작성·상세 위치 보정에는 Google 지도를 유지한다. 경계 출처·정확도는 `frontend/src/data/README.md`를 따른다.
+홈은 17개 시·도 GeoJSON 전체 지도이며 사진 추가는 하단 +에서 시작한다. 목록·필터·초안 복구는 여행도감에서 사용한다. 작성·상세 위치 보정도 MapLibre와 Geoapify를 사용한다. 경계 출처·정확도는 `frontend/src/data/README.md`를 따른다.
 
 실제 `.env` 프로젝트와 로컬 회귀 실행을 분리한다.
 
@@ -68,7 +74,7 @@ npm --prefix frontend run configured -- --web --port 8083
 
 실제 웹 복귀 URL은 `http://localhost:8083/auth/callback` 또는 실제 사용한 origin의 `/auth/callback`으로 Supabase에 허용한다. Google Cloud의 callback은 해당 Supabase `/auth/v1/callback`이다. 진단에서 비활성/404가 나오면 Provider·migration 준비가 필요하다. 스크립트는 원격 설정·스키마를 변경하지 않으며 테스트용 8082 서버와 `frontend/.env.local`을 보존한다. 자체 Android OAuth 검증에는 scheme을 포함한 앱 빌드가 필요하다.
 
-현재 프로토타입의 표시명은 여행가방이며 재설계 목표는 여행가봥이다. 기존 패키지와 `mytraveldex` OAuth scheme을 유지한다. 자체 Android 빌드의 Maps key는 `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY`를 설정하면 `frontend/app.config.ts`에서 전달한다. Expo Go 화면 확인과 실제 Google 동의·앱 복귀 검증을 구분한다.
+현재 표시명은 여행가봥이다. 기존 패키지와 `mytraveldex` OAuth scheme을 유지한다. 자체 Android 빌드는 MapLibre config plugin을 사용하며 Google 지도 key가 필요 없다. Expo Go 화면 확인과 실제 Google 동의·앱 복귀 검증을 구분한다.
 
 인증·사진·Storage·공개 조회·삭제 RPC와 Expo Android/Web 프로토타입이 구현되어 있다. 자동 검증과 실제 Google OAuth·실기기 수용 검증은 구분한다. 상세 결과와 남은 조건은 `docs/TEST_CASE.md` 마지막 실행 이력을 참고한다. 로컬 개발에는 Node.js 24 이상·npm·Docker가 필요하다.
 
@@ -116,7 +122,7 @@ npx expo start --web --port 8082
 
 별도 터미널에서 루트 기준 `npx playwright install chromium`, `npx playwright test`를 실행한다. Playwright는 8082 포트의 실행 중인 Expo Web을 사용한다. `frontend/.env.local`에 루트 `.env.example`의 공개 `EXPO_PUBLIC_*` 값만 설정한다. 로컬 URL·anon key는 `npx supabase status --workdir backend`에서 확인하고 service role은 복사하지 않는다.
 
-Android Studio에서 에뮬레이터를 실행한 뒤 `adb reverse tcp:54321 tcp:54321` 및 `adb reverse tcp:8081 tcp:8081`을 설정하고 `frontend/`에서 `ANDROID_HOME=/home/jh-mac/Android/Sdk npx expo start --android --localhost --port 8081`로 Expo Go를 연다. SDK 경로는 설치 환경에 맞춘다. 자체 release 빌드는 별도 Maps Android key·OAuth 설정 후 검증한다.
+Android Studio에서 에뮬레이터를 실행한 뒤 `adb reverse tcp:54321 tcp:54321` 및 `adb reverse tcp:8081 tcp:8081`을 설정하고 `frontend/`에서 `ANDROID_HOME=/home/jh-mac/Android/Sdk npx expo start --android --localhost --port 8081`로 Expo Go를 연다. SDK 경로는 설치 환경에 맞춘다. MapLibre와 OAuth는 Expo Go 대신 자체 APK로 검증한다.
 
 웹 테스트는 UI와 브라우저 흐름을 검증하고, Android 테스트는 카메라·갤러리·GPS·권한·OAuth 딥링크·네이티브 지도 SDK를 검증한다.
 
@@ -131,7 +137,7 @@ Android  → APK/AAB 및 Google Play Store
 Oracle Cloud → 자체 서버가 필요할 때만 검토
 ```
 
-Production 배포 전에는 migration, RLS, Storage 접근 정책, OAuth Redirect URL, Maps API key 제한, 비용 알림을 확인한다.
+Production 배포 전에는 migration, RLS, Storage 접근 정책, OAuth Redirect URL, Geoapify 서버 Secret·쿼터, 비용 알림을 확인한다.
 
 ## 문서
 

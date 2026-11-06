@@ -1,5 +1,13 @@
 # MyTravelDex 팀 공유 문서
 
+## 지도 전환·사진 선택 현황 (2026-11-06)
+
+Android MapLibre Native 11.5.1 / Web GL JS 6.16.0과 로컬 KOSTAT 2018 경계를 사용한다. 배경 타일 없이 브랜드 팔레트·선택 지역만의 테두리·실제 좌표 마커를 유지한다. 검색·상세·역지오코딩은 인증된 서버 Geoapify이며 Google OAuth는 유지한다. Google 유래 위치는 상세의 `위치 다시 확인`으로 소유자가 보정하기 전 지도에서 제외한다.
+
+Android 기본 시스템 사진 선택에는 전체 권한을 선요청하지 않는다. Google 포토는 기기 클라우드 제공자 설정에 따른다. 원본 파일 경로에서만 선택적으로 권한을 요청하고 MediaStore ID 확보 후 캐시로 복사한다. 웹 직접 Photos OAuth는 추가하지 않는다.
+
+원격 migration·함수는 아직 미적용이다. 키 추가 후 한국어 5개 검색 HTTP 200은 확인했으나 전주한옥마을은 주차장/안내소 결과여서 정확한 마을 랜드마크로 표시하지 않는다. 검색 결과는 공급자 이름·주소 그대로 선택하며 랜드마크는 공백을 제거한 이름이 정확히 일치할 때만 표시한다. Android 클라우드 전용 사진 저장 수용은 별도다. 상세 계약은 [TRD](docs/TRD.md)·[API_SPEC](docs/API_SPEC.md), 실행 증거는 [TEST_CASE](docs/TEST_CASE.md)를 따른다.
+
 ## 여행가봥 재설계 상태
 
 현재 UI는 [DISAN.md](docs/DISAN.md), [컬러](frontend/src/design/colors.json), [스토리보드](docs/design/storyboard.png)를 따른다. UI와 공개 프로필·팔로우·장소 상세 API를 구현했다. 하단 홈·여행도감·+·친구·My, 실제 지도/시·도 Polygon·대표사진, 하단 유지 작성 패널, 공개용 닉네임/기본·동의한 Google 아바타, 일방 팔로우와 내 방문 스탬프를 제공한다. 기존 저장·권한·압축·초안 복구 정책은 유지한다.
@@ -23,7 +31,7 @@ MVP 공개 정책은 다음과 같다.
 - **Frontend**: React Native, Expo, TypeScript, Expo Router
 - **Backend**: Supabase Auth, Supabase PostgreSQL, Supabase Storage, PostgREST
 - **Authentication**: Google OAuth via Supabase Auth
-- **Map**: Google Maps Platform
+- **Map**: MapLibre Native 11.5.1 / GL JS 6.16.0 + Geoapify
 - **Backend tests**: Vitest, Supabase Local Development
 - **Web tests**: Playwright, Expo Web
 - **Android tests**: Android Studio Emulator and real Android devices
@@ -58,19 +66,9 @@ MVP에서는 Expo 앱이 업로드 전에 선택 사진의 EXIF를 먼저 읽고
 
 Google 계정의 비밀번호를 직접 다루지 않고 Supabase Auth가 세션을 관리하도록 하기 위해 선택한다. 로그인 이후 애플리케이션은 Supabase 사용자 ID를 기준으로 프로필과 여행 기록을 연결한다.
 
-### Google Maps Platform
+### MapLibre·Geoapify
 
-여행 위치를 지도에 표시하고 사용자가 위치를 보정하거나 장소를 검색할 수 있도록 선택한다.
-
-| API | 사용 목적 |
-|---|---|
-| Maps JavaScript API | Expo Web 지도 표시 |
-| Maps SDK for Android | Android 네이티브 지도 |
-| Maps SDK for iOS | 추후 iOS 지도 |
-| Places API (New) | 장소 검색과 장소 정보 보완 |
-| Geocoding API | 좌표와 주소·지역 정보 변환 |
-
-Routes, Navigation, Roads, Street View 등은 MVP 범위에서 제외한다. API key는 Web·Android·iOS·Server 용도로 분리하고 플랫폼 및 API 제한을 적용한다.
+지도는 로컬 시·도 GeoJSON 스타일이며 배경 타일을 사용하지 않는다. 인증된 서버 Geoapify로 검색·상세·주소를 보완한다. GEOAPIFY_API_KEY는 Supabase 서버 Secret이며 기존 Google 지도 변수는 deprecated 호환 항목이다. Google OAuth는 유지한다.
 
 ## DB 구조
 
@@ -117,12 +115,15 @@ profiles
 | `latitude` | 위도, 필수 |
 | `longitude` | 경도, 필수 |
 | `place_name` | 화면 표시 장소명, 선택 |
-| `google_place_id` | Google 장소 ID, 선택 |
+| `google_place_id` | 기존 Google 장소 ID 보존, 선택 |
+| `address` | 공급자 주소, 선택 |
+| `provider_place_id` | Geoapify 장소 ID, 선택 |
+| `attribution` | 공급자 출처 표시, 선택 |
 | `country_code` | 국가 코드, 선택 |
 | `country_name` | 국가명, 선택 |
 | `region_name` | 시·도·주 등 지역명, 선택 |
 | `city_name` | 도시명, 선택 |
-| `source` | `exif`, `device`, `manual`, `google` |
+| `source` | `exif`, `device`, `manual`, `google`, `geoapify` |
 | `created_at` | 생성일 |
 
 지역 필터를 위해 좌표뿐 아니라 국가·지역·도시 정보를 정규화해 저장한다.
@@ -231,11 +232,11 @@ MCP 연결 설정은 프로젝트 코드가 아니라 개발자별 Codex 환경�
 - Android: 검증 후 APK/AAB와 Google Play Store
 - Oracle Cloud: 장시간 작업·자체 서버·대용량 처리 등 별도 서버가 필요할 때만 검토
 
-Production 배포 전에는 RLS, Storage 접근권한, OAuth, Google Maps key 제한, 비용·사용량을 다시 검증한다.
+Production 배포 전에는 RLS, Storage 접근권한, OAuth, Geoapify 서버 Secret·쿼터, 비용·사용량을 다시 검증한다.
 
 ## 관련 명세서
 
-실제 Google 외부 경계 검사: 루트에서 `node scripts/check-google-live.mjs`. 루트 `.env`의 서버 Maps key로 Places/Geocoding 정상 두 번과 잘못된 키 두 번을 호출한다. Google 사용량이 발생하므로 로컬 기본 `npm test`에 포함하지 않는다. 실제 쿼터를 소진하거나 Cloud 설정을 변경하지 않는다.
+과거 Google 지도 구현용 외부 경계 검사(현재 Geoapify 검증 아님): 루트에서 `node scripts/check-google-live.mjs`. 루트 `.env`의 서버 Maps key로 Places/Geocoding 정상 두 번과 잘못된 키 두 번을 호출한다. Google 사용량이 발생하므로 로컬 기본 `npm test`에 포함하지 않는다. 실제 쿼터를 소진하거나 Cloud 설정을 변경하지 않는다.
 
 실제 프로젝트에 연결한 Android Emulator 테스트:
 
@@ -244,11 +245,11 @@ npm --prefix frontend ci
 npm --prefix frontend run android:configured
 ```
 
-Android Studio에서 Emulator를 먼저 실행한다. 위 명령은 루트 `.env`의 공개 클라이언트 값만 사용해 자체 테스트 APK를 빌드·설치한다. Expo Go나 Metro 없이 실행되며 `frontend/.env.local`의 로컬 Supabase 설정은 덮어쓰지 않는다. 첫 실행에서 Google 로그인 후 하단 `+` → 사진 선택 → 사진 권한 동의 → 자동 제안된 기간·위치 확인 → 저장 순서로 테스트한다. 사진의 EXIF가 없거나 권한이 제한되면 날짜·좌표를 직접 입력한다. 앱 변경 후에는 같은 명령으로 다시 빌드한다.
+Android Studio에서 Emulator를 먼저 실행한다. 위 명령은 루트 `.env`의 공개 클라이언트 값만 사용해 자체 테스트 APK를 빌드·설치한다. Expo Go나 Metro 없이 실행되며 `frontend/.env.local`의 로컬 Supabase 설정은 덮어쓰지 않는다. 첫 실행에서 Google 로그인 후 하단 `+` → 시스템 사진 선택(전체 권한 선요청 없음) → 자동 제안된 기간·위치 확인 → 저장 순서로 테스트한다. 사진의 EXIF가 없거나 권한이 제한되면 기간을 입력하고 장소 검색·핀으로 위치를 보정한다. 앱 변경 후에는 같은 명령으로 다시 빌드한다.
 
 APK는 `frontend/android/app/build/outputs/apk/release/app-release.apk`에 생성된다. `release` variant에 JS를 포함하지만 기본 개발 서명으로 만드는 테스트 앱이며 Play Store 배포용 서명·검증과 구분한다. 네이티브 생성 폴더는 Git에서 제외한다. 실제 Google 계정의 동의·복귀와 실기기 EXIF 검증은 별도 수용 항목이다.
 
-Android에서 전체 사진 접근을 허용하면 시스템 문서 선택기가 열린다. `Recent`/`Images`의 사진을 여러 장 고르고 `Select`로 적용한다. 기본 Photo Picker가 GPS를 가리는 문제를 피하기 위해서다. 원본 MediaStore ID가 없는 클라우드/외부 파일은 촬영 정보가 없을 수 있으며 직접 입력할 수 있다. 현재 에뮬레이터에는 `MyTravelDex-1.jpg`, `MyTravelDex-3.jpg` 합성 사진이 있고 기간 2026-11-01~03·제주 좌표 자동 입력을 재현할 수 있다. 최신 실행 결과는 TEST_CASE.md를 따른다.
+기본 사진 선택·선택적 원본 파일·클라우드 제공자 조건은 위 전환 현황과 TRD를 따른다. 기존 합성 로컬 사진의 EXIF 검증은 클라우드 전용 사진 저장 검증과 구분한다. 최신 실행 결과는 TEST_CASE.md를 따른다.
 
 - [REQUIREMENT.md](docs/REQUIREMENT.md): 기능·비기능 요구사항
 - [PRD.md](docs/PRD.md): 제품 정책과 사용자 흐름

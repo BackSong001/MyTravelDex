@@ -1,6 +1,6 @@
 import {expect,test} from 'vitest';
 import palette from '../../frontend/src/design/colors.json';
-import {contains,groupProvinceRecords,project,provinceAt,provinceFeatures,provinceLabels,provincePaths,provinceColors,visibleProvinceLabels,provinceOpacity,mapRecords,markerDescription,mapMarkerGroups,visitedProvinceIds} from '../../frontend/src/provinces';
+import {contains,groupProvinceRecords,project,provinceAt,provinceFeatures,provinceLabels,provincePaths,provinceColors,visibleProvinceLabels,mapRecords,markerDescription,mapMarkerGroups,visitedProvinceIds} from '../../frontend/src/provinces';
 
 test('TC-MAP-001: all 17 province features have matching labels and finite SVG paths',()=>{
  expect(provinceFeatures).toHaveLength(17);expect(new Set(provinceFeatures.map(f=>f.properties.shapeISO)).size).toBe(17);
@@ -28,19 +28,17 @@ test('TC-MAP-004: visits count complete visible records once per province, exclu
  expect(Object.keys(groups)).toHaveLength(2);expect(groups['KR-11'].map(r=>r.id)).toEqual(['a','b']);expect(groups['KR-49']).toHaveLength(1);
 });
 
-test('vNext: stable canonical colors, zoom label thresholds and polygon fade',()=>{
+test('vNext: stable canonical colors, zoom label thresholds',()=>{
  expect(Object.keys(provinceColors).sort()).toEqual(Object.keys(provinceLabels).sort());
  for(const color of Object.values(provinceColors)) expect(palette.colors.map.regionPastels).toContain(color);
  expect(provinceColors['KR-11']).toBe(palette.colors.map.regionPastels[0]);
- expect(visibleProvinceLabels(7.99,null).map(([id])=>id).sort()).toEqual(['KR-11','KR-26','KR-49']);
+ expect(visibleProvinceLabels(6.5,null).map(([id])=>id)).toEqual(expect.arrayContaining(['KR-11','KR-26','KR-49','KR-42']));
  expect(visibleProvinceLabels(7,'KR-42').map(([id])=>id)).toContain('KR-42');
  expect(visibleProvinceLabels(8,null).length).toBeGreaterThan(10);
  expect(visibleProvinceLabels(8,'KR-28')[0][0]).toBe('KR-28');
  expect(visibleProvinceLabels(9.99,null).length).toBeGreaterThanOrEqual(visibleProvinceLabels(8,null).length);
- expect(visibleProvinceLabels(10,'KR-42').map(([id])=>id)).toEqual(['KR-42']);
- expect(visibleProvinceLabels(10,null)).toEqual([]);
- expect(provinceOpacity(10)).toBeLessThan(provinceOpacity(8));
- expect(provinceOpacity(8)).toBeLessThan(provinceOpacity(7));
+ expect(visibleProvinceLabels(10,'KR-42')[0][0]).toBe('KR-42');
+ expect(visibleProvinceLabels(10,null)).toHaveLength(17);
 });
 
 test('vNext: markers exclude draft/missing coordinates but keep overseas and explicit correction pins',()=>{

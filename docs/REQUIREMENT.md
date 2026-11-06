@@ -1,8 +1,15 @@
 # MyTravelDex 요구사항 명세서
 
+지도 표시 보완: 초기 카메라는 실제 좌표의 본토·제주 중심 영역(동경 125.6~129.9, 북위 33.1~38.7)을 크게 보여주며, 대한민국 전체 보기에서는 데이터에 포함된 서해 도서·울릉도까지 포함한다. 이동 가능한 영역은 국내 주변으로 제한하고 화면 크기에 맞춰 초기 표시 영역을 자동 계산한다. 확대해도 지역명을 제거하지 않는다. 행정 경계는 기존 2018 자료의 한계가 있으며 좌표를 화면 중앙/도 중심으로 옮겨 정확도를 가장하지 않는다.
+
+## MapLibre 전환 계약 (2026-11-06)
+
+현재 지도·장소 검색·사진 선택 계약은 [TRD의 MapLibre 전환 계약](TRD.md#maplibre-전환-계약-2026-11-06)을 따른다. Google OAuth는 유지한다. 지도 요구사항은 FR-MAPLIBRE-001~005, 사진 선택은 FR-PHOTO-CLOUD-001~003이며 구현과 수용 검증을 구분한다. 원격 migration·함수 배포와 Geoapify 서버 Secret 설정을 적용했다. 기존 날짜별 테스트 이력은 보존하고 최신 결과는 TEST_CASE를 따른다.
+
+
 ## 1. 문서 목적
 
-새 표시명은 여행가봥이며 화면 초안은 `DISAN.md`를 따른다. Google 실제 지도+17개 시·도 GeoJSON, 하단 유지 작성 패널, 일방 팔로우·공개 프로필·방문 스탬프를 구현했다. 구현과 검증 범위는 TEST_CASE 최신 실행 결과로 구분한다. 기존 저장·소유권·private/public 정책은 유지한다.
+새 표시명은 여행가봥이며 화면 초안은 `DISAN.md`를 따른다. MapLibre + 로컬 17개 시·도 GeoJSON, 하단 유지 작성 패널, 일방 팔로우·공개 프로필·방문 스탬프를 구현했다. 구현과 검증 범위는 TEST_CASE 최신 실행 결과로 구분한다. 기존 저장·소유권·private/public 정책은 유지한다.
 
 MyTravelDex는 사진과 위치정보를 기반으로 사용자의 여행 기록을 저장하고 지도에서 다시 탐색할 수 있도록 하는 서비스다. 본 문서는 백엔드 우선 MVP의 기능, 보안, 품질, 비용 요구사항을 정의한다.
 
@@ -56,7 +63,7 @@ MyTravelDex는 사진과 위치정보를 기반으로 사용자의 여행 기록
 | FR-LOCATION-001 | 여행 기록은 위도·경도와 선택적 장소명을 가질 수 있어야 한다. | Must | 위도·경도 범위가 검증된다. |
 | FR-LOCATION-002 | 사용자는 지도에서 위치를 보정할 수 있어야 한다. | Should | 저장 전 좌표를 수정할 수 있다. |
 | FR-LOCATION-003 | 여행 기록은 기간과 지역으로 필터링할 수 있어야 한다. | Must | 시작일·종료일과 정규화된 국가·지역·도시 정보로 목록과 지도를 필터링할 수 있다. |
-| FR-MAP-001 | 정밀 위치 확인·보정은 Google Maps Platform을 사용한다. | Must | 작성·상세에서 지도 표시와 위치 선택이 가능하다. |
+| FR-MAP-001 | 위치 확인·보정은 MapLibre와 서버 Geoapify를 사용한다. | Must | 작성·상세에서 지도 표시와 위치 선택이 가능하다. |
 | FR-MAP-002 | 홈은 대한민국 17개 시·도를 구분한 전체 지도여야 한다. | Must | GeoJSON 경계 오프라인 렌더링, 시·도 선택·조회 가능한 완료 기록 집계·빈 지역 안내를 제공한다. 사진 추가는 하단 +에서 시작한다. |
 | FR-TRAVEL-008 | 완료되지 않은 여행 기록은 공개 조회에 노출되지 않아야 한다. | Must | `status = complete`이고 필수 조건을 만족한 기록만 타인과 공개 목록에 반환된다. |
 
@@ -74,10 +81,23 @@ MyTravelDex는 사진과 위치정보를 기반으로 사용자의 여행 기록
 | FR-UI-008 | 도감 필터를 상단 가로 한 줄로 제공한다. | Must | 지역·기간·조회 범위의 적용/해제를 유지하고 좁은 화면·큰 글꼴은 가로 스크롤한다. |
 | FR-UI-009 | 스플래시를 제공한다. | Must | 백팩·앱명, 리소스/로컬 세션 준비 후 종료하며 네트워크·고정 지연을 기다리지 않는다. |
 | FR-UI-010 | 화면 크기·글꼴·접근성·가벼운 반응을 지원한다. | Must | 320dp~태블릿, 글꼴 1.0/1.3/2.0, 키보드/안전 영역, 텍스트 대비 4.5:1·필수 비텍스트 3:1, 감소 설정을 검증한다. 기능 실행은 애니메이션을 기다리지 않는다. |
-| FR-UI-011 | 17개 시·도를 색상으로 구분하고 축척별 명칭을 표시한다. | Must | 지역 ID별 안정된 색, 선택/방문 비색상 신호, 축소 시 서울·부산·제주/선택 지역, 확대 시 상세 명칭을 표시한다. 경계 출처 한계를 고지한다. |
+| FR-UI-011 | 17개 시·도를 색상으로 구분하고 축척별 명칭을 표시한다. | Must | 지역 ID별 안정된 색, 선택/방문 비색상 신호, 축소 시 서울·부산·제주/선택 지역, 확대 시 선택 지역과 검증된 랜드마크 명칭을 표시한다. 경계 출처 한계를 고지한다. |
 | FR-PROFILE-001 | 공개용 닉네임·기본/Google 아바타를 설정한다. | Must | 명시적 공개 확인·최소 필드 projection·소유자 수정·기본 표시와 개인정보 우회 차단을 검증한다. |
 | FR-SOCIAL-001 | 사용자를 일방 팔로우·해제한다. | Must | 공개 프로필 검색·본인 관계 관리·유일한 사용자 쌍·자기 팔로우/타인 변경 차단, 완료 공개 기록만 조회한다. |
 | FR-STAMP-001 | 본인 방문 시·도 스탬프를 자동 계산한다. | Must | 본인 complete만 집계하고 마지막 기록 삭제·위치 변경 시 재계산한다. 친구·draft·해외는 국내 스탬프에서 제외한다. |
+
+### 3.2 MapLibre 전환·클라우드 사진 선택 요구사항
+
+| ID | 요구사항 | 우선순위 | 수용 기준 / 검증 연결 |
+|---|---|---:|---|
+| FR-MAPLIBRE-001 | Android/Web 지도 엔진을 MapLibre로 전환한다. | Must | Native 11.5.1 / Web 6.16.0, 로컬 경계 스타일·브랜드 팔레트 유지, Google 지도 SDK·배경 타일 요청 없음. TC-MAPLIBRE-001 |
+| FR-MAPLIBRE-002 | 선택 지역과 실제 좌표를 정확히 구분한다. | Must | 선택 지역만 테두리, 마커 좌표 이동 없음, 확대·축소·전체 보기·국내 대체 보기. TC-MAPLIBRE-002 |
+| FR-MAPLIBRE-003 | 인증된 서버 Geoapify 검색·상세·역지오코딩을 사용한다. | Must | 정규화 배열·provider 필수 상세·오류 시 입력 보존·서버 Secret·추가 위치 필드. TC-MAPLIBRE-003 |
+| FR-MAPLIBRE-004 | 기존 Google 위치를 자동 변경하지 않는다. | Must | 지도에서 제외하고 소유자 상세 버튼으로 새 위치를 확인·저장한다. 기존 데이터·권한 유지. TC-MAPLIBRE-004 |
+| FR-MAPLIBRE-005 | 랜드마크는 공급자가 확인한 정확한 결과만 표시한다. | Must | 런타임 이름 후보 5개, 인증 후 정확한 이름 일치만 표시, 비일치 생략·좌표/이름 조작 금지. 검색 HTTP 200만으로 정확성을 판정하지 않는다. TC-MAPLIBRE-005 |
+| FR-PHOTO-CLOUD-001 | 기본 Android 시스템 선택에 전체 사진 권한을 선요청하지 않는다. | Must | 기기 클라우드 제공자가 지원하면 Google 포토 사진 선택 가능, 웹 직접 Photos OAuth 없음. TC-PHOTO-CLOUD-001 |
+| FR-PHOTO-CLOUD-002 | 선택적 원본 파일 경로와 메타데이터를 보존한다. | Must | 이 경로에서만 권한 요청, 원본 MediaStore ID 확보 후 캐시 복사, 메타데이터 부재 시 기간/장소 보정. TC-PHOTO-CLOUD-002 |
+| FR-PHOTO-CLOUD-003 | 클라우드 사진도 기존 안전한 저장 흐름을 따른다. | Must | 최대 20장·취소/오류 입력 보존·수동값 유지·압축/썸네일/Storage 저장, 실제 클라우드 전용 파일은 기기에서 별도 검증. TC-PHOTO-CLOUD-003 |
 
 ## 4. 비기능 요구사항
 
@@ -89,7 +109,7 @@ FR-UI-001~011, FR-PROFILE-001, FR-SOCIAL-001, FR-STAMP-001은 코드와 API에 �
 - 팔로우는 승인 없는 단방향 관계다. 자기 자신·중복 관계·타인 관계 변경을 차단한다. 관계 목록은 본인만 조회하며 공개 프로필만 검색한다. 닉네임 중복은 허용하고 사용자 ID로 구분한다.
 - 홈 기본 범위는 본인의 complete(private 포함)와 팔로잉의 complete/public 합집합이다. 내 기록·친구·공개로 전환하고 비로그인은 공개 완료 기록만 탐색한다. 팔로우 해제가 상대의 public 정책을 바꾸지 않는다.
 - 공개 프로필을 숨겨도 공개 기록을 비공개로 바꾸지 않으며 작성자 표시만 기본값으로 바꾼다. 기존 관계 해제는 가능하고 공개 프로필을 다시 확인하기 전 새 팔로우 대상 검색에서는 제외한다.
-- Google 장소 검색·place_id 상세 조회·핀 보정의 역지오코딩은 서버를 통한다. 장소명·주소만 표시하고 오류 시 기존 확정 위치와 입력을 유지한다. 유효한 EXIF 위치로 저장하는 기존 흐름을 막지 않는다.
+- Geoapify 장소 검색·place_id 상세 조회·핀 보정의 역지오코딩은 서버를 통한다. 장소명·주소만 표시하고 오류 시 기존 확정 위치와 입력을 유지한다. 유효한 EXIF 위치로 저장하는 기존 흐름을 막지 않는다.
 
 ### 생성·편집·삭제 수용 기준
 
@@ -157,7 +177,7 @@ FR-UI-001~011, FR-PROFILE-001, FR-SOCIAL-001, FR-STAMP-001은 코드와 API에 �
 
 - 개발 초기에는 Supabase Free 플랜 범위에서 동작해야 한다.
 - 현재 계획 기준 무료 한도는 DB 500MB, Storage 1GB, Egress 5GB, MAU 50,000명 수준이며 실제 운영 전 요금표를 재확인한다.
-- Google Maps Platform은 결제 계정과 사용량 관리가 필요하므로 API별 사용량 제한과 알림을 설정한다.
+- Geoapify 서버 검색의 플랜·쿼터·비용을 확인하고 사용량을 관리한다. 지도 자체는 외부 배경 타일을 요청하지 않는다.
 - 무료 한도 초과 시 자동으로 큰 비용이 발생하지 않도록 예산 알림과 사용량 모니터링을 둔다.
 - 사진 크기·해상도·기록당 사진 수는 위 MVP 제한값을 적용한다.
 
@@ -179,26 +199,20 @@ FR-UI-001~011, FR-PROFILE-001, FR-SOCIAL-001, FR-STAMP-001은 코드와 API에 �
 | FR-SETUP-001 | Supabase 프로젝트는 local·test·production 환경을 구분해야 한다. | Must | 환경별 URL, 키, DB를 혼용하지 않는다. |
 | FR-SETUP-002 | PostgreSQL 스키마 변경은 migration으로 관리해야 한다. | Must | 원격 DB 변경 전에 migration 검토와 dry-run을 수행한다. |
 | FR-SETUP-003 | Google OAuth는 Web·Android Client ID를 사용하고 추후 iOS Client ID를 추가할 수 있어야 한다. | Must | 환경별 Redirect URL이 등록되어야 한다. |
-| FR-SETUP-004 | Google Maps API key는 플랫폼·API별 제한을 가져야 한다. | Must | 제한 없는 key를 사용하지 않는다. |
-| FR-SETUP-005 | Google Maps 사용량과 비용 알림을 설정해야 한다. | Must | 비정상 호출과 예산 초과를 확인할 수 있다. |
+| FR-SETUP-004 | Geoapify API key는 서버 Secret으로만 관리해야 한다. | Must | 클라이언트 번들에 Geoapify key가 없어야 한다. |
+| FR-SETUP-005 | Geoapify 사용량과 비용·쿼터를 확인해야 한다. | Must | 비정상 호출과 예산 초과를 확인할 수 있다. |
 | NFR-SECURITY-001 | 환경변수는 공개 클라이언트 값과 서버 전용 비밀값으로 분리해야 한다. | Must | service role key와 OAuth Secret이 앱 번들에 포함되지 않는다. |
 | NFR-SECURITY-002 | 외부 API key는 애플리케이션 및 API 제한을 적용해야 한다. | Must | Web·Android·iOS·Server key가 분리된다. |
 | NFR-OPERATIONS-001 | 외부 인증·지도·Storage 장애를 사용자 오류와 재시도로 처리해야 한다. | Must | `EXTERNAL_SERVICE_ERROR`와 재시도 흐름이 제공된다. |
-| NFR-OPERATIONS-002 | 운영 전환 전에 무료 한도·비용·백업 정책을 확인해야 한다. | Must | Supabase와 Google Cloud 사용량 알림이 활성화된다. |
+| NFR-OPERATIONS-002 | 운영 전환 전에 무료 한도·비용·백업 정책을 확인해야 한다. | Must | Supabase 사용량 알림과 Geoapify 플랜·쿼터·비용을 확인한다. |
 | NFR-DOCS-001 | 요구사항 변경 시 REQUIREMENT·PRD·TRD를 함께 갱신해야 한다. | Must | 문서 간 ID·용어·권한·API가 일치한다. |
 | NFR-DOCS-002 | 환경변수 또는 외부 서비스 구성이 바뀌면 `.env.example`도 갱신해야 한다. | Must | TRD 환경변수 계약과 샘플이 동일하다. |
 
 ## 9. 필요한 외부 API
 
-MVP에서 활성화할 API는 다음과 같다.
+지도는 MapLibre와 번들된 KOSTAT 2018 경계를 사용하므로 Google 지도 API·배경 타일 API를 활성화할 필요가 없다. Google OAuth는 로그인에 유지한다.
 
-- Maps JavaScript API: Expo Web 지도 표시와 스타일
-- Maps SDK for Android: Android 네이티브 지도
-- Maps SDK for iOS: 추후 iOS 지도
-- Places API 또는 플랫폼별 Places SDK: 장소 검색과 장소명 보완
-- Geocoding API: 좌표·주소 변환
-
-초기 MVP에서는 Routes API, Navigation SDK, Roads API, Street View API, Static Maps API, Elevation API, Map Tiles API를 활성화하지 않는다.
+장소 검색은 인증된 Edge Function이 Geoapify Geocoding Search·Reverse와 Place Details를 호출한다. 키는 Supabase 서버 Secret만 사용하고 플랜·쿼터·비용을 검토한다. 서버 계약은 API_SPEC를 따른다. 직접 Google Photos API·추가 Photos OAuth는 도입하지 않는다.
 
 ## 10. 문서 변경 동기화
 

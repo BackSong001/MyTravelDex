@@ -25,7 +25,7 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 
 - `profiles`는 Supabase Auth 사용자와 1:1로 연결한다.
 - `travel_records`는 `owner_id`, 필수 `start_date`·`end_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 공개 상태, `draft`·`complete` 생성 상태를 가진다.
-- `locations`는 위도·경도와 장소명, Google 장소 ID, 국가·지역·도시 필드를 저장해 지도 표시와 지역 필터를 지원한다.
+- `locations`는 위도·경도와 장소명, 기존 Google 장소 ID와 추가 address·provider_place_id·attribution, 국가·지역·도시 필드를 저장해 지도 표시와 지역 필터를 지원한다.
 - `photos`는 여행 기록에 여러 장 연결하고 압축 보관본·썸네일 경로(기존 original_path/thumbnail_path), EXIF 메타데이터, `is_cover`, `display_order`를 저장한다.
 - MVP 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행하고, 서버 측 이미지 처리는 필요한 경우에만 Edge Function으로 추가한다.
 - 여행 기록은 사진을 하나 이상 가져야 하며, 대표사진은 기록별 최대 하나만 허용한다.
@@ -38,7 +38,7 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 - **Frontend**: React Native, Expo, TypeScript, Expo Router
 - **Backend**: Supabase Auth, Supabase PostgreSQL, Supabase Storage, PostgREST
 - **Authentication**: Google OAuth via Supabase Auth
-- **Map**: Google Maps Platform
+- **Map**: MapLibre Native / MapLibre GL JS + WGS84 GeoJSON; Geoapify search
 - **Backend tests**: Vitest, Supabase Local Development
 - **Web tests**: Playwright, Expo Web
 - **Android tests**: Android Studio Emulator and real Android devices
@@ -51,10 +51,10 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 4. Google Cloud 프로젝트를 생성한다.
 5. Web·Android OAuth Client ID를 만들고 추후 iOS Client ID를 추가한다.
 6. Supabase Auth의 Google Provider를 설정한다.
-7. 필요한 Google Maps API를 활성화한다.
-8. 플랫폼별 Maps API key에 애플리케이션·API 제한을 설정한다.
+7. Geoapify 서버 키를 Supabase GEOAPIFY_API_KEY Secret으로 설정한다.
+8. MapLibre 로컬 경계·웹 worker 경로와 Geoapify 플랜·쿼터를 확인한다.
 9. `.env.example`을 참고해 로컬 환경변수를 설정한다.
-10. 로컬 PostgreSQL, RLS, Storage, OAuth, 지도 키를 검증한다.
+10. 로컬 PostgreSQL, RLS, Storage, OAuth, MapLibre 렌더링·Geoapify 서버 Secret을 검증한다.
 
 ## 명령어
 
@@ -170,7 +170,7 @@ adb logcat
 
 - 환경변수 샘플은 `.env.example`에만 placeholder로 기록한다.
 - 실제 `.env` 파일과 비밀키는 Git에 커밋하지 않는다.
-- `SUPABASE_SERVICE_ROLE_KEY`, Google OAuth Client Secret, 서버용 Maps key는 클라이언트 번들에 포함하지 않는다.
+- `SUPABASE_SERVICE_ROLE_KEY`, Google OAuth Client Secret, GEOAPIFY_API_KEY 등 서버 Secret는 클라이언트 번들에 포함하지 않는다.
 - `EXPO_PUBLIC_*` 값은 공개될 수 있으므로 반드시 플랫폼·API 제한을 설정한다.
 
 ## 금지 사항
@@ -186,7 +186,7 @@ adb logcat
 
 - service role key를 소스코드·문서·로그에 기록하지 않는다.
 - Google OAuth Client Secret을 클라이언트에 노출하지 않는다.
-- 제한 없는 Google Maps API key를 사용하지 않는다.
+- GEOAPIFY_API_KEY를 클라이언트에 노출하지 않는다. 기존 Google 지도 key를 보존하면 기존 제한을 해제하지 않는다.
 - 실제 비밀값을 `.env.example`에 작성하지 않는다.
 
 ### Git
@@ -197,7 +197,7 @@ adb logcat
 
 ## 문서 일관성 규칙
 
-현재 홈 지도는 Google 실제 지도+17개 시·도 GeoJSON Polygon이며 Google 연결 실패 시 SVG 대체 보기를 제공한다. 출처·라이선스·기준 연도를 유지하고 내 스탬프는 친구/공개 범위와 별개로 본인 complete만 집계한다.
+현재 홈 지도는 MapLibre + 로컬 KOSTAT 2018 17개 시·도 GeoJSON Polygon이며 배경 타일 없이 선택 지역만 테두리를 표시한다. MapLibre 렌더링 실패 시 국내 SVG 대체 보기를 제공한다. 출처·라이선스·기준 연도를 유지하고 내 스탬프는 친구/공개 범위와 별개로 본인 complete만 집계한다.
 
 여행가봥 재설계의 기준은 `docs/DISAN.md`와 사용자 스토리보드/컬러 자산이다. 기존 UI를 최종 시안으로 간주하지 않는다. 디자인 변경은 Google OAuth·실제 Storage 업로드·기존 테스트 계약을 유지하고, 로컬 회귀 테스트를 위해 원격 프로젝트를 초기화하거나 환경을 자동 전환하지 않는다.
 
@@ -302,7 +302,7 @@ npx vercel --prod
 
 - Expo Web build 성공 여부
 - Vercel 환경변수 등록
-- Google Maps Web API key 도메인 제한
+- MapLibre 웹 worker·공유 모듈의 로컬 배포 경로 및 Geoapify 서버 Secret
 - Google OAuth production Redirect URL
 - Supabase production URL과 anon key
 - Playwright 웹 테스트 통과 여부
@@ -312,7 +312,6 @@ Vercel에 등록할 공개 클라이언트 값:
 ```text
 EXPO_PUBLIC_SUPABASE_URL
 EXPO_PUBLIC_SUPABASE_ANON_KEY
-EXPO_PUBLIC_GOOGLE_MAPS_WEB_API_KEY
 EXPO_PUBLIC_APP_ENV=production
 ```
 
@@ -347,7 +346,7 @@ adb logcat
 adb emu geo fix 126.9780 37.5665
 ```
 
-배포 전에는 실제 Android 기기에서 Google OAuth, 갤러리·카메라 권한, EXIF, GPS, Android Maps SDK, Storage 업로드, production Supabase 연결, Google Maps Android API key 제한을 검증한다.
+배포 전에는 실제 Android 기기에서 Google OAuth, 갤러리·카메라 권한, EXIF, GPS, MapLibre Native, Storage 업로드, production Supabase 연결, Geoapify 서버 Secret·쿼터을 검증한다.
 
 Android release 빌드와 Play Store 제출은 Expo/EAS 또는 Android Studio로 진행하며, Vercel은 Android 앱 배포에 사용하지 않는다.
 
@@ -385,7 +384,7 @@ Oracle Cloud 도입 시 Ubuntu 또는 Oracle Linux, Docker Compose, Nginx 또는
 - 로그인 후 앱 복귀 Web URL은 production 도메인에 맞춰 Supabase 허용 목록에 등록한다.
 - Supabase Auth callback URL과 Google Cloud OAuth Redirect URL을 동일하게 관리한다.
 - Android OAuth는 도메인만으로 처리하지 않고 Android package name·SHA-1 제한을 사용한다.
-- Vercel 도메인 변경 시 Google OAuth와 Google Maps Web key의 허용 도메인을 함께 변경한다.
+- Vercel 도메인 변경 시 Google OAuth의 허용 도메인을 변경하고 MapLibre worker의 로컬 배포 경로를 확인한다.
 - Supabase custom domain은 별도 비용과 설정을 확인한 후 도입한다.
 
 ### 배포 테스트·수용 기준
@@ -416,7 +415,7 @@ supabase db push
 
 수용 기준:
 
-- production 환경변수·OAuth·Maps key 제한 검증
+- production 환경변수·OAuth·Geoapify 서버 Secret·쿼터 검증
 - RLS와 Storage 권한 검증
 - 핵심 사용자 흐름 수동 확인
 - 비용·사용량 알림 확인
@@ -455,7 +454,7 @@ supabase db push
 
 ## 현재 저장소 실행 경로
 
-- 실제 Android 지도는 React Native 0.81.5/Fabric과 고정한 react-native-maps 1.26.20을 사용한다. Expo Go의 번들 버전으로 네이티브 수용을 판단하지 않는다. `npm --prefix frontend run android:configured`는 같은 공개 환경값으로 Android prebuild 후 자체 APK를 빌드·설치해 지도 key/config plugin·표시명·스플래시를 동기화한다.
+- 실제 Android 지도는 React Native 0.81.5/Fabric과 MapLibre Native 11.5.1을 사용한다. 웹은 MapLibre GL JS 6.16.0과 Expo Babel import.meta 변환·로컬 worker/공유 모듈 복사 및 export를 사용한다. `npm --prefix frontend run android:configured`로 자체 APK의 MapLibre config plugin·표시명·스플래시를 동기화한다. Google 지도 key는 필요하지 않으며 Expo Go로 네이티브 수용을 판정하지 않는다.
 
 - 실제 `.env` 프로젝트를 사용하는 Android 자체 테스트 APK는 `npm --prefix frontend run android:configured`로 빌드·설치한다. SDK는 `ANDROID_HOME` 또는 `~/Android/Sdk`를 사용한다. production JS를 내장하고 기본 개발 서명을 쓰므로 Play Store 배포 검증과 구분한다. Expo Go는 실제 Google OAuth 앱 복귀 검증 대상으로 사용하지 않는다.
 - 실제 프로젝트 웹 실행은 `npm --prefix frontend run configured -- --web --localhost --port 8083`을 사용한다. SDK 54 개발 virtual env의 `.env.local` 우선 적용을 피하도록 기본 `--no-dev`와 `EXPO_NO_DOTENV=1`을 사용한다. 로컬 테스트 `.env.local`은 보존한다.
@@ -467,7 +466,7 @@ supabase db push
 - Expo 명령은 `frontend/`에서 실행한다: `npm ci`, `npx tsc --noEmit`, `npx expo start --web --port 8082`, `npx expo start --android --localhost --port 8081`.
 - 웹 서버 실행 후 루트에서 `npx playwright install chromium`, `npx playwright test`를 실행한다.
 - Android Emulator의 localhost 접근에는 `adb reverse tcp:54321 tcp:54321`, `adb reverse tcp:8081 tcp:8081`을 설정한다. Android SDK 경로를 ANDROID_HOME으로 전달한다.
-- `frontend/.env.local`은 Git에서 제외한다. 루트 `.env.example`의 공개 클라이언트 변수만 설정하고 service role·서버 Maps key를 넣지 않는다.
+- `frontend/.env.local`은 Git에서 제외한다. 루트 `.env.example`의 공개 클라이언트 변수만 설정하고 service role·Geoapify 서버 Secret를 넣지 않는다.
 - Expo Go 화면 표시와 release APK/AAB 검증은 별개다. 실제 Google 동의·취소·복귀, 실기기 권한·EXIF·GPS 및 운영 설정 미검증 항목을 자동 테스트 통과 수에 합산하지 않는다.
 
 ## 언어 규칙
@@ -475,3 +474,7 @@ supabase db push
 - 코드, 변수명, 커밋 메시지: 영어
 - 사용자 응답, 요약, 설명, 주석: 한국어
 - 에러 메시지: 원문 영어 유지, 원인 설명은 한국어
+
+## MapLibre 지도 작업 규칙
+
+신규 지도·장소 검색·시스템/클라우드 사진 선택 계약은 docs/TRD.md 상단 2026-11-06 전환 절을 따른다. FR-MAPLIBRE-001~005·FR-PHOTO-CLOUD-001~003과 TC-MAPLIBRE-001~005·TC-PHOTO-CLOUD-001~003을 연결한다. 원격 migration·함수 배포 여부를 로컬 구현과 구분하며 원격에도 적용했다. Google 로그인과 지도 제공자를 혼동하지 않는다. GEOAPIFY_API_KEY는 Supabase 서버 Secret만 사용한다. Android 클라우드 사진 검증은 일반 갤러리 검증과 별도로 기록한다. 기존 Google 위치를 새 출처로 바꾸거나 미확인 결과를 정확한 위치라고 기록하지 않는다.

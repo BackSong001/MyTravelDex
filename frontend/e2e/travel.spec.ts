@@ -68,8 +68,8 @@ test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
 test('UI-JOURNAL-002 하단 도감과 지도 및 MY 탐색',async({page})=>{
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();await expect(page.getByRole('tab',{name:'여행도감',exact:true})).toHaveAttribute('aria-selected','true');
  await expect(page.getByText('사진으로 펼쳐보는 나의 여행 이야기',{exact:true})).toBeVisible();
- await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByTestId('province-map')).toBeVisible();
- await page.getByRole('button',{name:'지역 선택',exact:true}).click();await page.getByRole('button',{name:'서울 지역 선택',exact:true}).click();await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
+ await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByTestId('travel-map')).toBeVisible();
+ await page.getByRole('button',{name:'서울 지역 선택',exact:true}).click();await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
  await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();
 });
 test('UI-JOURNAL-003 저장한 사진의 대표 썸네일을 도감에서 조회',async({page})=>{
@@ -87,7 +87,7 @@ test('UI-JOURNAL-004 OAuth 취소 후 다시 로그인',async({page})=>{
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
 });
 test('UI-MAP-001 홈은 전체 지도이며 사진 추가 진입은 하단 + 하나',async({page})=>{
- const map=page.getByTestId('province-map');await expect(map).toBeVisible();const bounds=await map.boundingBox();
+ const map=page.getByTestId('travel-map');await expect(map).toBeVisible();const bounds=await map.boundingBox();
  expect(bounds?.height).toBeGreaterThan(600);await expect(page.getByLabel('시작일 필터',{exact:true})).toHaveCount(0);
  await expect(page.getByRole('button',{name:'여행 추가',exact:true})).toHaveCount(0);
  await page.screenshot({path:'test-results/province-home.png',fullPage:true});
@@ -96,9 +96,9 @@ test('UI-MAP-001 홈은 전체 지도이며 사진 추가 진입은 하단 + 하
 test('UI-MAP-002 저장한 제주 기록을 지역 지도에서 선택하고 상세 조회',async({page})=>{
  await draft(page);await save(page);await page.getByRole('tab',{name:'홈',exact:true}).click();
  await expect(page.getByText('내 발자국 1 / 17',{exact:true})).toBeVisible();
- await page.getByRole('button',{name:'지역 선택',exact:true}).click();await page.getByRole('button',{name:'제주 지역 선택',exact:true}).click();
+ await page.getByRole('button',{name:'제주 지역 선택',exact:true}).click();
  await expect(page.getByText('제주 여행 · 1개',{exact:true})).toBeVisible();
- await page.getByRole('button',{name:/^제주 여행(?:,|$)/}).click();await page.getByRole('button',{name:'여행 자세히 보기',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:/여행자 · 제주 여행/}).click();await page.getByRole('button',{name:'여행 자세히 보기',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();
 });
 test('TC-UI-004 화면에서 대표사진 교체 후 다른 사진 삭제',async({page})=>{
  await draft(page,2);await save(page);
@@ -150,7 +150,7 @@ for(const revoked of [false,true]){
    expect(refreshed.ok()).toBe(false);await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
    await page.getByLabel('이메일',{exact:true}).fill(email);await page.getByLabel('비밀번호',{exact:true}).fill(password);await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();
   }else expect(refreshed.ok()).toBe(true);
-  await expect(page.getByRole('button',{name:'내 계정',exact:true})).toBeVisible();await expect(page.getByTestId('province-map')).toBeVisible();
+  await expect(page.getByRole('button',{name:'내 계정',exact:true})).toBeVisible();await expect(page.getByTestId('travel-map')).toBeVisible();
  });
 }
 test('TC-HTTP-006 생성 요청이 서버에 도달하지 않아도 같은 UUID로 재시도',async({page})=>{

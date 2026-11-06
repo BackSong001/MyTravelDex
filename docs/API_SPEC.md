@@ -1,5 +1,10 @@
 # MyTravelDex API 명세서
 
+## MapLibre 전환 계약 (2026-11-06)
+
+현재 지도·장소 검색·사진 선택 계약은 [TRD의 MapLibre 전환 계약](TRD.md#maplibre-전환-계약-2026-11-06)을 따른다. Google OAuth는 유지한다. 지도 요구사항은 FR-MAPLIBRE-001~005, 사진 선택은 FR-PHOTO-CLOUD-001~003이며 구현과 수용 검증을 구분한다. 원격 migration·함수 배포와 Geoapify 서버 Secret 설정을 적용했다. 기존 날짜별 테스트 이력은 보존하고 최신 결과는 TEST_CASE를 따른다.
+
+
 ## 1. 범위와 공통 계약
 
 현재 프로토타입의 GeoJSON 시·도 집계는 기존 RLS로 조회한 완료 기록의 대표 좌표만 사용한다. 여행가봥 vNext는 아래 계획 절의 공개 프로필·팔로우·장소 상세 계약을 추가한다. 앱 내부 숫자 좌표 입력은 제거하되 내부 위치 모델·기존 좌표 API는 유지한다.
@@ -26,7 +31,7 @@
 | 팔로우 | POST /rest/v1/follows | {follower_id:me, followee_id:target}. 공개 프로필인 타인만, 성공 201/배열. 자기 관계 금지·유일한 쌍·소유권 검증 |
 | 팔로우 해제 | DELETE /rest/v1/follows?follower_id=eq.{me}&followee_id=eq.{target} | 본인 JWT. representation 배열; 이미 없는 본인 관계의 빈 배열은 해제 완료로 취급 |
 | 친구 완료 공개 기록 | GET /rest/v1/following_travel_records | authenticated, 서버가 본인 팔로잉·complete/public을 고정. 안전한 기록 필드 배열, 날짜/지역 필터·locations 관계 조회는 기존과 동일 |
-| 선택 장소 상세 | POST /functions/v1/geocode-location | 본인 JWT, {place_id:"선택한 Google 장소 ID"}. 서버 Places Details의 정규화된 위치 객체 반환 |
+| 선택 장소 상세 | POST /functions/v1/geocode-location | 본인 JWT, {provider:"geoapify",place_id:"선택한 Geoapify 장소 ID"}. 서버 Geoapify의 정규화된 위치 객체 반환 |
 
 공개 설정 기본값은 false이고 기존 Google/앱 프로필을 자동 공개하지 않는다. 공개 이름은 trim 후 1~30자·공백만 불가·중복 허용, avatar_url은 null(기본) 또는 서버 검증된 Google HTTPS 사진이다. 설정·사진 선택의 공개 안내 후 활성화한다. 이메일·Auth 메타데이터·공개 여부 외 내부 필드는 public_profiles에 포함하지 않는다. 비활성화하면 projection 0행·작성자 기본 표시이며 기록 visibility와 기존 관계는 유지한다. 새 팔로우 대상 검색에서는 제외한다.
 
@@ -36,9 +41,17 @@ following_travel_records는 id·owner_id·title·content·start_date·end_date·
 
 프로필 projection이 0행이어도 조회 가능한 기록을 숨기지 않고 기본 작성자를 표시한다. profile 관계의 inner join으로 기존 public 기록이나 본인의 미설정 기록을 누락시키지 않는다.
 
-place_id 모드는 기존 query 모드/좌표 역지오코딩 모드와 함께 하나만 요청한다. 서버는 ID를 URL 인코딩해 고정 Google 호스트에 조회하며 임의 URL이나 클라이언트가 주장한 주소/좌표를 장소 상세 결과로 신뢰하지 않는다. Place Details의 id·displayName·formattedAddress·location·addressComponents에 필요한 FieldMask만 사용한다. 정상 응답은 latitude·longitude·source=google·place_name·google_place_id·country_code·country_name·region_name·city_name의 기존 위치 형태다. 클라이언트는 장소명·주소만 표시하고 내부 값을 기존 locations POST에 사용한다. query/역지오코딩의 기존 요청·응답 형태는 유지한다.
+`POST /functions/v1/geocode-location`은 본인 JWT가 필요하며 다음 세 모드 중 하나만 받는다. GET 등 다른 메서드는 405, OPTIONS는 CORS preflight다.
 
-새 place_id 모드는 누락/공백/서로 충돌하는 모드 등 잘못된 입력에 400/VALIDATION_ERROR, 서버 key 부재에 503/EXTERNAL_SERVICE_ERROR, Google 실패/쿼터·검색된 ID 소멸에 502/EXTERNAL_SERVICE_ERROR, 미인증에 401/UNAUTHENTICATED를 사용한다. Google 응답을 확정할 수 없으면 위치를 바꾸지 않고 재검색·재시도한다. 오래된 SDK/REST 응답이 일괄 envelope라고 가정하지 않으며 기존 PostgREST 제약 오류는 기존 매핑을 따른다.
+| 모드 | 요청 | 성공 200 응답 |
+|---|---|---|
+| 검색 | `{"query":"해운대해수욕장"}` | `{id,name,address,latitude,longitude,provider:"geoapify"}` 객체 배열. 0건은 `[]`, 이름·주소는 공급자 결과 그대로이며 검색 문자열로 재명명하지 않는다. |
+| 상세 | `{"provider":"geoapify","place_id":"선택한 id"}` | 정규화된 위치 객체. 상세에는 `provider`가 필수다. |
+| 역지오코딩 | `{"latitude":33.5,"longitude":126.5}` | 정규화된 위치 객체. 공급자 주소를 보완하되 요청한 좌표를 유지한다. 0건은 주소/장소 ID/행정구역 null이다. |
+
+위치 객체 필드는 `latitude/longitude/source=geoapify/place_name/address/provider_place_id/country_code/country_name/region_name/city_name/attribution`이다. 국가 코드는 대문자로 정규화한다. `google_place_id`를 생성하지 않으며 기존 필드는 DB에서 유지한다. 새 nullable 주소·공급자 ID·출처 필드는 `20261106164000_geoapify_locations.sql`의 additive 변경이며 원격에도 적용했다. 클라이언트는 기존 locations POST에 이 필드를 전달한다.
+
+query는 trim 후 공백 불가·원래 길이 최대 200자, place_id는 공백 불가·원래 길이 최대 2048자, 좌표는 유한 수·위도 -90~90·경도 -180~180이다. provider를 전달하면 geoapify만 허용하고 상세에서 누락하면 400이다. 서로 충돌하는 모드는 400/VALIDATION_ERROR다. 인증 없음·실패는 401/UNAUTHENTICATED, 서버 GEOAPIFY_API_KEY 부재는 503/EXTERNAL_SERVICE_ERROR, 공급자 실패·잘못된 응답·상세 없음·10초 timeout은 502/EXTERNAL_SERVICE_ERROR다. 인증·키 검사가 본문 검증보다 먼저 수행된다. 서버는 고정 api.geoapify.com 호스트만 호출하며 임의 URL·클라이언트 주장 주소를 상세 결과로 신뢰하지 않는다. 실패 시 기존 위치·입력을 보존한다.
 
 ### 현재 구현 인터페이스
 
@@ -53,7 +66,7 @@ place_id 모드는 기존 query 모드/좌표 역지오코딩 모드와 함께 �
 
 프로필은 Auth 사용자 생성 시 1:1 연결한다. Google Cloud redirect URI는 Supabase `/auth/v1/callback`이다. 앱 복귀 웹 URL·Android deep link인 redirectTo와 구분한다. 기존 환경변수의 Redirect 이름은 유지하되 TRD 15절의 두 용도 구분을 따른다.
 
-위도는 -90~90, 경도는 -180~180이며 source는 exif·device·manual·google이다. 장소명·Google 장소 ID·국가·지역·도시는 선택이다. 위치는 생성 후 불변이고 새 위치를 만들어 기록을 보정한다. 본인 생성 위치 또는 공개 조회 가능한 위치만 새로 연결할 수 있다. 공개 지도는 대표 위도·경도를 제공하고 사진 EXIF 좌표는 제공하지 않는다.
+위도는 -90~90, 경도는 -180~180이며 source는 exif·device·manual·google·geoapify다. 장소명·주소·공급자 장소 ID·출처·기존 Google 장소 ID·국가·지역·도시는 선택이다. 위치는 생성 후 불변이고 새 위치를 만들어 기록을 보정한다. 본인 생성 위치 또는 공개 조회 가능한 위치만 새로 연결할 수 있다. 공개 지도는 대표 위도·경도를 제공하고 사진 EXIF 좌표는 제공하지 않는다.
 
 ## 3. 기록 조회·생성·수정
 
@@ -141,9 +154,7 @@ Storage REST 삭제는 `DELETE /storage/v1/object/travel-photos`와 prefixes 배
 
 captured_date는 촬영지 현지 날짜 또는 수동 날짜다. 오프셋 없는 EXIF를 임의 UTC로 변환하지 않고 captured_at은 null로 둔다. 최소·최대 날짜를 기간 초깃값으로 제안하며 사용자 최종 보정값이 우선한다.
 
-Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비밀이 필요하면 Edge Function을 사용한다. 현재 UI는 검색·핀 보정/재시도를 제공하고 기존 확정 위치·유효 EXIF를 보존한다. 지역값을 얻지 못하면 null로 두고 주소를 추측하지 않는다. OAuth 실제 동의와 Maps 실제 호출은 로컬 DB 테스트와 분리한다.
-
-`POST /functions/v1/geocode-location`은 인증 사용자만 호출한다. `{"query":"제주"}`는 Places 결과 배열(id·displayName·location)을, `{"latitude":33.5,"longitude":126.5}`는 정규화된 위치 객체를 반환한다. 서버의 `GOOGLE_MAPS_SERVER_API_KEY`가 없으면 503, 외부 서비스 실패는 502/EXTERNAL_SERVICE_ERROR, 입력 오류는 400/VALIDATION_ERROR다. 지역 조회 실패 시 좌표를 수동 확정할 수 있다.
+MapLibre 지도 표시는 로컬 경계 스타일을 사용하고 외부 검색은 위 Geoapify 계약을 따른다. OAuth 동의·Geoapify 실호출·Android 클라우드 사진은 로컬 DB 테스트와 구분한다. 공급자 결과가 없으면 주소를 추측하지 않고 기존 입력을 유지한다.
 
 | 내부 오류 | 기준 |
 |---|---|
@@ -152,7 +163,7 @@ Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비
 | VALIDATION_ERROR | 필수값·범위·사진 수·마지막 사진 삭제 위반 |
 | NOT_FOUND | 상세 0행 또는 접근 불가능한 리소스 |
 | UPLOAD_FAILED | Storage 업로드 실패 |
-| EXTERNAL_SERVICE_ERROR | Google OAuth·Maps 외부 실패 |
+| EXTERNAL_SERVICE_ERROR | Google OAuth·Geoapify 외부 실패 |
 | INTERNAL_ERROR | 예상하지 못한 실패 |
 | NETWORK_ERROR | 연결 중단·재시도 가능, 입력 유지 |
 
