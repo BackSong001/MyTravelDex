@@ -2,6 +2,8 @@
 
 ## 1. 범위와 공통 계약
 
+홈의 GeoJSON 시·도 집계는 기존 RLS로 조회한 완료 기록의 대표 좌표만 사용하며 신규 백엔드 엔드포인트를 추가하지 않는다. 사진 추가는 하단 +에서 기존 작성·업로드 API로 진입한다. Google 지도는 작성·상세 위치 보정에 유지한다.
+
 `DISAN.md`의 화면 변경은 기존 API·RLS·사진 업로드·완료·삭제 계약을 유지한다. 사진 도감은 조회 가능한 대표사진의 ID로 기존 `photo-url`을 호출해 썸네일만 표시하며 익명 사용자에게 원본을 요청하지 않는다.
 
 이 문서는 목표 계약이며 전체 수용 검증 완료를 의미하지 않는다. 인증·사진 업로드·객체 메타데이터 검증·URL 발급·고아 파일 정리·공개 사진 view·사용자 삭제 RPC·공유 위치 접근과 Expo 프로토타입이 구현되어 있다. 실제 Google OAuth와 운영 설정 검증은 남아 있다. CRUD는 PostgREST·RLS, 원자적 변경은 DB RPC, 파일 정리는 서버 전용 Edge Function을 사용한다. 기본 URL은 `EXPO_PUBLIC_SUPABASE_URL`이며 REST `/rest/v1`, Auth `/auth/v1`, Storage `/storage/v1`를 사용한다.

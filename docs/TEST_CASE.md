@@ -1,5 +1,20 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 최신 전체 지도 검증 — 2026-11-06 18:05 KST
+
+FR-MAP-002에 따라 홈/지도 탭은 전체 시·도 지도로, 추가 진입점은 하단 +로 변경했다. 기존 웹 검사의 추가 버튼 선택자를 새 진입점으로 변경했으며 저장·필터·권한·사진·복구 검증은 유지했다. 일반 목록·필터·초안 복구는 여행도감에서 검증한다.
+
+- `npm test`: **60 passed / 실제 OAuth 1 skipped**. 기존 56개 및 시·도 경계·좌표·hole·island·방문 집계 4개.
+- `npx playwright test`: **21 passed**. 기존 19개 및 홈 전체 지도/+ 진입점·실제 제주 기록의 지역 선택/상세 조회 2개.
+- `node --test scripts/configured.test.mjs`: **2 passed**. 공개 환경값 whitelist·기존 로컬 환경 보존·서버 key 차단.
+- TypeScript 검사·Expo Web export 성공, Android Emulator에서 시·도 전체 지도 표시 확인.
+
+총 **83개 자동 검사 통과**다. Google 타일 요청이 차단된 상태에서도 홈 GeoJSON 지도는 표시된다. 작성·상세 Google 지도와 실제 Local Storage 업로드를 기존 검사로 유지한다.
+
+초기 geoBoundaries/Natural Earth 원천에서 광주 시청 좌표가 전남으로 분류되는 Red를 확인했다. 기대 좌표를 바꾸지 않고 KOSTAT 2018 원천으로 교체·topology 정리·단순화하여 서울·광주·대구·부산·제주 좌표 검사를 통과시켰다. 경계는 2018년 기준으로 최신 법정 경계 검증 완료가 아니다.
+
+`node scripts/configured.mjs --check`는 실제 `.env` 대상에 **Auth HTTP 200 / Google 비활성 / profiles·locations·travel_records·photos HTTP 404**를 확인하고 종료 코드 1을 반환했다. 이는 설정 미완료 진단이며 성공 또는 기능 Red로 처리하지 않는다. 실제 Google 동의·취소·복귀·원격 사진 저장은 아직 보류다. 사용자는 현재 `.env` 프로젝트 사용을 선택했고 해당 프로젝트의 Provider 및 CLI 접근을 확인 중이다. 다른 CLI 프로젝트로 환경을 바꾸거나 원격 DB를 초기화하지 않았다.
+
 ## 최신 UI 변경 검증 — 2026-11-06 17:37 KST
 
 디자인 기준은 `DISAN.md`다. 기존 백엔드·HTTP 54개와 웹 15개가 새 여행가방 UI에서 계속 통과했다. 추가된 OAuth 교환 조정 단위 검사 2개와 UI 검사 4개를 포함해 **Vitest 56 passed / 1 skipped, Playwright 19 passed**다. TypeScript와 Expo Web export도 성공했다.

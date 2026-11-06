@@ -4,6 +4,7 @@
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
+    "configured": "node ../scripts/configured.mjs",
     "start": "expo start",
     "web": "expo start --web",
     "android": "expo start --android"

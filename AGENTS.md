@@ -189,6 +189,8 @@ adb logcat
 
 ## 문서 일관성 규칙
 
+홈 지도는 `docs/TRD.md`의 17개 시·도 GeoJSON + SVG 계약을 따른다. 경계 데이터의 출처·라이선스·기준 연도를 유지한다. 지도 색칠은 현재 사용자에게 조회 가능한 완료 기록만 사용하고 사진 추가는 하단 +로 통합한다.
+
 여행가방 UI 초안의 기준은 `docs/DISAN.md`와 사용자 제공 `ui_inital.png`다. 디자인 변경은 Google OAuth·실제 Storage 업로드·기존 테스트 계약을 유지하고, 로컬 회귀 테스트를 위해 원격 프로젝트를 초기화하거나 환경을 자동 전환하지 않는다.
 
 요구사항이 변경되면 다음 문서를 같은 작업에서 함께 검토·수정한다.
@@ -444,6 +446,8 @@ supabase db push
 - [Oracle Cloud Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/Concepts/computeoverview.htm)
 
 ## 현재 저장소 실행 경로
+
+- 실제 `.env` 프로젝트는 `node scripts/configured.mjs --check`로 진단하고 `npm --prefix frontend run configured -- --web --port 8083`으로 별도 실행한다. Google Provider 비활성·테이블 404·관리 권한 부재를 로컬 테스트 성공과 구분한다. 다른 프로젝트로 자동 전환하지 않는다.
 
 - 루트에서 `npm ci`, `npm run backend:start`, `npx supabase migration up --local --workdir backend`, `npm test`를 실행한다. 기존 로컬 데이터를 보존하는 작업에서는 reset 대신 migration up을 사용한다.
 - Edge Function은 별도 터미널에서 `npx supabase functions serve --workdir backend`로 실행한다.

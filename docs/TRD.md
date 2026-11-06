@@ -2,6 +2,15 @@
 
 ## 1. 기술 방향
 
+### 홈 시·도 지도 계약
+
+- 홈/지도 탭은 상·하단 탐색을 제외한 전체 영역을 채우는 GeoJSON + `react-native-svg` 지도로 통합한다. Google 타일 스타일만으로 행정구역 일러스트를 만들지 않는다. 작성·상세 위치 보정에는 기존 Google 지도를 유지한다.
+- WGS84 GeoJSON Polygon/MultiPolygon과 내부 링을 보존하고 Mercator 투영으로 공통 SVG 좌표를 만든다. 도·특별/광역/특별자치시를 포함한 17개 지역을 구분한다. 오프라인 번들에 경계를 포함하며 실행 시 외부 경계 API를 호출하지 않는다.
+- 경계 출처는 southkorea-maps가 배포한 KOSTAT 2018 시·도 경계다. 출처·라이선스·단순화/반올림 내용을 함께 제공한다. 법정 최신 경계·측량·길 안내 정확도를 보장하는 데이터로 사용하지 않는다.
+- 완료 기록의 대표 좌표를 Polygon/MultiPolygon과 hole을 고려해 지역에 배정하고 권한이 허용한 현재 조회 결과만 집계한다. 공개 사진 EXIF·원본은 사용하지 않는다. 대한민국 밖 좌표는 국내 방문 수에 포함하지 않는다.
+- 사진 추가 진입점은 하단 + 하나로 통합한다. 필터·기록 목록·초안 복구는 여행도감에 유지하며 기존 CRUD·업로드·완료·삭제 계약은 유지한다.
+- 실제 환경 실행과 로컬 회귀 실행의 설정을 분리한다. 실제 Google Provider 비활성·누락 테이블·관리 권한 오류를 진단하고 성공으로 위장하지 않는다. 원격 migration 전 대상과 dry-run을 검토한다.
+
 여행가방 화면 초안은 `DISAN.md`를 따른다. 기존 PostgREST·RPC·Storage 계약을 재사용하고 지도 스타일을 Android/Web에서 공유한다. Google OAuth 복귀 코드는 auth 모듈이 교환을 소유하며 웹 callback과 Android 브라우저 복귀가 같은 코드를 중복 교환하지 않도록 한다. Android 인증 검증은 `mytraveldex` scheme을 포함한 자체 앱 빌드에서 수행한다.
 
 백팩 로고와 탐색 아이콘은 SDK 54 호환 `react-native-svg`로 Android/Web에서 동일하게 그린다. 프론트엔드 Auth 단위 검사도 포함하므로 전체 검증 전에는 루트와 `frontend/` 양쪽에서 `npm ci`를 실행한다. 기존 순수 백엔드 인증 테스트는 `npm run test:auth`로 따로 실행할 수 있다.

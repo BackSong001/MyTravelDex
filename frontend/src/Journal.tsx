@@ -42,15 +42,15 @@ export function Welcome() {
 }
 
 export type JournalTab = 'home' | 'album' | 'map' | 'account';
-export function Collection({records, covers, tab, onOpen, onCreate}: {
+export function Collection({records, covers, tab, onOpen}: {
   records: any[]; covers: Record<string, string>; tab: JournalTab;
-  onOpen: (record: any) => void; onCreate: () => void;
+  onOpen: (record: any) => void;
 }) {
   const album = tab === 'album';
   return <>
     <View style={s.titleRow}><View><Text accessibilityRole="header" style={s.title}>{album ? '여행도감' : '나의 여행지도'}</Text><Text style={s.subtitle}>{album ? '내가 다녀온 여행을 한 권의 도감처럼 모아봐요!' : '가방에 담아 온 기억을 지도에서 펼쳐보세요.'}</Text></View></View>
     {!album && <View style={s.mapFrame}><View style={s.mapCaption}><Text style={s.mapCaptionText}>나의 여행 발자국</Text><Text style={s.total}>{records.length}개의 여행</Text></View><TravelMap records={records} onSelect={onOpen} expanded={tab === 'map'}/></View>}
-    <View style={s.section}><Text style={s.sectionTitle}>{album ? `총 ${records.length}개의 여행 기록` : '최근 여행 기록'}</Text><Pressable accessibilityRole="button" accessibilityLabel="여행 추가" onPress={onCreate} style={s.add}><Text style={s.addText}>＋ 여행 추가</Text></Pressable></View>
+    <View style={s.section}><Text style={s.sectionTitle}>{album ? `총 ${records.length}개의 여행 기록` : '최근 여행 기록'}</Text></View>
     {!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>첫 번째 여행을 펼쳐보세요</Text><Text style={s.subtitle}>갤러리의 사진 한 장이면 시작할 수 있어요.</Text></View>}
     <View style={album ? s.grid : s.recentList}>{records.map((record, index) => <Pressable key={record.id} accessibilityRole="button" accessibilityLabel={record.title || '제목 없는 여행'} onPress={() => onOpen(record)} style={[s.card, album ? s.gridCard : s.recentCard]}>
       <View style={[s.tape, {transform: [{rotate: index % 2 ? '8deg' : '-8deg'}]}]}/>

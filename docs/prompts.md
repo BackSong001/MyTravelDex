@@ -2,6 +2,34 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+## 2026-11-06 18:09 KST
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 전체 시·도 지도·하단 + 진입점·실제 프로젝트 설정 진단 도구·경계 데이터와 출처·회귀 테스트·관련 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 83개 통과 결과를 유지하며 이번 요청에서는 테스트를 재실행하지 않았다. 실제 Google 인증은 Provider·스키마·대상 관리 권한 설정 대기 상태로 유지한다. 환경변수·비밀값·생성 산출물은 제외하고 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며 커밋 범위는 앞서 작성한 지도·설정 진단 코드·데이터·테스트·관련 문서다.
+
+## 2026-11-06 18:07 KST
+
+프롬프트 원문:
+
+> supabase 문제를 해결해서 google 로그인이 제대로 되는지 확인하고 다시 구현해줘.
+> 그리고 홈 화면에는 지도 화면으로 가득차고, 사진을 추가할때는 하단의 + 버튼을 눌러서 구현해야해.
+>
+> 그리고 구글 맵 UI가 너무 별로인데, [Image #1] 의 지도화면처럼 꾸며주고 안되면 GeoJSON + 지도 렌더러 기술스펙으로 지도화면을 구현해줘.
+> 일단은 지도 전체화면에 도 기준으로 나누어줘.
+
+설정 확인 응답 원문:
+
+> 현재 .env 프로젝트를 사용할게. 설정·CLI 로그인 확인할게
+
+답변·결과 요약: 홈·지도 탭을 KOSTAT 2018 GeoJSON + SVG의 전체 시·도 지도로 구현하고 사진 추가 진입점을 하단 +로 통합했다. 17개 지역 선택·완료 기록 집계·지역 기록 상세 이동과 기존 사진/CRUD/복구를 검증했으며 Vitest 60·웹 21·설정 보안 2개 총 83개가 통과했다. 실제 .env용 실행·진단을 로컬 회귀 환경과 분리하고 서버 key 전달을 차단했다. 초기 원천의 광주 좌표 오분류는 KOSTAT 원천으로 교체해 해결했다. 현재 Supabase 주소는 연결되지만 Google Provider 비활성·앱 테이블 4개 404·대상 CLI 접근 부재로 실제 Google 동의 및 원격 사진 저장은 미완료이며 사용자의 설정 확인을 기다린다. 원격 설정·DB·실제 .env와 비밀값은 변경하지 않았다.
+
+변경 파일: `AGENTS.md`, `README.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/src/Journal.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/provinces.ts`, `frontend/src/data/korea-provinces.json`, `frontend/src/data/README.md`, `frontend/e2e/travel.spec.ts`, `frontend/package.json`, `backend/tests/provinces.test.ts`, `scripts/configured.mjs`, `scripts/configured.test.mjs`
+
 ## 2026-11-06 17:39 KST
 
 프롬프트 원문:
