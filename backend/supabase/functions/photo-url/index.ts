@@ -1,9 +1,10 @@
+import {corsHeaders, reply} from '../_shared/http.ts';
 const base = Deno.env.get('SUPABASE_URL')!;
 const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const headers = { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
-const reply = (body: unknown, status = 200) => Response.json(body, { status });
 
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response(null, {status: 204, headers: corsHeaders});
   if (req.method !== 'POST') return reply({ error: 'Method not allowed' }, 405);
   try {
     const { photo_id, variant } = await req.json();

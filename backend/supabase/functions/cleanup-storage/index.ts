@@ -1,9 +1,11 @@
+import {corsHeaders, reply} from '../_shared/http.ts';
 const base = Deno.env.get('SUPABASE_URL')!;
 const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const headers = { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
 Deno.serve(async (req) => {
-  if (req.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
-  if (req.headers.get('Authorization') !== `Bearer ${key}`) return Response.json({ error: 'Forbidden' }, { status: 403 });
+  if (req.method === 'OPTIONS') return new Response(null, {status: 204, headers: corsHeaders});
+  if (req.method !== 'POST') return reply({ error: 'Method not allowed' }, 405);
+  if (req.headers.get('Authorization') !== `Bearer ${key}`) return reply({ error: 'Forbidden' }, 403);
   try {
     const claimed = await fetch(`${base}/rest/v1/rpc/claim_orphan_photos`, { method: 'POST', headers, body: '{}' });
     if (!claimed.ok) throw new Error('Claim failed');
@@ -24,6 +26,6 @@ Deno.serve(async (req) => {
         if (!retry.ok) throw new Error('Retry registration failed');
       }
     }
-    return Response.json({ deleted });
-  } catch { return Response.json({ error: 'Cleanup failed' }, { status: 500 }); }
+    return reply({ deleted });
+  } catch { return reply({ error: 'Cleanup failed' }, 500); }
 });

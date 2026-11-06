@@ -4,6 +4,8 @@
 
 ### 홈 시·도 지도 계약
 
+웹 연결에 사용하는 `photo-url`, `cleanup-storage`, `geocode-location`은 OPTIONS preflight와 공통 CORS 응답을 제공한다. 실제 원격 Relay가 이를 대신 처리한다고 가정하지 않는다. CORS 응답과 별도로 각 함수의 사용자 JWT 또는 서버 전용 자격 검증을 유지한다.
+
 - 홈/지도 탭은 상·하단 탐색을 제외한 전체 영역을 채우는 GeoJSON + `react-native-svg` 지도로 통합한다. Google 타일 스타일만으로 행정구역 일러스트를 만들지 않는다. 작성·상세 위치 보정에는 기존 Google 지도를 유지한다.
 - WGS84 GeoJSON Polygon/MultiPolygon과 내부 링을 보존하고 Mercator 투영으로 공통 SVG 좌표를 만든다. 도·특별/광역/특별자치시를 포함한 17개 지역을 구분한다. 오프라인 번들에 경계를 포함하며 실행 시 외부 경계 API를 호출하지 않는다.
 - 경계 출처는 southkorea-maps가 배포한 KOSTAT 2018 시·도 경계다. 출처·라이선스·단순화/반올림 내용을 함께 제공한다. 법정 최신 경계·측량·길 안내 정확도를 보장하는 데이터로 사용하지 않는다.

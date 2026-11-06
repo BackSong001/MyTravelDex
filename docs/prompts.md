@@ -2,6 +2,26 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+## 2026-11-06 18:46 KST
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: Edge Function 공통 CORS 응답·preflight·회귀 검사와 Supabase 실제 연결 검증 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 84개 통과 결과를 유지하며 이번 요청에서는 테스트를 재실행하지 않았다. 실제 Google 계정 로그인·동의 완료는 여전히 미검증이다. 비밀값·연결 메타데이터·환경변수 파일과 작업 범위 밖 `storyboard.png`는 커밋하지 않는다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며 커밋 범위는 기존 CORS 함수·검사 및 관련 API·설계·검증 문서다.
+
+## 2026-11-06 18:43 KST
+
+프롬프트 원문:
+
+> 내 웹 브라우저 권환으로 너가 직접 확인해줄순없어? 아니면 supabase cli 로그인은 했는데, 연결시켜줘
+
+답변·결과 요약: 현재 .env 프로젝트 접근·CLI link를 확인하고 검토/dry-run 후 기존 migration 8개와 필수 Edge Function 3개를 적용했다. Google Provider에 등록된 Android Client ID를 Web Client ID로 교정하고 앱 복귀 URL을 등록해 Google 계정 입력 화면 진입을 확인했다. 실제 원격 사진 저장·완료·signed 이미지·anon 차단을 임시 fixture로 검증하고 생성 데이터만 정리했다. 원격 CORS 누락을 수정·배포했으며 회귀 자동 검사 84개가 통과했다. 사용자 브라우저 연결 세션은 없으므로 실제 Google 계정 로그인·동의 완료는 미검증이다. 실제 환경 웹은 localhost:8083에서 실행 중이며 실제 .env·로컬 테스트 환경·사용자 기존 파일은 변경하지 않았다.
+
+변경 파일: `backend/supabase/functions/_shared/http.ts`, `backend/supabase/functions/photo-url/index.ts`, `backend/supabase/functions/cleanup-storage/index.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/tests/cors.test.ts`, `docs/API_SPEC.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`. CLI 연결 메타데이터는 Git 제외 `backend/supabase/.temp/`에 저장된다. 원격 설정·스키마·함수 배포는 본문 결과에 기록했으며 비밀값은 기록하지 않았다.
+
 ## 2026-11-06 18:09 KST
 
 프롬프트 원문:

@@ -10,6 +10,8 @@
 
 요청에는 `apikey: <anon_key>`를 포함하고 소유자 요청에는 `Authorization: Bearer <access_token>`을 추가한다. JSON은 `Content-Type: application/json`, 생성·수정 결과 조회는 `Prefer: return=representation`을 사용한다. UUID는 실제 UUID로, 필터 값은 URL 인코딩해 전달한다. service role key는 클라이언트에 제공하지 않는다.
 
+앱 Edge Function은 웹의 OPTIONS preflight에 204를 반환하고 성공·실패 응답 모두 CORS 헤더를 포함한다. Local Kong이 preflight를 먼저 처리하면 200일 수 있다. 허용 메서드는 POST/OPTIONS, 요청 헤더는 authorization·apikey·content-type·prefer·x-client-info다. 쿠키 자격증명은 사용하지 않고 Bearer/RLS 검증을 유지한다. CORS 허용이 인증·권한을 대신하지 않는다.
+
 ## 2. Auth·프로필·위치
 
 | 작업 | 인터페이스 | 권한·결과 |

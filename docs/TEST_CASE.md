@@ -1,5 +1,15 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 최신 Supabase 실제 연결 검증 — 2026-11-06 18:43 KST
+
+- 사용자 CLI 로그인 변경 후 `.env` 대상 프로젝트 접근과 link를 확인했다. 기존 migration 8개를 검토하고 `db push --dry-run` 후 적용했다. DB reset·기존 데이터 삭제는 하지 않았다.
+- Google Provider는 활성 상태였으나 Android Client ID가 등록되어 있었다. 기존 Web Client ID·Secret을 사용하도록 교정하고 `localhost:8083`, `127.0.0.1:8083`, `mytraveldex://auth/callback` 복귀 주소를 추가했다. 다른 인증 설정은 유지했다.
+- 실제 Supabase OAuth authorize의 HTTP 302, Google Web Client ID 일치, Supabase callback 일치, Google `/v3/signin/identifier` 진입과 `redirect_uri_mismatch` 해소를 확인했다. 브라우저 연결 도구에 사용 가능한 세션이 없어 실제 Google 계정 로그인·동의·앱 복귀 완료는 확인하지 않았다. 기존 실제 OAuth skip은 유지한다.
+- `node scripts/configured.mjs --check`: Google 활성·Auth 정상·앱 테이블 4개 HTTP 200, 종료 코드 0. 실제 프로젝트용 웹 서버는 8083, 로컬 회귀 서버는 8082로 분리했다.
+- `photo-url`, `cleanup-storage`, `geocode-location`을 배포하고 서버용 Maps key만 Supabase Secret으로 등록했다. 원격 OPTIONS가 405/CORS 누락이던 문제를 공통 HTTP 응답과 OPTIONS 처리로 수정했다. 원격 preflight 204·CORS 및 미인증 요청의 400/403/401과 CORS를 검증했다. Local Kong의 preflight 200도 정상으로 구분한다.
+- 실제 원격 프로젝트에 이메일 전송 없는 임시 Auth 사용자를 만들어 프로필 trigger → 사용자 JWT로 원본/썸네일 Storage 업로드 → 사진 등록 → 완료 RPC → signed 이미지 바이트 일치 → anon 비공개 기록 차단을 확인했다. 생성한 사용자·프로필·기록·위치·파일 경로만 정리했다. 이 검사는 Google 로그인 완료 증거가 아니다.
+- 회귀: `npm test` **61 passed / 실제 OAuth 1 skipped**, Playwright **21 passed**, 설정 보안 검사 **2 passed**. 합계 84개 자동 검사 통과. 실제 프로젝트 smoke는 별도 실행 증거다. 운영 정리 스케줄·실기기·전체 외부 수용 검증은 기존 보류 상태다.
+
 ## 최신 전체 지도 검증 — 2026-11-06 18:05 KST
 
 FR-MAP-002에 따라 홈/지도 탭은 전체 시·도 지도로, 추가 진입점은 하단 +로 변경했다. 기존 웹 검사의 추가 버튼 선택자를 새 진입점으로 변경했으며 저장·필터·권한·사진·복구 검증은 유지했다. 일반 목록·필터·초안 복구는 여행도감에서 검증한다.

@@ -42,7 +42,7 @@
 2. **사진 추가**: 사용자 JWT로 기존 private `travel-photos` 버킷에 원본과 썸네일을 업로드한다. 사진 1~20장·20 MiB·40MP·썸네일 512px/512KiB 제한, 소유권·RLS·완료 RPC를 유지한다. 도감에는 서버가 허용한 대표 썸네일의 300초 signed URL만 표시한다.
 3. **지도 UI 변경**: 홈은 GeoJSON + 기존 react-native-svg로 대한민국 시·도 경계를 렌더링한다. 작성·상세의 실제 Google 지도·마커 선택·좌표 보정은 유지한다. Google 서비스 오류 시 입력값을 보존하고 수동 좌표 입력을 제공한다. 공개 기록에는 대표 위치만 사용한다.
 
-최신 점검에서 루트 `.env`의 Supabase 주소는 정상 연결된다. Google Provider는 비활성이고 앱 테이블 4개는 HTTP 404다. 현재 CLI 계정은 다른 프로젝트에 접근하므로 대상 계정 설정이 필요하다. 실제 OAuth 완료 검증에는 유효한 프로젝트 주소·공개 키, Google Provider, 허용 복귀 URL 및 사용자 동의가 필요하다. 비밀키를 문서·소스·클라이언트에 옮기지 않는다. 로컬 회귀 환경을 원격 DB로 바꾸지 않는다.
+2026-11-06 연결 점검에서 현재 `.env` 프로젝트에 CLI를 연결하고 기존 migration 8개 및 필수 Edge Function 3개를 적용했다. Google Provider의 Android Client ID를 Web Client ID로 교정하고 웹 8083·Android scheme 복귀 URL을 등록했다. Auth·앱 테이블은 정상 응답하며 Google 계정 입력 화면까지 연결된다. 실제 계정 로그인·동의·앱 복귀 완료는 사용자 브라우저에서 별도 확인한다. 비밀값·실제 `.env`와 로컬 회귀 환경은 변경하지 않았다.
 
 실제 연결 준비:
 
