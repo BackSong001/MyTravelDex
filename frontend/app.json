@@ -1,9 +1,14 @@
 {
   "expo": {
-    "name": "MyTravelDex",
+    "name": "여행가봥",
     "slug": "mytraveldex",
     "scheme": "mytraveldex",
     "version": "1.0.0",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF8F2"
+    },
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "android": {

@@ -1,2 +1,43 @@
-import { Stack } from 'expo-router';
-export default function Layout(){return <Stack screenOptions={{headerShown:false}}/>;}
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {SplashScreen, Stack} from 'expo-router';
+import {StatusBar} from 'expo-status-bar';
+import {Backpack} from '../src/Journal';
+import {colors as c} from '../src/theme';
+import {api} from '../src/runtime';
+
+void SplashScreen.preventAutoHideAsync().catch(() => {});
+
+export default function Layout() {
+  const [localReady, setLocalReady] = useState(false);
+  const [laidOut, setLaidOut] = useState(false);
+  const ready = localReady && laidOut;
+  useEffect(() => {
+    let active = true;
+    // 로컬 저장소만 준비한다. 세션 갱신·지도·목록 요청은 화면에서 처리한다.
+    const storageKey = `sb-${new URL(api.url).hostname.split('.')[0]}-auth-token`;
+    void AsyncStorage.getItem(storageKey).catch(() => null).finally(() => {
+      if (active) setLocalReady(true);
+    });
+    return () => {active = false;};
+  }, []);
+  useEffect(() => {
+    if (ready) void SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+  return <View style={s.root} onLayout={() => setLaidOut(true)}>
+    <StatusBar style="dark"/>
+    <View style={s.root} accessibilityElementsHidden={!ready} importantForAccessibility={ready ? 'auto' : 'no-hide-descendants'}>
+      <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>
+    </View>
+    {!ready && <View style={s.splash} accessible accessibilityLabel="여행가봥 시작 중" accessibilityRole="progressbar">
+      <Backpack size={112}/><Text style={s.brand}>여행가봥</Text>
+    </View>}
+  </View>;
+}
+
+const s = StyleSheet.create({
+  root: {flex: 1, backgroundColor: c.paper},
+  splash: {...StyleSheet.absoluteFillObject, backgroundColor: c.paper, justifyContent: 'center', alignItems: 'center', padding: 24},
+  brand: {fontSize: 32, fontWeight: '800', color: c.ink, marginTop: 20, textAlign: 'center'},
+});

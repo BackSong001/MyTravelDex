@@ -33,6 +33,13 @@ export class TravelApi {
     if (region) q.set('locations.region_name', `eq.${region}`);
     return this.request(`/rest/v1/travel_records?${q}`);
   }
+  following(start?: string, end?: string, region?: string) {
+    const q = new URLSearchParams({select:`*,locations${region?'!inner':''}(*)`,order:'start_date.desc,id.asc'});
+    if(start)q.set('end_date',`gte.${start}`);
+    if(end)q.set('start_date',`lte.${end}`);
+    if(region)q.set('locations.region_name',`eq.${region}`);
+    return this.request(`/rest/v1/following_travel_records?${q}`);
+  }
   async update(id: string, values: unknown) {
     const rows = await this.request(`/rest/v1/travel_records?id=eq.${id}`, 'PATCH', values);
     if (!rows.length) throw new ApiError('NOT_FOUND',404,'기록을 찾을 수 없습니다.');

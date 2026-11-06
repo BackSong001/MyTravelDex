@@ -14,9 +14,9 @@
 
 ## 2. Auth·프로필·위치
 
-### vNext 추가 인터페이스 — 계획됨·미구현
+### 여행가봥 추가 인터페이스
 
-아래 테이블/view/필드/요청 모드는 이번 문서 작업에서 생성하지 않는다. 다음 기존 인터페이스 표는 현재 구현 계약이며 새 기능의 완료 증거가 아니다.
+아래 계약은 `20261106163000_vnext_social.sql`과 `geocode-location`에 구현되어 있다. 신규/기존 검증 결과는 TEST_CASE 최신 실행 절을 따른다.
 
 | 동작 | 인터페이스 | 요청·응답·권한 |
 |---|---|---|
@@ -141,7 +141,7 @@ Storage REST 삭제는 `DELETE /storage/v1/object/travel-photos`와 prefixes 배
 
 captured_date는 촬영지 현지 날짜 또는 수동 날짜다. 오프셋 없는 EXIF를 임의 UTC로 변환하지 않고 captured_at은 null로 둔다. 최소·최대 날짜를 기간 초깃값으로 제안하며 사용자 최종 보정값이 우선한다.
 
-Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비밀이 필요하면 Edge Function을 사용한다. 현재 프로토타입은 수동 숫자 좌표를 제공하지만 vNext는 검색·핀 보정/재시도로 대체하며 기존 확정 위치·유효 EXIF를 보존한다. 지역값을 얻지 못하면 null로 두고 주소를 추측하지 않는다. OAuth 실제 동의와 Maps 실제 호출은 로컬 DB 테스트와 분리한다.
+Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비밀이 필요하면 Edge Function을 사용한다. 현재 UI는 검색·핀 보정/재시도를 제공하고 기존 확정 위치·유효 EXIF를 보존한다. 지역값을 얻지 못하면 null로 두고 주소를 추측하지 않는다. OAuth 실제 동의와 Maps 실제 호출은 로컬 DB 테스트와 분리한다.
 
 `POST /functions/v1/geocode-location`은 인증 사용자만 호출한다. `{"query":"제주"}`는 Places 결과 배열(id·displayName·location)을, `{"latitude":33.5,"longitude":126.5}`는 정규화된 위치 객체를 반환한다. 서버의 `GOOGLE_MAPS_SERVER_API_KEY`가 없으면 503, 외부 서비스 실패는 502/EXTERNAL_SERVICE_ERROR, 입력 오류는 400/VALIDATION_ERROR다. 지역 조회 실패 시 좌표를 수동 확정할 수 있다.
 

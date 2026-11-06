@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {publicConfiguration,expoArguments} from './configured.mjs';
+import appConfig from '../frontend/app.config.ts';
 
 test('configured web avoids development env override and Android embeds a standalone bundle',()=>{
   assert.deepEqual(expoArguments(['--web','--port','8083']),['start','--web','--port','8083','--no-dev']);
@@ -17,4 +18,17 @@ test('secret/service role keys cannot become client credentials', () => {
   for (const key of ['sb_secret_fixture',`eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify({role:'service_role'})).toString('base64url')}.fixture`]) {
     assert.throws(() => publicConfiguration({EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:key}));
   }
+});
+
+test('native prebuild keeps package/scheme and supplies public Maps keys to the Fabric config plugin',()=>{
+  const names=['EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY','EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY'];
+  const previous=names.map(name=>process.env[name]);
+  try{
+    process.env[names[0]]='android-public-fixture';process.env[names[1]]='ios-public-fixture';
+    const result=appConfig({config:{name:'previous',slug:'mytraveldex',scheme:'mytraveldex',android:{package:'com.mytraveldex.app'},plugins:['expo-router']}});
+    assert.equal(result.name,'여행가봥');assert.equal(result.scheme,'mytraveldex');assert.equal(result.android.package,'com.mytraveldex.app');
+    assert.equal(result.plugins[0],'expo-router');
+    assert.deepEqual(result.plugins[1],['react-native-maps',{androidGoogleMapsApiKey:'android-public-fixture',iosGoogleMapsApiKey:'ios-public-fixture'}]);
+    assert.equal(result.android.config.googleMaps.apiKey,'android-public-fixture');
+  }finally{names.forEach((name,index)=>{if(previous[index]===undefined)delete process.env[name];else process.env[name]=previous[index];});}
 });

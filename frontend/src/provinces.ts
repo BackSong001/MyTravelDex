@@ -1,4 +1,5 @@
 import data from './data/korea-provinces.json';
+import {colors as palette} from './design/colors.json';
 import {validCoordinates} from './domain';
 
 type Position = number[];
@@ -71,3 +72,63 @@ export function groupProvinceRecords(records: any[]) {
   }
   return grouped;
 }
+
+// 색은 데이터 배열 순서가 아니라 고정 지역 ID 순서로 배정한다.
+export const provinceColors: Record<string, string> = Object.fromEntries(
+  Object.keys(provinceLabels).sort().map((id, index) => [id, palette.map.regionPastels[index % palette.map.regionPastels.length]]),
+);
+export function visibleProvinceLabels(zoom: number, selected: string | null) {
+  const candidates = Object.entries(provinceLabels).filter(([id]) => id === selected || (zoom < 8 ? ['KR-11','KR-26','KR-49'].includes(id) : zoom < 10));
+  candidates.sort(([a], [b]) => Number(b === selected) - Number(a === selected));
+  const placed: {x:number; y:number; width:number}[] = [];
+  return candidates.filter(([, label]) => {
+    const [x,y] = mercator(label.point).map(n => n * 256 * 2 ** zoom / (2 * Math.PI)), width = label.name.length * 12 + 12;
+    if (placed.some(point => Math.abs(point.x-x) < (point.width+width)/2 && Math.abs(point.y-y) < 24)) return false;
+    placed.push({x,y,width}); return true;
+  });
+}
+export const provinceOpacity = (zoom: number) => zoom >= 10 ? .16 : zoom >= 8 ? .55 : palette.map.unvisitedRegionOpacity;
+export const travelMapStyle = [
+  {featureType:'water',elementType:'geometry',stylers:[{color:palette.map.ocean}]},
+  {featureType:'landscape',elementType:'geometry',stylers:[{color:palette.map.landDefault}]},
+  {featureType:'poi',elementType:'labels',stylers:[{visibility:'off'}]},
+  {featureType:'transit',stylers:[{visibility:'off'}]},
+];
+export type TravelMapProps = {
+  records: any[];
+  covers?: Record<string, string>;
+  authors?: Record<string, {display_name: string | null; avatar_url: string | null}>;
+  onSelect?: (record: any) => void;
+  onRegion?: (id: string, name: string) => void;
+  ownRecords?: any[];
+  onCoordinate?: (latitude: number, longitude: number) => void;
+  expanded?: boolean;
+  fullScreen?: boolean;
+};
+export function mapRecords(records: any[], correction = false) {
+  return records.filter(record => (record.status === 'complete' || (correction && record.status == null)) &&
+    record.locations?.latitude != null && record.locations?.longitude != null &&
+    validCoordinates(Number(record.locations.latitude), Number(record.locations.longitude)));
+}
+export function markerDescription(record: any, authors: TravelMapProps['authors'] = {}) {
+  return [authors[record.owner_id]?.display_name || '여행자', record.title || '나의 여행',
+    [record.start_date, record.end_date].filter(Boolean).join(' ~ '), record.locations?.place_name || record.locations?.name].filter(Boolean).join(' · ');
+}
+
+export function mapMarkerGroups(records: any[], zoom: number, correction = false) {
+  const groups: {record: any; records: any[]; x: number; y: number}[] = [];
+  const size = 256 * 2 ** zoom;
+  for (const record of mapRecords(records, correction)) {
+    const [x, y] = mercator([Number(record.locations.longitude), Math.max(-85, Math.min(85, Number(record.locations.latitude)))]).map(n => n * size / (2 * Math.PI));
+    const group = groups.find(group => Math.min(Math.abs(group.x - x), size - Math.abs(group.x - x)) < 68 && Math.abs(group.y - y) < 82);
+    if (group) group.records.push(record);
+    else groups.push({record, records: [record], x, y});
+  }
+  return groups;
+}
+
+export function visitedProvinceIds(records: any[], ownerId: string | null | undefined): string[] {
+  return ownerId ? Object.keys(groupProvinceRecords(records.filter(record => record.owner_id === ownerId))).sort() : [];
+}
+
+export const mapStylesAtZoom = (zoom: number) => [...travelMapStyle, {featureType:'administrative',elementType:'labels',stylers:[{visibility:zoom >= 10 ? 'on' : 'off'}]}];

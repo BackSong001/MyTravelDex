@@ -34,16 +34,23 @@ async function main() {
   const google = (await settings.json()).external?.google === true;
   console.log(`Auth 연결 정상 / Google Provider: ${google ? '활성' : '비활성 — Dashboard 설정 필요'}`);
   ready &&= google;
-  for (const table of ['profiles','locations','travel_records','photos']) {
+  for (const table of ['profiles','public_profiles','locations','travel_records','photos']) {
     const response = await fetch(new URL(`/rest/v1/${table}?select=id&limit=0`, config.EXPO_PUBLIC_SUPABASE_URL), {headers, signal: AbortSignal.timeout(10000)});
     console.log(`${table}: HTTP ${response.status}`); ready &&= response.ok;
   }
   if (process.argv.includes('--check')) {process.exitCode = ready ? 0 : 1; return;}
   if (!ready) console.log('실제 인증·저장 설정이 미완료입니다. 원격 DB나 Provider는 자동 변경하지 않습니다.');
   const sdk = process.env.ANDROID_HOME ?? `${homedir()}/Android/Sdk`;
-  const child = spawn(process.execPath, [fileURLToPath(new URL('../frontend/node_modules/expo/bin/cli', import.meta.url)), ...expoArguments(process.argv.slice(2))], {
+  const expo = fileURLToPath(new URL('../frontend/node_modules/expo/bin/cli', import.meta.url));
+  const execution = {
     cwd: fileURLToPath(new URL('../frontend', import.meta.url)), env: {...process.env, ...config, ...(existsSync(sdk)?{ANDROID_HOME:sdk}:{}), EXPO_NO_DOTENV:'1'}, stdio: 'inherit',
-  });
+  };
+  if (process.argv.includes('--native-android')) {
+    const prebuild = spawn(process.execPath, [expo,'prebuild','--platform','android','--no-install'], execution);
+    const code = await new Promise((resolve,reject) => {prebuild.once('error',reject);prebuild.once('exit',code=>resolve(code??1));});
+    if (code !== 0) {process.exitCode = code; return;}
+  }
+  const child = spawn(process.execPath, [expo, ...expoArguments(process.argv.slice(2))], execution);
   child.on('error', () => {console.error('Expo 실행 실패. frontend에서 npm ci를 실행해 주세요.'); process.exitCode = 1;});
   child.on('exit', code => {process.exitCode = code ?? 1;});
 }

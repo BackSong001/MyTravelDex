@@ -4,10 +4,10 @@
 
 MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으로 여행 기록을 등록하고 공유하는 앱이다. Android를 우선 개발하고 웹에서 공통 흐름을 테스트하며, 추후 iOS를 지원한다.
 
-## 여행가봥 vNext 설계 상태
+## 여행가봥 UI·소셜 구현
 
-- 현재 UI는 기능 검증용 프로토타입이다. 재설계 기준은 `docs/DISAN.md`, `docs/design/storyboard.png`, `frontend/src/design/colors.json`이며 루트 스토리보드 원본은 유지한다. 컬러 JSON은 원본 자산이고 런타임 연결 전이다.
-- FR-UI-001~011·FR-PROFILE-001·FR-SOCIAL-001·FR-STAMP-001과 신규 API/TC는 계획됨·미구현이다. 문서 변경을 기능 완료·migration 적용·테스트 통과로 기록하지 않는다.
+- 여행가봥 UI·소셜 구현 기준은 `docs/DISAN.md`, `docs/design/storyboard.png`, `frontend/src/design/colors.json`이며 루트 스토리보드 원본은 유지한다. 컬러 JSON 원본은 유지하고 `src/theme.ts`와 지도에서 참조한다. 글자·상태 색상만 접근성 의미 토큰으로 보완한다.
+- FR-UI-001~011·FR-PROFILE-001·FR-SOCIAL-001·FR-STAMP-001의 UI와 API를 구현했다. 실제 검증 범위·미검증 조건은 `docs/TEST_CASE.md` 최신 실행 이력을 따른다. 구현 여부와 전체 수용 완료를 구분한다.
 - 목표 표시명은 여행가봥, 하단은 홈·여행도감·+·친구·My다. package/scheme은 유지한다. 앱 코드 구현이 요청될 때만 UI·migration을 변경하고 백엔드→실제 Local HTTP→웹→Android 순서로 Red→Green→Refactor를 검증한다.
 - 일방 팔로우는 complete/public만 조회하며 private/draft 접근 권한을 추가하지 않는다. 기존 profiles 본인 RLS를 열지 말고 공개 확인된 최소 projection만 별도로 제공한다. 관계 목록은 본인 전용이다.
 - 신규 화면의 수동 위치는 숫자 입력 대신 서버 검색·place_id 상세·핀 보정을 사용한다. 기존 좌표 API·EXIF 파싱/압축·UUID 재시도·초안 복구·Storage 정책은 유지한다.
@@ -197,7 +197,7 @@ adb logcat
 
 ## 문서 일관성 규칙
 
-현재 홈 지도는 `docs/TRD.md`의 프로토타입 17개 시·도 GeoJSON + SVG 계약을 따른다. vNext 목표는 Google 실제 지도+같은 경계 Polygon과 기존 대체 보기다. 출처·라이선스·기준 연도를 유지하고 내 스탬프는 친구/공개 범위와 별개로 본인 complete만 집계한다.
+현재 홈 지도는 Google 실제 지도+17개 시·도 GeoJSON Polygon이며 Google 연결 실패 시 SVG 대체 보기를 제공한다. 출처·라이선스·기준 연도를 유지하고 내 스탬프는 친구/공개 범위와 별개로 본인 complete만 집계한다.
 
 여행가봥 재설계의 기준은 `docs/DISAN.md`와 사용자 스토리보드/컬러 자산이다. 기존 UI를 최종 시안으로 간주하지 않는다. 디자인 변경은 Google OAuth·실제 Storage 업로드·기존 테스트 계약을 유지하고, 로컬 회귀 테스트를 위해 원격 프로젝트를 초기화하거나 환경을 자동 전환하지 않는다.
 
@@ -454,6 +454,8 @@ supabase db push
 - [Oracle Cloud Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/Concepts/computeoverview.htm)
 
 ## 현재 저장소 실행 경로
+
+- 실제 Android 지도는 React Native 0.81.5/Fabric과 고정한 react-native-maps 1.26.20을 사용한다. Expo Go의 번들 버전으로 네이티브 수용을 판단하지 않는다. `npm --prefix frontend run android:configured`는 같은 공개 환경값으로 Android prebuild 후 자체 APK를 빌드·설치해 지도 key/config plugin·표시명·스플래시를 동기화한다.
 
 - 실제 `.env` 프로젝트를 사용하는 Android 자체 테스트 APK는 `npm --prefix frontend run android:configured`로 빌드·설치한다. SDK는 `ANDROID_HOME` 또는 `~/Android/Sdk`를 사용한다. production JS를 내장하고 기본 개발 서명을 쓰므로 Play Store 배포 검증과 구분한다. Expo Go는 실제 Google OAuth 앱 복귀 검증 대상으로 사용하지 않는다.
 - 실제 프로젝트 웹 실행은 `npm --prefix frontend run configured -- --web --localhost --port 8083`을 사용한다. SDK 54 개발 virtual env의 `.env.local` 우선 적용을 피하도록 기본 `--no-dev`와 `EXPO_NO_DOTENV=1`을 사용한다. 로컬 테스트 `.env.local`은 보존한다.

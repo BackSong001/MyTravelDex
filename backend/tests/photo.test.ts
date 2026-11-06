@@ -358,6 +358,13 @@ test('TC-TRAVEL-005: missing dates require manual input',()=>{
   expect(()=>validateRecord({start_date:'2026-02-30',end_date:'2026-03-01',latitude:1,longitude:1},1)).toThrow();
   expect(()=>validateRecord({start_date:'',end_date:'',latitude:1,longitude:1},1)).toThrow();
   expect(()=>validateRecord({start_date:'2026-01-10',end_date:'2026-01-15',latitude:1,longitude:1},1)).not.toThrow();
+  const valid={start_date:'2026-01-10',end_date:'2026-01-15',latitude:1,longitude:1};
+  for(const [change,field] of [[{start_date:''},'start_date'],[{end_date:'2026-01-01'},'end_date'],[{latitude:NaN},'location']] as const){
+    let failure:unknown;
+    try{validateRecord({...valid,...change},1);}catch(error){failure=error;}
+    expect(failure).toBeInstanceOf(Error);
+    expect(failure).toMatchObject({field});
+  }
 });
 test('TC-TRAVEL-006: date and text limits are enforced',async()=>{
   for(const body of [{start_date:'2026-01-16'},{title:'a'.repeat(101)},{content:'a'.repeat(5001)}]) expect((await call(`/rest/v1/travel_records?id=eq.${recordId}`,users[0].token,'PATCH',body)).status).toBe(400);

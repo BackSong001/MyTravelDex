@@ -7,14 +7,14 @@
 - 화면 구조 원본: [storyboard.png](design/storyboard.png). 루트 원본도 유지한다.
 - 컬러 원본: [colors.json](../frontend/src/design/colors.json). 내용 변경 없이 이동했으며 현재 앱에서 import하지 않는다.
 - 충돌 시 이번 사용자 지시·확정 답변 → REQUIREMENT 수용 기준 → 이 초안 → 스토리보드 → 기존 임시 UI 순으로 해석한다.
-- 앱 표시명은 **여행가봥**이다. MyTravelDex 코드 식별자·Android package·mytraveldex OAuth scheme은 유지한다. 현재 실행 앱의 표시명 변경도 후속 UI 구현에 포함한다.
+- 앱 표시명은 **여행가봥**이다. MyTravelDex 코드 식별자·Android package·mytraveldex OAuth scheme은 유지한다. 앱 표시명도 변경했으며 package와 scheme은 유지했다.
 - 친구는 상호 승인 관계가 아닌 **일방 팔로우**다. 홈 기본은 내 완료 기록과 팔로잉의 완료된 공개 기록을 함께 보여준다. 팔로우가 비공개 조회 권한을 추가하지 않는다.
 
 ![화면 구조 참고 스토리보드](design/storyboard.png)
 
 ## 2. 요구사항 검증·추적
 
-아래 11개는 신규 초안의 수용 기준이며 **모두 계획됨·미구현/미실행**이다. 기존 자동 검사 106개와 실제 Google API 검사 4개의 통과 기록으로 대신하지 않는다.
+아래 11개는 구현한 UI의 수용 기준이다. 실제 검증 범위와 남은 플랫폼 조건은 TEST_CASE 최신 실행 절을 따른다. 기존 자동 검사 106개와 실제 Google API 검사 4개의 통과 기록으로 대신하지 않는다.
 
 | 사용자 번호 / ID | 화면·동작 | 검증·의존성 |
 |---|---|---|
@@ -22,8 +22,8 @@
 | 2 / FR-UI-002 | 표시명 여행가봥 | 로그인·헤더·스플래시·앱 표시명 일치; package/scheme 유지 |
 | 3 / FR-UI-003 | 실제 위치 기반 확대·축소·이동 | Google 지도와 같은 좌표계에 경계·마커 표시; 가짜 위치 금지 |
 | 4 / FR-UI-004 | 기록당 대표사진 마커 하나 | complete 후 대표 위치에 표시, 대표 변경 시 갱신, draft 미노출 |
-| 5 / FR-UI-005 | 사진 아래 작은 아바타·닉네임 | 공개 프로필 projection 추가 필요; 이메일·EXIF 미노출 |
-| 6 / FR-UI-006 | 팔로잉의 공개 완료 기록 표시 | follows/RLS·친구 조회 view 추가 필요; 해제 후 홈 범위 갱신 |
+| 5 / FR-UI-005 | 사진 아래 작은 아바타·닉네임 | 공개 프로필 projection 사용; 이메일·EXIF 미노출 |
+| 6 / FR-UI-006 | 팔로잉의 공개 완료 기록 표시 | follows/RLS·친구 조회 view 사용; 해제 후 홈 범위 갱신 |
 | 7 / FR-UI-007 | 아래에서 올라오는 작성 패널·하단 유지 | 앱 내부 단계 이동, 수동 장소 검색·핀 보정, 숫자 좌표 입력 없음 |
 | 8 / FR-UI-008 | 도감 상단 한 줄 필터 | 지역·기간·조회 범위; 좁은 화면/큰 글꼴은 가로 스크롤 |
 | 9 / FR-UI-009 | 스플래시 | 백팩·앱명, 리소스/로컬 세션 준비 후 종료, 고정 지연 없음 |
@@ -109,10 +109,10 @@
 - 애니메이션 감소 설정에서는 이동·크기 효과를 생략하고 상태를 즉시 반영한다. 로딩·오류·완료는 문구와 접근성 알림으로도 전달한다.
 - 필요한 썸네일만 불러오고 캐시·signed URL 만료를 처리한다. 지도 제스처 중 불필요한 전체 마커 재렌더를 피하고 저사양 에뮬레이터에서 동작을 측정한다.
 
-## 8. 계약·후속 구현 게이트
+## 8. 계약·검증 게이트
 
 기존 private/public, draft/complete, 원본 미업로드, 1~20장, 20MiB/40MP 입력, JPEG 보관본 2048px/5MiB·썸네일 512px/512KiB, 대표사진·삭제·RLS·최대 300초 URL 정책을 유지한다. 팔로우는 신규 접근 권한이 아니라 공개 기록의 조회 범위다.
 
-후속 구현은 REQUIREMENT → PRD → TRD → API_SPEC/TEST_CASE 동기화 후 백엔드 → 화면 없는 HTTP → 웹 → Android 순서로 Red → Green → Refactor를 진행한다. 신규 공개 프로필·관계·장소 상세·디자인 수용 검사는 TEST_CASE의 vNext 계획을 따른다. 기존 106개 자동 검사와 실 API 4개는 회귀 기준이며 신규 기능의 통과 증거가 아니다.
+요구사항 변경 시 REQUIREMENT → PRD → TRD → API_SPEC/TEST_CASE를 동기화하고 백엔드 → 화면 없는 HTTP → 웹 → Android 순서로 Red → Green → Refactor를 진행한다. 신규 공개 프로필·관계·장소 상세·디자인 수용 검사는 TEST_CASE의 vNext 실행 결과를 따른다. 기존 106개 자동 검사와 실 API 4개는 회귀 기준이며 신규 기능의 통과 증거가 아니다.
 
 지도 구현 참고: [Google Android Polygon](https://developers.google.com/maps/documentation/android-sdk/polygon-tutorial), [Google Web Polygon](https://developers.google.com/maps/documentation/javascript/shapes), [Place Details](https://developers.google.com/maps/documentation/places/web-service/place-details), [Expo SplashScreen](https://docs.expo.dev/versions/latest/sdk/splash-screen/). 설치된 Expo SDK 호환 버전을 확인한 후 구현한다.

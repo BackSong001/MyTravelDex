@@ -1,5 +1,30 @@
 # MyTravelDex 프롬프트·작업 이력
 
+## 2026-11-06 23:07 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬
+
+답변·결과 요약: 직전 여행가봥 UI·소셜 구현, 관련 테스트와 동기화된 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 검증 결과는 자동 검사 142개 통과·1개 skipped이며 이번 요청에서는 코드 변경 없이 변경 범위·비밀값·diff 형식을 확인한다. 기존 미추적 원본 storyboard.png는 제외하고 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 전체 변경 파일(커밋 대상).
+
+## 2026-11-06 22:47 KST — 여행가봥 UI·소셜 구현
+
+프롬프트 원문:
+
+> 요구사항대로 구현해줘. 디자인은 frontend-design 으로 만들어줘
+
+답변·결과 요약: frontend-design으로 스토리보드·원본 팔레트 기반 지도/사진·작성자 마커, 하단 유지 작성 패널, 도감 필터, 친구/공개 프로필, My 스탬프와 스플래시를 구현했다. opt-in·관계 RLS/view·장소 ID 상세 API를 추가하고 로컬 검증/원격 dry-run 후 해당 migration·함수를 적용했다. 기존 저장/압축/권한/초안/UUID 재시도를 유지하고 초안 교체 확인·수동값 보존·저장 편집 잠금·상세 URL 갱신·오류 포커스·늦은 응답 탐색 보호·대표사진/제목 수정 후 목록/지도 갱신을 보완했다. 최종 Vitest 88 passed/1 skipped, Playwright 50 passed, 설정 4 passed이며 TypeScript·웹 export·자체 APK 빌드/설치와 실제 합성 사진 저장·Places 검색/ID 상세·Android 화면/글꼴 조합을 검증했다. 지도 패키지 Fabric 호환·비동기 마커 다시 그리기를 실제 APK에서 확인했다. 원격 시험 기록/파일/정리 작업/위치만 정리하고 기기 설정을 복원했다. 실기기·실제 음성 스크린리더·production 서명/정리 스케줄 등 미검증 조건은 TEST_CASE에 구분했다. 커밋·푸시는 하지 않았다.
+
+변경 파일:
+
+- 문서·이력: `AGENTS.md`, `README.local.md`, `README.md`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/planning.md`, `docs/prompts.md`
+- 백엔드: `backend/supabase/functions/_shared/google.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/supabase/migrations/20261106163000_vnext_social.sql`, `backend/tests/geocode-vnext.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/photo.test.ts`, `backend/tests/provinces.test.ts`, `backend/tests/vnext.test.ts`
+- 프론트엔드: `frontend/app.config.ts`, `frontend/app.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/assets/splash.png`, `frontend/e2e/helpers.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/ComposerSheet.tsx`, `frontend/src/Journal.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/Social.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/api.ts`, `frontend/src/domain.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`
+- 실행기·검사: `scripts/configured.mjs`, `scripts/configured.test.mjs`
+
 ## 2026-11-06 21:08 KST — 커밋·푸시 요청
 
 프롬프트 원문:

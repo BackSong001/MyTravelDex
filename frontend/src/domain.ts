@@ -20,8 +20,12 @@ export function suggestRecord(photos: PhotoInput[]) {
   const dates = photos.map(p => p.captured_date).filter((s): s is string => !!s && validDate(s)).sort();
   return { start_date: dates[0] ?? '', end_date: dates.at(-1) ?? '', latitude: photos[0]?.latitude ?? null, longitude: photos[0]?.longitude ?? null };
 }
+export class RecordValidationError extends Error {
+  constructor(public field: 'photos' | 'start_date' | 'end_date' | 'location', message: string) {super(message);}
+}
 export function validateRecord(value: { start_date: string; end_date: string; latitude: number; longitude: number }, photos: number) {
-  if (photos < 1 || photos > 20) throw new Error('사진은 1~20장 선택해 주세요.');
-  if (!validDate(value.start_date) || !validDate(value.end_date) || value.start_date > value.end_date) throw new Error('여행 기간을 확인해 주세요.');
-  if (!validCoordinates(value.latitude, value.longitude)) throw new Error('위도와 경도를 확인해 주세요.');
+  if (photos < 1 || photos > 20) throw new RecordValidationError('photos', '사진은 1~20장 선택해 주세요.');
+  if (!validDate(value.start_date)) throw new RecordValidationError('start_date', '여행 기간을 확인해 주세요.');
+  if (!validDate(value.end_date) || value.start_date > value.end_date) throw new RecordValidationError('end_date', '여행 기간을 확인해 주세요.');
+  if (!validCoordinates(value.latitude, value.longitude)) throw new RecordValidationError('location', '대표 장소를 선택해 주세요.');
 }
