@@ -2,6 +2,47 @@
 
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
+## 2026-11-06 16:48 KST
+
+프롬프트 원문:
+
+> 커밋하고 푸쉬해줘
+
+답변·결과 요약: 앞서 구현한 백엔드·Expo 프로토타입·테스트·관련 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 검증은 자동 검사 69개 통과·실제 OAuth 1개 보류이며 이번 요청에서 제품 코드를 추가 수정하거나 테스트를 재실행하지 않았다. 환경변수 파일과 생성 산출물은 제외한다. 커밋·푸시 결과는 Git 상태로 별도 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며, 커밋 범위는 기존 백엔드 migration·Edge Functions·테스트, `frontend/`, 루트 테스트 설정·의존성·관련 문서 변경이다.
+
+## 2026-11-06 16:33 KST
+
+프롬프트 원문:
+
+> 모든 테스트케이스 명세 구현해주고, 안드로이드 스튜디오에 화면을 띄워줘
+
+답변·결과 요약: 명세 59개 TC ID에 자동 검사를 연결하고 공개 조회·삭제·대표사진·공유 위치·Expo Android/Web 프로토타입과 초안 복구를 구현했다. Vitest 54개 및 웹 15개 검사(전체 14개 실행과 추가 1개 실행)가 통과했고 실제 OAuth 1개는 보류했다. TypeScript·웹 export·서버 키 비노출을 확인하고 Android Studio 에뮬레이터에 실제 홈과 Google 지도를 띄웠다. 실제 Google 동의·실기기·Storage 장애 후 복구·운영 설정 등 남은 수용 증거를 TEST_CASE에 명시했다. 전체 수용 완료나 배포 가능으로 판정하지 않았으며 커밋·푸시는 하지 않았다.
+
+변경 파일: `.gitignore`, `AGENTS.md`, `README.md`, `package.json`, `package-lock.json`, `vitest.config.ts`, `playwright.config.ts`, `backend/supabase/config.toml`, `backend/supabase/migrations/20261106162000_record_lifecycle.sql`, `backend/supabase/migrations/20261106162100_location_visibility.sql`, `backend/supabase/functions/_shared/google.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/tests/photo.test.ts`, `backend/tests/external.test.ts`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/app.json`, `frontend/tsconfig.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/app/auth/callback.tsx`, `frontend/src/api.ts`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/src/runtime.ts`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/e2e/travel.spec.ts`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+## 2026-11-06 16:06 KST
+
+프롬프트 원문:
+
+> 현재 테스트 케이스 모두 green 으로 되게끔 구현해줘.
+> 이어서 계속 진행해줘
+
+답변·결과 요약: 사진 Storage·메타데이터 검증·URL 발급·고아 파일 정리를 구현하고 현재 실행 가능한 테스트 전체 16개를 통과시켰으며, 24시간 정리 todo도 실제 테스트로 전환했다. 미작성 명세 46개와 운영 스케줄 설정은 남아 있다.
+
+변경 파일: `backend/supabase/config.toml`, `backend/supabase/migrations/20261106160000_photo_storage.sql`, `backend/supabase/migrations/20261106160500_storage_preflight.sql`, `backend/supabase/migrations/20261106160600_storage_preflight_size.sql`, `backend/supabase/migrations/20261106160700_cleanup_registration_guard.sql`, `backend/supabase/migrations/20261106160800_photo_auth_guard.sql`, `backend/supabase/functions/photo-url/index.ts`, `backend/supabase/functions/cleanup-storage/index.ts`, `backend/tests/photo.test.ts`, `README.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+## 2026-11-06 15:50 KST
+
+프롬프트 원문:
+
+> 다음 단계 테스트 진행해줘. red 먼저 구현해줘
+
+답변·결과 요약: TC-PHOTO-001~009의 로컬 Storage·DB Red 테스트를 작성해 9개 모두 버킷 부재로 정상 원본 업로드에서 실패했으며, 24시간 고아 파일 정리는 별도 todo로 남겼다. 인증 회귀 6개는 통과했고 제품 Green 코드는 구현하지 않았다.
+
+변경 파일: `backend/tests/photo.test.ts`, `README.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
 ## 2026-11-06 15:45 KST
 
 프롬프트 원문:

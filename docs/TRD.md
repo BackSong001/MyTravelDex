@@ -25,7 +25,7 @@
 
 ### 테스트
 
-현재 테스트 실행 기반은 루트 package.json·package-lock.json과 `backend/tests/auth.test.ts`, `backend/supabase/config.toml`이다. Node.js 24 이상에서 `npm ci`, `npm run backend:start`, `npx supabase migration up --local --workdir backend`, `npm run test:auth` 순으로 실행한다. CLI 2.122.1·Vitest 4.1.12·Vite 7.3.7을 고정한다. 초기 migration은 인증 테스트와 필요한 기초 관계만 구현한다. 사진 쓰기·Storage 검증·공개 사진 view·삭제/정리 RPC 및 공유 위치 접근은 후속 TDD 단계에서 완성해야 하며, 해당 기능 구현·테스트 전 배포하지 않는다. 실제 Google 로그인은 별도 TC-EXT-004에서 검증한다.
+현재 실행 기반은 루트 package.json·Vitest·Playwright 설정, `backend/tests/`, `frontend/e2e/`, `backend/supabase/config.toml`이다. Node.js 24 이상에서 `npm ci`, `npm run backend:start`, `npx supabase migration up --local --workdir backend`를 실행하고 별도 터미널에서 `npx supabase functions serve --workdir backend`를 구동한 뒤 `npm test`로 검증한다. CLI 2.122.1·Vitest 4.1.12·Vite 7.3.7을 고정한다. Expo SDK 54·React 19·React Native 0.81 기반 프로토타입은 `frontend/`에서 실행한다. 실제 Google 로그인은 TC-EXT-004의 별도 외부 수용 항목이다. 실행 범위와 남은 조건은 TEST_CASE 마지막 이력을 따른다.
 
 - Vitest: 백엔드 도메인·권한·통합 테스트
 - Playwright: 웹 브라우저 E2E 테스트
@@ -51,6 +51,8 @@ React Native / Expo
 - 이미지 후처리·고아 파일 정리 등 비동기 작업
 
 ## 3. 데이터 모델
+
+현재 구현 상태: 인증·사진·Storage·공개 조회·대표사진·삭제·공유 위치와 Expo 프로토타입이 구현되어 있다. `photo-url`, `cleanup-storage`, `geocode-location`을 로컬 `supabase functions serve --workdir backend`로 실행한다. 사진 INSERT는 부모 기록 잠금·소유권·경로·실제 객체 크기/MIME·개수/해상도 메타데이터를 검증한다. Storage 테이블에 사용자 constraint를 추가하지 않고 INSERT 정책으로 썸네일 제한을 강제한다. 고아 정리 큐에는 5분 lease를 두고 재시도한다. 운영 스케줄러의 1분 주기 호출과 Secret 등록은 배포 환경에서 별도 구성해야 한다. 자동 테스트의 통과를 외부 OAuth·실기기·전체 하위 수용 조건 완료로 해석하지 않는다.
 
 ### 3.1 `profiles`
 

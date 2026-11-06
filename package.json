@@ -2,7 +2,9 @@
   "name": "mytraveldex",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24.0.0" },
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "test": "vitest run",
     "test:auth": "vitest run backend/tests/auth.test.ts",
@@ -10,6 +12,7 @@
     "backend:stop": "supabase stop --workdir backend"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "supabase": "2.122.1",
     "vite": "7.3.7",
     "vitest": "4.1.12"

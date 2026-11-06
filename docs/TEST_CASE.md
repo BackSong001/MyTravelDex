@@ -155,7 +155,7 @@ Red는 Playwright로 사용자의 실패/성공 행동을 먼저 작성한다. G
 
 실행 순서: 로컬 Supabase 준비 → 1단계 Red/Green/Refactor → 2단계 Red/Green/Refactor → 3단계 Red/Green/Refactor → Android 별도 검증. 도구 설치 전에는 npx 명령이 동작한다고 가정하지 않는다. 로컬 DB reset은 테스트 데이터 삭제를 전제로 로컬 대상 확인 후에만 수행한다.
 
-현재 초기 인증 migration과 인증·프로필 테스트(`backend/tests/auth.test.ts`)가 있다. 나머지 TC는 미작성·미실행이다. 손상 이미지·해상도 검증은 서버 콘텐츠 검증 보장이 아니며, 실제 OAuth·Maps·Android 검증에는 별도 환경·기기가 필요하다.
+현재 초기 인증 migration, 인증·프로필 테스트(`backend/tests/auth.test.ts`), 사진·Storage Red 테스트(`backend/tests/photo.test.ts`)가 있다. 그 외 TC는 미작성·미실행이다. 손상 이미지·해상도 검증은 서버 콘텐츠 검증 보장이 아니며, 실제 OAuth·Maps·Android 검증에는 별도 환경·기기가 필요하다.
 
 ## 7. 실행 이력 — 2026-11-06 15:41 KST
 
@@ -190,3 +190,62 @@ Red는 Playwright로 사용자의 실패/성공 행동을 먼저 작성한다. G
 추가 회귀 테스트 두 개에서 소유자의 허용 필드 수정, 사진 없는 기록 완료 및 직접 상태 변경 차단도 통과했다. 합계 6 passed·0 failed. 테스트 사용자·위치·기록은 해당 테스트가 생성한 UUID만 정리한다.
 
 초기 migration은 사진 쓰기를 거부하는 안전한 미완성 상태다. Storage 객체 메타데이터 검증·업로드·공개 사진 view·삭제 및 정리 기능·공유 위치 접근은 미구현이며, 나머지 55개 명세 TC와 실제 Google OAuth는 미실행이다. 사진·Storage Red를 작성하고 해당 계약을 완성하기 전에는 운영 배포하지 않는다.
+
+## 9. 실행 이력 — 2026-11-06 15:50 KST
+
+로컬 Supabase에서 `npx vitest run backend/tests/photo.test.ts`를 실행했다. Vitest 결과는 **9 failed, 1 todo**이며 종료 코드는 1이다. 정상 소유자의 원본 업로드는 HTTP 200을 기대했으나 HTTP 400을 받았다. DB에서 `travel-photos` 버킷이 없는 것을 확인했다.
+
+| TC | 현재 도달 지점 | 이후 확인할 내용 |
+|---|---|---|
+| TC-PHOTO-001 | 첫 원본 업로드 실패 | 다중 사진·경로 연결·중복 재시도 |
+| TC-PHOTO-002 | 첫 원본 업로드 실패 | 원본·썸네일 바이트와 DB 메타데이터 |
+| TC-PHOTO-003~004 | 첫 원본 업로드 실패 | EXIF 값 저장·누락 및 수동 기록값 |
+| TC-PHOTO-005 | 첫 원본 업로드 실패 | 소유자 signed URL과 타인·비로그인 접근 차단 |
+| TC-PHOTO-006 | 첫 정상 원본 업로드 실패 | MIME·20 MiB·512 KiB 경계 제한 |
+| TC-PHOTO-007 | 정상 사진 업로드 실패 | 파일 누락·소유권·타인 기록 위조 차단 |
+| TC-PHOTO-008 | 첫 원본 업로드 실패 | 등록 파일 직접 삭제·덮어쓰기 차단 |
+| TC-PHOTO-009 | 첫 원본 업로드 실패 | 부분 업로드·중복 재시도·초안 유지 |
+
+이는 한 가지 선행 기능 부재로 인한 공통 Red다. 파일 권한·EXIF·제한값·정리 정책 검증은 선행 업로드가 통과한 후에야 도달하므로 현재 성공 또는 실패로 판정하지 않는다. `TC-PHOTO-009`의 24시간 후 고아 파일 정리는 별도 `todo`로 남겼다. 정리 실행 인터페이스와 안전한 시간 제어가 없어 이 시나리오는 아직 테스트 구현·실행하지 않았다.
+
+다음 Green에서는 private `travel-photos` 버킷과 소유자 업로드 정책을 먼저 구현하고 재실행한다. 이후 소유권·객체/메타데이터 검증·파일 제한·URL 발급과 부분 실패 복구를 각 실패 결과에 맞춰 구현한다. Edge Function 로컬 실행 설정과 24시간 경과 검증 방식도 정리 기능 구현 시 확정한다. Storage 객체 메타데이터 검증·정리 기능을 건너뛰고 운영 배포하지 않는다.
+
+회귀 검증: `npm run test:auth` **6 passed**. 테스트용 사용자 잔여 수 0을 확인했으며 DB reset·원격 접속·제품 Green 구현은 수행하지 않았다.
+
+## 10. 실행 이력 — 2026-11-06 16:06 KST
+
+로컬 migration 적용과 Edge Function 실행 후 `npm test`: **16 passed, 0 failed, 0 todo**. 인증 4개+추가 회귀 2개, 사진 9개+24시간 고아 파일 정리 1개가 모두 통과했다. TC-PHOTO-001~009는 현재 구현된 테스트 범위에서 Green이다.
+
+버킷·RLS·사진 객체/소유권/메타데이터 검증, 원본·썸네일 바이트 보존, 중복, EXIF·null·수동값, PNG/JPEG·크기 경계, 비공개 URL, 위조·직접 삭제/덮어쓰기 거부, 부분 실패와 재시도를 실제 로컬 HTTP로 확인했다. 고아 정리는 이 실행에서 생성한 fixture의 DB 생성 시각만 과거로 조정해 실제 Edge 함수를 호출했다. 활성 기록 파일 보존·일반 사용자 호출 거부·재호출도 검증했다. 운영 함수에 시간 우회 인자는 없다.
+
+전체 명세 59개 중 인증 4개와 사진 9개가 통과했으며 나머지 46개는 아직 미작성·미실행이다. 16 passed는 모든 명세와 운영 검증 완료를 의미하지 않는다. 정리 재시도 장애 주입·공개 전환·실제 OAuth·프론트엔드·Android 및 운영 스케줄러 검증은 남아 있다. 후속 테스트에서 해당 계약을 계속 검증한다.
+
+## 11. 실행 이력 — 2026-11-06 16:32 KST
+
+이 절이 현재 상태다. 위 이력은 각 시점의 기록으로 보존한다. 명세 59개 TC ID에 실행 코드가 연결되었지만, ID가 존재하거나 테스트 하나가 통과했다고 해당 행의 모든 하위 조건을 완료 처리하지 않는다.
+
+| 범위 | 실행 파일 | 확인한 동작 |
+|---|---|---|
+| AUTH 4개 + 회귀 2개 | `backend/tests/auth.test.ts` | 프로필 생성·자기 권한·위조 거부 |
+| PHOTO 9개 + 고아 정리 1개 | `backend/tests/photo.test.ts` | 실제 Storage 업로드·파일 검증·소유권·재시도·24시간 정리 |
+| TRAVEL 13개 | 위 파일 | 완료·날짜·대표 위치·대표사진·20/21장 서버 제한·동시 대표 변경/삭제 |
+| DB 6개, RLS 6개 | 위 파일 | FK·삭제 큐·공개 위치·필터·비공개 차단·공개 사진 필드·URL 발급 |
+| HTTP 8개 | 위 파일 + `frontend/src/api.ts` | 실제 프론트엔드 요청 코드 → Local Auth/PostgREST/Storage/RPC/Edge |
+| EXT 5개 | `backend/tests/external.test.ts` | Google 응답 파싱/오류는 mock, 로컬 Provider 설정·RLS 확인; 실제 동의는 skip |
+| UI 8개 + 회귀 7개 | `frontend/e2e/travel.spec.ts` | 390px 화면 로그인·사진 저장·필터·삭제·공개 전환·연결 실패·레이블·새로고침 후 초안 복구·실제 이미지와 크기 경계 |
+
+검증 명령: `npm test`는 **54 passed, 1 skipped**, `npx playwright test`는 **15 passed**. 합계 **69개 자동 검사 통과, 실제 Google OAuth 수용 검사 1개 보류**다. 자체 백엔드는 실제 로컬 HTTP이며 Google 외부 경계만 mock/차단했다. Playwright의 연결 실패 검사는 실제 자체 요청을 중단하는 장애 주입이다. `frontend/`의 TypeScript 검사와 Expo Web export도 성공했다. 생성된 웹 번들에 로컬 service role이 없고 프론트 소스에 서버 secret 환경변수 참조가 없음을 확인했다.
+
+Android Studio의 `emulator-5554`에 Expo SDK 54용 Expo Go를 설치하고 Metro 8081과 Local API 54321을 연결했다. 실제 홈·Google 네이티브 지도 렌더링을 화면으로 확인했다. 별도 release APK/AAB 빌드·배포는 하지 않았다.
+
+### 남은 수용 증거와 제한
+
+- **TC-EXT-004 / UI-001:** 실제 Google 동의·취소·만료·Android 복귀는 아직 미검증이다. 로컬 Provider는 비활성 상태이며 테스트 계정 로그인만 자동 검증했다. mock이나 설정 확인을 실제 로그인 성공으로 간주하지 않는다.
+- **TC-UI-008:** 2×2 JPEG, 512/513px PNG, 8000×5000(40MP) 허용·8001×5000 거부, 손상·미지원 파일 거부, 원본 바이트 보존·썸네일 디코딩/크기/EXIF 제거를 검증했다. EXIF helper는 현지 날짜·양/음 오프셋·남/서 좌표를 검증했다. Android 실제 촬영 파일의 EXIF·권한 거부와 실기기 검증은 남아 있다.
+- **TC-DB-002/005:** 정상 삭제 큐·반복 정리·고아/활성 파일 구분을 검증했다. fixture 경로에만 실패하는 constraint를 rollback되는 트랜잭션 안에서 설치해 실제 큐 INSERT 실패와 기록/사진 보존을 확인했다. 실제 Storage 장애 후 backoff/lease 회복의 장애 주입 증거는 남아 있다.
+- **TC-TRAVEL-011:** 동시 대표 변경·마지막 사진 동시 삭제·동시 20/21번째 추가·완료와 마지막 삭제 경쟁을 검증했다. 운영 부하 테스트와 모든 스케줄의 포괄적 증명은 수행하지 않았다.
+- **TC-UI-003/HTTP-006:** 화면 입력 유지 및 새로고침 후 임시저장 목록에서 같은 UUID로 재개·완료를 검증했다. 추가 사진은 기존 개수 이후 display_order를 사용한다. 응답 유실의 모든 단계별 조합과 Android 프로세스 종료 복구는 추가 검증 대상이다.
+- **TC-EXT-001~003/005:** Places·Geocoding 실 API·키 제한·쿼터·운영 번들/도메인/OAuth 정책은 별도 설정 검증이 필요하다. Emulator 지도 표시는 Expo Go 환경의 증거이며 자체 Android release key 설정의 증거가 아니다.
+- 운영 정리 스케줄과 Secret 등록은 미설정이다. SDK 54 호환 범위에서 audit fix를 적용했지만 frontend 의존성 audit 항목이 남아 있어 release 전 SDK 업그레이드 검토가 필요하다.
+
+이 항목들이 남아 있으므로 **전체 명세 수용 완료·운영 배포 가능으로 판정하지 않는다**. 테스트를 통과시키려고 수용 기준을 삭제하거나 낮추지 않았다.

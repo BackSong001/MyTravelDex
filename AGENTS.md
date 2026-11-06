@@ -441,6 +441,16 @@ supabase db push
 - [Supabase Production Checklist](https://supabase.com/docs/guides/deployment/going-into-prod)
 - [Oracle Cloud Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/Concepts/computeoverview.htm)
 
+## 현재 저장소 실행 경로
+
+- 루트에서 `npm ci`, `npm run backend:start`, `npx supabase migration up --local --workdir backend`, `npm test`를 실행한다. 기존 로컬 데이터를 보존하는 작업에서는 reset 대신 migration up을 사용한다.
+- Edge Function은 별도 터미널에서 `npx supabase functions serve --workdir backend`로 실행한다.
+- Expo 명령은 `frontend/`에서 실행한다: `npm ci`, `npx tsc --noEmit`, `npx expo start --web --port 8082`, `npx expo start --android --localhost --port 8081`.
+- 웹 서버 실행 후 루트에서 `npx playwright install chromium`, `npx playwright test`를 실행한다.
+- Android Emulator의 localhost 접근에는 `adb reverse tcp:54321 tcp:54321`, `adb reverse tcp:8081 tcp:8081`을 설정한다. Android SDK 경로를 ANDROID_HOME으로 전달한다.
+- `frontend/.env.local`은 Git에서 제외한다. 루트 `.env.example`의 공개 클라이언트 변수만 설정하고 service role·서버 Maps key를 넣지 않는다.
+- Expo Go 화면 표시와 release APK/AAB 검증은 별개다. 실제 Google 동의·취소·복귀, 실기기 권한·EXIF·GPS 및 운영 설정 미검증 항목을 자동 테스트 통과 수에 합산하지 않는다.
+
 ## 언어 규칙
 
 - 코드, 변수명, 커밋 메시지: 영어

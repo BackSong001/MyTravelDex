@@ -1,5 +1,10 @@
 .env
 node_modules/
+.expo/
+frontend/dist/
+frontend/.env.local
+test-results/
+playwright-report/
 .vitest/
 backend/supabase/.temp/
 backend/supabase/.branches/

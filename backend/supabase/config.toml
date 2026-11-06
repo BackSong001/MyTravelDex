@@ -38,7 +38,16 @@ enabled = false
 enabled = false
 
 [edge_runtime]
-enabled = false
+enabled = true
+
+[functions.photo-url]
+verify_jwt = false
+
+[functions.cleanup-storage]
+verify_jwt = false
+
+[functions.geocode-location]
+verify_jwt = false
 
 [analytics]
 enabled = false

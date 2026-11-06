@@ -2,7 +2,7 @@
 
 ## 1. 범위와 공통 계약
 
-이 문서는 목표 계약이며 전체 구현 완료를 의미하지 않는다. 현재 초기 migration은 인증·프로필과 인증 테스트에 필요한 기초 관계만 구현한다. 사진 쓰기는 차단되어 있고 Storage 객체 메타데이터 검증, 공개 사진 view, 삭제/정리 RPC, 공유 위치 접근은 미구현이다. 해당 단계의 테스트 통과 전 배포하지 않는다. CRUD는 PostgREST·RLS, 원자적 변경은 DB RPC, 파일 정리는 서버 전용 Edge Function을 사용한다. 기본 URL은 `EXPO_PUBLIC_SUPABASE_URL`이며 REST `/rest/v1`, Auth `/auth/v1`, Storage `/storage/v1`를 사용한다.
+이 문서는 목표 계약이며 전체 수용 검증 완료를 의미하지 않는다. 인증·사진 업로드·객체 메타데이터 검증·URL 발급·고아 파일 정리·공개 사진 view·사용자 삭제 RPC·공유 위치 접근과 Expo 프로토타입이 구현되어 있다. 실제 Google OAuth와 운영 설정 검증은 남아 있다. CRUD는 PostgREST·RLS, 원자적 변경은 DB RPC, 파일 정리는 서버 전용 Edge Function을 사용한다. 기본 URL은 `EXPO_PUBLIC_SUPABASE_URL`이며 REST `/rest/v1`, Auth `/auth/v1`, Storage `/storage/v1`를 사용한다.
 
 요청에는 `apikey: <anon_key>`를 포함하고 소유자 요청에는 `Authorization: Bearer <access_token>`을 추가한다. JSON은 `Content-Type: application/json`, 생성·수정 결과 조회는 `Prefer: return=representation`을 사용한다. UUID는 실제 UUID로, 필터 값은 URL 인코딩해 전달한다. service role key는 클라이언트에 제공하지 않는다.
 
@@ -109,6 +109,8 @@ captured_date는 촬영지 현지 날짜 또는 수동 날짜다. 오프셋 없�
 
 Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비밀이 필요하면 Edge Function을 사용한다. Maps 실패 시 수동 좌표 입력을 제공하고 지역값을 얻지 못하면 null로 저장한다. OAuth 실제 동의와 Maps 실제 호출은 로컬 DB 테스트와 분리한다.
 
+`POST /functions/v1/geocode-location`은 인증 사용자만 호출한다. `{"query":"제주"}`는 Places 결과 배열(id·displayName·location)을, `{"latitude":33.5,"longitude":126.5}`는 정규화된 위치 객체를 반환한다. 서버의 `GOOGLE_MAPS_SERVER_API_KEY`가 없으면 503, 외부 서비스 실패는 502/EXTERNAL_SERVICE_ERROR, 입력 오류는 400/VALIDATION_ERROR다. 지역 조회 실패 시 좌표를 수동 확정할 수 있다.
+
 | 내부 오류 | 기준 |
 |---|---|
 | UNAUTHENTICATED | 세션 없음·만료 |
@@ -118,6 +120,7 @@ Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비
 | UPLOAD_FAILED | Storage 업로드 실패 |
 | EXTERNAL_SERVICE_ERROR | Google OAuth·Maps 외부 실패 |
 | INTERNAL_ERROR | 예상하지 못한 실패 |
+| NETWORK_ERROR | 연결 중단·재시도 가능, 입력 유지 |
 
 목록 0행은 빈 목록이다. PATCH 0행은 성공으로 표시하지 않는다. 원문 HTTP 상태·본문, SDK data/error, 앱 내부 오류는 구분한다. 직접 PostgREST 응답이 공통 오류 envelope라고 가정하지 않는다. RPC/Edge 오류는 위 내부 코드와 매핑하도록 정의하고 401·403·제약 위반·네트워크 실패를 각각 테스트한다. 오류 원문 영어는 민감정보 제거 후 보존하고 사용자에게 한국어 안내를 제공한다.
 
@@ -132,4 +135,11 @@ Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비
 - [Google OAuth callback](https://supabase.com/docs/guides/auth/social-sign-in/auth-google)
 - [signed URL과 다운로드](https://supabase.com/docs/guides/storage/serving/downloads)
 
-현재 검증은 문서·공식 계약 대조다. HTTP 실행·view 임베딩·권한 검증 완료를 의미하지 않는다.
+로컬 HTTP·공개 view·권한·RPC는 자동 테스트에서 검증한다. 외부 서비스는 경계 응답을 mock으로 검증하며 실제 OAuth 수용·외부 설정·모든 하위 조건 완료를 의미하지 않는다. 범위는 TEST_CASE 실행 이력에 기록한다.
+
+### 현재 구현의 HTTP 보충 계약
+
+- Storage 중복 업로드는 버전에 따라 HTTP 400과 본문 `statusCode=409`, `code=KeyAlreadyExists`로 반환된다. 메타데이터 중복은 PostgREST 409/23505다. 요청 계층에서 구분한다.
+- 썸네일 크기·MIME은 Storage INSERT RLS가 강제하며 Storage가 400/본문 403으로 래핑할 수 있다. 정상 업로드의 양성 대조 없이 임의 쓰기 거부를 제한값 검증 성공으로 처리하지 않는다.
+- `photo-url`의 `signed_url`은 Supabase origin 기준 상대 경로다. 클라이언트는 `EXPO_PUBLIC_SUPABASE_URL`을 기준으로 해석한다. 내부 컨테이너 호스트를 반환하지 않는다.
+- `POST /functions/v1/cleanup-storage`는 service role Bearer만 허용한다. 24시간 유예가 지난 미등록 파일을 서버 전용 큐로 처리하고 활성 기록 파일은 제외한다. 일반 사용자가 시간 인자를 보내 정리를 앞당길 수 없다.
