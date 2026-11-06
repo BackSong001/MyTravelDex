@@ -68,6 +68,7 @@ React Native / Expo
 |---|---|---|
 | `id` | `uuid` | PK |
 | `latitude` | `numeric` | -90 이상 90 이하 |
+| `owner_id` | `uuid` | 생성자, `profiles.id` FK, not null, 변경 불가 |
 | `longitude` | `numeric` | -180 이상 180 이하 |
 | `place_name` | `text` | nullable |
 | `google_place_id` | `text` | nullable, Google 장소 식별자 |
@@ -106,6 +107,7 @@ React Native / Expo
 | `is_cover` | `boolean` | not null, 기본 `false`, 여행 기록별 최대 하나 |
 | `display_order` | `integer` | not null, 기본 `0`, 0 이상 |
 | `captured_at` | `timestamptz` | EXIF 또는 수동값, nullable |
+| `captured_date` | `date` | 촬영지 현지 날짜 또는 수동 날짜, 집계 기준, nullable |
 | `exif_latitude` | `numeric` | nullable |
 | `exif_longitude` | `numeric` | nullable |
 | `width` | `integer` | nullable |
@@ -121,17 +123,30 @@ React Native / Expo
 - 여행 기록은 먼저 `draft`로 생성하고, 사진 하나 이상·`start_date`·`end_date`·`location_id`가 준비된 경우에만 원자적으로 `complete`로 전환한다.
 - `draft`는 소유자에게만 조회되며 공개 목록·공개 상세에는 반환하지 않는다.
 - `start_date <= end_date` check constraint를 적용한다.
-- 유효한 사진 촬영일이 있으면 최소 날짜를 `start_date`, 최대 날짜를 `end_date`로 계산한다.
+- `captured_date`의 최소·최대를 기간 초깃값으로 제안한다. 수동 확정 기간을 우선하고 사진 편집 시 자동 덮어쓰지 않는다. 오프셋 없는 EXIF는 날짜만 보존하고 `captured_at`은 null로 둔다.
 - 유효한 사진 촬영일이 모두 없으면 사용자가 `start_date`와 `end_date`를 직접 입력한다.
 - 대표 `location_id`는 첫 번째 업로드 사진의 위치를 우선 사용한다. 첫 사진 위치가 없으면 수동 위치 입력 전까지 기록을 완료하지 않는다.
 - `photos.is_cover = true`에 대해 `travel_record_id`별 부분 unique index를 생성해 대표사진을 최대 한 장으로 제한한다.
 - 대표사진을 선택하지 않으면 첫 번째 업로드 사진을 대표사진으로 지정한다.
 - `travel_records(owner_id, start_date, end_date)`를 생성해 사용자별 기간 필터를 지원한다.
-- `travel_records(visibility, start_date, end_date)`를 생성해 공개 기록 기간 필터를 지원한다.
 - `travel_records(status, visibility, start_date, end_date)`를 생성해 완료된 공개 기록 필터를 지원한다.
 - `locations(country_code, region_name, city_name)`을 생성해 지역 필터를 지원한다.
 - `photos(travel_record_id, is_cover)`를 생성해 대표사진 조회를 지원한다.
 - 사진 최소 한 장 조건은 일반 FK만으로 보장되지 않으므로 `finalize_travel_record` DB 함수에서 잠금·검증·상태 전환을 한 트랜잭션으로 처리한다.
+
+- 완료 함수는 소유자를 확인하고 원본·썸네일의 Storage 객체 존재·소유 경로·크기·MIME, 사진 수 1~20장, 대표사진을 검증한다. 대표사진이 없으면 최소 `display_order` 사진을 지정한다. 재호출은 변경 없이 완료 기록을 반환한다.
+- `display_order`는 기록별 중복 없는 0 이상 정수다. 최초 순서는 사용자가 확정하며 업로드 완료 시각을 사용하지 않는다.
+- `set_cover_photo`, `delete_photo`, `delete_travel_record` 함수와 완료 함수는 동일 부모 기록을 잠근다. 완료 기록의 마지막 사진 삭제는 거부하고 대표사진 삭제 시 남은 첫 사진을 지정한다.
+- 일반 쓰기로 `status`, 소유자, 사진의 연결 기록·파일 경로·대표사진을 바꾸지 못하도록 권한과 DB 검증을 적용한다. DB 직접 DML에도 동일 무결성 검증을 적용한다.
+- 원본 JPEG/PNG 최대 20 MiB·40메가픽셀, 썸네일 JPEG 최대 512 KiB·긴 변 512px, 제목 100자·내용 5,000자다. 파일 크기·MIME은 Storage에서도 제한한다. 디코딩·해상도·손상 여부는 클라이언트 검사로 명시하고, 서버의 실제 파일 내용 검사로 보장한다고 주장하지 않는다.
+
+### 3.6 파일 정리 작업
+
+서버 전용 `storage_cleanup_jobs`에 `id`, `owner_id`, `bucket_id`, `object_path`, `attempts`, `last_error`, `next_attempt_at`, `created_at`을 저장한다. 공개 Data API 접근은 금지한다. 파일 경로별 작업은 중복 등록해도 하나의 대기 작업으로 취급한다. 서버 스케줄러는 1분마다 정리 함수를 호출하고 처리 성공한 작업은 제거한다. 스케줄 호출은 서버 자격증명으로 인증하고 일반 사용자·anon의 실행은 거부한다.
+
+기록·사진 삭제 함수는 경로 보존·작업 등록·메타데이터 삭제를 한 트랜잭션으로 처리한다. 서버 전용 `cleanup-storage` Edge Function을 주기 실행해 Storage API로 삭제하며, 객체 없음도 성공이다. 실패는 1분·5분·30분·이후 1시간 간격으로 재시도하고 오류를 추적한다. 처리 중 같은 작업을 중복 수행하지 않도록 작업 잠금을 사용한다.
+
+24시간 이상 변경 없는 `draft`는 만료 정리 대상으로 삼고 재개 시 만료를 안내한다. 업로드는 소유자의 활성 초안 또는 존재하는 기록에만 허용하고 연결 전 파일은 24시간 유예 후 정리한다. 업로드 재시도는 동일 UUID 경로의 기존 파일을 확인해 재사용하며 덮어쓰지 않는다. 장기 업로드는 초안 활동 시각을 갱신한다.
 
 ## 4. 관계와 삭제 정책
 
@@ -145,7 +160,7 @@ travel_records N ── 1 locations
 - 프로필 삭제 시 소유자 데이터 삭제 정책은 운영 전 확정하되, MVP에서는 명시적 삭제 작업으로 처리한다.
 - 여행 기록 삭제 시 연결된 `photos` DB 레코드는 cascade 삭제한다.
 - Storage 파일은 DB cascade만으로 삭제되지 않으므로 삭제 작업에서 원본·썸네일을 함께 삭제한다.
-- DB 삭제 성공 후 Storage 삭제가 실패하면 고아 파일 정리 대상에 기록한다.
+- DB 삭제 전에 파일 정리 작업을 같은 트랜잭션으로 등록한다. Storage 실패는 보존된 작업으로 재시도한다.
 - `locations`는 여러 여행 기록에서 재사용할 수 있으므로 여행 기록 삭제 시 위치 레코드를 자동 삭제하지 않는다.
 
 ## 5. RLS 권한 정책
@@ -160,21 +175,30 @@ travel_records N ── 1 locations
 - `select`: 소유자이거나 `status = complete AND visibility = public`
 - `insert`: `owner_id = auth.uid()`이고 생성 상태는 `draft`다.
 - `update`: `owner_id = auth.uid()`
-- `delete`: `owner_id = auth.uid()`
+- `delete`: 소유자의 `delete_travel_record` 함수만 허용, 직접 DELETE는 금지
 
 완료 전환은 일반 `PATCH`로 허용하지 않고 `finalize_travel_record(record_id)` 함수가 필수값·사진 수·대표사진을 검증한 뒤 수행한다.
 
 ### `photos`
 
-- `select`: 연결된 여행 기록의 소유자이거나 여행 기록이 공개 상태
+- 기본 테이블 `select`: 연결된 여행 기록의 소유자만
 - `insert`: `owner_id = auth.uid()`이고 연결 기록의 소유자
-- `update`: 소유자만
-- `delete`: 소유자만
+- `update`: 소유자만, 보호 필드는 전용 함수로만 변경
+- `delete`: 소유자의 삭제 함수로만 수행
 - `is_cover = true`인 사진은 연결된 여행 기록별 하나만 허용한다.
 
-공개 사진 응답은 `public_photos` 조회 계약으로 제한한다. 이 응답에는 `id`, `travel_record_id`, `thumbnail_path`, `is_cover`, `display_order`, `captured_at`만 포함하고 `original_path`, `exif_latitude`, `exif_longitude`는 포함하지 않는다.
+공개 사진 응답은 읽기 전용 `public_photos` view로 제한한다. 필드는 `id`, `travel_record_id`, `thumbnail_path`, `is_cover`, `display_order`, `captured_date`만 허용한다. 이 view는 기본 테이블의 소유자 전용 RLS와 별도로 작동하도록 제한된 view 소유자 권한을 사용하며, 내부에 `complete AND public` 조건을 고정한다. `security_barrier`를 적용하고 anon·authenticated에는 SELECT만 부여한다. 이 예외는 해당 공개 projection에만 적용하며 다른 view의 RLS 우회를 허용하지 않는다. 기본 테이블·관계 조회의 민감 필드 우회 테스트가 필수다.
+
+### `locations`
+
+- 생성 시 `owner_id = auth.uid()`; 생성자는 연결 전 위치도 조회할 수 있다.
+- 그 외 조회는 연결된 `complete AND public` 기록이 있을 때만 허용한다. 기록 소유자는 자신이 참조하는 위치를 조회할 수 있다.
+- 좌표를 포함한 위치는 생성 후 불변이다. 보정 시 소유자가 새 위치를 생성해 기록에 연결하며 공유 위치를 직접 수정하지 않는다.
+- 새 연결은 본인이 만든 위치 또는 이미 공개 조회 가능한 위치만 허용한다. 비공개 위치 UUID를 추측해 연결할 수 없다.
 
 RLS 우회가 필요한 서버 작업은 service role key를 Edge Function 내부에서만 사용한다.
+
+DB의 권한 상승 함수는 호출자 `auth.uid()`를 명시적으로 검증하고 고정 `search_path`와 스키마 한정 이름을 사용한다. PUBLIC 실행 권한을 회수하고 필요한 역할에만 EXECUTE를 부여한다. 정리 작업은 클라이언트에서 호출할 수 없다.
 
 ## 6. REST API 계약
 
@@ -186,12 +210,15 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 | 상세 조회 | `GET /rest/v1/travel_records?id=eq.{id}` | RLS 적용 |
 | 생성 | `POST /rest/v1/travel_records` | 인증·소유자 검증 |
 | 수정 | `PATCH /rest/v1/travel_records?id=eq.{id}` | 소유자만 |
-| 삭제 | `DELETE /rest/v1/travel_records?id=eq.{id}` | 소유자만 |
+| 삭제 | `POST /rest/v1/rpc/delete_travel_record` | 소유자만, 파일 정리 등록과 DB 삭제 원자 처리 |
 | 사진 조회 | `GET /rest/v1/photos?travel_record_id=eq.{id}` | 기록 RLS 적용 |
+| 공개 사진 조회 | `GET /rest/v1/public_photos?travel_record_id=eq.{id}` | 고정 공개 필드·complete/public 조건 |
 | 위치 생성 | `POST /rest/v1/locations` | 인증 사용자 |
 | 기간 필터 | `GET /rest/v1/travel_records?start_date=lte.{date}&end_date=gte.{date}` | 지정일을 포함하는 기록, RLS 적용 |
 | 공개 기록 지역 필터 | `GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=...&locations.region_name=eq.{region}` | 완료된 공개 기록·지역 조건을 모두 적용 |
 | 기록 완료 | `POST /rest/v1/rpc/finalize_travel_record` | 소유자, 필수값·사진·대표사진 검증 후 `complete` 전환 |
+
+사진 삭제는 `rpc/delete_photo`, 대표사진 변경은 `rpc/set_cover_photo`를 사용하며 요청·응답은 API_SPEC를 따른다. 직접 DELETE는 앱 계약에서 허용하지 않는다.
 
 클라이언트에는 `anon key`만 제공한다. service role key는 절대 노출하지 않는다.
 
@@ -209,12 +236,15 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 ```
 
 - 파일명은 사용자 입력값을 사용하지 않는다.
+- 버킷은 private이다. 새 파일 업로드는 인증 소유자의 활성 기록 경로에만 허용한다. 등록된 파일 DELETE·UPDATE·upsert는 클라이언트에서 금지하고 정리 서버만 삭제한다.
 - MIME type과 파일 크기를 검증한다.
 - 목록에서는 썸네일 signed URL을 사용한다.
 - 공개 기록의 파일만 공개 조회 정책에 따라 제공한다.
 - 공개 기록은 썸네일만 공개 응답에 포함하고 원본은 signed URL 또는 인증 접근으로 제한한다.
-- 공개 사진 조회는 `public_photos` view 또는 동등한 allowlist 계약을 사용해 EXIF 정밀 좌표와 원본 경로를 반환하지 않는다.
-- 비공개 기록 파일은 소유자 인증 또는 짧은 만료시간의 signed URL로 제공한다.
+- 공개 사진 조회는 `public_photos` view로 제한하고 EXIF 정밀 좌표와 원본 경로를 반환하지 않는다.
+- 비공개 기록 파일은 소유자 세션을 검증한 서버 발급 signed URL로 제공한다.
+- 원본 signed URL은 소유자에게만, 썸네일은 소유자 또는 완료된 공개 기록 조회자에게 발급한다. 만료는 최대 300초로 제한하고 캐시 설정도 함께 검증한다. 비공개 전환 후 새 URL 발급은 차단하지만 기존 URL·다운로드 파일의 즉시 회수는 보장하지 않는다.
+- 최대 만료와 공개 권한은 `photo-url` Edge Function이 `photo_id`, `variant`를 재검증해 강제한다. 클라이언트의 Storage SELECT/sign 권한은 부여하지 않으며 서버가 URL을 발급한다. API_SPEC의 signed_url·expires_at 응답을 사용한다. Edge는 세션을 신뢰하기 전에 검증하고 anon은 공개 완료 썸네일만 허용한다.
 
 ## 8. 사진·EXIF 처리
 
@@ -224,9 +254,9 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 4. 사진들의 촬영일 중 최소·최대 날짜를 여행 기간 초깃값으로 적용한다.
 5. 첫 번째 사진의 위치를 대표 위치 초깃값으로 적용한다.
 6. 사용자가 값을 수정하거나 지도에서 위치를 선택한다.
-7. Expo 클라이언트가 원본을 보존하고 압축 썸네일을 생성한다.
-8. 원본과 압축 썸네일을 Storage에 업로드한다.
-9. 사진 메타데이터와 여행 기록을 저장한다.
+7. 기간·위치를 확정한 뒤 draft 기록을 생성한다. Expo 클라이언트가 원본을 보존하고 EXIF를 제거한 압축 썸네일을 생성한다.
+8. 원본과 압축 썸네일을 Storage에 업로드하고 사진 메타데이터를 저장한다.
+9. 완료 RPC로 검증한 뒤 complete로 전환한다.
 
 정책:
 
@@ -287,6 +317,8 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 
 ## 12. 테스트 전략
 
+필수 개발 게이트: 1단계 백엔드 → 2단계 프론트엔드 HTTP 통신 → 3단계 프론트엔드 프로토타입. 각 단계는 Red → Green → Refactor를 반복하고 이전 단계 회귀 테스트가 통과해야 다음 단계로 이동한다. 상세 TC·요구사항 대응은 `TEST_CASE.md`를 기준으로 한다.
+
 ### 백엔드: Vitest + Supabase Local
 
 #### 인증·프로필
@@ -309,16 +341,16 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 
 #### 여행 기록 생성·집계
 
-- 사진이 0장인 여행 기록 생성을 차단
+- 사진이 0장인 초안의 완료 전환을 차단
 - 제목 없이도 여행 기록 생성
 - `start_date`와 `end_date`가 모두 저장되는지 확인
-- 여러 사진의 촬영일 중 최소·최대 날짜가 여행 기간으로 집계되는지 확인
+- 여러 사진의 captured_date 최소·최대를 기간 초깃값으로 제안하고 수동 최종값을 저장하는지 확인
 - 촬영일이 없는 사진만 있을 때 수동 시작일·종료일을 허용
 - 일부 사진에만 촬영일이 있을 때 유효한 날짜만 집계
 - 첫 번째 사진 위치가 대표 `location_id`로 적용되는지 확인
 - 첫 번째 사진 위치가 없을 때 자동으로 다른 사진 위치를 사용하지 않고 수동 위치를 요구
 - 위도·경도 범위 및 `start_date <= end_date` 검증
-- 대표사진 미지정 시 첫 사진이 `is_cover = true`가 되는지 확인
+- 완료 시 대표사진 미지정이면 표시 순서 첫 사진이 `is_cover = true`가 되는지 확인
 - 한 여행 기록에 대표사진이 두 개 이상 저장되지 않는지 확인
 
 #### RLS·조회
@@ -335,7 +367,7 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 #### 관계·삭제
 
 - 기록 삭제 후 연결된 `photos` DB 레코드가 cascade 삭제
-- 기록 삭제 후 원본·썸네일 Storage 파일 삭제 요청이 발생
+- 기록 삭제 전 경로/작업 등록과 DB 삭제가 원자적으로 수행되고 서버가 Storage 삭제를 재시도
 - 위치가 여러 기록에서 공유될 때 기록 삭제가 위치를 임의로 삭제하지 않는지 확인
 - 삭제 중 일부 실패가 발생해도 고아 파일 정리 대상으로 추적되는지 확인
 
@@ -352,7 +384,11 @@ TDD 순서:
 3. 테스트 통과 확인
 4. 리팩터링
 
-### 웹: Playwright + Expo Web
+### 2단계 프론트엔드 HTTP 통신: Vitest + Supabase Local
+
+화면 없이 실제 프론트엔드 요청 코드를 로컬 Auth·PostgREST·Storage에 연결한다. 로그인 세션·공개/소유자 조회·업로드·완료·대표사진 교체·삭제·오류 매핑·재시도를 테스트한다. Google OAuth·Maps는 외부 경계만 mock 또는 별도 테스트 환경으로 분리하며, 자체 백엔드 통신을 mock만으로 통과 처리하지 않는다.
+
+### 3단계 프론트엔드 프로토타입: Playwright + Expo Web
 
 검증 대상:
 
@@ -415,14 +451,14 @@ TDD 순서:
 
 ### 14.2 PostgreSQL
 
-- `profiles`, `locations`, `travel_records`, `photos` 테이블을 migration으로 생성한다.
+- `profiles`, `locations`, `travel_records`, `photos`와 서버 전용 `storage_cleanup_jobs`를 migration으로 생성한다.
 - `visibility`와 `locations.source`에는 check constraint 또는 enum을 사용한다.
 - 사용자·외래키·공개 상태·생성일 기준 조회에 필요한 index를 추가한다.
 - 모든 주요 테이블에 `created_at`, 변경 가능한 테이블에 `updated_at`을 둔다.
 - `travel_records.owner_id`, `photos.travel_record_id`에 foreign key를 둔다.
 - 여행 기록 삭제 시 사진 DB 레코드는 cascade 삭제한다.
 - Storage 파일은 DB cascade 대상이 아니므로 원본·썸네일 삭제를 별도로 처리한다.
-- Storage 삭제 실패는 고아 파일 정리 대상으로 기록한다.
+- 삭제 전 같은 트랜잭션에 정리 작업을 등록하고 실패는 보존된 작업에서 재시도한다.
 - 테이블 생성 후 RLS를 활성화하고 정책을 적용한다.
 
 ### 14.3 Google OAuth
@@ -489,6 +525,8 @@ SUPABASE_DB_PASSWORD=your_supabase_database_password
 
 ### Redirect URL 값
 
+아래 기존 변수명은 유지한다. LOCAL 값은 Google Provider용 Supabase callback 예시이고 TEST·PRODUCTION 값은 앱 복귀 웹 URL 예시다. 같은 종류의 URL로 취급하지 않는다. 원격 Google Cloud에는 해당 Supabase 프로젝트의 `https://<project-ref>.supabase.co/auth/v1/callback`을 등록하고 앱 복귀 URL·Android deep link는 Supabase 허용 목록에 별도 등록한다. 환경별 실제 값을 혼용하지 않는다.
+
 ```env
 GOOGLE_OAUTH_REDIRECT_URL_LOCAL=http://127.0.0.1:54321/auth/v1/callback
 GOOGLE_OAUTH_REDIRECT_URL_TEST=https://your-test-domain.example/auth/callback
@@ -518,7 +556,7 @@ GOOGLE_OAUTH_REDIRECT_URL_PRODUCTION=https://your-production-domain.example/auth
 
 - Supabase 로컬 서비스가 실행되는가
 - Auth의 Google Provider가 활성화되는가
-- OAuth Redirect URL이 Google Cloud·Supabase 설정과 정확히 일치하는가
+- Google Cloud의 redirect URI는 Supabase `/auth/v1/callback`이고, 로그인 후 앱 복귀 URL은 Supabase의 별도 허용 목록에 등록되어 있는가
 - PostgREST 요청에 RLS가 적용되는가
 - Storage 업로드와 signed URL 발급이 작동하는가
 - Web 지도 key가 허용된 도메인에서 작동하는가

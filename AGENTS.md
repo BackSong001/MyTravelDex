@@ -134,12 +134,16 @@ adb emu geo fix 126.9780 37.5665
 
 ### 테스트 순서
 
+필수 개발 단계는 백엔드 → 프론트엔드 HTTP 통신 → 프론트엔드 프로토타입이다. 각 단계에서 Red → Green → Refactor를 반복하고 이전 단계 회귀 테스트까지 통과한 후 다음 단계로 이동한다. 아래 명령은 구현·도구 설치 후의 실행 예시이며 현재 저장소에 실행 가능한 테스트가 있다는 뜻이 아니다.
+
 ```text
 supabase start
     ↓
 supabase db reset
     ↓
 npx vitest run
+    ↓
+화면 없는 프론트엔드 요청 코드로 Supabase Local HTTP 계약 검증 (Vitest)
     ↓
 npx expo start --web
     ↓
@@ -224,10 +228,11 @@ adb logcat
 3. TRD의 데이터·API·RLS·환경변수·상태 전이 계약을 갱신한다.
 4. API_SPEC와 TEST_CASE의 요청·응답·권한·오류 검증을 갱신한다.
 5. README·README.local·planning·`.env.example`의 범위와 링크 영향을 확인한다.
-6. Supabase Local과 TDD 테스트로 백엔드를 검증한다.
-7. Playwright로 웹 테스트를 진행한다.
-8. Android Studio Emulator와 실제 기기로 네이티브 기능을 검증한다.
-9. 모든 문서와 환경변수 샘플의 일관성을 재검토한다.
+6. 백엔드: Vitest·Supabase Local로 DB·RLS·파일 연결·완료·삭제 복구를 Red → Green → Refactor로 검증한다.
+7. 프론트엔드 HTTP 통신: 화면 없이 실제 요청 코드로 로컬 Auth·PostgREST·Storage·Edge 계약을 Red → Green → Refactor로 검증한다.
+8. 프론트엔드 프로토타입: 최소 Expo Web 화면을 통신 코드에 연결하고 Playwright로 Red → Green → Refactor를 수행한다.
+9. Android Studio Emulator와 실제 기기로 네이티브 기능을 검증한다.
+10. 모든 문서와 환경변수 샘플의 일관성을 재검토한다.
 
 ## 테스트 규칙
 
@@ -235,6 +240,11 @@ adb logcat
 - 웹 UI와 브라우저 흐름은 Playwright와 Expo Web으로 테스트한다.
 - 카메라·갤러리·GPS·Android OAuth 딥링크·네이티브 지도는 Android Studio와 실제 기기로 테스트한다.
 - TDD 순서는 실패하는 테스트 작성 → 최소 구현 → 통과 확인 → 리팩터링이다.
+- 세 단계의 TC·요구사항 연결과 통과 게이트는 `docs/TEST_CASE.md`를 따른다. 환경 오류는 Red 증거로 삼지 않고 실제 행동 실패를 확인한다.
+- 공개 사진의 기본 테이블 조회는 소유자 전용이다. 공개 view는 고정 필드·완료/공개 필터를 서버에서 강제하고 직접 조회 우회를 검증한다.
+- 완료·대표사진 교체·삭제는 같은 기록 잠금과 전용 RPC로 처리한다. 완료 기록의 마지막 사진 삭제·등록 파일 직접 삭제/덮어쓰기·소유권 변경은 차단한다.
+- 삭제 시 파일 경로와 정리 작업을 DB 트랜잭션으로 보존하고 서버 전용 정리 작업이 Storage 삭제를 재시도한다. 상세 정책·기본값은 TRD를 따른다.
+- 공개 대표 좌표와 사진 EXIF 좌표를 구분한다. URL 발급은 서버에서 권한·최대 300초 만료를 검증하고 기존 URL·다운로드의 즉시 회수를 보장하지 않는다.
 - 웹 테스트 통과만으로 Android 기능 완료를 판단하지 않는다.
 
 ## 배포 계획
@@ -358,7 +368,7 @@ Oracle Cloud 도입 시 Ubuntu 또는 Oracle Linux, Docker Compose, Nginx 또는
 ### 도메인·OAuth 정책
 
 - 웹 production 도메인은 Vercel에 연결한다.
-- Google OAuth Web Redirect URL은 production 도메인과 일치시킨다.
+- 로그인 후 앱 복귀 Web URL은 production 도메인에 맞춰 Supabase 허용 목록에 등록한다.
 - Supabase Auth callback URL과 Google Cloud OAuth Redirect URL을 동일하게 관리한다.
 - Android OAuth는 도메인만으로 처리하지 않고 Android package name·SHA-1 제한을 사용한다.
 - Vercel 도메인 변경 시 Google OAuth와 Google Maps Web key의 허용 도메인을 함께 변경한다.

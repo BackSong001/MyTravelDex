@@ -1,608 +1,135 @@
 # MyTravelDex API 명세서
 
-## 1. 문서 목적
+## 1. 범위와 공통 계약
 
-이 문서는 MyTravelDex 클라이언트가 사용하는 Supabase Auth, PostgREST, Storage API와 외부 Google API의 사용 목적·엔드포인트·권한을 정의한다.
+현재 문서는 구현 전 계약이다. CRUD는 PostgREST·RLS, 원자적 변경은 DB RPC, 파일 정리는 서버 전용 Edge Function을 사용한다. 기본 URL은 `EXPO_PUBLIC_SUPABASE_URL`이며 REST `/rest/v1`, Auth `/auth/v1`, Storage `/storage/v1`를 사용한다.
 
-현재 구조에서는 별도의 Node.js·Next.js API 서버를 운영하지 않는다. 일반 CRUD는 Supabase가 자동 생성하는 REST API를 사용하고, 서버 비밀키가 필요한 작업만 Supabase Edge Function 후보로 둔다.
+요청에는 `apikey: <anon_key>`를 포함하고 소유자 요청에는 `Authorization: Bearer <access_token>`을 추가한다. JSON은 `Content-Type: application/json`, 생성·수정 결과 조회는 `Prefer: return=representation`을 사용한다. UUID는 실제 UUID로, 필터 값은 URL 인코딩해 전달한다. service role key는 클라이언트에 제공하지 않는다.
 
-## 2. 기본 URL과 공통 헤더
+## 2. Auth·프로필·위치
 
-### 2.1 기본 URL
+| 작업 | 인터페이스 | 권한·결과 |
+|---|---|---|
+| Google 로그인 | Supabase Client `auth.signInWithOAuth` | provider는 google, redirectTo는 Supabase 앱 복귀 허용 URL |
+| 세션 조회 | `auth.getSession()` | 클라이언트 세션 확인용; 서버 권한 판단을 대체하지 않음 |
+| 프로필 조회 | `GET /rest/v1/profiles?id=eq.{user_id}` | 본인만 |
+| 프로필 수정 | `PATCH /rest/v1/profiles?id=eq.{user_id}` | 본인의 display_name·avatar_url만 |
+| 위치 생성 | `POST /rest/v1/locations` | 현재 사용자 owner_id, latitude, longitude, source 필수 |
+| 위치 조회 | `GET /rest/v1/locations?id=eq.{id}` | 생성자·참조 기록 소유자 또는 완료된 공개 기록에 연결된 위치만 |
 
-```text
-SUPABASE_URL=https://<project-ref>.supabase.co
-```
+프로필은 Auth 사용자 생성 시 1:1 연결한다. Google Cloud redirect URI는 Supabase `/auth/v1/callback`이다. 앱 복귀 웹 URL·Android deep link인 redirectTo와 구분한다. 기존 환경변수의 Redirect 이름은 유지하되 TRD 15절의 두 용도 구분을 따른다.
 
-Supabase API는 다음 기본 경로를 사용한다.
+위도는 -90~90, 경도는 -180~180이며 source는 exif·device·manual·google이다. 장소명·Google 장소 ID·국가·지역·도시는 선택이다. 위치는 생성 후 불변이고 새 위치를 만들어 기록을 보정한다. 본인 생성 위치 또는 공개 조회 가능한 위치만 새로 연결할 수 있다. 공개 지도는 대표 위도·경도를 제공하고 사진 EXIF 좌표는 제공하지 않는다.
 
-```text
-REST API:    {SUPABASE_URL}/rest/v1
-Auth API:    {SUPABASE_URL}/auth/v1
-Storage API: {SUPABASE_URL}/storage/v1
-Functions:   {SUPABASE_URL}/functions/v1
-```
+## 3. 기록 조회·생성·수정
 
-### 2.2 공통 헤더
+### 3.1 소유자·공개 조회
 
-일반 클라이언트 요청:
-
-```http
-apikey: <EXPO_PUBLIC_SUPABASE_ANON_KEY>
-Authorization: Bearer <supabase_access_token>
-Content-Type: application/json
-```
-
-비로그인 공개 조회는 `Authorization`이 없을 수 있지만 `apikey`는 필요하다. 실제 접근 가능 여부는 PostgreSQL RLS가 결정한다.
-
-응답 본문을 받고 싶은 생성·수정 요청:
+소유자 일반 목록:
 
 ```http
-Prefer: return=representation
+GET /rest/v1/travel_records?owner_id=eq.{user_id}&status=eq.complete&select=*,locations(*),photos(*)&order=start_date.desc,id.asc
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY`는 클라이언트 요청에 사용하지 않는다.
+초안 복구는 status=eq.draft로 분리한다. 소유자 상세는 id=eq.{record_id}와 owner_id 조건을 사용한다.
 
-## 3. 인증 API
-
-### 3.1 Google OAuth 시작
+공개 목록·상세:
 
 ```http
-GET /auth/v1/authorize?provider=google&redirect_to=<allowed_redirect_url>
+GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=id,title,content,start_date,end_date,location_id,locations(*),public_photos(*)&order=start_date.desc,id.asc
 ```
 
-**작업**:
+상세는 id 조건을 추가한다. `public_photos`는 id·travel_record_id·thumbnail_path·is_cover·display_order·captured_date만 제공하는 읽기 전용 view다. 기본 photos는 소유자 전용이다. 임의 select·관계 조회로 타인의 원본 경로·EXIF 좌표를 읽을 수 없어야 한다. view는 TRD의 고정 공개 필터와 제한된 실행 권한을 따른다. 임베딩 관계는 migration에서 정의하고 실제 PostgREST로 검증한다.
 
-- Google 로그인 화면을 시작한다.
-- 로그인 성공 후 Supabase 세션을 발급한다.
-- `redirect_to`는 Supabase Auth에 등록된 허용 URL이어야 한다.
+### 3.2 기간·지역 필터
 
-**권한**: 비로그인 사용자가 호출 가능
+기간 겹침은 `start_date=lte.{filter_end}&end_date=gte.{filter_start}`이며 양 끝을 포함한다. 일반 목록은 complete 조건을 적용한다. 지역 필터는 select에서 `locations!inner(*)`를 사용하고 `locations.country_code=eq.KR`, `locations.region_name=eq.{region}`, `locations.city_name=eq.{city}` 조건을 추가해 부모 기록도 필터링한다. 지역 null은 해당 필터에서 제외한다.
 
-**주의**:
+### 3.3 생성·수정
 
-- Google OAuth Client Secret은 Supabase Auth Provider에만 등록한다.
-- 클라이언트는 Google 비밀번호를 직접 처리하지 않는다.
-- 세션 획득 후 `profiles.id = auth user.id`를 확인한다.
-
-### 3.2 현재 세션 확인
-
-Supabase Client의 세션 조회 기능을 사용한다.
-
-```text
-Supabase Client: auth.getSession()
-```
-
-**응답 핵심 값**:
+`POST /rest/v1/travel_records` 요청:
 
 ```json
 {
-  "user": {
-    "id": "user-uuid",
-    "email": "user@example.com"
-  },
-  "access_token": "session-access-token"
-}
-```
-
-### 3.3 사용자 프로필 조회
-
-```http
-GET /rest/v1/profiles?id=eq.{user_id}&select=*
-```
-
-**작업**: 로그인한 사용자의 프로필을 조회한다.
-
-**권한**: 본인만 조회 가능
-
-### 3.4 사용자 프로필 수정
-
-```http
-PATCH /rest/v1/profiles?id=eq.{user_id}
-```
-
-요청 예시:
-
-```json
-{
-  "display_name": "홍길동",
-  "avatar_url": "https://example.com/avatar.jpg"
-}
-```
-
-**작업**: 본인의 표시 이름과 프로필 이미지 정보를 수정한다.
-
-**권한**: 본인만 수정 가능
-
-## 4. 위치 API
-
-### 4.1 위치 생성
-
-```http
-POST /rest/v1/locations
-```
-
-요청 예시:
-
-```json
-{
-  "latitude": 33.4996,
-  "longitude": 126.5312,
-  "place_name": "제주특별자치도 제주시",
-  "google_place_id": "ChIJexample",
-  "country_code": "KR",
-  "country_name": "대한민국",
-  "region_name": "제주특별자치도",
-  "city_name": "제주시",
-  "source": "google"
-}
-```
-
-**작업**: 여행 기록에 연결할 좌표와 장소 정보를 저장한다.
-
-**필수값**:
-
-- `latitude`: -90부터 90
-- `longitude`: -180부터 180
-- `source`: `exif`, `device`, `manual`, `google` 중 하나
-
-**권한**: 인증 사용자
-
-### 4.2 위치 조회
-
-```http
-GET /rest/v1/locations?id=eq.{location_id}&select=*
-```
-
-**작업**: 여행 기록의 대표 위치와 지역 필터 정보를 조회한다.
-
-**권한**: 연결된 여행 기록의 RLS 정책 적용
-
-## 5. 여행 기록 API
-
-### 5.1 여행 기록 목록 조회
-
-```http
-GET /rest/v1/travel_records?owner_id=eq.{session_user_id}&select=*,locations(*),photos(*)&order=start_date.desc
-```
-
-공개 목록은 다음 allowlist 조회를 사용한다.
-
-```http
-GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=id,title,content,start_date,end_date,location_id,created_at,updated_at,locations(id,place_name,country_name,region_name,city_name),public_photos(id,travel_record_id,thumbnail_path,is_cover,display_order,captured_at)&order=start_date.desc
-```
-
-**작업**:
-
-- 소유자의 비공개·공개 기록을 조회한다.
-- 소유자는 `draft`도 조회해 업로드를 재개할 수 있다.
-- 다른 사용자와 비로그인 사용자는 `status = complete AND visibility = public`인 기록만 조회한다.
-- 응답에 대표 위치와 연결 사진을 포함할 수 있다.
-
-**권한**: RLS 적용
-
-### 5.2 여행 기록 상세 조회
-
-```http
-GET /rest/v1/travel_records?id=eq.{travel_record_id}&owner_id=eq.{session_user_id}&select=*,locations(*),photos(*)
-```
-
-**작업**: 여행 기록, 대표 위치, 연결 사진을 함께 조회한다.
-
-**권한**:
-
-- 소유자: 본인 기록 조회
-- 타인: `visibility = public`인 기록만 조회
-
-소유자가 업로드를 재개하는 `draft` 상세 조회는 `owner_id=eq.{session_user_id}` 조건을 사용하며 타인에게 허용하지 않는다.
-
-타인·비로그인 공개 상세는 `status=eq.complete&visibility=eq.public`과 `public_photos(*)` allowlist를 사용해 조회한다.
-
-### 5.3 여행 기록 생성
-
-```http
-POST /rest/v1/travel_records
-```
-
-요청 예시:
-
-```json
-{
-  "owner_id": "user-uuid",
-  "title": "제주도 가족 여행",
-  "content": "바다와 오름을 다녀왔다.",
+  "owner_id": "<user_id>",
   "start_date": "2026-01-10",
   "end_date": "2026-01-15",
-  "location_id": "location-uuid",
+  "location_id": "<location_id>",
   "visibility": "private",
-  "status": "draft"
+  "status": "draft",
+  "title": null,
+  "content": null
 }
 ```
 
-**작업**: 여행 기록의 제목·내용·기간·대표 위치·공개 상태를 저장한다.
+필수값은 owner_id·기간·location_id다. 기본값은 private·draft다. 완료 상태로 직접 생성하는 요청은 거부한다. 기간은 시작일 ≤ 종료일, 제목은 최대 100자·내용은 최대 5,000자다. PostgREST 생성 응답은 단일 기록을 담은 배열이다.
 
-**필수값**:
+`PATCH /rest/v1/travel_records?id=eq.{record_id}`는 본인의 제목·내용·기간·위치·공개 상태만 변경한다. id·owner_id·status 변경은 금지한다. 사진 편집은 기간·위치를 자동 덮어쓰지 않는다.
 
-- `owner_id`: 현재 세션 사용자 ID와 일치해야 한다.
-- `start_date`
-- `end_date`
-- `location_id`
+## 4. 사진과 원자적 변경 API
 
-**규칙**:
+소유자 조회는 `GET /rest/v1/photos?travel_record_id=eq.{id}&order=display_order.asc`, 공개 조회는 `GET /rest/v1/public_photos?travel_record_id=eq.{id}&order=display_order.asc`다.
 
-- `title`, `content`는 null을 허용한다.
-- `start_date <= end_date`여야 한다.
-- `visibility`는 `private` 또는 `public`만 허용한다.
-- 생성 요청은 `status = draft`로만 허용한다. 클라이언트는 반환된 `id`로 사진을 연결한 뒤 완료 API를 호출한다.
+`POST /rest/v1/photos`는 id·travel_record_id·owner_id·original_path·thumbnail_path·display_order·width·height·mime_type·file_size_bytes와 선택적 captured_date·captured_at·exif_latitude·exif_longitude를 받는다. 객체 존재·소유 경로·MIME·파일 크기를 검사한다. 같은 사진 UUID의 재POST는 unique 제약 충돌이므로 HTTP 통신 계층이 본인 기존 행을 조회해 값이 일치하면 재사용하고 다르면 충돌로 처리한다. is_cover는 처음 false이며 전용 함수로만 변경한다.
 
-**권한**: 인증 사용자 본인만 생성 가능
+일반 PATCH는 촬영 메타데이터·표시 순서만 허용한다. 소유자·연결 기록·파일 경로·대표사진을 직접 바꾸지 못한다. 표시 순서는 기록 내 중복 없는 0 이상 정수다. 수동 위치는 기록 위치로 저장하고 EXIF 좌표를 덮어쓰지 않는다.
 
-### 5.3.1 여행 기록 완료
+| RPC | JSON 요청 | 결과·규칙 |
+|---|---|---|
+| `POST /rest/v1/rpc/finalize_travel_record` | `{"record_id":"<id>"}` | 소유자·사진 1~20장·파일 연결·기간·위치를 검증하고 기록 객체 반환. 대표사진 없으면 첫 사진 지정. 완료 재호출은 같은 결과 |
+| `POST /rest/v1/rpc/set_cover_photo` | `{"record_id":"<id>","photo_id":"<id>"}` | 같은 기록의 사진으로 원자적 교체, 대표사진 ID 반환 |
+| `POST /rest/v1/rpc/delete_photo` | `{"record_id":"<id>","photo_id":"<id>"}` | 마지막 사진 삭제 거부; 대표사진 삭제 시 남은 첫 사진 지정; 정리 작업 등록 후 DB 삭제 |
+| `POST /rest/v1/rpc/delete_travel_record` | `{"record_id":"<id>"}` | 정리 작업 등록 후 기록·사진 cascade 삭제 |
 
-```http
-POST /rest/v1/rpc/finalize_travel_record
-```
+삭제 응답은 `{"deleted":true,"cleanup_pending":true}`다. 삭제 재요청은 NOT_FOUND이며 클라이언트는 본인이 시작한 삭제 재시도에서만 이를 완료로 취급한다. 타인 접근은 존재 여부를 노출하지 않는다. 함수와 사진 추가·변경·삭제는 같은 부모 잠금을 사용한다. 직접 DELETE와 보호 필드 PATCH를 차단한다.
 
-요청 예시:
+## 5. Storage·파일 정리
 
-```json
-{
-  "record_id": "travel-record-uuid"
-}
-```
+버킷 travel-photos는 private다. 경로는 `{owner_id}/{record_id}/{photo_id}/original.{jpg|png}`와 `.../thumbnail.jpg`다. 사용자 입력 파일명은 사용하지 않는다.
 
-함수는 소유자만 호출할 수 있으며, 연결 사진이 하나 이상이고 `start_date`, `end_date`, `location_id` 및 대표사진이 준비된 경우에만 `status`를 `complete`로 전환한다. 검증 실패 시 상태를 바꾸지 않는다.
-
-### 5.4 여행 기록 수정
-
-```http
-PATCH /rest/v1/travel_records?id=eq.{travel_record_id}
-```
-
-요청 예시:
-
-```json
-{
-  "title": "수정된 제주 여행",
-  "start_date": "2026-01-11",
-  "end_date": "2026-01-15",
-  "visibility": "public"
-}
-```
-
-**작업**: 제목·내용·기간·대표 위치·공개 상태를 수정한다.
-
-**권한**: 소유자만 수정 가능
-
-### 5.5 여행 기록 삭제
-
-```http
-DELETE /rest/v1/travel_records?id=eq.{travel_record_id}
-```
-
-**작업**:
-
-1. 연결된 사진 DB 레코드를 cascade 삭제한다.
-2. 원본·썸네일 Storage 파일을 삭제한다.
-3. Storage 삭제 실패 파일은 고아 파일 정리 대상으로 기록한다.
-
-**권한**: 소유자만 삭제 가능
-
-### 5.6 기간으로 여행 기록 조회
-
-특정 날짜를 포함하는 여행 기록:
-
-```http
-GET /rest/v1/travel_records?status=eq.complete&start_date=lte.2026-01-12&end_date=gte.2026-01-12
-```
-
-기간과 겹치는 기록을 조회할 때:
-
-```http
-GET /rest/v1/travel_records?status=eq.complete&start_date=lte.2026-01-20&end_date=gte.2026-01-10
-```
-
-**작업**: 여행도감과 여행지도에서 날짜 기준 필터를 제공한다.
-
-**권한**: RLS 적용
-
-### 5.7 지역으로 공개 여행 기록 조회
-
-```http
-GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=id,title,content,start_date,end_date,location_id,created_at,updated_at,locations(id,place_name,country_name,region_name,city_name),public_photos(id,travel_record_id,thumbnail_path,is_cover,display_order,captured_at)&locations.region_name=eq.제주특별자치도
-```
-
-**작업**: 완료된 공개 상태이며 지정 지역에 속한 여행 기록과 썸네일을 조회한다.
-
-공개 응답에는 원본 Storage 경로와 사진 EXIF 정밀 좌표를 포함하지 않는다. 공개 사진 조회는 `public_photos` view 또는 동등한 allowlist 계약을 사용한다.
-
-**권한**: 공개 기록만 허용
-
-> 친구·팔로워 기능이 도입되기 전까지 다른 사용자의 조회 범위는 공개 기록으로 한정한다.
-
-## 6. 사진 메타데이터 API
-
-### 6.1 사진 목록 조회
-
-```http
-GET /rest/v1/photos?travel_record_id=eq.{travel_record_id}&select=*&order=display_order.asc
-```
-
-**작업**: 여행 기록에 연결된 사진 메타데이터를 조회한다.
-
-**응답 필드**:
-
-```json
-{
-  "id": "photo-uuid",
-  "travel_record_id": "travel-record-uuid",
-  "owner_id": "user-uuid",
-  "original_path": "user-uuid/record-uuid/photo-uuid/original.jpg",
-  "thumbnail_path": "user-uuid/record-uuid/photo-uuid/thumbnail.jpg",
-  "is_cover": true,
-  "display_order": 0,
-  "captured_at": "2026-01-10T09:30:00Z",
-  "exif_latitude": 33.4996,
-  "exif_longitude": 126.5312,
-  "width": 4032,
-  "height": 3024,
-  "mime_type": "image/jpeg",
-  "file_size_bytes": 3456789
-}
-```
-
-**권한**:
-
-- 소유자: 본인 기록의 사진 조회
-- 타인: 공개 기록의 사진만 조회
-
-비로그인 사용자와 타인의 공개 사진 조회는 다음 allowlist를 사용한다.
-
-```http
-GET /rest/v1/public_photos?travel_record_id=eq.{travel_record_id}&select=id,travel_record_id,thumbnail_path,is_cover,display_order,captured_at&order=display_order.asc
-```
-
-`original_path`, `exif_latitude`, `exif_longitude`는 소유자 조회에서만 반환한다.
-
-### 6.2 사진 메타데이터 생성
-
-```http
-POST /rest/v1/photos
-```
-
-요청 예시:
-
-```json
-{
-  "id": "photo-uuid",
-  "travel_record_id": "travel-record-uuid",
-  "owner_id": "user-uuid",
-  "original_path": "user-uuid/travel-record-uuid/photo-uuid/original.jpg",
-  "thumbnail_path": "user-uuid/travel-record-uuid/photo-uuid/thumbnail.jpg",
-  "is_cover": true,
-  "display_order": 0,
-  "captured_at": "2026-01-10T09:30:00Z",
-  "exif_latitude": 33.4996,
-  "exif_longitude": 126.5312,
-  "width": 4032,
-  "height": 3024,
-  "mime_type": "image/jpeg",
-  "file_size_bytes": 3456789
-}
-```
-
-**작업**: Storage에 업로드된 원본·썸네일과 EXIF·파일 메타데이터를 연결한다.
-
-**권한**: 연결된 여행 기록의 소유자만 생성 가능
-
-### 6.3 사진 메타데이터 수정
-
-```http
-PATCH /rest/v1/photos?id=eq.{photo_id}
-```
-
-**작업**:
-
-- 대표사진 변경
-- 표시 순서 변경
-- 수동 촬영일·위치 보정값 저장
-
-**권한**: 사진 소유자만 수정 가능
-
-### 6.4 사진 메타데이터 삭제
-
-```http
-DELETE /rest/v1/photos?id=eq.{photo_id}
-```
-
-**작업**: DB 메타데이터와 연결된 Storage 원본·썸네일을 삭제한다.
-
-**권한**: 사진 소유자만 삭제 가능
-
-## 7. Storage API
-
-버킷 이름은 `travel-photos`로 고정한다.
-
-### 7.1 파일 경로 규칙
-
-```text
-{owner_id}/{travel_record_id}/{photo_id}/original.{extension}
-{owner_id}/{travel_record_id}/{photo_id}/thumbnail.{extension}
-```
-
-사용자 입력값을 파일명으로 사용하지 않는다.
-
-### 7.2 원본·썸네일 업로드
-
-```http
-POST /storage/v1/object/travel-photos/{owner_id}/{travel_record_id}/{photo_id}/original.jpg
-POST /storage/v1/object/travel-photos/{owner_id}/{travel_record_id}/{photo_id}/thumbnail.jpg
-```
-
-**작업**:
-
-- Expo 클라이언트가 생성한 원본 이미지와 압축 썸네일을 Storage에 저장한다.
-- 업로드 후 해당 경로를 `photos.original_path`, `photos.thumbnail_path`에 저장한다.
-
-**MVP 처리 주체**: 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행한다. 이 엔드포인트는 압축 결과를 저장하는 역할을 하며, 서버 측 이미지 변환은 필수 처리로 간주하지 않는다.
-
-**필수 헤더**:
-
-```http
-apikey: <EXPO_PUBLIC_SUPABASE_ANON_KEY>
-Authorization: Bearer <supabase_access_token>
-Content-Type: image/jpeg
-```
-
-**권한**: 경로의 `owner_id`와 로그인 사용자 ID가 일치해야 한다.
-
-### 7.3 비공개 파일 signed URL 생성
-
-```http
-POST /storage/v1/object/sign/travel-photos/{path}
-```
-
-요청 예시:
-
-```json
-{
-  "expiresIn": 3600
-}
-```
-
-**작업**: 소유자의 원본·썸네일 또는 공개 기록의 썸네일에만 임시 접근 URL을 발급한다. 공개 기록의 원본에는 발급하지 않는다.
-
-**권한**: Storage 정책과 연결 여행 기록의 공개 상태 적용
-
-### 7.4 파일 삭제
-
-```http
-POST /storage/v1/object/remove
-```
-
-요청 예시:
-
-```json
-{
-  "prefixes": [
-    "user-uuid/travel-record-uuid/photo-uuid/original.jpg",
-    "user-uuid/travel-record-uuid/photo-uuid/thumbnail.jpg"
-  ]
-}
-```
-
-**작업**: 원본·썸네일 파일을 함께 삭제한다.
-
-## 8. Google Maps 외부 API 경계
-
-Google Maps API는 MyTravelDex의 자체 REST 서버 엔드포인트가 아니다. 클라이언트 SDK 또는 제한된 API key를 사용하는 Edge Function에서 호출한다.
-
-### 8.1 장소 검색
-
-사용 목적:
-
-- 지도 검색창 장소 검색
-- 사용자가 선택한 장소의 이름·좌표·Google Place ID 보완
-
-MVP에서는 Places API (New) 또는 플랫폼별 Places SDK를 사용한다.
-
-### 8.2 Geocoding
-
-사용 목적:
-
-- 좌표를 국가·지역·도시·주소로 변환
-- `locations`의 지역 필드 보완
-
-서버 키가 필요한 호출은 Edge Function으로 분리한다. API key를 클라이언트에 노출하지 않아야 하는 경우 직접 Google REST API를 호출하지 않는다.
-
-### 8.3 지도 표시
-
-- Web: Maps JavaScript API
-- Android: Maps SDK for Android
-- iOS: Maps SDK for iOS
-
-지도 표시와 Marker 렌더링은 클라이언트 기능이며, 여행 기록 데이터 조회는 Supabase REST API를 사용한다.
-
-## 9. Edge Function 후보 엔드포인트
-
-다음 엔드포인트는 일반 CRUD가 아닌 서버 전용 처리가 필요할 때만 구현한다. 현재 문서는 후보 정의이며 MVP에 필수로 배포하지 않는다.
-
-### 9.1 사진 처리
-
-```http
-POST /functions/v1/process-photo
-```
-
-**후보 작업**:
-
-- 원본 파일 소유권 검증
-- EXIF 추출·검증
-- 썸네일 생성
-- `photos` 메타데이터 저장
-- 실패한 Storage 파일 정리
-
-MVP에서는 이 함수 대신 Expo 클라이언트가 압축·썸네일 생성을 수행한다. 클라이언트 결과를 신뢰할 수 없거나 서버 표준화가 필요해질 때만 배포한다.
-
-### 9.2 위치 보완
-
-```http
-POST /functions/v1/geocode-location
-```
-
-요청 예시:
-
-```json
-{
-  "latitude": 33.4996,
-  "longitude": 126.5312
-}
-```
-
-**후보 작업**: 서버용 Google Maps key로 Geocoding을 호출하고 정규화된 위치 정보를 반환한다.
-
-## 10. 표준 오류 응답
-
-애플리케이션에서는 Supabase·PostgREST·Storage의 원문 오류를 내부 오류 유형으로 매핑한다.
-
-```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "start_date must be earlier than or equal to end_date",
-    "details": null
-  }
-}
-```
-
-| 내부 코드 | 의미 |
+| 작업 | 계약 |
 |---|---|
-| `UNAUTHENTICATED` | 로그인 세션 없음 |
-| `FORBIDDEN` | RLS 또는 소유권 위반 |
-| `VALIDATION_ERROR` | 필수값·형식·범위 오류 |
-| `NOT_FOUND` | 존재하지 않거나 접근할 수 없는 리소스 |
-| `UPLOAD_FAILED` | Storage 업로드 실패 |
-| `EXTERNAL_SERVICE_ERROR` | Google OAuth·Maps 오류 |
-| `INTERNAL_ERROR` | 예상하지 못한 서버 오류 |
+| 업로드 | `POST /storage/v1/object/travel-photos/{path}`; 실제 MIME 헤더, 본인 활성 기록 경로만 |
+| URL 발급 | `POST /storage/v1/object/sign/travel-photos/{path}`; `{"expiresIn":300}` |
+| 삭제 | 서버에서 `storage.from('travel-photos').remove(paths)`; 클라이언트 직접 DELETE·UPDATE·upsert 금지 |
 
-## 11. API 보안 규칙
+Storage REST 삭제는 `DELETE /storage/v1/object/travel-photos`와 prefixes 배열이며 기존 /object/remove POST 예시는 폐기한다. 실제 앱은 이 삭제 REST를 직접 호출하지 않고 삭제 RPC를 사용한다.
 
-- 클라이언트에는 `EXPO_PUBLIC_SUPABASE_ANON_KEY`만 사용한다.
-- `SUPABASE_SERVICE_ROLE_KEY`는 Edge Function 내부에서만 사용한다.
-- OAuth Client Secret을 앱 번들·웹 공개 환경변수에 포함하지 않는다.
-- 공개 기록이 아닌 Storage 파일은 signed URL 또는 인증 접근만 허용한다.
-- 모든 쓰기 요청은 Supabase Auth 세션과 RLS로 소유권을 검증한다.
-- 클라이언트가 보낸 `owner_id`는 세션 사용자 ID와 비교한다.
-- 원본 사진 URL과 정밀 위치정보를 불필요하게 로그에 기록하지 않는다.
+원본은 JPEG/PNG 최대 20 MiB·40메가픽셀, 썸네일은 JPEG 최대 512 KiB·긴 변 512px다. 작은 이미지는 확대하지 않는다. 디코딩·해상도·손상 검사와 썸네일 생성은 클라이언트에서 수행하며 Storage의 크기·MIME 검증과 구분한다. 썸네일 재인코딩 시 EXIF를 제거한다.
 
-## 12. API 테스트 연결
+원본 URL은 소유자에게만 발급한다. 썸네일은 소유자 또는 완료된 공개 기록 조회자에게 발급한다. expiresIn은 클라이언트 인자를 신뢰하지 않고 서버에서 최대 300초를 강제해야 한다. 직접 Storage sign으로 이 제한을 강제할 수 없는 경우 앱용 `POST /functions/v1/photo-url`에서 photo_id·variant(original/thumbnail)를 받고 재검증해 발급하며 직접 sign 권한은 차단한다. MVP는 이 Edge 경로를 사용한다. 응답은 signed_url·expires_at이다.
 
-API 구현 또는 migration이 변경되면 다음 테스트를 함께 갱신한다.
+비공개 전환 후 신규 공개 발급은 차단한다. 기존 URL·캐시·다운로드 파일의 즉시 회수는 보장하지 않는다.
 
-- `TC-AUTH-*`: 인증·프로필 API
-- `TC-PHOTO-*`: 사진·Storage API
-- `TC-TRAVEL-*`: 여행 기록 생성·기간·대표 위치 API
-- `TC-DB-*`: PostgreSQL 관계·필터 API
-- `TC-RLS-*`: 사용자별 조회·수정·삭제 권한
-- `TC-EXT-*`: Google OAuth·Maps 외부 API 경계
+삭제 전에 파일 경로를 서버 전용 storage_cleanup_jobs에 트랜잭션으로 보존한다. cleanup-storage Edge Function이 주기 처리하며 파일 없음은 성공이다. 실패 재시도·24시간 초안/연결 전 파일 유예·활성 업로드 제외는 TRD 3.6을 따른다. 파일 정리와 URL 발급 Edge Function은 MVP 필수이며 서버 이미지 변환 함수는 후속 후보다.
 
-API 명세 변경 시 `REQUIREMENT.md`, `PRD.md`, `TRD.md`, `TEST_CASE.md`, `AGENTS.md`의 용어·필드·권한·오류 코드를 함께 검토한다.
+## 6. 날짜·외부 서비스·오류
+
+captured_date는 촬영지 현지 날짜 또는 수동 날짜다. 오프셋 없는 EXIF를 임의 UTC로 변환하지 않고 captured_at은 null로 둔다. 최소·최대 날짜를 기간 초깃값으로 제안하며 사용자 최종 보정값이 우선한다.
+
+Google Maps 표시·장소 검색·Geocoding은 외부 API 경계다. 서버 비밀이 필요하면 Edge Function을 사용한다. Maps 실패 시 수동 좌표 입력을 제공하고 지역값을 얻지 못하면 null로 저장한다. OAuth 실제 동의와 Maps 실제 호출은 로컬 DB 테스트와 분리한다.
+
+| 내부 오류 | 기준 |
+|---|---|
+| UNAUTHENTICATED | 세션 없음·만료 |
+| FORBIDDEN | 명시적 권한 위반 |
+| VALIDATION_ERROR | 필수값·범위·사진 수·마지막 사진 삭제 위반 |
+| NOT_FOUND | 상세 0행 또는 접근 불가능한 리소스 |
+| UPLOAD_FAILED | Storage 업로드 실패 |
+| EXTERNAL_SERVICE_ERROR | Google OAuth·Maps 외부 실패 |
+| INTERNAL_ERROR | 예상하지 못한 실패 |
+
+목록 0행은 빈 목록이다. PATCH 0행은 성공으로 표시하지 않는다. 원문 HTTP 상태·본문, SDK data/error, 앱 내부 오류는 구분한다. 직접 PostgREST 응답이 공통 오류 envelope라고 가정하지 않는다. RPC/Edge 오류는 위 내부 코드와 매핑하도록 정의하고 401·403·제약 위반·네트워크 실패를 각각 테스트한다. 오류 원문 영어는 민감정보 제거 후 보존하고 사용자에게 한국어 안내를 제공한다.
+
+## 7. 검증 연결과 근거
+
+기존 TC-AUTH·PHOTO·TRAVEL·DB·RLS·EXT는 백엔드 계약, TC-HTTP는 실제 프론트엔드 요청, TC-UI는 프로토타입 계약이다. 단계별 Red → Green → Refactor와 요구사항 연결은 TEST_CASE를 따른다.
+
+공식 확인 근거:
+
+- [RLS와 view 권한](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Storage remove](https://supabase.com/docs/reference/javascript/storage-from-remove)
+- [Google OAuth callback](https://supabase.com/docs/guides/auth/social-sign-in/auth-google)
+- [signed URL과 다운로드](https://supabase.com/docs/guides/storage/serving/downloads)
+
+현재 검증은 문서·공식 계약 대조다. HTTP 실행·view 임베딩·권한 검증 완료를 의미하지 않는다.
