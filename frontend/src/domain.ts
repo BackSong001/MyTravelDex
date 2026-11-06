@@ -13,8 +13,8 @@ export function readExif(exif: Record<string, unknown>) {
   const instant = `${date}T${raw.slice(11, 19)}${offset}`;
   const captured_at = validDate(date) && /^[+-]\d{2}:\d{2}$/.test(offset) && !Number.isNaN(Date.parse(instant)) ? new Date(instant).toISOString() : null;
   return { captured_date: validDate(date) ? date : null, captured_at,
-    latitude: typeof exif.GPSLatitude === 'number' ? exif.GPSLatitude * (exif.GPSLatitudeRef === 'S' ? -1 : 1) : null,
-    longitude: typeof exif.GPSLongitude === 'number' ? exif.GPSLongitude * (exif.GPSLongitudeRef === 'W' ? -1 : 1) : null };
+    latitude: typeof exif.GPSLatitude === 'number' && exif.GPSLatitudeRef !== '' ? (exif.GPSLatitudeRef === 'S' ? -Math.abs(exif.GPSLatitude) : exif.GPSLatitude) : null,
+    longitude: typeof exif.GPSLongitude === 'number' && exif.GPSLongitudeRef !== '' ? (exif.GPSLongitudeRef === 'W' ? -Math.abs(exif.GPSLongitude) : exif.GPSLongitude) : null };
 }
 export function suggestRecord(photos: PhotoInput[]) {
   const dates = photos.map(p => p.captured_date).filter((s): s is string => !!s && validDate(s)).sort();

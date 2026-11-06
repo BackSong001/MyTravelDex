@@ -1,5 +1,37 @@
 # MyTravelDex 프롬프트·작업 이력
 
+## 2026-11-06 19:49 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: Android 자체 APK·Google 로그인·사진 권한/EXIF·압축본 저장과 관련 문서·테스트 변경을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 Vitest 69개·Playwright 21개·실행 설정 3개 통과 및 Android 실제 검증 기록을 확인했다. 이번 요청에서는 구현 변경이나 테스트 재실행 없이 diff·비밀값 포함 여부·커밋 범위를 확인한다. storyboard.png와 환경 파일·생성 APK는 제외한다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 Android 구현 작업의 기록된 변경 파일 전체(커밋 대상)
+
+## 2026-11-06 19:37 KST — Android 자체 APK·사진 메타데이터·압축 저장
+
+프롬프트 원문:
+
+> 안드로이드 에뮬레이터에서 테스트 할 수 있게 구현해줘.
+> 1. 구글 로그인 구현
+> 2. 사진 선택 및 권한 동의 구현
+> 3. 사진의 데이터로 위치 및 기간 데이터 파싱하여 적용
+> 4. 사진 압축하여 저장
+
+추가 답변 원문:
+
+> 압축된 사진만 저장
+
+자동 검증 조작 여부에 대한 추가 답변 원문:
+
+> 자동 검증을 계속해 주세요
+
+답변·결과 요약: 실제 환경값을 내장한 Android 자체 테스트 APK를 빌드·설치하고 Google 로그인·앱 복귀·재실행 세션 유지 및 실제 Google provider를 확인했다. 사진/메타데이터 권한, Android 문서 선택기와 MediaStore EXIF, 기간·첫 사진 위치 제안, JPEG 압축 본문/썸네일 업로드를 구현했다. GPS 마스킹을 0도 좌표로 오인하는 문제와 Android 축소 크기 조회로 본문이 2400px로 남는 문제를 Red 테스트 후 수정했다. 합성 사진 두 장으로 2026-11-01~03·제주 위치 자동 입력, 실제 원격 complete/private 기록·압축 JPEG 2048×1365 및 썸네일 512×341·EXIF 제거·DB 일치를 확인한 뒤 임시 여행 기록과 해당 파일 네 개만 삭제했다. 합성 선택 사진은 에뮬레이터에 남겼다. Metro의 CMake 임시 파일 감시 오류를 수정하고 Vitest 69 passed/외부 OAuth 자동 1 skipped, Playwright 21 passed, 실행 설정 3 passed, TypeScript·APK build·diff 검사를 통과했다. 자동 93개와 실제 Android 실행 증거는 구분한다. 실기기·실제 OAuth 취소/만료 전체 조합·권한 거부/제한 전체 조합·배포 서명은 미검증이다. 사용자 storyboard.png는 유지했고 커밋·푸시는 요청되지 않아 수행하지 않았다.
+
+변경 파일: `.gitignore`, `AGENTS.md`, `README.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/metro.config.js`, `frontend/app/index.tsx`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/src/photos.ts`, `frontend/e2e/travel.spec.ts`, `backend/tests/oauth.test.ts`, `backend/tests/photo.test.ts`, `backend/tests/photos-client.test.ts`, `scripts/configured.mjs`, `scripts/configured.test.mjs`
+
 이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
 
 ## 2026-11-06 18:59 KST — 커밋 요청

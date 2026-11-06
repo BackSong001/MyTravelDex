@@ -38,8 +38,10 @@
 
 ## 기능·보안 계약
 
+Android 테스트는 자체 APK로 진행하고 Google 브라우저 OAuth의 복귀 scheme을 포함한다. 사진 추가 화면에서 사진 권한·촬영 위치 메타데이터 사용 목적 및 원본 대신 압축본만 저장한다는 정책을 안내한다. 선택 취소·권한 거부에도 기존 입력을 유지하고 필요한 항목만 수동 입력하도록 한다. 상세 정책은 TRD의 Android 사진 계약을 따른다.
+
 1. **실제 Google 로그인**: Supabase Auth Google Provider 및 PKCE를 사용한다. Google Cloud callback은 Supabase `/auth/v1/callback`, 앱 복귀는 웹 `/auth/callback` 또는 `mytraveldex://auth/callback`이다. Android 실제 인증은 자체 앱 빌드에서 검증한다. Expo Go 화면 표시를 실제 인증 완료로 간주하지 않는다.
-2. **사진 추가**: 사용자 JWT로 기존 private `travel-photos` 버킷에 원본과 썸네일을 업로드한다. 사진 1~20장·20 MiB·40MP·썸네일 512px/512KiB 제한, 소유권·RLS·완료 RPC를 유지한다. 도감에는 서버가 허용한 대표 썸네일의 300초 signed URL만 표시한다.
+2. **사진 추가**: 사용자 JWT로 기존 private `travel-photos` 버킷에 압축 JPEG와 썸네일만 업로드한다(원본 미보존). 사진 1~20장·20 MiB·40MP·썸네일 512px/512KiB 제한, 소유권·RLS·완료 RPC를 유지한다. 도감에는 서버가 허용한 대표 썸네일의 300초 signed URL만 표시한다.
 3. **지도 UI 변경**: 홈은 GeoJSON + 기존 react-native-svg로 대한민국 시·도 경계를 렌더링한다. 작성·상세의 실제 Google 지도·마커 선택·좌표 보정은 유지한다. Google 서비스 오류 시 입력값을 보존하고 수동 좌표 입력을 제공한다. 공개 기록에는 대표 위치만 사용한다.
 
 2026-11-06 연결 점검에서 현재 `.env` 프로젝트에 CLI를 연결하고 기존 migration 8개 및 필수 Edge Function 3개를 적용했다. Google Provider의 Android Client ID를 Web Client ID로 교정하고 웹 8083·Android scheme 복귀 URL을 등록했다. Auth·앱 테이블은 정상 응답하며 Google 계정 입력 화면까지 연결된다. 실제 계정 로그인·동의·앱 복귀 완료는 사용자 브라우저에서 별도 확인한다. 비밀값·실제 `.env`와 로컬 회귀 환경은 변경하지 않았다.

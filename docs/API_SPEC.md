@@ -101,7 +101,7 @@ GET /rest/v1/travel_records?status=eq.complete&visibility=eq.public&select=id,ti
 
 Storage REST 삭제는 `DELETE /storage/v1/object/travel-photos`와 prefixes 배열이며 기존 /object/remove POST 예시는 폐기한다. 실제 앱은 이 삭제 REST를 직접 호출하지 않고 삭제 RPC를 사용한다.
 
-원본은 JPEG/PNG 최대 20 MiB·40메가픽셀, 썸네일은 JPEG 최대 512 KiB·긴 변 512px다. 작은 이미지는 확대하지 않는다. 디코딩·해상도·손상 검사와 썸네일 생성은 클라이언트에서 수행하며 Storage의 크기·MIME 검증과 구분한다. 썸네일 재인코딩 시 EXIF를 제거한다.
+선택 입력은 JPEG/PNG 최대 20 MiB·40메가픽셀이다. 새 클라이언트는 JPEG 압축 보관본 최대 5 MiB·긴 변 2048px와 JPEG 썸네일 최대 512 KiB·긴 변 512px만 업로드한다. original_path/variant=original은 기존 호환 필드로 압축 보관본을 가리킨다. 서버는 기존 데이터/클라이언트 호환을 위해 JPEG/PNG·20 MiB 한도를 유지한다. 작은 이미지는 확대하지 않는다. 디코딩·해상도·손상 검사와 썸네일 생성은 클라이언트에서 수행하며 Storage의 크기·MIME 검증과 구분한다. 썸네일 재인코딩 시 EXIF를 제거한다.
 
 원본 URL은 소유자에게만 발급한다. 썸네일은 소유자 또는 완료된 공개 기록 조회자에게 발급한다. expiresIn은 클라이언트 인자를 신뢰하지 않고 서버에서 최대 300초를 강제해야 한다. 직접 Storage sign으로 이 제한을 강제할 수 없는 경우 앱용 `POST /functions/v1/photo-url`에서 photo_id·variant(original/thumbnail)를 받고 재검증해 발급하며 직접 sign 권한은 차단한다. MVP는 이 Edge 경로를 사용한다. 응답은 signed_url·expires_at이다.
 

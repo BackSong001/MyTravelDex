@@ -108,7 +108,7 @@
   * Google OAuth 로그인
   * 사진 한 장 이상을 포함한 여행 기록 CRUD
   * EXIF 날짜·GPS 보조 입력과 수동 입력
-  * 원본·썸네일 Storage 저장
+  * 압축 JPEG 보관본·썸네일만 Storage 저장(선택 원본 미업로드)
   * 대표 위치 지도 표시·보정
   * `private`·`public` 공개 상태와 RLS/Storage 권한
   * 완료된 공개 기록 조회와 기간·지역 필터

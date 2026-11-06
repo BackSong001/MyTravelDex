@@ -1,6 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {publicConfiguration} from './configured.mjs';
+import {publicConfiguration,expoArguments} from './configured.mjs';
+
+test('configured web avoids development env override and Android embeds a standalone bundle',()=>{
+  assert.deepEqual(expoArguments(['--web','--port','8083']),['start','--web','--port','8083','--no-dev']);
+  assert.deepEqual(expoArguments(['--native-android','--device','emulator-5554']),['run:android','--variant','release','--no-bundler','--device','emulator-5554']);
+});
 
 test('configured app receives only declared public values, preserving local test environment', () => {
   const source = {EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',SUPABASE_SERVICE_ROLE_KEY:'private-fixture',GOOGLE_OAUTH_CLIENT_SECRET:'private-google',EXPO_PUBLIC_SERVICE_ROLE_KEY:'private-leak',EXPO_PUBLIC_APP_ENV:'local'};

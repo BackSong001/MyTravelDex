@@ -2,6 +2,19 @@
 
 ## 1. 기술 방향
 
+### Android 에뮬레이터 실행·사진 계약
+
+- 실제 프로젝트용 Android는 Expo Go 대신 `mytraveldex` scheme과 Android Maps key를 포함한 자체 APK를 설치한다. `npm --prefix frontend run android:configured`는 루트 .env의 공개 값만 사용해 release variant 테스트 APK를 빌드·설치한다. 로컬 테스트 환경과 비밀값은 변경하지 않는다. 이 APK는 개발용 서명이며 스토어 제출 빌드가 아니다.
+- 실제 환경의 웹 실행은 기본 --no-dev로 고정해 SDK 54 개발용 virtual env가 frontend/.env.local을 우선 적용하는 문제를 피한다. Android APK도 production JS를 내장해 Metro와 독립적으로 실행한다.
+- 사진 라이브러리·선택 사진의 위치 메타데이터 접근 권한을 요청한다. 사진 위치 접근은 실시간 GPS 권한과 구분한다. 사진/위치 권한 거부·제한·EXIF 누락 시 입력을 유지하고 시스템 선택기 또는 수동 기간/좌표 입력을 제공한다. 앱에 카메라·마이크 권한을 추가하지 않는다.
+- Expo ImagePicker와 MediaLibrary로 선택 사진의 EXIF/위치를 읽는다. DateTimeOriginal을 우선하고 유효한 촬영 날짜의 최소/최대를 기간으로, 표시 첫 사진의 유효 GPS를 대표 위치로 제안한다. 첫 사진에 GPS가 없으면 다음 사진으로 자동 대체하지 않는다. Android가 이미 부호를 적용한 GPS를 다시 반전하지 않는다.
+- Android 전체 사진 접근을 허용하면 Expo DocumentPicker의 `ACTION_OPEN_DOCUMENT`로 MediaStore 문서 ID를 얻고 MediaLibrary로 허용된 원본 GPS를 조회한다. 기본 Photo Picker/클라우드 URI는 asset ID가 없고 GPS를 0·빈 방향값으로 마스킹할 수 있다. 제한 접근에서는 ImagePicker를 사용하고 마스킹된 GPS는 `null`로 처리한다. 실제 0도 좌표와 구분한다. Android의 GET_CONTENT 자동 Photo Picker 전환 때문에 ImagePicker의 legacy 옵션만으로는 보장하지 않는다.
+- 원본 대신 압축본만 보존한다는 사용자 결정에 따라 새 업로드는 JPEG 보관본(긴 변 2048px·최대 5 MiB, 초기 quality 0.8)과 JPEG 썸네일(512px·512 KiB)만 저장한다. 원본 파일은 업로드하지 않는다. 압축 전에 추출한 메타데이터를 DB에 저장하고 이미지 파일에서는 EXIF를 제거한다. 원본을 서버에서 복원할 수 없음을 UI에 안내한다.
+- `original_path`, `original.jpg`, variant `original`은 기존 API 호환 이름을 유지하되 새 클라이언트에서는 압축 보관본을 의미한다. width/height/file_size_bytes는 압축된 실제 파일 기준이다. 기존 서버의 JPEG/PNG·20 MiB 제한과 기존 저장 데이터는 유지한다.
+- Android 크기 조회는 MediaStore 원본 크기를 우선 사용한다. 화면 이미지 로더가 축소된 크기를 반환할 수 있으므로 압축 결과의 실제 크기도 검사하고 긴 변 제한 초과 시 원래 선택 URI에서 다시 리사이즈한다.
+
+선택기 계약은 [Expo SDK 54 DocumentPicker의 ACTION_OPEN_DOCUMENT 구현](https://github.com/expo/expo/blob/sdk-54/packages/expo-document-picker/android/src/main/java/expo/modules/documentpicker/DocumentPickerModule.kt)을 따른다. 웹에서는 기존 ImagePicker를 사용한다.
+
 ### 홈 시·도 지도 계약
 
 웹 연결에 사용하는 `photo-url`, `cleanup-storage`, `geocode-location`은 OPTIONS preflight와 공통 CORS 응답을 제공한다. 실제 원격 Relay가 이를 대신 처리한다고 가정하지 않는다. CORS 응답과 별도로 각 함수의 사용자 JWT 또는 서버 전용 자격 검증을 유지한다.
@@ -245,7 +258,7 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 
 버킷은 최소 다음 논리 영역을 사용한다.
 
-- `travel-photos`: 원본과 썸네일
+- `travel-photos`: 압축 보관본과 썸네일. `original_path`는 기존 API 호환 이름이며 새 업로드는 선택 원본을 보존하지 않는다.
 
 권장 경로:
 
@@ -273,8 +286,8 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 4. 사진들의 촬영일 중 최소·최대 날짜를 여행 기간 초깃값으로 적용한다.
 5. 첫 번째 사진의 위치를 대표 위치 초깃값으로 적용한다.
 6. 사용자가 값을 수정하거나 지도에서 위치를 선택한다.
-7. 기간·위치를 확정한 뒤 draft 기록을 생성한다. Expo 클라이언트가 원본을 보존하고 EXIF를 제거한 압축 썸네일을 생성한다.
-8. 원본과 압축 썸네일을 Storage에 업로드하고 사진 메타데이터를 저장한다.
+7. 기간·위치를 확정한 뒤 draft 기록을 생성한다. Expo 클라이언트가 EXIF 메타데이터를 먼저 읽고 EXIF를 제거한 압축 JPEG 보관본과 썸네일을 생성한다.
+8. 압축 보관본과 썸네일만 Storage에 업로드하고 사진 메타데이터를 저장한다. original_path와 original.jpg는 호환성 이름이며 새 데이터의 원본 파일을 의미하지 않는다. width·height·file_size_bytes는 실제 압축 보관본 기준이다.
 9. 완료 RPC로 검증한 뒤 complete로 전환한다.
 
 정책:
@@ -285,7 +298,7 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 - 첫 번째 사진에 위치가 있으면 대표 위치의 기본값으로 사용한다. 다른 사진 위치는 사진별 EXIF 정보로만 보존한다.
 - MVP 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행한다.
 - Edge Function의 서버 측 압축·검증은 클라이언트 우회 방지나 고급 이미지 처리가 필요할 때만 도입한다.
-- 원본 EXIF를 별도 보존할지 여부는 개인정보 검토 후 결정하며, MVP에서는 필요한 필드만 저장한다.
+- 원본 EXIF 파일을 별도 보존하지 않고 촬영일·촬영 시각·GPS 등 필요한 필드만 소유자 전용 DB에 저장한다.
 
 ## 9. 인증·지도 연동
 

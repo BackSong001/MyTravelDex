@@ -1,7 +1,13 @@
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import {parseEnv} from 'node:util';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
+import {homedir} from 'node:os';
+
+export function expoArguments(args) {
+  if (args.includes('--native-android')) return ['run:android','--variant','release','--no-bundler',...args.filter(arg=>arg!=='--native-android')];
+  return ['start',...args,...(args.includes('--no-dev')?[]:['--no-dev'])];
+}
 
 export function publicConfiguration(source) {
   const url = new URL(source.EXPO_PUBLIC_SUPABASE_URL);
@@ -34,8 +40,9 @@ async function main() {
   }
   if (process.argv.includes('--check')) {process.exitCode = ready ? 0 : 1; return;}
   if (!ready) console.log('실제 인증·저장 설정이 미완료입니다. 원격 DB나 Provider는 자동 변경하지 않습니다.');
-  const child = spawn(process.execPath, [fileURLToPath(new URL('../frontend/node_modules/expo/bin/cli', import.meta.url)), 'start', ...process.argv.slice(2)], {
-    cwd: fileURLToPath(new URL('../frontend', import.meta.url)), env: {...process.env, ...config}, stdio: 'inherit',
+  const sdk = process.env.ANDROID_HOME ?? `${homedir()}/Android/Sdk`;
+  const child = spawn(process.execPath, [fileURLToPath(new URL('../frontend/node_modules/expo/bin/cli', import.meta.url)), ...expoArguments(process.argv.slice(2))], {
+    cwd: fileURLToPath(new URL('../frontend', import.meta.url)), env: {...process.env, ...config, ...(existsSync(sdk)?{ANDROID_HOME:sdk}:{}), EXPO_NO_DOTENV:'1'}, stdio: 'inherit',
   });
   child.on('error', () => {console.error('Expo 실행 실패. frontend에서 npm ci를 실행해 주세요.'); process.exitCode = 1;});
   child.on('exit', code => {process.exitCode = code ?? 1;});

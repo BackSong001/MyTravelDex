@@ -405,6 +405,7 @@ test('TC-TRAVEL-011: concurrent cover changes preserve exactly one cover',async(
   expect(mixed.map(r=>r.status)).toEqual([200,400]);
 });
 test('TC-TRAVEL-012: local dates and manually confirmed period are preserved',async()=>{
+  expect(readExif({GPSLatitude:-33,GPSLatitudeRef:'S',GPSLongitude:-126,GPSLongitudeRef:'W'})).toMatchObject({latitude:-33,longitude:-126});
   expect(readExif({DateTimeOriginal:'2026:01:10 00:15:00',OffsetTimeOriginal:'+09:00',GPSLatitude:33,GPSLatitudeRef:'S',GPSLongitude:126,GPSLongitudeRef:'W'})).toMatchObject({captured_date:'2026-01-10',captured_at:'2026-01-09T15:15:00.000Z',latitude:-33,longitude:-126});
   expect(readExif({DateTimeOriginal:'2026:01:10 23:55:00',OffsetTimeOriginal:'-05:00'})).toMatchObject({captured_date:'2026-01-10',captured_at:'2026-01-11T04:55:00.000Z'});
   expect(readExif({DateTimeOriginal:'2026:01:10 00:15:00'}).captured_at).toBeNull();

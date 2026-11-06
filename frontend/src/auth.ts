@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Platform} from 'react-native';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
+import Constants from 'expo-constants';
 import {api} from './runtime';
 import type {Session} from '@supabase/supabase-js';
 WebBrowser.maybeCompleteAuthSession();
@@ -15,9 +16,10 @@ export function exchangeOAuthCode(code:string){
  exchange={code,result};return result;
 }
 export async function googleLogin(){
+ if(Platform.OS!=='web'&&Constants.appOwnership==='expo')throw new Error('Google 로그인은 설치된 여행가방 Android 앱에서 실행해 주세요. Expo Go에서는 앱 복귀를 지원하지 않습니다.');
  const settings=await api.request('/auth/v1/settings');
  if(!settings.external?.google)throw new Error('Google 로그인이 설정되지 않았습니다. Supabase Google Provider와 복귀 URL 설정을 확인해 주세요.');
- const redirect=Platform.OS==='web'?`${window.location.origin}/auth/callback`:Linking.createURL('auth/callback');
+ const redirect=Platform.OS==='web'?`${window.location.origin}/auth/callback`:Linking.createURL('auth/callback',{scheme:'mytraveldex'});
  const {data,error}=await auth.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirect,skipBrowserRedirect:true}});
  if(error)throw error;if(!data.url)throw new Error('Google 로그인 주소를 받지 못했습니다.');
  if(Platform.OS==='web'){window.location.assign(data.url);return null;}

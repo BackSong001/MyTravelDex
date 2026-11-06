@@ -2,19 +2,19 @@ import React,{useEffect,useState,useRef} from 'react';
 import {View,Text,TextInput,Pressable,ScrollView,Image,StyleSheet,ActivityIndicator,Platform,Linking} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as ImagePicker from 'expo-image-picker';
-import * as Manipulator from 'expo-image-manipulator';
+import type {ImagePickerAsset} from 'expo-image-picker';
+import {photoPermission,photoMetadata,compressPhoto,pickPhotos} from '../src/photos';
 import * as Crypto from 'expo-crypto';
 import * as Location from 'expo-location';
 import {api} from '../src/runtime';
-import {suggestRecord,validateRecord,readExif} from '../src/domain';
+import {suggestRecord,validateRecord} from '../src/domain';
 import TravelMap from '../src/TravelMap';
 import ProvinceMap from '../src/ProvinceMap';
 import {googleLogin,auth} from '../src/auth';
 import {Backpack, Collection, JournalNav, Welcome, JournalTab} from '../src/Journal';
 import {colors as c} from '../src/theme';
 
-type Selected={id:string;asset:ImagePicker.ImagePickerAsset;captured_date:string|null;captured_at:string|null;latitude:number|null;longitude:number|null};
+type Selected={id:string;asset:ImagePickerAsset;captured_date:string|null;captured_at:string|null;latitude:number|null;longitude:number|null};
 export default function Home(){
  const scroll=useRef<ScrollView>(null),listRequest=useRef(0);
  const [screen,setScreen]=useState('login'),[session,setSession]=useState<any>(null),[rows,setRows]=useState<any[]>([]),[selected,setSelected]=useState<any>(null);
@@ -23,6 +23,7 @@ export default function Home(){
  const [urls,setUrls]=useState<Record<string,string>>({}),[pending,setPending]=useState<{id:string;location:string;existing:number}|null>(null),[drafts,setDrafts]=useState(false);
  const [tab,setTab]=useState<JournalTab>('home'),[covers,setCovers]=useState<Record<string,string>>({});
  const mapHome=screen==='list'&&(tab==='home'||tab==='map');
+ const [photoNotice,setPhotoNotice]=useState('');
  const [placeQuery,setPlaceQuery]=useState(''),[places,setPlaces]=useState<any[]>([]);
  useEffect(()=>{scroll.current?.scrollTo({y:0,animated:false});},[screen,tab]);
  const field=(label:string,value:string,onChange:(s:string)=>void,extra:any={})=><View style={s.field}><Text style={s.label}>{label}</Text><TextInput accessibilityLabel={label} style={s.input} value={value} onChangeText={onChange} placeholderTextColor="#74888a" {...extra}/></View>;
@@ -34,14 +35,15 @@ export default function Home(){
  async function login(){const x=await api.login(email,password);const result=await auth.auth.setSession({access_token:x.access_token,refresh_token:x.refresh_token});if(result.error)throw result.error;await AsyncStorage.setItem('mytraveldex-session',JSON.stringify(x));setSession(x);setScope('mine');setTab('home');setScreen('list');}
  async function open(record:any){const r=await api.request(`/rest/v1/travel_records?id=eq.${record.id}&select=*,locations(*)`);if(!r.length)throw new Error('기록을 찾을 수 없습니다.');const p=await api.request(`/rest/v1/${record.owner_id===session?.user?.id?'photos':'public_photos'}?travel_record_id=eq.${record.id}&order=display_order.asc`);setSelected({...r[0],photos:p});setTitle(r[0].title??'');setContent(r[0].content??'');setScreen('detail');const next:Record<string,string>={};for(const item of p)next[item.id]=await api.photoUrl(item.id);setUrls(next);}
  async function choose(){
-  const picked=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true});if(picked.canceled)return;
+  const fullAccess=await photoPermission();setPhotoNotice(fullAccess?'':'사진 접근이 제한되어 촬영일·위치가 없을 수 있습니다. 직접 입력하거나 설정에서 사진 권한을 허용해 주세요.');
+  const picked=await pickPhotos(fullAccess);if(picked.canceled)return;
   if(picked.assets.length>20)throw new Error('사진은 20장까지 선택할 수 있습니다.');
   const result:Selected[]=[];
   for(const asset of picked.assets){
    if(asset.mimeType&&!['image/jpeg','image/png'].includes(asset.mimeType))throw new Error('JPEG 또는 PNG 사진을 선택해 주세요.');
    if(!asset.width||!asset.height)throw new Error('사진을 읽을 수 없습니다. 손상되지 않은 사진을 선택해 주세요.');
    if(asset.width*asset.height>40000000||(asset.fileSize??0)>20971520)throw new Error('사진은 20 MiB·40메가픽셀 이하여야 합니다.');
-   result.push({id:Crypto.randomUUID(),asset,...readExif(asset.exif??{})});
+   result.push({id:Crypto.randomUUID(),asset,...await photoMetadata(asset)});
   }
   if(pending){const existing=await api.request(`/rest/v1/photos?travel_record_id=eq.${pending.id}`);if(existing.length+result.length>20)throw new Error('등록된 사진을 포함해 20장까지 선택할 수 있습니다.');setPending({...pending,existing:existing.length});}
   setPhotos(result);if(!pending){const suggestion=suggestRecord(result);setStart(suggestion.start_date);setEnd(suggestion.end_date);setLatitude(suggestion.latitude?.toString()??'');setLongitude(suggestion.longitude?.toString()??'');}
@@ -60,13 +62,11 @@ export default function Home(){
   if(!record){const loc=await api.request('/rest/v1/locations','POST',{owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:'manual',region_name:region||null});const id=Crypto.randomUUID();await api.request('/rest/v1/travel_records','POST',{id,owner_id:session.user.id,location_id:loc[0].id,start_date:start,end_date:end,title:title||null,content:content||null,visibility});record={id,location:loc[0].id,existing:0};setPending(record);}
   else {const loc=await api.request('/rest/v1/locations','POST',{owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:'manual',region_name:region||null});await api.update(record.id,{location_id:loc[0].id,start_date:start,end_date:end,title:title||null,content:content||null,visibility});}
   for(let index=0;index<photos.length;index++){
-   const p=photos[index];const original=await(await fetch(p.asset.uri)).blob();if(original.size>20971520)throw new Error('사진 용량은 20 MiB 이하여야 합니다.');
-   let quality=.8;let thumb:Manipulator.ImageResult;let thumbnail:Blob;
-   do{thumb=await Manipulator.manipulateAsync(p.asset.uri,Math.max(p.asset.width,p.asset.height)>512?[{resize:p.asset.width>=p.asset.height?{width:512}:{height:512}}]:[],{compress:quality,format:Manipulator.SaveFormat.JPEG});thumbnail=await(await fetch(thumb.uri)).blob();quality-=.2;}while(thumbnail.size>524288&&quality>0);
-   if(thumbnail.size>524288)throw new Error('썸네일 생성에 실패했습니다. 다른 사진을 선택해 주세요.');
-   const mime=p.asset.mimeType==='image/png'?'image/png':'image/jpeg';const root=`${session.user.id}/${record.id}/${p.id}`;const originalPath=`${root}/original.${mime==='image/png'?'png':'jpg'}`;const thumbnailPath=`${root}/thumbnail.jpg`;
-   for(const [path,blob,type] of [[originalPath,original,mime],[thumbnailPath,thumbnail,'image/jpeg']] as const){try{await api.request(`/storage/v1/object/travel-photos/${path}`,'POST',blob,type);}catch(e:any){if(e.serverCode!=='KeyAlreadyExists')throw e;}}
-   try{await api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:record.id,original_path:originalPath,thumbnail_path:thumbnailPath,display_order:record.existing+index,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude,width:p.asset.width,height:p.asset.height,mime_type:mime,file_size_bytes:original.size});}catch(e:any){if(e.serverCode!=='23505')throw e;}
+   const p=photos[index];
+   const main=await compressPhoto(p.asset,2048,5*1024*1024);const thumb=await compressPhoto(p.asset,512,512*1024);
+   const mime='image/jpeg';const root=`${session.user.id}/${record.id}/${p.id}`;const originalPath=`${root}/original.jpg`;const thumbnailPath=`${root}/thumbnail.jpg`;
+   for(const [path,bytes] of [[originalPath,main.bytes],[thumbnailPath,thumb.bytes]] as const){try{await api.request(`/storage/v1/object/travel-photos/${path}`,'POST',bytes,mime);}catch(e:any){if(e.serverCode!=='KeyAlreadyExists')throw e;}}
+   try{await api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:record.id,original_path:originalPath,thumbnail_path:thumbnailPath,display_order:record.existing+index,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude,width:main.width,height:main.height,mime_type:mime,file_size_bytes:main.bytes.byteLength});}catch(e:any){if(e.serverCode!=='23505')throw e;}
   }
   const complete=await api.rpc('finalize_travel_record',{record_id:record.id});setPending(null);setPhotos([]);setDrafts(false);await load();await open(complete);
  }
@@ -78,7 +78,7 @@ export default function Home(){
   {field('시작일 필터',start,setStart,{placeholder:'YYYY-MM-DD'})}{field('종료일 필터',end,setEnd,{placeholder:'YYYY-MM-DD'})}{field('지역 필터',region,setRegion)}{button('필터 적용',()=>perform(()=>load()),true)}
  </>}
  {screen==='login'&&<><Welcome/><Text style={s.loginNote}>나의 여행을 계속 담아볼까요?</Text>{button('Google 로그인',()=>perform(async()=>{const result=await googleLogin();if(result){setSession(result);setScope('mine');setTab('home');setScreen('list');}} ))}{process.env.EXPO_PUBLIC_APP_ENV==='local'&&<><Text style={s.description}>로컬 테스트 계정으로 로그인</Text>{field('이메일',email,setEmail,{autoCapitalize:'none',keyboardType:'email-address'})}{field('비밀번호',password,setPassword,{secureTextEntry:true})}{button('테스트 계정 로그인',()=>perform(login))}</>}{button('공개 여행 둘러보기',()=>{setScope('public');setTab('home');setScreen('list');},true)}</>}
- {screen==='create'&&<><Text style={s.heading}>새로운 여행</Text>{button('사진 선택',()=>perform(choose))}<Text style={s.description}>{photos.length} / 20장 선택</Text><ScrollView horizontal>{photos.map(p=><Image key={p.id} source={{uri:p.asset.uri}} style={s.preview}/>)}</ScrollView>{field('여행 제목',title,setTitle,{maxLength:100})}{field('여행 내용',content,setContent,{multiline:true,maxLength:5000})}{field('여행 시작일',start,setStart,{placeholder:'YYYY-MM-DD'})}{field('여행 종료일',end,setEnd,{placeholder:'YYYY-MM-DD'})}{field('위도',latitude,setLatitude,{keyboardType:'numbers-and-punctuation'})}{field('경도',longitude,setLongitude,{keyboardType:'numbers-and-punctuation'})}<Text style={s.description}>사진 위치가 없으면 좌표를 입력해 주세요. 첫 사진의 위치가 대표 위치로 제안됩니다.</Text>{button(visibility==='private'?'나만 보기':'공개',()=>setVisibility(visibility==='private'?'public':'private'),true)}{visibility==='public'&&<Text style={s.description}>대표 위치와 썸네일이 공개됩니다. 이미 받은 파일은 회수할 수 없습니다.</Text>}{button('여행 저장',()=>perform(save))}{button('목록으로',()=>{setTab('album');setScreen('list');},true)}</>}
+ {screen==='create'&&<><Text style={s.heading}>새로운 여행</Text><Text style={s.description}>선택한 사진의 촬영일·위치를 여행 기간과 대표 위치에 적용합니다. 원본 대신 압축 사진과 썸네일만 저장합니다.</Text>{button('사진 선택',()=>perform(choose))}{!!photoNotice&&<><Text accessibilityRole="alert" style={s.description}>{photoNotice}</Text>{Platform.OS!=='web'&&button('사진 권한 설정',()=>{void Linking.openSettings();},true)}</>}<Text style={s.description}>{photos.length} / 20장 선택</Text><ScrollView horizontal>{photos.map(p=><Image key={p.id} source={{uri:p.asset.uri}} style={s.preview}/>)}</ScrollView>{field('여행 제목',title,setTitle,{maxLength:100})}{field('여행 내용',content,setContent,{multiline:true,maxLength:5000})}{field('여행 시작일',start,setStart,{placeholder:'YYYY-MM-DD'})}{field('여행 종료일',end,setEnd,{placeholder:'YYYY-MM-DD'})}{field('위도',latitude,setLatitude,{keyboardType:'numbers-and-punctuation'})}{field('경도',longitude,setLongitude,{keyboardType:'numbers-and-punctuation'})}<Text style={s.description}>사진 위치가 없으면 좌표를 입력해 주세요. 첫 사진의 위치가 대표 위치로 제안됩니다.</Text>{button(visibility==='private'?'나만 보기':'공개',()=>setVisibility(visibility==='private'?'public':'private'),true)}{visibility==='public'&&<Text style={s.description}>대표 위치와 썸네일이 공개됩니다. 이미 받은 파일은 회수할 수 없습니다.</Text>}{button('여행 저장',()=>perform(save))}{button('목록으로',()=>{setTab('album');setScreen('list');},true)}</>}
  {screen==='detail'&&selected&&<><Text style={s.kicker}>{selected.start_date} — {selected.end_date}</Text><Text style={s.heading}>{selected.title||'제목 없는 여행'}</Text><TravelMap records={[selected]}/>{selected.photos.map((p:any)=><View key={p.id}>{urls[p.id]&&<Image accessibilityLabel="여행 사진" source={{uri:urls[p.id]}} style={s.detailPhoto}/>}<Text style={s.place}>{p.is_cover?'대표사진':''}</Text>{selected.owner_id===session?.user?.id&&<View style={s.actions}>{button('대표사진 지정',()=>perform(async()=>{await api.rpc('set_cover_photo',{record_id:selected.id,photo_id:p.id});await open(selected);}),true)}{button('사진 삭제',()=>perform(async()=>{await api.rpc('delete_photo',{record_id:selected.id,photo_id:p.id});await open(selected);}),true)}</View>}</View>)}<Text style={s.description}>{selected.content}</Text>{selected.owner_id===session?.user?.id&&<>{field('제목 수정',title,setTitle,{maxLength:100})}{field('내용 수정',content,setContent,{multiline:true,maxLength:5000})}{button('수정 저장',()=>perform(async()=>{await api.update(selected.id,{title,content});await open(selected);}))}{button(selected.visibility==='private'?'공개로 변경':'비공개로 변경',()=>perform(async()=>{const r=await api.update(selected.id,{visibility:selected.visibility==='private'?'public':'private'});await open(r);}),true)}{button('기록 삭제',()=>setScreen('confirm'),true)}</>}{button('목록으로',()=>perform(async()=>{setTab('album');setScreen('list');await load();}),true)}</>}
  {screen==='confirm'&&<><Text style={s.heading}>기록을 삭제할까요?</Text><Text style={s.description}>사진과 여행 기록을 삭제합니다. 이 작업은 되돌릴 수 없습니다.</Text>{button('삭제 확인',()=>perform(async()=>{await api.rpc('delete_travel_record',{record_id:selected.id});setTab('album');setScreen('list');setSelected(null);await load();}))}{button('취소',()=>setScreen('detail'),true)}</>}
  {screen==='create'&&<><Text style={s.sectionTitle}>위치 보정</Text><Text style={s.description}>지도를 눌러 대표 위치를 선택하거나 현재 위치를 가져오세요.</Text><TravelMap records={latitude&&longitude?[{id:'selection',locations:{latitude,longitude}}]:[]} onCoordinate={(lat,lng)=>{setLatitude(String(lat));setLongitude(String(lng));}}/>{button('현재 위치 사용',()=>perform(currentPosition),true)}{field('장소 검색',placeQuery,setPlaceQuery)}{button('장소 찾기',()=>perform(async()=>{setPlaces(await api.request('/functions/v1/geocode-location','POST',{query:placeQuery}));}),true)}{places.map(place=>button(place.displayName?.text||place.id,()=>{setLatitude(String(place.location.latitude));setLongitude(String(place.location.longitude));setPlaces([]);},true))}</>}

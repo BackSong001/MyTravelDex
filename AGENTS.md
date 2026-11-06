@@ -18,7 +18,7 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 - `profiles`는 Supabase Auth 사용자와 1:1로 연결한다.
 - `travel_records`는 `owner_id`, 필수 `start_date`·`end_date`, 필수 `location_id`, 선택 `title`과 `content`, `private`·`public` 공개 상태, `draft`·`complete` 생성 상태를 가진다.
 - `locations`는 위도·경도와 장소명, Google 장소 ID, 국가·지역·도시 필드를 저장해 지도 표시와 지역 필터를 지원한다.
-- `photos`는 여행 기록에 여러 장 연결하고 원본·썸네일 경로, EXIF 메타데이터, `is_cover`, `display_order`를 저장한다.
+- `photos`는 여행 기록에 여러 장 연결하고 압축 보관본·썸네일 경로(기존 original_path/thumbnail_path), EXIF 메타데이터, `is_cover`, `display_order`를 저장한다.
 - MVP 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행하고, 서버 측 이미지 처리는 필요한 경우에만 Edge Function으로 추가한다.
 - 여행 기록은 사진을 하나 이상 가져야 하며, 대표사진은 기록별 최대 하나만 허용한다.
 - 사진 업로드 중인 `draft`는 소유자에게만 보이고, 사진·기간·대표 위치·대표사진 검증 후 `complete`로 전환한다.
@@ -446,6 +446,9 @@ supabase db push
 - [Oracle Cloud Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/Concepts/computeoverview.htm)
 
 ## 현재 저장소 실행 경로
+
+- 실제 `.env` 프로젝트를 사용하는 Android 자체 테스트 APK는 `npm --prefix frontend run android:configured`로 빌드·설치한다. SDK는 `ANDROID_HOME` 또는 `~/Android/Sdk`를 사용한다. production JS를 내장하고 기본 개발 서명을 쓰므로 Play Store 배포 검증과 구분한다. Expo Go는 실제 Google OAuth 앱 복귀 검증 대상으로 사용하지 않는다.
+- 실제 프로젝트 웹 실행은 `npm --prefix frontend run configured -- --web --localhost --port 8083`을 사용한다. SDK 54 개발 virtual env의 `.env.local` 우선 적용을 피하도록 기본 `--no-dev`와 `EXPO_NO_DOTENV=1`을 사용한다. 로컬 테스트 `.env.local`은 보존한다.
 
 - 실제 `.env` 프로젝트는 `node scripts/configured.mjs --check`로 진단하고 `npm --prefix frontend run configured -- --web --port 8083`으로 별도 실행한다. Google Provider 비활성·테이블 404·관리 권한 부재를 로컬 테스트 성공과 구분한다. 다른 프로젝트로 자동 전환하지 않는다.
 

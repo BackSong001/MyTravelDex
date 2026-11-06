@@ -37,7 +37,7 @@ Android를 우선 개발하면서 추후 iOS와 웹 테스트까지 하나의 �
 - Supabase Auth: 사용자 인증과 세션
 - PostgREST: PostgreSQL 테이블 기반 CRUD API
 - PostgreSQL RLS: 사용자별 데이터 권한
-- Supabase Storage: 사진 원본과 썸네일
+- Supabase Storage: 압축 사진과 썸네일
 - Edge Functions: 서버 비밀키나 외부 API 보호가 필요한 작업, MVP 사진 압축에는 필수 아님
 
 일반 CRUD는 PostgREST와 RLS로 처리하고, 별도 서버 코드는 필요한 경우에만 Edge Functions로 추가한다.
@@ -48,7 +48,7 @@ Android를 우선 개발하면서 추후 iOS와 웹 테스트까지 하나의 �
 
 사진 파일 자체는 PostgreSQL에 저장하지 않는다. 사진은 Storage에 저장하고 PostgreSQL에는 파일 경로와 검색·표시에 필요한 메타데이터만 저장한다.
 
-MVP에서는 Expo 앱이 업로드 전에 원본을 보존하면서 압축 썸네일을 생성한다. Edge Function에서 서버 압축을 수행하는 방식은 클라이언트 결과 검증이나 고급 이미지 처리가 필요할 때만 도입한다.
+MVP에서는 Expo 앱이 업로드 전에 선택 사진의 EXIF를 먼저 읽고 압축 JPEG(긴 변 2048px·5MiB 이하)와 썸네일(512px·512KiB 이하)만 저장한다. 원본 파일은 업로드하지 않는다. Edge Function에서 서버 압축을 수행하는 방식은 클라이언트 결과 검증이나 고급 이미지 처리가 필요할 때만 도입한다.
 
 ### Google OAuth
 
@@ -130,7 +130,7 @@ profiles
 | `id` | 사진 ID |
 | `travel_record_id` | 연결된 여행 기록 ID |
 | `owner_id` | 사진 소유자 ID |
-| `original_path` | Storage 원본 경로 |
+| `original_path` | Storage 압축 본문 경로(기존 API 이름 유지) |
 | `thumbnail_path` | Storage 썸네일 경로 |
 | `is_cover` | 대표사진 여부, 기본 `false` |
 | `display_order` | 사진 표시 순서 |
@@ -158,7 +158,7 @@ profiles
 6. 촬영일이 없거나 첫 사진 위치가 없으면 사용자가 직접 입력한다.
 7. 제목과 여행 후기는 선택적으로 작성한다.
 8. 대표사진을 선택하거나 첫 사진을 대표사진으로 사용한다.
-9. 원본·썸네일과 사진 메타데이터를 저장한다.
+9. 압축 사진·썸네일과 사진 메타데이터를 저장한다.
 10. 여행 기록을 지도와 여행도감에 표시한다.
 
 ### 여행 기록 탐색
@@ -190,7 +190,7 @@ profiles
 - 인증 없는 요청 차단
 - 소유자 CRUD와 타인 변경 차단
 - 비공개·공개 기록의 RLS 분리
-- 사진 원본·썸네일과 DB 메타데이터 연결
+- 압축 사진·썸네일과 DB 메타데이터 연결
 - EXIF 촬영일·위치 저장 및 누락 시 수동 입력
 - 사진 날짜를 이용한 `start_date`·`end_date` 계산
 - 첫 번째 사진 위치를 대표 위치로 적용
@@ -230,6 +230,19 @@ MCP 연결 설정은 프로젝트 코드가 아니라 개발자별 Codex 환경�
 Production 배포 전에는 RLS, Storage 접근권한, OAuth, Google Maps key 제한, 비용·사용량을 다시 검증한다.
 
 ## 관련 명세서
+
+실제 프로젝트에 연결한 Android Emulator 테스트:
+
+```bash
+npm --prefix frontend ci
+npm --prefix frontend run android:configured
+```
+
+Android Studio에서 Emulator를 먼저 실행한다. 위 명령은 루트 `.env`의 공개 클라이언트 값만 사용해 자체 테스트 APK를 빌드·설치한다. Expo Go나 Metro 없이 실행되며 `frontend/.env.local`의 로컬 Supabase 설정은 덮어쓰지 않는다. 첫 실행에서 Google 로그인 후 하단 `+` → 사진 선택 → 사진 권한 동의 → 자동 제안된 기간·위치 확인 → 저장 순서로 테스트한다. 사진의 EXIF가 없거나 권한이 제한되면 날짜·좌표를 직접 입력한다. 앱 변경 후에는 같은 명령으로 다시 빌드한다.
+
+APK는 `frontend/android/app/build/outputs/apk/release/app-release.apk`에 생성된다. `release` variant에 JS를 포함하지만 기본 개발 서명으로 만드는 테스트 앱이며 Play Store 배포용 서명·검증과 구분한다. 네이티브 생성 폴더는 Git에서 제외한다. 실제 Google 계정의 동의·복귀와 실기기 EXIF 검증은 별도 수용 항목이다.
+
+Android에서 전체 사진 접근을 허용하면 시스템 문서 선택기가 열린다. `Recent`/`Images`의 사진을 여러 장 고르고 `Select`로 적용한다. 기본 Photo Picker가 GPS를 가리는 문제를 피하기 위해서다. 원본 MediaStore ID가 없는 클라우드/외부 파일은 촬영 정보가 없을 수 있으며 직접 입력할 수 있다. 현재 에뮬레이터에는 `MyTravelDex-1.jpg`, `MyTravelDex-3.jpg` 합성 사진이 있고 기간 2026-11-01~03·제주 좌표 자동 입력을 재현할 수 있다. 최신 실행 결과는 TEST_CASE.md를 따른다.
 
 - [REQUIREMENT.md](docs/REQUIREMENT.md): 기능·비기능 요구사항
 - [PRD.md](docs/PRD.md): 제품 정책과 사용자 흐름
