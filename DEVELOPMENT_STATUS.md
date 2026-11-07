@@ -67,3 +67,9 @@
 - 최신 AAB도 QA fixture 공개 설정/외부 임시 키로 생성·strict JAR/인증서 일치 통과(t3b, 31초). 키는 폐기했고 산출물은 `/tmp/mytraveldex-design-qa-20261107.aab`로 분리한다. 실제 production 제출용이 아니다. 이전 시험용 APK는 보관/복원했다.
 - 정리: 네이티브 검증 사용자·기록·사진·위치·Storage 파일을 정리하고 임시 기기의 글꼴/모션 값을 복원한 뒤 Appium 세션과 read-only 에뮬레이터를 종료했다. 원격 DB/Secret·기존 사용자 기록·원본 자산은 변경하지 않았다.
 - 화면 증거: `docs/design/verification/interactive-*20261107.png`. 사진은 Mobius6, CC BY-SA 4.0, fixture README 출처를 유지한다. 계정 삭제 정책·실제 배포/운영 수용 보류 항목은 그대로다.
+
+## 작업 5 — Android Studio AVD 사진 CRUD 수용 검증
+
+- 2026-11-08: 제품 `62ce084`와 동일한 Local 자체 APK를 별도 API37/read-only5556에서 Appium으로 조작했다. 필터 입력/갤러리, 대표 변경·제목 저장·사진 삭제·마지막 사진 보호·기록 삭제, 시스템 Photo Picker→입력 유지→수동 핀→실제 사진 업로드→앱 종료/재조회가 통과했다. 보관본1280×853/썸네일512×341 JPEG·EXIF0을 실제 Storage에서 확인했다.
+- 가로 화면에서는 상단 고정 영역으로 사진 목록이 약35px 높이만 보여 배치 개선을 남겼다. 역주소 조회 실패의 수동 핀 fallback으로 저장했으며 Geoapify 실검색 성공으로 계산하지 않는다. 실제 Google·권한 거부·클라우드 전용 사진·실기기/TalkBack/Play는 미검증이다. 제품 코드 변경/새 빌드 없이 기존 APK의 네이티브 행동을 확인한 작업이다.
+- fixture Auth/DB/Storage/삭제 큐 잔여0과 임시 자격정보·세션·기기 종료 확인. 기존5554/원격/사용자 데이터 보존. 상세 및 화면 증거는 `docs/TEST_CASE.md`의 2026-11-08 절. t14 읽기전용 기록 리뷰 승인: 화면/문서 범위 일관성과 개인정보 비노출 확인. Storage/로그/정리 결과는 t12 수행기록이며 t14 독립 재실행으로 합산하지 않는다.

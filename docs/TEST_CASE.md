@@ -1,5 +1,20 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## Android Studio AVD 네이티브 검증 — 2026-11-08 00:16 KST
+
+제품 기준 `62ce084`. Android Studio `Medium_Phone` API 37의 별도 read-only `emulator-5556`에 Local 전용 자체 APK를 설치하고 Appium/UiAutomator2로 실제 화면을 조작했다. Expo Go/웹 대역/IDE 단위 테스트가 아니다. APK SHA256: `bf56c8ae8cae87298b0dd4d822462dfd088396caacc688682936748db98c1284` (`/tmp/mytraveldex-design-local-qa.apk`, 개발 서명). 이번 요청은 검증·기록만 수행했으며 제품 코드는 변경하지 않았다.
+
+- Local 비밀번호 로그인, Native 지도 표시·도감 탐색, 지역 필터 `전주` 닫기/재열기 입력 보존, 사진 갤러리 `1 / 2`→`2 / 2`를 확인했다.
+- 실제 Local DB로 두 번째 사진 대표 지정·제목 수정 저장·다른 사진 삭제(2→1)를 확인했다. 마지막 사진 삭제는 `Cannot delete last photo`를 표시하고 complete 기록/대표사진 1장을 보존했다. 이후 명시적 기록 삭제는 DB 목록 `[]`로 확인했다.
+- Android 시스템 Photo Picker에서 저장소 fixture `jeonju.jpg` 한 장을 선택했다. 제목/사진 입력은 My→+ 이동 후에도 유지됐다. 날짜와 수동 지도 핀을 확정하고 저장해 실제 Local DB `complete/private`, 사진 1장을 확인했다. 주소 역조회는 실패했으며 좌표 보존 안내 후 수동 확정으로 진행했다. Geoapify 실검색 성공 증거는 아니다.
+- 소유자 서명 URL로 실제 업로드 파일을 다운로드/디코딩했다. JPEG 보관본 **1280×853, 469262 bytes**, 썸네일 **512×341, 79048 bytes**, 두 파일 EXIF **0**. 앱 종료→재실행 후 로그인 및 저장된 기록 조회를 확인했다. 격리 기기 AndroidRuntime 로그에서 앱의 fatal 항목은 발견하지 못했다.
+- 추가 관찰: 글꼴1.0 가로 화면에서 상단 헤더/필터와 하단 탐색 사이 사진 목록 가시 높이가 약35px로 좁아졌다(XML/스크린샷). 가로 화면 전체 수용은 보류하며 작은 높이의 헤더/목록 배치 개선 대상으로 남긴다. 데이터 손실/크래시로 판정하지 않는다.
+- 정리: 이번 fixture Auth·기록·사진·위치·Storage·삭제 큐 잔여 0을 실제 요청으로 확인했다. 임시 로그인 파일 삭제, Appium 세션/read-only 기기 종료. 기존5554·사용자 기록·원격 프로젝트·실제 환경 파일은 변경하지 않았다. 자동 테스트 통과 수에 합산하지 않는다.
+
+증거: [업로드 후 상세](design/verification/android-studio-upload-20261108.png), [재시작 후 도감](design/verification/android-studio-restart-20261108.png), [마지막 사진 보호](design/verification/android-studio-last-photo-guard-20261108.png), [가로 화면 관찰](design/verification/android-studio-landscape-20261108.png). 사진: Mobius6, CC BY-SA 4.0, [fixture 출처](../frontend/e2e/fixtures/README.md).
+
+미검증: 실제 Google 동의/취소/만료/복귀, 클라우드 전용 사진·권한 거부·촬영 EXIF/GPS·TalkBack·실기기·Play 서명 및 production 연결. 기존 실시간 글꼴 변경 잘림은 이번에 재검증하지 않았다. 전체 Android/배포 수용 완료로 표시하지 않는다.
+
 ## 사진첩·반응 효과 수용 계획 (2026-11-07)
 
 TC-DESIGN-006 / FR-UI-012: 실제 버튼의 포인터 누름/호버·포커스, 동작 줄이기 시 transform 생략, 비활성 차단과 기존 작성/탭 동작 보존을 검증한다. TC-DESIGN-007: 접힌 필터 진입/펼침 상태·입력 보존·적용/해제, 320/390/768/1280·가로·큰 글꼴/안전 영역의 도감·패널과 사진 갤러리를 검증한다. 실제 사진 fixture를 Local Storage에 저장한 화면의 스크린샷을 남기며 검증 기록만 정리한다. DB/HTTP 계약은 변경하지 않으며 백엔드/Local HTTP 회귀를 통과한 후 UI를 검증한다. Android 빌드와 실제 조작 증거는 웹 검사와 별도로 기록한다.
