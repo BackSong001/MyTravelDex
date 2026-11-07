@@ -1,5 +1,13 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 사진첩 UI·공통 반응 표면 (2026-11-07)
+
+FR-UI-012는 기존 React Native Animated/Pressable과 시스템 글꼴을 사용하며 새 의존성을 추가하지 않는다. 루트에서 reduceMotion 상태를 한 번 구독하고 기본/오류 시 감소 상태를 적용한다. 공통 Pressable은 ref·이벤트·disabled·접근성·style 콜백을 보존하며 눌림/호버 크기 효과와 키보드 포커스를 제공한다. 설정 변경/언마운트 시 움직임을 중지하고 비활성은 scale=1이다. API 요청을 애니메이션 종료에 연결하지 않는다.
+
+도감의 필터 펼침은 로컬 UI 상태로 입력/적용 조건을 지우지 않는다. Collection의 제목 뒤에 기존 범위/필터 UI를 배치하며 320~1280 폭·fontScale 1/1.5/2에서 카드 열 수를 조절한다. 작성·미리보기는 모션 설정 조회 실패에도 즉시 내용을 보여준다. 기존 Storage/서명 URL·초안/UUID·서버/HTTP·OAuth·친구 요청·지도 카메라/좌표 계약은 변경하지 않는다. API_SPEC/환경변수/DB 검토 결과 변경은 없으며 Local HTTP 회귀 후 UI를 검증한다. TC-DESIGN-006~007과 기존 디자인/작성/친구/지도 검사를 연결한다.
+
+최소 터치는 caller style 이후의 50dp 하한과 눌림 0.975배로 보장한다. MapAttribution의 onLayout 높이를 native/web TravelMap→Home→RecordPreview로 전달해 bottom=max(48,height+14)를 적용하고 남은 패널 높이를 계산한다. 미리보기와 출처가 겹치지 않으며 줄바꿈으로 출처 높이가 달라져도 다시 계산한다. 지도 전체 스타일·카메라를 재생성하지 않는다.
+
 ## 친구 요청·초대 계약 (2026-11-07)
 
 `friend_requests(requester_id uuid, recipient_id uuid, status pending|accepted default pending, created_at timestamptz)`를 additive migration으로 추가한다. 양 ID는 profiles FK/on delete cascade, 자기 요청 금지, 순서 없는 두 ID 조합은 unique다. authenticated는 당사자 행만 SELECT/DELETE, 본인이 requester인 pending 요청의 두 ID 열만 INSERT하며 대상 public_profiles 존재를 검사한다. status 열만 UPDATE할 수 있고 수신자의 pending→accepted만 RLS로 허용한다. 직접 상태/소유권 위조·제삼자·anon은 거부한다. 거절/취소/친구 삭제는 해당 관계 행 DELETE다. 원래 profiles 본인 RLS와 public_profiles 세 필드는 변경하지 않는다.

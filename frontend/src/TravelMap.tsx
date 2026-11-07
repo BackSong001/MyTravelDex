@@ -9,7 +9,7 @@ import {colors as c} from './theme';
 import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
 import {KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS, BASE_MAP_STYLE} from './mapStyle';
 
-export default function TravelMap({records,covers={},authors={},ownRecords=[],landmarks=[],focus,onSelect,onRegion,onCoordinate,expanded=false,fullScreen=false}:TravelMapProps){
+export default function TravelMap({records,covers={},authors={},ownRecords=[],landmarks=[],focus,onSelect,onRegion,onCoordinate,expanded=false,fullScreen=false,onAttributionLayout}:TravelMapProps){
  const {fontScale}=useWindowDimensions();
  const camera=useRef<CameraRef>(null);
  const [failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0),[zoom,setZoom]=useState(6),[selected,setSelected]=useState<string|null>(null),[clusterIds,setCluster]=useState<string[]>([]);
@@ -47,6 +47,6 @@ export default function TravelMap({records,covers={},authors={},ownRecords=[],la
  </>}
  {!failed&&<View style={{position:'absolute',right:12,bottom:32,gap:6}}>{control('지도 확대','+',()=>camera.current?.zoomTo(Math.min(18,zoom+1),{duration:0}))}{control('지도 축소','−',()=>camera.current?.zoomTo(Math.max(3,zoom-1),{duration:0}))}{control('대한민국 전체 보기','⌂',overview)}</View>}
  {!failed&&(selected||cluster.length>0)&&<View style={{position:'absolute',bottom:32,left:12,right:74,backgroundColor:c.sheet,borderRadius:16,padding:12}}><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text style={{color:c.ink,fontWeight:'700'}}>{selected?`${provinceLabels[selected].name} 여행 · ${trips.length}개`:`${onCoordinate?'장소':'여행'} ${cluster.length}${onCoordinate?'곳':'개'}`}</Text>{control('지도 선택 닫기','×',()=>{setSelected(null);setCluster([]);})}</View>{cluster.length>0?<ScrollView style={{maxHeight:180}}>{cluster.map(record=><Pressable key={record.id} accessibilityRole="button" accessibilityLabel={markerDescription(record,authors,!!onCoordinate)} onPress={()=>{setCluster([]);onSelect?.(record);}} style={{padding:12}}><Text>{markerDescription(record,authors,!!onCoordinate)}</Text></Pressable>)}</ScrollView>:<>{!trips.length&&<Text>이 지역의 기록이 아직 없어요.</Text>}{onRegion&&<Pressable accessibilityRole="button" onPress={()=>onRegion(selected!,provinceLabels[selected!].name)} style={{padding:12}}><Text>도감에서 보기</Text></Pressable>}</>}</View>}
- <MapAttribution records={records} landmarks={landmarks}/>
+ <MapAttribution records={records} landmarks={landmarks} onHeight={onAttributionLayout}/>
  </View>;
 }

@@ -1,6 +1,7 @@
+import Pressable from './Feedback';
 import TravelerAvatar from './Avatar';
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Image, Pressable, Share, StyleSheet, Switch, Text, TextInput, View} from 'react-native';
+import {ActivityIndicator, Image,  Share, StyleSheet, Switch, Text, TextInput, View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {ApiError} from './api';
 import {api} from './runtime';

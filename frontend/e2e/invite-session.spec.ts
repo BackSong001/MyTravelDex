@@ -8,10 +8,11 @@ test.beforeAll(async()=>{
  const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};
  // 실제 Home 상태를 실행하고 네이티브 UI·라우터·외부 로그인 경계만 대체한다.
  const stubs:Record<string,string>={
+  '../src/Feedback':`export {Pressable as default} from 'react-native';`,
   'react-native':`import React from '${react}';
    const container=tag=>React.forwardRef(({children,onPress,accessibilityLabel},ref)=>React.createElement(tag,{ref,onClick:onPress,'aria-label':accessibilityLabel},children));
    export const View=container('div'),Text=container('span'),TextInput=container('input'),Pressable=container('button'),ScrollView=container('div'),Image=container('img'),ActivityIndicator=container('span');
-   export const Platform={OS:'android'},Linking={},AppState={addEventListener:()=>({remove(){}})},AccessibilityInfo={},findNodeHandle=()=>null,StyleSheet={create:x=>x};`,
+   export const useWindowDimensions=()=>({width:390,height:844,fontScale:1});export const Platform={OS:'android'},Linking={},AppState={addEventListener:()=>({remove(){}})},AccessibilityInfo={},findNodeHandle=()=>null,StyleSheet={create:x=>x};`,
   'react-native-safe-area-context':`export {View as SafeAreaView} from 'react-native';`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({friend:'22222222-2222-4222-8222-222222222222'});`,
   '@react-native-async-storage/async-storage':`export default {getItem:async()=>null,setItem:async()=>{},removeItem:async()=>{}};`,

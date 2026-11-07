@@ -100,6 +100,7 @@ export type TravelMapProps = {
   onCoordinate?: (latitude: number, longitude: number) => void;
   expanded?: boolean;
   fullScreen?: boolean;
+  onAttributionLayout?: (height: number) => void;
 };
 export function mapRecords(records: any[], correction = false) {
   return records.filter(record => record.locations?.source !== 'google' && (record.status === 'complete' || (correction && record.status == null)) &&

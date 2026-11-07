@@ -9,7 +9,7 @@ test.afterEach(async()=>{await cleanRecords(userId);});
 test.afterAll(async()=>{if(userId){await admin(`/rest/v1/profiles?id=eq.${userId}`,'DELETE');await admin(`/auth/v1/admin/users/${userId}`,'DELETE');}});
 test('TC-UI-001 로그인과 로그아웃',async({page})=>{await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();});
 test('TC-UI-002 사진과 수동 위치로 여행 저장',async({page})=>{await draft(page);await save(page);await expect(page.getByRole('img',{name:'여행 사진'})).toBeVisible();});
-test('TC-UI-003 목록과 날짜 지역 필터',async({page})=>{await draft(page);await save(page);await page.getByRole('button',{name:'목록으로',exact:true}).click();await expect(page.getByRole('button',{name:/^제주 여행(?:,|$)/})).toBeVisible();await page.getByLabel('지역 필터',{exact:true}).fill('존재하지않는지역');await page.getByRole('button',{name:'필터 적용'}).click();await expect(page.getByText('첫 번째 여행을 펼쳐보세요')).toBeVisible();});
+test('TC-UI-003 목록과 날짜 지역 필터',async({page})=>{await draft(page);await save(page);await page.getByRole('button',{name:'목록으로',exact:true}).click();await expect(page.getByRole('button',{name:/^제주 여행(?:,|$)/})).toBeVisible();await page.getByRole('button',{name:'필터',exact:true}).click();await page.getByLabel('지역 필터',{exact:true}).fill('존재하지않는지역');await page.getByRole('button',{name:'필터 적용'}).click();await expect(page.getByText('첫 번째 여행을 펼쳐보세요')).toBeVisible();});
 test('TC-UI-004 마지막 사진 삭제 거부와 기록 삭제',async({page})=>{await draft(page);await save(page);await page.getByRole('button',{name:'사진 삭제',exact:true}).click();await expect(page.getByRole('alert').filter({hasText:'Cannot delete last photo'})).toContainText('Cannot delete last photo');await page.getByRole('button',{name:'기록 삭제',exact:true}).click();await page.getByRole('button',{name:'삭제 확인',exact:true}).click();await expect(page.getByText('첫 번째 여행을 펼쳐보세요')).toBeVisible();});
 test('TC-UI-005 공개 및 비공개 전환',async({page})=>{await draft(page);await save(page);await page.getByRole('button',{name:'공개로 변경',exact:true}).click();await expect(page.getByRole('button',{name:'비공개로 변경'})).toBeVisible();await page.getByRole('button',{name:'비공개로 변경'}).click();await expect(page.getByRole('button',{name:'공개로 변경'})).toBeVisible();});
 test('TC-UI-006 네트워크 실패 시 입력 유지',async({page})=>{await draft(page);await page.route('**/rest/v1/locations',r=>r.abort());await page.getByRole('button',{name:'여행 저장'}).click();await expect(page.getByRole('alert')).toContainText('연결');await expect(page.getByLabel('여행 제목',{exact:true})).toHaveValue('제주 여행');});
@@ -59,7 +59,7 @@ test('TC-UI-008 손상된 이미지와 지원하지 않는 형식 거부',async(
 });
 test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
  await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await page.getByRole('tab',{name:'My',exact:true}).click();
- await expect(page.getByText('여행의 순간을 가방에 담아',{exact:false})).toBeVisible();
+ await expect(page.getByText('발길이 닿은 곳,',{exact:false})).toBeVisible();
  await page.screenshot({path:'test-results/journal-login.png',fullPage:true});
  await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();
  await expect(page.getByRole('tab',{name:'홈',exact:true})).toBeVisible();
@@ -67,7 +67,7 @@ test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
 });
 test('UI-JOURNAL-002 하단 도감과 지도 및 MY 탐색',async({page})=>{
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();await expect(page.getByRole('tab',{name:'여행도감',exact:true})).toHaveAttribute('aria-selected','true');
- await expect(page.getByText('사진으로 펼쳐보는 나의 여행 이야기',{exact:true})).toBeVisible();
+ await expect(page.getByText('총 0개의 여행 기록',{exact:true})).toBeVisible();
  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByTestId('travel-map')).toBeVisible();
  await page.getByRole('button',{name:'서울 지역 선택',exact:true}).click();await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
  await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();

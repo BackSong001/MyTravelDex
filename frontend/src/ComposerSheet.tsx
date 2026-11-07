@@ -1,17 +1,13 @@
-import React,{useEffect,useRef,useState} from 'react';
-import {AccessibilityInfo,Animated,KeyboardAvoidingView,Platform,StyleSheet,Text,View} from 'react-native';
+import React,{useEffect,useRef} from 'react';
+import {Animated,KeyboardAvoidingView,Platform,StyleSheet,Text,View} from 'react-native';
+import {useReducedMotion} from './Feedback';
 import {colors as c} from './theme';
 
 export default function ComposerSheet({children}:{children:React.ReactNode}) {
- const offset=useRef(new Animated.Value(40)).current;
- const [ready,setReady]=useState(false);
- useEffect(()=>{let alive=true;AccessibilityInfo.isReduceMotionEnabled().then(reduced=>{
-  if(!alive)return;
-  if(reduced)offset.setValue(0);else Animated.timing(offset,{toValue:0,duration:220,useNativeDriver:true}).start();
-  setReady(true);
- });return()=>{alive=false;};},[offset]);
+ const offset=useRef(new Animated.Value(0)).current,reduced=useReducedMotion();
+ useEffect(()=>{offset.stopAnimation();if(reduced)offset.setValue(0);else{offset.setValue(24);Animated.timing(offset,{toValue:0,duration:220,useNativeDriver:true}).start();}return()=>offset.stopAnimation();},[offset,reduced]);
  return <KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':'height'} style={s.host} pointerEvents="box-none">
-  <Animated.View accessibilityLabel="여행 작성 패널" style={[s.sheet,{maxHeight:'92%',transform:[{translateY:offset}],opacity:ready?1:0}]}>
+  <Animated.View accessibilityLabel="여행 작성 패널" style={[s.sheet,{maxHeight:'92%',transform:[{translateY:offset}]}]}>
    <View style={s.handle}/><Text style={s.title}>여행 한 장 담기</Text>{children}
   </Animated.View>
  </KeyboardAvoidingView>;

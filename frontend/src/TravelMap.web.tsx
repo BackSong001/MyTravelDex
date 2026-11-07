@@ -15,7 +15,7 @@ setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');
 const EMPTY_COVERS: NonNullable<TravelMapProps['covers']> = {};
 const EMPTY_AUTHORS: NonNullable<TravelMapProps['authors']> = {};
 
-export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMPTY_AUTHORS, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate, expanded = false, fullScreen = false}: TravelMapProps) {
+export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMPTY_AUTHORS, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate, expanded = false, fullScreen = false, onAttributionLayout}: TravelMapProps) {
   const host = useRef<HTMLDivElement>(null), map = useRef<LibreMap | null>(null);
   const current = useRef({records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate});
   current.current = {records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate};
@@ -154,7 +154,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         <Pressable accessibilityRole="button" onPress={() => {setError(false); setAttempt(value => value + 1);}} style={{padding:12}}><Text style={{color:c.sea}}>지도 다시 연결</Text></Pressable>
       </View>
     </> : <><div ref={host} data-testid="travel-map" role="region" aria-label="여행 지도" style={{width:'100%', height:'100%'}}/>
-      <MapAttribution records={records} landmarks={landmarks}/></>}
+      <MapAttribution records={records} landmarks={landmarks} onHeight={onAttributionLayout}/></>}
     {!error && <View style={{position:'absolute', bottom:48, right:12, gap:4}}>
       {[
         {label:'지도 확대', text:'+', action:() => map.current?.zoomIn({duration:0})},

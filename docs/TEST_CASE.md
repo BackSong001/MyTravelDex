@@ -1,5 +1,19 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 사진첩·반응 효과 수용 계획 (2026-11-07)
+
+TC-DESIGN-006 / FR-UI-012: 실제 버튼의 포인터 누름/호버·포커스, 동작 줄이기 시 transform 생략, 비활성 차단과 기존 작성/탭 동작 보존을 검증한다. TC-DESIGN-007: 접힌 필터 진입/펼침 상태·입력 보존·적용/해제, 320/390/768/1280·가로·큰 글꼴/안전 영역의 도감·패널과 사진 갤러리를 검증한다. 실제 사진 fixture를 Local Storage에 저장한 화면의 스크린샷을 남기며 검증 기록만 정리한다. DB/HTTP 계약은 변경하지 않으며 백엔드/Local HTTP 회귀를 통과한 후 UI를 검증한다. Android 빌드와 실제 조작 증거는 웹 검사와 별도로 기록한다.
+
+### 2026-11-07 23:47 KST — 사진첩·반응 효과 검증 결과
+
+Local HTTP/DB/RLS/Storage **52 passed**(t2m) 후 UI Red(필터 진입 없음, t2n)→디자인 Green. 최종 단위/native mock/OAuth **19 passed**(t3f), MapLibre 실제 WebGL **7 passed**(t3d), TypeScript(t35)·최신 Web export(t39) 통과. 확대 작성/친구/초대 회귀는 **49 passed/2 failed**(t2v)이며 두 실패는 변경된 소개 문구의 이전 기대값이다. 이를 새 문구로 갱신한 대상 2개+디자인 6개 **8 passed**(t33), 최종 이미지 디코딩/출처 회귀 **1 passed**(t3c). 전체 회귀를 재실행한 것으로 표시하지 않는다.
+
+t14 회차1은 눌림 터치 영역 46.8px와 미리보기의 KOSTAT 출처 가림을 발견했다. 공통 최소50dp 적용 순서와 실제 출처 onLayout 높이 전달로 수정했다. 회차2 독립 디자인 **6 passed**(t37), min48 caller 누름 **48.75px**(t38), 390/768/1280 및 출처 글자18px 확대 후 패널 아래 출처 간격≥8px를 확인하고 승인했다. 모션 설정 조회 실패의 static fallback은 코드 검토이며 실패 주입을 실행한 것으로 계산하지 않는다.
+
+Android Local 자체 APK(t36, 49초)와 최신 QA AAB 생성/서명 검증(t3b, 31초) 통과. 별도 read-only `emulator-5556`에서 Appium으로 실제 Native 지도/대표사진·도감·필터 입력 유지·갤러리 1/2→2/2, 글꼴2/모션 감소 설정 후 앱 재시작의 1열/탭 줄바꿈·출처 보존을 확인했다. Native XML preview bottom1688/source top1720px. 글꼴 변경 직후 일부 잘림은 재시작 후 정상이며 실시간 설정 변경/실기기 복귀 수용은 미완료다. 실제 Google·TalkBack·클라우드 사진 선택/네이티브 업로드·저사양 성능은 이번 미검증이다. 수동 검사는 자동 통과 수에 더하지 않는다.
+
+실제 사용자 기기/앱인 기존5554와 원격 프로젝트는 변경하지 않았다. Local 검증 fixture와 파일을 삭제하고 별도 기기 설정 복원·세션 종료·에뮬레이터 종료를 확인했다. 화면 증거는 `docs/design/verification/interactive-*20261107.png`, 사진 출처는 [fixture README](../frontend/e2e/fixtures/README.md)다. QA AAB는 `/tmp/mytraveldex-design-qa-20261107.aab`이며 운영 제출 금지다.
+
 ## 친구 요청 검증 계획 (2026-11-07)
 
 | TC | 요구사항 | 검증 |

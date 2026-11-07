@@ -6,6 +6,7 @@ import {StatusBar} from 'expo-status-bar';
 import {Backpack} from '../src/Journal';
 import {colors as c} from '../src/theme';
 import {api} from '../src/runtime';
+import {MotionProvider} from '../src/Feedback';
 
 void SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -25,7 +26,7 @@ export default function Layout() {
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync().catch(() => {});
   }, [ready]);
-  return <View style={s.root} onLayout={() => setLaidOut(true)}>
+  return <MotionProvider><View style={s.root} onLayout={() => setLaidOut(true)}>
     <StatusBar style="dark"/>
     <View style={s.root} accessibilityElementsHidden={!ready} importantForAccessibility={ready ? 'auto' : 'no-hide-descendants'}>
       <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>
@@ -33,7 +34,7 @@ export default function Layout() {
     {!ready && <View style={s.splash} accessible accessibilityLabel="여행가봥 시작 중" accessibilityRole="progressbar">
       <Backpack size={112}/><Text style={s.brand}>여행가봥</Text>
     </View>}
-  </View>;
+  </View></MotionProvider>;
 }
 
 const s = StyleSheet.create({
