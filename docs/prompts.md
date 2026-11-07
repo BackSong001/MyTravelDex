@@ -1018,3 +1018,10 @@ t14는 코드 리뷰와 QA를 담당한다.
 명세와 구현을 분석하고 t14 초기 QA로 제출용 서명/AAB·계정 삭제 경로 부재를 배포 차단 항목으로 확인했다. 지도 군집의 이전 기록 객체 유지 문제를 실제 WebGL Red로 재현하고 양 플랫폼의 최신 기록 해석으로 수정했다. 지도 WebGL 7개·단위/native mock 12개와 TypeScript 통과, t14 회차 1/3 승인. 전체 배포 수용은 보류하며 DEVELOPMENT_STATUS.md에 우선순위·미검증 범위를 기록했다.
 
 변경 파일: `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/e2e/maps.spec.ts`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `DEVELOPMENT_STATUS.md`, `docs/prompts.md`.
+
+
+### 2026-11-07 22:47 KST — 동일 요청 후속 결과: Android 제출 빌드 경로
+
+위 t12 지속 개발 요청의 후속 작업으로 외부 업로드 키를 사용하는 로컬 AAB 경로를 구현했다. 기존 Gradle/JDK를 재사용하고 private 값은 명령행/생성 소스에 쓰지 않는다. 설정/서명/변조 거부와 기존 configured 검사 9개 통과, 실제 QA AAB 빌드/인증서 일치 검증 2회 통과, t14 회차1/3 승인. QA 키는 폐기했고 산출물은 /tmp/mytraveldex-qa-20261107.aab로 이동했다. 실제 운영 배포·키 등록·실기기/Play OAuth·계정 삭제/친구 요청은 미완료다. 계정 삭제 정책 선택을 요청했으며 답변 전 적용하지 않는다.
+
+변경 파일: `scripts/android-bundle.mjs`, `scripts/android-bundle.test.mjs`, `scripts/android-upload-signing.gradle`, `frontend/package.json`, `frontend/app.json`, `.gitignore`, `.env.example`, `AGENTS.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `DEVELOPMENT_STATUS.md`, `docs/prompts.md`.

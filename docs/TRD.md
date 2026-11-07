@@ -1,5 +1,13 @@
 # MyTravelDex 기술 요구사항 문서
 
+## Android 제출용 AAB 계약 (2026-11-07)
+
+`npm --prefix frontend run android:bundle`은 프로세스 환경의 `EXPO_PUBLIC_APP_ENV=production`, HTTPS Supabase URL, 공개 anon/publishable key와 `ANDROID_UPLOAD_STORE_FILE`, `ANDROID_UPLOAD_STORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`, `ANDROID_UPLOAD_KEY_PASSWORD`를 검증한다. 실제 설정 파일은 저장소 밖에서 로드하며 루트 .env나 frontend/.env.local을 자동 읽거나 변경하지 않는다. 업로드 키 경로는 저장소 밖 절대 경로여야 하고 keytool로 실제 인증서를 읽어 debug 인증서를 거부한다. JDK 17/Android SDK와 기존 Expo/Gradle 의존성을 사용한다.
+
+Expo prebuild 후 Gradle init script의 AGP `finalizeDsl`에서 프로세스 `ANDROID_UPLOAD_*` 환경으로 release 서명을 지정해 `:app:bundleRelease`를 실행한다. 네이티브 생성 파일에 키/비밀번호를 쓰지 않으며 prebuild 재생성에도 실행 경로가 유지된다. 새 의존성·클라우드 빌드·배포는 추가하지 않는다. 출력 AAB의 JAR 서명과 업로드 인증서 일치를 확인한다. Gradle 실패 시 기존 산출물을 성공으로 보고하지 않는다. versionCode는 app.json에서 명시하고 다음 제출 전에 증가시킨다. 기존 `android:configured`의 개발 서명/환경은 유지한다.
+
+NFR-RELEASE-001·TC-RELEASE-001 연결. Auth/DB/API/RLS 변경은 없다. Play App Signing 배포 인증서와 업로드 인증서는 다르므로 Play 설치본 OAuth는 별도 검증한다. 참고: [Android 앱 서명](https://developer.android.com/studio/publish/app-signing), [Gradle init scripts](https://docs.gradle.org/current/userguide/init_scripts.html), [AGP finalizeDsl](https://developer.android.com/reference/tools/gradle-api/8.9/com/android/build/api/variant/AndroidComponentsExtension).
+
 ## 지도 군집 선택 상태 보정 (2026-11-07)
 
 FR-UI-004·FR-MAPLIBRE-002의 군집 선택은 기록 ID만 보관하고 현재 전달된 유효 지도 기록에서 표시·선택 데이터를 계산한다. 범위 변경·삭제·draft 전환·위치 무효화로 제외된 기록은 열린 목록에서도 즉시 제외한다. 같은 ID의 제목·날짜·위치 갱신은 최신 객체를 사용한다. 지도 카메라나 전체 스타일을 다시 생성하지 않는다. 기존 API·DB·RLS·공개 범위는 유지하며 TC-MAPLIBRE-007로 검증한다.

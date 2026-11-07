@@ -257,3 +257,18 @@ APK는 `frontend/android/app/build/outputs/apk/release/app-release.apk`에 생�
 - [API_SPEC.md](docs/API_SPEC.md): 엔드포인트·요청·응답·권한
 - [TEST_CASE.md](docs/TEST_CASE.md): 백엔드 테스트 케이스
 - [AGENTS.md](AGENTS.md): 프로젝트 작업 규칙
+
+
+## Android 제출용 AAB 로컬 생성
+
+기존 `android:configured` APK는 개발 서명 시험용이다. 제출용 빌드 경로는 `npm --prefix frontend run android:bundle`이며 클라우드 빌드나 자동 제출을 하지 않는다.
+
+JDK 17, Android SDK, 설치된 frontend 의존성이 필요하다. 저장소 밖의 보안 환경 파일에 production Supabase 공개 URL/anon key, `EXPO_PUBLIC_APP_ENV=production`, `.env.example`의 `ANDROID_UPLOAD_*` 네 값을 준비한다. 업로드 키는 저장소 밖 절대 경로로 두고 비밀번호를 명령행 인자로 전달하지 않는다. 파일 예시 경로만 아래에 표시한다.
+
+```bash
+node --env-file=/secure/path/production.env scripts/android-bundle.mjs
+```
+
+실행기는 원본 환경 파일과 `.env.local`을 수정하지 않으며 debug 인증서·서버 key·누락 설정을 거부한다. Expo prebuild로 네이티브 파일을 재생성한 후 Gradle init script가 환경에서 업로드 서명을 읽는다. 출력은 `frontend/android/app/build/outputs/bundle/release/app-release.aab`이며 JAR 서명·업로드 인증서 일치를 확인한 뒤에만 성공을 표시한다. `app.json`의 `android.versionCode`는 제출마다 증가시킨다.
+
+실제 업로드 키의 백업/등록, Play App Signing, 배포 인증서 OAuth, Play 내부 테스트와 실기기 검증은 별도다. QA fixture 설정/임시 키로 생성한 AAB를 운영에 제출하지 않는다. 계정 삭제 경로 등 `DEVELOPMENT_STATUS.md`의 배포 차단 항목과 TC-RELEASE-001을 확인하고, 실제 제출/운영 변경은 사용자 승인 후 진행한다.

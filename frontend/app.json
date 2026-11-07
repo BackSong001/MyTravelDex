@@ -12,7 +12,8 @@
     "orientation": "default",
     "userInterfaceStyle": "light",
     "android": {
-      "package": "com.mytraveldex.app"
+      "package": "com.mytraveldex.app",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro"

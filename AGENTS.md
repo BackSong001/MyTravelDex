@@ -338,6 +338,8 @@ Supabase production 배포 전에는 RLS, SSL, 네트워크 제한, MFA, 비용�
 
 ### Android 배포
 
+제출용 로컬 AAB는 저장소 밖 production 환경 파일을 프로세스에 로드한 후 `npm --prefix frontend run android:bundle`로 생성한다. 공개 값과 ANDROID_UPLOAD_* 네 값을 검증하고 Gradle 환경 속성으로 서명하며 출력 인증서를 검증한다. 비밀번호를 명령행 인자로 전달하지 않는다. 시험용 `android:configured`와 구분하고 app.json versionCode를 제출마다 증가시킨다. 실제 Play 제출·production 변경은 승인 후 진행한다. 자세한 계약은 TRD의 Android 제출용 AAB 절과 TC-RELEASE-001을 따른다.
+
 ```bash
 npx expo start --android
 npx expo run:android

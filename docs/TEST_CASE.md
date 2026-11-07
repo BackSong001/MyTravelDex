@@ -1,5 +1,11 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## TC-RELEASE-001 — Android 제출 빌드
+
+NFR-RELEASE-001: 누락된 서명 설정·production 아닌 설정·서버 key·저장소 내부/상대 경로·실제 debug 인증서를 거부한다. 외부 QA 전용 키로 실제 Expo prebuild→Gradle bundleRelease→AAB JAR 서명·인증서 일치를 확인한다. QA 키/공개 fixture 설정으로 만든 AAB는 제출용 운영 산출물이 아니다. 재생성 후 동작과 기존 configured 개발 APK 계약을 회귀 검증한다. 실제 업로드 키·Play 제출/서명 OAuth·실기기 검증은 별도 수용 항목이며 성공 수에 합산하지 않는다. 데이터/API 변경은 없어 Local HTTP 계약은 유지한다.
+
+2026-11-07 22:47 KST: `node --test scripts/android-bundle.test.mjs scripts/configured.test.mjs` **9 passed**(t1q)、t14 독립 재실행도 **9 passed**(t1s). 미서명·다른 인증서·추가된 미서명 파일·변조 거부를 실제 JDK 도구로 확인했다. t14는 만료/미래 인증서 거부도 별도 assert로 확인했다. 초기 AAB는 debug 서명이 남아 인증서 비교에서 실패(t1n), Gradle init 수정 후 실제 prebuild와 AAB 생성·strict JAR/인증서 일치 검증 **2회 통과**(t1p/t1r). QA 2일 키와 fixture 공개 설정만 사용했고 키는 삭제했다. AAB는 `/tmp/mytraveldex-qa-20261107.aab`에 보관하며 제출 금지다. t14 회차1/3 승인 범위는 로컬 빌드 경로다. 실제 운영 키·Play 업로드/설치·서명 OAuth·실기기 수용은 미실행이다. Gradle 9 비호환 경고와 기존 module type 경고는 남아 있으며 Gradle 버전을 변경하지 않았다.
+
 ## TC-MAPLIBRE-007 — 열린 군집의 최신 기록 동기화
 
 FR-UI-004·FR-MAPLIBRE-002 회귀: 같은 ID의 제목 갱신 후 최신 제목으로 선택하고, 삭제·범위 변경으로 제외된 기록은 열린 목록에서 제거한다. 카메라 중심·줌·스타일 로드 횟수는 유지한다. `frontend/e2e/maps.spec.ts`의 `open cluster`가 실제 WebGL로 검증한다. 최초 Red는 기존 객체 보관으로 수정한 제목을 찾지 못하는 행동 실패다. Android 실제 조작은 별도 수용 증거로 기록한다. DB·API·RLS 계약 변경은 없어 기존 Local HTTP 게이트를 유지한다.
