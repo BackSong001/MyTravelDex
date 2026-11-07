@@ -22,7 +22,8 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
   const selected = useRef<string | null>(null);
   const redraw = useRef<() => void>(() => {}), restyle = useRef<() => void>(() => {});
   const clearSelection = useRef(() => {selected.current = null; restyle.current(); redraw.current();});
-  const [selectedId, setSelectedId] = useState<string | null>(null), [cluster, setCluster] = useState<any[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null), [clusterIds, setCluster] = useState<string[]>([]);
+  const cluster = mapRecords(records, !!onCoordinate).filter(record => clusterIds.includes(record.id));
   const [error, setError] = useState(false), [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (error || !host.current) return;
@@ -106,7 +107,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
           content.appendChild(badge);
           pin([Number(record.locations.longitude), Number(record.locations.latitude)], content,
             grouped.length > 1 ? `${onCoordinate?'장소':'여행'} ${grouped.length}${onCoordinate?'곳':'개'} 모아 보기` : markerDescription(record, authors, !!onCoordinate), () => {
-              if (grouped.length > 1) {clearSelection.current(); setCluster(grouped); setSelectedId(null);}
+              if (grouped.length > 1) {clearSelection.current(); setCluster(grouped.map(record => record.id)); setSelectedId(null);}
               else {setCluster([]); current.current.onSelect?.(record);}
             }, 2);
         });

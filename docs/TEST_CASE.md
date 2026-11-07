@@ -1,5 +1,11 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## TC-MAPLIBRE-007 — 열린 군집의 최신 기록 동기화
+
+FR-UI-004·FR-MAPLIBRE-002 회귀: 같은 ID의 제목 갱신 후 최신 제목으로 선택하고, 삭제·범위 변경으로 제외된 기록은 열린 목록에서 제거한다. 카메라 중심·줌·스타일 로드 횟수는 유지한다. `frontend/e2e/maps.spec.ts`의 `open cluster`가 실제 WebGL로 검증한다. 최초 Red는 기존 객체 보관으로 수정한 제목을 찾지 못하는 행동 실패다. Android 실제 조작은 별도 수용 증거로 기록한다. DB·API·RLS 계약 변경은 없어 기존 Local HTTP 게이트를 유지한다.
+
+2026-11-07 22:36 KST: 지도 실제 WebGL **7 passed**, 지도 단위/native mock **12 passed**, frontend TypeScript 통과. t14 회차 1/3 독립 재실행·코드 리뷰 승인. 새 검사는 최신 제목 표시·삭제·범위 변경 및 카메라/스타일 보존을 확인하며 선택 콜백은 ID까지만 기록한다. Android 실제 군집 조작·새 APK/AAB는 미실행이다. 초기 t14 Local HTTP/RLS/Storage **48 passed**는 API·DB·권한 계약 회귀 증거이며 이번 UI 수정의 플랫폼 수용 완료를 의미하지 않는다.
+
 ## 2026-11-07 14:12 KST — 밝은 파스텔 UI 검증
 
 자동 검사는 **182 passed / 1 skipped**이다. Vitest 116 passed/1 skipped(실제 Local DB·RLS·HTTP 포함), 기존 웹 57개+새 디자인 4개=61개 통과, 설정 스크립트 5개 통과. 전체 웹 실행은 60개 통과 후 지연 응답 방어 검사를 추가했으며 마지막 디자인 4개를 다시 실행해 통과했다. 중복 실행은 합계에 더하지 않는다. 기존 실제 Google OAuth CI 1개는 건너뛰었다. TypeScript 및 최종 Expo Web export 통과.

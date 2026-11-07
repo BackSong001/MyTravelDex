@@ -148,6 +148,28 @@ test('overlapping pins: counted group reaches every original record without one 
   expect(await page.evaluate(()=>(window as any).events)).toEqual([['record','second'],['record','first']]);
 });
 
+test('open cluster uses current records after refresh, removal and scope changes',async ({page})=>{
+  await ready(page);
+  await page.evaluate(records=>(window as any).renderMap({records}),[record('first'),record('second')]);
+  await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
+  await expect(page.getByRole('button',{name:/여행자 · first/})).toBeVisible();
+  const before=await page.evaluate(()=>({loads:(window as any).styleLoads,view:(window as any).mapSnapshots.at(-1)}));
+  await page.evaluate(records=>(window as any).renderMap({records}),[{...record('first'),title:'수정한 제목'},record('second')]);
+  await expect(page.getByRole('button',{name:/여행자 · 수정한 제목/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/여행자 · first/})).toHaveCount(0);
+  await page.getByRole('button',{name:/여행자 · 수정한 제목/}).click();
+  expect(await page.evaluate(()=>(window as any).events)).toEqual([['record','first']]);
+  await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
+  await page.evaluate(records=>(window as any).renderMap({records}),[record('second')]);
+  await expect(page.getByRole('button',{name:/수정한 제목/})).toHaveCount(0);
+  await page.evaluate(records=>(window as any).renderMap({records}),[record('public')]);
+  await expect(page.getByRole('button',{name:'지도 선택 닫기',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:/여행자 · second/})).toHaveCount(0);
+  expect(await page.evaluate(()=>(window as any).styleLoads)).toBe(before.loads);
+  const after=await page.evaluate(()=>(window as any).mapSnapshots.at(-1));
+  expect(after.zoom).toBe(before.view.zoom);expect(after.center).toEqual(before.view.center);
+});
+
 async function loseContext(page: Page) {
   await page.locator('canvas.maplibregl-canvas').evaluate(canvas=>{
     canvas.dispatchEvent(new WebGLContextEvent('webglcontextlost',{cancelable:true}));
