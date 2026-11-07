@@ -1,5 +1,17 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 사용자 실행 에뮬레이터 검증 — 2026-11-08 08:51 KST
+
+사용자가 켜 둔 `mytrveldex` / API37 / `emulator-5554`에서 Appium/UiAutomator2로 검증했다. 새 AVD가 아니다. `android:configured -- --device mytrveldex`로 같은 실제 `.env` 프로젝트의 최신 자체 APK를 데이터 초기화 없이 업데이트했다. 제품 코드 변경·원격 migration·사용자 기록 생성/수정/삭제는 수행하지 않았다. 공개 API 설정으로 Auth/Google Provider 활성 및 기존 주요 테이블 HTTP200을 확인했지만 새 Google 동의/복귀 성공으로 계산하지 않는다.
+
+- 최종 실제 서버 APK SHA256: `00a9ad088533eb3a630267f39509ae3a909b639aa02881b7e5cf1ceacab85a8b`. 개발 서명이며 Play 제출용이 아니다. 업데이트 후 기존 로그인·여행 기록3개·대표사진/상세 조회를 확인했다.
+- 새 디자인의 접힌 필터를 열고 지역 입력 후 닫기/재열기에서 입력 보존을 확인했다. 검증 입력은 해제했다. 지도 숫자 군집의 기록2개 목록→하나 선택→해당 사진/제목 미리보기를 확인했다. 작성 화면→실제 시스템 Photo Picker→선택 없이 취소→홈 복귀를 확인했다. 이번에는 실제 계정 사진을 새로 업로드하거나 CRUD하지 않았다.
+- 친구 화면은 `Could not find the table 'public.friend_requests' in the schema cache`를 표시했다. 실제 프로젝트 공개 REST 검사도 `friend_requests: HTTP404`였다. 새 친구 요청 기능의 원격 schema 수용은 미완료다. `following_travel_records` anon 검사 HTTP401은 인증 필요 결과이며 단독 권한 결함으로 판정하지 않는다.
+- 빌드 결함 관찰: 첫 configured 빌드(t3n, Gradle3분14초)는 성공했지만 생성 APK의 JS bundle이 이전 Local 설정을 재사용했다(실제 Supabase host 없음/127.0.0.1 있음). 그래서 로그인 화면·연결 오류가 나타났다. 생성된 `frontend/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle`만 삭제하고 동일 configured로 다시 빌드/설치(t3p)하자 실제 프로젝트 host가 포함되고 기존 로그인이 복원됐다. 환경 변경 시 생성 번들 무효화의 영구 수정은 하지 않았으며, cached 빌드 성공만으로 환경 전환을 수용하지 않는다.
+- 기기 AndroidRuntime 로그에서 앱 fatal 항목은 발견하지 못했다. 앱/에뮬레이터는 종료하지 않고 최신 홈 화면으로 남겼다. Appium 세션만 정리했다. 실제 사용자 이름/사진·계정정보가 포함될 수 있는 화면/XML은 저장소에 추가하지 않았다.
+
+미검증: 새 Google OAuth 왕복, 실제 계정의 새 사진 업로드/CRUD, 친구 요청의 원격 동작, 실기기/권한 거부/클라우드 전용 사진/TalkBack/Play. 이전 Local CRUD 통과를 이번 실제 프로젝트 통과로 합산하지 않는다. 빌드 캐시 문제와 원격 친구 schema 누락은 별도 후속 항목이다.
+
 ## Android Studio AVD 네이티브 검증 — 2026-11-08 00:16 KST
 
 제품 기준 `62ce084`. Android Studio `Medium_Phone` API 37의 별도 read-only `emulator-5556`에 Local 전용 자체 APK를 설치하고 Appium/UiAutomator2로 실제 화면을 조작했다. Expo Go/웹 대역/IDE 단위 테스트가 아니다. APK SHA256: `bf56c8ae8cae87298b0dd4d822462dfd088396caacc688682936748db98c1284` (`/tmp/mytraveldex-design-local-qa.apk`, 개발 서명). 이번 요청은 검증·기록만 수행했으며 제품 코드는 변경하지 않았다.
