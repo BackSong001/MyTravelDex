@@ -3,11 +3,12 @@ import {View, Text, Pressable, ScrollView} from 'react-native';
 import {Map as LibreMap, Marker, setWorkerUrl} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import {colors as c} from './theme';
+import {travelerAvatar} from './avatarAsset';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
 import {oceanOrnaments,ornamentMarkup} from './MapOrnament';
 import {mapStyle, KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS} from './mapStyle';
-import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels} from './provinces';
+import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
 
 setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');
 
@@ -68,8 +69,8 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
           markers.push(new Marker({element,anchor:'center'}).setLngLat(ornament.coordinate).addTo(activeMap));
         });
         visibleProvinceLabels(zoom, selected.current).forEach(([id, label]) => {
-          const text = document.createElement('span'); text.textContent = `${ownGroups[id]?.length ? '✓ ' : ''}${label.name}`;
-          Object.assign(text.style, {whiteSpace:'nowrap', color:c.map.mapLabel, background:c.map.mapLabelHalo, borderRadius:'4px', padding:'3px', fontSize:'12px', fontWeight:selected.current === id ? '800' : '500'});
+          const text = document.createElement('span'); text.textContent = label.name;
+          Object.assign(text.style, {whiteSpace:'nowrap', color:c.map.mapLabel, background:'transparent', padding:'3px', fontSize:`${provinceLabelSize(zoom)}px`, fontWeight:selected.current === id ? '800' : '500'});
           if (onCoordinate) return;
           pin([label.point[0], label.point[1]], text, `${label.name} 지역 선택`, () => select(id), 1, label.offset ? [label.offset[0], label.offset[1]] : undefined);
         });
@@ -94,13 +95,15 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
           } else content.appendChild(dot());
           const author = authors[record.owner_id], badge = document.createElement('div');
           Object.assign(badge.style, {display:'flex', alignItems:'center', maxWidth:'100%', borderRadius:'10px', background:c.surface, padding:'3px', gap:'3px', color:c.textPrimary, fontSize:'12px'});
-          if (grouped.length === 1 && author?.avatar_url) {
-            const avatar = document.createElement('img'); avatar.src = author.avatar_url; avatar.alt = ''; avatar.draggable = false;
-            avatar.onerror = () => {const fallback = document.createElement('span'); fallback.textContent = '●'; avatar.replaceWith(fallback);};
-            Object.assign(avatar.style, {width:'16px', height:'16px', borderRadius:'50%', objectFit:'cover'}); badge.appendChild(avatar);
-          } else {const avatar = document.createElement('span'); avatar.textContent = '●'; badge.appendChild(avatar);}
-          const name = document.createElement('span'); name.textContent = onCoordinate ? (grouped.length > 1 ? `${grouped.length}곳` : record.title || record.locations?.place_name || '선택한 위치') : grouped.length > 1 ? `${grouped.length}개 여행` : author?.display_name || '여행자';
-          Object.assign(name.style, {overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}); badge.appendChild(name); content.appendChild(badge);
+          if (grouped.length === 1 && !onCoordinate) {
+            const avatar = document.createElement('img'); avatar.src = author?.avatar_url || travelerAvatar; avatar.alt = ''; avatar.draggable = false;
+            avatar.onerror = () => {avatar.onerror=null;avatar.src=travelerAvatar;};
+            Object.assign(avatar.style, {width:'24px', height:'24px', borderRadius:'50%', objectFit:'cover'}); badge.appendChild(avatar);
+          } else {
+            const name = document.createElement('span'); name.textContent = onCoordinate ? (grouped.length > 1 ? `${grouped.length}곳` : record.title || record.locations?.place_name || '선택한 위치') : `${grouped.length}개 여행`;
+            Object.assign(name.style, {overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}); badge.appendChild(name);
+          }
+          content.appendChild(badge);
           pin([Number(record.locations.longitude), Number(record.locations.latitude)], content,
             grouped.length > 1 ? `${onCoordinate?'장소':'여행'} ${grouped.length}${onCoordinate?'곳':'개'} 모아 보기` : markerDescription(record, authors, !!onCoordinate), () => {
               if (grouped.length > 1) {clearSelection.current(); setCluster(grouped); setSelectedId(null);}

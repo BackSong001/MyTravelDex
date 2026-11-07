@@ -77,13 +77,14 @@ export function groupProvinceRecords(records: any[]) {
 export const provinceColors: Record<string, string> = Object.fromEntries(
   Object.keys(provinceLabels).sort().map((id, index) => [id, palette.map.regionPastels[index % palette.map.regionPastels.length]]),
 );
-export function visibleProvinceLabels(zoom: number, selected: string | null) {
+export function provinceLabelSize(zoom: number, fontScale = 1) {return (11 + Math.max(0, Math.min(4, zoom - 5))) * fontScale;}
+export function visibleProvinceLabels(zoom: number, selected: string | null, fontScale = 1) {
   const candidates = Object.entries(provinceLabels).filter(([id]) => id === selected || (zoom < 7 ? ['KR-11','KR-42','KR-44','KR-45','KR-47','KR-48','KR-26','KR-49'].includes(id) : true));
   candidates.sort(([a], [b]) => Number(b === selected) - Number(a === selected));
   const placed: {x:number; y:number; width:number}[] = [];
   return candidates.filter(([, label]) => {
-    const [x,y] = mercator(label.point).map(n => n * 256 * 2 ** zoom / (2 * Math.PI)), width = label.name.length * 12 + 12;
-    if (placed.some(point => Math.abs(point.x-x) < (point.width+width)/2 && Math.abs(point.y-y) < 24)) return false;
+    const [x,y] = mercator(label.point).map(n => n * 256 * 2 ** zoom / (2 * Math.PI)), width = label.name.length * provinceLabelSize(zoom,fontScale) + 12;
+    if (placed.some(point => Math.abs(point.x-x) < (point.width+width)/2 && Math.abs(point.y-y) < provinceLabelSize(zoom,fontScale)+12)) return false;
     placed.push({x,y,width}); return true;
   });
 }

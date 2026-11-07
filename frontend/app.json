@@ -7,9 +7,9 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FFF8F2"
+      "backgroundColor": "#EFFAFF"
     },
-    "orientation": "portrait",
+    "orientation": "default",
     "userInterfaceStyle": "light",
     "android": {
       "package": "com.mytraveldex.app"
@@ -19,8 +19,24 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-image-picker", {"photosPermission":"여행 사진을 선택해 기록에 추가합니다.","cameraPermission":false,"microphonePermission":false}],
-      ["expo-media-library", {"photosPermission":"사진의 촬영일과 위치를 여행 기간·대표 위치에 적용합니다.","isAccessMediaLocationEnabled":true,"granularPermissions":["photo"]}],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "여행 사진을 선택해 기록에 추가합니다.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "사진의 촬영일과 위치를 여행 기간·대표 위치에 적용합니다.",
+          "isAccessMediaLocationEnabled": true,
+          "granularPermissions": [
+            "photo"
+          ]
+        }
+      ],
       "expo-web-browser"
     ]
   }

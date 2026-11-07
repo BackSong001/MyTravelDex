@@ -34,10 +34,10 @@ export async function choosePlace(page:Page) {
 }
 export async function login(page:Page,email:string,password:string) {
  await page.route('https://maps.googleapis.com/**',r=>r.abort());
- await page.goto('/');await page.getByRole('button',{name:'로그인',exact:true}).click();
+ await page.goto('/');
  await page.getByLabel('이메일',{exact:true}).fill(email);await page.getByLabel('비밀번호',{exact:true}).fill(password);
  await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();
- await expect(page.getByRole('button',{name:'내 계정',exact:true})).toBeVisible();
+ await expect(page.getByRole('tab',{name:'My',exact:true})).toBeVisible();
 }
 export async function cleanRecords(userId:string) {
  const records=await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`);
@@ -50,4 +50,4 @@ export async function cleanRecords(userId:string) {
  await admin(`/rest/v1/locations?owner_id=eq.${userId}`,'DELETE');
 }
 export async function draft(page:Page,count=1){await page.getByRole('button',{name:'기록 만들기',exact:true}).click();const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'사진 선택',exact:true}).click();await(await chooser).setFiles(Array.from({length:count},(_,i)=>({name:`photo-${i}.jpg`,mimeType:'image/jpeg',buffer:jpeg})));await expect(page.getByText(`${count} / 20장 선택`,{exact:true})).toBeVisible();await page.getByLabel('여행 제목',{exact:true}).fill('제주 여행');await page.getByLabel('여행 시작일',{exact:true}).fill('2026-01-10');await page.getByLabel('여행 종료일',{exact:true}).fill('2026-01-15');await choosePlace(page);}
-export async function save(page:Page){await page.getByRole('button',{name:'여행 저장',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();}
+export async function save(page:Page){await page.getByRole('button',{name:'여행 저장',exact:true}).click();await page.getByRole('button',{name:'여행 관리',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();}

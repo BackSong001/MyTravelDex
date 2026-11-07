@@ -19,8 +19,7 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
       {Object.entries(provinceLabels).map(([id,label])=>{
         const [x,y]=project(label.point),[dx,dy]=label.offset??[0,0];
         return <G key={id} onPress={()=>{setSelected(id);setShowRegions(false);}}>
-          <SvgText x={x+dx} y={y+dy} fill={c.paper} fontSize="12" fontWeight={selected===id?'800':'600'} textAnchor="middle" stroke={c.paper} strokeWidth="3">{ownGroups[id]?.length?'✓ ':''}{label.name}</SvgText>
-          <SvgText x={x+dx} y={y+dy} fill={c.ink} fontSize="12" fontWeight={selected===id?'800':'600'} textAnchor="middle">{ownGroups[id]?.length?'✓ ':''}{label.name}</SvgText>
+          <SvgText x={x+dx} y={y+dy} fill={c.map.mapLabel} fontSize="12" fontWeight={selected===id?'800':'500'} textAnchor="middle">{label.name}</SvgText>
         </G>;
       })}
     </Svg>

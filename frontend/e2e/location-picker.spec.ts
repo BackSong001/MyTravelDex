@@ -140,7 +140,7 @@ test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하�
  await expect(page.getByText('ocean-ui-test',{exact:true})).toBeVisible();
  await expect(page.getByText(place.name,{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'여행 자세히 보기',exact:true}).click();
- await expect(page.getByLabel('제목 수정',{exact:true})).toHaveValue('ocean-ui-test');
+ await page.getByRole('button',{name:'여행 관리',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toHaveValue('ocean-ui-test');
  await expect(page.getByRole('img',{name:'여행 사진',exact:true})).toBeVisible();
 });
 

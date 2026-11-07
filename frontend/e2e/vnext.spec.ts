@@ -20,6 +20,7 @@ test('TC-VNEXT-UI-004 대표사진·제목 수정은 목록에 즉시 반영하�
  const cover=page.getByRole('img',{name:'제주 여행 대표사진',exact:true}).and(page.locator('[role="img"]')).locator('img');
  await expect(cover).toHaveAttribute('src',new RegExp(photos[1].id));
  await page.getByRole('button',{name:/^제주 여행,/}).click();
+ await page.getByRole('button',{name:'여행 관리',exact:true}).click();
  await page.getByLabel('제목 수정',{exact:true}).fill('수정한 여행 제목');
  await page.getByRole('button',{name:'수정 저장',exact:true}).click();
  await expect(page.getByText('수정한 여행 제목',{exact:true})).toBeVisible();
@@ -54,7 +55,7 @@ async function navVisible(page:Page){
 
 test('TC-VNEXT-UI-010 짧은 화면·큰 헤더에서도 작성 패널은 콘텐츠 안에 유지',async({page})=>{
  await page.setViewportSize({width:320,height:600});
- const account=page.getByRole('button',{name:'내 계정',exact:true});
+ const account=page.getByText('여행가봥',{exact:true});
  await account.evaluate(button=>{button.parentElement!.style.minHeight='160px';});
  const header=await account.locator('..').boundingBox();
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
@@ -267,7 +268,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(page.getByRole('button',{name:/^친구 공개 여행,/})).toBeVisible();
   await expect(page.getByLabel('작성자 친구 도감 여행자',{exact:true})).toBeVisible();
   for(const title of ['친구 비공개 여행','친구 공개 초안'])await expect(page.getByRole('button',{name:new RegExp(`^${title},`)})).toHaveCount(0);
-  await page.getByRole('button',{name:'친구 여행',exact:true}).click();
+  if(await page.getByRole('button',{name:/^표시 범위/}).isVisible())await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'친구 여행',exact:true}).click();
   await expect(page.getByRole('button',{name:/^친구 공개 여행,/})).toBeVisible();
   await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
@@ -293,13 +294,13 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect.poll(()=>admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${other.id}`)).toEqual([]);
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
   await page.getByRole('button',{name:'내 여행',exact:true}).click();await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
-  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByText('내 발자국 0 / 17',{exact:true})).toBeVisible();
+  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByText('내 발자국 0 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();await page.getByRole('tab',{name:'홈',exact:true}).click();
   await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   const removed=page.waitForResponse(r=>r.url().includes('/rest/v1/follows?')&&r.request().method()==='DELETE');
   await page.getByRole('button',{name:'팔로우 해제',exact:true}).click();expect((await removed).ok()).toBe(true);
   expect(await admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${peer.id}`)).toEqual([]);
-  await page.getByRole('tab',{name:'여행도감',exact:true}).click();await page.getByRole('button',{name:'친구 여행',exact:true}).click();
+  await page.getByRole('tab',{name:'여행도감',exact:true}).click();if(await page.getByRole('button',{name:/^표시 범위/}).isVisible())await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'친구 여행',exact:true}).click();
   await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
  }finally{await context.close();await otherContext.close();}
 });
@@ -320,7 +321,7 @@ test('TC-VNEXT-UI-005/STAMP-001 내 비공개 완료·중복 방문·초안 제�
  for(const [title,remaining] of [['제주 첫 기록',1],['제주 두 번째 기록',0]] as const){
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
   await page.getByRole('button',{name:new RegExp(`^${title},`)}).click();
-  await page.getByRole('button',{name:'기록 삭제',exact:true}).click();await page.getByRole('button',{name:'삭제 확인',exact:true}).click();
+  await page.getByRole('button',{name:'여행 관리',exact:true}).click();await page.getByRole('button',{name:'기록 삭제',exact:true}).click();await page.getByRole('button',{name:'삭제 확인',exact:true}).click();
   await page.getByRole('tab',{name:'My',exact:true}).click();
   await expect(page.getByText(`나의 여행 스탬프 · ${remaining} / 17`,{exact:true})).toBeVisible();
  }
@@ -402,7 +403,7 @@ test('TC-VNEXT-HTTP-002 상세 복귀 시 대표사진 외 URL도 실제 갱신�
  const photos=await admin(`/rest/v1/photos?travel_record_id=eq.${records[0].id}`);
  expect(photos).toHaveLength(2);
  const noncover=photos.find((photo:any)=>!photo.is_cover);expect(noncover).toBeDefined();
- const images=page.getByRole('img',{name:'여행 사진',exact:true});
+ const images=page.getByRole('img',{name:/^여행 사진(?: \d+)?$/});
  await expect(images).toHaveCount(2);
  await expect.poll(()=>images.evaluateAll(nodes=>nodes.every(node=>{const img=node.matches('img')?node as HTMLImageElement:node.querySelector('img');return !!img&&img.complete&&img.naturalWidth>0;}))).toBe(true);
  await page.getByLabel('제목 수정',{exact:true}).fill('아직 저장하지 않은 상세 제목');

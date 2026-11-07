@@ -1,14 +1,16 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Image, Pressable, ScrollView, Text, View} from 'react-native';
+import {Image, Pressable, ScrollView, Text, View, useWindowDimensions} from 'react-native';
 import {Map, Camera, Marker, Layer, type CameraRef, type InitialViewState, type StyleSpecification} from '@maplibre/maplibre-react-native';
+import Avatar from './Avatar';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
 import MapOrnament,{oceanOrnaments} from './MapOrnament';
 import {colors as c} from './theme';
-import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels} from './provinces';
+import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
 import {KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS, BASE_MAP_STYLE} from './mapStyle';
 
 export default function TravelMap({records,covers={},authors={},ownRecords=[],landmarks=[],focus,onSelect,onRegion,onCoordinate,expanded=false,fullScreen=false}:TravelMapProps){
+ const {fontScale}=useWindowDimensions();
  const camera=useRef<CameraRef>(null);
  const [failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0),[zoom,setZoom]=useState(6),[selected,setSelected]=useState<string|null>(null),[cluster,setCluster]=useState<any[]>([]);
  const ownIds=Object.keys(groupProvinceRecords(ownRecords)).sort().join(',');
@@ -28,14 +30,14 @@ export default function TravelMap({records,covers={},authors={},ownRecords=[],la
   <Layer id="own-visits" type="fill" source="provinces" filter={['in',['get','shapeISO'],['literal',ownIds?ownIds.split(','):[]]]} paint={{'fill-color':['get','color'],'fill-opacity':1}}/>
   <Layer id="selection-outline" type="line" source="provinces" filter={['==',['get','shapeISO'],selected??'']} paint={{'line-color':c.map.regionBorderSelected,'line-width':2.5}}/>
   {zoom<9&&oceanOrnaments.map(ornament=><Marker key={ornament.id} id={`ornament-${ornament.id}`} lngLat={ornament.coordinate} pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><MapOrnament kind={ornament.kind} zoom={zoom}/></Marker>)}
-  {visibleProvinceLabels(zoom,selected).map(([id,label])=><Marker key={id} id={`region-${id}`} lngLat={[label.point[0],label.point[1]]} accessibilityLabel={`${label.name} 지역 선택`} onPress={event=>{event.stopPropagation();if(!onCoordinate){setSelected(id);setCluster([]);}}}>
-   <View collapsable={false} style={{minWidth:60,minHeight:30,paddingHorizontal:5,paddingVertical:4,alignItems:'center',justifyContent:'center',backgroundColor:c.paper,borderRadius:6}}><Text style={{color:c.ink,fontWeight:selected===id?'800':'600',fontSize:13}}>{ownIds.split(',').includes(id)?'✓ ':''}{label.name}</Text></View>
+  {visibleProvinceLabels(zoom,selected,fontScale).map(([id,label])=><Marker key={id} id={`region-${id}`} lngLat={[label.point[0],label.point[1]]} accessibilityLabel={`${label.name} 지역 선택`} onPress={event=>{event.stopPropagation();if(!onCoordinate){setSelected(id);setCluster([]);}}}>
+   <View collapsable={false} style={{minWidth:60,minHeight:30,paddingHorizontal:5,paddingVertical:4,alignItems:'center',justifyContent:'center',backgroundColor:'transparent'}}><Text style={{color:c.map.mapLabel,fontWeight:selected===id?'800':'500',fontSize:provinceLabelSize(zoom)}}>{label.name}</Text></View>
   </Marker>)}
   {zoom>=7&&landmarks.map(place=><Marker key={`landmark-${place.id}`} id={`landmark-${place.id}`} lngLat={[place.longitude,place.latitude]} accessibilityLabel={place.name}><View collapsable={false} style={{height:26,width:140,alignItems:'center',justifyContent:'center',backgroundColor:c.paper,borderRadius:6}}><Text style={{color:c.sea,fontSize:11}}>◆ {place.name}</Text></View></Marker>)}
   {mapMarkerGroups(records,zoom+1,!!onCoordinate).map(({record,records:group})=><Marker key={record.id} id={record.id} lngLat={[Number(record.locations.longitude),Number(record.locations.latitude)]} anchor="bottom" accessibilityLabel={group.length>1?`${onCoordinate?'장소':'여행'} ${group.length}${onCoordinate?'곳':'개'} 모아 보기`:markerDescription(record,authors,!!onCoordinate)} onPress={event=>{event.stopPropagation();if(group.length>1){setSelected(null);setCluster(group);}else{setCluster([]);onSelect?.(record);}}}>
    <View collapsable={false} style={{width:120,minHeight:88,alignItems:'center',padding:3}}>
     {covers[record.id]?<Image source={{uri:covers[record.id]}} accessibilityLabel="대표사진" style={{width:52,height:52,borderRadius:12,borderWidth:3,borderColor:c.map.locationPinBorder}}/>:<View style={{width:38,height:38,borderRadius:19,backgroundColor:c.map.locationPin,borderWidth:3,borderColor:c.map.locationPinBorder}}/>}
-    <View style={{flexDirection:'row',alignItems:'center',padding:4,borderRadius:10,backgroundColor:c.sheet,maxWidth:120}}>{group.length===1&&authors[record.owner_id]?.avatar_url?<Image source={{uri:authors[record.owner_id].avatar_url!}} style={{width:16,height:16,borderRadius:8}}/>:<Text>●</Text>}<Text numberOfLines={1} style={{fontSize:12,color:c.ink,marginLeft:3,flexShrink:1}}>{onCoordinate?(group.length>1?`${group.length}곳`:record.title||record.locations?.place_name||'선택한 위치'):group.length>1?`${group.length}개 여행`:authors[record.owner_id]?.display_name||'여행자'}</Text></View>
+    <View style={{flexDirection:'row',alignItems:'center',padding:3,borderRadius:16,backgroundColor:c.sheet,maxWidth:120}}>{!onCoordinate&&group.length===1?<Avatar url={authors[record.owner_id]?.avatar_url} size={24}/>:<Text numberOfLines={1} style={{fontSize:12,color:c.ink,flexShrink:1}}>{onCoordinate?(group.length>1?`${group.length}곳`:record.title||record.locations?.place_name||'선택한 위치'):`${group.length}개 여행`}</Text>}</View>
    </View>
   </Marker>)}
  </Map>:<>

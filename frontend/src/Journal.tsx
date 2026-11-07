@@ -3,6 +3,7 @@ import {Image, Pressable, StyleSheet, Text, View, useWindowDimensions} from 'rea
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path, Rect} from 'react-native-svg';
 import TravelMap from './TravelMap';
+import Avatar from './Avatar';
 import {colors as c} from './theme';
 
 export function Backpack({size = 42}: {size?: number}) {
@@ -42,13 +43,8 @@ export type JournalTab = 'home' | 'album' | 'friends' | 'account';
 // 공개 프로필 projection만 전달하며 Auth 메타데이터를 기본값으로 사용하지 않는다.
 export type PublicAuthor = {display_name?: string | null; avatar_url?: string | null};
 export function Author({author}: {author?: PublicAuthor | null}) {
-  const [failedUri, setFailedUri] = useState<string>();
   const name = author?.display_name?.trim() || '여행자';
-  const uri = author?.avatar_url;
-  return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}>
-    {uri && failedUri !== uri ? <Image accessible={false} source={{uri}} onError={() => setFailedUri(uri)} style={s.avatar}/> : <View style={[s.avatar, s.avatarFallback]}><JournalIcon name="account" color={c.sea}/></View>}
-    <Text style={s.authorName}>{name}</Text>
-  </View>;
+  return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url}/></View>;
 }
 
 export function Collection({records, covers, tab, onOpen, authors = {}}: {
@@ -73,7 +69,7 @@ export function Collection({records, covers, tab, onOpen, authors = {}}: {
       return <View key={record.id} style={{width: cardWidth}}>
         <Pressable accessibilityRole="button" accessibilityLabel={`${title}, ${author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}`} onPress={() => onOpen(record)} style={({pressed}) => [s.card, pressed && s.cardPressed]}>
           {covers[record.id] ? <Image accessible accessibilityRole="image" accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} style={s.gridPhoto}/> : <View style={[s.photoPlaceholder, s.gridPhoto]}><JournalIcon name="album" color={c.sea}/><Text style={s.caption}>여행의 한 장</Text></View>}
-          <View style={s.cardBody}><Text style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date} ~ {record.end_date}</Text><Text style={s.cardPlace}>{place}</Text><Text style={s.visibility}>{record.status === 'draft' ? '작성 중' : record.visibility === 'private' ? '나만 보기' : '공개 여행'}</Text></View>
+          <View style={s.cardBody}><Text style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date} ~ {record.end_date}</Text><Text numberOfLines={2} style={s.cardPlace}>{record.content||place}</Text><Text style={s.visibility}>{record.status === 'draft' ? '작성 중' : record.visibility === 'private' ? '나만 보기' : '공개 여행'}</Text></View>
         </Pressable>
         <Author author={author}/>
       </View>;
@@ -103,12 +99,12 @@ const s = StyleSheet.create({
   section: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, marginBottom: 12}, sectionTitle: {fontSize: 18, fontWeight: '700', color: c.ink},
   empty: {alignItems: 'center', paddingVertical: 26}, emptyTitle: {color: c.ink, fontSize: 18, fontWeight: '700', marginTop: 12},
   grid: {flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start'},
-  card: {minHeight: 48, padding: 8, backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 12},
+  card: {minHeight: 48, padding: 8, backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 20},
   cardPressed: {backgroundColor: c.warm, borderColor: c.focus},
-  gridPhoto: {width: '100%', aspectRatio: 1.15, borderRadius: 7},
+  gridPhoto: {width: '100%', aspectRatio: 1.05, borderRadius: 14},
   photoPlaceholder: {backgroundColor: c.warm, alignItems: 'center', justifyContent: 'center'},
   cardBody: {paddingTop: 10, paddingHorizontal: 2, paddingBottom: 4, minWidth: 0},
-  cardTitle: {fontSize: 16, fontWeight: '700', color: c.ink},
+  cardTitle: {fontSize: 14, fontWeight: '700', color: c.ink},
   cardDate: {fontSize: 12, color: c.muted, marginTop: 6},
   cardPlace: {fontSize: 12, color: c.muted, marginTop: 6},
   visibility: {fontSize: 12, color: c.sea, marginTop: 8},
@@ -118,9 +114,9 @@ const s = StyleSheet.create({
   authorName: {flex: 1, fontSize: 12, color: c.muted},
   nav: {flexShrink: 0, flexDirection: 'row', alignItems: 'stretch', paddingHorizontal: 4, paddingTop: 8, backgroundColor: c.navigation.background, borderTopWidth: 1, borderColor: c.line},
   navItem: {flex: 1, minWidth: 48, minHeight: 56, paddingHorizontal: 2, paddingVertical: 6, alignItems: 'center', justifyContent: 'center', borderRadius: 12, borderTopWidth: 2, borderTopColor: 'transparent'},
-  navSelected: {borderTopColor: c.navigation.activeIcon, backgroundColor: c.warm},
+  navSelected: {borderTopColor: 'transparent', backgroundColor: c.warm},
   navText: {fontSize: 12, marginTop: 4, color: c.navigation.inactiveLabel, textAlign: 'center', alignSelf: 'stretch'},
   navTextSelected: {color: c.navigation.activeLabel, fontWeight: '700'},
   createSlot: {flex: 1, minWidth: 48, alignItems: 'center', justifyContent: 'center'},
-  fab: {width: 52, height: 52, borderRadius: 26, backgroundColor: c.addButton.background, borderWidth: 2, borderColor: c.onPrimary, alignItems: 'center', justifyContent: 'center'},
+  fab: {width: 52, height: 52, borderRadius: 26, backgroundColor: c.addButton.background, borderWidth: 2, borderColor: c.sheet, alignItems: 'center', justifyContent: 'center'},
 });

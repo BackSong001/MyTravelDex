@@ -1,3 +1,4 @@
+import TravelerAvatar from './Avatar';
 import React, {useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, Image, Pressable, StyleSheet, Switch, Text, TextInput, View} from 'react-native';
 import {ApiError} from './api';
@@ -60,12 +61,7 @@ function Notice({children, error = false}: {children: string; error?: boolean}) 
   return <Text accessibilityRole={error ? 'alert' : undefined} accessibilityLiveRegion="polite" style={[s.hint, error && s.error]}>{children}</Text>;
 }
 
-function Avatar({url}: {url: string | null}) {
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [url]);
-  return url && !failed ? <Image source={{uri: url}} accessibilityLabel="프로필 사진" style={s.avatar} onError={() => setFailed(true)}/>
-    : <View style={s.avatar}><Text style={s.avatarText} accessible={false}>봥</Text></View>;
-}
+function Avatar({url}: {url: string | null}) {return <TravelerAvatar url={url} size={44}/>;}
 
 export function ProfileEditor(props: Props) {
   return props.session?.user?.id ? <ProfileForm key={props.session.user.id} {...props}/>
@@ -274,15 +270,15 @@ function FriendsList({session, onChanged, onMap}: FriendsProps) {
 
 const s = StyleSheet.create({
   container: {gap: 16, backgroundColor: c.paper},
-  sheet: {backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 18, padding: 18, gap: 12},
+  sheet: {backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 24, padding: 18, gap: 12},
   title: {color: c.ink, fontSize: 28, fontWeight: '800'},
   sectionTitle: {color: c.ink, fontSize: 21, fontWeight: '700'},
   label: {color: c.ink, fontSize: 16, fontWeight: '600'},
   hint: {color: c.muted, fontSize: 14, lineHeight: 22},
   error: {color: c.error},
-  input: {minHeight: 48, padding: 12, borderWidth: 1, borderColor: c.muted, borderRadius: 10, color: c.ink, backgroundColor: c.paper, fontSize: 16},
+  input: {minHeight: 48, padding: 12, borderWidth: 1, borderColor: c.line, borderRadius: 14, color: c.ink, backgroundColor: c.paper, fontSize: 16},
   button: {minHeight: 48, minWidth: 48, paddingVertical: 12, paddingHorizontal: 18, borderRadius: 12, backgroundColor: c.coral, alignItems: 'center', justifyContent: 'center'},
-  secondary: {backgroundColor: c.paper, borderWidth: 1, borderColor: c.line},
+  secondary: {backgroundColor: c.warm, borderWidth: 1, borderColor: c.line},
   buttonText: {color: c.onPrimary, fontSize: 16, fontWeight: '700', textAlign: 'center'},
   secondaryText: {color: c.ink},
   dim: {opacity: 0.55},

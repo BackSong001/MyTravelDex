@@ -1,5 +1,47 @@
 # MyTravelDex 프롬프트·작업 이력
 
+## 2026-11-07 14:12 KST — 밝은 파스텔 UI 개편 구현
+
+프롬프트 원문:
+
+> 기능확인이 끝났으면 이제 디자인적으로 업데이트를 하고 싶어.
+> 아래의 요구사항대로 디자인을 계획하고 진행해줘.
+> 단, 기존에 통과한 기능은 유지되어야해.
+>
+> 1. 불필요한 버튼은 줄이고, 가독성이 좋아야한다.
+> 2. 지도에 지역 이름에 흰박스를 지우고 글자만 회색으로 표시한다.
+> 3. 확대 축소에 맞게 글자크기가 변하며, 기본적으로 글자 비중이 많게 하지는 않는다.
+> 4. 반응형 디자인 효과를 극대화하며, UI적으로 유저가 사용했을 때, 계속 사용할 수 있게 만든다.
+> 5. 아래 하단 메뉴를 지도 테마처럼 밝은 느낌으로 바꾼다.
+> 6. 다른 배경 자체도 종이질감 색깔이 아닌, 아기자기한 색깔
+> 7. 지도에 그림자 효과를 추가하고 지역마다 레이어를 추가해서 구분.
+> 8. 여행 기록을 클릭했을 때, 썸내일이 크게 나오고, 날짜는 작게 여행이름 작게, 한줄평 나오게 하기. 썸네일을 넘기면서 다른 사진도 볼 수 있게 하기
+> 9. 디자인적으로 다른 예시를 웹 검색하여 적용해주기
+> 10. 현재 내 발자국 0/17 메뉴는 없애기
+> 11. 유저 아이콘 이미지 만들어주고, 여행기록 밑에 이름은 없애고 아이콘만 표시
+>
+> 현재 마음에 드는 메뉴
+> 1. 홈 지도 화면 (통과)
+> 2. 여행 도감 (개선)
+> 3. 친구(개선)
+> 4. My(개선)
+> 5. 리플래쉬 화면(개선)
+>
+> 전체적이로 아기자기한 밝은 느낌으로 리팩토링해주고, 반응형 효과를 극대화해서 기술적인 효과를 넣어주게 리팩토링.
+> report-prompt로 저장하고 플랜모드가 끝나면 문서 업데이트하고, 커밋 푸쉬해줘
+
+실행 요청 원문:
+
+> Implement the plan.
+
+확정 선택: 하늘·민트·코랄, 기존 프로필 사진+기본 여행 캐릭터, 앱 시작 스플래시, 지도 아래 사진 패널, 단일 범위 선택기.
+
+답변·결과 요약: frontend-design으로 밝은 공통 테마·하단 메뉴·시작 배경·도감·친구·My를 개편하고 회색 무상자 줌 라벨·얕은 경계 그림자·로컬 캐릭터를 적용했다. 홈 배지만 제거하고 My 집계·작성자 접근성·기존 권한을 유지했다. 공통 가로 갤러리·지도 사진 패널·접힌 관리 동작을 연결하고 URL 갱신·지연 응답·반응형 회귀를 확인했다. 자동 검사 182 passed/1 skipped, TypeScript·웹 export·최종 APK build 성공. Android 실제 사진 패널을 확인하고 재연결 후 최종 설치·글꼴 1.5/2.0 홈/메뉴·가로 도감을 확인했으며 기본 설정을 복원했다. 네이티브 다중 사진/모든 큰 글꼴 화면 등 미검증 범위는 TEST_CASE에 구분했다. 비밀값·diff 범위를 확인한 뒤 사용자 요청대로 커밋·푸시하며 실제 결과는 Git 상태로 확인한다. 원본 storyboard.png는 제외한다.
+
+변경 파일: `AGENTS.md`, `backend/tests/design.test.ts`, `backend/tests/maps-native.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/index.tsx`, `frontend/e2e/design.spec.ts`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/src/Avatar.tsx`, `frontend/src/Journal.tsx`, `frontend/src/PhotoGallery.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/RecordPreview.tsx`, `frontend/src/Social.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/avatarAsset.ts`, `frontend/src/gallery.ts`, `frontend/src/mapStyle.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`.
+
+추가 화면 증거: `docs/design/verification/pastel-photo-panel-20261107.png` (공개 라이선스 샘플만 포함).
+
 ## 2026-11-07 12:02 KST — 커밋·푸시 요청
 
 프롬프트 원문:
