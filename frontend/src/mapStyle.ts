@@ -10,8 +10,9 @@ export const MAP_ATTRIBUTION = 'KOSTAT 2018 · southkorea-maps · 단순화 경�
 const colored={...data,features:data.features.map(feature=>({...feature,properties:{...feature.properties,color:provinceColors[feature.properties.shapeISO]}}))};
 export function mapStyle(selected: string | null, ownIds: string[] = []): StyleSpecification {
  return {version:8,sources:{provinces:{type:'geojson',data:colored as GeoJSON.FeatureCollection,attribution:MAP_ATTRIBUTION}},layers:[
-  {id:'paper',type:'background',paint:{'background-color':c.background}},
+  {id:'paper',type:'background',paint:{'background-color':c.map.ocean}},
   {id:'province-fill',type:'fill',source:'provinces',paint:{'fill-color':['get','color'],'fill-opacity':['case',['in',['get','shapeISO'],['literal',ownIds]],1,.87],'fill-antialias':true}},
+  {id:'province-coast',type:'line',source:'provinces',paint:{'line-color':c.map.oceanHighlight,'line-width':1.2}},
   {id:'province-selected',type:'line',source:'provinces',filter:['==',['get','shapeISO'],selected??''],paint:{'line-color':c.map.regionBorderSelected,'line-width':2.5}},
  ]};
 }

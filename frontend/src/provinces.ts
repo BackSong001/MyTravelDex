@@ -89,6 +89,7 @@ export function visibleProvinceLabels(zoom: number, selected: string | null) {
 }
 export type TravelMapProps = {
   records: any[];
+  focus?: {latitude:number;longitude:number};
   landmarks?: {id:string;name:string;latitude:number;longitude:number}[];
   covers?: Record<string, string>;
   authors?: Record<string, {display_name: string | null; avatar_url: string | null}>;
@@ -104,7 +105,8 @@ export function mapRecords(records: any[], correction = false) {
     record.locations?.latitude != null && record.locations?.longitude != null &&
     validCoordinates(Number(record.locations.latitude), Number(record.locations.longitude)));
 }
-export function markerDescription(record: any, authors: TravelMapProps['authors'] = {}) {
+export function markerDescription(record: any, authors: TravelMapProps['authors'] = {}, correction = false) {
+  if(correction)return [record.title || record.locations?.place_name || '선택한 위치',record.locations?.address].filter(Boolean).join(' · ');
   return [authors[record.owner_id]?.display_name || '여행자', record.title || '나의 여행',
     [record.start_date, record.end_date].filter(Boolean).join(' ~ '), record.locations?.place_name || record.locations?.name].filter(Boolean).join(' · ');
 }

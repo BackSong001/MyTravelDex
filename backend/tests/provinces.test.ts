@@ -71,3 +71,9 @@ test('TC-VNEXT-BE005: own stamps recalculate after delete and reposition; exclud
  expect(visitedProvinceIds([seoul,{...seoul,id:'duplicate'}],'me')).toEqual(['KR-11']);
  expect(visitedProvinceIds([seoul],null)).toEqual([]);
 });
+
+test('location candidate labels show place and address without travel author metadata',()=>{
+ const candidate={title:'전주한옥마을 관광안내소',locations:{address:'전주시 한지길'}};
+ expect(markerDescription(candidate,{},true)).toBe('전주한옥마을 관광안내소 · 전주시 한지길');
+ expect(markerDescription({locations:{}},{},true)).toBe('선택한 위치');
+});

@@ -1,5 +1,29 @@
 # MyTravelDex 프롬프트·작업 이력
 
+## 2026-11-07 12:02 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬
+
+답변·결과 요약: 파란 바다 지도 장식·별도 위치 검색/후보 비교 창·실제 사진 지도 표시 검증 및 문서를 main 커밋과 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 175 passed/1 skipped와 웹·Android 빌드 결과를 유지하고 이번에는 변경 범위·비밀값·diff 형식을 확인했다. 원본 storyboard.png는 제외하며 실제 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 변경 파일(커밋 대상).
+
+## 2026-11-07 00:37 KST — 파란 바다 지도·위치 비교 창·실제 사진 검증
+
+프롬프트 원문:
+
+> 지도 배경은 파란색에 파도 물결이 나 비랭기같은 조형도 그려주고, 실제 사진을 추가했을때, 지도 UI에 표시되는 것 까지 확인하고 싶어.
+> [Image #1]
+> 그리고 위치를 검색을 할때는 새로운 창을 띄워서 검색할 결과를 지도와 대조해서 보여줘. 실제 주소 검색엔진 기반으로
+
+참고 이미지: [사용자 위치 선택 참고](design/location-selection-reference.png).
+
+답변·결과 요약: frontend-design으로 파란 바다·물결/구름/배/비행기를 구현하고 실제 Geoapify 검색·주소·후보 지도 비교·명시 확정을 별도 창에 연결했다. 취소/오류/지연 응답의 기존 입력 보존과 근접 후보의 정확한 단일 핀을 검증했다. 실제 공개 라이선스 전주 사진을 에뮬레이터에서 압축·Supabase 저장하고 홈 썸네일을 확인했으며 비공개 샘플 1개를 남겼다. 자동 검사 175 passed/1 skipped, TypeScript·웹 export·APK build/install을 통과했다. 글꼴 2배 라벨 겹침·실기기 등 한계는 TEST_CASE에 명시하고 기본 글꼴 홈으로 복원했다. 문서·화면 증거·사진 출처를 동기화했으며 커밋·푸시는 하지 않았다.
+
+변경 파일: `AGENTS.md`, `backend/tests/map-ocean.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/provinces.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/design/location-selection-reference.png`, `docs/design/verification/location-picker-20261107.png`, `docs/design/verification/ocean-home-20261107.png`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/e2e/fixtures/README.md`, `frontend/e2e/fixtures/jeonju.jpg`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/src/LocationPicker.tsx`, `frontend/src/MapOrnament.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/mapStyle.ts`, `frontend/src/provinces.ts`.
+
 ## 2026-11-07 00:04 KST — 커밋·푸시 요청
 
 프롬프트 원문:

@@ -5,6 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import {colors as c} from './theme';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
+import {oceanOrnaments,ornamentMarkup} from './MapOrnament';
 import {mapStyle, KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS} from './mapStyle';
 import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels} from './provinces';
 
@@ -13,10 +14,10 @@ setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');
 const EMPTY_COVERS: NonNullable<TravelMapProps['covers']> = {};
 const EMPTY_AUTHORS: NonNullable<TravelMapProps['authors']> = {};
 
-export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMPTY_AUTHORS, ownRecords, landmarks, onSelect, onRegion, onCoordinate, expanded = false, fullScreen = false}: TravelMapProps) {
+export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMPTY_AUTHORS, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate, expanded = false, fullScreen = false}: TravelMapProps) {
   const host = useRef<HTMLDivElement>(null), map = useRef<LibreMap | null>(null);
-  const current = useRef({records, covers, authors, ownRecords, landmarks, onSelect, onRegion, onCoordinate});
-  current.current = {records, covers, authors, ownRecords, landmarks, onSelect, onRegion, onCoordinate};
+  const current = useRef({records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate});
+  current.current = {records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate};
   const selected = useRef<string | null>(null);
   const redraw = useRef<() => void>(() => {}), restyle = useRef<() => void>(() => {});
   const clearSelection = useRef(() => {selected.current = null; restyle.current(); redraw.current();});
@@ -34,7 +35,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
     try {
       instance = new LibreMap({container:host.current,
         style:mapStyle(selected.current, Object.keys(groupProvinceRecords(current.current.ownRecords ?? []))),
-        bounds:HOME_BOUNDS, maxBounds:PAN_BOUNDS, fitBoundsOptions:{padding:{top:100,bottom:45,left:16,right:16}}, attributionControl:false,
+        bounds:HOME_BOUNDS, maxBounds:PAN_BOUNDS, fitBoundsOptions:{padding:{top:onCoordinate?16:100,bottom:onCoordinate?24:45,left:16,right:16}}, attributionControl:false,
         renderWorldCopies:false, minZoom:3,maxZoom:18,dragRotate:false,pitchWithRotate:false,cooperativeGestures:!fullScreen});
       map.current = instance;
       const activeMap = instance;
@@ -60,6 +61,12 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         markers.splice(0).forEach(marker => marker.remove());
         const {records, covers, authors, ownRecords, landmarks, onCoordinate} = current.current;
         const ownGroups = groupProvinceRecords(ownRecords ?? []), zoom = activeMap.getZoom();
+        if(zoom<9)oceanOrnaments.forEach(ornament=>{
+          const element=document.createElement('div');element.setAttribute('aria-hidden','true');element.dataset.mapOrnament=ornament.kind;element.style.pointerEvents='none';
+          // 마크업은 사용자 입력이 아닌 고정된 SVG 장식 데이터만 사용한다.
+          element.innerHTML=ornamentMarkup(ornament.kind,zoom);
+          markers.push(new Marker({element,anchor:'center'}).setLngLat(ornament.coordinate).addTo(activeMap));
+        });
         visibleProvinceLabels(zoom, selected.current).forEach(([id, label]) => {
           const text = document.createElement('span'); text.textContent = `${ownGroups[id]?.length ? '✓ ' : ''}${label.name}`;
           Object.assign(text.style, {whiteSpace:'nowrap', color:c.map.mapLabel, background:c.map.mapLabelHalo, borderRadius:'4px', padding:'3px', fontSize:'12px', fontWeight:selected.current === id ? '800' : '500'});
@@ -92,10 +99,10 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
             avatar.onerror = () => {const fallback = document.createElement('span'); fallback.textContent = '●'; avatar.replaceWith(fallback);};
             Object.assign(avatar.style, {width:'16px', height:'16px', borderRadius:'50%', objectFit:'cover'}); badge.appendChild(avatar);
           } else {const avatar = document.createElement('span'); avatar.textContent = '●'; badge.appendChild(avatar);}
-          const name = document.createElement('span'); name.textContent = grouped.length > 1 ? `${grouped.length}개 여행` : author?.display_name || '여행자';
+          const name = document.createElement('span'); name.textContent = onCoordinate ? (grouped.length > 1 ? `${grouped.length}곳` : record.title || record.locations?.place_name || '선택한 위치') : grouped.length > 1 ? `${grouped.length}개 여행` : author?.display_name || '여행자';
           Object.assign(name.style, {overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}); badge.appendChild(name); content.appendChild(badge);
           pin([Number(record.locations.longitude), Number(record.locations.latitude)], content,
-            grouped.length > 1 ? `여행 ${grouped.length}개 모아 보기` : markerDescription(record, authors), () => {
+            grouped.length > 1 ? `${onCoordinate?'장소':'여행'} ${grouped.length}${onCoordinate?'곳':'개'} 모아 보기` : markerDescription(record, authors, !!onCoordinate), () => {
               if (grouped.length > 1) {clearSelection.current(); setCluster(grouped); setSelectedId(null);}
               else {setCluster([]); current.current.onSelect?.(record);}
             }, 2);
@@ -128,12 +135,12 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
     if (fullScreen) activeMap.cooperativeGestures.disable(); else activeMap.cooperativeGestures.enable();
   }, [fullScreen, attempt, error]);
   const positions = mapRecords(records, !!onCoordinate);
-  const correction = onCoordinate || (!fullScreen && positions.length === 1) ? positions[0] : undefined;
+  const correction = focus ? {locations:focus} : onCoordinate || (!fullScreen && positions.length === 1) ? positions[0] : undefined;
   const correctionLat = correction ? Number(correction.locations.latitude) : undefined;
   const correctionLng = correction ? Number(correction.locations.longitude) : undefined;
   useEffect(() => {
-    if (correctionLat != null && correctionLng != null) {map.current?.setMaxBounds(undefined);map.current?.jumpTo({center:[correctionLng, correctionLat], zoom:onCoordinate?12:8});}
-  }, [correctionLat, correctionLng, attempt, error, !!onCoordinate]);
+    if (correctionLat != null && correctionLng != null) {map.current?.setMaxBounds(undefined);map.current?.jumpTo({center:[correctionLng, correctionLat], zoom:focus?8:onCoordinate?12:8});}
+  }, [correctionLat, correctionLng, attempt, error, !!onCoordinate, !!focus]);
   const trips = selectedId ? groupProvinceRecords(records)[selectedId] ?? [] : [];
   return <View style={[fullScreen ? {flex:1, width:'100%', height:'100%'} : {height:expanded ? 440 : 290, borderRadius:18}, {overflow:'hidden', backgroundColor:c.map.ocean}]}>
     {error ? <>
@@ -152,8 +159,8 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       ].map(control => <Pressable key={control.label} accessibilityRole="button" accessibilityLabel={control.label} onPress={control.action} style={{minWidth:48, minHeight:48, alignItems:'center', justifyContent:'center', backgroundColor:c.surface, borderRadius:8}}><Text style={{color:c.textPrimary}}>{control.text}</Text></Pressable>)}
     </View>}
     {!error && (selectedId || cluster.length > 0) && <View style={{position:'absolute', bottom:48, left:12, right:76, backgroundColor:c.surface, borderRadius:16, padding:12}}>
-      <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}><Text style={{color:c.textPrimary, fontWeight:'700'}}>{selectedId ? `${provinceLabels[selectedId].name} 여행 · ${trips.length}개` : `여행 ${cluster.length}개`}</Text><Pressable accessibilityRole="button" accessibilityLabel="지도 선택 닫기" onPress={() => {setSelectedId(null); setCluster([]); clearSelection.current();}} style={{padding:12}}><Text>닫기</Text></Pressable></View>
-      {cluster.length > 0 ? <ScrollView style={{maxHeight:180}}>{cluster.map(record => <Pressable key={record.id} accessibilityRole="button" accessibilityLabel={markerDescription(record, authors)} onPress={() => {setCluster([]); onSelect?.(record);}} style={{padding:12}}><Text style={{color:c.textPrimary}}>{markerDescription(record, authors)}</Text></Pressable>)}</ScrollView> : <>
+      <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}><Text style={{color:c.textPrimary, fontWeight:'700'}}>{selectedId ? `${provinceLabels[selectedId].name} 여행 · ${trips.length}개` : `${onCoordinate?'장소':'여행'} ${cluster.length}${onCoordinate?'곳':'개'}`}</Text><Pressable accessibilityRole="button" accessibilityLabel="지도 선택 닫기" onPress={() => {setSelectedId(null); setCluster([]); clearSelection.current();}} style={{padding:12}}><Text>닫기</Text></Pressable></View>
+      {cluster.length > 0 ? <ScrollView style={{maxHeight:180}}>{cluster.map(record => <Pressable key={record.id} accessibilityRole="button" accessibilityLabel={markerDescription(record, authors, !!onCoordinate)} onPress={() => {setCluster([]); onSelect?.(record);}} style={{padding:12}}><Text style={{color:c.textPrimary}}>{markerDescription(record, authors, !!onCoordinate)}</Text></Pressable>)}</ScrollView> : <>
         {!trips.length && <Text style={{color:c.muted}}>이 지역의 기록이 아직 없어요.</Text>}
         {onRegion && <Pressable accessibilityRole="button" onPress={() => onRegion(selectedId!, provinceLabels[selectedId!].name)} style={{padding:12}}><Text style={{color:c.sea}}>도감에서 보기</Text></Pressable>}
       </>}

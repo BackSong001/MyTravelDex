@@ -139,9 +139,10 @@ test('TC-VNEXT-UI-007 저장 중 탭 이동해도 실제 완료는 한 번·입�
  try{
   await arrival;
   try{
-   for(const label of ['여행 제목','여행 내용','여행 시작일','여행 종료일','장소 검색']){
+   for(const label of ['여행 제목','여행 내용','여행 시작일','여행 종료일']){
     await expect.soft(page.getByLabel(label,{exact:true})).not.toBeEditable();
    }
+   await expect.soft(page.getByRole('button',{name:'위치 선택',exact:true})).toBeDisabled();
   }finally{
    await page.getByRole('tab',{name:'My',exact:true}).click();
   }
