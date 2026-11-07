@@ -1,5 +1,21 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 친구 요청 검증 계획 (2026-11-07)
+
+| TC | 요구사항 | 검증 |
+|---|---|---|
+| TC-FRIEND-001 | FR-FRIEND-001 | Local HTTP로 pending 생성·본인/수신자만 조회, 자기 요청·제삼자·anon·중복/역방향·accepted 삽입 거부 |
+| TC-FRIEND-002 | FR-FRIEND-001 | 수신자만 수락·당사자만 거절/취소/삭제, ID/상태 위조 거부·재시도 오류 표시 |
+| TC-FRIEND-003 | FR-FRIEND-003 | 실제 Storage/완료 RPC fixture로 accepted 친구의 complete/public만 feed 포함, 기존 follows·profiles/RLS·private/draft/사진 권한 회귀 |
+| TC-FRIEND-004 | FR-FRIEND-001 | 실제 Local 웹에서 요청→수신자 수락/거절→친구/취소/삭제 UI·오류·입력 유지 |
+| TC-FRIEND-005 | FR-FRIEND-002 | UUID 코드·초대 URL 검색, 자동 관계 생성 없음·guest 로그인 필요·잘못된 코드 무시 |
+
+2026-11-07 23:04 KST 실행: 새 기능 Local Red 4개 후 additive migration을 로컬에만 적용했다. `friends/vnext/photo` 실제 TravelApi HTTP·RLS·Storage **52 passed**(t1w). UI 코드 부재 Red 후 친구 E2E 3개 통과, 최종 친구 E2E 4개+초대 로그인 경합 1개 **5 passed**(t2d), frontend TypeScript 통과(t2f). 요청/수락/거절/취소/삭제·동일 이름 코드 구분·네트워크 실패 시 입력 보존·잘못된 코드·초대 저장/로그인/재시작/소비를 검증했다.
+
+t14 회차1이 실제 Home/React/Chromium의 네이티브·Google 경계 대역에서 SIGNED_IN 후 지연 Google 완료가 친구 탭을 홈으로 덮어쓰는 P2를 발견했다. 저장소 `invite-session.spec.ts`로 Red(t2c)를 고정하고 두 로그인 완료 경로를 보정한 뒤 회차2에서 독립 **5 passed** 및 승인(t2h). 이 검사는 실제 Google·네이티브 SDK 수용 증거가 아니다.
+
+기존 확대 회귀는 maps/travel/vnext/friends **55 passed/1 failed**(t20). 실패는 TC-UI-004의 완료 대기 조건이 갤러리 도입 후 삭제 전에도 참이어서 DB를 조기 검사한 경합이다. 갤러리 `1 / 1`과 삭제 버튼 1개를 기다리도록 검사를 보정해 대상 **1 passed**(t26), t14는 마지막 사진 보호·대표사진 교체/삭제·잘못된 초대 **3 passed**(t29). 전체 56개를 다시 실행한 것으로 표기하지 않는다. 새 최종 코드의 Android QA AAB 생성/strict 서명·인증서 검증도 통과(t2g, 40초). 원격 migration·실제 Android 공유/초대/새 OAuth·실기기·Play 제출은 미실행이다.
+
 ## TC-RELEASE-001 — Android 제출 빌드
 
 NFR-RELEASE-001: 누락된 서명 설정·production 아닌 설정·서버 key·저장소 내부/상대 경로·실제 debug 인증서를 거부한다. 외부 QA 전용 키로 실제 Expo prebuild→Gradle bundleRelease→AAB JAR 서명·인증서 일치를 확인한다. QA 키/공개 fixture 설정으로 만든 AAB는 제출용 운영 산출물이 아니다. 재생성 후 동작과 기존 configured 개발 APK 계약을 회귀 검증한다. 실제 업로드 키·Play 제출/서명 OAuth·실기기 검증은 별도 수용 항목이며 성공 수에 합산하지 않는다. 데이터/API 변경은 없어 Local HTTP 계약은 유지한다.

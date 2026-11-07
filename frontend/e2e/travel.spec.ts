@@ -107,7 +107,8 @@ test('TC-UI-004 화면에서 대표사진 교체 후 다른 사진 삭제',async
  await expect.poll(async()=> (await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}&is_cover=eq.true`)).map((p:any)=>p.id)).toEqual([photos[1].id]);
  await expect(page.getByText(/사진 \d+ · 대표사진/)).toHaveCount(1);
  await page.getByRole('button',{name:'사진 삭제',exact:true}).first().click();
- await expect(page.getByRole('img',{name:'여행 사진',exact:true})).toHaveCount(1);
+ await expect(page.getByTestId('photo-gallery')).toContainText('1 / 1');
+ await expect(page.getByRole('button',{name:'사진 삭제',exact:true})).toHaveCount(1);
  expect((await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}`))[0]).toMatchObject({id:photos[1].id,is_cover:true});
 });
 test('TC-UI-005 비로그인 사용자의 공개 상세 조회와 비공개 전환 후 차단',async({page,browser})=>{

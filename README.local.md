@@ -272,3 +272,10 @@ node --env-file=/secure/path/production.env scripts/android-bundle.mjs
 실행기는 원본 환경 파일과 `.env.local`을 수정하지 않으며 debug 인증서·서버 key·누락 설정을 거부한다. Expo prebuild로 네이티브 파일을 재생성한 후 Gradle init script가 환경에서 업로드 서명을 읽는다. 출력은 `frontend/android/app/build/outputs/bundle/release/app-release.aab`이며 JAR 서명·업로드 인증서 일치를 확인한 뒤에만 성공을 표시한다. `app.json`의 `android.versionCode`는 제출마다 증가시킨다.
 
 실제 업로드 키의 백업/등록, Play App Signing, 배포 인증서 OAuth, Play 내부 테스트와 실기기 검증은 별도다. QA fixture 설정/임시 키로 생성한 AAB를 운영에 제출하지 않는다. 계정 삭제 경로 등 `DEVELOPMENT_STATUS.md`의 배포 차단 항목과 TC-RELEASE-001을 확인하고, 실제 제출/운영 변경은 사용자 승인 후 진행한다.
+
+
+## 친구 요청·초대 추가 — 2026-11-07
+
+기존 닉네임 중복·일방 팔로우를 유지하며 친구 코드(기존 사용자 UUID), 요청·수락·거절·취소·삭제와 설치된 앱 초대 링크를 추가한다. 초대는 검색만 열며 로그인 후에도 명시적으로 요청/수락한다. 수락한 친구도 complete/public 기록만 지도/도감에서 조회하고 private/draft·프로필 원본 권한은 확대하지 않는다. 기존 팔로우는 자동 변환/삭제하지 않는다. 링크를 열어 보관한 초대 코드는 요청 성공이나 직접 닫기 후 지운다. 연락처 수집과 미설치자 웹/스토어 fallback은 추가하지 않는다.
+
+로컬 검증용 additive migration은 `20261107140000_friend_requests.sql`이다. 원격 적용/배포는 사용자 승인 전 수행하지 않는다. 기존 문서의 상호 친구 제외 설명은 이전 구현 시점의 범위이며, 새 계약은 REQUIREMENT의 FR-FRIEND-001~003·TRD 상단·API_SPEC와 TEST_CASE의 TC-FRIEND-001~005를 따른다. 실제 Android 초대/공유/OAuth 왕복과 원격 수용 여부는 DEVELOPMENT_STATUS.md 및 최신 테스트 실행 이력에서 구분한다.

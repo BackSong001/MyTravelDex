@@ -1,5 +1,15 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 친구 요청·초대 계약 (2026-11-07)
+
+`friend_requests(requester_id uuid, recipient_id uuid, status pending|accepted default pending, created_at timestamptz)`를 additive migration으로 추가한다. 양 ID는 profiles FK/on delete cascade, 자기 요청 금지, 순서 없는 두 ID 조합은 unique다. authenticated는 당사자 행만 SELECT/DELETE, 본인이 requester인 pending 요청의 두 ID 열만 INSERT하며 대상 public_profiles 존재를 검사한다. status 열만 UPDATE할 수 있고 수신자의 pending→accepted만 RLS로 허용한다. 직접 상태/소유권 위조·제삼자·anon은 거부한다. 거절/취소/친구 삭제는 해당 관계 행 DELETE다. 원래 profiles 본인 RLS와 public_profiles 세 필드는 변경하지 않는다.
+
+`following_travel_records`는 기존 follows 또는 accepted 친구 관계를 조회하되 기존 security_invoker·complete/public 필터와 반환 필드를 유지한다. 상대의 private/draft·EXIF/원본 파일 접근은 확대하지 않는다. 관계 삭제는 legacy follows를 변경하지 않는다. 코드에는 기존 UUID를 사용해 새 식별자 테이블/개인정보를 추가하지 않는다. 설치된 앱 초대 링크 `mytraveldex:///?friend={UUID}`는 홈에서 친구 탭 검색으로 전달하고 명시적인 요청 전에는 관계를 쓰지 않는다. 잘못된 코드는 무시하며 URL은 Expo Linking으로 만든다. 유효 초대 UUID는 별도 AsyncStorage 키에 보관해 기존 OAuth callback의 `/` 복귀·재시작에서도 검색을 재개하며, 요청 성공 또는 명시적 초대 닫기 시 지운다. 기존 Google OAuth callback 계약은 변경하지 않는다. 실제 신규 OAuth 왕복과 미설치자 초대 fallback은 후속 수용 범위다.
+
+검증: TC-FRIEND-001~005로 Local DB/RLS·실제 TravelApi HTTP·웹 요청/수락/거절/삭제·초대 검색을 연결한다. 원격 migration 적용은 승인 전 수행하지 않고 로컬 `migration up`만 사용한다.
+
+전환은 migration 검토/승인·적용 후 새 클라이언트 배포 순서다. 구버전 클라이언트의 follows CRUD와 기존 feed 필드/FK 임베딩은 계속 지원하며 기존 관계 데이터를 변환하거나 삭제하지 않는다. 롤백은 우선 이전 클라이언트로 되돌리고, 필요하면 새 보정 migration으로 feed의 기존 follows 조건만 복원한다. friend_requests 행은 보존하고 테이블/데이터 삭제는 별도 승인 없이 수행하지 않는다. 링크 로그인은 Auth 이벤트와 지연 로그인 완료의 순서에 관계없이 남은 초대가 있으면 친구 탭으로 복귀한다.
+
 ## Android 제출용 AAB 계약 (2026-11-07)
 
 `npm --prefix frontend run android:bundle`은 프로세스 환경의 `EXPO_PUBLIC_APP_ENV=production`, HTTPS Supabase URL, 공개 anon/publishable key와 `ANDROID_UPLOAD_STORE_FILE`, `ANDROID_UPLOAD_STORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`, `ANDROID_UPLOAD_KEY_PASSWORD`를 검증한다. 실제 설정 파일은 저장소 밖에서 로드하며 루트 .env나 frontend/.env.local을 자동 읽거나 변경하지 않는다. 업로드 키 경로는 저장소 밖 절대 경로여야 하고 keytool로 실제 인증서를 읽어 debug 인증서를 거부한다. JDK 17/Android SDK와 기존 Expo/Gradle 의존성을 사용한다.

@@ -6,6 +6,8 @@ MyTravelDex는 갤러리 사진의 메타데이터와 위치정보를 기반으�
 
 ## 여행가봥 UI·소셜 구현
 
+- 2026-11-07 친구 요청 추가는 TRD 상단 계약을 따른다. 기존 follows는 유지하고 friend_requests의 pending→accepted만 수신자 RLS로 허용한다. 고유 코드는 기존 UUID를 사용하고 초대는 검색만 연다. 친구여도 complete/public만 제공하며 원격 migration은 승인 전 적용하지 않는다.
+
 - 여행가봥 UI·소셜 구현 기준은 `docs/DISAN.md`, `docs/design/storyboard.png`, `frontend/src/design/colors.json`이며 루트 스토리보드 원본은 유지한다. 컬러 JSON 원본은 유지하고 `src/theme.ts`와 지도에서 참조한다. 글자·상태 색상만 접근성 의미 토큰으로 보완한다.
 - FR-UI-001~011·FR-PROFILE-001·FR-SOCIAL-001·FR-STAMP-001의 UI와 API를 구현했다. 실제 검증 범위·미검증 조건은 `docs/TEST_CASE.md` 최신 실행 이력을 따른다. 구현 여부와 전체 수용 완료를 구분한다.
 - 목표 표시명은 여행가봥, 하단은 홈·여행도감·+·친구·My다. package/scheme은 유지한다. 앱 코드 구현이 요청될 때만 UI·migration을 변경하고 백엔드→실제 Local HTTP→웹→Android 순서로 Red→Green→Refactor를 검증한다.

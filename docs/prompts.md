@@ -1025,3 +1025,10 @@ t14는 코드 리뷰와 QA를 담당한다.
 위 t12 지속 개발 요청의 후속 작업으로 외부 업로드 키를 사용하는 로컬 AAB 경로를 구현했다. 기존 Gradle/JDK를 재사용하고 private 값은 명령행/생성 소스에 쓰지 않는다. 설정/서명/변조 거부와 기존 configured 검사 9개 통과, 실제 QA AAB 빌드/인증서 일치 검증 2회 통과, t14 회차1/3 승인. QA 키는 폐기했고 산출물은 /tmp/mytraveldex-qa-20261107.aab로 이동했다. 실제 운영 배포·키 등록·실기기/Play OAuth·계정 삭제/친구 요청은 미완료다. 계정 삭제 정책 선택을 요청했으며 답변 전 적용하지 않는다.
 
 변경 파일: `scripts/android-bundle.mjs`, `scripts/android-bundle.test.mjs`, `scripts/android-upload-signing.gradle`, `frontend/package.json`, `frontend/app.json`, `.gitignore`, `.env.example`, `AGENTS.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `DEVELOPMENT_STATUS.md`, `docs/prompts.md`.
+
+
+### 2026-11-07 23:05 KST — 동일 요청 후속 결과: 친구 요청·초대
+
+친구 요청 additive migration을 로컬에만 적용하고 UUID 친구 코드, 요청·수락·거절·취소·삭제, 설치 앱 초대 검색/공유와 로그인·재시작 사이 초대 보존을 구현했다. 기존 팔로우와 complete/public 권한은 유지했다. 실제 Local HTTP/RLS/Storage 52개, 최종 친구·초대 5개, TypeScript 및 최신 Android QA AAB 빌드·서명 검증이 통과했다. 확대 회귀 55통과/1실패의 기존 사진 삭제 검사 대기 조건을 수정해 대상 재통과했다. t14가 발견한 지연 Google 완료의 초대 탭 경합을 별도 Red/Green으로 고정하고 회차2/3 최종 승인을 받았다. 원격 migration·실제 Android 초대/OAuth·계정 삭제·배포는 미완료이며 정책/승인 대기 범위를 DEVELOPMENT_STATUS.md에 기록했다.
+
+변경 파일: `backend/supabase/migrations/20261107140000_friend_requests.sql`, `backend/tests/friends.test.ts`, `frontend/src/Social.tsx`, `frontend/app/index.tsx`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/invite-session.spec.ts`, `frontend/e2e/travel.spec.ts`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/planning.md`, `AGENTS.md`, `README.md`, `README.local.md`, `DEVELOPMENT_STATUS.md`, `docs/prompts.md`.

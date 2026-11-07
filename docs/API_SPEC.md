@@ -1,5 +1,11 @@
 # MyTravelDex API 명세서
 
+## 친구 요청 추가 (2026-11-07)
+
+인증된 사용자만 `/rest/v1/friend_requests`를 사용한다. GET은 자신이 requester/recipient인 `requester_id,recipient_id,status,created_at`만 반환한다. POST body는 `{requester_id:현재사용자UUID,recipient_id:공개프로필UUID}`이며 status는 서버 기본 pending이다. 자기 요청은 400/23514, 같은 쌍/역방향 중복은 409/23505, 위조/비공개 대상/anon은 401/403이다. PATCH `?requester_id=eq.{UUID}&recipient_id=eq.{UUID}`와 `{status:"accepted"}`는 pending 수신자만 가능하며 권한 밖 행은 빈 결과다. DELETE는 같은 쌍 필터로 당사자만 거절/취소/친구 삭제하고 타인의 행은 빈 결과다. status 외 변경은 403이다. 클라이언트는 변경 결과 행이 없는 것을 성공으로 표시하지 않는다.
+
+`following_travel_records`는 기존 팔로우와 accepted 친구의 complete/public 합집합이며 기존 응답·FK 임베딩·권한·photo-url 만료 계약을 유지한다. 친구 코드는 public_profiles.id의 UUID이고 해당 projection은 기존 세 필드만 제공한다. 초대 링크는 검색 진입만 제공하고 자동 관계 생성 API는 없다.
+
 ## 밝은 파스텔 UI 개편 (2026-11-07)
 
 기존 기능 계약을 유지하는 디자인 개편이다. 원본 팔레트/스토리보드는 보존하고 theme 의미 토큰으로 하늘 #EFFAFF·민트 #E9F8F1·기존 코랄을 확장한다. 홈 발자국 배지만 제거하고 My 스탬프는 유지한다. 네 지도 범위는 선택기 하나로 통합하고 로그인/계정은 My로 접근한다. 지역명은 상자/체크 없는 회색 글자로 줌 5~9에서 11~15로 변화하며 충돌과 글꼴 확대를 고려한다. 기존 17개 실제 경계 아래 얕은 그림자·구분 레이어를 추가하되 좌표/경계와 선택 강조는 보존한다.
