@@ -251,7 +251,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(page.getByText('친구 도감 여행자',{exact:true})).toHaveCount(0);
   await admin(`/rest/v1/profiles?id=eq.${other.id}`,'PATCH',{display_name:'다른 친구 여행자'});
   await page.getByLabel('공개 여행자 닉네임 또는 사용자 ID',{exact:true}).fill(peer.id);
-  const search=page.waitForResponse(r=>r.url().includes('/rest/v1/public_profiles?')&&new URL(r.url()).searchParams.get('id')===`eq.${peer.id}`);
+  const search=page.waitForResponse(r=>r.url().includes('/rest/v1/friend_directory?')&&new URL(r.url()).searchParams.get('id')===`eq.${peer.id}`);
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();expect((await search).ok()).toBe(true);
   await expect(page.getByText('친구 도감 여행자',{exact:true})).toBeVisible();
   const followed=page.waitForResponse(r=>r.url().endsWith('/rest/v1/follows')&&r.request().method()==='POST');
@@ -272,7 +272,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(page.getByRole('button',{name:/^친구 공개 여행,/})).toBeVisible();
   await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
-  const peerRow=page.locator('div').filter({has:page.getByText(peer.id,{exact:true})}).filter({has:page.getByRole('button',{name:'지도 보기',exact:true})}).last();
+  const peerRow=page.getByTestId(`friend-person-${peer.id}`).first();
   await peerRow.getByRole('button',{name:'지도 보기',exact:true}).click();
   await expect(page.getByRole('tab',{name:'홈',exact:true})).toHaveAttribute('aria-selected','true');
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
@@ -289,7 +289,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
    await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toHaveCount(0);
   }
   await page.getByRole('tab',{name:'친구',exact:true}).click();
-  const otherRow=page.locator('div').filter({has:page.getByText(other.id,{exact:true})}).filter({has:page.getByRole('button',{name:'팔로우 해제',exact:true})}).last();
+  const otherRow=page.getByTestId(`friend-person-${other.id}`).first();
   await otherRow.getByRole('button',{name:'팔로우 해제',exact:true}).click();
   await expect.poll(()=>admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${other.id}`)).toEqual([]);
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
@@ -298,7 +298,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   const removed=page.waitForResponse(r=>r.url().includes('/rest/v1/follows?')&&r.request().method()==='DELETE');
-  await page.getByRole('button',{name:'팔로우 해제',exact:true}).click();expect((await removed).ok()).toBe(true);
+  await page.getByTestId(`friend-person-${peer.id}`).first().getByRole('button',{name:'팔로우 해제',exact:true}).click();expect((await removed).ok()).toBe(true);
   expect(await admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${peer.id}`)).toEqual([]);
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();if(await page.getByRole('button',{name:/^표시 범위/}).isVisible())await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'친구 여행',exact:true}).click();
   await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();

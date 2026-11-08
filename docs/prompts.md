@@ -1083,3 +1083,19 @@ t14는 코드 리뷰와 QA를 담당한다.
 결과: 기존metadata자동기간/첫GPS·수동보존을재사용하고위치검색바/별도검색창·EXIF원좌표/source유지주소보완과지연guard를구현했다. 혼합사진/HTTP75·최종위치/Home9·타입과확대대상보정을검증하고t14회차1승인받았다. mytrveldex최신APK명시설치/해시일치후원본파일의합성유효EXIF실제수신→기간/GPS/실제주소자동표시·누락빈검색바진입을확인했다. 검증입력/사진정리후빈검색바를열어두었다. 원격쓰기/배포/본문자동생성은없고실기기/클라우드전용은미검증이다.
 
 변경 파일: `AGENTS.md`, `README.local.md`, `DEVELOPMENT_STATUS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/src/LocationPicker.tsx`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/photo-autofill.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `docs/design/verification/photo-location-native-metadata-20261108.png`, `docs/design/verification/photo-location-native-search-20261108.png`.
+
+
+## 2026-11-08 12:42 KST
+
+### 사용자 프롬프트 원문
+
+마이프로필에 로그인한 고유ID를 6자리로 만들어주고, 친구추가 기능에서 db에 있는 모든 친구 리스트가 나타나게 해줘.
+그리고 산이나 풀 조형물들을 입체적이게가아닌 선으로만 표시해서 간단하게만 표현해줘.
+
+### 답변·결과 요약
+
+UUID/FK를 보존한 서버6자리불변ID/My·코드검색/초대, 공개동의전체목록20명페이지/새로고침, 산풀선표현 구현. LocalHTTP55/outline5/타입·관련웹회귀 및 별도Medium_Phone Local최신APK실조작검증, t14회차1승인. actual/LocalAPK각빌드성공이며 사용자mytrveldex/실제서버는미변경. 원격3migration dryrun만완료/적용승인대기. 중복테스트·웹/native·실제서버수용은분리해TEST_CASE기록.
+
+### 변경 파일
+
+AGENTS.md, README.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,DISAN,prompts}.md, backend/supabase/migrations/20261108040000_friend_codes.sql, backend/tests/{friend-codes,map-ocean}.test.ts, frontend/src/{Social,MapOrnament}.tsx, frontend/e2e/{friends,vnext,maps}.spec.ts, docs/design/verification/{outline-map-native,six-code-profile-native,six-code-search-native}-20261108.png.

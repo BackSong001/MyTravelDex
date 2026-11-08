@@ -22,8 +22,8 @@ export const landOrnaments: {id:string;kind:OrnamentKind;coordinate:[number,numb
  {id:'south-grass',kind:'grass',coordinate:[126.8,34.7]},
 ];
 const paths: Record<OrnamentKind, {d: string; fill: string; stroke: string}[]> = {
- mountain: [{d:'M3 36 L17 10 L26 25 L32 17 L43 36 Z',fill:c.map.visitedRegionBorder,stroke:c.map.regionBorderSelected},{d:'M12 20 L17 10 L23 20 L18 17 Z',fill:c.surface,stroke:c.surface},{d:'M17 10 L26 36 L43 36 L32 17 L26 25 Z',fill:c.map.regionBorderSelected,stroke:c.map.regionBorderSelected}],
- grass: [{d:'M4 34 Q22 28 40 34 M12 32 Q7 21 11 16 M20 31 Q23 16 19 10 M28 32 Q35 18 38 20',fill:'none',stroke:c.map.regionBorderSelected},{d:'M11 24 Q1 23 4 17 Q13 16 11 24 M23 22 Q32 20 30 13 Q20 14 23 22',fill:c.map.visitedRegionBorder,stroke:c.map.regionBorderSelected}],
+ mountain: [{d:'M3 36 L17 10 L26 25 L32 17 L43 36 M12 20 L17 17 L23 20',fill:'none',stroke:c.map.regionBorderSelected}],
+ grass: [{d:'M4 34 Q22 28 40 34 M12 32 Q7 21 11 16 M20 31 Q23 16 19 10 M28 32 Q35 18 38 20 M11 24 Q1 23 4 17 Q13 16 11 24 M23 22 Q32 20 30 13 Q20 14 23 22',fill:'none',stroke:c.map.regionBorderSelected}],
  wave: [
   {d: 'M3 4 Q8 0 13 4 T23 4 T33 4 T43 4 M8 12 Q13 8 18 12 T28 12 T38 12 T48 12', fill: 'none', stroke: c.map.waterDecoration},
  ],

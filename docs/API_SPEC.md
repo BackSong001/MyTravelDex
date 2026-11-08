@@ -1,5 +1,9 @@
 # MyTravelDex API 명세서
 
+## 짧은 친구 ID와 디렉터리 API (2026-11-08)
+
+본인 `GET /rest/v1/profiles?id=eq.<uuid>&select=friend_code` → `{friend_code:"100000"}`. 본인 RLS 유지, 다른 프로필 직접조회는 기존처럼 거부/빈목록. friend_code PATCH/클라이언트 발급은 허용하지 않는다. `GET /rest/v1/friend_directory?select=id,display_name,avatar_url,friend_code&order=display_name.asc,id.asc&limit=20&offset=0`는 공개동의 행만 반환한다. 짧은ID `friend_code=eq.<6digits>`, legacy UUID `id=eq.<uuid>`, 닉네임은 기존 escape한 ilike 부분검색. 전체 탐색은 페이지별 조회이며 모든 Auth 데이터 일괄 다운로드 API는 없다. 요청/관계는 기존 UUID friend_requests/follows를 사용한다. public_profiles·friend_recommendations의 기존3필드 응답은 변경하지 않는다.
+
 ## 사진 위치 자동 보완 클라이언트 (2026-11-08)
 
 기존 `POST /functions/v1/geocode-location`의 `{latitude,longitude}` 역조회 응답으로 검색바 장소/주소를 보완한다. 요청·인증·외부 오류 계약은 변경하지 않는다. 응답의 좌표/source는 EXIF 대표 위치를 대체하지 않으며 저장은 기존 locations source=exif와 원사진좌표를 사용한다. 수동 장소 확정 후에는 해당 장소의 기존 source/provider 정보를 사용한다. GPS 누락은 검색/핀확정이 필요하고 빈값을 0좌표나 현재 위치로 전송하지 않는다.

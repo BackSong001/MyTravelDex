@@ -56,3 +56,13 @@ test('TC-MAPLIBRE-009: land illustrations stay inside provinces and depth stays 
  for(const {kind,coordinate:[lng,lat]} of landOrnaments){expect(provinceAt(lat,lng)).toBeDefined();expect(ornamentMarkup(kind)).toContain('pointer-events="none"');expect(ornamentMarkup(kind,9)).toBe('');}
  const style=mapStyle(null);expect(style.layers.findIndex(l=>l.id==='province-depth')).toBeLessThan(style.layers.findIndex(l=>l.id==='province-fill'));
 });
+
+
+test('TC-MAPLIBRE-010: mountains and grass use shared outline paths without filled faces',async()=>{
+ const {default:MapOrnament,ornamentMarkup}=await import('../../frontend/src/MapOrnament');
+ for(const kind of ['mountain','grass'] as const){
+  const paths=MapOrnament({kind,zoom:8})!.props.children.props.children;
+  for(const path of paths){expect(path.props.fill).toBe('none');expect(path.props.stroke).toBeTruthy();}
+  expect(ornamentMarkup(kind)).not.toMatch(/fill="(?!none)/);
+ }
+});

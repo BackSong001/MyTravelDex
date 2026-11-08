@@ -8,12 +8,12 @@ import {api} from './runtime';
 import {colors as c} from './theme';
 
 type Props = {session: any; onChanged?: () => void};
-type Author = {id: string; display_name: string | null; avatar_url: string | null};
+type Author = {id: string; display_name: string | null; avatar_url: string | null; friend_code?: string};
 type Follow = {followee_id: string; created_at: string};
 type Connection = {requester_id: string; recipient_id: string; status: 'pending' | 'accepted'; created_at: string};
-const authorFields = 'id,display_name,avatar_url';
+const authorFields = 'id,display_name,avatar_url,friend_code';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const isFriendCode = (value: unknown): value is string => typeof value === 'string' && uuid.test(value);
+export const isFriendCode = (value: unknown): value is string => typeof value === 'string' && (uuid.test(value) || /^[0-9]{6}$/.test(value));
 
 function path(table: string, query: Record<string, string>) {
   return `/rest/v1/${table}?${new URLSearchParams(query)}`;
@@ -23,8 +23,23 @@ function searchPath(value: string, offset = 0) {
   const term = value.trim();
   const query: Record<string, string> = {select: authorFields, order: 'display_name.asc,id.asc', limit: '20', offset: String(offset)};
   if (uuid.test(term)) query.id = `eq.${term}`;
+  else if (/^[0-9]{6}$/.test(term)) query.friend_code = `eq.${term}`;
   else if (term) query.display_name = `ilike.*${term.replace(/[\\%_*]/g, '\\$&')}*`;
-  return path('public_profiles', query);
+  return path('friend_directory', query);
+}
+
+function useFriendCode(owner?: string) {
+  const [code, setCode] = useState(''), [error, setError] = useState(''), [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let current = true; setCode(''); setError('');
+    if (owner) void api.request(path('profiles', {id:`eq.${owner}`,select:'friend_code'})).then(rows => {
+      if (!current) return;
+      if (!/^[0-9]{6}$/.test(rows[0]?.friend_code ?? '')) throw new Error('Missing friend code');
+      setCode(rows[0].friend_code);
+    }).catch(() => {if (current) setError('친구 ID를 불러오지 못했어요. 다시 시도해 주세요.');});
+    return () => {current = false;};
+  }, [owner, attempt]);
+  return {code, error, retry:() => setAttempt(value => value + 1)};
 }
 
 function nickname(value: string) {
@@ -74,6 +89,7 @@ export function ProfileEditor(props: Props) {
 
 function ProfileForm({session, onChanged}: Props) {
   const owner = session.user.id as string;
+  const identity = useFriendCode(owner);
   const googleAvatar = typeof session.user.user_metadata?.avatar_url === 'string' ? session.user.user_metadata.avatar_url : null;
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -127,6 +143,8 @@ function ProfileForm({session, onChanged}: Props) {
   const disabled = loading || saving || !loaded;
   return <View style={s.sheet}>
     <Text accessibilityRole="header" style={s.title}>나의 프로필</Text>
+    <Text style={s.label}>내 친구 ID</Text><Text selectable accessibilityLabel="내 친구 코드" style={s.identifier}>{identity.code || '불러오는 중…'}</Text>
+    {!!identity.error && <><Notice error>{identity.error}</Notice><Button label="친구 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
     <Text style={s.hint}>여행 이야기에 함께 표시할 이름과 사진을 골라요.</Text>
     {loading && <ActivityIndicator color={c.sea} accessibilityLabel="프로필 불러오는 중"/>}
     <Avatar url={avatar}/>
@@ -155,13 +173,10 @@ export function Friends(props: FriendsProps) {
 
 function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: FriendsProps) {
   const owner = session?.user?.id as string | undefined;
-  const inviteLink = owner ? Linking.createURL('/', {scheme: 'mytraveldex', queryParams: {friend: owner}}) : '';
+  const identity = useFriendCode(owner);
+  const inviteLink = identity.code ? Linking.createURL('/', {scheme: 'mytraveldex', queryParams: {friend: identity.code}}) : '';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Author[]>([]);
-  const [recommendations, setRecommendations] = useState<Author[]>([]);
-  const [recommending, setRecommending] = useState(false);
-  const [recommendError, setRecommendError] = useState('');
-  const recommendationRequest = useRef(0);
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
@@ -182,20 +197,6 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
   const searchRequest = useRef(0);
   const listRequest = useRef(0);
 
-  async function loadRecommendations() {
-    if (!owner || busyRef.current) return;
-    const request = ++recommendationRequest.current;
-    setRecommending(true); setRecommendError('');
-    try {
-      const people: Author[] = await api.rpc('friend_recommendations', {});
-      if (active.current && request === recommendationRequest.current) setRecommendations(people);
-    } catch (error) {
-      if (active.current && request === recommendationRequest.current) setRecommendError(message(error));
-    } finally {
-      if (active.current && request === recommendationRequest.current) setRecommending(false);
-    }
-  }
-
   async function loadFollows() {
     if (!owner) return;
     const request = ++listRequest.current;
@@ -211,7 +212,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
       for (let i = 0; i < people.length; i += 20) {
         const ids = people.slice(i, i + 20);
         if (!ids.every(id => uuid.test(id))) throw new Error('팔로잉 정보를 확인하지 못했습니다.');
-        profiles.push(...await api.request(path('public_profiles', {select: authorFields, id: `in.(${ids.join(',')})`})));
+        profiles.push(...await api.request(path('friend_directory', {select: authorFields, id: `in.(${ids.join(',')})`})));
       }
       if (!active.current || request !== listRequest.current) return;
       setFollows(rows); setConnections(relationships); setAuthors(Object.fromEntries(profiles.map(profile => [profile.id, profile]))); setLoaded(true);
@@ -221,8 +222,9 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 
   useEffect(() => {
     active.current = true;
-    void loadFollows(); void loadRecommendations();
-    return () => {active.current = false; searchRequest.current++; listRequest.current++; recommendationRequest.current++;};
+    void loadFollows();
+    if (!isFriendCode(inviteCode)) void search('');
+    return () => {active.current = false; searchRequest.current++; listRequest.current++;};
   }, [owner]);
 
   useEffect(() => {
@@ -242,7 +244,6 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 
   async function toggle(target: string, remove: boolean) {
     if (!owner || !loaded || busyRef.current) return;
-    recommendationRequest.current++; setRecommending(false);
     busyRef.current = true; setBusy(target); setActionError(''); setSuccess('');
     // 갱신 전 시작된 목록 응답이 변경 결과를 덮어쓰지 않게 한다.
     listRequest.current++; setLoading(false);
@@ -251,10 +252,9 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
       if (!active.current) return;
       setFollows(previous => remove ? previous.filter(row => row.followee_id !== target)
         : previous.some(row => row.followee_id === target) ? previous : [{followee_id: target, created_at: new Date().toISOString()}, ...previous]);
-      const profile = results.find(row => row.id === target) ?? recommendations.find(row => row.id === target);
+      const profile = results.find(row => row.id === target);
       if (profile) setAuthors(previous => ({...previous, [target]: profile}));
       setSuccess(remove ? '팔로우를 해제했어요.' : '팔로우했어요. 친구의 공개 여행을 만나보세요.');
-      setRecommendations(previous => previous.filter(profile => profile.id !== target));
       onChanged?.();
     } catch (error) {if (active.current) setActionError(message(error));}
     finally {busyRef.current = false; if (active.current) setBusy(null);}
@@ -265,8 +265,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
   }
 
   async function connect(target: string, action: 'request' | 'accept' | 'remove') {
-    if (!owner || !loaded || busyRef.current || !isFriendCode(target) || owner === target) return;
-    recommendationRequest.current++; setRecommending(false);
+    if (!owner || !loaded || busyRef.current || !uuid.test(target) || owner === target) return;
     busyRef.current = true; setBusy(target); setActionError(''); setSuccess(''); listRequest.current++; setLoading(false);
     try {
       const existing = connection(target);
@@ -277,11 +276,10 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
       if (!rows.length) throw new Error('친구 요청이 변경되었어요. 목록을 새로고침한 뒤 다시 확인해 주세요.');
       if (!active.current) return;
       setConnections(previous => [...previous.filter(row => row.requester_id !== target && row.recipient_id !== target), ...(action === 'remove' ? [] : rows)]);
-      const profile = results.find(row => row.id === target) ?? recommendations.find(row => row.id === target);
+      const profile = results.find(row => row.id === target);
       if (profile) setAuthors(previous => ({...previous, [target]: profile}));
       setSuccess(action === 'request' ? '친구 요청을 보냈어요.' : action === 'accept' ? '친구가 되었어요. 공개된 여행을 함께 볼 수 있어요.' : '친구 관계 또는 요청을 삭제했어요. 기존 팔로우는 유지돼요.');
-      setRecommendations(previous => previous.filter(profile => profile.id !== target));
-      if (target === inviteCode && action !== 'remove') onInviteHandled?.();
+      if ((target === inviteCode || profile?.friend_code === inviteCode) && action !== 'remove') onInviteHandled?.();
       onChanged?.();
     } catch (error) {
       if (active.current) {
@@ -301,7 +299,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 
   function row(id: string, profile: Author | undefined, followed: boolean) {
     return <View key={id} testID={`friend-person-${id}`} style={s.person}>
-      <View style={s.identity}><Avatar url={profile?.avatar_url ?? null}/><View style={s.flex}><Text style={s.name}>{profile?.display_name || '여행자'}</Text><Text selectable style={s.identifier}>{id}</Text>{!profile && <Text style={s.hint}>공개 프로필을 사용하지 않는 여행자</Text>}</View></View>
+      <View style={s.identity}><Avatar url={profile?.avatar_url ?? null}/><View style={s.flex}><Text style={s.name}>{profile?.display_name || '여행자'}</Text><Text selectable style={s.identifier}>{profile?.friend_code || '친구 ID 비공개'}</Text>{!profile && <Text style={s.hint}>공개 프로필을 사용하지 않는 여행자</Text>}</View></View>
       <View style={s.actions}>
         {connectionControls(id)}
         {followed && onMap && <Button label="지도 보기" onPress={() => onMap(id)} secondary/>}
@@ -318,10 +316,11 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     {!!actionError && <Notice error>{actionError}</Notice>}{!!success && <Notice>{success}</Notice>}
     {inviteCode && <View><Notice>초대한 여행자를 코드로 검색했어요. 친구 요청은 직접 선택해 주세요.</Notice><Button label="초대 검색 닫기" onPress={() => onInviteHandled?.()} secondary/></View>}
     {owner && <View style={s.sheet}>
-      <Text accessibilityRole="header" style={s.sectionTitle}>내 친구 코드</Text><Text selectable accessibilityLabel="내 친구 코드" style={s.identifier}>{owner}</Text>
+      <Text accessibilityRole="header" style={s.sectionTitle}>내 친구 코드</Text><Text selectable accessibilityLabel="내 친구 코드" style={s.identifier}>{identity.code || '불러오는 중…'}</Text>
+      {!!identity.error && <><Notice error>{identity.error}</Notice><Button label="친구 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
       <Text style={s.hint}>같은 닉네임도 코드로 구분해요. 초대 링크는 설치된 앱에서 여행자 검색을 열고, 요청과 수락은 직접 선택해요.</Text>
       <Text selectable accessibilityLabel="내 초대 링크" style={s.identifier}>{inviteLink}</Text>
-      <Button label="초대 링크 공유" onPress={() => {void Share.share({message: `여행가봥 친구 초대\n${inviteLink}`}).catch(error => {if (active.current) setActionError(message(error));});}} secondary/>
+      <Button label="초대 링크 공유" disabled={!identity.code} onPress={() => {void Share.share({message: `여행가봥 친구 초대\n${inviteLink}`}).catch(error => {if (active.current) setActionError(message(error));});}} secondary/>
       <Text accessibilityRole="header" style={s.sectionTitle}>친구와 요청</Text>
       {!connections.length && loaded && <Notice>아직 친구나 받은 요청이 없어요.</Notice>}
       {connections.map(current => {const id = current.requester_id === owner ? current.recipient_id : current.requester_id;
@@ -335,31 +334,25 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
       {loaded && !loading && !listError && !follows.length && <Notice>아직 팔로우한 여행자가 없어요. 아래에서 닉네임을 검색해 보세요.</Notice>}
       {follows.map(follow => row(follow.followee_id, authors[follow.followee_id], true))}
     </View>}
-    <View style={s.sheet}>
+    <View accessibilityLabel="전체 여행자 목록" style={s.sheet}>
       <Text accessibilityRole="header" style={s.sectionTitle}>여행자 찾기</Text>
-      <TextInput accessibilityLabel="공개 여행자 닉네임 또는 사용자 ID" placeholder="닉네임 또는 사용자 ID" placeholderTextColor={c.muted}
+      <Text style={s.hint}>DB에 등록된 공개 여행자 전체를 페이지별로 볼 수 있어요. 비공개 프로필은 표시하지 않아요.</Text>
+      <TextInput accessibilityLabel="공개 여행자 닉네임 또는 사용자 ID" placeholder="닉네임 또는 6자리 친구 ID" placeholderTextColor={c.muted}
         value={query} onChangeText={setQuery} style={s.input} returnKeyType="search" onSubmitEditing={() => void search(query)} autoCapitalize="none"/>
       <Button label={searching ? '검색 중…' : '여행자 검색'} onPress={() => void search(query)} disabled={searching}/>
+      <View style={s.actions}><Button label="전체 여행자 보기" onPress={() => {setQuery(''); void search('');}} disabled={searching} secondary/><Button label="여행자 목록 새로고침" onPress={() => void search(lastQuery, offset)} disabled={searching} secondary/></View>
+      <Text accessibilityRole="header" style={s.sectionTitle}>{lastQuery.trim() ? '검색 결과' : '전체 여행자'}</Text>
       {searching && <ActivityIndicator color={c.sea} accessibilityLabel="여행자 검색 중"/>}
       {!!searchError && <Notice error>{searchError}</Notice>}
       {!searched && !searching && <Notice>공개에 동의한 프로필만 검색돼요. 빈 검색어로 공개 여행자를 둘러볼 수 있어요.</Notice>}
       {searched && !searching && !searchError && !results.length && <Notice>검색된 여행자가 없어요. 다른 닉네임이나 사용자 ID를 입력해 주세요.</Notice>}
       {results.map(profile => row(profile.id, profile, follows.some(follow => follow.followee_id === profile.id)))}
       {searched && <View style={s.actions}>
-        {offset > 0 && <Button label="이전 검색 결과" disabled={searching} onPress={() => void search(lastQuery, Math.max(0, offset - 20))} secondary/>}
-        {more && <Button label="다음 검색 결과" disabled={searching} onPress={() => void search(lastQuery, offset + 20)} secondary/>}
+        {offset > 0 && <Button label="이전 여행자" disabled={searching} onPress={() => void search(lastQuery, Math.max(0, offset - 20))} secondary/>}
+        {more && <Button label="다음 여행자" disabled={searching} onPress={() => void search(lastQuery, offset + 20)} secondary/>}
       </View>}
     </View>
-    {owner && !searched && <View accessibilityLabel="추천 친구" style={s.sheet}>
-      <Text accessibilityRole="header" style={s.sectionTitle}>추천 친구</Text>
-      <Text style={s.hint}>공개 프로필에서 최대 50명을 만나보세요. 같은 이름은 친구 ID로 구분해요.</Text>
-      <Button label="추천 새로고침" disabled={recommending || busy !== null} onPress={() => void loadRecommendations()} secondary/>
-      {recommending && <ActivityIndicator color={c.sea} accessibilityLabel="추천 친구 불러오는 중"/>}
-      {!!recommendError && <Notice error>{recommendError}</Notice>}
-      {!recommending && !recommendError && !recommendations.length && <Notice>추천할 여행자가 아직 없어요. 친구 ID로 검색하거나 나중에 새로고침해 주세요.</Notice>}
-      {recommendations.filter(profile => profile.id !== owner && !connection(profile.id) && !follows.some(follow => follow.followee_id === profile.id))
-        .map(profile => row(profile.id, profile, false))}
-    </View>}
+
   </View>;
 }
 

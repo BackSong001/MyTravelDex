@@ -1,5 +1,21 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 6자리 ID·전체 목록·선 장식 수용 계획 (2026-11-08)
+
+TC-FRIEND-008 ↔ FR-FRIEND-005: 실제Local Auth 신규/동시계정에6숫자·중복없음·닉네임수정후불변, 클라이언트/관리자의코드변경거부·타인profiles RLS·공개디렉터리최소4필드/비공개제외. 기존UUID/API3필드·친구수락후공개사진회귀를 유지한다.
+TC-FRIEND-009 ↔ FR-FRIEND-006: My ID표시/6숫자검색요청·새6코드초대/기존UUID초대·요청성공초대소비, 초기전체목록·20페이지이전/다음·새로고침·오류입력보존·기존관계표시. 새코드조회오류가프로필편집을막지않음. 계정전환지연guard 및반응형을 확인한다.
+TC-MAPLIBRE-010 ↔ FR-UI-016: native/web 공통산/풀SVG의 모든 path fill=none, 기존anchor/줌/보정/a11y·터치제외·실제지도회귀를 확인한다. Android는AVD이름mytrveldex확인/최신설치파일해시 및서버schema적용여부를 구분한다.
+
+### 2026-11-08 12:42 KST — 작업10 구현/검증 결과
+
+- Red(t5q): 신규 Local HTTP 요청에서 profiles.friend_code 부재를 확인했다. setup 실패로 본문2개는 skipped이며 두 행동 실패로 합산하지 않는다. reset 없이 신규 migration up 후 실제 Local HTTP friend-codes2+friends5+vnext4+photo44=**55 passed**(t5r). 동시24계정 유일/6숫자·metadata 주입무시·불변/권한·공개4필드/기존3필드·비공개제외·20+3페이지를 확인했다.
+- 단위: map-ocean **5 passed**(t5v), 산/풀 native/web 공통 path fill=none·기존anchor/줌/터치제외 포함. TypeScript 통과(t5x). 웹 friends8+vnext13=**21 passed/1 failed**(t5t), 실패는 관계행/전체목록의 중복 팔로우해제 locator다. 대상 UUID행으로 좁힌 follow 회귀+실제WebGL outline/군집 **2 passed**(t64); 전체22 재실행으로 표시하지 않는다. 별도 My/legacy초대+공개21/비공개1 pagination **2 passed**(t5w, My는 앞선8과 중복), ID조회실패중프로필편집/독립재시도 **1 passed**(t61). 초기전체·6코드검색/초대·UUID호환·요청수락/거절/취소·실제사진업로드와친구공개사진조회·오류입력보존을 확인했다.
+- t14 회차1 승인: 독립 Local friend-codes2/outline5=7(t5z), My/페이지2(t62), 조회실패독립1(t63) 및 코드/권한/호환 검토. 새필수결함없음. 승인된 제품diff의 추가리팩터링은 하지 않았다.
+- Android: 실제 .env 설정 standalone 개발서명 APK assembleRelease **50초 성공**(t60), SHA256 `be2bc6805ad7c9da7f3188d71523231e4bd19974262cfddf692498298d0d8383`. 원격schema미적용이라 사용자 mytrveldex에는 설치하지 않았다. 빌드 생성JS를 지워 대상환경을 새로 반영했다. 실제서버용 파일은 `/tmp/mytraveldex-task10-configured.apk`이며 이후 Local 빌드의 기본 출력과 구분한다.
+- 별도 Local APK **51초 성공**(t65), AVD목록/adb이름으로 확인한 보조 **Medium_Phone(5558/read-only)** 에만 설치했다. 설치base.apk와 빌드 바이트/해시 일치: `620b27af3d22e22b7ec953b5bd4617b3f84f683f7fcf84f7844d23ddc195a91f`. 실제 Local 신규2계정 중1계정 비밀번호로그인→My6코드 서버일치→native선산/풀→6코드검색으로다른동명계정조회→친구요청/요청취소 및 pending DB행→전체목록/새로고침을 Appium으로 확인했다. native페이지넘김/실사진추가/수락·OAuth·실기기/큰글꼴 전체수용은 이번미검증이며 웹 결과와 구분한다.
+- 증거: [선 지도](design/verification/outline-map-native-20261108.png), [My 코드](design/verification/six-code-profile-native-20261108.png), [코드 검색](design/verification/six-code-search-native-20261108.png). generic 검증닉네임/폐기할 Local코드만 포함하며 이메일/비밀번호/토큰은 없다. 첫 back 조작은 키보드가 이미 닫힌 상태여서 앱을 종료했고 재기동해 검증을 이어갔다(제품실패로 합산하지 않음). 검증2계정은 삭제했고 Appium/우리보조AVD만 종료했다. 기존 mytrveldex5556/로그인/기록·원격은 변경하지 않았다.
+- 원격 dry-run(t5y) 성공: `20261107140000_friend_requests.sql`→`20261108010000_friend_recommendations.sql`→`20261108040000_friend_codes.sql` **3건 미적용**. 실제서버6코드/전체목록은 DB적용승인→migration→읽기확인→실제설정APK설치 후 수용해야 한다. 기존UUID/기록/Storage변환·삭제없음, 롤백은이전앱우선/새코드보존. 현재 실제서버 수용완료로 표시하지 않는다.
+
 ## 사진 자동입력·위치 검색바 계획 (2026-11-08)
 
 TC-PHOTO-LOCATION-001 ↔ FR-PHOTO-LOCATION-001: 기존 metadata/날짜 min-max/첫사진GPS/null·권한제한을 재검증한다. 실제 Home+사진선택 경계 대역으로 자동 기간/좌표와 수동편집 보존을 확인하며 대역 결과를 실기기 EXIF 수신으로 계산하지 않는다.

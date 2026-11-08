@@ -1,5 +1,13 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 6자리 ID 발급·전체 디렉터리 (2026-11-08)
+
+FR-FRIEND-005: additive migration으로 profiles.friend_code text NOT NULL UNIQUE를 추가한다. 100000~999999 비순환 PostgreSQL sequence/default로 기존 행 backfill과 신규 Auth profile trigger INSERT를 원자적으로 지원한다. 클라이언트 UPDATE grant를 주지 않고 불변 trigger로 service role의 우발적 변경도 차단한다. UUID/FK/관계/기록·기존 public_profiles 3필드와 추천RPC 3필드는 유지한다. sequence 직접 사용은 public/anon/authenticated에 허용하지 않는다. 총900000개 발급 한계이며 고갈 시 잘라내기/재사용 대신 신규발급을 실패시킨다(용량 확장 시 별도 계약변경). 코드가 순차적이므로 비밀/인증수단으로 사용하지 않는다.
+
+FR-FRIEND-006: 기존 최소 projection 전용 reader 역할에 friend_code SELECT 열만 추가하고 새 security_barrier friend_directory(id,display_name,avatar_url,friend_code)를 제공한다. 기존 공개동의 행 RLS만 사용하며 profiles 본인 정책을 변경하지 않는다. anon 기존초대검색 호환·authenticated 조회를 허용한다. UI는 20행씩 display_name asc/id asc로 페이지 조회하고 빈 검색 전체/6자리friend_code exact/UUID id exact/닉네임 부분검색을 지원한다. 기존 추천RPC는 이전클라이언트용으로 보존하고 새UI는 추천섹션을 전체목록으로 대체한다. 관계 액션은 UUID 검증을 계속 사용한다. 새ID 초대성공 시 code→profile.id 해석 후 저장된초대를 지우며 계정전환/늦은목록은 기존 key/request guard로 방어한다. My ID조회 실패가 기존 프로필 편집을 막지 않게 별도로 처리한다.
+
+배포: 기존 friend_requests→추천RPC→friend_code/directory migration 순서로 검토·승인 후 원격 적용하고 새앱 설치. Local은 migration up/reset 없음. 이전클라이언트는 기존3필드/UUID API로 동작한다. 롤백은 이전 앱 우선/새열·코드·sequence 보존이며 재번호/삭제/sequence reset은 하지 않는다. 원격 DB 변경은 별도 승인 전 수행하지 않는다. 새 환경변수/의존성 없음.
+
 ## 사진 GPS 주소 보완과 위치 검색바 (2026-11-08)
 
 FR-PHOTO-LOCATION-001~003은 기존 choose→photoMetadata→suggestRecord와 서버 geocode-location 좌표 역조회 계약을 재사용한다. 날짜 min/max/첫사진GPS·edited refs/초안 재시도·사진 압축/Storage 정책은 유지한다. 위치 진입부는 입력창처럼 보이는 focus 가능한 button이며 클릭/키보드로 별도 Modal 검색 탭을 연다(읽기전용 TextInput의 포커스 복귀 재오픈/불필요한 키보드를 피한다). 검색어 입력/장소 확정은 기존 LocationPicker가 소유한다.
