@@ -7,7 +7,7 @@ import {travelerAvatar} from './avatarAsset';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
 import ClusterBrowser from './ClusterBrowser';
-import {oceanOrnaments,ornamentMarkup} from './MapOrnament';
+import {visibleOceanOrnaments,ornamentMarkup} from './MapOrnament';
 import {mapStyle, KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS} from './mapStyle';
 import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
 
@@ -41,7 +41,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       instance = new LibreMap({container:host.current,
         style:mapStyle(selected.current, Object.keys(groupProvinceRecords(current.current.ownRecords ?? []))),
         bounds:HOME_BOUNDS, maxBounds:PAN_BOUNDS, fitBoundsOptions:{padding:{top:onCoordinate?16:100,bottom:onCoordinate?24:45,left:16,right:16}}, attributionControl:false,
-        renderWorldCopies:false, minZoom:3,maxZoom:18,dragRotate:false,pitchWithRotate:false,cooperativeGestures:!fullScreen});
+        renderWorldCopies:false, minZoom:3,maxZoom:18,dragRotate:false,pitchWithRotate:false,touchPitch:false,maxPitch:0,cooperativeGestures:!fullScreen});
       map.current = instance;
       const activeMap = instance;
       activeMap.getCanvas().setAttribute('aria-label', '지도 화면');
@@ -66,9 +66,9 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         markers.splice(0).forEach(marker => marker.remove());
         const {records, covers, authors, ownRecords, landmarks, onCoordinate} = current.current;
         const ownGroups = groupProvinceRecords(ownRecords ?? []), zoom = activeMap.getZoom();
-        if(zoom<9)oceanOrnaments.forEach(ornament=>{
+        if(!onCoordinate&&!activeMap.isMoving())visibleOceanOrnaments(zoom).forEach(ornament=>{
           const element=document.createElement('div');element.setAttribute('aria-hidden','true');element.dataset.mapOrnament=ornament.kind;element.style.pointerEvents='none';
-          // 마크업은 사용자 입력이 아닌 고정된 SVG 장식 데이터만 사용한다.
+          // 마크업은 사용자 입력이 아닌 로컬 Figma 이미지 데이터만 사용한다.
           element.innerHTML=ornamentMarkup(ornament.kind,zoom);
           markers.push(new Marker({element,anchor:'center'}).setLngLat(ornament.coordinate).addTo(activeMap));
         });
@@ -126,7 +126,8 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       activeMap.on('load', () => {window.clearTimeout(timeout); restyle.current(); redraw.current();});
       activeMap.on('error', fail);
       activeMap.on('webglcontextlost', fail);
-      activeMap.on('zoomend', () => redraw.current());
+      activeMap.on('movestart',()=>markers.forEach(marker=>{const node=marker.getElement();if(node.dataset.mapOrnament)node.style.visibility='hidden';}));
+      activeMap.on('moveend', () => redraw.current());
       activeMap.on('click', event => {
         if (current.current.onCoordinate) current.current.onCoordinate(event.lngLat.lat, event.lngLat.lng);
         else {const id = provinceAt(event.lngLat.lat, event.lngLat.lng); if (id) select(id);}

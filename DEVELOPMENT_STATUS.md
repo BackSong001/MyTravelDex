@@ -173,3 +173,5 @@
 - 기준239e9ab에서 feature/figma-assets-implementation 시작. 사용자 요청에 따른 지속 목표이며 현재 17A 공통 실자산 단계다. 전체 Batch 매핑/우선순위/대기 상태는 docs/FIGMA_IMPLEMENTATION.md를 따른다. 원격/배포 승인을 받은 것은 아니다.
 
 - 작업17A 첫 조각: 실제 Figma PNG7개와 nav32/+54·선택표시·공통곰/백팩 적용, 기존웹지도SVG fallback도 canonical PNG로 통합. t14 지정경로 승인. 단위12/웹21/types 및 중복focused폭/아바타 각1, actualAPK49초 설치/hash/target·탭탐색 확인. 바다/후속Batch 구현은 대기이며 세부범위는 TEST_CASE 17A 실행절.
+
+- 작업17A t9d 독립읽기답변에서필수보완없음/원본PNG고해상도최적화후보를받았다. 제안순서로17B바다조각을진행했다. 17B 실제PNG4·해안외접원clearance/이동·보정·줌9숨김 구현, t14코드/웹승인·단위19/웹10/types·최종actualAPK32초설치확인. 기존사용자쓰기/원격변경없음. 다음도감/테마/친구/My/뽑기기능은미완료.

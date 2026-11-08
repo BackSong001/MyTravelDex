@@ -49,7 +49,7 @@ export function provinceAt(latitude: number, longitude: number) {
   return provinceFeatures.find(feature=>contains(feature.geometry,[longitude,latitude]))?.properties.shapeISO;
 }
 
-const mercator = ([longitude,latitude]: Position) => [longitude*Math.PI/180,-Math.log(Math.tan(Math.PI/4+latitude*Math.PI/360))];
+export const mercator = ([longitude,latitude]: Position) => [longitude*Math.PI/180,-Math.log(Math.tan(Math.PI/4+latitude*Math.PI/360))];
 const coordinates = provinceFeatures.flatMap(feature=>polygons(feature.geometry).flat(2)).map(mercator);
 const minX=Math.min(...coordinates.map(p=>p[0])), maxX=Math.max(...coordinates.map(p=>p[0]));
 const minY=Math.min(...coordinates.map(p=>p[1])), maxY=Math.max(...coordinates.map(p=>p[1]));

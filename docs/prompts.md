@@ -1209,3 +1209,12 @@ t14에게 단계별로 리뷰받으면서 진행해줘
 **변경 파일**
 
 AGENTS.md, DEVELOPMENT_STATUS.md, docs/{FIGMA_IMPLEMENTATION,REQUIREMENT,PRD,TRD,API_SPEC,DISAN,TEST_CASE,prompts}.md, frontend/assets/ui/*, frontend/src/{uiAssets,avatarAsset,Journal,Avatar}, frontend/e2e/{figma-assets,native-image-assets,maps,photo-autofill,design}, backend/tests/{ui-assets,maps-native}, docs/design/verification/figma-navigation-20261109.png.
+
+
+## 2026-11-09 02:36 KST — 작업17B 바다 실제PNG
+
+**진행 근거**: 작업17A에기록한동일사용자지속구현요청의다음조각. t12→t14승인→90f28ef푸시→t9d답변(필수보완없음/바다우선)→t12구현순서를따랐다.
+
+**결과**: Figma바다4PNG를추가하고양지도에서해안과간격이충분한줌만표시한다. 위치보정/줌9/카메라이동중숨김, 기존anchor·마커·사진·출처보존. Redt101→전체WebGL10/단위19/types통과, t14승인후최종actualAPK32초설치/hash/target·PNG표시/확대·전체보기확인. 원격변경/사용자쓰기없음. 바다조각커밋후t9d전달예정; 테마/목록/소셜/My/새뽑기는후속이다.
+
+**변경 파일**: docs/{REQUIREMENT,PRD,TRD,DISAN,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, DEVELOPMENT_STATUS.md, frontend/assets/ui/{manifest.json,ocean-*.png}, frontend/src/{MapOrnament,TravelMap,TravelMap.web,provinces,uiAssets}, frontend/e2e/maps.spec.ts, backend/tests/{map-ocean,maps-native,ui-assets}.test.ts, docs/design/verification/figma-ocean-map-20261109.png.

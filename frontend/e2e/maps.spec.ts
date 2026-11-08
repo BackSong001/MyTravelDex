@@ -87,6 +87,21 @@ test('TC-FIGMA-ASSET-001: map author avatars use the Figma bear for missing and 
  }
 });
 
+test('TC-FIGMA-OCEAN-001: ocean decorations decode actual PNGs and stay absent from correction and close zoom',async({page})=>{
+ await ready(page);
+ const ornaments=page.locator('[data-map-ornament]');
+ await expect(ornaments.first()).toBeAttached();
+ await expect.poll(()=>ornaments.evaluateAll(nodes=>nodes.every(node=>{const img=node.querySelector('img');return !!img&&img.complete&&img.naturalWidth===1254;}))).toBe(true);
+ for(const node of await ornaments.all()){
+  await expect(node).toHaveAttribute('aria-hidden','true');expect(await node.evaluate(n=>getComputedStyle(n).pointerEvents)).toBe('none');
+ }
+ await page.screenshot({path:'docs/design/verification/figma-ocean-map-20261109.png'});
+ await page.evaluate(()=>(window as any).renderMap({onCoordinate:()=>{}}));await expect(ornaments).toHaveCount(0);
+ await page.evaluate(()=>(window as any).renderMap({onCoordinate:undefined}));await expect(ornaments.first()).toBeAttached();
+ while(await page.evaluate(()=>(window as any).mapSnapshots.at(-1).zoom)<9)await zoom(page,'지도 확대');
+ await expect(ornaments).toHaveCount(0);
+});
+
 test('MapLibre WebGL: 17 province source features, real zoom, selection and explicit browse without Google',async ({page},testInfo)=>{
   await ready(page);
   const sources = await page.evaluate(()=>(window as any).mapSnapshots.at(-1).sources);

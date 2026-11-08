@@ -5,7 +5,7 @@ import Avatar from './Avatar';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
 import ClusterBrowser from './ClusterBrowser';
-import MapOrnament,{oceanOrnaments} from './MapOrnament';
+import MapOrnament,{visibleOceanOrnaments} from './MapOrnament';
 import {colors as c} from './theme';
 import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
 import {KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS, BASE_MAP_STYLE} from './mapStyle';
@@ -13,6 +13,7 @@ import {KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS, BASE_MAP_STYLE} from './mapStyle'
 export default function TravelMap({records,covers={},authors={},ownRecords=[],landmarks=[],focus,onSelect,onRegion,onCoordinate,expanded=false,fullScreen=false,onAttributionLayout}:TravelMapProps){
  const {fontScale}=useWindowDimensions();
  const camera=useRef<CameraRef>(null);
+ const [moving,setMoving]=useState(false);
  const [failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0),[zoom,setZoom]=useState(6),[selected,setSelected]=useState<string|null>(null),[clusterIds,setCluster]=useState<string[]>([]);
  const [mapHeight,setMapHeight]=useState(fullScreen?600:expanded?440:290),[creditHeight,setCreditHeight]=useState(40);
  const panelBottom=creditHeight+14,panelHeight=Math.max(60,Math.min(420,mapHeight-panelBottom-(fullScreen?116:16)));
@@ -28,12 +29,12 @@ export default function TravelMap({records,covers={},authors={},ownRecords=[],la
  const control=(label:string,text:string,action:()=>void)=><Pressable accessibilityRole="button" accessibilityLabel={label} onPress={action} style={({pressed})=>({minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',backgroundColor:pressed?c.warm:c.sheet,borderRadius:14})}><Text style={{fontSize:20,color:c.ink}}>{text}</Text></Pressable>;
  return <View onLayout={event=>setMapHeight(event.nativeEvent.layout.height)} style={[fullScreen?{flex:1,width:'100%',height:'100%'}:{height:expanded?440:290,borderRadius:18},{overflow:'hidden',backgroundColor:c.map.ocean}]}>
  {!failed?<Map key={attempt} style={{flex:1}} androidView="texture" mapStyle={BASE_MAP_STYLE as StyleSpecification} logo={false} attribution={false} compass={false} touchRotate={false} touchPitch={false}
-  onDidFailLoadingMap={()=>setFailed(true)} onRegionDidChange={event=>setZoom(event.nativeEvent.zoom)}
+  onDidFailLoadingMap={()=>setFailed(true)} onRegionWillChange={()=>setMoving(true)} onRegionDidChange={event=>{setZoom(event.nativeEvent.zoom);setMoving(false);}}
   onPress={event=>{const [lng,lat]=event.nativeEvent.lngLat;if(onCoordinate){onCoordinate(lat,lng);return;}setSelected(provinceAt(lat,lng)??null);setCluster([]);}}>
   <Camera ref={camera} initialViewState={initial} maxBounds={single?undefined:[PAN_BOUNDS[0][0],PAN_BOUNDS[0][1],PAN_BOUNDS[1][0],PAN_BOUNDS[1][1]]} minZoom={5} maxZoom={16}/>
   <Layer id="own-visits" type="fill" source="provinces" filter={['in',['get','shapeISO'],['literal',ownIds?ownIds.split(','):[]]]} paint={{'fill-color':['get','color'],'fill-opacity':1}}/>
   <Layer id="selection-outline" type="line" source="provinces" filter={['==',['get','shapeISO'],selected??'']} paint={{'line-color':c.map.regionBorderSelected,'line-width':2.5}}/>
-  {zoom<9&&oceanOrnaments.map(ornament=><Marker key={ornament.id} id={`ornament-${ornament.id}`} lngLat={ornament.coordinate} pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><MapOrnament kind={ornament.kind} zoom={zoom}/></Marker>)}
+  {!onCoordinate&&!moving&&visibleOceanOrnaments(zoom).map(ornament=><Marker key={ornament.id} id={`ornament-${ornament.id}`} lngLat={ornament.coordinate} pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><MapOrnament kind={ornament.kind} zoom={zoom}/></Marker>)}
   {visibleProvinceLabels(zoom,selected,fontScale).map(([id,label])=><Marker key={id} id={`region-${id}`} lngLat={[label.point[0],label.point[1]]} accessibilityLabel={`${label.name} 지역 선택`} onPress={event=>{event.stopPropagation();if(!onCoordinate){setSelected(id);setCluster([]);}}}>
    <View collapsable={false} style={{minWidth:60,minHeight:30,paddingHorizontal:5,paddingVertical:4,alignItems:'center',justifyContent:'center',backgroundColor:'transparent'}}><Text style={{color:c.map.mapLabel,fontWeight:selected===id?'800':'500',fontSize:provinceLabelSize(zoom)}}>{label.name}</Text></View>
   </Marker>)}

@@ -3,8 +3,8 @@ import {colors} from '../../frontend/src/design/colors.json';
 import {HOME_BOUNDS, mapStyle} from '../../frontend/src/mapStyle';
 import {provinceAt} from '../../frontend/src/provinces';
 
-vi.mock('../../frontend/node_modules/react-native', () => ({View: 'view'}));
-vi.mock('../../frontend/node_modules/react-native-svg', () => ({default: 'svg', Path: 'path'}));
+vi.mock('../../frontend/node_modules/react-native', () => ({View: 'view',Image:'img'}));
+vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{ocean:Object.fromEntries(['wave','cloud','plane','boat'].map(kind=>[kind,{uri:'fixture://'+kind}]))}}));
 
 test('ocean uses canonical blue and a pale edge below the unchanged selected border', () => {
  const style = mapStyle('KR-11', ['KR-11']);
@@ -28,20 +28,20 @@ test('all four ornament kinds have stable unique anchors outside every province,
  expect(new Set(home.map(item => item.kind))).toEqual(new Set(['wave', 'cloud', 'plane', 'boat']));
 });
 
-test('native and web share fixed SVG paths, ignore input/a11y, and disappear at zoom 9', async () => {
- const {default: MapOrnament, ornamentMarkup, oceanOrnaments} = await import('../../frontend/src/MapOrnament');
+test('native and web share actual PNG slots, ignore input/a11y, and disappear at zoom 9', async () => {
+ const {default: MapOrnament, ornamentMarkup, oceanOrnaments,ornamentSizes} = await import('../../frontend/src/MapOrnament');
  for (const kind of new Set(oceanOrnaments.map(item => item.kind))) {
   const element = MapOrnament({kind, zoom: 8.99})!;
   expect(element.props).toMatchObject({pointerEvents: 'none', accessible: false, accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants'});
-  const width = kind === 'wave' ? 50 : 44, height = kind === 'wave' ? 15 : 44;
+  const width=ornamentSizes[kind],height=width;
   expect(element.props.style).toMatchObject({width, height});
-  const svg = element.props.children;
+  const image = element.props.children;
   const markup = ornamentMarkup(kind, 8.99);
   expect(markup).toContain(`width="${width}" height="${height}"`);
   expect(markup).toContain('aria-hidden="true"');
-  expect(markup).toContain('pointer-events="none"');
-  expect(markup).toContain('focusable="false"');
-  for (const path of svg.props.children) expect(markup).toContain(`d="${path.props.d}"`);
+  expect(markup).toContain('pointer-events:none');
+  expect(markup).toContain(`src="${image.props.source.uri}"`);
+  expect(image.props.resizeMode).toBe('contain');
   for (const zoom of [9, 12]) {
    expect(MapOrnament({kind, zoom})).toBeNull();
    expect(ornamentMarkup(kind, zoom)).toBe('');
@@ -52,4 +52,19 @@ test('native and web share fixed SVG paths, ignore input/a11y, and disappear at 
 
 test('map depth stays below unchanged province fill without land decorations',()=>{
  const style=mapStyle(null);expect(style.layers.findIndex(l=>l.id==='province-depth')).toBeLessThan(style.layers.findIndex(l=>l.id==='province-fill'));
+});
+
+test('TC-FIGMA-OCEAN-001: every visible PNG footprint stays at sea across supported zooms',async()=>{
+ const {visibleOceanOrnaments,ornamentSizes}=await import('../../frontend/src/MapOrnament');
+ expect(visibleOceanOrnaments(6).length).toBeGreaterThan(0);
+ for(const zoom of [3,5,5.5,6,7,8.99])for(const item of visibleOceanOrnaments(zoom)){
+  const [lng,lat]=item.coordinate,world=512*2**zoom;
+  const y=(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2;
+  const radius=ornamentSizes[item.kind]/2+8;
+  for(let dx=-radius;dx<=radius;dx+=radius/4)for(let dy=-radius;dy<=radius;dy+=radius/4){
+   const latitude=Math.atan(Math.sinh(Math.PI*(1-2*(y+dy/world))))*180/Math.PI;
+   expect(provinceAt(latitude,lng+dx/world*360),`${item.id} at ${zoom}`).toBeUndefined();
+  }
+ }
+ expect(visibleOceanOrnaments(9)).toEqual([]);expect(visibleOceanOrnaments(NaN)).toEqual([]);
 });
