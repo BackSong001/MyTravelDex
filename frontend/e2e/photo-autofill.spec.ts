@@ -13,7 +13,7 @@ test.beforeAll(async()=>{
   '../src/photos':`import {readExif} from '${root}/frontend/src/domain.ts';export const pickPhotos=async()=>({canceled:false,assets:window.pickedAssets});export const photoMetadata=async asset=>readExif(asset.exif??{});export const photoPermission=async()=>false,cleanupPickedPhotos=()=>{},compressPhoto=()=>{};`,
   '../src/auth':`const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};export const auth={auth:{onAuthStateChange:f=>({data:{subscription:{unsubscribe(){}}}}),getSession:async()=>({data:{session}})}};export const googleLogin=()=>{};`,
   '../src/runtime':`export const api={list:async()=>[],following:async()=>[],request:async(path,method,body)=>{if(path==='/functions/v1/geocode-location'){const r=await fetch('/geocode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('EXTERNAL_SERVICE_ERROR');return r.json();}return [];}};`,
-  '../src/Social':`export const ProfileEditor=()=>null,Friends=()=>null,isFriendCode=()=>false;`,
+  '../src/Social':`export const ProfileEditor=()=>null,Friends=()=>null,isUserId=()=>false;`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({});`,
   '@react-native-async-storage/async-storage':`export default {getItem:async()=>null,setItem:async()=>{},removeItem:async()=>{}};`,
   'expo-crypto':`let id=0;export const randomUUID=()=>String(++id);`,

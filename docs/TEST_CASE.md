@@ -1,5 +1,10 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 혼합 유저 ID 수용 계획 (2026-11-08)
+
+TC-USER-ID-001 ↔ FR-USER-ID001~003: Local동시24계정의user_code6자·영숫자둘다포함/유일·metadata강제무시·불변/권한·인코더경계0/35/36/36^4/10×36^4/최대/범위밖과표본1024코드일대일·sequence직접소모RPC거부. 기존숫자ID→user_code해석/비공개alias0/공개4필드·legacy3/4필드·신규숫자ID미발급확인. 웹My명칭/소문자ID/영숫자초대·숫자/UUID호환·요청후alias초대소비/친구사진회귀. native는기존계정새MyID/명칭·실제서버schema·설치hash/target을구분하고기존관계/사진보존한다.
+
+
 ## 2026-11-08 16:10 KST — 산·풀 제거 및 기존 ID 발급 검증
 
 - TC-MAPLIBRE-011 Red(t6w): 기존native산/풀Marker가남아신규부재assert실패(기존3개통과/신규1개실패). 선명세후공통타입/path/landOrnaments와native/web사용처를삭제했다. map-ocean4+maps-native4 **8 passed**(t70), 실제WebGL지도전체 **8 passed**(t71), TypeScript통과(t72). 사진군집/최신payload·출처/카메라/위치보정·SVG실패fallback/바다장식회귀를포함한다. 과거land추가/선표현전용테스트는FR-UI-017로대체했다.

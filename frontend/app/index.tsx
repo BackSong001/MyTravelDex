@@ -15,7 +15,7 @@ import ComposerSheet from '../src/ComposerSheet';
 import RecordPreview from '../src/RecordPreview';
 import PhotoGallery from '../src/PhotoGallery';
 import LocationPicker from '../src/LocationPicker';
-import {ProfileEditor,Friends,isFriendCode} from '../src/Social';
+import {ProfileEditor,Friends,isUserId} from '../src/Social';
 import {groupProvinceRecords,provinceLabels} from '../src/provinces';
 import {googleLogin,auth} from '../src/auth';
 import {Author, Backpack, Collection, JournalNav, Welcome, JournalTab} from '../src/Journal';
@@ -26,9 +26,9 @@ type Selected={id:string;asset:ImagePickerAsset;captured_date:string|null;captur
 export default function Home(){
  const {friend}=useLocalSearchParams<{friend?:string}>();
  const [storedInvite,setStoredInvite]=useState<string>();
- const inviteCode=isFriendCode(friend)?friend:storedInvite;
- useEffect(()=>{let active=true;void AsyncStorage.getItem('mytraveldex-friend-invite').then(value=>{if(active&&isFriendCode(value))setStoredInvite(value);}).catch(()=>{});return()=>{active=false;};},[]);
- useEffect(()=>{if(isFriendCode(friend))void AsyncStorage.setItem('mytraveldex-friend-invite',friend).catch(()=>{});},[friend]);
+ const inviteCode=isUserId(friend)?friend:storedInvite;
+ useEffect(()=>{let active=true;void AsyncStorage.getItem('mytraveldex-friend-invite').then(value=>{if(active&&isUserId(value))setStoredInvite(value);}).catch(()=>{});return()=>{active=false;};},[]);
+ useEffect(()=>{if(isUserId(friend))void AsyncStorage.setItem('mytraveldex-friend-invite',friend).catch(()=>{});},[friend]);
  function dismissInvite(){setStoredInvite(undefined);router.setParams({friend:undefined});void AsyncStorage.removeItem('mytraveldex-friend-invite').catch(()=>{});}
  const scroll=useRef<ScrollView>(null),listRequest=useRef(0),navigationVersion=useRef(0);
  const latestLoad=useRef<()=>Promise<void>>(async()=>{}),busyRef=useRef(false);

@@ -20,8 +20,7 @@ test.beforeAll(async()=>{
   'expo-crypto':`export const randomUUID=()=>'';`,
   '../src/runtime':`export const api={list:async()=>[],following:async()=>[],request:async()=>[],token:null};`,
   '../src/api':`export class ApiError extends Error {}`,
-  '../src/domain':`export const suggestRecord=()=>{},validateRecord=()=>{};export class RecordValidationError extends Error {}`,
-  '../src/Social':`import React from '${react}';export const isFriendCode=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=()=>React.createElement('div',{'data-testid':'friends'});export const ProfileEditor=()=>null;`,
+  '../src/Social':`import React from '${react}';export const isUserId=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=()=>React.createElement('div',{'data-testid':'friends'});export const ProfileEditor=()=>null;`,
   '../src/provinces':`export const groupProvinceRecords=()=>({}),provinceLabels={};`,
   '../src/auth':`export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},getSession:async()=>({data:{session:null}})}};
    export const googleLogin=async()=>{const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);await new Promise(resolve=>window.finishGoogle=resolve);return session;};`,
@@ -33,7 +32,7 @@ test.beforeAll(async()=>{
   bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"'},plugins:[{name:'native-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
-    if(args.path==='../src/journalRecords')return {path:path.resolve('frontend/src/journalRecords.ts'),namespace:'file'};
+    if(['../src/journalRecords','../src/domain'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};
     if(args.importer.endsWith('/frontend/app/index.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
    });

@@ -1,5 +1,14 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 혼합 유저 ID와 숫자 alias 호환 (2026-11-08)
+
+profiles.user_code text NOT NULL UNIQUE CHECK ^[A-Z][0-9][A-Z0-9]{4}$ 추가/default/backfill. sequence bigint 0..436700159 NO CYCLE의 n을영문26×숫자10×base36네자리의일대일코드로인코딩(A00000..Z9ZZZZ), 36^4=1679616. 공개클라이언트sequence/인코더실행거부, server role만인코더검사허용. 불변trigger/UPDATE열grant미허용. 기존UUID·friend_code/불변trigger/숫자alias·old public_profiles/추천RPC·friend_directory4필드유지. friend_code는nullable/default없음으로바꿔신규계정의폐기된숫자공간발급을멈춘다. 새계정은old앱숫자MyID조회가없을수있으나기존계정숫자alias·3필드/UUID관계API는보존한다.
+
+새user_directory는기존restricted public profile reader가소유하는security_barrier view(id,display_name,avatar_url,user_code)다. 새lookup_user_id(user_id text)는고정search_path·동일reader소유SECURITY DEFINER의read-only SQL함수로공개동의행에서upper(user_code) 또는6숫자friend_code를exact해석하고동일4필드만최대1행반환한다. reader는public_profile_enabled RLS만통과하고서버secret/auth/여행/관계권한없음. anon/auth 조회허용·입력6숫자/6영숫자검증, 비공개alias유출금지. 이름/UUID검색은user_directory/기존escaped ilike·20페이지를재사용한다.
+
+신규클라이언트는user_code/My·directory를사용하고영숫자/숫자exact는lookup RPC, UUID/name은view로조회한다. 기존friend 링크param/저장키는호환유지하고invite해석결과UUID로만관계액션/성공시원래alias초대를소비한다. 별도ID조회실패가프로필편집을막지않는다. DB먼저검토·Local→HTTP→웹→Android검증/리뷰후원격확인·클라이언트설치. 기존ID/sequence를삭제·reset하지않으며롤백은이전앱우선(새계정의old숫자ID조회제한은명시). 원격적용권한은기존승인범위와이번ID변경요청을확인해판단하며무검토적용하지않는다.
+
+
 ## 산·풀 장식 제거 계약 (2026-11-08)
 
 FR-UI-017: 공통 MapOrnament의 mountain/grass 타입·path·landOrnaments를 제거하고 native/web TravelMap은 기존 oceanOrnaments만 사용한다. 실제 경계/style/camera·Marker 좌표/사진·ClusterBrowser·출처/검색모드는 변경하지 않는다. 새 dependency/DB/API/env 없음. TC-MAPLIBRE-011 native Marker 목록과 실제WebGL 장식DOM에서 산풀부재/기존바다·마커 유지로 검증한다.

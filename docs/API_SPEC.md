@@ -1,5 +1,10 @@
 # MyTravelDex API 명세서
 
+## 유저 ID API (2026-11-08)
+
+본인 GET profiles?select=user_code는6자리영문+숫자신규유저ID, 변경PATCH는거부한다. GET user_directory의공개projection은id/display_name/avatar_url/user_code정확히4필드이며기존friend_directory/public_profiles반환형은유지한다. POST rpc/lookup_user_id {user_id:string}는영숫자6자리(영/숫자포함) 또는이전6숫자ID만대소문자무시exact해석해공개4필드배열0~1행반환한다. 비공개/invalid/없는ID는빈배열, UUID/name검색은기존view필터를사용한다. 친구요청본문UUID/기존권한은변경없음. 신규friend_code는null일수있으며구버전의숫자코드조회전용제약을롤백범위에명시한다. 새환경변수/서버secret없음.
+
+
 ## 산·풀 제거와 ID 검증 범위 (2026-11-08)
 
 지도 장식 제거는 클라이언트 표시 변경이며 API·권한 변경없음. 현재 friend_code는 숫자6자리sequence+UNIQUE+불변trigger다. 영문이 섞인 생성기라고 설명하지 않는다. 기존발급ID의 형식변경은 별도계약확정전 시행하지 않는다.

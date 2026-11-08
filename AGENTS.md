@@ -506,3 +506,7 @@ UUID/FK를 유지한 서버 발급 불변 6자리 friend_code와 공개 동의�
 ## 산·풀 제거 및 ID 형식 검증 (2026-11-08)
 
 지도에는 산·풀 장식을 표시하지 않으며 기존 바다 장식·사진/군집·경계·출처는 유지한다. 현재 friend_code는 영문혼합이 아닌 서버sequence 기반6자리숫자이며 UNIQUE/불변trigger로 중복·변경을 차단한다. 기존ID를 임의로 재번호하지 않는다. 영숫자 전환의 기존ID 호환 정책과 원격적용은 별도 확정한다. 자세한 관측/수용범위는 TEST_CASE 최신 이력을 따른다.
+
+## 영문·숫자 유저 ID (2026-11-08)
+
+현재표시ID는profiles.user_code의불변6자리영문·숫자혼합이며My/친구/접근성명칭은유저 ID다. 기존friend_code숫자값/UUID는보존하고새lookup_user_id는restrictedreader의공개동의RLS로만이전숫자alias/대소문자무시현재ID를최소4필드로해석한다. 신규계정의legacy숫자ID는발급하지않아null일수있으며구버전롤백의숫자ID전용조회제약을명시한다. user_code_seq의비순환공간436700160개/UNIQUE·불변/수용검증과원격적용은TRD·TEST_CASE최신절을따른다. 기존ID/sequence를재번호·reset하지않는다.

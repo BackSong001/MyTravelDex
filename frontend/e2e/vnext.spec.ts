@@ -245,13 +245,13 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   await admin(`/rest/v1/profiles?id=eq.${other.id}`,'PATCH',{display_name:'검색%_친구'});
-  await page.getByLabel('공개 여행자 닉네임 또는 사용자 ID',{exact:true}).fill('%_');
+  await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill('%_');
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();
   await expect(page.getByText('검색%_친구',{exact:true})).toBeVisible();
   await expect(page.getByText('친구 도감 여행자',{exact:true})).toHaveCount(0);
   await admin(`/rest/v1/profiles?id=eq.${other.id}`,'PATCH',{display_name:'다른 친구 여행자'});
-  await page.getByLabel('공개 여행자 닉네임 또는 사용자 ID',{exact:true}).fill(peer.id);
-  const search=page.waitForResponse(r=>r.url().includes('/rest/v1/friend_directory?')&&new URL(r.url()).searchParams.get('id')===`eq.${peer.id}`);
+  await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill(peer.id);
+  const search=page.waitForResponse(r=>r.url().includes('/rest/v1/user_directory?')&&new URL(r.url()).searchParams.get('id')===`eq.${peer.id}`);
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();expect((await search).ok()).toBe(true);
   await expect(page.getByText('친구 도감 여행자',{exact:true})).toBeVisible();
   const followed=page.waitForResponse(r=>r.url().endsWith('/rest/v1/follows')&&r.request().method()==='POST');
@@ -259,7 +259,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await page.getByRole('button',{name:'팔로우',exact:true}).click();expect((await followed).status()).toBe(409);
   await expect(page.getByText('팔로우했어요. 친구의 공개 여행을 만나보세요.',{exact:true})).toBeVisible();
   await expect.poll(async()=>await admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${peer.id}`)).toHaveLength(1);
-  await page.getByLabel('공개 여행자 닉네임 또는 사용자 ID',{exact:true}).fill(other.id);
+  await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill(other.id);
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();
   await expect(page.getByText('다른 친구 여행자',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'팔로우',exact:true}).click();
