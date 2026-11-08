@@ -1,0 +1,232 @@
+{
+  "files": [
+    {
+      "file": "catalog.json",
+      "bytes": 6688,
+      "sha256": "83f3581e2b1b38af4a06e5badc4c4c1aeadd08373180541102fd95f0a19f8c1a"
+    },
+    {
+      "file": "coral-journal/desktop-v1.png",
+      "bytes": 426924,
+      "sha256": "2d2660738001f9238312873583e26007b77c727e52f711bf2e27e3d90a0a55d6",
+      "width": 1280,
+      "height": 900,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal/desktop-v2.png",
+      "bytes": 427192,
+      "sha256": "a68507f43ec0ac9d3170a9487d4f16869ca78f15aa709ff69083111f7482beef",
+      "width": 1280,
+      "height": 900,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal/mobile-v1.png",
+      "bytes": 152037,
+      "sha256": "238a6d19ea6eb5ce7055926b3361829b65a0b570a8ecf2149aaaa28ed383ac0f",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal/mobile-v2.png",
+      "bytes": 152760,
+      "sha256": "c3216caceb909403eb78884c1a49352da1c74b457b7f77f02811fb130ef663e3",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal/responsive-board-v1.png",
+      "bytes": 888435,
+      "sha256": "83077bf247f62e025e4d5d0e20668fd9875913e974e9fcc2f62092968cf0bc52",
+      "width": 2542,
+      "height": 1253,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal/responsive-board-v2.png",
+      "bytes": 889550,
+      "sha256": "f1e689b1d646c9fb28601374bcee51df6b51916e242ea92735322cf6a806fa87",
+      "width": 2542,
+      "height": 1253,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal/tablet-v1.png",
+      "bytes": 268427,
+      "sha256": "bb7d78252f1d089009d6264a6c294e033885447f45ddf2df131eeec5eb493552",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal/tablet-v2.png",
+      "bytes": 268490,
+      "sha256": "d49dc8b3256ab0e233cb8175a3b03be503d7f7d71158f7221acf8d5a4c371865",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "figma-state.json",
+      "bytes": 20985,
+      "sha256": "8efff524a766af450e97184f295436c5baa62ee3285946683d082035547eb370"
+    },
+    {
+      "file": "forest-explorer/desktop-v1.png",
+      "bytes": 428538,
+      "sha256": "9423aa6afa68b8907388013eb1f4f59dbf86b0de44cb70f374462331b5a553e6",
+      "width": 1280,
+      "height": 900,
+      "mode": "RGBA"
+    },
+    {
+      "file": "forest-explorer/desktop-v2.png",
+      "bytes": 428261,
+      "sha256": "48c601eebcfd0dcfee73bf64cc4ba8b73cd5888eb4f7a15d4522655672662375",
+      "width": 1280,
+      "height": 900,
+      "mode": "RGBA"
+    },
+    {
+      "file": "forest-explorer/mobile-v1.png",
+      "bytes": 152111,
+      "sha256": "1b197338438bfa99458c2243932add0d04e031fa0c49b98e64bb607105b2dfe3",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "forest-explorer/mobile-v2.png",
+      "bytes": 152932,
+      "sha256": "cfb6a02d55608dadd0379428f0f369944c2dbc119fbff0d58aa2f655a0012d1d",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "forest-explorer/responsive-board-v1.png",
+      "bytes": 888832,
+      "sha256": "228fc90948523cef9bd6a209548ffa37f8a5d6948ba1ec33b9ef964f2f3b018f",
+      "width": 2542,
+      "height": 1253,
+      "mode": "RGBA"
+    },
+    {
+      "file": "forest-explorer/responsive-board-v2.png",
+      "bytes": 888390,
+      "sha256": "2c5404c0c9bd467709eb73ad660413ff0efcb037ec305aed92c9bf610aaf4326",
+      "width": 2542,
+      "height": 1253,
+      "mode": "RGBA"
+    },
+    {
+      "file": "forest-explorer/tablet-v1.png",
+      "bytes": 269270,
+      "sha256": "b002fede06815d3df5cadba0201d8bfbfd9fb10ae1515b3d4ab0903400c4ebb0",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "forest-explorer/tablet-v2.png",
+      "bytes": 268901,
+      "sha256": "72f9faa13ff6f6987dffd5999fba72d30c77175fb1e3753db50fdcf1bf20fcf4",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-themes-v1.png",
+      "bytes": 292800,
+      "sha256": "5e280c00225e572f3db6753a1c2517d1fad36a876ccdb57e56b8723ed01ffaeb",
+      "width": 1282,
+      "height": 1070,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-themes-v2.png",
+      "bytes": 425997,
+      "sha256": "7b07d1c6a9a5656817f8ea2cce543b0fe1bf6fc2204c58f4770696444de073ef",
+      "width": 1282,
+      "height": 1070,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/desktop-v1.png",
+      "bytes": 425159,
+      "sha256": "77ddc24de384aff527ed6870dc4ec0dc375fe084da4a0c5a8cb3e58174f5b848",
+      "width": 1280,
+      "height": 900,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/desktop-v2.png",
+      "bytes": 425114,
+      "sha256": "b8ad94304646dd62b98189b4a845a485b08e283792182def6840798587b2924f",
+      "width": 1280,
+      "height": 900,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/mobile-v1.png",
+      "bytes": 150853,
+      "sha256": "abf454e994349f76e1d235fac97f30e99ee84dd1225a3c3aa471e1049e867775",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/mobile-v2.png",
+      "bytes": 184206,
+      "sha256": "63a2f320aad0ea261ffb0e61332fcbdd211419fac1aab42e0ed1f6dd8420be74",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/responsive-board-v1.png",
+      "bytes": 880041,
+      "sha256": "5ff2eff200e3e3fae899ba5dd8df241460a97cd787aefa142826048c8532d22e",
+      "width": 2542,
+      "height": 1253,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/responsive-board-v2.png",
+      "bytes": 910782,
+      "sha256": "7e7a447027c322dc64b96221d44de2564e45c775e4e05fc57c9eee225bfc5f59",
+      "width": 2542,
+      "height": 1253,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/tablet-v1.png",
+      "bytes": 267214,
+      "sha256": "0cf62e88f330baf5c269d3504418c8261a6e210008edfb380ff9899d5e15d489",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air/tablet-v2.png",
+      "bytes": 267146,
+      "sha256": "408dc80230e98e681140dbd253930fbc0596a9b2e90997dc67c4f3534858ad46",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "quality-report.json",
+      "bytes": 6438,
+      "sha256": "0458824ef1e9ac88b80ad674d24fa7579a8782118806c1e568b9ae76dfcf00dd"
+    },
+    {
+      "file": "README.md",
+      "bytes": 7786,
+      "sha256": "47ded001def321a286747864faf69b10bb7129c6d23b588dd5381e815d87a123"
+    }
+  ]
+}

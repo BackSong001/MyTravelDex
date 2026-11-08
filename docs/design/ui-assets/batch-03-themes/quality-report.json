@@ -1,0 +1,419 @@
+{
+  "date": "2026-11-08",
+  "assets": [
+    {
+      "theme": "neon",
+      "file": "neon/nav-home-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1171112,
+      "partialAlphaPixels": 401029,
+      "edgePixels": 0,
+      "visibleBounds": [
+        233,
+        267,
+        1014,
+        960
+      ],
+      "sha256": "bab875e23a8657cb00601a875b32b9c155b8900bb596248a39e90512a26b5a46"
+    },
+    {
+      "theme": "neon",
+      "file": "neon/nav-journal-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1148346,
+      "partialAlphaPixels": 424102,
+      "edgePixels": 0,
+      "visibleBounds": [
+        212,
+        348,
+        1041,
+        883
+      ],
+      "sha256": "eeac98cc40859edf59aae0747aee2e4f80d00a7a1cca1a02ea938b2eae22b538"
+    },
+    {
+      "theme": "neon",
+      "file": "neon/nav-add-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1148171,
+      "partialAlphaPixels": 423871,
+      "edgePixels": 0,
+      "visibleBounds": [
+        259,
+        267,
+        990,
+        991
+      ],
+      "sha256": "860757a42f3c369801fb217f71d3ca2485a5c6a54c93375bb364e0b865362932"
+    },
+    {
+      "theme": "neon",
+      "file": "neon/nav-friends-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1173520,
+      "partialAlphaPixels": 398359,
+      "edgePixels": 0,
+      "visibleBounds": [
+        216,
+        345,
+        1026,
+        961
+      ],
+      "sha256": "39018862ed6dae2e4f9b95b640f046d70038fd2b9a1ee4377f5483d28cef4a84"
+    },
+    {
+      "theme": "neon",
+      "file": "neon/nav-my-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1080040,
+      "partialAlphaPixels": 492289,
+      "edgePixels": 0,
+      "visibleBounds": [
+        273,
+        269,
+        976,
+        995
+      ],
+      "sha256": "b7ed6ee6ec201e269dcb8b220bcd9b060d6af87eb6bf7e8e907729121e28c7bf"
+    },
+    {
+      "theme": "tiny-friends",
+      "file": "tiny-friends/nav-home-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1133646,
+      "partialAlphaPixels": 438569,
+      "edgePixels": 0,
+      "visibleBounds": [
+        219,
+        277,
+        1017,
+        1011
+      ],
+      "sha256": "a70e79892b3366680500be9b122478c290bf6890e0d974dfad79583188a8712d"
+    },
+    {
+      "theme": "tiny-friends",
+      "file": "tiny-friends/nav-journal-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1261464,
+      "partialAlphaPixels": 310469,
+      "edgePixels": 0,
+      "visibleBounds": [
+        272,
+        387,
+        969,
+        917
+      ],
+      "sha256": "68fae6b7b9d5ded26f15add790a877a06ab1beec23b36b86689e298d5ff9812f"
+    },
+    {
+      "theme": "tiny-friends",
+      "file": "tiny-friends/nav-add-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1222584,
+      "partialAlphaPixels": 349210,
+      "edgePixels": 0,
+      "visibleBounds": [
+        304,
+        322,
+        944,
+        975
+      ],
+      "sha256": "63482e39a83c0d6cd19f7ec8d5f5c8c258bd53f3521972642b2d98f0d9032fe9"
+    },
+    {
+      "theme": "tiny-friends",
+      "file": "tiny-friends/nav-friends-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1168056,
+      "partialAlphaPixels": 403430,
+      "edgePixels": 0,
+      "visibleBounds": [
+        211,
+        335,
+        995,
+        967
+      ],
+      "sha256": "1101d3ec81dde14b9ab7f7273c0e2de3bad1b458e81a14260a6f03214628c3b5"
+    },
+    {
+      "theme": "tiny-friends",
+      "file": "tiny-friends/nav-my-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1245515,
+      "partialAlphaPixels": 326452,
+      "edgePixels": 0,
+      "visibleBounds": [
+        323,
+        281,
+        927,
+        1008
+      ],
+      "sha256": "802c0673c090287ef64fb3888ddd7b54c1dddeea4d6ff8d0efc08722f815b0b6"
+    },
+    {
+      "theme": "sentimental",
+      "file": "sentimental/nav-home-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 435837,
+      "partialAlphaPixels": 1136627,
+      "edgePixels": 0,
+      "visibleBounds": [
+        185,
+        273,
+        1057,
+        1045
+      ],
+      "sha256": "2a3f7de28ff647115561c0c980d52ad20c015fbf00edd4c76bcc594264ea8547"
+    },
+    {
+      "theme": "sentimental",
+      "file": "sentimental/nav-journal-v2.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1043771,
+      "partialAlphaPixels": 528136,
+      "edgePixels": 0,
+      "visibleBounds": [
+        170,
+        328,
+        1078,
+        958
+      ],
+      "sha256": "afc8e9c177a845550d3c1eb1917c4fcd2bf0ff185af0b9b43ca946d92e6f4320"
+    },
+    {
+      "theme": "sentimental",
+      "file": "sentimental/nav-add-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1069482,
+      "partialAlphaPixels": 502947,
+      "edgePixels": 0,
+      "visibleBounds": [
+        224,
+        232,
+        1017,
+        1039
+      ],
+      "sha256": "e6e9b099e73b0102c190ba0a7c72baba5e09e1636d8690b5671ad98446538359"
+    },
+    {
+      "theme": "sentimental",
+      "file": "sentimental/nav-friends-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1149016,
+      "partialAlphaPixels": 423153,
+      "edgePixels": 0,
+      "visibleBounds": [
+        207,
+        332,
+        1038,
+        998
+      ],
+      "sha256": "49fb1885ee2072d5bf9c65f01c1df278b371c441874cf5c2b707fc26368b0c12"
+    },
+    {
+      "theme": "sentimental",
+      "file": "sentimental/nav-my-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1204602,
+      "partialAlphaPixels": 367693,
+      "edgePixels": 0,
+      "visibleBounds": [
+        288,
+        259,
+        954,
+        1032
+      ],
+      "sha256": "9e0d35115f27a7490512134659af623f761c3ee83de09595f9b86125e2beb7d3"
+    },
+    {
+      "theme": "maximal",
+      "file": "maximal/nav-home-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1153864,
+      "partialAlphaPixels": 418482,
+      "edgePixels": 0,
+      "visibleBounds": [
+        232,
+        258,
+        1027,
+        987
+      ],
+      "sha256": "ca05d305b40ada8dc54cb4e387edf664e947e63d1c04b3137091f0a27ddff369"
+    },
+    {
+      "theme": "maximal",
+      "file": "maximal/nav-journal-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1189578,
+      "partialAlphaPixels": 382800,
+      "edgePixels": 0,
+      "visibleBounds": [
+        224,
+        276,
+        1050,
+        962
+      ],
+      "sha256": "cc30d040e7ec013cdb6c1efbb92449d3b68b5b89e17972d25499cd3328454d0c"
+    },
+    {
+      "theme": "maximal",
+      "file": "maximal/nav-add-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1189963,
+      "partialAlphaPixels": 382213,
+      "edgePixels": 0,
+      "visibleBounds": [
+        265,
+        271,
+        973,
+        959
+      ],
+      "sha256": "8f309b36722a7aaa8bcdb2463e59fd4c6241e6777bc6ae790feafa01772ea4bd"
+    },
+    {
+      "theme": "maximal",
+      "file": "maximal/nav-friends-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1199902,
+      "partialAlphaPixels": 371738,
+      "edgePixels": 0,
+      "visibleBounds": [
+        226,
+        274,
+        1027,
+        955
+      ],
+      "sha256": "4538309616b8c82a8b9a2d4aeb4c7d532841e1e728692346e788f93fc9fcd1ba"
+    },
+    {
+      "theme": "maximal",
+      "file": "maximal/nav-my-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1214251,
+      "partialAlphaPixels": 357928,
+      "edgePixels": 0,
+      "visibleBounds": [
+        287,
+        255,
+        969,
+        996
+      ],
+      "sha256": "570c2fc1fbd286dbfd58a3ed92d6d98c124b8ccc750c06c75efee87c31db7027"
+    },
+    {
+      "theme": "sunshine",
+      "file": "sunshine/nav-home-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1178219,
+      "partialAlphaPixels": 392754,
+      "edgePixels": 0,
+      "visibleBounds": [
+        238,
+        299,
+        1002,
+        997
+      ],
+      "sha256": "5a0cd351e13f7b04cf54449654e147f29b0e984236bdb1a416cc2f287e4b6dfc"
+    },
+    {
+      "theme": "sunshine",
+      "file": "sunshine/nav-journal-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1194747,
+      "partialAlphaPixels": 377087,
+      "edgePixels": 0,
+      "visibleBounds": [
+        236,
+        368,
+        1015,
+        909
+      ],
+      "sha256": "30f3c99bfef5a64ac20c8561d980f40dddbaf287164d17d68acc3f041212794c"
+    },
+    {
+      "theme": "sunshine",
+      "file": "sunshine/nav-add-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1192165,
+      "partialAlphaPixels": 379133,
+      "edgePixels": 0,
+      "visibleBounds": [
+        278,
+        291,
+        966,
+        991
+      ],
+      "sha256": "102a41ee74aafc4e36127e981c3909fdfb15b36b81b9cded4b8f3fac4a71eb44"
+    },
+    {
+      "theme": "sunshine",
+      "file": "sunshine/nav-friends-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1228673,
+      "partialAlphaPixels": 342352,
+      "edgePixels": 0,
+      "visibleBounds": [
+        234,
+        382,
+        1002,
+        960
+      ],
+      "sha256": "2620153f49ee3acaa0e7cb688ed517ba670e2f1475ee6b2a8bc78271d8eaa2ef"
+    },
+    {
+      "theme": "sunshine",
+      "file": "sunshine/nav-my-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1275659,
+      "partialAlphaPixels": 296106,
+      "edgePixels": 0,
+      "visibleBounds": [
+        313,
+        293,
+        932,
+        976
+      ],
+      "sha256": "e22c27ee9750a329f1828677025999b14ac020a8a44a63a43692b658447dd390"
+    }
+  ],
+  "originalCount": 25,
+  "exportCount": 100,
+  "menuPreviewCount": 10,
+  "exportSizes": [
+    24,
+    32,
+    48,
+    96
+  ],
+  "previewWidths": [
+    320,
+    390
+  ],
+  "validation": "Actual alpha and canvas edges; static visual review only. No application or accessibility acceptance test."
+}

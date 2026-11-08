@@ -1,0 +1,1368 @@
+{
+  "date": "2026-11-08",
+  "screens": [
+    {
+      "nodeId": "21:9",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:72",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:135",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:198",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:266",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:329",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:392",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:455",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:523",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:586",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:649",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:712",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:780",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:843",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:906",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:969",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1037",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1100",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1163",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1226",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1294",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1357",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1420",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1483",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1549",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1611",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1673",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1738",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1800",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "21:1862",
+      "provinceCount": 17,
+      "regionLabels": [
+        "서울",
+        "강원",
+        "충남",
+        "전북",
+        "경북",
+        "경남",
+        "부산",
+        "제주"
+      ],
+      "rootSections": [
+        "지도 전체 영역",
+        "브랜드 헤더",
+        "My 진입",
+        "표시 범위 선택",
+        "지도 확대 · 축소 · 위치",
+        "KOSTAT 2018 · southkorea-maps · 단순화 경계",
+        "홈 · 여행도감 · + · 친구 · My"
+      ],
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "textCount": 20,
+      "rootOverflow": [],
+      "recordPanels": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    }
+  ],
+  "total": 30,
+  "geometry": [
+    {
+      "theme": "coral-journal-map",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "forest-explorer-map",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "photo-air-map",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "cloud-clay",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "peach-soda",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "lavender-milk",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "mint-garden",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "lemon-picnic",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "cherry-petal",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "sea-glass",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "frosted-sky",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "pearl-dream",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "aurora-glass",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "midnight-aqua",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "sunset-arcade",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "jewel-atlas",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "deep-ocean",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "paper-voyage",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "matcha-postcard",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "ink-atlas",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "rose-ink",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "toy-blocks",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "candy-pop",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "terracotta-trip",
+      "kind": "mobile",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.04,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "cloud-clay",
+      "kind": "tablet",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.85,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "sea-glass",
+      "kind": "tablet",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.85,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "midnight-aqua",
+      "kind": "tablet",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.85,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "paper-voyage",
+      "kind": "tablet",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.85,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "ink-atlas",
+      "kind": "tablet",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.85,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    },
+    {
+      "theme": "toy-blocks",
+      "kind": "tablet",
+      "regionCount": 17,
+      "pathsUnchangedBeforeUniformScale": true,
+      "uniformScale": 1.85,
+      "containsRecordPanels": false,
+      "containsMarketingHeading": false
+    }
+  ],
+  "visualReview": {
+    "allEightComparisonBoards": true,
+    "overview": true,
+    "unexpectedClipping": "none observed",
+    "runtimeBehavior": "not tested",
+    "accessibility": "not tested",
+    "fontScale": "not tested",
+    "android": "not tested"
+  },
+  "scope": "design assets and follow-up note only"
+}

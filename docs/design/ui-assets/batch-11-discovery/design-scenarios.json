@@ -1,0 +1,113 @@
+{
+  "fictional": true,
+  "inventoryBefore": [
+    {
+      "key": "badge-passport",
+      "name": "여행의 시작",
+      "qty": 1,
+      "representative": true
+    },
+    {
+      "key": "badge-camera",
+      "name": "한 장의 기억",
+      "qty": 2
+    },
+    {
+      "key": "badge-camp",
+      "name": "캠핑의 밤",
+      "qty": 0,
+      "isNew": true
+    },
+    {
+      "key": "badge-gate",
+      "name": "골목의 발견",
+      "qty": 1
+    },
+    {
+      "key": "badge-coffee",
+      "name": "쉼표 한 잔",
+      "qty": 3
+    }
+  ],
+  "inventoryAfterNew": [
+    {
+      "key": "badge-passport",
+      "name": "여행의 시작",
+      "qty": 1,
+      "representative": true
+    },
+    {
+      "key": "badge-camera",
+      "name": "한 장의 기억",
+      "qty": 2
+    },
+    {
+      "key": "badge-camp",
+      "name": "캠핑의 밤",
+      "qty": 1,
+      "isNew": true
+    },
+    {
+      "key": "badge-gate",
+      "name": "골목의 발견",
+      "qty": 1
+    },
+    {
+      "key": "badge-coffee",
+      "name": "쉼표 한 잔",
+      "qty": 3
+    }
+  ],
+  "inventoryAfterDuplicate": [
+    {
+      "key": "badge-passport",
+      "name": "여행의 시작",
+      "qty": 1,
+      "representative": true
+    },
+    {
+      "key": "badge-camera",
+      "name": "한 장의 기억",
+      "qty": 3
+    },
+    {
+      "key": "badge-camp",
+      "name": "캠핑의 밤",
+      "qty": 0,
+      "isNew": true
+    },
+    {
+      "key": "badge-gate",
+      "name": "골목의 발견",
+      "qty": 1
+    },
+    {
+      "key": "badge-coffee",
+      "name": "쉼표 한 잔",
+      "qty": 3
+    }
+  ],
+  "newBadge": "badge-camp",
+  "duplicateBadge": "badge-camera",
+  "defaultRepresentative": "badge-passport",
+  "styleAnswers": [
+    {
+      "question": "어디에서 쉬고 싶나요?",
+      "selected": "자연"
+    },
+    {
+      "question": "어떤 분위기가 좋나요?",
+      "selected": "조용하게"
+    },
+    {
+      "question": "여행의 속도는?",
+      "selected": "느긋하게"
+    },
+    {
+      "question": "어떻게 움직일까요?",
+      "selected": "발길 따라"
+    }
+  ],
+  "destinationExample": "부산",
+  "actualDrawPerformed": false
+}

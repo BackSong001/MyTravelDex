@@ -1,0 +1,101 @@
+{
+  "fictional": true,
+  "following": [
+    {
+      "id": "sample-a101",
+      "name": "느린 여행곰",
+      "avatar": "bear",
+      "followed": true,
+      "public": true
+    },
+    {
+      "id": "sample-a102",
+      "name": "주말의 토끼",
+      "avatar": "rabbit",
+      "followed": true,
+      "public": true
+    },
+    {
+      "id": "sample-a103",
+      "name": "골목 고양이",
+      "avatar": "cat",
+      "followed": true,
+      "public": true
+    },
+    {
+      "id": "sample-a104",
+      "name": "한 장의 여행",
+      "avatar": "bear",
+      "followed": true,
+      "public": true
+    },
+    {
+      "id": "sample-a105",
+      "name": "오후의 산책",
+      "avatar": "rabbit",
+      "followed": true,
+      "public": true
+    },
+    {
+      "id": "sample-a106",
+      "name": "여행자",
+      "avatar": "fallback",
+      "followed": true,
+      "public": false
+    }
+  ],
+  "searchResults": [
+    {
+      "id": "sample-b101",
+      "name": "산책곰",
+      "avatar": "bear",
+      "followed": false,
+      "public": true
+    },
+    {
+      "id": "sample-b205",
+      "name": "산책곰",
+      "avatar": "cat",
+      "followed": true,
+      "public": true
+    },
+    {
+      "id": "sample-b306",
+      "name": "산책하는 토끼",
+      "avatar": "rabbit",
+      "followed": false,
+      "public": true
+    },
+    {
+      "id": "sample-b407",
+      "name": "산책 기록자",
+      "avatar": "cat",
+      "followed": false,
+      "public": true,
+      "self": true
+    }
+  ],
+  "guestResults": [
+    {
+      "id": "sample-b101",
+      "name": "산책곰",
+      "avatar": "bear",
+      "followed": false,
+      "public": true
+    },
+    {
+      "id": "sample-b205",
+      "name": "산책곰",
+      "avatar": "cat",
+      "followed": false,
+      "public": true
+    },
+    {
+      "id": "sample-b306",
+      "name": "산책하는 토끼",
+      "avatar": "rabbit",
+      "followed": false,
+      "public": true
+    }
+  ]
+}

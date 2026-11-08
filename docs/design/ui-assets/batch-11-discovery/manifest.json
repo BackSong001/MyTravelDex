@@ -1,0 +1,266 @@
+{
+  "files": [
+    {
+      "file": "assets/badge-camera-v1.png",
+      "bytes": 2070298,
+      "sha256": "3751216a3c1a47689e8e27e40149bba57cef58bc577c24b18091d12591ec482e",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/badge-camp-v1.png",
+      "bytes": 1971266,
+      "sha256": "ae6d3f71f42b31c36ccaa4e036b24284225a23f057476300032a10f1f9947f36",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/badge-coffee-v1.png",
+      "bytes": 1414001,
+      "sha256": "fd29c93d6411c60608a682eb8984462584c448d3b5d613a12c8dcc056918b02c",
+      "width": 1312,
+      "height": 1199,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/badge-gate-v1.png",
+      "bytes": 2300869,
+      "sha256": "98637cbb559ce310c483ad45065dc8f45b8784f44b61a2032dfcd161835c4051",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/badge-passport-v1.png",
+      "bytes": 1167545,
+      "sha256": "53025becfa4c32155260e1ed0f38cc8d1d21b35d394a10754fb8221b52e596d9",
+      "width": 1312,
+      "height": 1199,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/capsule-machine-v1.png",
+      "bytes": 2167381,
+      "sha256": "372b28b6282da9a6703c7a006477c7b3b9f9529a1562781f2cab5cb0dd2060de",
+      "width": 1068,
+      "height": 1473,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/coastal-trip-sample-v1.png",
+      "bytes": 3466488,
+      "sha256": "ca52de5d94c7b3da80928b38d5b7d3986cb13cb120e3f36a07619ba2f8a8447b",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/opened-capsule-v1.png",
+      "bytes": 2262117,
+      "sha256": "afb0b008f9bd8937bc140bd1b11ace13ab606fe982734777117fc5a7c83a6c76",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-cabinet-v1.png",
+      "bytes": 74444,
+      "sha256": "db7be9f8375a1fcd57a40df89dca61e912e613277343d01ad2205f94471b8ea4",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-detail-v1.png",
+      "bytes": 58951,
+      "sha256": "b5fc3f0e834dca596b1d005f0fd4bb57272df20f904dd666156e93e751735148",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-draw-v1.png",
+      "bytes": 139255,
+      "sha256": "0982c44ede8b9fdfe2560e4d03dbcb7f838b5716b4e4a29d59492cef1b8f69c9",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-duplicate-v1.png",
+      "bytes": 90101,
+      "sha256": "28c582f5504f44af6867652ef0636ec47335356ffe49e2b7ddb1f3898f807942",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-empty-v1.png",
+      "bytes": 22963,
+      "sha256": "da61efa92880bf1ebb09e5a42df404fe263cdd047a17e516a8578465943ffbea",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-flow-board-v1.png",
+      "bytes": 414401,
+      "sha256": "1b946d5e01816e6e3a3d418f848ba9cfb29c88c4c7ad64a93dedf4075eb1d4e9",
+      "width": 2102,
+      "height": 1026,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-new-v1.png",
+      "bytes": 88320,
+      "sha256": "6f8d518f3c128b6c2e34b443b656b6608d9b30a21da2d202808d74a7fedd2f39",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "badge-tablet-v1.png",
+      "bytes": 104175,
+      "sha256": "0a5b3d81875e7d287942a92b5e86b57e22ffa07079d77b12089cf20a425486f4",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "catalog.json",
+      "bytes": 7766,
+      "sha256": "3db43b6c80394a327ea573b52a2832d4706a4a720e9997a088cf11314c2e17a1"
+    },
+    {
+      "file": "design-scenarios.json",
+      "bytes": 2187,
+      "sha256": "fdbaf7e2c8238dee70f34ab239b8c2677370cd0df89bdabb4bfe96eab85d1374"
+    },
+    {
+      "file": "destination-empty-v1.png",
+      "bytes": 19021,
+      "sha256": "60eb5d1bd94b486e73c3b032edf7fab77f6ae631c0691bd2098b29e90e5eed73",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "destination-flow-board-v1.png",
+      "bytes": 470405,
+      "sha256": "447a9052626a48c8cb31fb554833b1b8f3396c79e5aa14439723f57ad2ec46d9",
+      "width": 1688,
+      "height": 1026,
+      "mode": "RGBA"
+    },
+    {
+      "file": "destination-opening-v1.png",
+      "bytes": 93144,
+      "sha256": "2bcdc966de87ab608cbf583ff61e2f160a5448b49df5c302fad942837dcaaf53",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "destination-ready-v1.png",
+      "bytes": 140865,
+      "sha256": "d2b1712bd94046a39d6052ae0a15f808a8a4617a087d6f1fa08efcdff36ffa17",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "destination-result-v1.png",
+      "bytes": 208991,
+      "sha256": "ff5ac1823f21d9e31541a72553f6d8b2b1551250419807d7b905452cf8a73fb3",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "figma-state.json",
+      "bytes": 19881,
+      "sha256": "1c61cc3b18f91775104865b53346e4031ea041987abe9b138f9d52502f7cd7e1"
+    },
+    {
+      "file": "overview-board-v1.png",
+      "bytes": 265861,
+      "sha256": "75000d8efc6e2b3fdaf793533a875442704f75103edb212119e41205fa291e79",
+      "width": 1282,
+      "height": 1027,
+      "mode": "RGBA"
+    },
+    {
+      "file": "prompts.json",
+      "bytes": 4955,
+      "sha256": "e5fe3cca678e588ea0225820185a6dfe3356b30be5f650a81996a5f1b8fc4ed4"
+    },
+    {
+      "file": "quality-report.json",
+      "bytes": 11955,
+      "sha256": "6789aa113f06d5b7c7bb4460788b08a8c0bd5185b1d30964bc9e5fe63bbee132"
+    },
+    {
+      "file": "README.md",
+      "bytes": 9213,
+      "sha256": "1e30229417051cb877d386605cff4690d2c2f1c76457881cb508b0b0203208b0"
+    },
+    {
+      "file": "responsive-states-board-v1.png",
+      "bytes": 169147,
+      "sha256": "2f90d0e8a5b54f6d44e8248604ea19cfca0e518e1464805cd7e456f497efd24d",
+      "width": 1582,
+      "height": 1206,
+      "mode": "RGBA"
+    },
+    {
+      "file": "style-draw-v1.png",
+      "bytes": 142075,
+      "sha256": "f9426c128a8781705c2abe37760c92802bc422a8dce1f85f1662279132d7b303",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "style-flow-board-v1.png",
+      "bytes": 419107,
+      "sha256": "951f6978bde1de69b86b06459cbb816ac87c847fa774ccf504763f55ec588ae9",
+      "width": 1688,
+      "height": 1026,
+      "mode": "RGBA"
+    },
+    {
+      "file": "style-narrow-v1.png",
+      "bytes": 34541,
+      "sha256": "ecf44b64a86647291d6945fbb6eb22bacfe90ca2a73a60ecbe9e895534cb6015",
+      "width": 320,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "style-result-v1.png",
+      "bytes": 209724,
+      "sha256": "1f51f330fe9eb649993bf3ba94e0671ca8c3aad114207eed435cabdfd65d6a3d",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "style-selected-v1.png",
+      "bytes": 35425,
+      "sha256": "2984f827308e95236d5e6555d8e0e1cb808d4ed1c8e3073a3b0714cc97bbd16a",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "style-start-v1.png",
+      "bytes": 33609,
+      "sha256": "8cc5193e1241cd08d13b014d7a35d2427237d6d6ef35fba41438c3373f5547cd",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    }
+  ]
+}

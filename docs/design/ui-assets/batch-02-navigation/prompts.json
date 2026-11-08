@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-08",
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "file": "nav-home-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: small bottom navigation icon for Korean travel journal app 여행가봥, part of a coherent five-icon family. Generate ONE isolated icon on genuine transparent alpha background, square composition, 12% clear margin on every edge. Match the reference backpack's rounded matte clay 3D material, soft upper-left studio lighting and subtle self-shadow, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA, warm dark brown #4A3B32. Reference is style and palette only, do not include a backpack. Near frontal view with only very slight visible depth, centered, compact chunky silhouette, few large parts. Must read instantly at 24 and 32 pixels. No lettering, words, labels, watermark, scenery, floor plane, ground shadow, checkerboard pattern or enclosing tile. Subject: Home icon: one simple rounded little house, coral pitched roof, cream walls, one large mint arched doorway with dark warm brown recess. No windows, chimney, vegetation or extra objects. Roof and door remain distinct at 24px.",
+      "reference": "../batch-01/backpack-v1.png"
+    },
+    {
+      "file": "nav-journal-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: small bottom navigation icon for Korean travel journal app 여행가봥, part of a coherent five-icon family. Generate ONE isolated icon on genuine transparent alpha background, square composition, 12% clear margin on every edge. Match the reference backpack's rounded matte clay 3D material, soft upper-left studio lighting and subtle self-shadow, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA, warm dark brown #4A3B32. Reference is style and palette only, do not include a backpack. Near frontal view with only very slight visible depth, centered, compact chunky silhouette, few large parts. Must read instantly at 24 and 32 pixels. No lettering, words, labels, watermark, scenery, floor plane, ground shadow, checkerboard pattern or enclosing tile. Subject: Travel journal icon: one open thick book seen front-on, coral outer cover and spine, two cream page faces, a single mint ribbon bookmark. Minimal central crease, no writing, page lines, map symbols or small detail. Clearly an open travel record book at 24px.",
+      "reference": "../batch-01/backpack-v1.png"
+    },
+    {
+      "file": "nav-add-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: small bottom navigation icon for Korean travel journal app 여행가봥, part of a coherent five-icon family. Generate ONE isolated icon on genuine transparent alpha background, square composition, 12% clear margin on every edge. Match the reference backpack's rounded matte clay 3D material, soft upper-left studio lighting and subtle self-shadow, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA, warm dark brown #4A3B32. Reference is style and palette only, do not include a backpack. Near frontal view with only very slight visible depth, centered, compact chunky silhouette, few large parts. Must read instantly at 24 and 32 pixels. No lettering, words, labels, watermark, scenery, floor plane, ground shadow, checkerboard pattern or enclosing tile. Subject: Add action icon: one smooth thick coral circular clay button medallion facing directly forward. A perfectly centered dark warm brown #30241E PLUS sign made of two equally thick perpendicular rounded rectangular strokes with equal four arms. Single clean plus only, no other symbols. High legibility and balanced geometry at 24px.",
+      "reference": "../batch-01/backpack-v1.png"
+    },
+    {
+      "file": "nav-friends-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: small bottom navigation icon for Korean travel journal app 여행가봥, part of a coherent five-icon family. Generate ONE isolated icon on genuine transparent alpha background, square composition, 12% clear margin on every edge. Match the reference backpack's rounded matte clay 3D material, soft upper-left studio lighting and subtle self-shadow, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA, warm dark brown #4A3B32. Reference is style and palette only, do not include a backpack. Near frontal view with only very slight visible depth, centered, compact chunky silhouette, few large parts. Must read instantly at 24 and 32 pixels. No lettering, words, labels, watermark, scenery, floor plane, ground shadow, checkerboard pattern or enclosing tile. Subject: Friends icon: two overlapping simplified human bust silhouettes of equal importance, exactly TWO separate cream round heads side by side with clear gap, mint rounded shoulder/torso on the left and coral rounded shoulder/torso on the right. No faces, eyes, hair, clothes details, arms or extra people. Strong unmistakable two-person pictogram at 24px.",
+      "reference": "../batch-01/backpack-v1.png"
+    },
+    {
+      "file": "nav-my-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: small bottom navigation icon for Korean travel journal app 여행가봥, part of a coherent five-icon family. Generate ONE isolated icon on genuine transparent alpha background, square composition, 12% clear margin on every edge. Match the reference backpack's rounded matte clay 3D material, soft upper-left studio lighting and subtle self-shadow, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA, warm dark brown #4A3B32. Reference is style and palette only, do not include a backpack. Near frontal view with only very slight visible depth, centered, compact chunky silhouette, few large parts. Must read instantly at 24 and 32 pixels. No lettering, words, labels, watermark, scenery, floor plane, ground shadow, checkerboard pattern or enclosing tile. Subject: My profile icon: exactly ONE simplified person bust, one large cream round head separated by a small clear neck gap from one wide mint rounded shoulder/torso shape, a tiny coral collar accent. No face, eyes, hair, arms, extra people, circular background or frame. Unmistakable single user profile silhouette at 24px.",
+      "reference": "../batch-01/backpack-v1.png"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-08",
+  "branch": "codex/ui-assets",
+  "assets": [
+    {
+      "file": "backpack-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 777395,
+      "partial": 794088,
+      "opaque": 1033,
+      "edgePixels": 0,
+      "visibleBounds": [
+        133,
+        95,
+        1108,
+        1168
+      ],
+      "sha256": "7678d3a1276730e70ac2f805ad7e916c0b66b5bdff9ee18f9123848588a2d0f9"
+    },
+    {
+      "file": "avatar-bear-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 941088,
+      "partial": 630932,
+      "opaque": 496,
+      "edgePixels": 0,
+      "visibleBounds": [
+        178,
+        238,
+        1075,
+        1122
+      ],
+      "sha256": "a916bcfdfd9d57e70c0bb9ef2387f6a94ca2564d6da8c746e9ecf9bc0a0323d0"
+    },
+    {
+      "file": "avatar-rabbit-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 890918,
+      "partial": 680836,
+      "opaque": 762,
+      "edgePixels": 0,
+      "visibleBounds": [
+        183,
+        136,
+        1070,
+        1175
+      ],
+      "sha256": "c3b63c64931b27281003ef2fe40727b87b471b0c8c71bd96b6991397c1ffed0f"
+    },
+    {
+      "file": "avatar-cat-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 865331,
+      "partial": 706627,
+      "opaque": 558,
+      "edgePixels": 0,
+      "visibleBounds": [
+        167,
+        159,
+        1107,
+        1166
+      ],
+      "sha256": "b160fc16bcd65f44f1bfb22320a9306d2b30cab6157b14a9e77eafae05dc2da4"
+    },
+    {
+      "file": "ocean-cloud-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 1227768,
+      "partial": 344252,
+      "opaque": 496,
+      "edgePixels": 0,
+      "visibleBounds": [
+        183,
+        387,
+        1067,
+        903
+      ],
+      "sha256": "7a811b4d4557ed4fdba78bbf682b7ecf1549d7fd5308a4080c8157db8cf08827"
+    },
+    {
+      "file": "ocean-waves-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 1266663,
+      "partial": 304864,
+      "opaque": 989,
+      "edgePixels": 0,
+      "visibleBounds": [
+        249,
+        391,
+        999,
+        952
+      ],
+      "sha256": "6a20ea9c7fa1a96b9a61a9090c1c633c737b3283ccb2d03c4eec72afec4cb8de"
+    },
+    {
+      "file": "ocean-airplane-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 1083572,
+      "partial": 487987,
+      "opaque": 957,
+      "edgePixels": 0,
+      "visibleBounds": [
+        172,
+        211,
+        1092,
+        1012
+      ],
+      "sha256": "1cabddca288a293a1b1c821818b5c06fec3751ea3ead478c0d2b4292d34de649"
+    },
+    {
+      "file": "ocean-boat-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": 1104991,
+      "partial": 466419,
+      "opaque": 1106,
+      "edgePixels": 0,
+      "visibleBounds": [
+        240,
+        138,
+        995,
+        1136
+      ],
+      "sha256": "7022df890c33375391bb32bcdb899f99775f76afa0fae34c1fb06e060d4bbc73"
+    }
+  ],
+  "map": {
+    "features": 17,
+    "sourceSha256": "0b3c69d072f88f300e65e6bf556240a0f4fadac8dae7a6353f65769e0aff344a",
+    "projection": "Web Mercator, uniform scale, 0.001px rounding",
+    "decorations": "Ocean mask excludes all land polygons and 3px coastline buffer"
+  },
+  "review": {
+    "avatarSizes": [
+      32,
+      48,
+      96
+    ],
+    "ornamentSizes": [
+      48,
+      96
+    ],
+    "homeWidth": 390,
+    "smallHomeWidth": 320,
+    "limitations": "Static visual review only; no application, interaction or accessibility acceptance testing."
+  }
+}

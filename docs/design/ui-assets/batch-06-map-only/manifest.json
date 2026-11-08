@@ -1,0 +1,336 @@
+{
+  "files": [
+    {
+      "file": "aurora-glass/mobile-v1.png",
+      "bytes": 151804,
+      "sha256": "1c83edba5fda74bf8ef15c0256ceae5c5ec6c8dd69e9fb93cce4d29ab9bdedaf",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "candy-pop/mobile-v1.png",
+      "bytes": 61002,
+      "sha256": "fc9911d106e8ef0d34faad63317d0ebec3a8e55b970b28f4c44e133950c55d49",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "catalog.json",
+      "bytes": 28207,
+      "sha256": "f837bdef371d87fa637d4ce1bc602589027204c39be8bbf003217cd7c42d8aab"
+    },
+    {
+      "file": "cherry-petal/mobile-v1.png",
+      "bytes": 52745,
+      "sha256": "bea5fb5a8e1c83fd495cb223492fd995e9a6f0e6b9e4b756e43316423b2a19aa",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "cloud-clay/mobile-v1.png",
+      "bytes": 80016,
+      "sha256": "e342af0bc358bf89b7b2b4a10c1d1225ec3396910ff686060aaad9cbfc36a7bc",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "cloud-clay/tablet-v1.png",
+      "bytes": 179452,
+      "sha256": "5624d1417db42cb13371ca5caed497015e1885434e0f00d93a7ad0fff82d2f78",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "coral-journal-map/mobile-v1.png",
+      "bytes": 51386,
+      "sha256": "40b5c0aa55527f50a190966739d19ba704fa0a3449ff5cf716107b6101af248e",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "deep-ocean/mobile-v1.png",
+      "bytes": 176364,
+      "sha256": "64252a3d878e2b1c98c0b1d6339f45e69902652a6d458c27c03471532e523b34",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "figma-state.json",
+      "bytes": 68806,
+      "sha256": "7cf9b7363128715aa4de3202a28aa699677b0763d6f8a16123deacbb234c8185"
+    },
+    {
+      "file": "forest-explorer-map/mobile-v1.png",
+      "bytes": 52369,
+      "sha256": "010c3d38a159038b0b7b58e26cf3ff19f30f14299684d3719c835a685812133c",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "frosted-sky/mobile-v1.png",
+      "bytes": 150164,
+      "sha256": "a95ad4da2162e0ad57806b5d77cab944f4373a16b1f72a4b5c21636124bb5abe",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "ink-atlas/mobile-v1.png",
+      "bytes": 54413,
+      "sha256": "6e9e9a85da3ed737a90c3c170b7a6980b95d866940774528f83428d74b0e4743",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "ink-atlas/tablet-v1.png",
+      "bytes": 98973,
+      "sha256": "c47751c53cce92391e47d510fa19ad837d72fbe6bad704715038a612215db224",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "jewel-atlas/mobile-v1.png",
+      "bytes": 94475,
+      "sha256": "7334efa1d6eb001fa58ce19864fdbf1085c3cd3969fe275f419fe110d171dd28",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "lavender-milk/mobile-v1.png",
+      "bytes": 78437,
+      "sha256": "b79cc06f072d1d8c108a9f3e58ec78ee5e42255eb29321284007ad181e639cd9",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "lemon-picnic/mobile-v1.png",
+      "bytes": 50818,
+      "sha256": "e46e1e8965895b435ce7e99606a5a86d77036ae04f9570a5305f30c0f9090fcc",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "map-only-24-themes-v1.png",
+      "bytes": 733185,
+      "sha256": "c4d74c8e02c18b74d10c8670f6878cf1871af9c8a100a10ef3ba3f10cb3c0601",
+      "width": 1788,
+      "height": 1782,
+      "mode": "RGBA"
+    },
+    {
+      "file": "matcha-postcard/mobile-v1.png",
+      "bytes": 55086,
+      "sha256": "539f0c643d8b320ddec40658d25725af3d3271c15aa725bd3158b9394c09dee9",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "midnight-aqua/mobile-v1.png",
+      "bytes": 156547,
+      "sha256": "504917da060d2c50ff70c82418a2ef5eaf65e3e96e29a5687680e1cb37a22407",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "midnight-aqua/tablet-v1.png",
+      "bytes": 306223,
+      "sha256": "1d27f1632c5fae957d3e935fa785974848f4c9681decdbe24e80f6e34b003e60",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mint-garden/mobile-v1.png",
+      "bytes": 51528,
+      "sha256": "85fbe80c3752a85cd7ca1a8fdcef12cfdad2ec7bcb85611770601236e7178ec7",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-group-01-v1.png",
+      "bytes": 239890,
+      "sha256": "97645f869acd6081de8763398517699c918843f66af03c14deb4214d1293082e",
+      "width": 1708,
+      "height": 1093,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-group-02-v1.png",
+      "bytes": 278705,
+      "sha256": "8d238ea82c72a230db586470d810c5e403801c5e9f7c612851f81532607e29c6",
+      "width": 1708,
+      "height": 1093,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-group-03-v1.png",
+      "bytes": 442912,
+      "sha256": "95acd97a1b5d1c46ea1d5684cfd2f8cc50cf1b854c6e847b9bd3355f1b6fde71",
+      "width": 1708,
+      "height": 1093,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-group-04-v1.png",
+      "bytes": 507268,
+      "sha256": "1e42beb23e2fbd80d94c3be9f454b81e1475035a524da0579ec30779d6048654",
+      "width": 1708,
+      "height": 1093,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-group-05-v1.png",
+      "bytes": 370401,
+      "sha256": "b2e2516a1ad21c9da46573c3c8ad704d1edc33962839ea633c51651d0b798874",
+      "width": 1708,
+      "height": 1093,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mobile-group-06-v1.png",
+      "bytes": 283743,
+      "sha256": "03e1c2a68487dc2040b505feac7bd6ff1da1ec99e7345f0b327b1f1905d78f1b",
+      "width": 1708,
+      "height": 1093,
+      "mode": "RGBA"
+    },
+    {
+      "file": "paper-voyage/mobile-v1.png",
+      "bytes": 55112,
+      "sha256": "7b562b618e2451fbdda067bf357aca223b04c3261f907cee0970bb229939c297",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "paper-voyage/tablet-v1.png",
+      "bytes": 101002,
+      "sha256": "67e5ccc6aba89f7f07202a85cb2a5f7704f03e563040246aca0b93c863f6996e",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "peach-soda/mobile-v1.png",
+      "bytes": 79389,
+      "sha256": "8a2075f6637e70fda56e4fa3981f1f7df1acfff255e40b700f66cd068faebdde",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "pearl-dream/mobile-v1.png",
+      "bytes": 149152,
+      "sha256": "11029a966014eb37948f6bf2904ff433fab8c078432eef6ed1f29f61ed0628ba",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "photo-air-map/mobile-v1.png",
+      "bytes": 50324,
+      "sha256": "08caa578674b70a85f90f0f7a76a1abc7df6b433b2bf9f87a980a363e49fa382",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "quality-report.json",
+      "bytes": 31231,
+      "sha256": "12f65f813225bf121715b629abdbec59ed62959894fde56248a615e1213401df"
+    },
+    {
+      "file": "README.md",
+      "bytes": 8921,
+      "sha256": "388bcad3178483410e140cbe1a0383a240aecb08f34cd78318f138e79295aa1d"
+    },
+    {
+      "file": "rose-ink/mobile-v1.png",
+      "bytes": 51151,
+      "sha256": "50c022b11d44c3cc9a329d48563a830f20fb8f519307d221ae12785a455a9864",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "sea-glass/mobile-v1.png",
+      "bytes": 150041,
+      "sha256": "d6b9312d5adcc1e3eada809940f4dec7d8785b05cd10c9afa98671934e63c5be",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "sea-glass/tablet-v1.png",
+      "bytes": 272131,
+      "sha256": "d3c2b087b5bab1571473e7419659d8effe27caa8b88eae6cb726a3b9185ea5a3",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "sunset-arcade/mobile-v1.png",
+      "bytes": 156514,
+      "sha256": "f0915c652f9444a086cae2d688595bce558595ebebd3bd692d7d43981b0ff9c0",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "tablet-group-01-v1.png",
+      "bytes": 698481,
+      "sha256": "9dacdb35c1841a5fe0f2fb5d9ea5e769c7d371426904b37126bb597b55bf4128",
+      "width": 2408,
+      "height": 1174,
+      "mode": "RGBA"
+    },
+    {
+      "file": "tablet-group-02-v1.png",
+      "bytes": 329925,
+      "sha256": "79bda3226454d0cb355bd8d3d3b0f5f86f5a60825e0353fc5fa166ed314ecfe3",
+      "width": 2408,
+      "height": 1174,
+      "mode": "RGBA"
+    },
+    {
+      "file": "terracotta-trip/mobile-v1.png",
+      "bytes": 83906,
+      "sha256": "c1074c2ed4cd1f852fd5d9d029073b1dcbbcf9ffe9edb7669253b6ef2cea4e7a",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "toy-blocks/mobile-v1.png",
+      "bytes": 60416,
+      "sha256": "b08a1a1a40dccf585266563de5708064d8c3384fb5b3c4bff951262e7f71795e",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "toy-blocks/tablet-v1.png",
+      "bytes": 110355,
+      "sha256": "5108739e77086bf5241a69a990d7f84dbf6435b6282c8259531127bfaac8ea4e",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    }
+  ]
+}

@@ -1,0 +1,321 @@
+{
+  "date": "2026-11-08",
+  "selectedVersion": "v1",
+  "newAssets": [
+    {
+      "key": "capsule-machine",
+      "success": true,
+      "imageHash": "fbc6030035c859484c0365425892f949c5968d49",
+      "sizeBytes": 2167381,
+      "contentType": "image/png",
+      "placedOnNodeId": "44:3"
+    },
+    {
+      "key": "opened-capsule",
+      "success": true,
+      "imageHash": "548524d1392dafd20fdd0b08877118d943812015",
+      "sizeBytes": 2262117,
+      "contentType": "image/png",
+      "placedOnNodeId": "44:4"
+    },
+    {
+      "key": "badge-camera",
+      "success": true,
+      "imageHash": "1eec205059c02078b22e9a59505338917323848d",
+      "sizeBytes": 2070298,
+      "contentType": "image/png",
+      "placedOnNodeId": "44:5"
+    },
+    {
+      "key": "badge-camp",
+      "success": true,
+      "imageHash": "571df4bda1a02bd65fcd633dcfc9df99c758764b",
+      "sizeBytes": 1971266,
+      "contentType": "image/png",
+      "placedOnNodeId": "44:6"
+    },
+    {
+      "key": "badge-gate",
+      "success": true,
+      "imageHash": "0a1381ba8c05bd350a4de503fcb2359255fd0bd8",
+      "sizeBytes": 2300869,
+      "contentType": "image/png",
+      "placedOnNodeId": "44:7"
+    },
+    {
+      "key": "badge-coffee",
+      "success": true,
+      "imageHash": "69356d313e5e10ad0e4f70826f863fc47efd7c34",
+      "sizeBytes": 1414001,
+      "contentType": "image/png",
+      "placedOnNodeId": "44:8"
+    },
+    {
+      "key": "badge-passport",
+      "success": true,
+      "imageHash": "9327ec7fa275354fdf9902bb2e58c3c2dc504f9e",
+      "sizeBytes": 1167545,
+      "contentType": "image/png",
+      "placedOnNodeId": "44:9"
+    }
+  ],
+  "reusedAsset": {
+    "file": "assets/coastal-trip-sample-v1.png",
+    "origin": "Batch 10 / built-in image_gen"
+  },
+  "exports": [
+    {
+      "key": "destination-empty",
+      "nodeId": "46:140",
+      "kind": "draw",
+      "mode": "empty",
+      "style": false,
+      "width": 390,
+      "height": 844,
+      "path": "destination-empty-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "destination-ready",
+      "nodeId": "46:8",
+      "kind": "draw",
+      "mode": "ready",
+      "style": false,
+      "width": 390,
+      "height": 844,
+      "path": "destination-ready-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "destination-result",
+      "nodeId": "46:91",
+      "kind": "destination-result",
+      "style": false,
+      "result": "부산",
+      "fictionalSample": true,
+      "width": 390,
+      "height": 844,
+      "path": "destination-result-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "destination-opening",
+      "nodeId": "46:50",
+      "kind": "draw",
+      "mode": "opening",
+      "style": false,
+      "width": 390,
+      "height": 844,
+      "path": "destination-opening-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "badge-cabinet",
+      "nodeId": "46:179",
+      "kind": "cabinet",
+      "empty": false,
+      "width": 390,
+      "height": 844,
+      "path": "badge-cabinet-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "badge-draw",
+      "nodeId": "46:246",
+      "kind": "badge-draw",
+      "width": 390,
+      "height": 844,
+      "path": "badge-draw-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "badge-new",
+      "nodeId": "46:284",
+      "kind": "badge-result",
+      "duplicate": false,
+      "width": 390,
+      "height": 844,
+      "path": "badge-new-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "badge-detail",
+      "nodeId": "46:366",
+      "kind": "badge-detail",
+      "width": 390,
+      "height": 844,
+      "path": "badge-detail-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "badge-duplicate",
+      "nodeId": "46:325",
+      "kind": "badge-result",
+      "duplicate": true,
+      "width": 390,
+      "height": 844,
+      "path": "badge-duplicate-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "style-start",
+      "nodeId": "46:413",
+      "kind": "style-quiz",
+      "selected": false,
+      "width": 390,
+      "height": 844,
+      "questionContentId": "46:422",
+      "path": "style-start-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "style-selected",
+      "nodeId": "46:478",
+      "kind": "style-quiz",
+      "selected": true,
+      "width": 390,
+      "height": 844,
+      "questionContentId": "46:487",
+      "path": "style-selected-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "style-draw",
+      "nodeId": "46:543",
+      "kind": "draw",
+      "mode": "ready",
+      "style": true,
+      "width": 390,
+      "height": 844,
+      "path": "style-draw-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "style-narrow",
+      "nodeId": "46:635",
+      "kind": "style-quiz",
+      "selected": true,
+      "width": 320,
+      "height": 844,
+      "questionContentId": "46:644",
+      "path": "style-narrow-v1.png",
+      "format": "png",
+      "original_width": 320,
+      "original_height": 844
+    },
+    {
+      "key": "style-result",
+      "nodeId": "46:582",
+      "kind": "destination-result",
+      "style": true,
+      "result": "부산",
+      "fictionalSample": true,
+      "width": 390,
+      "height": 844,
+      "path": "style-result-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "badge-tablet",
+      "nodeId": "46:700",
+      "kind": "cabinet",
+      "empty": false,
+      "width": 768,
+      "height": 1024,
+      "path": "badge-tablet-v1.png",
+      "format": "png",
+      "original_width": 768,
+      "original_height": 1024
+    },
+    {
+      "key": "badge-empty",
+      "nodeId": "46:771",
+      "kind": "cabinet",
+      "empty": true,
+      "width": 390,
+      "height": 844,
+      "path": "badge-empty-v1.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "destination-flow",
+      "nodeId": "46:2",
+      "path": "destination-flow-board-v1.png",
+      "width": 1688,
+      "height": 1026,
+      "format": "png",
+      "original_width": 1688,
+      "original_height": 1026
+    },
+    {
+      "key": "badge-flow",
+      "nodeId": "46:173",
+      "path": "badge-flow-board-v1.png",
+      "width": 2102,
+      "height": 1026,
+      "format": "png",
+      "original_width": 2102,
+      "original_height": 1026
+    },
+    {
+      "key": "style-flow",
+      "nodeId": "46:407",
+      "path": "style-flow-board-v1.png",
+      "width": 1688,
+      "height": 1026,
+      "format": "png",
+      "original_width": 1688,
+      "original_height": 1026
+    },
+    {
+      "key": "responsive-states",
+      "nodeId": "46:629",
+      "path": "responsive-states-board-v1.png",
+      "width": 1582,
+      "height": 1206,
+      "format": "png",
+      "original_width": 1582,
+      "original_height": 1206
+    },
+    {
+      "key": "overview",
+      "nodeId": "46:824",
+      "path": "overview-board-v1.png",
+      "width": 1282,
+      "height": 1027,
+      "format": "png",
+      "original_width": 1282,
+      "original_height": 1027
+    }
+  ],
+  "featureStatus": "visual proposal only",
+  "sourceCodeChanged": false
+}

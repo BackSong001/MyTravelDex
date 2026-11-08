@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-08",
+  "mode": "built-in image_gen",
+  "prompts": [
+    {
+      "key": "capsule-machine",
+      "prompt": "Use case: stylized-concept. Original travel capsule vending machine illustration as the hero of a mobile app. Front three-quarter view, round clear glass globe filled with pastel cobalt, teal, orange and cream capsules, cheerful burnt-orange metal base and cap, large cobalt turning knob, one small dark opening at bottom. Sophisticated flat screenprint travel-magazine illustration, confident navy outlines, subtle ink grain, broad simple shapes, limited cobalt #254DC4 / orange #ED9B6B / ivory / pale teal colors. Entire machine complete and centered with generous padding around top and base. Transparent actual-alpha background, no scene, no pedestal, no text or logos, no currency symbols, not photorealistic or 3D clay."
+    },
+    {
+      "key": "opened-capsule",
+      "prompt": "Use case: stylized-concept. A single opened travel capsule: lower half in cobalt blue on the right with a clean blank ivory ticket peeking up, top half coral orange tilted aside on the left. Playful but restrained screenprint travel-magazine illustration with strong navy contours and subtle ink grain, broad simple shapes. One group centered, actual transparent alpha background, generous padding. Capsule ticket must remain entirely blank, no letters, no numbers, no text, no watermark. Not clay or photorealistic. No reward coins, no money."
+    },
+    {
+      "key": "badge-camera",
+      "prompt": "Use case: stylized-concept. One original collectible travel badge: a compact cobalt camera with an orange circular lens and tiny cream flash, shaped as a souvenir pin. Original flat screenprint souvenir pin illustration, confident dark navy outlines, limited cobalt #254DC4, orange #ED9B6B, warm ivory and muted teal palette, subtle ink grain, gentle dimensional edge only. Not 3D clay, no existing brands or mascots. One centered object fully inside generous transparent margins, actual alpha background. Crisp simple silhouette legible at 64px. No words, letters, numbers, watermark or external cast shadow."
+    },
+    {
+      "key": "badge-camp",
+      "prompt": "Use case: stylized-concept. One original collectible travel badge: a small teal camping tent with orange entrance and two tiny dark navy pine trees, shaped as a souvenir pin. Original flat screenprint souvenir pin illustration, confident dark navy outlines, limited cobalt #254DC4, orange #ED9B6B, warm ivory and muted teal palette, subtle ink grain, gentle dimensional edge only. Not 3D clay, no existing brands or mascots. One centered object fully inside generous transparent margins, actual alpha background. Crisp simple silhouette legible at 64px. No words, letters, numbers, watermark or external cast shadow."
+    },
+    {
+      "key": "badge-gate",
+      "prompt": "Use case: stylized-concept. One original collectible travel badge: a charming traditional Korean-style city gate with warm ochre walls and cobalt tiled roof, a fictional simple architectural symbol, shaped as a souvenir pin. Original flat screenprint souvenir pin illustration, confident dark navy outlines, limited cobalt #254DC4, orange #ED9B6B, warm ivory and muted teal palette, subtle ink grain, gentle dimensional edge only. Not 3D clay, no existing brands or mascots. One centered object fully inside generous transparent margins, actual alpha background. Crisp simple silhouette legible at 64px. No words, letters, numbers, watermark or external cast shadow."
+    },
+    {
+      "key": "badge-coffee",
+      "prompt": "Use case: stylized-concept. One original collectible travel badge: an ivory coffee mug with cobalt handle, dark navy coffee surface and one orange curl of steam, shaped as a souvenir pin. Original flat screenprint souvenir pin illustration, confident dark navy outlines, limited cobalt #254DC4, orange #ED9B6B, warm ivory and muted teal palette, subtle ink grain, gentle dimensional edge only. Not 3D clay, no existing brands or mascots. One centered object fully inside generous transparent margins, actual alpha background. Crisp simple silhouette legible at 64px. No words, letters, numbers, watermark or external cast shadow."
+    },
+    {
+      "key": "badge-passport",
+      "prompt": "Use case: stylized-concept. One original collectible travel badge: a closed cobalt travel passport booklet with a simple orange airplane silhouette on the cover, shaped as a souvenir pin. No seal or official insignia. Original flat screenprint souvenir pin illustration, confident dark navy outlines, limited cobalt #254DC4, orange #ED9B6B, warm ivory and muted teal palette, subtle ink grain, gentle dimensional edge only. Not 3D clay, no existing brands or mascots. One centered object fully inside generous transparent margins, actual alpha background. Crisp simple silhouette legible at 64px. No words, letters, numbers, watermark or external cast shadow."
+    }
+  ]
+}
