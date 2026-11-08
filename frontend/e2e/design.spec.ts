@@ -12,7 +12,7 @@ test('TC-DESIGN-001/002/004 sparse map scopes, avatar-only author and bright nav
  await expect(page.getByRole('button',{name:'표시 범위 · 내 여행',exact:true})).toBeVisible();
  await draft(page);await save(page);await page.getByRole('tab',{name:'여행도감',exact:true}).click();
  const author=page.getByLabel('작성자 여행자',{exact:true});await expect(author).toBeVisible();await expect(author).toHaveText('');await expect(author.locator('img')).toHaveCount(1);await expect(author.locator('img')).toHaveAttribute('src',/avatar-bear-v1/);
- await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 1 / 17',{exact:true})).toBeVisible();
+ await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('1 / 17');
 });
 test('TC-DESIGN-003 gallery paging and management preserve cover/delete operations',async({page})=>{
  await draft(page,2);await save(page);await page.getByRole('button',{name:'관리 닫기',exact:true}).click();

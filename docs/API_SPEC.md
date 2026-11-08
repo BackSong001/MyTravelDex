@@ -254,3 +254,8 @@ MapLibre 지도 표시는 로컬 경계 스타일을 사용하고 외부 검색�
 ## 17D 관계 클라이언트 조회
 
 follows/friend_requests의GET·필드·RLS는유지하며listPages의중복키를각각followee_id와requester_id/recipient_id쌍으로지정한다. 친구요청의created_at동률은두당사자ID까지정렬한다. 공개metadata는20ID묶음으로순회하되전체directory사용자검색은기존20페이지를유지한다. 새RPC/권한/서버schema변경없음.
+
+
+### 17E My 호출 계약
+
+기존본인profiles 조회/PATCH·user_code독립조회와travel_records owner/complete 목록만재사용한다. 스탬프획득은클라이언트의기존17지역집계이며신규보상저장/API가아니다. 공개profiles/방문자projection·Auth·Storage권한변경없음. 편집/저장실패/계정전환계약은TRD17E를따른다.

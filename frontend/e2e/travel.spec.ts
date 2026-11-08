@@ -95,7 +95,7 @@ test('UI-MAP-001 홈은 전체 지도이며 사진 추가 진입은 하단 + 하
 });
 test('UI-MAP-002 저장한 제주 기록을 지역 지도에서 선택하고 상세 조회',async({page})=>{
  await draft(page);await save(page);await page.getByRole('tab',{name:'홈',exact:true}).click();
- await expect(page.getByText('내 발자국 1 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 1 / 17',{exact:true})).toBeVisible();await page.getByRole('tab',{name:'홈',exact:true}).click();
+ await expect(page.getByText('내 발자국 1 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('1 / 17');await page.getByRole('tab',{name:'홈',exact:true}).click();
  await page.getByRole('button',{name:'제주 지역 선택',exact:true}).click();
  await expect(page.getByText('제주 여행 · 1개',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'지도 선택 닫기',exact:true}).click();

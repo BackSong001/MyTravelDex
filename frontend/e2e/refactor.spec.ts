@@ -33,7 +33,7 @@ test('TC-PERF-001: a public scope refresh loads own complete records once',async
  let own=0;page.on('request',request=>{const url=new URL(request.url());if(request.method()==='GET'&&url.pathname==='/rest/v1/travel_records'&&url.searchParams.get('owner_id')===`eq.${users[0].id}`)own++;});
  await page.getByRole('button',{name:/^표시 범위/}).click();const loaded=page.waitForResponse(r=>new URL(r.url()).pathname==='/rest/v1/travel_records'&&new URL(r.url()).searchParams.get('visibility')==='eq.public');
  await page.getByRole('button',{name:'공개 여행',exact:true}).click();await loaded;await expect(page.getByLabel('처리 중',{exact:true})).toHaveCount(0);
- expect(own).toBe(1);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();
+ expect(own).toBe(1);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');
 });
 
 test('TC-SESSION-001: an old detail response cannot reopen private content after external logout',async({page})=>{

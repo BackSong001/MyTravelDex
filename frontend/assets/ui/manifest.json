@@ -77,6 +77,20 @@
       "figmaNode": "2:110",
       "sha256": "7022df890c33375391bb32bcdb899f99775f76afa0fae34c1fb06e060d4bbc73",
       "bytes": 776669
+    },
+    {
+      "file": "busan-seagull-stamp-v1.png",
+      "source": "docs/design/ui-assets/batch-10-profile-redesign/assets/busan-seagull-stamp-v1.png",
+      "figmaNode": "41:116",
+      "sha256": "b07c2fa464fb073524bddce74a7485977651f10306387e5d3ccc800fd57eebf7",
+      "bytes": 2307571
+    },
+    {
+      "file": "seoul-ginkgo-stamp-v1.png",
+      "source": "docs/design/ui-assets/batch-10-profile-redesign/assets/seoul-ginkgo-stamp-v1.png",
+      "figmaNode": "41:126",
+      "sha256": "be84c0618d34e3bf6e434f7e0d07e7790e73c70f68c4b205c8bd34df184a0d1e",
+      "bytes": 2088460
     }
   ]
 }

@@ -1,8 +1,8 @@
 # 여행가봥 개발 상태
 
-갱신: 2026-11-09 02:10 KST · 개발 t12 · 리뷰/QA t14 · 완료 확인 t9d
+갱신: 2026-11-09 03:57 KST · 개발 t12 · 리뷰/QA t14 · 완료 확인 t9d
 
-브랜치: `integration/android-ui-assets` (개발 `57ed240`과 UI 자산 `797caab`을 `f0fd26e`로 병합). 기존 미추적 `agent-prompts/`, `storyboard.png`는 작업에서 제외한다. main 반영·전체 수용·배포 가능 판정은 별도다.
+브랜치: `feature/figma-assets-implementation` (통합 `239e9ab` 기반 실제 Figma 단계 구현). 통합 병합 이력은 작업16에 보존한다. 기존 미추적 `agent-prompts/`, `storyboard.png`는 작업에서 제외한다. main 반영·전체 수용·배포 가능 판정은 별도다.
 
 ## 현재 구현과 우선순위
 
@@ -181,3 +181,5 @@
 - 작업17C a7680a6후t9d독립읽기/API대역4검사에서필수보완없음답변을받고17D를진행했다. Batch08 FriendsList내부탭/48dp아바타/전체관계페이지·검색보존을구현했고t14회차1지정코드승인. 관계LocalHTTP15/기존친구웹12+cap2UI1+지연검색1/types/export, backend/domain134+외부1skip통과. actualAPK35초설치/hash/target·기존SDK로그인/탭/검색왕복·가로font2재시작후스크롤접근을확인했다. 사용자관계/기록쓰기·원격변경없으며최종단일전체웹106(t11x,5.8분)통과. 실시간font변경P2/실기기/TalkBack/Play미수용은유지한다.
 
 - 작업17D bd13192푸시후t9d가guest미조회팔로잉0 P2를재현했다. owner숫자guard1줄/일반·초대guest와로그인0/양수회귀로보강하고t14정적승인을받았다. 보강전전체106/APK와보강후focused4(t125)/types(t126)는TEST_CASE에서분리한다. 다음My는owner요약/기존ProfileForm편집/17지역모두·모은스탬프를우선하며로딩·실패집계와계정전환보호를유지한다.
+
+- 작업17D guest보강1a10749 후t9d최소읽기답변(필수보완없음)을받고17E본인요약/기존편집·전체17/모은스탬프를구현했다. Red2→focused2·관련47·owner/집계3, 동적a11y Red→focused5/types와t14승인. Native윤곽빈표시/잘림은두중간APK56/31초에서미수용후동일GeoJSON로컬좌표정규화로보강했다. 단위11/Web1/types·최신actualAPK29초설치/hash/target/기존SDK요약2·윤곽/모은2·font2가로재시작후스크롤확인. 사용자쓰기없음/설정원복. 최종단일전체웹112(t133,6.2분)/최종export(t134)통과와중간실패·중단은TEST_CASE17E에서분리한다. 요약내여행행/방문자/전역테마·Batch11은후속이다.

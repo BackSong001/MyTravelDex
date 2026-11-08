@@ -1239,3 +1239,11 @@ AGENTS.md, DEVELOPMENT_STATUS.md, docs/{FIGMA_IMPLEMENTATION,REQUIREMENT,PRD,TRD
 ### 작업17D 완료검토 후 최소 보강
 
 t9d가guest미조회관계수0표시P2를재현해t12가표시조건에owner를추가했다. 초대guest Red→관련3Green/types후일반guest·로그인0/양수4까지focused회귀를확장했으며t14지정한줄정적승인·보정후focused4(t125)/types(t126)통과. t124의잘못된guest진입중단은제품Red로계산하지않는다. 기존전체106/actualAPK는보강전이므로재실행으로합산하지않는다. 변경파일: frontend/src/Social.tsx, frontend/e2e/friends.spec.ts, docs/{TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, DEVELOPMENT_STATUS.md.
+
+## 2026-11-09 03:56 KST — 작업17E My 첫 조각
+
+**진행 근거**: 작업17A에원문을기록한동일사용자지속구현요청. 17D bd13192→t9d의guest수P2→t12최소보강/t14승인·1a10749푸시→t9d최종답변(필수보완없음/My본인우선)→t12명세/구현→t14보강승인순서를따랐다.
+
+**결과**: My본인요약과마지막성공snapshot→기존편집/실패입력보존/취소/저장즉시요약, owncomplete기반17전체/모은스탬프와실Figma상징2개를연결했다. 가상인물/샘플방문·팔로잉수를주입하지않았다. 관련47/단위12·추가owner/집계3통과후t14동적a11yP2 Red→focused5/types승인. 실제Native윤곽잘림은중간56/31초APK에서미수용후로컬좌표정규화로보강, 단위11/Web1/types·최종actualAPK29초설치/hash/target/기존SDK요약·모은2행·가로font2재시작후스크롤접근확인및t14geometry승인. 중간전체112의69pass/2fail/1중단/40미실행과최종예정전체를구분한다. 사용자쓰기/원격변경없음·기기설정원복. 고정최종전체웹112(t133,6.2분)/최종export(t134)통과와기존PNG원복을TEST_CASE17E에추가했고My첫조각커밋후t9d완료전달·답변을받는다. 요약내여행행/방문자/전역테마·Batch11은미완료다.
+
+**변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{Social.tsx,Avatar.tsx,StampCatalog.tsx,theme.ts,uiAssets.ts}, frontend/assets/ui/{manifest.json,busan-seagull-stamp-v1.png,seoul-ginkgo-stamp-v1.png}, frontend/e2e/{profile,profile-stamps,design,friends,invite-session,refactor,vnext,journal,travel}.spec.ts, backend/tests/{ui-assets,stamp-catalog}.test.ts, docs/design/verification/figma-my-{profile,stamps}-20261109.png.

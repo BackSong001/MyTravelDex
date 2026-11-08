@@ -16,6 +16,7 @@ export const colors = {
   error: '#973C37',
   focus: '#2E7C7A',
   map: {...palette.colors.map, mapLabel: '#5D6971', mapLabelHalo: 'transparent'},
+  profile: {paper:'#F3F6FB',sheet:'#FFFFFF',ink:'#172D4A',accent:'#254DC4',tint:'#E8EFFB',line:'#CAD6EA',muted:'#53657E'},
   navigation: {
     ...palette.colors.navigation,
     background: '#E5F6FF',

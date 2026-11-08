@@ -527,3 +527,7 @@ Auth SDK 이벤트를 클라이언트 세션의 단일 원천으로 사용한다
 ## Figma 친구 내부 탭 (2026-11-09)
 
 FriendsList는owner key와active/listRequest/searchRequest를유지하며내부탭은검색어/결과/20명directory페이지를초기화하지않는다. 초대는찾기탭만열고명시요청후소비한다. 관계전체조회는기존listPages를재사용하되follows=followee_id/requests=requester_id·recipient_id 복합키와유일정렬을사용한다. 비공개상대의기존관계/해제를보존하고공개projection/RLS를확대하지않는다. 실제Native읽기와Local관계쓰기검증범위는TEST_CASE17D를따른다.
+
+## My 요약·17지역 카탈로그 (2026-11-09)
+
+ProfileForm은마지막조회/저장성공snapshot과미저장편집을분리하며취소·실패입력보존/ID독립retry·명시사진·공개동의/owner key를유지한다. 본인complete만집계하고Home ownLoaded/loading/error로미확정0을막는다. 이름/방문수/스탬프버튼의접근성이름에동적값을포함한다. 카탈로그는같은GeoJSON/project의모든ring을동일축비율로163×94로컬좌표에정규화하며그림은제공된서울/부산에만사용한다. 원본/다른지도와권한은변경하지않는다. 재시작후font2/기기읽기와실시간설정변경·실기기/TalkBack수용은구분한다. 상세결과는TEST_CASE17E를따른다.

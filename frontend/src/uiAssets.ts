@@ -2,6 +2,10 @@
 export const uiAssets = {
  backpack: require('../assets/ui/backpack-v1.png'),
  defaultAvatar: require('../assets/ui/avatar-bear-v1.png'),
+ stamps: {
+  'KR-26': require('../assets/ui/busan-seagull-stamp-v1.png'),
+  'KR-11': require('../assets/ui/seoul-ginkgo-stamp-v1.png'),
+ },
  ocean: {
   cloud: require('../assets/ui/ocean-cloud-v1.png'),
   wave: require('../assets/ui/ocean-waves-v1.png'),

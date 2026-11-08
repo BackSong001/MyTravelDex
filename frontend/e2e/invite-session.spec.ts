@@ -21,6 +21,7 @@ test.beforeAll(async()=>{
   '../src/runtime':`const passwordLogin=async()=>{await new Promise(resolve=>window.finishPasswordLogin=resolve);return ${JSON.stringify(session)};};export const api={list:async()=>[],following:async()=>[],login:passwordLogin,request:async path=>path.startsWith('/auth/v1/token')?passwordLogin():[],token:null};`,
   '../src/api':`export class ApiError extends Error {}`,
   '../src/Social':`import React from '${react}';export const isUserId=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=({session})=>React.createElement('div',{'data-testid':'friends'},React.createElement('span',{'data-testid':'session-owner'},session?.user.id??'guest'));export const ProfileEditor=()=>null;`,
+  '../src/StampCatalog':`export default ()=>null;`,
   '../src/provinces':`export const groupProvinceRecords=()=>({}),provinceLabels={};`,
   '../src/auth':`export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},setSession:async()=>{window.sdkSets=(window.sdkSets??0)+1;const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);return {data:{session},error:null};},getSession:async()=>({data:{session:null}})}};
    export const googleLogin=async()=>{const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);await new Promise(resolve=>window.finishGoogle=resolve);return session;};`,

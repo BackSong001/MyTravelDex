@@ -777,3 +777,27 @@ FR-FIGMA-010: 실제바다PNG4개 원본hash·기본66/60/70/68슬롯·공통sou
 #### 17D t9d 완료검토 보강 — guest 관계 수
 
 bd13192푸시후t9d가경계대역ReactSSR로guest의미조회팔로잉0을재현했다(P2, 개인정보유출아님). 실제Web의초대guest숫자없음Red(t121)후표시조건에owner를추가했다. 기존초대/탭/관계대상3 Green(t122), types(t123)통과. 일반guest/초대guest숫자없음·로그인0/양수4를명시검사하는최종focused4(t125,10.9초)통과·최종types(t126)통과. 앞선t124는일반guest테스트가nav가없는로그인첫화면에서직접친구탭을찾는잘못된진입이라3pass/1중단이며Green이아니다. 공개여행둘러보기→친구탭으로테스트진입을보정했다. t14보강한줄정적승인, 독립추가실행없음. 단일전체106·actualAPK35초는이표시보강전결과이고보강후전체/최신APK로표현하지않는다. 관계API/권한/로그인표시동작변경없음.
+
+
+## TC-FIGMA-PROFILE-001 / TC-FIGMA-STAMP-001 계획
+
+본인요약→수정→저장성공즉시요약/취소복원·실패입력보존/ID독립retry, 계정전환폐기·같은owner refresh보존을기존회귀와검증한다. owncomplete private/public/중복지역1/draft·해외제외·scope독립과전체17/모은/초기loading·실패·retry의실제0구분을확인한다. 실제Figma부산/서울PNG의hash/디코드/108슬롯·기존17윤곽/2018출처, 320/390/768·큰글꼴·최소48/하단nav비가림을검증하고native수용은별도로기록한다. 방문자/요약내여행행/전역테마는후속이다.
+
+17E t14 회차1 P2 보강은프로필이름/스탬프수·진입button의동적접근성이름이다. 로딩/실패/0/양수·저장후이름을toHaveAccessibleName으로검사하고테스트의안정위치는testID로구분한다. DOM표시값확인만으로TalkBack수용을주장하지않는다.
+
+### 17E My 본인 요약·17지역 카탈로그 실행 (2026-11-09)
+
+- 41:8/41:92/41:468 실제Figma context/렌더를확인했다. 본인요약→기존ProfileForm편집/취소/성공snapshot·ID독립retry/명시사진선택/공개동의와기존내여행보기·친구진입을연결했다. 방문자/요약내여행행/전역폰트·nav테마는미구현후속이며Batch10전체완료가아니다.
+- 요약/미확정집계UI Red2(t128)→Green2(t12c). 새상징2PNG는Figma다운로드와canonical원본hash일치(t129), registry미연결단위Red(t12b)→13PNG동일성1+기존정렬2+지리9=단위12 Green(t12f). 기존11PNG고해상도용량후보와신규2PNG의원본보존/적정파생본최적화는별도추적한다.
+- 실제Local에버려질QA계정과유효Storage/사진/완료기록을만들어Busanprivate/Seoulpublic·중복private/Jeju초안/해외완료를구분했다. own2/17·공개scope독립/각지역상징PNGdecode108px와새계정2→0·편집초기화/같은owner TOKEN_REFRESHED입력보존/이전2성공→503확인필요→retry2의3개(t12k,18.2초)통과. TOKEN_REFRESHED는SDK BroadcastChannel 이벤트주입이며실제OAuth/서버토큰갱신수용과구분한다. fixture사진은기존2×2합성JPEG이며실제사용자기록/사진을사용하지않았다. hook은미등록Storage경로까지추적해해당QA계정/기록/파일만정리한다.
+- 기존연결UI7파일47(t12g,2.8분)통과. 새요약진입에맞춰기존프로필수정테스트는수정버튼을거치고, 스탬프표시는동일집계값과전체/모은지역상태검사로동기화했다. 기존nickname/공개동의·프로필실패/본인private/중복방문/삭제재집계·세션경쟁의검증은유지한다. prototypeharness의새카탈로그경계만대역처리한invite테스트를실PNG/native수용으로합산하지않는다.
+- t14 P2는고정accessibilityLabel이실제이름/숫자/상태를가리는경로였다. 실제Web accessibleName Red(t12p)→profileName/visitLabel/countLabel을표시와이름에공유하고부모스탬프button에도값을포함했다. 최종focused5(t12q,21.7초)/types(t12r)통과, t14지정범위정적재리뷰승인. 저장후이름·로딩/실패/0/양수의toHaveAccessibleName과표시값을별도확인했다. portrait116×144/320·390·768가로넘침도확인(t12m2), 이중focused를전체합계에더하지않는다.
+- actual환경web export(t12t)통과. 최종전체웹/Android는후속결과를기록한다. API/DB/RLS/schema/환경변수/의존성변경없음. backend/domain전체134+외부1skip은이전17D(t11v)실행이며이번17E새전체재실행으로계산하지않는다. 실기기/TalkBack/실시간native글꼴변경P2/Play는별도미수용이다.
+- Native첫APK56초(t12v, `05508bb7...63a62228`)에서요약/수정진입·취소·동적접근성이름은보였으나윤곽의빈표시/잘림을발견했다. nonzero viewBox를0+G이동으로바꾼31초중간APK(t12w, `50639dc4...105abddd`)도일부잘려수용하지않았다. 이두artifact를최종정상으로계산하지않는다.
+- 같은GeoJSON/project의모든polygon/ring을같은scale·평행이동으로163×94로컬좌표에직접정규화해Native의큰원점viewBox/그룹변환/vectorEffect의존을제거했다. 원본GeoJSON/다른지도는미변경이다. 모든17출력의점수·ring M/L/Z·정규화점위치·양축비율·뷰포트내포함단위1+지리9+13PNG동일성1=11(t12z)통과, 해당Web1(t131)/types(t132)통과. t14지정geometry정적승인. 중간G방식단위(t12x)/Web(t12y)은이최종Native해결증거로대체하지않는다.
+- **최신actual.env 개발서명APK29초(t130)** 설치바이트/actual URL·key target일치, SHA256 `bb9498c3e48c654f740d2368d330938473ed91eae91ece2a8946f766e958e307`. AVD명mytrveldex/5556의기존SDK계정·방문요약2/17·전체/모은탭2행·원본비율윤곽/실상징PNG와그림없는지역의실방문텍스트를확인했다. 기존편집은진입/취소만했고사용자프로필/관계/기록/사진은수정·저장하지않았다. 네이티브동적접근성이름에이름/2/17이포함되는XML확인은TalkBack실조작검증과구분한다.
+- 가로+font_scale2는cold restart후My→카탈로그→모은스탬프→스크롤2회로마지막행과출처에접근했다. 모든내용이한번에보인다는뜻은아니며badge의숫자줄바꿈/스크롤영역밖행의부분노출을글자잘림해결전체수용으로확대하지않는다. 실행중글꼴변경P2는미해결이다. font1.0/user_rotation0/accelerometer_rotation1/세로를원복·재시작후함께보기SDK세션복원확인, Appium세션만삭제하고기존AVD/앱홈유지. 현재프로세스fatal0만관측했다. 실제사용자화면/XML은/tmp에만보관하고Git에는합성Local증거PNG2장만추가한다.
+- 중간전체112(t12s)는69pass/옛My문구2fail/1중단/40미실행이었다. 두문구는같은1/17수치검사로보정해journal/map대상포함5(t12y)를통과했고Native보강때실행을중단했다. 최종전체성공으로합산하지않는다. 최종고정코드web export(t134)통과, 전체웹(t133)은후속결과를따른다.
+- 새요약PNG의0/17은profile.spec의빈Localfixture, 새카탈로그PNG의2/17은profile-stamps.spec의별도Localfixture다. 같은계정의모순된집계가아니다. t14최종지정기록/PNG정적검토승인을받았고최종전체결과만후속추가한다.
+
+- **최종고정코드 단일전체웹112 passed(6.2분,t133)**. 이전전체106은17Dguest보강전이며guest신규1+My신규5를포함한현재112와구분한다. 유형/개별focused결과는이수에더하지않는다. 최종types(t132)/actual web export(t134)/최신APK29초(t130)와일치하는geometry코드다. 기존verification자동변경은HEAD원본으로복원하고신규합성LocalPNG2장만보관했다. t14제품/최종기록승인후전체결과1건을추가했다.

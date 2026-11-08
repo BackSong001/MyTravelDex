@@ -83,12 +83,16 @@ function Notice({children, error = false}: {children: string; error?: boolean}) 
 
 function Avatar({url,size=44}: {url: string | null;size?:number}) {return <TravelerAvatar url={url} size={size}/>;}
 
-export function ProfileEditor(props: Props) {
+type ProfileProps=Props & {visits:number|null;visitsFailed:boolean;onStamps:()=>void;onFollowing:()=>void;showStamps:boolean;children?:React.ReactNode};
+
+export function ProfileEditor(props: ProfileProps) {
   return props.session?.user?.id ? <ProfileForm key={props.session.user.id} {...props}/>
     : <View style={s.sheet}><Text accessibilityRole="header" style={s.title}>나의 프로필</Text><Notice>로그인하면 닉네임과 공개 프로필을 설정할 수 있어요. My에서 로그인해 주세요.</Notice></View>;
 }
 
-function ProfileForm({session, onChanged}: Props) {
+function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowing,showStamps,children}: ProfileProps) {
+  const [editing,setEditing]=useState(false);
+  const [snapshot,setSnapshot]=useState<{name:string;avatar:string|null;enabled:boolean}|null>(null);
   const owner = session.user.id as string;
   const identity = useUserId(owner);
   const googleAvatar = typeof session.user.user_metadata?.avatar_url === 'string' ? session.user.user_metadata.avatar_url : null;
@@ -115,6 +119,7 @@ function ProfileForm({session, onChanged}: Props) {
       // 공개 동의 전 기존 Google 사진을 자동 선택하지 않는다.
       setAvatar(rows[0].public_profile_enabled === true ? rows[0].avatar_url ?? null : null);
       setEnabled(rows[0].public_profile_enabled === true);
+      setSnapshot({name:rows[0].display_name??'',avatar:rows[0].public_profile_enabled===true?rows[0].avatar_url??null:null,enabled:rows[0].public_profile_enabled===true});
       setLoaded(true);
     }).catch(error => {if (current) setError(message(error));}).finally(() => {if (current) setLoading(false);});
     return () => {current = false; active.current = false;};
@@ -135,13 +140,36 @@ function ProfileForm({session, onChanged}: Props) {
       setName(rows[0].display_name ?? displayName);
       setAvatar(rows[0].avatar_url ?? null);
       setEnabled(rows[0].public_profile_enabled === true);
-      setSuccess('프로필을 저장했어요.');
+      setSnapshot({name:rows[0].display_name??displayName,avatar:rows[0].avatar_url??null,enabled:rows[0].public_profile_enabled===true});
+      setEditing(false);setSuccess('프로필을 저장했어요.');
       onChanged?.();
     } catch (error) {if (active.current) setError(message(error));}
     finally {savingRef.current = false; if (active.current) setSaving(false);}
   }
 
   const disabled = loading || saving || !loaded;
+  if(showStamps&&!editing)return <>{children}</>;
+  const profileName=snapshot?.name||(loading?'불러오는 중…':error?'확인 필요':'여행자');
+  const visitLabel=visits===null?(visitsFailed?'확인 필요':'확인 중'):`${visits} / 17`;
+  if(!editing)return <View style={s.profilePage}>
+    <View style={s.profileCard}>
+      <View style={s.profileHeading}><Text accessibilityRole="header" style={s.profileTitle}>나의 프로필</Text><Button compact label="프로필 수정" disabled={disabled} onPress={()=>{setError('');setSuccess('');setEditing(true);}} secondary/></View>
+      {loading&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}
+      <View style={s.profileIdentity}><TravelerAvatar url={snapshot?.avatar} portrait/><View style={s.flex}>
+        <Text testID="profile-name" accessibilityLabel={`내 프로필 이름 · ${profileName}`} style={s.profileName}>{profileName}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={`여행 스탬프 보기 · ${visitLabel}`} onPress={onStamps} style={s.visitLink}>
+          <View style={s.visitBadge}><Text testID="profile-visits" accessibilityLabel={`내 방문 지역 수 · ${visitLabel}`} style={s.visitNumber}>{visitLabel}</Text><Text style={s.profileSmall}>지역</Text></View>
+          <Text style={s.profileLink}>여행 스탬프{String.fromCharCode(10)}보러 가기 ›</Text>
+        </Pressable>
+      </View></View>
+      <Text style={s.profileSmall}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.profileIdentifier}>{identity.code||'불러오는 중…'}</Text>
+      {!!identity.error&&<><Notice error>{identity.error}</Notice><Button label="유저 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
+      <View style={s.profileHeading}><Button compact label="내 팔로잉 보기" onPress={onFollowing} secondary/><Text style={s.profileSmall}>{snapshot?snapshot.enabled?'프로필 공개':'프로필 비공개':'공개 상태 확인 중'}</Text></View>
+      <Text style={s.profileSmall}>프로필과 여행 기록 공개 범위는 별개예요.</Text>
+      {!!error&&<Notice error>{error}</Notice>}{!!success&&<Notice>{success}</Notice>}
+      {!loaded&&!loading&&<Button label="프로필 다시 불러오기" onPress={()=>setAttempt(value=>value+1)} secondary/>}
+    </View>
+  </View>;
   return <View style={s.sheet}>
     <Text accessibilityRole="header" style={s.title}>나의 프로필</Text>
     <Text style={s.label}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.identifier}>{identity.code || '불러오는 중…'}</Text>
@@ -164,6 +192,7 @@ function ProfileForm({session, onChanged}: Props) {
     {!!success && <Notice>{success}</Notice>}
     {!loaded && !loading && <Button label="프로필 다시 불러오기" onPress={() => setAttempt(value => value + 1)} secondary/>}
     <Button label={saving ? '저장 중…' : '프로필 저장'} onPress={() => void save()} disabled={disabled}/>
+    <Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);setEnabled(snapshot.enabled);}setError('');setSuccess('');setEditing(false);}} secondary/>
   </View>;
 }
 
@@ -355,6 +384,18 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 }
 
 const s = StyleSheet.create({
+  profilePage:{gap:16},
+  profileCard:{backgroundColor:c.profile.sheet,padding:20,gap:12},
+  profileHeading:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:12},
+  profileTitle:{fontSize:20,lineHeight:28,fontWeight:'700',color:c.profile.ink,flexShrink:1},
+  profileIdentity:{flexDirection:'row',alignItems:'center',gap:20},
+  profileName:{fontSize:30,lineHeight:42,fontWeight:'700',color:c.profile.ink},
+  profileSmall:{fontSize:12,lineHeight:18,color:c.profile.muted,flexShrink:1},
+  profileIdentifier:{fontSize:14,lineHeight:21,color:c.profile.ink},
+  profileLink:{fontSize:11,lineHeight:17,color:c.profile.accent,flexShrink:1},
+  visitLink:{flexDirection:'row',alignItems:'center',gap:8,paddingVertical:8},
+  visitBadge:{width:72,minHeight:64,borderWidth:1,borderStyle:'dashed',borderRadius:36,borderColor:c.profile.accent,backgroundColor:c.profile.tint,alignItems:'center',justifyContent:'center',padding:4},
+  visitNumber:{fontSize:16,lineHeight:24,color:c.profile.accent,textAlign:'center'},
   compactButton: {paddingHorizontal:8,paddingVertical:8,borderRadius:10},
   compactButtonText: {fontSize:12,lineHeight:18},
   friendHeading: {flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:12},

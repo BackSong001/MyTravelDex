@@ -169,6 +169,7 @@ test('TC-FRIEND-008: identity lookup failure keeps profile editable and retries 
  await page.route('**/rest/v1/profiles?*',route=>new URL(route.request().url()).searchParams.get('select')==='user_code'?route.abort():route.continue());
  await login(page,accounts[0].email,accounts[0].password);await page.getByRole('tab',{name:'My',exact:true}).click();
  await expect(page.getByText('유저 ID를 불러오지 못했어요. 다시 시도해 주세요.',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'프로필 수정',exact:true}).click();
  await expect(page.getByLabel('닉네임',{exact:true})).toBeEditable();await expect(page.getByRole('button',{name:'프로필 저장',exact:true})).toBeEnabled();
  await page.unroute('**/rest/v1/profiles?*');await page.getByRole('button',{name:'유저 ID 다시 불러오기',exact:true}).click();
  await expect(page.getByLabel('유저 ID',{exact:true})).toHaveText(accounts[0].code);
