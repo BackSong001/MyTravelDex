@@ -189,3 +189,5 @@
 - 작업17F는685dc8e→t9d필수보완없음답변후ownRows최근3/전체보기·공통사진조회·My출처상세/삭제·scroll복귀를구현했다. Local신규/대표/제목/공개/삭제동기화·lateprivatecover계정경계·지연header/Enter복귀와t14이미지retry P2 Red→Green2/정적승인을받았다. backend/domain138+외부1skip/types/export·actualAPK36초설치/hash/target통과,실제SDKMy3행상세복귀/위치·font2세로재시작후가로스크롤접근을읽기만확인하고설정원복했다. 최초전체117은115pass2fail이며최종단독전체(t146)는진행중이다. 실행/중간실패범위는TEST_CASE17F참조,방문자/전역테마·Batch11미완료유지.
 
 - 17F 최종단독전체웹117 passed(t146,6.4분)·t14지정기록/새PNG정적승인완료. 최초115pass2fail/대상callback종료보정은TEST_CASE에서별도기록한다. 기존verification자동변경은HEAD복원·새MyPNG1장만추가,원래untracked2개보존. 커밋/푸시후t9d완료전달·답변을받고다음범위로진행한다.
+
+- 17F 566fde2푸시후t9d완료검토답변(새제품필수결함없음/비DB대역3)을받았다. 문서상단예약ID충돌P2는본문006/007/008을보존해현행매핑으로정리하고후속009/011~013을예약했다. 다음은실시간글꼴변경P2 독립재현/원인보강이며방문자/다중테마·Batch11은동시착수하지않는다. 계정삭제P1정책대기/배포미수용은유지한다.

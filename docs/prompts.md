@@ -1261,3 +1261,9 @@ t9d가friendOwner잔존P2를코드추적해t12가A완료4행대신0행의실제L
 **변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{MyTrips,Journal,Social}.tsx, frontend/src/recordCovers.ts, frontend/e2e/{profile-stamps,invite-session,photo-autofill}.spec.ts, backend/tests/record-covers.test.ts, docs/design/verification/figma-my-trips-20261109.png.
 
 17F 최종단일전체웹117(t146,6.4분)통과·t14기록/PNG정적승인,기존verification원복·신규MyPNG1장/원래untracked2개보존을완료했다. 위진행중표현은중간이력이며최종결과는이절을따른다. 커밋/푸시후t9d답변을받는다.
+
+### 2026-11-09 04:43 KST — 17F 완료검토 후 문서 ID 보강
+
+t9d의566fde2완료답변은새제품필수결함없음/독립비DB대역3·diffcheck0이며문서예약ID의이중의미P2를지적했다. 기존본문/TC006스탬프·007My행·008복귀를보존하고REQUIREMENT상단을현행매핑으로정정,미사용009테마·011목적지·012뱃지·013스타일을후속예약했다. 새DB/UI/기기실행이나제품변경없음. 다음실시간font P2 독립재현→방문자최소계약순서로이어간다. 변경파일: docs/{REQUIREMENT,FIGMA_IMPLEMENTATION,TEST_CASE,prompts}.md, DEVELOPMENT_STATUS.md.
+
+문서보강t14리뷰에서기존010바다PNG계약과최초목적지예약의충돌을지적받아010은바다로보존하고예약009/011/012/013으로정정했다. 기존001~008/010정의중복없음·예약미사용·010목적지문장0/diffcheck0을확인했으며제품/DB/UI실행없음.
