@@ -22,7 +22,7 @@ export async function choosePlace(page:Page) {
  });
  await expect(page.getByLabel('위도',{exact:true})).toHaveCount(0);
  await expect(page.getByLabel('경도',{exact:true})).toHaveCount(0);
- await page.getByRole('button',{name:'위치 선택',exact:true}).click();
+ await page.getByRole('button',{name:'여행 위치 검색',exact:true}).click();
  await page.getByRole('tab',{name:'검색',exact:true}).click();
  await page.getByLabel('장소 검색',{exact:true}).fill('제주 시청');
  await page.getByRole('button',{name:'장소 찾기',exact:true}).click();

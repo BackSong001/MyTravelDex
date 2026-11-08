@@ -1,5 +1,24 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 사진 자동입력·위치 검색바 계획 (2026-11-08)
+
+TC-PHOTO-LOCATION-001 ↔ FR-PHOTO-LOCATION-001: 기존 metadata/날짜 min-max/첫사진GPS/null·권한제한을 재검증한다. 실제 Home+사진선택 경계 대역으로 자동 기간/좌표와 수동편집 보존을 확인하며 대역 결과를 실기기 EXIF 수신으로 계산하지 않는다.
+TC-PHOTO-LOCATION-002 ↔ FR-PHOTO-LOCATION-002: GPS없는 실제 Local UI에서 빈 검색바→키보드/클릭으로 별도 검색창→장소/핀확정·취소/오류 시 날짜·사진/위치 유지. 기존 위치선택 버튼 없음과 확정 전 위치필수 검증을 확인한다.
+TC-PHOTO-LOCATION-003 ↔ FR-PHOTO-LOCATION-003: GPS 즉시표시→역조회 장소/주소 표시, 서버가 다른 좌표/source를 반환해도 원EXIF좌표/source 유지. 조회 실패·새사진·수동확정·작성취소/초안/계정전환 후 지연응답 무시. Android는 mytrveldex AVD명을 확인하고 최신APK 설치해 실제 검색바/별도창과 metadata수신/누락 증거를 구분한다.
+
+### 2026-11-08 12:16 KST — 사진 자동입력/위치 검색바 결과
+
+- Red: 기존 위치선택 버튼이 남아 새 진입부 부재를 실제 UI 실패로 확인(t53). 검색기본탭의 aria-selected 누락도 실제 UI 실패(t55) 후 명시 상태 전달로 보정했다. 관련 사진/메타데이터/실제 Local HTTP·Storage·위치 provider 경계 혼합 **75 passed**(t54: photo44, photos-client6, photos-picker19, geocode6). 전체75를 실제HTTP로 표시하지 않는다.
+- 최종 UI: 실제 Home/LocationPicker/React/RNW의 사진·Auth·지도·서버 경계 대역3개 + 실제Local 위치UI6개 = **9 passed**(t5m). metadata 유효일 min/max/첫GPS즉시·응답이동좌표에도 EXIFsource/원좌표 유지, 수동기간/수동장소·새사진/누락/주소오류·지연응답 보존, Enter 검색바진입·기본검색탭/닫기·기존검색/핀확정/실제사진저장회귀를 확인했다. 최초 harness의 미처리 MapLibre CSS/runtime 경계 연결 실패는 제품 Red로 합산하지 않았다.
+- 확대 UI는 **50 passed/2 failed**(t58). 옛 위치 버튼 disabled locator를 새 검색바로 동기화하고, 지도 지역패널을 먼저 닫은 뒤 그 아래 마커를 선택하는 실제 조작으로 검사를 보정했다(작업7 stack isolation 이후의 가림, 지도제품변경 없음). 두 대상은 **2 passed**(t5j). 전체52 재실행으로 표시하지 않는다. TypeScript 통과(t5n).
+- t14 회차1/3 승인: 별도 focused9 passed(t5f)와 코드검토로 source/원좌표/수동edited/취소guard·기존metadata/본문미생성·검색바 접근성을 확인했다. 계정전환 지연 주입은 미실행이며 코드guard 확인이다. 추가 제품 결함/필수 수정은 없었다.
+- Android: AVD이름을 확인해 `mytrveldex`(이번 연결5556)를 사용했다. 현재5554는 dsu_nofiter이므로 조작하지 않았다. 실제 `.env` 설정의 standalone APK빌드 성공(t5c Gradle47초) 후 기기명으로 연결을 다시 확인하고 명시 설치했다. 설치 base.apk를 추출해 빌드와 바이트/해시 일치 확인: `1c605182fa826d1c53071fcf199cf24c6759d7ec4dda6e7b82a1075f02cbb35b`. 개발 서명이며 운영 제출 산출물이 아니다. Expo 자동 기동 프로세스 종료 후 기기가 내려가 별도 지속 터미널로 재기동/설치확인을 했고 DB/앱 데이터 reset은 실행하지 않았다.
+- Native 실제수신: 공개라이선스 사진 복사본에 합성 EXIF IFD(촬영일2026-11-01/GPS35.8151,127.1539)를 넣어 원본 파일 선택→실제 MediaLibrary/photoMetadata를 통과시켰다. 날짜 두 필드2026-11-01, 검색바 사진GPS35.81510/127.15390 자동표시, 실제 서버 역조회 주소(전주 태조로) 보완을 XML/화면으로 확인했다. 이는 합성 metadata 수신 증거이며 원래 사진의 실제 촬영일/GPS나 실기기 촬영 성공을 주장하지 않는다.
+- Native 누락: 시스템 선택 경로 첫 검증파일은 metadata 미수신으로 기간/검색바가 빈 상태였고 검색바→별도 기본검색창·미확정 상태의 위치 확정(이 위치로 선택) 버튼 비활성을 확인했다. 첫 파일의 날짜IFD를 올바른 nested EXIF로 수정한 뒤 원본 경로에서 수신을 확인했으므로, 두 선택 경로의 파일/반환정보 차이를 Android 전체정책 또는 모든 클라우드 사진의 누락으로 단정하지 않는다.
+- 정리: 이번 사진·기간 입력만 명시적으로 버리고 새 빈 작성 화면(0/20·빈 장소검색바)을 열어두었다. 검증용 기기사진/MediaStore 항목0 확인, 사진캐시 정리는 기존 cleanup 흐름을 사용했다. Appium 세션만 종료하고 mytrveldex/최신 앱은 열린 상태다. 실제서버 여행기록 생성/수정/삭제·원격migration/함수배포는 하지 않았다. 앱 AndroidRuntime fatal 항목은 발견하지 못했다. 기존사진/닉네임/계정정보는 증거에 포함하지 않았다.
+
+화면: [원본 metadata/주소 자동입력](design/verification/photo-location-native-metadata-20261108.png), [빈 검색바의 별도 검색창](design/verification/photo-location-native-search-20261108.png). 사진 fixture 라이선스는 [README](../frontend/e2e/fixtures/README.md)를 따른다. 실기기·클라우드전용사진·권한거부 조합/새Google왕복/전체Android수용은 미검증이다.
+
 ## 2026-11-08 10:55 KST — 실제 mytrveldex 최신 APK 설치 보정
 
 직전 앱 실행 요청에서는 기존 설치 APK만 열었고 작업7 최신 APK를 사용자 기본 AVD에 설치하지 않았다. 작업7의 Android 검증은 별도 Medium_Phone/Local APK였으며 이를 사용자 기기에 반영된 상태처럼 받아들일 수 있게 전달한 점을 정정한다.

@@ -1,5 +1,9 @@
 # MyTravelDex API 명세서
 
+## 사진 위치 자동 보완 클라이언트 (2026-11-08)
+
+기존 `POST /functions/v1/geocode-location`의 `{latitude,longitude}` 역조회 응답으로 검색바 장소/주소를 보완한다. 요청·인증·외부 오류 계약은 변경하지 않는다. 응답의 좌표/source는 EXIF 대표 위치를 대체하지 않으며 저장은 기존 locations source=exif와 원사진좌표를 사용한다. 수동 장소 확정 후에는 해당 장소의 기존 source/provider 정보를 사용한다. GPS 누락은 검색/핀확정이 필요하고 빈값을 0좌표나 현재 위치로 전송하지 않는다.
+
 ## 추천 친구 API (2026-11-08)
 
 `POST /rest/v1/rpc/friend_recommendations`, body `{}`, authenticated 전용. 응답은 최대50개의 `{id: uuid, display_name: string|null, avatar_url: string|null}`. 공개 프로필만 조회하며 본인/친구/대기 요청/기존 팔로우 제외; 이메일/Auth 메타데이터·비공개 프로필 열은 반환하지 않는다. anon은 실행 권한 없어 HTTP401, 인자(limit/owner 등) 추가는 일치 함수가 없어 거부된다. 재호출은 후보 재조회이며 서로 다른 결과를 보장하지 않는다. refresh 실패 시 화면의 기존 후보·검색 입력 유지. 고유 친구 ID는 기존 UUID이며 public_profiles ID 검색 및 friend_requests 요청/수락 계약을 재사용한다.

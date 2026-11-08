@@ -1065,3 +1065,21 @@ t14는 코드 리뷰와 QA를 담당한다.
 변경 파일: `AGENTS.md`, `README.local.md`, `DEVELOPMENT_STATUS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/planning.md`, `docs/prompts.md`, `backend/supabase/migrations/20261108010000_friend_recommendations.sql`, `backend/tests/friends.test.ts`, `backend/tests/journal.test.ts`, `backend/tests/map-ocean.test.ts`, `backend/tests/maps-native.test.ts`, `frontend/src/Social.tsx`, `frontend/src/journalRecords.ts`, `frontend/src/ClusterBrowser.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/MapOrnament.tsx`, `frontend/src/mapStyle.ts`, `frontend/app/index.tsx`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/journal.spec.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/design.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/e2e/invite-session.spec.ts`, `frontend/e2e/helpers.ts`, `docs/design/verification/cluster-photo-browser-20261108.png`, `docs/design/verification/interactive-*20261108.png`, `docs/design/verification/feature7-native-*20261108.png`.
 
 | 2026-11-08 10:55 KST | 요구사항이 하나도 반영이 안된거 같은데, 앱 빌드해서 안드로이드에서는 테스트 안했나? | 별도Local APK검증과 사용자기기설치를 구분하지 못한 전달 누락을 정정했다. mytrveldex에 실제서버설정 최신APK를 새로빌드/설치하고 설치파일해시 일치·기존데이터유지·검색4정렬/군집/지도장식을 직접검증했다. 실제서버친구schema미적용은승인대기로남기고 사용자사진/이름은커밋하지않았다. | 변경 파일: `docs/TEST_CASE.md`, `DEVELOPMENT_STATUS.md`, `docs/prompts.md` |
+
+### 2026-11-08 12:16 KST — 사진 자동정보와 위치 검색바
+
+사용자 프롬프트 원문(전달 메시지의 사용자 인용부):
+
+```text
+사진 데이터를 받으면 시작일과 종료일, 위치정보도 자동으로 받아와야해. 위치정보를 자동으로 받아오지못하면, 지정해야하는데, 위치 선택을 누르는 버튼을 만들지말고, 검색바를 만들고, 검색바를 클릭하면 새로운창을띄워서 위치를 검색할 수 있게해줘. 사진에서 위치정보를 파악했다면, 내용을 채워주고
+```
+
+전달 메시지 전체 및 구현 해석(t14 전달·해석이며 위 사용자 인용과 구분):
+
+```text
+사용자 신규 구현 요청 전달(원문): 사진 데이터를 받으면 시작일과 종료일, 위치정보도 자동으로 받아와야해. 위치정보를 자동으로 받아오지못하면, 지정해야하는데, 위치 선택을 누르는 버튼을 만들지말고, 검색바를 만들고, 검색바를 클릭하면 새로운창을띄워서 위치를 검색할 수 있게해줘. 사진에서 위치정보를 파악했다면, 내용을 채워주고. 메인 개발자 t12 구현으로 진행 부탁드립니다. t14는 기존 역할대로 소스변경 없이 리뷰 대기합니다. 현재 choose→photoMetadata→suggestRecord는 촬영일 min/max·첫사진GPS·수동편집보존을 이미 지원하고 index.tsx의 위치 UI는 위치 선택 버튼과 사진의 촬영 위치 일반문구입니다. 최소 완료 동작: 1) 날짜/EXIF/GPS 기존 자동입력 재사용·실기기 metadata 수신/누락 구분, 2) 위치 선택 버튼을 검색바 형태의 접근가능한 입력 진입부로 교체(클릭/키보드 시 기존 별도 LocationPicker 창 열기), 3) 사진 GPS를 파악했으면 검색바에 위치정보를 채우고 필요시 기존 서버 역지오코딩으로 장소/주소 표시하되 EXIF 원좌표/source 보존, 4) GPS가 없으면 빈 검색바로 검색창→장소선택/핀확정 필수, 5) 닫기·검색실패·늦은주소응답이 기존사진/기간/수동확정 위치를 덮지 않음. 여기서 내용을 채워주는 것은 위치 검색바의 장소/주소 정보로 해석하며 여행 본문 자동생성은 추가하지 않습니다. 명세 동기화와 관련기존HTTP/웹 회귀 후 지정diff 리뷰 요청해주세요. 원격migration/배포 권한을 추가로 받은 것은 아닙니다.
+```
+
+결과: 기존metadata자동기간/첫GPS·수동보존을재사용하고위치검색바/별도검색창·EXIF원좌표/source유지주소보완과지연guard를구현했다. 혼합사진/HTTP75·최종위치/Home9·타입과확대대상보정을검증하고t14회차1승인받았다. mytrveldex최신APK명시설치/해시일치후원본파일의합성유효EXIF실제수신→기간/GPS/실제주소자동표시·누락빈검색바진입을확인했다. 검증입력/사진정리후빈검색바를열어두었다. 원격쓰기/배포/본문자동생성은없고실기기/클라우드전용은미검증이다.
+
+변경 파일: `AGENTS.md`, `README.local.md`, `DEVELOPMENT_STATUS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/src/LocationPicker.tsx`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/photo-autofill.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `docs/design/verification/photo-location-native-metadata-20261108.png`, `docs/design/verification/photo-location-native-search-20261108.png`.

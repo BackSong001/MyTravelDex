@@ -1,5 +1,13 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 사진 GPS 주소 보완과 위치 검색바 (2026-11-08)
+
+FR-PHOTO-LOCATION-001~003은 기존 choose→photoMetadata→suggestRecord와 서버 geocode-location 좌표 역조회 계약을 재사용한다. 날짜 min/max/첫사진GPS·edited refs/초안 재시도·사진 압축/Storage 정책은 유지한다. 위치 진입부는 입력창처럼 보이는 focus 가능한 button이며 클릭/키보드로 별도 Modal 검색 탭을 연다(읽기전용 TextInput의 포커스 복귀 재오픈/불필요한 키보드를 피한다). 검색어 입력/장소 확정은 기존 LocationPicker가 소유한다.
+
+유효 EXIF 좌표를 즉시 placeInfo(source=exif,원 latitude/longitude)와 검색바에 표시한다. Home의 주소 보완 effect는 좌표·source·사진 선택·계정/작성 상태를 따라 취소하고 현재 자동 위치와 일치할 때만 응답의 장소/주소를 반영한다. 수동 편집 플래그는 즉시 검사하며 서버 반환 좌표/source보다 원사진 좌표/exif를 우선한다. 취소/오류는 기본 촬영위치와 좌표를 유지하고 저장을 주소 응답에 종속시키지 않는다. 응답 자체가 유효하지 않으면 적용하지 않는다. 공개 대표 위치와 사진 EXIF 정밀좌표의 기존 구분은 유지한다.
+
+새 DB/API/환경변수·의존성 없음. 원격 migration/배포 권한은 포함하지 않는다. 검증은 metadata 파서/실제 Local HTTP 회귀→실제 Home의 사진 경계 대역 자동입력/지연 응답 회귀와 실제 Local 위치 UI→Android mytrveldex 최신빌드/검색바 조작으로 구분한다. 실기기/클라우드 전용 사진 EXIF 수신은 실제 기기 증거 없이 완료로 표시하지 않는다.
+
 ## 추천/도감/군집 확장 계약 (2026-11-08)
 
 FR-FRIEND-004: additive migration의 `public.friend_recommendations()`는 security invoker, 고정 search_path, authenticated 실행만 허용한다. public_profiles projection의 공개 동의/RLS를 유지하며 auth.uid 본인·friend_requests 당사자(pending/accepted)·본인 follows 대상을 제외하고 무작위 후보 최대50행 반환한다. 인자/사용자ID/limit 우회를 허용하지 않는다. 새로고침 시 같은 후보가 나올 수 있고 다른 집합을 보장하지 않는다. 추천 RPC 실패와 관계 목록 실패는 별도로 표시한다. 검색/UUID/관계 API와 기존 private/draft·Storage 권한은 변경하지 않는다.

@@ -98,6 +98,7 @@ test('UI-MAP-002 저장한 제주 기록을 지역 지도에서 선택하고 상
  await expect(page.getByText('내 발자국 1 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 1 / 17',{exact:true})).toBeVisible();await page.getByRole('tab',{name:'홈',exact:true}).click();
  await page.getByRole('button',{name:'제주 지역 선택',exact:true}).click();
  await expect(page.getByText('제주 여행 · 1개',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'지도 선택 닫기',exact:true}).click();
  await page.getByRole('button',{name:/여행자 · 제주 여행/}).click();await page.getByRole('button',{name:'여행 자세히 보기',exact:true}).click();await page.getByRole('button',{name:'여행 관리',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();
 });
 test('TC-UI-004 화면에서 대표사진 교체 후 다른 사진 삭제',async({page})=>{

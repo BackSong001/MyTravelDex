@@ -283,3 +283,5 @@ node --env-file=/secure/path/production.env scripts/android-bundle.mjs
 ## 2026-11-08 추천·군집·도감
 
 친구추천은 로그인한 사용자에게 공개프로필 최대50명만 제공한다. 기존 UUID 친구 ID/중복닉네임/요청수락을 재사용한다. 도감은 검색과 지역·시작일 양방향 정렬(기본 시작일 내림차순)이며 날짜/지역 범위 입력을 대체한다. 지도 군집은 겹친 사진·가로썸네일/빠른목록, 지도는 측면·산/풀 장식을 추가했다. 로컬은 `npx supabase migration up --local --workdir backend`로 신규추천RPC를 적용하며 원격은 승인후 기존friend_requests→추천migration 순서다. 실제테스트·승인/미검증범위는 `docs/TEST_CASE.md`의 2026-11-08 작업7 결과를 따른다. 새 환경변수·외부서비스·의존성은 없다.
+
+사진 선택 후 metadata가 제공되면 기간/첫GPS가 자동 제안된다. 위치는 입력형 검색바에서 별도 검색창을 열어 확정하며 GPS가 있으면 좌표/주소를 보완한다. metadata가 없으면 추측해 채우지 않는다. 원본파일/시스템선택 경로와 실제 검증 범위는 TEST_CASE의 FR-PHOTO-LOCATION 절을 따른다. 새 환경변수/migration은 없다.

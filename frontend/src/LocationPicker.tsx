@@ -21,7 +21,7 @@ function validPlace(place: any) {
 }
 
 export default function LocationPicker({initialPlace, onConfirm, onClose, footer}: Props) {
-  const [tab, setTab] = useState<'map' | 'search'>('map');
+  const [tab, setTab] = useState<'map' | 'search'>('search');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [candidate, setCandidate] = useState<any | null>(() => validPlace(initialPlace) ? initialPlace : null);
@@ -120,7 +120,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
       </View>
       <KeyboardAvoidingView style={s.main} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View accessibilityRole="tablist" style={s.tabs}>
-          {([['map', '지도에서 선택'], ['search', '검색']] as const).map(([value, label]) => <Pressable key={value} accessibilityRole="tab" accessibilityState={{selected: tab === value}} onPress={() => {setTab(value);scroll.current?.scrollTo({y:0,animated:false});}} style={[s.tab, tab === value && s.activeTab]}><Text style={s.text}>{label}</Text></Pressable>)}
+          {([['map', '지도에서 선택'], ['search', '검색']] as const).map(([value, label]) => <Pressable key={value} accessibilityRole="tab" accessibilityState={{selected: tab === value}} aria-selected={tab===value} onPress={() => {setTab(value);scroll.current?.scrollTo({y:0,animated:false});}} style={[s.tab, tab === value && s.activeTab]}><Text style={s.text}>{label}</Text></Pressable>)}
         </View>
         <ScrollView ref={scroll} style={s.main} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
           <View style={s.search}>
