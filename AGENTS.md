@@ -514,3 +514,7 @@ UUID/FK를 유지한 서버 발급 불변 6자리 friend_code와 공개 동의�
 ## 세션·빌드·짧은 화면 회귀 (2026-11-08)
 
 Auth SDK 이벤트를 클라이언트 세션의 단일 원천으로 사용한다. 사용자 전환의 sessionEpoch와 작업별 busy 소유권을 유지하며, 이전 작업은 각 await 후 다음 저장 요청을 시작하기 전에 세대를 검사한다. 같은 사용자 token refresh는 작성 내용을 보존한다. Android prebuild는 공통 번들 task에 공개 환경의 SHA256 입력과 출력 target 검사를 추가하므로 환경 전환을 위해 generated JS를 수동 삭제하지 않는다. 낮은 화면 높이의 compact header/nav와 검색어만 지우는 동작은 기존 Feedback·최소48·접근성·동작 줄이기를 유지한다. 전체/대상 회귀·actual APK/QA AAB 및 미검증 배포 조건은 [TEST_CASE](docs/TEST_CASE.md) 최신 작업15 기록을 따른다.
+
+## Figma 실제 구현 (2026-11-09)
+
+새 사용자 구현 요청은 docs/FIGMA_IMPLEMENTATION.md의 최신 Batch 매핑을 따른다. 실제 자산을 로컬 번들에 사용하고 원본 PNG/색상/스토리보드와 기존 Auth·RLS·ID·초안·사진/지도를 유지한다. 시안의 가상 데이터를 실제 계정/여행으로 주입하지 않는다. 각 단계 명세→Red/Green→t14→수정→커밋/푸시→t9d답변→t12 순환을 지키며 운영 DB/배포는 별도 승인한다.

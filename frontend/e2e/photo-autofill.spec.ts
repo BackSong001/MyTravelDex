@@ -1,5 +1,6 @@
 import {test,expect,type Page} from '@playwright/test';
 import {build} from 'esbuild';
+import {nativeImageAssets} from './native-image-assets';
 import path from 'node:path';
 let bundle='';
 const first={uri:'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',width:1,height:1,mimeType:'image/jpeg',exif:{DateTimeOriginal:'2026:11:03 12:00:00',GPSLatitude:35.8151,GPSLongitude:127.1539}};
@@ -23,7 +24,7 @@ test.beforeAll(async()=>{
  };
  const result=await build({loader:{'.css':'empty'},bundle:true,write:false,format:'iife',platform:'browser',resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},define:{'process.env.NODE_ENV':'"test"','process.env.EXPO_PUBLIC_APP_ENV':'"local"','__DEV__':'false'},
   stdin:{resolveDir:root,loader:'tsx',contents:`import React from './frontend/node_modules/react/index.js';import {createRoot} from './frontend/node_modules/react-dom/client.js';import Home from './frontend/app/index.tsx';createRoot(document.getElementById('root')).render(<Home/>);`},
-  plugins:[{name:'photo-boundaries',setup(builder){
+  plugins:[nativeImageAssets,{name:'photo-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path==='./runtime'&&args.importer.includes('/frontend/src/'))return {path:'../src/runtime',namespace:'boundary'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};

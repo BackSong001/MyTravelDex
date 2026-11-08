@@ -1194,3 +1194,18 @@ t14에게 단계별로 리뷰받으면서 진행해줘
 ### 변경 파일
 
 병합된 `docs/design/ui-assets/` 471개, `DEVELOPMENT_STATUS.md`, `docs/prompts.md`.
+
+
+## 2026-11-09 02:29 KST — 작업17A 실제 Figma 자산 첫 적용
+
+**사용자 프롬프트 원문**
+
+> 새롭게 UI 자산 스펙과 figma 에 실제로 생성한 자산으로 디자인과 기능까지 모두 개발하고 구현해줘. 개발 프로세스는 t12 -> t14 -> t9d -> t12 -> ... 이며, 내가 종료를 요청하거나, 토큰을 모두 사용할때까지 계속해서 진행해줘
+
+**결과 요약**
+
+전체Batch01~11 추적명세를 만들고 첫7개 실제PNG/메뉴/백팩/곰을 공통UI에 적용했다. t14 P2 웹지도 옛아바타를 회귀Red→Green으로 보정후승인. 단위12/웹21/types·폭과fallback중복대상각1, actualAPK49초설치/hash/target·기존로그인/도감탐색을 확인했다. 원격변경없음; 후속목록/테마/프로필/뽑기는미완료, 작업브랜치에서 계속진행한다. t9d에는 이 조각 완료커밋후전달한다.
+
+**변경 파일**
+
+AGENTS.md, DEVELOPMENT_STATUS.md, docs/{FIGMA_IMPLEMENTATION,REQUIREMENT,PRD,TRD,API_SPEC,DISAN,TEST_CASE,prompts}.md, frontend/assets/ui/*, frontend/src/{uiAssets,avatarAsset,Journal,Avatar}, frontend/e2e/{figma-assets,native-image-assets,maps,photo-autofill,design}, backend/tests/{ui-assets,maps-native}, docs/design/verification/figma-navigation-20261109.png.

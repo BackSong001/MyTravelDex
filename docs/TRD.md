@@ -1,5 +1,10 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 실제 Figma 자산 공통 UI (2026-11-09)
+
+FR-FIGMA-001/002의 런타임 자산은 frontend/assets/ui의 로컬 PNG와 공통 source registry로 제공한다. 원격 아바타는 기존 검증된 URL/실패 경로를 유지하고 기본 곰만 대체한다. 원본/선택본·Figma node·SHA256으로 추적하며 사용하지 않는 보드 PNG는 번들에 포함하지 않는다. 후속 바다 PNG 적용은 두 플랫폼에서 같은 이미지/기존 좌표·줌/보정 숨김 계약을 사용하며, 17A에서는 기존 SVG 바다 장식을 유지한다. 공통 메뉴는 32/54 이미지와 선택 표시를 갖되 실제 터치 영역은 min50·compact/안전영역/큰 글꼴을 유지한다. 새 의존성·DB/API/환경변수 없음. 후속 테마/새 기능 계약은 FIGMA_IMPLEMENTATION을 따른다.
+
+
 ## 안전한 리팩터링 경계 (2026-11-08)
 
 Home의인증수신을하나의사용자경계함수로모아이전/새UUID비교시소유자종속state와navigationVersion/listRequest를무효화한다. Auth초기getSession이후도착한실제Auth이벤트를덮지않게guard하고같은UUID refresh/중복SIGNED_IN은화면·작성보존. explicitlogout도같은정리경로를사용한다. 세션영속화는기존Auth SDK storage를단일원천으로사용하고읽는곳없는커스텀mytraveldex-session쓰기/API token중복반영을제거한다(기존키는초기청소). 비밀번호token응답은세션세대일치시SDK setSession만호출하고Google완료결과를Home에서재적용하지않는다. 브라우저교환전세대검사·작업세대busy소유권·저장후목록await뒤고정세대/nav검사로늦은작업이새소유자에영향주지않는다. save는 고정 sessionEpoch를 각 비동기 action 시작/응답 후 검사한다. found/locations 이후 UPDATE, 압축/Storage 이후 photos INSERT 및 finalize가 이전 세션의 작업을 새 권한으로 재개하지 않는다. 이미 전송된 요청의 취소/원자적 전체 업로드를 보장하는 것은 아니다. 새DB/API/권한/서버세션정책변경없음.

@@ -2,34 +2,20 @@ import Pressable from './Feedback';
 import React, {useState} from 'react';
 import {Image, Platform, StyleSheet, Text, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Path, Rect} from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
+import {uiAssets} from './uiAssets';
 import TravelMap from './TravelMap';
 import Avatar from './Avatar';
 import {colors as c} from './theme';
 
 export function Backpack({size = 42}: {size?: number}) {
-  return <Svg width={size} height={size * 1.08} viewBox="0 0 100 108" accessible={false}>
-    <Path d="M28 30 22 9Q28 2 36 8L42 25M58 25 65 8Q73 2 79 9L73 31" fill="#E9BF8B" stroke={c.ink} strokeWidth="3"/>
-    <Path d="M35 26Q35 10 50 10T65 26" fill="none" stroke={c.ink} strokeWidth="4"/>
-    <Rect x="8" y="55" width="18" height="34" rx="6" fill="#D9A565" stroke={c.ink} strokeWidth="3"/>
-    <Rect x="74" y="55" width="18" height="34" rx="6" fill="#D9A565" stroke={c.ink} strokeWidth="3"/>
-    <Path d="M19 91 22 48Q24 23 50 23T78 48L81 91Q79 102 50 102T19 91Z" fill="#F1CB96" stroke={c.ink} strokeWidth="3"/>
-    <Path d="M28 66 30 47Q33 32 50 32T70 47L72 66" fill="#FFF0D7" stroke="#B47D41" strokeWidth="2"/>
-    <Rect x="29" y="67" width="42" height="26" rx="7" fill="#FFF0D7" stroke="#B47D41" strokeWidth="2"/>
-    <Path d="M35 74H64M38 74v7" fill="none" stroke={c.ink} strokeWidth="2" strokeLinecap="round"/>
-  </Svg>;
+  return <Image source={uiAssets.backpack} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
 }
 
-export function JournalIcon({name, color = c.ink}: {name: string; color?: string}) {
-  const paths: Record<string, string> = {
-    home: 'M3 11 12 3l9 8v10h-6v-7H9v7H3Z',
-    album: 'M12 5C8 2 4 3 2 4v16c4-2 7-1 10 1 3-2 6-3 10-1V4c-4-2-7-1-10 1Zm0 0v16',
-    map: 'M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
-    friends: 'M2 21v-2a6 6 0 0 1 12 0v2M8 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 4a4 4 0 0 1 0 8M17 15a5 5 0 0 1 5 5v1',
-    account: 'M5 22v-3a7 7 0 0 1 14 0v3M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
-    plus: 'M12 4v16M4 12h16',
-  };
-  return <Svg width={26} height={26} viewBox="0 0 24 24" accessible={false}><Path d={paths[name] ?? paths.map} fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
+export function JournalIcon({name, color = c.ink, size = 26}: {name: string; color?: string; size?: number}) {
+  const source = uiAssets.navigation[name as keyof typeof uiAssets.navigation];
+  if (source) return <Image source={source} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
+  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d="M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
 export function Welcome() {
@@ -86,9 +72,12 @@ const tabs = [
 export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab: JournalTab) => void; onCreate: () => void}) {
   const insets = useSafeAreaInsets();
   const compact = useWindowDimensions().height < 500;
-  // 이동·크기 애니메이션 없이 즉시 색상으로 반응해 동작 줄이기 설정도 따른다.
-  return <View accessibilityRole="tablist" style={[s.nav, compact&&{paddingTop:4}, {paddingBottom: Math.max(compact?4:8, insets.bottom)}]}><View style={s.navRail}>
-    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={({pressed}) => [s.fab, pressed && {backgroundColor: c.addButton.pressed}]}><JournalIcon name="plus" color={c.onPrimary}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected: tab === item.id}} aria-selected={tab === item.id} onPress={() => onTab(item.id)} style={({pressed}) => [s.navItem,compact&&{minHeight:50,paddingVertical:2}, tab === item.id && s.navSelected, pressed && {backgroundColor: c.primaryLight}]}>{!compact&&<JournalIcon name={item.id} color={tab === item.id ? c.navigation.activeIcon : c.navigation.inactiveIcon}/>}<Text style={[s.navText,compact&&{marginTop:0}, tab === item.id && s.navTextSelected]}>{item.label}</Text></Pressable>)}
+  return <View accessibilityRole="tablist" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
+    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={[s.fab,compact&&{width:50,height:50}]}><JournalIcon name="plus" size={compact?32:54}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
+      {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={32}/></View>}
+      <Text style={[s.navText,tab===item.id&&s.navTextSelected]}>{item.label}</Text>
+      <View testID={tab===item.id?'nav-selection':undefined} style={[s.navIndicator,tab!==item.id&&{opacity:0}]}/>
+    </Pressable>)}
   </View></View>;
 }
 
@@ -118,12 +107,14 @@ const s = StyleSheet.create({
   avatar: {width: 26, height: 26, borderRadius: 13, backgroundColor: c.warm},
   avatarFallback: {alignItems: 'center', justifyContent: 'center', overflow: 'hidden'},
   authorName: {flex: 1, fontSize: 12, color: c.muted},
-  nav: {flexShrink: 0,alignItems:'center',paddingHorizontal:12,paddingTop:8,backgroundColor:c.paper},
-  navRail: {width:'100%',maxWidth:640,flexDirection:'row',alignItems:'stretch',padding:5,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,borderRadius:28,boxShadow:'0 4px 20px #286F7112'},
-  navItem: {flex: 1, minWidth: 48, minHeight: 56, paddingHorizontal: 2, paddingVertical: 6, alignItems: 'center', justifyContent: 'center', borderRadius: 12, borderTopWidth: 2, borderTopColor: 'transparent'},
-  navSelected: {borderTopColor: 'transparent', backgroundColor: c.warm},
-  navText: {fontSize: 12, marginTop: 4, color: c.navigation.inactiveLabel, textAlign: 'center', alignSelf: 'stretch'},
-  navTextSelected: {color: c.navigation.activeLabel, fontWeight: '700'},
+  nav: {flexShrink: 0,alignItems:'center',paddingHorizontal:12,paddingTop:4,backgroundColor:c.paper},
+  navRail: {width:'100%',maxWidth:640,flexDirection:'row',alignItems:'stretch',padding:4,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,borderRadius:18,boxShadow:'0 4px 20px #286F7112'},
+  navItem: {flex:1,minWidth:50,minHeight:66,paddingHorizontal:2,paddingVertical:4,alignItems:'center',justifyContent:'center',borderRadius:14},
+  navIconSlot: {width:50,height:40,alignItems:'center',justifyContent:'center',borderRadius:14},
+  navSelected: {backgroundColor:c.warm},
+  navText: {fontSize:11,lineHeight:16,marginTop:1,color:c.navigation.inactiveLabel,textAlign:'center',alignSelf:'stretch'},
+  navTextSelected: {color:c.navigation.activeLabel,fontWeight:'700'},
+  navIndicator: {height:3,width:16,borderRadius:2,marginTop:1,backgroundColor:c.navigation.activeLabel},
   createSlot: {flex: 1, minWidth: 48, alignItems: 'center', justifyContent: 'center'},
-  fab: {width: 52, height: 52, borderRadius: 26, backgroundColor: c.addButton.background, borderWidth: 2, borderColor: c.sheet, alignItems: 'center', justifyContent: 'center'},
+  fab: {width:54,height:54,alignItems:'center',justifyContent:'center',borderRadius:27},
 });

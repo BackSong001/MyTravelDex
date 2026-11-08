@@ -1,5 +1,6 @@
 import {test, expect, type Page} from '@playwright/test';
 import {build} from 'esbuild';
+import {nativeImageAssets} from './native-image-assets';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 
@@ -10,7 +11,7 @@ let unexpectedRequests: string[] = [];
 let workerRequests: string[] = [];
 const workerAssets: Record<string, Buffer> = {};
 test.beforeAll(async () => {
-  const result = await build({bundle:true, write:false, format:'iife', platform:'browser', loader:{'.css':'empty'},
+  const result = await build({bundle:true, write:false, format:'iife', platform:'browser', plugins:[nativeImageAssets], loader:{'.css':'empty'},
     define:{'process.env.NODE_ENV':'"test"','__DEV__':'false'},
     alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'), 'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},
     resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],
@@ -74,6 +75,17 @@ async function zoom(page: Page, name: string) {
   await expect.poll(()=>page.evaluate(()=>(window as any).mapSnapshots.length)).toBeGreaterThan(count);
 }
 const record = (id:string, owner_id=id) => ({id,owner_id,status:'complete',title:id,start_date:'2026-01-01',end_date:'2026-01-02',locations:{latitude:37.5665,longitude:126.978,place_name:'서울'}});
+
+test('TC-FIGMA-ASSET-001: map author avatars use the Figma bear for missing and broken remote images',async({page})=>{
+ await ready(page);
+ await page.route('https://avatar.test/broken.png',route=>route.fulfill({status:404,body:''}));
+ for(const avatar_url of [null,'https://avatar.test/broken.png']){
+  await page.evaluate(({row,avatar_url})=>(window as any).renderMap({records:[row],authors:{[row.owner_id]:{display_name:'여행자',avatar_url}}}),{row:record('bear'),avatar_url});
+  const avatar=page.locator('.maplibregl-marker img').last();
+  await expect.poll(()=>avatar.evaluate(node=>node instanceof HTMLImageElement&&node.complete&&node.naturalWidth===1254&&node.src.startsWith('data:image/png;base64,'))).toBe(true);
+  const box=(await avatar.boundingBox())!;expect(box.width).toBe(24);expect(box.height).toBe(24);
+ }
+});
 
 test('MapLibre WebGL: 17 province source features, real zoom, selection and explicit browse without Google',async ({page},testInfo)=>{
   await ready(page);

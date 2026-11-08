@@ -1,5 +1,21 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## Figma 17A 수용 계획 (2026-11-09)
+
+TC-FIGMA-ASSET-001 ↔ FR-FIGMA-001: 실제 이미지·원본 SHA256·로컬 경로/디코딩·비어 있지 않은 크기를 확인한다. 17A는 백팩/기본 곰/5개 메뉴7개가 대응하는 Figma 슬롯에 있으며 사용자 원격사진 성공/실패 fallback을 유지한다. 바다4종 PNG는 후속 지도 단계에서 해안 비가림·크기까지 검증하며 현재 SVG 바다 장식 회귀는 유지한다.
+TC-FIGMA-NAV-001 ↔ FR-FIGMA-002: PNG 메뉴32/추가54·선택 표시/role·탭 및 작성 액션·초안/세션 guard·실제이미지load를 검증한다. 320/390/768 및 가로/큰글꼴·min48/키보드/동작줄이기/스크린리더 중 실제 확인한 범위를 구분한다. 기존 지도/사진/소셜과 backend/unit→실제LocalHTTP→웹→Android를 순차 검증하며 형식 검사와 실기기 수용을 혼동하지 않는다.
+
+
+### 17A 첫 적용 실행 (2026-11-09 02:29 KST)
+
+- 실제 Figma context `6:34`/`2:46`의 개별7 PNG를 다운로드해 canonical SHA256/bytes 일치 확인(t9m). 완성보드/가상사진은 UI로 넣지 않았고 임시 URL은 runtime/manifest에 없다. 기본 곰·백팩·5개메뉴 적용이며 바다PNG/테마/목록/My/새뽑기 기능은 후속 대기다.
+- 실제Local 새계정 메뉴 PNG 부재 Red(t9n)→Green(t9p). 단위12(t9r: manifest1+기존지도/디자인11), 웹21(t9s), types(t9t) 통과. 320/390/768 경계·48px 타깃 보강 대상1(t9w) 추가 통과는 웹21과 중복 대상이며 전체합계에 더하지 않는다. 새 nav 전용PNG만 저장, 기존 자동 생성6개 증거는 원본 복원했다.
+- t14 리뷰의 웹DOM 이전SVG P2를 null/404 원격아바타 실제WebGL 회귀 Red(t9x)→Green(t9y)로 보강했다. avatarAsset은 Metro web source.uri로 같은 기본곰을 사용하며 remote우선·onerror=null 유지. types(t9z) 통과. t14 독립 manifest1/slot UI1/후속avatar1 승인, t12 결과와 합산하지 않는다.
+- actual.env standalone 개발서명APK49초(t9v), AVD명 mytrveldex/serial5556 확인후설치. 설치APK와 빌드bytes/hash·실제.env URL/key 포함 일치: `ac8da88eeb125076f6272153e423ab95ed23b54d53bd14cc793b086f080e8f67`. APK내7 PNG의 디코딩된크기/보이는pixel 일치(완전투명RGB 제외)를 확인했다. 최초검사기의 원본파일명/압축바이트 동일 가정은 Android resource최적화와 맞지 않아 실패했으며 제품Red로 계산하지 않았다.
+- Native 백팩/메뉴 표시·도감탭 전환/여행검색 입력 존재·홈 복귀를 관측. 기존로그인 유지, 사용자기록/관계/사진/프로필 쓰기 없이 Appium세션만 종료하고 기존AVD/앱 실행 유지. 실제사용자 화면/코드는 Git에 저장하지 않았다. 웹전용 avatarAsset 보강후 native코드/자산 변화는 없으나 이 APK를 전체후속Figma 구현완료로 간주하지 않는다.
+- 새DB/API/환경변수/원격변경 없음. 실제 Google 재동의·실기기·TalkBack·native 전체큰글꼴/전체기능/Play수용은 이번 범위 미검증이다.
+
+
 ## 전체 기능·개선 수용 계획 (2026-11-08)
 
 TC-SESSION-001 ↔ FR-AUTH-SESSION-001: 실제Local두탭로그아웃/다른계정로그인으로개인상세/작성사진·입력정리,지연open무효화·같은계정TOKEN_REFRESHED 작성/선택보존. 서버초안/기록은삭제하지않는다. 지연 비밀번호/Google 완료가 최신 Auth 이벤트를 덮지 않는지, 이전 picker가 새 계정 busy를 점유/해제하지 않는지, A→null→A 재로그인 후 기존 초안의 old locations 응답이 새 저장값을 PATCH하지 않는지 검사한다.

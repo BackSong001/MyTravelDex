@@ -6,6 +6,7 @@ vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElemen
 vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circle:'circle',G:'g',Path:'path',Text:'text'}));
 vi.mock('../../frontend/node_modules/@maplibre/maplibre-react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Map:(p:any)=>{maps.push(p);return createElement('native-map',null,p.children);},Camera:()=>null,Layer:(p:any)=>{layers.push(p);return null;},Marker:(p:any)=>{pins.push(p);return createElement('native-marker',{title:p.accessibilityLabel},p.children);}};});
 vi.mock('../../frontend/src/Feedback',async()=>({default:(await import('../../frontend/node_modules/react-native')).Pressable}));
+vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{defaultAvatar:{uri:'fixture://default-bear'}}}));
 import TravelMap from '../../frontend/src/TravelMap';
 import {provinceFeatures} from '../../frontend/src/provinces';
 afterEach(()=>{maps.length=0;pins.length=0;layers.length=0;});

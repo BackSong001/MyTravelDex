@@ -1,0 +1,54 @@
+{
+  "fileKey": "aPCC23R7WhYuUBKu72m9Ya",
+  "assets": [
+    {
+      "file": "nav-home-v1.png",
+      "source": "docs/design/ui-assets/batch-02-navigation/nav-home-v1.png",
+      "figmaNode": "6:24",
+      "sha256": "2474fa50a3b3223459859a7c5c696ce73a5175a0f71a8e2bb46d683b4d06070e",
+      "bytes": 747437
+    },
+    {
+      "file": "nav-journal-v1.png",
+      "source": "docs/design/ui-assets/batch-02-navigation/nav-journal-v1.png",
+      "figmaNode": "6:26",
+      "sha256": "a56c7c777fe9aadc510b1e0d7a06f8aa9fddbd4e14fd5f03d51c2a70e85ef970",
+      "bytes": 886732
+    },
+    {
+      "file": "nav-add-v1.png",
+      "source": "docs/design/ui-assets/batch-02-navigation/nav-add-v1.png",
+      "figmaNode": "6:28",
+      "sha256": "fa41ea75077e4122aeb1a86b77eb45ad39e3150db82d3f3ccc6bae770aeb3eac",
+      "bytes": 855110
+    },
+    {
+      "file": "nav-friends-v1.png",
+      "source": "docs/design/ui-assets/batch-02-navigation/nav-friends-v1.png",
+      "figmaNode": "6:30",
+      "sha256": "00db5a04ef3e2e26b68d28a98536360ca531292c08d377838a748273e5f0ca16",
+      "bytes": 802875
+    },
+    {
+      "file": "nav-my-v1.png",
+      "source": "docs/design/ui-assets/batch-02-navigation/nav-my-v1.png",
+      "figmaNode": "6:32",
+      "sha256": "2c2fa2f7efd2c1f9072dcd7d07785201ede74fe2361846804cd80856a9eb8274",
+      "bytes": 647702
+    },
+    {
+      "file": "backpack-v1.png",
+      "source": "docs/design/ui-assets/batch-01/backpack-v1.png",
+      "figmaNode": "2:106",
+      "sha256": "7678d3a1276730e70ac2f805ad7e916c0b66b5bdff9ee18f9123848588a2d0f9",
+      "bytes": 1349869
+    },
+    {
+      "file": "avatar-bear-v1.png",
+      "source": "docs/design/ui-assets/batch-01/avatar-bear-v1.png",
+      "figmaNode": "2:112",
+      "sha256": "a916bcfdfd9d57e70c0bb9ef2387f6a94ca2564d6da8c746e9ecf9bc0a0323d0",
+      "bytes": 1046974
+    }
+  ]
+}
