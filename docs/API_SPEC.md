@@ -259,3 +259,8 @@ follows/friend_requests의GET·필드·RLS는유지하며listPages의중복키�
 ### 17E My 호출 계약
 
 기존본인profiles 조회/PATCH·user_code독립조회와travel_records owner/complete 목록만재사용한다. 스탬프획득은클라이언트의기존17지역집계이며신규보상저장/API가아니다. 공개profiles/방문자projection·Auth·Storage권한변경없음. 편집/저장실패/계정전환계약은TRD17E를따른다.
+
+
+### 17F My 최근 기록 조회
+
+travel_records는기존Home owner/complete 전체조회결과를재사용하고추가중복목록GET을시작하지않는다. 대표사진은실제표시3기록의photos metadata/기존photo-url 호출만추가할수있다. metadata40·서버페이지끝까지/URL작업당4·권한/만료는기존계약그대로다. 새서버endpoint나RLS확대없음.

@@ -1251,3 +1251,13 @@ t9d가guest미조회관계수0표시P2를재현해t12가표시조건에owner를�
 ### 작업17E 완료검토 후 진입범위 최소 보강
 
 t9d가friendOwner잔존P2를코드추적해t12가A완료4행대신0행의실제LocalRed(t136)를재현했다. 내여행클릭에서친구/초안/지역/검색어/앨범스크롤을초기화하고정렬은유지해Green1(t137)/types(t138)·t14지정정적승인. 기존112/APK는보강전이고전체/기기재실행으로합산하지않는다. 변경파일: frontend/app/index.tsx, frontend/e2e/profile-stamps.spec.ts, docs/{REQUIREMENT,PRD,TRD,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, DEVELOPMENT_STATUS.md.
+
+## 2026-11-09 04:36 KST — 작업17F My 최근 여행
+
+**진행 근거**: 작업17A에원문을기록한동일사용자지속구현요청. 685dc8e→t9d의최소읽기답변(필수보완없음)→t12명세/구현→t14재시도P2보강승인순서를따랐다.
+
+**결과**: ownRows최근3/전체보기·기존행/CRUD재사용·사진metadata40/URL4공통화·My출처상세/삭제scroll복귀를구현했다. 실제Local사진/신규·수정·대표·공개·삭제동기화/late계정경계·Enter지연header복귀와t14이미지retry P2 Red→Green을검증했다. backend138+외부1skip/프로젝트로컬types/export·actualAPK36초설치/target/hash,기존SDKMy3행읽기·상세복귀·font2세로coldrestart후가로스크롤접근/설정원복을확인했다. 최초전체117의115pass2fail과최종단독전체(t146진행중)를구분한다. 상세/도감기존회귀와중간테스트환경/주입보정은TEST_CASE17F참조. 사용자쓰기/원격변경없음,방문자/테마·Batch11후속유지.
+
+**변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{MyTrips,Journal,Social}.tsx, frontend/src/recordCovers.ts, frontend/e2e/{profile-stamps,invite-session,photo-autofill}.spec.ts, backend/tests/record-covers.test.ts, docs/design/verification/figma-my-trips-20261109.png.
+
+17F 최종단일전체웹117(t146,6.4분)통과·t14기록/PNG정적승인,기존verification원복·신규MyPNG1장/원래untracked2개보존을완료했다. 위진행중표현은중간이력이며최종결과는이절을따른다. 커밋/푸시후t9d답변을받는다.

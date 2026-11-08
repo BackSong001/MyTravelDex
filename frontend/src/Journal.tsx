@@ -33,13 +33,14 @@ export function Author({author,size=28}: {author?: PublicAuthor | null;size?:num
   return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url} size={size}/></View>;
 }
 
-export function Collection({records, covers, onOpen, authors = {}, emptySearch=false, disabled=false, loading=false, failed=false, children}: {
+export function Collection({records, covers, onOpen, authors = {}, emptySearch=false, disabled=false, loading=false, failed=false, children,profile=false,total=records.length,onCoverError}: {
   records: any[]; covers: Record<string, string>;
-  onOpen: (record: any) => void; emptySearch?: boolean; disabled?:boolean; loading?:boolean; failed?:boolean; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
+  onOpen: (record: any) => void; emptySearch?: boolean; disabled?:boolean; loading?:boolean; failed?:boolean; profile?:boolean; total?:number; onCoverError?:(id:string,url:string)=>void; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
 }) {
   const {height}=useWindowDimensions();
+  const countLabel=loading?'불러오는 중':failed?'확인 필요':profile?`전체 ${total}개 중 최근 ${records.length}개`:`${records.length}개`;
   return <>
-    <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={s.title}>여행도감</Text><Text accessibilityLabel={loading?'여행 기록 불러오는 중':undefined} style={s.subtitle}>{loading?'불러오는 중':failed?'확인 필요':`${records.length}개`}</Text></View>
+    <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={[s.title,profile&&s.profileTitle]}>{profile?'나의 여행':'여행도감'}</Text><Text testID={profile?'profile-trip-count':undefined} accessibilityLabel={profile?`나의 여행 기록 · ${countLabel}`:loading?'여행 기록 불러오는 중':undefined} style={[s.subtitle,profile&&s.profileSubtitle]}>{countLabel}</Text></View>
     {children}
     {!loading&&!failed&&!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
     <View style={s.list}>{records.map(record => {
@@ -47,13 +48,13 @@ export function Collection({records, covers, onOpen, authors = {}, emptySearch=f
       const title = record.title || '제목 없는 여행';
       const place = record.locations?.place_name || record.locations?.region_name || '지도에 남긴 여행';
       const visibility=record.status==='draft'?'작성 중':record.visibility==='private'?'나만 보기':'공개 여행';
-      return <Pressable key={record.id} disabled={disabled} accessibilityRole="button" accessibilityLabel={`${title}, ${author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={() => onOpen(record)} style={({pressed}) => [s.listRow, pressed && s.cardPressed]}>
-        {covers[record.id] ? <Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} style={s.listPhoto}/> : <View style={[s.photoPlaceholder,s.listPhoto]}><JournalIcon name="album" size={30}/></View>}
-        <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={s.placeStatus}><Text numberOfLines={2} style={[s.cardPlace,{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View></View>
-        <View style={s.rowTrailing}><Author author={author} size={20}/><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>
+      return <Pressable key={record.id} disabled={disabled} accessibilityRole="button" accessibilityLabel={`${title}, ${profile?'내 여행':author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={() => onOpen(record)} style={({pressed}) => [s.listRow,profile&&s.profileRow, pressed && s.cardPressed]}>
+        {covers[record.id] ? <Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} onError={onCoverError?()=>onCoverError(record.id,covers[record.id]):undefined} style={[s.listPhoto,profile&&s.profilePhoto]}/> : <View style={[s.photoPlaceholder,s.listPhoto,profile&&s.profilePhoto]}><JournalIcon name="album" size={30}/></View>}
+        <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={s.placeStatus}><Text numberOfLines={2} style={[s.cardPlace,{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
+        {!profile&&<View style={s.rowTrailing}><Author author={author} size={20}/><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>}
       </Pressable>;
     })}</View>
-    {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>불러온 {records.length}개의 여행 기록</Text>}
+    {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>{profile?`최근 ${records.length}개를 표시해요. 전체 ${total}개는 내 여행 보기에서 확인해요.`:`불러온 ${records.length}개의 여행 기록`}</Text>}
   </>;
 }
 
@@ -84,6 +85,10 @@ const s = StyleSheet.create({
   section: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, marginBottom: 12}, sectionTitle: {fontSize: 18, fontWeight: '700', color: c.ink},
   empty: {alignItems: 'center', paddingVertical: 26}, emptyTitle: {color: c.ink, fontSize: 18, fontWeight: '700', marginTop: 12},
   list: {marginHorizontal:-16,marginTop:16,backgroundColor:c.sheet},
+  profileTitle:{fontSize:15,lineHeight:22,letterSpacing:0,color:c.profile.ink,flexShrink:1},
+  profileSubtitle:{flex:1,fontSize:12,lineHeight:18,marginTop:0,textAlign:'right',color:c.profile.muted},
+  profileRow:{paddingHorizontal:20,paddingVertical:16,gap:16,borderColor:c.profile.line},
+  profilePhoto:{width:94,height:102,borderRadius:3},
   listRow: {flexDirection:'row',alignItems:'center',gap:12,paddingHorizontal:16,paddingVertical:12,minHeight:88,borderBottomWidth:1,borderColor:c.line,backgroundColor:c.sheet},
   cardPressed: {backgroundColor:c.warm},
   listPhoto: {width:64,height:64,borderRadius:10,flexShrink:0},

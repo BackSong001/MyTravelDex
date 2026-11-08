@@ -531,3 +531,7 @@ FriendsList는owner key와active/listRequest/searchRequest를유지하며내부�
 ## My 요약·17지역 카탈로그 (2026-11-09)
 
 ProfileForm은마지막조회/저장성공snapshot과미저장편집을분리하며취소·실패입력보존/ID독립retry·명시사진·공개동의/owner key를유지한다. 본인complete만집계하고Home ownLoaded/loading/error로미확정0을막는다. 이름/방문수/스탬프버튼의접근성이름에동적값을포함한다. 카탈로그는같은GeoJSON/project의모든ring을동일축비율로163×94로컬좌표에정규화하며그림은제공된서울/부산에만사용한다. 원본/다른지도와권한은변경하지않는다. 재시작후font2/기기읽기와실시간설정변경·실기기/TalkBack수용은구분한다. 상세결과는TEST_CASE17E를따른다.
+
+## My 최근 여행과 출처별 복귀 (2026-11-09)
+
+My 최근행은현재feed가아닌ownRows complete최근3을사용한다. 기존Collection/상세/CRUD와metadata40·페이지순회/한작업URL4를공유하고실제표시URL의실패만명시retry한다. My출처상세/삭제는My스크롤로복귀하며계정전환시출처/복원/개인사진을무효화한다. 서명URL을문서/Git/로그에보관·노출하거나이미지오류자동재발급루프를추가하지않는다. 세부증거/미수용은TEST_CASE17F를따른다.

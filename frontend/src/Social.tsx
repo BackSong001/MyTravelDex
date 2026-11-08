@@ -83,14 +83,14 @@ function Notice({children, error = false}: {children: string; error?: boolean}) 
 
 function Avatar({url,size=44}: {url: string | null;size?:number}) {return <TravelerAvatar url={url} size={size}/>;}
 
-type ProfileProps=Props & {visits:number|null;visitsFailed:boolean;onStamps:()=>void;onFollowing:()=>void;showStamps:boolean;children?:React.ReactNode};
+type ProfileProps=Props & {onSummaryReady:()=>void;visits:number|null;visitsFailed:boolean;onStamps:()=>void;onFollowing:()=>void;showStamps:boolean;children?:React.ReactNode};
 
 export function ProfileEditor(props: ProfileProps) {
   return props.session?.user?.id ? <ProfileForm key={props.session.user.id} {...props}/>
     : <View style={s.sheet}><Text accessibilityRole="header" style={s.title}>나의 프로필</Text><Notice>로그인하면 닉네임과 공개 프로필을 설정할 수 있어요. My에서 로그인해 주세요.</Notice></View>;
 }
 
-function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowing,showStamps,children}: ProfileProps) {
+function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowing,showStamps,children,onSummaryReady}: ProfileProps) {
   const [editing,setEditing]=useState(false);
   const [snapshot,setSnapshot]=useState<{name:string;avatar:string|null;enabled:boolean}|null>(null);
   const owner = session.user.id as string;
@@ -124,6 +124,8 @@ function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowin
     }).catch(error => {if (current) setError(message(error));}).finally(() => {if (current) setLoading(false);});
     return () => {current = false; active.current = false;};
   }, [owner, attempt]);
+
+  useEffect(()=>{if(!loaded||loading||editing||showStamps)return;const frame=requestAnimationFrame(()=>onSummaryReady?.());return()=>cancelAnimationFrame(frame);},[loaded,loading,editing,showStamps,snapshot,onSummaryReady]);
 
   async function save() {
     if (savingRef.current || !loaded) return;
@@ -169,6 +171,7 @@ function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowin
       {!!error&&<Notice error>{error}</Notice>}{!!success&&<Notice>{success}</Notice>}
       {!loaded&&!loading&&<Button label="프로필 다시 불러오기" onPress={()=>setAttempt(value=>value+1)} secondary/>}
     </View>
+    {children}
   </View>;
   return <View style={s.sheet}>
     <Text accessibilityRole="header" style={s.title}>나의 프로필</Text>

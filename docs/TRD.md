@@ -779,3 +779,10 @@ follows/friend_requests는기존listPages를재사용하되ID없는행은followe
 17E Native표시보강: 같은GeoJSON/project의모든polygon/ring을동일scale·평행이동으로163×94로컬Path좌표에정규화해원점/그룹변환의존을줄인다. 원본자료·기존지도코드는보존하고축비율/각점내포/점수·ring명령을검사한다.
 
 My내여행진입은friendOwner='',drafts=false,provinceFilter='',journalQuery='',albumScroll=0 및scope=mine/navigate(album)을같은이벤트에서적용한다. journalOrder는변경하지않는다. load의친구특정조회우선순위를전역변경하지않고진입자소유상태를정리해다른친구지도/초안계약을보존한다.
+
+
+## 17F My 기록·사진·복귀 소유권
+
+Home ownRows/ownLoaded를유일한본인목록원천으로재사용하고My행은owner/complete확인후최근3개만선택한다. 기존Home대표사진파이프라인을공통함수로옮겨My도metadata in40·listPages·URL동시4/오류/시작token·호출세대guard를사용한다. Parent cover가유효하면재사용하고My전용missing사진은표시3행에한해조회한다. 이미지오류는명시retry로만재발급한다.
+
+상세진입은album/account 출처와스크롤을고정한다. 변경후재조회는출처를유지하고back/delete는My출처만account로복귀한다. account스크롤은프로필snapshot레이아웃준비후최종복원해비동기헤더높이변경에대응한다. 사용자가스크롤/터치하면예약복원을취소한다. owner전환/명시다른탐색은예약·출처를무효화한다. API/DB/RLS/환경변수변경없음.

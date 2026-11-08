@@ -185,3 +185,7 @@
 - 작업17D guest보강1a10749 후t9d최소읽기답변(필수보완없음)을받고17E본인요약/기존편집·전체17/모은스탬프를구현했다. Red2→focused2·관련47·owner/집계3, 동적a11y Red→focused5/types와t14승인. Native윤곽빈표시/잘림은두중간APK56/31초에서미수용후동일GeoJSON로컬좌표정규화로보강했다. 단위11/Web1/types·최신actualAPK29초설치/hash/target/기존SDK요약2·윤곽/모은2·font2가로재시작후스크롤확인. 사용자쓰기없음/설정원복. 최종단일전체웹112(t133,6.2분)/최종export(t134)통과와중간실패·중단은TEST_CASE17E에서분리한다. 요약내여행행/방문자/전역테마·Batch11은후속이다.
 
 - 작업17E e9f1f50푸시후t9d가My내여행친구범위잔존P2를코드추적해재현Red(t136)→진입조건정리Green1(t137)/types(t138)·t14정적승인을받았다. 내여행의친구/초안/지역/검색·스크롤은초기화하고정렬은유지한다. 이전전체112/APK29초와보강후대상검사를분리하며다음은ownRows기반My내여행행/출처별상세복귀를진행한다.
+
+- 작업17F는685dc8e→t9d필수보완없음답변후ownRows최근3/전체보기·공통사진조회·My출처상세/삭제·scroll복귀를구현했다. Local신규/대표/제목/공개/삭제동기화·lateprivatecover계정경계·지연header/Enter복귀와t14이미지retry P2 Red→Green2/정적승인을받았다. backend/domain138+외부1skip/types/export·actualAPK36초설치/hash/target통과,실제SDKMy3행상세복귀/위치·font2세로재시작후가로스크롤접근을읽기만확인하고설정원복했다. 최초전체117은115pass2fail이며최종단독전체(t146)는진행중이다. 실행/중간실패범위는TEST_CASE17F참조,방문자/전역테마·Batch11미완료유지.
+
+- 17F 최종단독전체웹117 passed(t146,6.4분)·t14지정기록/새PNG정적승인완료. 최초115pass2fail/대상callback종료보정은TEST_CASE에서별도기록한다. 기존verification자동변경은HEAD복원·새MyPNG1장만추가,원래untracked2개보존. 커밋/푸시후t9d완료전달·답변을받고다음범위로진행한다.

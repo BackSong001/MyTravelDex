@@ -20,6 +20,7 @@ test.beforeAll(async()=>{
   'expo-crypto':`export const randomUUID=()=>'';`,
   '../src/runtime':`const passwordLogin=async()=>{await new Promise(resolve=>window.finishPasswordLogin=resolve);return ${JSON.stringify(session)};};export const api={list:async()=>[],following:async()=>[],login:passwordLogin,request:async path=>path.startsWith('/auth/v1/token')?passwordLogin():[],token:null};`,
   '../src/api':`export class ApiError extends Error {}`,
+  '../src/MyTrips':`export default ()=>null;`,
   '../src/Social':`import React from '${react}';export const isUserId=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=({session})=>React.createElement('div',{'data-testid':'friends'},React.createElement('span',{'data-testid':'session-owner'},session?.user.id??'guest'));export const ProfileEditor=()=>null;`,
   '../src/StampCatalog':`export default ()=>null;`,
   '../src/provinces':`export const groupProvinceRecords=()=>({}),provinceLabels={};`,
@@ -33,7 +34,7 @@ test.beforeAll(async()=>{
   bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"'},plugins:[{name:'native-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
-    if(['../src/journalRecords','../src/domain'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
+    if(['../src/journalRecords','../src/domain','../src/recordCovers'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};
     if(args.importer.endsWith('/frontend/app/index.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
    });

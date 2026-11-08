@@ -807,3 +807,29 @@ bd13192푸시후t9d가경계대역ReactSSR로guest의미조회팔로잉0을재�
 #### 17E t9d 완료검토 후 내여행 진입 보강
 
 e9f1f50후t9d가친구지도friendOwner잔존경로를코드추적했다. 실제Local A own4완료행대신0행으로Red(t136)→My내여행handler의친구/초안/지역/검색어/앨범스크롤초기화·mine진입Green1(t137,10.7초)/types(t138). 상대공개기록/draft제외와기존검색·초안해제/4정렬보존도같은회귀에서확인했다. t14지정handler정적승인, 추가독립실행없음. 이전전체112/최신APK29초는이handler보강전이며이번대상통과를새전체/Android재실행으로합산하지않는다. 지도지역초기화는handler정적확인이고이조합의별도지도지역주입은이번미실행이다.
+
+
+## TC-FIGMA-MY-TRIPS-001 계획
+
+현재public/following scope에서도ownRows private/public complete만최근3/전체건수로보이고draft·상대는없어야한다. 실제사진decode/94×102·서버상한2metadata/동시4/중복own GET없음·갱신/실패retry/늦은응답계정전환을검사한다. My행→상세→My/삭제후My위치복귀와대표교체·제목·공개전환·새등록후동일ownRows/스탬프동기화, 320/font2/긴제목/마지막행·nav/a11y를검증한다. 기존album복귀/전체탐색과기존HTTP·세션회귀는유지한다.
+
+17F t14 회차1 P2: parent P가있는상태에서local재발급L까지실패하면parent만비교하는missing판정이두번째retry를놓친다. 실제Local서명URL의허용된추가query로P/L/새URL을구분하고P·L이미지만404→두번째명시retry의추가발급/정상decode를검증한다. 서버권한/서명값은위조하지않고원본JWT URL에추가query가HTTP200인것을먼저확인한다.
+
+
+### 17F My 최근 여행·출처별 복귀 실행 (2026-11-09)
+
+- ownRows complete를 재사용해 최근3/전체건수·전체보기와 기존Collection 행/상세/변경·삭제흐름을 연결했다. 현재친구/public feed와 독립이며 private/public·해외완료를 포함하고 상대/draft는 제외한다. 새CRUD/API/DB/RLS/의존성/환경변수 변경은 없다.
+- My3행없음 Red(t13b)→실제Local 사진/행/수동재시도·320/390/768·중복own GET0·metadata서버상한2·상세복귀 Green(t13f/t13j). t13d는Feedback애니메이션안정전94.86px와겹치는제목선택을검사한테스트문제로, 안정치수poll/정확행prefix로보정했으며제품Red가아니다.
+- 공통recordCovers는Home의기존photos/public_photos 분리·metadata40/page순회/한작업URL4를 재사용한다. 단위3(t13g)은85행분할·URL동시4·bearer변경시후속중단·metadata오류/일부URL오류의다른사진보존을대역검증하며실HTTP수용과구분한다. 관련웹28(t13h,1.6분)통과.
+- Local 새기록등록→My전체5/방문3→제목/내용·대표2/공개변경→My실제사진decode→삭제후My전체4/방문2·출처/scroll복귀(t13n)통과. t13k의첫행삭제후마지막행가시기대는테스트문제로, 실제보던offset의범위내clamp와첫남은행가시를검사했다. Localfixture외사용자데이터는변경하지않았다.
+- 지연private cover→다른계정My0에서old사진/이름미노출(t13p), 긴이름profile응답gate→Enter상세복귀→header준비후My원위치(t13s)통과. 같은owner refresh보존/외부계정전환경계는기존28회귀와함께확인했다.
+- t14 P2: parent P→재발급local L까지이미지실패한뒤retry2가P만비교해발급을누락했다. 실제Local서명URL추가query의HTTP200을선확인한회귀Red(t13v,발급1≠2)→실제표시resolved URL비교/성공ID broken만해제·정상local보존 Green2(t13w,9.2초)/types(t13x). broken/images를effect dependency에넣지않아자동재발급루프를추가하지않았다. t14지정제품정적재리뷰승인,독립UI/DB재실행결과로합산하지않는다.
+- backend/domain전체20파일138 passed+외부1skip(t13y,15.86초), actual web export(t140)통과. 최종types는프로젝트로컬compiler(t144)통과이며root npx의compiler미설치진단(t143)은제품실패가아니다.
+- 최신actual.env 개발서명APK36초(t141)는설치바이트/actual target일치·SHA256 `1a491c56ba798eac0f2caa593f10792b3983f8a7c002f47da18b1d70283b97c5`다. mytrveldex/5556의기존SDK세션에서My전체3/최근3·실사진을읽고상세→스크롤후목록으로→My선택/세행bounds동일(`[0,507][1080,861]`, `[0,861][1080,1215]`, `[0,1216][1080,1571]`)을확인했다. 사용자프로필/사진/기록/관계쓰기없음.
+- font_scale2 cold restart의세로My에서실사진/상태·긴제목/장소줄바꿈을읽었고,이어서LANDSCAPE 전환한2400×1080에서스크롤3회로마지막행·전체보기접근을확인했다. 가로상태로재시작하면기기가세로로복귀하여가로cold restart수용이라고기록하지않는다. 모든행동시가시/실시간글꼴변경P2/TalkBack실조작/실기기수용으로확대하지않는다. font1.0/user_rotation0/accelerometer1/세로를복원하고재시작후홈선택확인,현재프로세스AndroidRuntime fatal0,소유Appium세션만삭제했다. 실제화면/XML은/tmp에만보관한다.
+- 최초전체117(t13z)은115pass/2fail(이미지캐시를타는실패주입검사1,별도Local공개fixture와겹친빈공개목록검사1)로Green이아니다. 발급성공응답의추가query로캐시를분리한대상1(t142)통과후,두대상t145는첫case통과/이전case route.fetch종료경합으로다음case실패였다. finally에서gate release→unrouteAll(wait)→fixture복원으로callback종료를보장한다. 오류무시를추가하지않았다. 최종전체117(t146)은별도DB/UI작업없이단독진행중이며완료후단일결과만추가한다.
+- 신규합성LocalPNG `figma-my-trips-20261109.png`만보관하며전체실행이만든기존verification자동변경은완료후HEAD로복원한다. 17E의요약0/카탈로그2와이번My전체5/최근3·방문3은서로다른Localfixture/시점이다. 방문자/전역테마/Batch11·Play/계정삭제P1은후속이며이번완료범위가아니다.
+
+17F 신규PNG 지정확인: t14는최종합성LocalPNG의전체5/최근3·3행/공개2·나만보기1·My선택/전체안내와PII없음을직접시각승인했다. 2×2 합성JPEG는흰색처럼보이며풍경사진품질이나decode를PNG자체로증명하지않는다. 실제decode는테스트별도증거이며방문3은촬영전assert로만확인했고캡처스크롤밖이다. t14최종기록/테스트보정도정적승인,최종전체t146은아직진행중이다.
+
+**17F 최종고정코드 단일전체웹117 passed(6.4분,t146)**. 최초115pass/2fail 및대상검사/fixture·route종료보정과합산하지않는다. 프로젝트로컬types(t144)/actualexport(t140)/backend138+외부1skip(t13y)/최신actualAPK36초(t141)는앞의구분대로다. t14제품·기록/테스트보정·신규PNG지정정적승인후최종단일결과만추가했다. 기존verification자동변경은HEAD로복원했고새LocalMyPNG1장만추가한다. 이전untracked2개는보존했다.

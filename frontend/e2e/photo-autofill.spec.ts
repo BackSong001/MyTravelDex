@@ -14,6 +14,7 @@ test.beforeAll(async()=>{
   '../src/photos':`import {readExif} from '${root}/frontend/src/domain.ts';export const pickPhotos=async()=>{const request=(window.pickCalls??0)+1;window.pickCalls=request;if(window.holdPicker)await new Promise(resolve=>window.releasePicker=resolve);window.lastFinishedPick=request;return {canceled:false,assets:window.pickedAssets};};export const photoMetadata=async asset=>readExif(asset.exif??{});export const photoPermission=async()=>false,cleanupPickedPhotos=()=>{},compressPhoto=()=>{};`,
   '../src/auth':`const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},getSession:async()=>({data:{session}})}};export const googleLogin=()=>{};`,
   '../src/runtime':`export const api={list:async()=>[],following:async()=>[],request:async(path,method,body)=>{if(path==='/functions/v1/geocode-location'){const r=await fetch('/geocode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('EXTERNAL_SERVICE_ERROR');return r.json();}return [];}};`,
+  '../src/MyTrips':`export default ()=>null;`,
   '../src/Social':`export const ProfileEditor=()=>null,Friends=()=>null,isUserId=()=>false;`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({});`,
   '@react-native-async-storage/async-storage':`export default {getItem:async()=>null,setItem:async()=>{},removeItem:async()=>{}};`,
