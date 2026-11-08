@@ -1,0 +1,189 @@
+{
+  "files": [
+    {
+      "file": "catalog.json",
+      "bytes": 5955,
+      "sha256": "23c0eaca92d10217a7e4e5389b655a6e2f4dd018caef9aeeb66711f5724922bb"
+    },
+    {
+      "file": "empty-v2.png",
+      "bytes": 27068,
+      "sha256": "2b491e2e8f446dbf41f2b9ce451acd979af6c0e1ce56a07f62cfe2f5856d2c68",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "error-v2.png",
+      "bytes": 26870,
+      "sha256": "09caedf5c8644cc0603f99ba91ccf81f7aa3d24c540af34daa9458996edfaf17",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "figma-state.json",
+      "bytes": 16747,
+      "sha256": "aa4912fbd3be669c59b87311598ed0c382d0598755d506e246a145beffc2610b"
+    },
+    {
+      "file": "following-v2.png",
+      "bytes": 67922,
+      "sha256": "c8f38702361c7e330d21e7d0b95596b983873f1cd8ad1d012b1baf12a7b09cc8",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "guest-v2.png",
+      "bytes": 45230,
+      "sha256": "fe8f6938179e559ba5ee7c4ec995c743f3394edc430a07519c23434367d9ff98",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "loading-v2.png",
+      "bytes": 25327,
+      "sha256": "ea4615296ae020568b4b57992e236fb97120698d5204519cfa9968ef138d6258",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "main-board-v1.png",
+      "bytes": 129909,
+      "sha256": "8847c46e9bd91182b8d4c00ded0b0102c7c876c2a69086083435ff34eac72970",
+      "width": 1282,
+      "height": 1031,
+      "mode": "RGBA"
+    },
+    {
+      "file": "main-board-v2.png",
+      "bytes": 129909,
+      "sha256": "8847c46e9bd91182b8d4c00ded0b0102c7c876c2a69086083435ff34eac72970",
+      "width": 1282,
+      "height": 1031,
+      "mode": "RGBA"
+    },
+    {
+      "file": "mint-v2.png",
+      "bytes": 69567,
+      "sha256": "5fa8e2f99dd986307258bbde97d09007e4afebb2f908e1b25446c9c9f70732e3",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "narrow-v2.png",
+      "bytes": 66830,
+      "sha256": "57c658d7ee201536fec1bedb6cfeb99028444cb2a25e991223926a131dbfe0dc",
+      "width": 320,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "night-v2.png",
+      "bytes": 69735,
+      "sha256": "5671f8e295b4c4d9da5920ff576a96e2704ee8506d5969e14aabef253edc0ee9",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "processing-v2.png",
+      "bytes": 48449,
+      "sha256": "a2a318482a84d8c41a3a10b7fcb88fde8b653f95608d4e2c41020dee431e1e30",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "quality-report.json",
+      "bytes": 6844,
+      "sha256": "33c0781cb6de9cfc3f2fb47a3306bebb4d6f8b8021e13f0982367075b5bc7d60"
+    },
+    {
+      "file": "README.md",
+      "bytes": 6663,
+      "sha256": "aef62dcc175356f10b5ca446d088b33c057891e0b0662e7b21237f0f1075c403"
+    },
+    {
+      "file": "responsive-board-v1.png",
+      "bytes": 97462,
+      "sha256": "8f1309ee93269dc8376f599ce6f415fb86b2657e2d79190e4551770f37c9227c",
+      "width": 1180,
+      "height": 1174,
+      "mode": "RGBA"
+    },
+    {
+      "file": "responsive-board-v2.png",
+      "bytes": 97462,
+      "sha256": "8f1309ee93269dc8376f599ce6f415fb86b2657e2d79190e4551770f37c9227c",
+      "width": 1180,
+      "height": 1174,
+      "mode": "RGBA"
+    },
+    {
+      "file": "sample-people.json",
+      "bytes": 1960,
+      "sha256": "4a4096eb93f8ecfa40b0e7b984d35ae4175774798a8b79e4fc17ee58d618a3e0"
+    },
+    {
+      "file": "search-empty-v2.png",
+      "bytes": 26631,
+      "sha256": "10232dd5ce52bf729468217ede6d423177f6542fabf6b51316b07397ddd9f0a7",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "search-v2.png",
+      "bytes": 48553,
+      "sha256": "98ded7cbac97fb06c5260a24e23ce0bbf4b1f3bd5e19403820368cb8b3251b9e",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "states-board-v1.png",
+      "bytes": 94570,
+      "sha256": "67da597c45511bad43d4c4716a7d51fb1cabc6264cf9280fceeb6c21432d639e",
+      "width": 1712,
+      "height": 994,
+      "mode": "RGBA"
+    },
+    {
+      "file": "states-board-v2.png",
+      "bytes": 92731,
+      "sha256": "69948dbd5e4da1ad32754c6944756e8ab6f04a090d73f90384b97a9c283c44b8",
+      "width": 1712,
+      "height": 994,
+      "mode": "RGBA"
+    },
+    {
+      "file": "tablet-v2.png",
+      "bytes": 73669,
+      "sha256": "4edaadc7366f0adcba4288d6a3d1595205acbcc824e35a287a291024b31a73e8",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "themes-board-v1.png",
+      "bytes": 167036,
+      "sha256": "1514c27e09edc0a11359839752759164cf866cedbfc30217c3349ac8d4983243",
+      "width": 1282,
+      "height": 994,
+      "mode": "RGBA"
+    },
+    {
+      "file": "themes-board-v2.png",
+      "bytes": 167036,
+      "sha256": "1514c27e09edc0a11359839752759164cf866cedbfc30217c3349ac8d4983243",
+      "width": 1282,
+      "height": 994,
+      "mode": "RGBA"
+    }
+  ]
+}

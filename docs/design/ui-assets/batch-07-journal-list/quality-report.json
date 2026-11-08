@@ -1,0 +1,371 @@
+{
+  "date": "2026-11-08",
+  "version": "v2",
+  "screens": [
+    {
+      "nodeId": "26:8",
+      "width": 320,
+      "height": 844,
+      "rows": [
+        "sample-01",
+        "sample-02",
+        "sample-03",
+        "sample-04",
+        "sample-05",
+        "sample-06",
+        "sample-07",
+        "sample-08",
+        "sample-09",
+        "sample-10",
+        "sample-11",
+        "sample-12"
+      ],
+      "listHeight": 1139,
+      "viewportHeight": 553,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 737,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 6,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": true
+    },
+    {
+      "nodeId": "26:188",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "sample-01",
+        "sample-02",
+        "sample-03",
+        "sample-04",
+        "sample-05",
+        "sample-06",
+        "sample-07",
+        "sample-08",
+        "sample-09",
+        "sample-10",
+        "sample-11",
+        "sample-12"
+      ],
+      "listHeight": 1139,
+      "viewportHeight": 553,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 737,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 6,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": true
+    },
+    {
+      "nodeId": "26:368",
+      "width": 768,
+      "height": 1024,
+      "rows": [
+        "sample-01",
+        "sample-02",
+        "sample-03",
+        "sample-04",
+        "sample-05",
+        "sample-06",
+        "sample-07",
+        "sample-08",
+        "sample-09",
+        "sample-10",
+        "sample-11",
+        "sample-12"
+      ],
+      "listHeight": 1120,
+      "viewportHeight": 746,
+      "offsetY": 0,
+      "navTop": 948,
+      "viewportBottom": 930,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 8,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": true
+    },
+    {
+      "nodeId": "26:551",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "sample-01",
+        "sample-02",
+        "sample-03",
+        "sample-04",
+        "sample-05",
+        "sample-06",
+        "sample-07",
+        "sample-08",
+        "sample-09",
+        "sample-10",
+        "sample-11",
+        "sample-12"
+      ],
+      "listHeight": 1139,
+      "viewportHeight": 553,
+      "offsetY": -586,
+      "navTop": 768,
+      "viewportBottom": 737,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 5,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": true
+    },
+    {
+      "nodeId": "26:731",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "listHeight": 150,
+      "viewportHeight": 566,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 750,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": false
+    },
+    {
+      "nodeId": "26:768",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "listHeight": 206,
+      "viewportHeight": 566,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 750,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": false
+    },
+    {
+      "nodeId": "26:807",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "listHeight": 204,
+      "viewportHeight": 566,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 750,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": false
+    },
+    {
+      "nodeId": "26:849",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "sample-01",
+        "sample-02",
+        "sample-03",
+        "sample-04",
+        "sample-05",
+        "sample-06",
+        "sample-07",
+        "sample-08",
+        "sample-09",
+        "sample-10",
+        "sample-11",
+        "sample-12"
+      ],
+      "listHeight": 1139,
+      "viewportHeight": 553,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 737,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 6,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": true
+    },
+    {
+      "nodeId": "26:1029",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "sample-01",
+        "sample-02",
+        "sample-03",
+        "sample-04",
+        "sample-05",
+        "sample-06",
+        "sample-07",
+        "sample-08",
+        "sample-09",
+        "sample-10",
+        "sample-11",
+        "sample-12"
+      ],
+      "listHeight": 1139,
+      "viewportHeight": 553,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 737,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 6,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": true
+    },
+    {
+      "nodeId": "26:1209",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "listHeight": 576,
+      "viewportHeight": 566,
+      "offsetY": 0,
+      "navTop": 768,
+      "viewportBottom": 750,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 0,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": false
+    },
+    {
+      "nodeId": "26:1280",
+      "width": 390,
+      "height": 1417,
+      "rows": [
+        "sample-01",
+        "sample-02",
+        "sample-03",
+        "sample-04",
+        "sample-05",
+        "sample-06",
+        "sample-07",
+        "sample-08",
+        "sample-09",
+        "sample-10",
+        "sample-11",
+        "sample-12"
+      ],
+      "listHeight": 1139,
+      "viewportHeight": 1139,
+      "offsetY": 0,
+      "navTop": 1341,
+      "viewportBottom": 1323,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "visibleCompleteRows": 12,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "rootOverflow": [],
+      "allSampleRowsPresent": true
+    }
+  ],
+  "visualReview": {
+    "responsiveBoard": true,
+    "statesBoard": true,
+    "themesBoard": true,
+    "fullList": true
+  },
+  "implementation": "design-only",
+  "runtime": "not tested",
+  "accessibility": "not tested",
+  "sourceCodeChanged": false
+}

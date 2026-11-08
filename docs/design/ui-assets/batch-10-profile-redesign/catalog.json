@@ -1,0 +1,291 @@
+{
+  "date": "2026-11-08",
+  "selectedVersion": "v2",
+  "direction": "passport / editorial screenprint",
+  "assets": [
+    {
+      "key": "traveler-portrait",
+      "success": true,
+      "imageHash": "88888463dbd9b529c85a16b3a001f282c50a7a7d",
+      "sizeBytes": 2124219,
+      "contentType": "image/png",
+      "placedOnNodeId": "39:3"
+    },
+    {
+      "key": "busan-seagull-stamp",
+      "success": true,
+      "imageHash": "64322d0d7ad9ff421410f228ecbd657269253299",
+      "sizeBytes": 2307571,
+      "contentType": "image/png",
+      "placedOnNodeId": "39:4"
+    },
+    {
+      "key": "seoul-ginkgo-stamp",
+      "success": true,
+      "imageHash": "a417a78fd90ffb9c5eda32425999271f318b897c",
+      "sizeBytes": 2088460,
+      "contentType": "image/png",
+      "placedOnNodeId": "39:5"
+    },
+    {
+      "key": "coastal-trip-sample",
+      "success": true,
+      "imageHash": "921da8c0b5bbd33fba8eca4003fb768c1566576b",
+      "sizeBytes": 3466488,
+      "contentType": "image/png",
+      "placedOnNodeId": "39:6"
+    },
+    {
+      "key": "city-trip-sample",
+      "success": true,
+      "imageHash": "b80187ae872d2b6bfb1700706ca6e12b68de3013",
+      "sizeBytes": 3689946,
+      "contentType": "image/png",
+      "placedOnNodeId": "39:7"
+    }
+  ],
+  "exports": [
+    {
+      "key": "stamp-collected",
+      "nodeId": "41:319",
+      "width": 390,
+      "height": 844,
+      "kind": "stamps",
+      "regions": [
+        "부산",
+        "서울"
+      ],
+      "collected": true,
+      "contentId": "41:335",
+      "viewportId": "41:334",
+      "path": "stamp-collected-v2.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "profile-private",
+      "nodeId": "41:384",
+      "width": 390,
+      "height": 844,
+      "kind": "profile",
+      "visitor": false,
+      "profilePublic": false,
+      "tripKeys": [
+        "sea",
+        "city"
+      ],
+      "contentId": "41:393",
+      "viewportId": "41:392",
+      "path": "profile-private-v2.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "stamp-catalog",
+      "nodeId": "41:92",
+      "width": 390,
+      "height": 844,
+      "kind": "stamps",
+      "regions": [
+        "부산",
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "제주"
+      ],
+      "collected": false,
+      "contentId": "41:108",
+      "viewportId": "41:107",
+      "path": "stamp-catalog-v2.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "profile-visitor",
+      "nodeId": "41:468",
+      "width": 390,
+      "height": 844,
+      "kind": "profile",
+      "visitor": true,
+      "profilePublic": true,
+      "tripKeys": [
+        "sea"
+      ],
+      "contentId": "41:477",
+      "viewportId": "41:476",
+      "path": "profile-visitor-v2.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "profile-owner",
+      "nodeId": "41:8",
+      "width": 390,
+      "height": 844,
+      "kind": "profile",
+      "visitor": false,
+      "profilePublic": true,
+      "tripKeys": [
+        "sea",
+        "city"
+      ],
+      "contentId": "41:17",
+      "viewportId": "41:16",
+      "path": "profile-owner-v2.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 844
+    },
+    {
+      "key": "profile-narrow",
+      "nodeId": "41:527",
+      "width": 320,
+      "height": 844,
+      "kind": "profile",
+      "visitor": false,
+      "profilePublic": true,
+      "tripKeys": [
+        "sea",
+        "city"
+      ],
+      "contentId": "41:536",
+      "viewportId": "41:535",
+      "path": "profile-narrow-v2.png",
+      "format": "png",
+      "original_width": 320,
+      "original_height": 844
+    },
+    {
+      "key": "stamp-full",
+      "nodeId": "41:695",
+      "width": 390,
+      "height": 2812,
+      "kind": "stamps",
+      "regions": [
+        "부산",
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "제주"
+      ],
+      "collected": false,
+      "contentId": "41:711",
+      "viewportId": "41:710",
+      "path": "stamp-full-v2.png",
+      "format": "png",
+      "original_width": 390,
+      "original_height": 2812
+    },
+    {
+      "key": "main",
+      "nodeId": "41:2",
+      "path": "main-board-v2.png",
+      "width": 1282,
+      "height": 1034,
+      "format": "png",
+      "original_width": 1282,
+      "original_height": 1034
+    },
+    {
+      "key": "profile-tablet",
+      "nodeId": "41:611",
+      "width": 768,
+      "height": 1024,
+      "kind": "profile",
+      "visitor": false,
+      "profilePublic": true,
+      "tripKeys": [
+        "sea",
+        "city"
+      ],
+      "contentId": "41:620",
+      "viewportId": "41:619",
+      "path": "profile-tablet-v2.png",
+      "format": "png",
+      "original_width": 768,
+      "original_height": 1024
+    },
+    {
+      "key": "privacy",
+      "nodeId": "41:379",
+      "path": "privacy-board-v2.png",
+      "width": 864,
+      "height": 993,
+      "format": "png",
+      "original_width": 864,
+      "original_height": 993
+    },
+    {
+      "key": "responsive",
+      "nodeId": "41:522",
+      "path": "responsive-board-v2.png",
+      "width": 1180,
+      "height": 1173,
+      "format": "png",
+      "original_width": 1180,
+      "original_height": 1173
+    },
+    {
+      "key": "full-catalog",
+      "nodeId": "41:693",
+      "path": "full-catalog-board-v2.png",
+      "width": 446,
+      "height": 2922,
+      "format": "png",
+      "original_width": 446,
+      "original_height": 2922
+    }
+  ],
+  "sample": {
+    "fictional": true,
+    "name": "지우",
+    "followingCount": 6,
+    "completedRegions": [
+      "부산",
+      "서울"
+    ],
+    "trips": [
+      {
+        "key": "sea",
+        "region": "부산",
+        "visibility": "public",
+        "status": "complete"
+      },
+      {
+        "key": "city",
+        "region": "서울",
+        "visibility": "private",
+        "status": "complete"
+      }
+    ]
+  },
+  "sourceCodeChanged": false
+}

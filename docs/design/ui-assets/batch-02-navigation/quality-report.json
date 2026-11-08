@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-08",
+  "branch": "codex/ui-assets",
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "file": "nav-home-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1079141,
+      "partialAlphaPixels": 492822,
+      "edgePixels": 0,
+      "visibleBounds": [
+        194,
+        233,
+        1041,
+        1044
+      ],
+      "sha256": "2474fa50a3b3223459859a7c5c696ce73a5175a0f71a8e2bb46d683b4d06070e"
+    },
+    {
+      "file": "nav-journal-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 946317,
+      "partialAlphaPixels": 625267,
+      "edgePixels": 0,
+      "visibleBounds": [
+        149,
+        296,
+        1099,
+        1017
+      ],
+      "sha256": "a56c7c777fe9aadc510b1e0d7a06f8aa9fddbd4e14fd5f03d51c2a70e85ef970"
+    },
+    {
+      "file": "nav-add-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 998568,
+      "partialAlphaPixels": 573731,
+      "edgePixels": 0,
+      "visibleBounds": [
+        197,
+        200,
+        1041,
+        1064
+      ],
+      "sha256": "fa41ea75077e4122aeb1a86b77eb45ad39e3150db82d3f3ccc6bae770aeb3eac"
+    },
+    {
+      "file": "nav-friends-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1021868,
+      "partialAlphaPixels": 549977,
+      "edgePixels": 0,
+      "visibleBounds": [
+        143,
+        313,
+        1098,
+        1032
+      ],
+      "sha256": "00db5a04ef3e2e26b68d28a98536360ca531292c08d377838a748273e5f0ca16"
+    },
+    {
+      "file": "nav-my-v1.png",
+      "width": 1254,
+      "height": 1254,
+      "transparentPixels": 1138305,
+      "partialAlphaPixels": 433559,
+      "edgePixels": 0,
+      "visibleBounds": [
+        265,
+        198,
+        968,
+        1108
+      ],
+      "sha256": "2c2fa2f7efd2c1f9072dcd7d07785201ede74fe2361846804cd80856a9eb8274"
+    }
+  ],
+  "exportSizes": [
+    24,
+    32,
+    48,
+    96
+  ],
+  "previewWidths": [
+    320,
+    390
+  ],
+  "appSourceChanged": false,
+  "validation": "Alpha, canvas edges and static visual review. Not application or accessibility acceptance testing."
+}

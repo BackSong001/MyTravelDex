@@ -1,0 +1,329 @@
+{
+  "date": "2026-11-08",
+  "screens": [
+    {
+      "nodeId": "31:8",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "여행자 행 sample-a101",
+        "여행자 행 sample-a102",
+        "여행자 행 sample-a103",
+        "여행자 행 sample-a104",
+        "여행자 행 sample-a105",
+        "여행자 행 sample-a106"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 1,
+      "unfollowButtons": 6,
+      "publicMapLinks": 6
+    },
+    {
+      "nodeId": "31:114",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "여행자 행 sample-b101",
+        "여행자 행 sample-b205",
+        "여행자 행 sample-b306",
+        "여행자 행 sample-b407"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 0,
+      "unfollowButtons": 1,
+      "publicMapLinks": 1
+    },
+    {
+      "nodeId": "31:195",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "여행자 행 sample-b101",
+        "여행자 행 sample-b205",
+        "여행자 행 sample-b306",
+        "여행자 행 sample-b407"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 0,
+      "unfollowButtons": 1,
+      "publicMapLinks": 1
+    },
+    {
+      "nodeId": "31:279",
+      "width": 320,
+      "height": 844,
+      "rows": [
+        "여행자 행 sample-a101",
+        "여행자 행 sample-a102",
+        "여행자 행 sample-a103",
+        "여행자 행 sample-a104",
+        "여행자 행 sample-a105",
+        "여행자 행 sample-a106"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 1,
+      "unfollowButtons": 6,
+      "publicMapLinks": 6
+    },
+    {
+      "nodeId": "31:385",
+      "width": 768,
+      "height": 1024,
+      "rows": [
+        "여행자 행 sample-a101",
+        "여행자 행 sample-a102",
+        "여행자 행 sample-a103",
+        "여행자 행 sample-a104",
+        "여행자 행 sample-a105",
+        "여행자 행 sample-a106"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 932,
+      "navTop": 948,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 1,
+      "unfollowButtons": 6,
+      "publicMapLinks": 6
+    },
+    {
+      "nodeId": "31:494",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 0,
+      "unfollowButtons": 0,
+      "publicMapLinks": 0
+    },
+    {
+      "nodeId": "31:533",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 0,
+      "unfollowButtons": 0,
+      "publicMapLinks": 0
+    },
+    {
+      "nodeId": "31:573",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 0,
+      "unfollowButtons": 0,
+      "publicMapLinks": 0
+    },
+    {
+      "nodeId": "31:612",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "여행자 행 sample-b101",
+        "여행자 행 sample-b205",
+        "여행자 행 sample-b306"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 0,
+      "unfollowButtons": 0,
+      "publicMapLinks": 0
+    },
+    {
+      "nodeId": "31:690",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "여행자 행 sample-a101",
+        "여행자 행 sample-a102",
+        "여행자 행 sample-a103",
+        "여행자 행 sample-a104",
+        "여행자 행 sample-a105",
+        "여행자 행 sample-a106"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 1,
+      "unfollowButtons": 6,
+      "publicMapLinks": 6
+    },
+    {
+      "nodeId": "31:796",
+      "width": 390,
+      "height": 844,
+      "rows": [
+        "여행자 행 sample-a101",
+        "여행자 행 sample-a102",
+        "여행자 행 sample-a103",
+        "여행자 행 sample-a104",
+        "여행자 행 sample-a105",
+        "여행자 행 sample-a106"
+      ],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 1,
+      "unfollowButtons": 6,
+      "publicMapLinks": 6
+    },
+    {
+      "nodeId": "31:902",
+      "width": 390,
+      "height": 844,
+      "rows": [],
+      "rootOverflow": [],
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "hiddenProfiles": 0,
+      "unfollowButtons": 0,
+      "publicMapLinks": 0
+    }
+  ],
+  "visualReview": {
+    "main": true,
+    "responsive": true,
+    "states": true,
+    "themes": true,
+    "guest": true
+  },
+  "runtime": "not tested",
+  "accessibility": "not tested",
+  "android": "not tested",
+  "sourceCodeChanged": false
+}

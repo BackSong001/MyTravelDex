@@ -1,0 +1,197 @@
+{
+  "files": [
+    {
+      "file": "assets/busan-seagull-stamp-v1.png",
+      "bytes": 2307571,
+      "sha256": "b07c2fa464fb073524bddce74a7485977651f10306387e5d3ccc800fd57eebf7",
+      "width": 1312,
+      "height": 1199,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/city-trip-sample-v1.png",
+      "bytes": 3689946,
+      "sha256": "3c854e542830655d687e94abeb768f21d77ab1dce8d72e17ac7e2089e8c44501",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/coastal-trip-sample-v1.png",
+      "bytes": 3466488,
+      "sha256": "ca52de5d94c7b3da80928b38d5b7d3986cb13cb120e3f36a07619ba2f8a8447b",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGB"
+    },
+    {
+      "file": "assets/seoul-ginkgo-stamp-v1.png",
+      "bytes": 2088460,
+      "sha256": "be84c0618d34e3bf6e434f7e0d07e7790e73c70f68c4b205c8bd34df184a0d1e",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA"
+    },
+    {
+      "file": "assets/traveler-portrait-v1.png",
+      "bytes": 2124219,
+      "sha256": "e63f44b73ec443e770474305cffa106a76931813b4d647dedef4160e36e5ca55",
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA"
+    },
+    {
+      "file": "catalog.json",
+      "bytes": 6507,
+      "sha256": "0d7df7c03411ca179f4a77aa9b5b6c9df72dd3f28801a7faac0b414f6f5030c9"
+    },
+    {
+      "file": "figma-state.json",
+      "bytes": 22443,
+      "sha256": "4740175da3f7deeb831d5df2eb0bf730690dfe82e6fcae48a3cc064c021cf0f1"
+    },
+    {
+      "file": "full-catalog-board-v1.png",
+      "bytes": 189829,
+      "sha256": "da1a1221b6e50db24b236e22bd84ad7c8a01e17b71952967542c6e7580f22b3e",
+      "width": 446,
+      "height": 2922,
+      "mode": "RGBA"
+    },
+    {
+      "file": "full-catalog-board-v2.png",
+      "bytes": 190927,
+      "sha256": "bc8b651070505086ba66861d12760aa245530556c2cfbf726699b0f815909739",
+      "width": 446,
+      "height": 2922,
+      "mode": "RGBA"
+    },
+    {
+      "file": "main-board-v1.png",
+      "bytes": 220723,
+      "sha256": "def783fea66f55d6360917cb6952e707ee1824ea2d755cf5d810b692de7fa22b",
+      "width": 1282,
+      "height": 1034,
+      "mode": "RGBA"
+    },
+    {
+      "file": "main-board-v2.png",
+      "bytes": 221139,
+      "sha256": "576cba2375f0817a4773612459d88dcb4af4487a530c50348737f33f83a00ddd",
+      "width": 1282,
+      "height": 1034,
+      "mode": "RGBA"
+    },
+    {
+      "file": "privacy-board-v1.png",
+      "bytes": 176375,
+      "sha256": "a99fbb40b68a480d67a0b205e9bd8b5414e3a825aacfea0b24049a60b3418a23",
+      "width": 864,
+      "height": 993,
+      "mode": "RGBA"
+    },
+    {
+      "file": "privacy-board-v2.png",
+      "bytes": 176375,
+      "sha256": "a99fbb40b68a480d67a0b205e9bd8b5414e3a825aacfea0b24049a60b3418a23",
+      "width": 864,
+      "height": 993,
+      "mode": "RGBA"
+    },
+    {
+      "file": "profile-narrow-v2.png",
+      "bytes": 100292,
+      "sha256": "c88a4e99439be6cf1e5992928a379e37c6f45b34b6f253057a3f8444fe4bd3dd",
+      "width": 320,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "profile-owner-v2.png",
+      "bytes": 117662,
+      "sha256": "e30ef386ae6e788e1afaff3e763cf6cef6242213f0b2fae6fb6c743bc18e3031",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "profile-private-v2.png",
+      "bytes": 117667,
+      "sha256": "e71d770abae1c3527dca228577259a14e7e18f4557c47e89a15e8f41da88e261",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "profile-tablet-v2.png",
+      "bytes": 123951,
+      "sha256": "2eb564c30bd92b3b2e6c6256b31f7f9bdd753151298738c2170c98ffa9930e30",
+      "width": 768,
+      "height": 1024,
+      "mode": "RGBA"
+    },
+    {
+      "file": "profile-visitor-v2.png",
+      "bytes": 74782,
+      "sha256": "097723f20d85d8c6ff49ea3c80e534454328e69fb1650e027085cee6e2701cb3",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "prompts.json",
+      "bytes": 4350,
+      "sha256": "57a9646f10c784e98dceeddfaf5633c4acbeec83abdd17e689571a1dbaea2e8c"
+    },
+    {
+      "file": "quality-report.json",
+      "bytes": 12862,
+      "sha256": "74525714591d09fbcea15429f3f6770c7e83103ac83f89b1e383b9c1c02a063c"
+    },
+    {
+      "file": "README.md",
+      "bytes": 8567,
+      "sha256": "528b241b2a4041e1716a4b670a9c4a11941a809b87e1a2460e915cd7f44f15e5"
+    },
+    {
+      "file": "responsive-board-v1.png",
+      "bytes": 171028,
+      "sha256": "14f3d8ff3b192a00f23eeed6196664499408993483bb468409da1e3584c11f1b",
+      "width": 1180,
+      "height": 1173,
+      "mode": "RGBA"
+    },
+    {
+      "file": "responsive-board-v2.png",
+      "bytes": 171028,
+      "sha256": "14f3d8ff3b192a00f23eeed6196664499408993483bb468409da1e3584c11f1b",
+      "width": 1180,
+      "height": 1173,
+      "mode": "RGBA"
+    },
+    {
+      "file": "stamp-catalog-v2.png",
+      "bytes": 77565,
+      "sha256": "248667c9358a20941f7d9a498cb4d551c1cac3ca5d998e5792e3560b180d28f0",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "stamp-collected-v2.png",
+      "bytes": 64229,
+      "sha256": "620851692081e423109d9b6d7f24c2f3bffc6237b0294ec17eb2668de010e1d8",
+      "width": 390,
+      "height": 844,
+      "mode": "RGBA"
+    },
+    {
+      "file": "stamp-full-v2.png",
+      "bytes": 184897,
+      "sha256": "fc6ea0a91432f4f186be40305189a68f7ede3388f3978e7016f2cfb776562998",
+      "width": 390,
+      "height": 2812,
+      "mode": "RGBA"
+    }
+  ]
+}

@@ -1,0 +1,569 @@
+{
+  "date": "2026-11-08",
+  "screens": [
+    {
+      "nodeId": "41:8",
+      "width": 390,
+      "height": 844,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 26,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "88888463dbd9b529c85a16b3a001f282c50a7a7d",
+        "921da8c0b5bbd33fba8eca4003fb768c1566576b",
+        "b80187ae872d2b6bfb1700706ca6e12b68de3013"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [],
+      "tripRows": [
+        "새 여행 기록 / sea",
+        "새 여행 기록 / city"
+      ],
+      "containsPrivateTrip": true,
+      "containsOwnFollowing": true,
+      "containsStampCount": true
+    },
+    {
+      "nodeId": "41:92",
+      "width": 390,
+      "height": 844,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 59,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "64322d0d7ad9ff421410f228ecbd657269253299",
+        "a417a78fd90ffb9c5eda32425999271f318b897c"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [
+        "부산",
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "제주"
+      ],
+      "tripRows": [],
+      "containsPrivateTrip": false,
+      "containsOwnFollowing": false,
+      "containsStampCount": true
+    },
+    {
+      "nodeId": "41:319",
+      "width": 390,
+      "height": 844,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 14,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "64322d0d7ad9ff421410f228ecbd657269253299",
+        "a417a78fd90ffb9c5eda32425999271f318b897c"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [
+        "부산",
+        "서울"
+      ],
+      "tripRows": [],
+      "containsPrivateTrip": false,
+      "containsOwnFollowing": false,
+      "containsStampCount": true
+    },
+    {
+      "nodeId": "41:384",
+      "width": 390,
+      "height": 844,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 26,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "88888463dbd9b529c85a16b3a001f282c50a7a7d",
+        "921da8c0b5bbd33fba8eca4003fb768c1566576b",
+        "b80187ae872d2b6bfb1700706ca6e12b68de3013"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [],
+      "tripRows": [
+        "새 여행 기록 / sea",
+        "새 여행 기록 / city"
+      ],
+      "containsPrivateTrip": true,
+      "containsOwnFollowing": true,
+      "containsStampCount": true
+    },
+    {
+      "nodeId": "41:468",
+      "width": 390,
+      "height": 844,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 15,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "88888463dbd9b529c85a16b3a001f282c50a7a7d",
+        "921da8c0b5bbd33fba8eca4003fb768c1566576b"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [],
+      "tripRows": [
+        "새 여행 기록 / sea"
+      ],
+      "containsPrivateTrip": false,
+      "containsOwnFollowing": false,
+      "containsStampCount": false
+    },
+    {
+      "nodeId": "41:527",
+      "width": 320,
+      "height": 844,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 26,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "88888463dbd9b529c85a16b3a001f282c50a7a7d",
+        "921da8c0b5bbd33fba8eca4003fb768c1566576b",
+        "b80187ae872d2b6bfb1700706ca6e12b68de3013"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [],
+      "tripRows": [
+        "새 여행 기록 / sea",
+        "새 여행 기록 / city"
+      ],
+      "containsPrivateTrip": true,
+      "containsOwnFollowing": true,
+      "containsStampCount": true
+    },
+    {
+      "nodeId": "41:611",
+      "width": 768,
+      "height": 1024,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 26,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "88888463dbd9b529c85a16b3a001f282c50a7a7d",
+        "921da8c0b5bbd33fba8eca4003fb768c1566576b",
+        "b80187ae872d2b6bfb1700706ca6e12b68de3013"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [],
+      "tripRows": [
+        "새 여행 기록 / sea",
+        "새 여행 기록 / city"
+      ],
+      "containsPrivateTrip": true,
+      "containsOwnFollowing": true,
+      "containsStampCount": true
+    },
+    {
+      "nodeId": "41:695",
+      "width": 390,
+      "height": 2812,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 59,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "imageHashes": [
+        "64322d0d7ad9ff421410f228ecbd657269253299",
+        "a417a78fd90ffb9c5eda32425999271f318b897c"
+      ],
+      "oldComponentInstances": 0,
+      "rootOverflow": [],
+      "regionRows": [
+        "부산",
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "제주"
+      ],
+      "tripRows": [],
+      "containsPrivateTrip": false,
+      "containsOwnFollowing": false,
+      "containsStampCount": true
+    }
+  ],
+  "allImagesNew": true,
+  "visualReview": {
+    "main": true,
+    "privacy": true,
+    "responsive": true,
+    "fullCatalog": true,
+    "stampBorders": "fully visible",
+    "portrait": "face and hair fit"
+  },
+  "geometryChecks": [
+    {
+      "region": "부산",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.154319395473456,
+      "nodeId": "41:113"
+    },
+    {
+      "region": "서울",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 4.471709600890176,
+      "nodeId": "41:123"
+    },
+    {
+      "region": "인천",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.3111888168994301,
+      "nodeId": "41:133"
+    },
+    {
+      "region": "경기",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.8668883035552574,
+      "nodeId": "41:144"
+    },
+    {
+      "region": "강원",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.7584008061426838,
+      "nodeId": "41:155"
+    },
+    {
+      "region": "충북",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.977725310839196,
+      "nodeId": "41:166"
+    },
+    {
+      "region": "충남",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.1227216920525802,
+      "nodeId": "41:177"
+    },
+    {
+      "region": "세종",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.73992771542705,
+      "nodeId": "41:188"
+    },
+    {
+      "region": "대전",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.927887666799343,
+      "nodeId": "41:199"
+    },
+    {
+      "region": "전북",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.4378405928446178,
+      "nodeId": "41:210"
+    },
+    {
+      "region": "전남",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.9085403871323668,
+      "nodeId": "41:221"
+    },
+    {
+      "region": "광주",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 6.031076785853338,
+      "nodeId": "41:232"
+    },
+    {
+      "region": "경북",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.615209829092334,
+      "nodeId": "41:243"
+    },
+    {
+      "region": "대구",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.0277160142104247,
+      "nodeId": "41:254"
+    },
+    {
+      "region": "경남",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.0256951091045898,
+      "nodeId": "41:265"
+    },
+    {
+      "region": "울산",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.1341672624178876,
+      "nodeId": "41:276"
+    },
+    {
+      "region": "제주",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.4150572805182104,
+      "nodeId": "41:287"
+    },
+    {
+      "region": "부산",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.154319395473456,
+      "nodeId": "41:340"
+    },
+    {
+      "region": "서울",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 4.471709600890176,
+      "nodeId": "41:350"
+    },
+    {
+      "region": "부산",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.154319395473456,
+      "nodeId": "41:716"
+    },
+    {
+      "region": "서울",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 4.471709600890176,
+      "nodeId": "41:726"
+    },
+    {
+      "region": "인천",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.3111888168994301,
+      "nodeId": "41:736"
+    },
+    {
+      "region": "경기",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.8668883035552574,
+      "nodeId": "41:747"
+    },
+    {
+      "region": "강원",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.7584008061426838,
+      "nodeId": "41:758"
+    },
+    {
+      "region": "충북",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.977725310839196,
+      "nodeId": "41:769"
+    },
+    {
+      "region": "충남",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.1227216920525802,
+      "nodeId": "41:780"
+    },
+    {
+      "region": "세종",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.73992771542705,
+      "nodeId": "41:791"
+    },
+    {
+      "region": "대전",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.927887666799343,
+      "nodeId": "41:802"
+    },
+    {
+      "region": "전북",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.4378405928446178,
+      "nodeId": "41:813"
+    },
+    {
+      "region": "전남",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.9085403871323668,
+      "nodeId": "41:824"
+    },
+    {
+      "region": "광주",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 6.031076785853338,
+      "nodeId": "41:835"
+    },
+    {
+      "region": "경북",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 0.615209829092334,
+      "nodeId": "41:846"
+    },
+    {
+      "region": "대구",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.0277160142104247,
+      "nodeId": "41:857"
+    },
+    {
+      "region": "경남",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 1.0256951091045898,
+      "nodeId": "41:868"
+    },
+    {
+      "region": "울산",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.1341672624178876,
+      "nodeId": "41:879"
+    },
+    {
+      "region": "제주",
+      "pathUnchangedBeforeScale": true,
+      "uniformScale": 3.4150572805182104,
+      "nodeId": "41:890"
+    }
+  ],
+  "runtime": "not tested",
+  "accessibility": "not tested",
+  "sourceCodeChanged": false,
+  "assetAlpha": [
+    {
+      "file": "assets/busan-seagull-stamp-v1.png",
+      "alphaMin": 0,
+      "transparentPixels": 564522,
+      "alphaBounds": [
+        0,
+        21,
+        1308,
+        1199
+      ],
+      "visibleBoundsAlpha32": [
+        150,
+        84,
+        1163,
+        1112
+      ]
+    },
+    {
+      "file": "assets/seoul-ginkgo-stamp-v1.png",
+      "alphaMin": 0,
+      "transparentPixels": 598534,
+      "alphaBounds": [
+        0,
+        17,
+        1240,
+        1254
+      ],
+      "visibleBoundsAlpha32": [
+        131,
+        128,
+        1123,
+        1141
+      ]
+    },
+    {
+      "file": "assets/traveler-portrait-v1.png",
+      "alphaMin": 0,
+      "transparentPixels": 666289,
+      "alphaBounds": [
+        0,
+        10,
+        1216,
+        1254
+      ],
+      "visibleBoundsAlpha32": [
+        46,
+        12,
+        1211,
+        1248
+      ]
+    }
+  ]
+}

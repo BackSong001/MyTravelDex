@@ -1,0 +1,599 @@
+{
+  "date": "2026-11-08",
+  "screens": [
+    {
+      "nodeId": "46:8",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 10,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:50",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 10,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [
+        "여행지 뽑는 중…"
+      ],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:91",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 14,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:140",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 8,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:179",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 18,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [
+        "×2",
+        "×3"
+      ],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:246",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 9,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:284",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 11,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:325",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 11,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:366",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 12,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:413",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 21,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 4,
+      "displayedQuantities": [],
+      "disabledActions": [
+        "내 스타일로 여행지 뽑기"
+      ],
+      "minChoiceHeight": 56
+    },
+    {
+      "nodeId": "46:478",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 21,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [
+        "✓ 자연",
+        "✓ 조용하게",
+        "✓ 느긋하게",
+        "✓ 발길 따라"
+      ],
+      "questions": 4,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 56
+    },
+    {
+      "nodeId": "46:543",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 9,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:582",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 14,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 28
+    },
+    {
+      "nodeId": "46:635",
+      "width": 320,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 21,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [
+        "✓ 자연",
+        "✓ 조용하게",
+        "✓ 느긋하게",
+        "✓ 발길 따라"
+      ],
+      "questions": 4,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 56
+    },
+    {
+      "nodeId": "46:700",
+      "width": 768,
+      "height": 1024,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 18,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [
+        "×2",
+        "×3"
+      ],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    },
+    {
+      "nodeId": "46:771",
+      "width": 390,
+      "height": 844,
+      "rootOverflow": [],
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "nativeTextCount": 9,
+      "fonts": [
+        "Noto Serif KR",
+        "Noto Sans KR"
+      ],
+      "selectedAnswerLabels": [],
+      "questions": 0,
+      "displayedQuantities": [],
+      "disabledActions": [],
+      "minChoiceHeight": 1000
+    }
+  ],
+  "quizChecks": [
+    {
+      "key": "style-start",
+      "answers": [
+        {
+          "question": "어디에서 쉬고 싶나요?",
+          "selected": null
+        },
+        {
+          "question": "어떤 분위기가 좋나요?",
+          "selected": null
+        },
+        {
+          "question": "여행의 속도는?",
+          "selected": null
+        },
+        {
+          "question": "어떻게 움직일까요?",
+          "selected": null
+        }
+      ],
+      "selectedCount": 0,
+      "oneSelectionPerQuestion": true
+    },
+    {
+      "key": "style-selected",
+      "answers": [
+        {
+          "question": "어디에서 쉬고 싶나요?",
+          "selected": "자연"
+        },
+        {
+          "question": "어떤 분위기가 좋나요?",
+          "selected": "조용하게"
+        },
+        {
+          "question": "여행의 속도는?",
+          "selected": "느긋하게"
+        },
+        {
+          "question": "어떻게 움직일까요?",
+          "selected": "발길 따라"
+        }
+      ],
+      "selectedCount": 4,
+      "oneSelectionPerQuestion": true
+    },
+    {
+      "key": "style-narrow",
+      "answers": [
+        {
+          "question": "어디에서 쉬고 싶나요?",
+          "selected": "자연"
+        },
+        {
+          "question": "어떤 분위기가 좋나요?",
+          "selected": "조용하게"
+        },
+        {
+          "question": "여행의 속도는?",
+          "selected": "느긋하게"
+        },
+        {
+          "question": "어떻게 움직일까요?",
+          "selected": "발길 따라"
+        }
+      ],
+      "selectedCount": 4,
+      "oneSelectionPerQuestion": true
+    }
+  ],
+  "cabinetChecks": [
+    {
+      "key": "badge-cabinet",
+      "empty": false,
+      "displayedTypes": 5,
+      "totalQuantity": 8,
+      "columns": 3
+    },
+    {
+      "key": "badge-tablet",
+      "empty": false,
+      "displayedTypes": 5,
+      "totalQuantity": 8,
+      "columns": 4
+    },
+    {
+      "key": "badge-empty",
+      "empty": true,
+      "displayedTypes": 0,
+      "totalQuantity": 0,
+      "columns": 3
+    }
+  ],
+  "visualReview": {
+    "overview": true,
+    "destinationFlow": true,
+    "badgeFlow": true,
+    "styleFlow": true,
+    "responsiveStates": true
+  },
+  "runtime": "not tested",
+  "probability": "not implemented",
+  "rewardPersistence": "not implemented",
+  "accessibility": "not tested",
+  "sourceCodeChanged": false,
+  "newAssetAlpha": [
+    {
+      "file": "assets/badge-camera-v1.png",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "transparentPixels": 978463,
+      "bounds": [
+        0,
+        19,
+        1524,
+        1024
+      ]
+    },
+    {
+      "file": "assets/badge-camp-v1.png",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "transparentPixels": 1037843,
+      "bounds": [
+        0,
+        26,
+        1510,
+        1000
+      ]
+    },
+    {
+      "file": "assets/badge-coffee-v1.png",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparentPixels": 961326,
+      "bounds": [
+        25,
+        86,
+        1276,
+        1121
+      ]
+    },
+    {
+      "file": "assets/badge-gate-v1.png",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "transparentPixels": 855691,
+      "bounds": [
+        0,
+        32,
+        1496,
+        1024
+      ]
+    },
+    {
+      "file": "assets/badge-passport-v1.png",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparentPixels": 955033,
+      "bounds": [
+        0,
+        9,
+        1276,
+        1199
+      ]
+    },
+    {
+      "file": "assets/capsule-machine-v1.png",
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparentPixels": 633591,
+      "bounds": [
+        0,
+        8,
+        1048,
+        1473
+      ]
+    },
+    {
+      "file": "assets/opened-capsule-v1.png",
+      "alphaRange": [
+        0,
+        254
+      ],
+      "transparentPixels": 763492,
+      "bounds": [
+        0,
+        9,
+        1512,
+        1024
+      ]
+    }
+  ]
+}

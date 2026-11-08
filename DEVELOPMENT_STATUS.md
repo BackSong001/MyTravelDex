@@ -156,3 +156,12 @@
 - 리뷰: t14 단계2a 회차3 승인, 단계2b 회차1 승인, 단계3 회차2 승인. 각 단계의 독립 실행과 t12 전체/대상 실행을 합산하지 않는다. 자세한 Red·Green/최종 전체·native 수용은 TEST_CASE 최신 작업15 절에 기록한다.
 - 최종: backend/domain130 passed+외부OAuth1 skipped, node11, 웹 전체93, TypeScript·최종 export 통과. mytrveldex actual APK34초 재빌드/설치·hash/target 일치, 가로/글꼴2 기록 사진/SDK 로그인 복원 확인. viewport570→660px(글꼴1), 글꼴2에서는640px. 사용자 배율1.0/세로/앱 홈 유지. 최신 QA AAB44초 서명/target 검증 후 QA키 삭제, Play 미제출.
 - t14 최종 기록·개인정보 정적 리뷰 승인. 검증·리뷰를 마친 이 작업만 전용 브랜치에 반영하며 Git 결과는 커밋 이력과 최종 응답에 남긴다. 기존 미추적 파일은 제외하고 main은 변경하지 않는다.
+
+## 작업 16 — UI 자산 브랜치의 별도 통합
+
+- 사용자 요청에 따라 현재 개발 `57ed240`을 기준으로 `integration/android-ui-assets`를 만들고 `origin/codex/ui-assets`(`797caab`, 공통 조상 `af32bfe`)를 merge했다. main이나 원래 두 작업 브랜치를 이동하지 않았다.
+- 추가 범위는 `docs/design/ui-assets/`의 Batch01~11 자산 471개뿐이며 자동 병합에서 충돌0이었다. 기존 앱/frontend/backend/scripts·명세/자산 원본·기존 untracked `agent-prompts/`, `storyboard.png`를 보존한다. 새 디자인 시안/뽑기·뱃지 등을 앱에 구현하는 작업은 아니다.
+- 검증: 기존 앱의 TypeScript 통과(t9g). 자산 무결성 검사(t9h) 통과: PNG398개 디코딩, JSON46개/SVG5개 파싱, ZIP9개 CRC·안전한 상대 경로, manifest 7개에 등록된 파일207개의 SHA256/크기를 확인했다. 자산 tree는 원격 원본과 정확히 일치하고, 이메일/명시적인 secret 형식 문자열은 텍스트에서 발견하지 못했다. 임시 검사 스크립트의 무제한 이메일 정규식이 느려 첫 실행t9f를 중단한 뒤 길이를 제한해 재실행한 것이며 자산 결함 실패로 계산하지 않는다. 런타임 코드 변경이 없어 backend·웹·Android 전체 테스트는 재실행하지 않으며 작업15 통과 수를 이번 새 실행으로 합산하지 않는다.
+- t12 검증 → t14 지정 리뷰 → 통합 완료 결과를 t9d에 전달/답변 수신 → t12 후속 처리 순서를 따른다. 원격 DB/배포/디자인 적용은 수행하지 않는다.
+
+- t14 작업16 회차1 병합 범위 승인: staged473파일(자산471+이력2), 충돌0·원격 자산 tree 일치·런타임 불변을 독립 Git 확인했다. 자산의 전체 시각 품질/앱 구현/이미지 OCR 전수 검토 승인은 아니다. merge commit 및 새 통합 브랜치 push 후 t9d에 완료 결과를 전달한다.

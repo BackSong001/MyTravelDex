@@ -1,0 +1,216 @@
+{
+  "date": "2026-11-08",
+  "tool": "built-in image_gen",
+  "selectedCount": 25,
+  "retainedRejectedVersions": 1,
+  "assets": [
+    {
+      "theme": "neon",
+      "role": "home",
+      "file": "neon/nav-home-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Cyber neon light sculpture. Bright electric cyan #30F2FF and hot pink #FF48BF tubes, violet translucent glass cores, precise luminous edges with restrained soft transparent colored halos, high contrast. Sleek glossy dimensional tubing, not clay. Black may appear INSIDE the object only; the outer canvas must be transparent. Subject: HOME icon, exactly one small house with a simple pitched roof, a visible doorway and compact sturdy walls. The house is the main silhouette. No faces, animal ears, additional buildings, landscape or text.",
+      "reference": null
+    },
+    {
+      "theme": "neon",
+      "role": "journal",
+      "file": "neon/nav-journal-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Cyber neon light sculpture. Bright electric cyan #30F2FF and hot pink #FF48BF tubes, violet translucent glass cores, precise luminous edges with restrained soft transparent colored halos, high contrast. Sleek glossy dimensional tubing, not clay. Black may appear INSIDE the object only; the outer canvas must be transparent. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: TRAVEL JOURNAL icon: exactly ONE open book with two broad page faces, visible central crease and one small bookmark. No writing or page lines. Instantly reads as travel record book. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "neon/nav-home-v1.png"
+    },
+    {
+      "theme": "neon",
+      "role": "add",
+      "file": "neon/nav-add-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Cyber neon light sculpture. Bright electric cyan #30F2FF and hot pink #FF48BF tubes, violet translucent glass cores, precise luminous edges with restrained soft transparent colored halos, high contrast. Sleek glossy dimensional tubing, not clay. Black may appear INSIDE the object only; the outer canvas must be transparent. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: ADD action icon: exactly ONE clear centered PLUS symbol with equal four arms and thick rounded strokes, inside a compact circular button. The plus symbol is much more prominent than any decoration. Not a cross with an elongated lower arm. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "neon/nav-home-v1.png"
+    },
+    {
+      "theme": "neon",
+      "role": "friends",
+      "file": "neon/nav-friends-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Cyber neon light sculpture. Bright electric cyan #30F2FF and hot pink #FF48BF tubes, violet translucent glass cores, precise luminous edges with restrained soft transparent colored halos, high contrast. Sleek glossy dimensional tubing, not clay. Black may appear INSIDE the object only; the outer canvas must be transparent. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: FRIENDS icon: exactly TWO separate rounded heads with TWO overlapping broad shoulder/torso silhouettes, clear gap between the two heads, both of comparable size. No third person and no text. Strong two-person pictogram. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "neon/nav-home-v1.png"
+    },
+    {
+      "theme": "neon",
+      "role": "my",
+      "file": "neon/nav-my-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Cyber neon light sculpture. Bright electric cyan #30F2FF and hot pink #FF48BF tubes, violet translucent glass cores, precise luminous edges with restrained soft transparent colored halos, high contrast. Sleek glossy dimensional tubing, not clay. Black may appear INSIDE the object only; the outer canvas must be transparent. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: MY PROFILE icon: exactly ONE large round head over ONE broad rounded shoulder/torso silhouette, clear readable single-user shape. No second person, no surrounding circular frame. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "neon/nav-home-v1.png"
+    },
+    {
+      "theme": "tiny-friends",
+      "role": "home",
+      "file": "tiny-friends/nav-home-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Original Japanese kawaii storybook doodle. Flat ivory, pale peach and butter yellow fills, thin warm cocoa hand-drawn outlines, tiny dot eyes, little w mouth and bashful pink blush. Very simple rounded shapes, tender and slightly shy mood. Independently designed tiny animal motifs, not any existing franchise character. Mostly flat hand ink, not 3D clay. Subject: HOME icon, exactly one small house with a simple pitched roof, a visible doorway and compact sturdy walls. The house is the main silhouette. Give the little house a tiny original friendly face and subtle rounded ear-like roof tips, but keep the house unmistakable.",
+      "reference": null
+    },
+    {
+      "theme": "tiny-friends",
+      "role": "journal",
+      "file": "tiny-friends/nav-journal-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Original Japanese kawaii storybook doodle. Flat ivory, pale peach and butter yellow fills, thin warm cocoa hand-drawn outlines, tiny dot eyes, little w mouth and bashful pink blush. Very simple rounded shapes, tender and slightly shy mood. Independently designed tiny animal motifs, not any existing franchise character. Mostly flat hand ink, not 3D clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: TRAVEL JOURNAL icon: exactly ONE open book with two broad page faces, visible central crease and one small bookmark. No writing or page lines. Instantly reads as travel record book. Give the open book a tiny original bashful face and small rounded ear-like cover corners.",
+      "reference": "tiny-friends/nav-home-v1.png"
+    },
+    {
+      "theme": "tiny-friends",
+      "role": "add",
+      "file": "tiny-friends/nav-add-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Original Japanese kawaii storybook doodle. Flat ivory, pale peach and butter yellow fills, thin warm cocoa hand-drawn outlines, tiny dot eyes, little w mouth and bashful pink blush. Very simple rounded shapes, tender and slightly shy mood. Independently designed tiny animal motifs, not any existing franchise character. Mostly flat hand ink, not 3D clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: ADD action icon: exactly ONE clear centered PLUS symbol with equal four arms and thick rounded strokes, inside a compact circular button. The plus symbol is much more prominent than any decoration. Not a cross with an elongated lower arm. Pastel peach circular button, warm cocoa plus, two tiny round ear bumps at the top; no face so the plus stays clear.",
+      "reference": "tiny-friends/nav-home-v1.png"
+    },
+    {
+      "theme": "tiny-friends",
+      "role": "friends",
+      "file": "tiny-friends/nav-friends-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Original Japanese kawaii storybook doodle. Flat ivory, pale peach and butter yellow fills, thin warm cocoa hand-drawn outlines, tiny dot eyes, little w mouth and bashful pink blush. Very simple rounded shapes, tender and slightly shy mood. Independently designed tiny animal motifs, not any existing franchise character. Mostly flat hand ink, not 3D clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: FRIENDS icon: exactly TWO separate rounded heads with TWO overlapping broad shoulder/torso silhouettes, clear gap between the two heads, both of comparable size. No third person and no text. Strong two-person pictogram. Make the two heads original small round woodland animals: one short-eared bear and one short-eared bunny, tiny dot eyes and bashful blush, cream and pale yellow. No known franchise characters.",
+      "reference": "tiny-friends/nav-home-v1.png"
+    },
+    {
+      "theme": "tiny-friends",
+      "role": "my",
+      "file": "tiny-friends/nav-my-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Original Japanese kawaii storybook doodle. Flat ivory, pale peach and butter yellow fills, thin warm cocoa hand-drawn outlines, tiny dot eyes, little w mouth and bashful pink blush. Very simple rounded shapes, tender and slightly shy mood. Independently designed tiny animal motifs, not any existing franchise character. Mostly flat hand ink, not 3D clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: MY PROFILE icon: exactly ONE large round head over ONE broad rounded shoulder/torso silhouette, clear readable single-user shape. No second person, no surrounding circular frame. Make the single profile head an original short-eared cream woodland animal with tiny dot eyes and shy blush. Keep one-person silhouette.",
+      "reference": "tiny-friends/nav-home-v1.png"
+    },
+    {
+      "theme": "sentimental",
+      "role": "home",
+      "file": "sentimental/nav-home-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Quiet nostalgic handmade paper-cut and soft gouache watercolor. Warm ivory #F8EEDB, dusty apricot #DDA78A, desaturated sage #8DAD9B, muted cocoa #826D61. Delicate paper grain, gently imperfect edges and layered cut-paper depth. Understated travel diary atmosphere, broad simple shapes, no tiny ornaments. Not glossy, neon or clay. Subject: HOME icon, exactly one small house with a simple pitched roof, a visible doorway and compact sturdy walls. The house is the main silhouette. No faces, animal ears, additional buildings, landscape or text.",
+      "reference": null
+    },
+    {
+      "theme": "sentimental",
+      "role": "journal",
+      "file": "sentimental/nav-journal-v1.png",
+      "selected": false,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Quiet nostalgic handmade paper-cut and soft gouache watercolor. Warm ivory #F8EEDB, dusty apricot #DDA78A, desaturated sage #8DAD9B, muted cocoa #826D61. Delicate paper grain, gently imperfect edges and layered cut-paper depth. Understated travel diary atmosphere, broad simple shapes, no tiny ornaments. Not glossy, neon or clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: TRAVEL JOURNAL icon: exactly ONE open book with two broad page faces, visible central crease and one small bookmark. No writing or page lines. Instantly reads as travel record book. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sentimental/nav-home-v1.png"
+    },
+    {
+      "theme": "sentimental",
+      "role": "add",
+      "file": "sentimental/nav-add-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Quiet nostalgic handmade paper-cut and soft gouache watercolor. Warm ivory #F8EEDB, dusty apricot #DDA78A, desaturated sage #8DAD9B, muted cocoa #826D61. Delicate paper grain, gently imperfect edges and layered cut-paper depth. Understated travel diary atmosphere, broad simple shapes, no tiny ornaments. Not glossy, neon or clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: ADD action icon: exactly ONE clear centered PLUS symbol with equal four arms and thick rounded strokes, inside a compact circular button. The plus symbol is much more prominent than any decoration. Not a cross with an elongated lower arm. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sentimental/nav-home-v1.png"
+    },
+    {
+      "theme": "sentimental",
+      "role": "friends",
+      "file": "sentimental/nav-friends-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Quiet nostalgic handmade paper-cut and soft gouache watercolor. Warm ivory #F8EEDB, dusty apricot #DDA78A, desaturated sage #8DAD9B, muted cocoa #826D61. Delicate paper grain, gently imperfect edges and layered cut-paper depth. Understated travel diary atmosphere, broad simple shapes, no tiny ornaments. Not glossy, neon or clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: FRIENDS icon: exactly TWO separate rounded heads with TWO overlapping broad shoulder/torso silhouettes, clear gap between the two heads, both of comparable size. No third person and no text. Strong two-person pictogram. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sentimental/nav-home-v1.png"
+    },
+    {
+      "theme": "sentimental",
+      "role": "my",
+      "file": "sentimental/nav-my-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Quiet nostalgic handmade paper-cut and soft gouache watercolor. Warm ivory #F8EEDB, dusty apricot #DDA78A, desaturated sage #8DAD9B, muted cocoa #826D61. Delicate paper grain, gently imperfect edges and layered cut-paper depth. Understated travel diary atmosphere, broad simple shapes, no tiny ornaments. Not glossy, neon or clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: MY PROFILE icon: exactly ONE large round head over ONE broad rounded shoulder/torso silhouette, clear readable single-user shape. No second person, no surrounding circular frame. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sentimental/nav-home-v1.png"
+    },
+    {
+      "theme": "maximal",
+      "role": "home",
+      "file": "maximal/nav-home-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Luxurious colorful enamel jewelry icon. Rich ruby pink, sapphire blue, emerald green and tiny polished gold bevels. Glossy rounded gemstone surfaces and crisp jewel-like highlights, decorative yet legible. No more than two small four-point sparkles near silhouette, generous clear margins. Strong saturated color and refined depth, not pale clay. Subject: HOME icon, exactly one small house with a simple pitched roof, a visible doorway and compact sturdy walls. The house is the main silhouette. No faces, animal ears, additional buildings, landscape or text.",
+      "reference": null
+    },
+    {
+      "theme": "maximal",
+      "role": "journal",
+      "file": "maximal/nav-journal-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Luxurious colorful enamel jewelry icon. Rich ruby pink, sapphire blue, emerald green and tiny polished gold bevels. Glossy rounded gemstone surfaces and crisp jewel-like highlights, decorative yet legible. No more than two small four-point sparkles near silhouette, generous clear margins. Strong saturated color and refined depth, not pale clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: TRAVEL JOURNAL icon: exactly ONE open book with two broad page faces, visible central crease and one small bookmark. No writing or page lines. Instantly reads as travel record book. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "maximal/nav-home-v1.png"
+    },
+    {
+      "theme": "maximal",
+      "role": "add",
+      "file": "maximal/nav-add-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Luxurious colorful enamel jewelry icon. Rich ruby pink, sapphire blue, emerald green and tiny polished gold bevels. Glossy rounded gemstone surfaces and crisp jewel-like highlights, decorative yet legible. No more than two small four-point sparkles near silhouette, generous clear margins. Strong saturated color and refined depth, not pale clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: ADD action icon: exactly ONE clear centered PLUS symbol with equal four arms and thick rounded strokes, inside a compact circular button. The plus symbol is much more prominent than any decoration. Not a cross with an elongated lower arm. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "maximal/nav-home-v1.png"
+    },
+    {
+      "theme": "maximal",
+      "role": "friends",
+      "file": "maximal/nav-friends-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Luxurious colorful enamel jewelry icon. Rich ruby pink, sapphire blue, emerald green and tiny polished gold bevels. Glossy rounded gemstone surfaces and crisp jewel-like highlights, decorative yet legible. No more than two small four-point sparkles near silhouette, generous clear margins. Strong saturated color and refined depth, not pale clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: FRIENDS icon: exactly TWO separate rounded heads with TWO overlapping broad shoulder/torso silhouettes, clear gap between the two heads, both of comparable size. No third person and no text. Strong two-person pictogram. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "maximal/nav-home-v1.png"
+    },
+    {
+      "theme": "maximal",
+      "role": "my",
+      "file": "maximal/nav-my-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Luxurious colorful enamel jewelry icon. Rich ruby pink, sapphire blue, emerald green and tiny polished gold bevels. Glossy rounded gemstone surfaces and crisp jewel-like highlights, decorative yet legible. No more than two small four-point sparkles near silhouette, generous clear margins. Strong saturated color and refined depth, not pale clay. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: MY PROFILE icon: exactly ONE large round head over ONE broad rounded shoulder/torso silhouette, clear readable single-user shape. No second person, no surrounding circular frame. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "maximal/nav-home-v1.png"
+    },
+    {
+      "theme": "sunshine",
+      "role": "home",
+      "file": "sunshine/nav-home-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Joyful sunny graphic sticker illustration. Bold clean shapes, sunshine yellow #FFD34F, juicy tangerine #FF8B52, clear sky blue #70CBED and fresh mint #80D6B2. Crisp dark teal #285B66 edge accents, lively rounded geometry, predominantly flat cel shading with one broad highlight. Fresh bright optimistic mood, no paper grain or clay texture. Subject: HOME icon, exactly one small house with a simple pitched roof, a visible doorway and compact sturdy walls. The house is the main silhouette. No faces, animal ears, additional buildings, landscape or text.",
+      "reference": null
+    },
+    {
+      "theme": "sunshine",
+      "role": "journal",
+      "file": "sunshine/nav-journal-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Joyful sunny graphic sticker illustration. Bold clean shapes, sunshine yellow #FFD34F, juicy tangerine #FF8B52, clear sky blue #70CBED and fresh mint #80D6B2. Crisp dark teal #285B66 edge accents, lively rounded geometry, predominantly flat cel shading with one broad highlight. Fresh bright optimistic mood, no paper grain or clay texture. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: TRAVEL JOURNAL icon: exactly ONE open book with two broad page faces, visible central crease and one small bookmark. No writing or page lines. Instantly reads as travel record book. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sunshine/nav-home-v1.png"
+    },
+    {
+      "theme": "sunshine",
+      "role": "add",
+      "file": "sunshine/nav-add-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Joyful sunny graphic sticker illustration. Bold clean shapes, sunshine yellow #FFD34F, juicy tangerine #FF8B52, clear sky blue #70CBED and fresh mint #80D6B2. Crisp dark teal #285B66 edge accents, lively rounded geometry, predominantly flat cel shading with one broad highlight. Fresh bright optimistic mood, no paper grain or clay texture. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: ADD action icon: exactly ONE clear centered PLUS symbol with equal four arms and thick rounded strokes, inside a compact circular button. The plus symbol is much more prominent than any decoration. Not a cross with an elongated lower arm. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sunshine/nav-home-v1.png"
+    },
+    {
+      "theme": "sunshine",
+      "role": "friends",
+      "file": "sunshine/nav-friends-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Joyful sunny graphic sticker illustration. Bold clean shapes, sunshine yellow #FFD34F, juicy tangerine #FF8B52, clear sky blue #70CBED and fresh mint #80D6B2. Crisp dark teal #285B66 edge accents, lively rounded geometry, predominantly flat cel shading with one broad highlight. Fresh bright optimistic mood, no paper grain or clay texture. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: FRIENDS icon: exactly TWO separate rounded heads with TWO overlapping broad shoulder/torso silhouettes, clear gap between the two heads, both of comparable size. No third person and no text. Strong two-person pictogram. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sunshine/nav-home-v1.png"
+    },
+    {
+      "theme": "sunshine",
+      "role": "my",
+      "file": "sunshine/nav-my-v1.png",
+      "selected": true,
+      "prompt": "Use case: stylized-concept. Create ONE standalone small bottom-navigation icon for Korean travel journal app 여행가봥. Square composition, centered with at least 15% clear margin, genuine transparent alpha background. Compact recognizable silhouette readable at 32px. No words, letters, watermark, scenery, floor, background tile or checkerboard. Style: Joyful sunny graphic sticker illustration. Bold clean shapes, sunshine yellow #FFD34F, juicy tangerine #FF8B52, clear sky blue #70CBED and fresh mint #80D6B2. Crisp dark teal #285B66 edge accents, lively rounded geometry, predominantly flat cel shading with one broad highlight. Fresh bright optimistic mood, no paper grain or clay texture. Reference image is STYLE AND PALETTE ONLY. Create a new subject, do not include the house. Match reference line weight, material, lighting, depth and edge treatment. Subject: MY PROFILE icon: exactly ONE large round head over ONE broad rounded shoulder/torso silhouette, clear readable single-user shape. No second person, no surrounding circular frame. No faces, animal ears, scenery or extra motifs beyond the specified style.",
+      "reference": "sunshine/nav-home-v1.png"
+    },
+    {
+      "theme": "sentimental",
+      "role": "journal",
+      "file": "sentimental/nav-journal-v2.png",
+      "selected": true,
+      "prompt": "Use case: background-extraction. Edit the provided open paper-cut travel journal icon. Preserve ONLY the open book, sage bookmark, peach cover, ivory textured paper pages and their exact shape, color and composition. Remove the entire surrounding white/gray paper sheet, vignette, haze and background texture. Outside the book's cut-paper silhouette must be genuinely fully transparent alpha zero, including all four corners and a generous 15% margin. No opaque backdrop, no outer shadow cloud, no halo. Keep paper grain strictly INSIDE the book pages and cover. Do not change the icon design, add text, add objects or crop the book. Output square transparent PNG.",
+      "reference": "sentimental/nav-journal-v1.png"
+    }
+  ]
+}
