@@ -64,15 +64,15 @@ test('TC-DESIGN-006/007 filter feedback, keyboard focus and reduced motion prese
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();
  const filters=page.getByRole('button',{name:'필터',exact:true});
  await expect(filters).toHaveAttribute('aria-expanded','false');
- await expect(page.getByLabel('지역 필터',{exact:true})).toHaveCount(0);
+ await expect(page.getByRole('radio',{name:'지역 오름차순',exact:true})).toHaveCount(0);
  const scale=()=>filters.evaluate(node=>new DOMMatrix(getComputedStyle(node).transform).a);
  await filters.hover();await expect.poll(scale).toBeGreaterThan(1);
  const box=(await filters.boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
  try{await expect.poll(scale).toBeLessThan(1);}finally{await page.mouse.up();}
  await expect(filters).toHaveAttribute('aria-expanded','true');
- await page.getByLabel('지역 필터',{exact:true}).fill('제주');
+ await page.getByLabel('여행 검색',{exact:true}).fill('제주');
  await filters.click();await filters.click();
- await expect(page.getByLabel('지역 필터',{exact:true})).toHaveValue('제주');
+ await expect(page.getByLabel('여행 검색',{exact:true})).toHaveValue('제주');
  await page.keyboard.press('Tab');await filters.focus();
  expect(await filters.evaluate(node=>parseFloat(getComputedStyle(node).outlineWidth))).toBeGreaterThanOrEqual(2);
  await page.emulateMedia({reducedMotion:'reduce'});await filters.hover();
@@ -99,11 +99,11 @@ test('TC-DESIGN-007 real photos adapt from phone to desktop and preview remains 
   await page.setViewportSize({width,height:844});await page.mouse.move(0,0);
   await expect(page.getByRole('tablist')).toBeInViewport();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
-  await page.screenshot({path:`docs/design/verification/interactive-album-${width}-20261107.png`});
+  await page.screenshot({path:`docs/design/verification/interactive-album-${width}-20261108.png`});
  }
  await page.getByRole('tab',{name:'홈',exact:true}).click();
  await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
- await page.getByRole('button',{name:/여행자 · 느리게 걸었던 하루/}).click();
+ await page.getByRole('button',{name:/^여행자 · 느리게 걸었던 하루/}).click();
  const preview=page.getByTestId('record-preview');await expect(preview.getByText('1 / 2',{exact:true})).toBeVisible();
  expect((await preview.boundingBox())!.width).toBeLessThanOrEqual(420);
  const credits=page.getByTestId('map-attribution');
@@ -116,10 +116,10 @@ test('TC-DESIGN-007 real photos adapt from phone to desktop and preview remains 
  await expect.poll(async()=>{const panel=(await preview.boundingBox())!,source=(await credits.boundingBox())!;return source.y-panel.y-panel.height;}).toBeGreaterThanOrEqual(8);
  await credits.evaluate(node=>{Array.from(node.children).forEach(child=>{(child as HTMLElement).style.fontSize='';});});
  await page.setViewportSize({width:1280,height:844});
- await page.screenshot({path:'docs/design/verification/interactive-map-preview-20261107.png'});
+ await page.screenshot({path:'docs/design/verification/interactive-map-preview-20261108.png'});
  await page.getByRole('button',{name:'미리보기 닫기',exact:true}).click();
  await page.setViewportSize({width:390,height:844});
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
  await expect(page.getByLabel('여행 작성 패널',{exact:true})).toBeVisible();
- await page.screenshot({path:'docs/design/verification/interactive-composer-20261107.png'});
+ await page.screenshot({path:'docs/design/verification/interactive-composer-20261108.png'});
 });

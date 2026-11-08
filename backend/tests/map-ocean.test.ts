@@ -48,3 +48,11 @@ test('native and web share fixed SVG paths, ignore input/a11y, and disappear at 
   }
  }
 });
+
+
+test('TC-MAPLIBRE-009: land illustrations stay inside provinces and depth stays below unchanged fill',async()=>{
+ const {landOrnaments,ornamentMarkup}=await import('../../frontend/src/MapOrnament');
+ expect(new Set(landOrnaments.map(item=>item.kind))).toEqual(new Set(['mountain','grass']));
+ for(const {kind,coordinate:[lng,lat]} of landOrnaments){expect(provinceAt(lat,lng)).toBeDefined();expect(ornamentMarkup(kind)).toContain('pointer-events="none"');expect(ornamentMarkup(kind,9)).toBe('');}
+ const style=mapStyle(null);expect(style.layers.findIndex(l=>l.id==='province-depth')).toBeLessThan(style.layers.findIndex(l=>l.id==='province-fill'));
+});

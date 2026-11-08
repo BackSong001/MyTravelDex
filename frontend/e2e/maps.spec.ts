@@ -17,7 +17,7 @@ test.beforeAll(async () => {
     stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
       import React from 'react'; import {createRoot} from 'react-dom/client';
       import * as maplibregl from 'maplibre-gl'; import TravelMap from './src/TravelMap.web';
-      window.events=[]; window.mapSnapshots=[];window.styleLoads=0;
+      window.events=[];window.selectedRecords=[]; window.mapSnapshots=[];window.styleLoads=0;
       // 실제 엔진의 idle 이후만 관찰하며 지도 인스턴스는 앱이나 테스트에 노출하지 않는다.
       const fire=maplibregl.Map.prototype.fire;
       maplibregl.Map.prototype.fire=function(event,...args){
@@ -30,7 +30,7 @@ test.beforeAll(async () => {
       };
       const root=createRoot(document.getElementById('root'));
       let current={records:[],fullScreen:true};
-      window.renderMap=(props={})=>{current={...current,...props};root.render(<TravelMap {...current} onSelect={record=>window.events.push(['record',record.id])} onRegion={(id,name)=>window.events.push(['region',id,name])}/>);};
+      window.renderMap=(props={})=>{current={...current,...props};root.render(<TravelMap {...current} onSelect={record=>{window.events.push(['record',record.id]);window.selectedRecords.push(record);}} onRegion={(id,name)=>window.events.push(['region',id,name])}/>);};
       window.renderMap();
     `}});
   bundle = result.outputFiles[0].text;
@@ -110,7 +110,7 @@ test('actual marker projection keeps the record coordinate instead of the provin
     {...record('coast'),locations:{latitude:38,longitude:128.7,place_name:'동해안'}},
   ]);
   await zoom(page,'대한민국 전체 보기');
-  await expect(page.getByRole('button',{name:/여행자 · coast/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/^여행자 · coast/})).toBeVisible();
   // 두 지역 라벨의 실제 DOM 투영으로 화면 변환을 구하고 기록 좌표의 위치와 비교한다.
   const projection = await page.evaluate(()=>{
     const anchor=(name:string)=>{
@@ -129,7 +129,7 @@ test('actual marker projection keeps the record coordinate instead of the provin
   });
   expect(Math.abs(projection.actual[0]-projection.expected[0])).toBeLessThan(2);
   expect(Math.abs(projection.actual[1]-projection.expected[1])).toBeLessThan(2);
-  await page.getByRole('button',{name:/여행자 · coast/}).click();
+  await page.getByRole('button',{name:/^여행자 · coast/}).click();
   expect(await page.evaluate(()=>(window as any).events)).toEqual([['record','coast']]);
 });
 
@@ -138,13 +138,16 @@ test('overlapping pins: counted group reaches every original record without one 
   await page.evaluate(records=>(window as any).renderMap({records,authors:{first:{display_name:'첫 작성자'},second:{display_name:'둘째 작성자'}}}),[record('first'),record('second')]);
   const group=page.getByRole('button',{name:'여행 2개 모아 보기',exact:true});
   await expect(group).toBeVisible();
+  await expect(group.locator('[data-cluster-stack]')).toHaveCount(1);
   await expect(group).not.toContainText('첫 작성자');
   await expect(group).not.toContainText('둘째 작성자');
   await group.click();
-  await expect(page.getByRole('button',{name:/첫 작성자 · first/})).toBeVisible();
-  await page.getByRole('button',{name:/둘째 작성자 · second/}).click();
+  await expect(page.getByLabel('군집 썸네일 슬라이드',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'사진으로 보기 · 둘째 작성자 · second · 2026-01-01 ~ 2026-01-02 · 서울',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:/^첫 작성자 · first/})).toBeVisible();
+  await page.getByRole('button',{name:/^둘째 작성자 · second/}).click();
   await group.click();
-  await page.getByRole('button',{name:/첫 작성자 · first/}).click();
+  await page.getByRole('button',{name:/^첫 작성자 · first/}).click();
   expect(await page.evaluate(()=>(window as any).events)).toEqual([['record','second'],['record','first']]);
 });
 
@@ -152,19 +155,20 @@ test('open cluster uses current records after refresh, removal and scope changes
   await ready(page);
   await page.evaluate(records=>(window as any).renderMap({records}),[record('first'),record('second')]);
   await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
-  await expect(page.getByRole('button',{name:/여행자 · first/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/^여행자 · first/})).toBeVisible();
   const before=await page.evaluate(()=>({loads:(window as any).styleLoads,view:(window as any).mapSnapshots.at(-1)}));
   await page.evaluate(records=>(window as any).renderMap({records}),[{...record('first'),title:'수정한 제목'},record('second')]);
-  await expect(page.getByRole('button',{name:/여행자 · 수정한 제목/})).toBeVisible();
-  await expect(page.getByRole('button',{name:/여행자 · first/})).toHaveCount(0);
-  await page.getByRole('button',{name:/여행자 · 수정한 제목/}).click();
+  await expect(page.getByRole('button',{name:/^여행자 · 수정한 제목/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/^여행자 · first/})).toHaveCount(0);
+  await page.getByRole('button',{name:/^여행자 · 수정한 제목/}).click();
   expect(await page.evaluate(()=>(window as any).events)).toEqual([['record','first']]);
+  expect(await page.evaluate(()=>(window as any).selectedRecords.at(-1).title)).toBe('수정한 제목');
   await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
   await page.evaluate(records=>(window as any).renderMap({records}),[record('second')]);
   await expect(page.getByRole('button',{name:/수정한 제목/})).toHaveCount(0);
   await page.evaluate(records=>(window as any).renderMap({records}),[record('public')]);
   await expect(page.getByRole('button',{name:'지도 선택 닫기',exact:true})).toHaveCount(0);
-  await expect(page.getByRole('button',{name:/여행자 · second/})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:/^여행자 · second/})).toHaveCount(0);
   expect(await page.evaluate(()=>(window as any).styleLoads)).toBe(before.loads);
   const after=await page.evaluate(()=>(window as any).mapSnapshots.at(-1));
   expect(after.zoom).toBe(before.view.zoom);expect(after.center).toEqual(before.view.center);
@@ -179,7 +183,7 @@ async function loseContext(page: Page) {
 test('WebGL context loss: SVG fallback keeps own-only stamps, record preview, region browse and retries the real map',async ({page})=>{
   await ready(page);
   await page.evaluate(records=>(window as any).renderMap({records,ownRecords:[records[0]]}),[record('mine','me'),{...record('friend'),locations:{latitude:33.4996,longitude:126.5312}}]);
-  await expect(page.getByRole('button',{name:/여행자 · mine/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/^여행자 · mine/})).toBeVisible();
   await loseContext(page);
   await expect(page.getByTestId('province-map')).toBeVisible();
   await expect(page.getByLabel('방문 지역 1 / 17',{exact:true})).toBeVisible();
@@ -195,7 +199,7 @@ test('WebGL context loss: SVG fallback keeps own-only stamps, record preview, re
   await expect(page.getByTestId('province-map')).toHaveCount(0);
   await ready(page);
   await expect.poll(()=>page.evaluate(()=>(window as any).mapSnapshots.length)).toBeGreaterThan(count);
-  await expect(page.getByRole('button',{name:/여행자 · mine/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/^여행자 · mine/})).toBeVisible();
 });
 
 test('correction context-loss fallback stays compact and offers place-search guidance',async ({page})=>{
@@ -215,9 +219,35 @@ test('correction context-loss fallback stays compact and offers place-search gui
   await page.getByRole('button',{name:'서울 지역 선택',exact:true}).click();
   await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
   await page.evaluate(record=>(window as any).renderMap({records:[record],ownRecords:[record]}),record('new','me'));
-  await expect(page.getByRole('button',{name:/여행자 · new/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/^여행자 · new/})).toBeVisible();
   await expect.poll(()=>page.evaluate(()=>(window as any).mapSnapshots.at(-1).sources.provinces.data.features.length)).toBe(17);
   expect(await page.evaluate(()=>(window as any).styleLoads)).toBe(before.loads);
   const after=await page.evaluate(()=>(window as any).mapSnapshots.at(-1));
   expect(after.zoom).toBe(before.view.zoom);expect(after.center).toEqual(before.view.center);
  });
+
+
+test('TC-MAPLIBRE-008/009: thumbnail slides select current records, terrain stays decorative and panel clears credits',async({page},info)=>{
+ await ready(page);
+ const cover='data:image/jpeg;base64,'+(await readFile('frontend/e2e/fixtures/jeonju.jpg')).toString('base64');
+ await page.evaluate(({records,cover})=>(window as any).renderMap({records,covers:{first:cover,second:cover}}),{records:[record('first'),record('second')],cover});
+ await expect(page.locator('[data-map-ornament="mountain"]')).toHaveCount(2);await expect(page.locator('[data-map-ornament="grass"]')).toHaveCount(2);
+ await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
+ const panel=page.getByTestId('cluster-browser');await expect(panel).toBeVisible();
+ const credits=page.getByTestId('map-attribution');
+ const bounds=await panel.boundingBox(),source=await credits.boundingBox();expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(source!.y-8);
+ await page.getByRole('button',{name:/^사진으로 보기 · 여행자 · second/}).click();
+ expect(await page.evaluate(()=>(window as any).events)).toEqual([['record','second']]);
+ await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
+ await expect.poll(()=>panel.evaluate(node=>{
+  const box=node.getBoundingClientRect();
+  return Array.from(document.querySelectorAll('.maplibregl-marker')).every(marker=>{
+   const b=marker.getBoundingClientRect(),x=b.x+b.width/2,y=b.y+b.height/2;
+   return x<=box.left||x>=box.right||y<=box.top||y>=box.bottom||!document.elementFromPoint(x,y)?.closest('.maplibregl-marker');
+  });
+ })).toBe(true);
+ await page.screenshot({path:info.outputPath('cluster-photo-browser.png')});
+ await page.screenshot({path:'docs/design/verification/cluster-photo-browser-20261108.png'});
+ await page.evaluate(()=>(window as any).renderMap({onCoordinate:()=>{}}));
+ await expect(page.locator('[data-map-ornament="mountain"],[data-map-ornament="grass"]')).toHaveCount(0);
+});

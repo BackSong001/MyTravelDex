@@ -170,10 +170,9 @@ for(const width of [320,1024]){
   const bounds=await card.boundingBox();expect(bounds).not.toBeNull();expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(width);
   await noOverflow(page);await navVisible(page);
   await page.getByRole('button',{name:'필터',exact:true}).click();
-  await page.getByLabel('지역 필터',{exact:true}).fill('존재하지않는지역');
-  await page.getByRole('button',{name:'필터 적용',exact:true}).click();
+  await page.getByLabel('여행 검색',{exact:true}).fill('존재하지않는지역');
   await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'필터 해제',exact:true}).click();
+  await page.getByRole('button',{name:'정렬·검색 초기화',exact:true}).click();
   await expect(card).toBeVisible();await noOverflow(page);
   await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
   await noOverflow(page);await navVisible(page);
@@ -281,12 +280,11 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(individual).toBeVisible();
   await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toHaveCount(0);
   await page.getByRole('button',{name:'필터',exact:true}).click();
-  for(const [label,value] of [['시작일 필터','2100-01-01'],['지역 필터','존재하지않는지역']]){
+  for(const [label,value] of [['여행 검색','없는제목'],['여행 검색','존재하지않는지역']]){
    await page.getByLabel(label,{exact:true}).fill(value);
-   await page.getByRole('button',{name:'필터 적용',exact:true}).click();
    await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
    await expect(individual).toHaveCount(0);
-   await page.getByRole('button',{name:'필터 해제',exact:true}).click();
+   await page.getByRole('button',{name:'정렬·검색 초기화',exact:true}).click();
    await expect(individual).toBeVisible();
    await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toHaveCount(0);
   }

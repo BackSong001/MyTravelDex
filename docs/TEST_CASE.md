@@ -1,5 +1,32 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 추천·군집·검색 수용 계획 (2026-11-08)
+
+- TC-FRIEND-006 ↔ FR-FRIEND-004: 실제 Local HTTP로 50명 상한/고정 필드/anon 및 인자 우회 거부, 비공개·본인·양방향 pending/accepted·팔로우 제외, 새로고침·실패/재시도 입력 보존. 친구 ID/중복 이름과 기존 RLS 회귀 유지.
+- TC-FRIEND-007 ↔ FR-FRIEND-001/003/004: 새 계정 둘의 실제 UI 로그인→사진 선택/Storage 업로드(공개와 비공개)→UUID 친구 요청→수신자 수락→친구 범위 공개 사진 렌더링. 직접 private/draft/원본 조회 차단은 기존 HTTP 게이트와 함께 확인. 실제 Google 동의/원격/Android 수용과 구분한다.
+- TC-JOURNAL-001 ↔ FR-UI-013: 네 정렬·최신 시작일 기본·동률 안정성·한글 지역/제목/한줄평 검색·trim/case/빈값·원본 불변. 실제 Local UI에서 순서/검색/초기화/0건·반응형·기존 지도/My 집계 독립 확인.
+- TC-MAPLIBRE-008 ↔ FR-UI-014: 실제 WebGL+native로 겹친 카드/숫자, 동일 좌표 고배율 보존, 가로 썸네일/빠른 목록 모두 선택 가능, 열린 상태 갱신/삭제/범위 최신객체, 390/가로/큰글꼴 및 출처 비가림.
+- TC-MAPLIBRE-009 ↔ FR-UI-015: 실제 경계/좌표 불변, 측면·그림자 순서, 산/풀 anchor 지역 내부/바다 장식 외부, 줌9/핀보정 숨김·장식 터치/a11y 제외. 자동 및 Android 실제 검증 범위를 별도 기록한다.
+
+순서: 명세 동기화→실제 행동 Red→DB/Local HTTP Green 및 기존 회귀→UI Green→t14 지정 diff 리뷰/보정(최대3회)→Android 자체 APK/기기 검증. 환경오류는 Red로 계산하지 않는다. 미검증/실패 결과를 전체 수용으로 합산하지 않는다.
+
+### 2026-11-08 09:26 KST — 작업7 검증 결과
+
+명세 선반영 후 추천RPC 부재 실제 HTTP 실패(t3r), 겹친 카드 부재 실제 WebGL 실패(t3s)를 확인했다. journal helper의 최초 모듈부재는 행동 Red로 합산하지 않는다. 이후 도감 기본 정렬의 web aria-checked 누락이 실제 UI에서 실패(t47)해 명시 상태 전달로 수정했다. 로컬 additive migration만 `migration up`으로 적용했다.
+
+- 실제 Local HTTP/DB/RLS/Storage: friends5+vnext4+photo44 **53 passed**, 정렬 순수함수 journal2 **2 passed**, 묶음 총 **55 passed**(t3v). 추천 fixture56명을 생성해 서버50상한·고정3필드·anon401·인자우회404·본인/양방향pending/accepted/follows/비공개 제외를 확인했다. 기존 UUID·중복 닉네임·profiles 본인 RLS는 유지한다.
+- 단위/native mock: 지도/장식/정렬 **18 passed**(t44, 앞의 journal2와 중복). 산/풀 내부anchor·바다장식외부·줌숨김·실제경계불변·sort4/tie/NFC/검색/배열불변을 확인했다. static native mock의 Animated 경계 미정의는 대역을 기존 Pressable로 연결해 해결했으며 제품 결함으로 계산하지 않는다.
+- UI: 새 계정 둘의 실제 JPEG 업로드(공개/비공개)→UUID 요청→상대 수락→친구 공개 사진/상세 디코딩, 추천refresh/오류복구·입력보존·추천직접요청/팔로우닉네임유지 포함 **친구7 passed**(t4r). 실제 Local Auth/PostgREST/Storage를 사용하며 위치검색 경계만 기존 고정 대역이다. 실제 Google 로그인/운영 계정 테스트는 아니다. 새 native fixture가 공개 후보를 늘리자 기존 초대의 전체버튼 locator가 다중 일치하고 수락 전에 sender POST 대기 누락이 드러났다. 대상ID/요청취소표시 대기로 완료조건을 보정했다.
+- UI: 도감 검색4정렬/기본최신순·검색0건/초기화·My스탬프 독립 **1 passed**(t48). 네 지역/날짜 정렬의 실제 문자열 순서는 unit에서, UI는 날짜 순서와 지역 선택상태를 검증한다. 확대 기존회귀는 **51 passed/2 failed**(t46): 새 썸네일/목록 때문에 옛 정규식이 두 버튼에 일치하고 초대 harness가 새 import를 empty로 처리한 검사 연결 실패다. 목록prefix/실제정렬모듈 연결 후 design6+invite1+maps8 **15 passed**(t49). 전체 큰 회귀 재실행으로 표시하지 않는다.
+- 시각 추가 결함: 지도 라벨이 군집 패널 위로 비치는 elementFromPoint 실제실패(t4f)→web map host를 자체 stack context로 격리→**지도8 passed**(t4j). 사진좌표·camera/style effect 의존성은 변경하지 않았다. 가로썸네일/빠른목록 양경로·선택payload 최신title·범위삭제·출처간격 회귀를 포함한다.
+- t14 회차1: 추천 직접 액션이 검색 results에서만 공개프로필을 찾아 새 관계의 이름을 잃는 P2 재현. 회차2 전 results→recommendations fallback 두 줄 보정; 저장소 회귀 Red(t4n)→Green. t14 독립 직접요청/팔로우회귀1 passed(t4t), 기존 오류/거절1 passed(t4s), 회차2 최종승인. 최초 독립 HTTP/단위14(t4c), journal/maps9(t4d), stack수정대상1(t4m, 앞과 중복)도 통과했다. t14는 아래 Android 실행을 독립 수행하지 않았다.
+- TypeScript 통과(t4w). 최신 Local web export `/tmp/mytraveldex-feature7-web` 성공(t4y). 최초 export는 루트 cwd 오류로 실패했으며 frontend cwd로 바로잡았다.
+- Android: 사용자5554/실제 계정은 그대로 두고 별도 read-only API37/5556에 Local 자체 APK를 설치했다. 최종 `assembleRelease` 성공(t4q,56초), Local host 포함/실제 서버 host 미포함 확인. APK `/tmp/mytraveldex-feature7-local-qa.apk`, SHA256 `e6f4e55daeaab9efc7252509a8305772e7fc952afc71600ac0fe2b99a59b8151`, 개발 서명. 환경 변경 cached JS 재사용 방지를 위해 생성 JS bundle만 제거하고 빌드했으며 영구 빌드 스크립트 수정은 이번 범위에 포함하지 않았다.
+- Android 실제 조작: 같은 닉네임 새 Local 계정A/B(실제 Storage 사진 fixture)로 A추천→친구요청/닉네임보존→로그아웃→B로그인→받은요청수락→친구범위 기록1개 확인. native 지역정렬 radio/default 선택, 함께보기 군집2개→가로썸네일선택→사진2장 미리보기를 확인했다. fontScale2로 앱 재시작 후 군집 내부스크롤→빠른목록 선택도 확인했다. 군집 XML bottom1654/source top1720px로 간격66px이며 출처를 가리지 않는다. 앱 AndroidRuntime fatal 항목은 발견하지 못했다. 수동 검사는 자동 통과 수에 합산하지 않는다.
+- 정리: native fixture 두 계정의 Auth/기록/사진/위치/Storage/삭제큐 잔여0, 임시로그인파일 삭제·설정복원·Appium/read-only기기 종료 확인. 실제 사용자기기/원격데이터는 변경하지 않았다. 화면 증거는 `design/verification/cluster-photo-browser-20261108.png`, `interactive-*20261108.png`, `feature7-native-*20261108.png`. 사진은 Mobius6 CC BY-SA4.0/[fixture README](../frontend/e2e/fixtures/README.md), 사용자 개인정보/원본팔레트/이전날짜증거는 보존한다.
+
+원격은 **dry-run만** 완료(t4v): 적용 대상은 `20261107140000_friend_requests.sql`, `20261108010000_friend_recommendations.sql` 두 개다. 초기 사용자 규칙에 따른 운영DB 변경 승인을 요청했으며 답변 전 실제 push/사용자앱 업데이트를 하지 않는다. 실기기/클라우드전용사진/권한거부/새Google왕복/TalkBack·가로+큰글꼴 전체수용·production/Play는 미검증이다. 추천은 공개동의프로필만이며 전체 Auth 개인정보를 조회하지 않는다. 도감 검색은 현재 로드된 범위(기존 PostgREST 최대행 제한 포함)에 적용되므로 전체 서버 검색으로 간주하지 않는다.
+
 ## 사용자 실행 에뮬레이터 검증 — 2026-11-08 08:51 KST
 
 사용자가 켜 둔 `mytrveldex` / API37 / `emulator-5554`에서 Appium/UiAutomator2로 검증했다. 새 AVD가 아니다. `android:configured -- --device mytrveldex`로 같은 실제 `.env` 프로젝트의 최신 자체 APK를 데이터 초기화 없이 업데이트했다. 제품 코드 변경·원격 migration·사용자 기록 생성/수정/삭제는 수행하지 않았다. 공개 API 설정으로 Auth/Google Provider 활성 및 기존 주요 테이블 HTTP200을 확인했지만 새 Google 동의/복귀 성공으로 계산하지 않는다.

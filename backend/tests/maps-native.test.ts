@@ -5,6 +5,7 @@ const {maps,pins,layers}=vi.hoisted(()=>({maps:[] as any[],pins:[] as any[],laye
 vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {useWindowDimensions:()=>({width:390,height:844,fontScale:1}),View:'section',Text:({numberOfLines,...p}:any)=>createElement('span',p),Image:({source,onLoad,onError,onLoadEnd,...p}:any)=>createElement('img',{...p,src:source?.uri}),Pressable:({accessibilityLabel,accessibilityRole,onPress,style,...p}:any)=>createElement('button',{...p,'aria-label':accessibilityLabel}),ScrollView:'div',StyleSheet:{create:(s:any)=>s}};});
 vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circle:'circle',G:'g',Path:'path',Text:'text'}));
 vi.mock('../../frontend/node_modules/@maplibre/maplibre-react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Map:(p:any)=>{maps.push(p);return createElement('native-map',null,p.children);},Camera:()=>null,Layer:(p:any)=>{layers.push(p);return null;},Marker:(p:any)=>{pins.push(p);return createElement('native-marker',{title:p.accessibilityLabel},p.children);}};});
+vi.mock('../../frontend/src/Feedback',async()=>({default:(await import('../../frontend/node_modules/react-native')).Pressable}));
 import TravelMap from '../../frontend/src/TravelMap';
 import {provinceFeatures} from '../../frontend/src/provinces';
 afterEach(()=>{maps.length=0;pins.length=0;layers.length=0;});

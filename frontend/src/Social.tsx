@@ -158,6 +158,10 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
   const inviteLink = owner ? Linking.createURL('/', {scheme: 'mytraveldex', queryParams: {friend: owner}}) : '';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Author[]>([]);
+  const [recommendations, setRecommendations] = useState<Author[]>([]);
+  const [recommending, setRecommending] = useState(false);
+  const [recommendError, setRecommendError] = useState('');
+  const recommendationRequest = useRef(0);
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
@@ -177,6 +181,20 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
   const active = useRef(true);
   const searchRequest = useRef(0);
   const listRequest = useRef(0);
+
+  async function loadRecommendations() {
+    if (!owner || busyRef.current) return;
+    const request = ++recommendationRequest.current;
+    setRecommending(true); setRecommendError('');
+    try {
+      const people: Author[] = await api.rpc('friend_recommendations', {});
+      if (active.current && request === recommendationRequest.current) setRecommendations(people);
+    } catch (error) {
+      if (active.current && request === recommendationRequest.current) setRecommendError(message(error));
+    } finally {
+      if (active.current && request === recommendationRequest.current) setRecommending(false);
+    }
+  }
 
   async function loadFollows() {
     if (!owner) return;
@@ -203,8 +221,8 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 
   useEffect(() => {
     active.current = true;
-    void loadFollows();
-    return () => {active.current = false; searchRequest.current++; listRequest.current++;};
+    void loadFollows(); void loadRecommendations();
+    return () => {active.current = false; searchRequest.current++; listRequest.current++; recommendationRequest.current++;};
   }, [owner]);
 
   useEffect(() => {
@@ -224,6 +242,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 
   async function toggle(target: string, remove: boolean) {
     if (!owner || !loaded || busyRef.current) return;
+    recommendationRequest.current++; setRecommending(false);
     busyRef.current = true; setBusy(target); setActionError(''); setSuccess('');
     // 갱신 전 시작된 목록 응답이 변경 결과를 덮어쓰지 않게 한다.
     listRequest.current++; setLoading(false);
@@ -232,9 +251,10 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
       if (!active.current) return;
       setFollows(previous => remove ? previous.filter(row => row.followee_id !== target)
         : previous.some(row => row.followee_id === target) ? previous : [{followee_id: target, created_at: new Date().toISOString()}, ...previous]);
-      const profile = results.find(row => row.id === target);
+      const profile = results.find(row => row.id === target) ?? recommendations.find(row => row.id === target);
       if (profile) setAuthors(previous => ({...previous, [target]: profile}));
       setSuccess(remove ? '팔로우를 해제했어요.' : '팔로우했어요. 친구의 공개 여행을 만나보세요.');
+      setRecommendations(previous => previous.filter(profile => profile.id !== target));
       onChanged?.();
     } catch (error) {if (active.current) setActionError(message(error));}
     finally {busyRef.current = false; if (active.current) setBusy(null);}
@@ -246,6 +266,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 
   async function connect(target: string, action: 'request' | 'accept' | 'remove') {
     if (!owner || !loaded || busyRef.current || !isFriendCode(target) || owner === target) return;
+    recommendationRequest.current++; setRecommending(false);
     busyRef.current = true; setBusy(target); setActionError(''); setSuccess(''); listRequest.current++; setLoading(false);
     try {
       const existing = connection(target);
@@ -256,9 +277,10 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
       if (!rows.length) throw new Error('친구 요청이 변경되었어요. 목록을 새로고침한 뒤 다시 확인해 주세요.');
       if (!active.current) return;
       setConnections(previous => [...previous.filter(row => row.requester_id !== target && row.recipient_id !== target), ...(action === 'remove' ? [] : rows)]);
-      const profile = results.find(row => row.id === target);
+      const profile = results.find(row => row.id === target) ?? recommendations.find(row => row.id === target);
       if (profile) setAuthors(previous => ({...previous, [target]: profile}));
       setSuccess(action === 'request' ? '친구 요청을 보냈어요.' : action === 'accept' ? '친구가 되었어요. 공개된 여행을 함께 볼 수 있어요.' : '친구 관계 또는 요청을 삭제했어요. 기존 팔로우는 유지돼요.');
+      setRecommendations(previous => previous.filter(profile => profile.id !== target));
       if (target === inviteCode && action !== 'remove') onInviteHandled?.();
       onChanged?.();
     } catch (error) {
@@ -328,6 +350,16 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
         {more && <Button label="다음 검색 결과" disabled={searching} onPress={() => void search(lastQuery, offset + 20)} secondary/>}
       </View>}
     </View>
+    {owner && !searched && <View accessibilityLabel="추천 친구" style={s.sheet}>
+      <Text accessibilityRole="header" style={s.sectionTitle}>추천 친구</Text>
+      <Text style={s.hint}>공개 프로필에서 최대 50명을 만나보세요. 같은 이름은 친구 ID로 구분해요.</Text>
+      <Button label="추천 새로고침" disabled={recommending || busy !== null} onPress={() => void loadRecommendations()} secondary/>
+      {recommending && <ActivityIndicator color={c.sea} accessibilityLabel="추천 친구 불러오는 중"/>}
+      {!!recommendError && <Notice error>{recommendError}</Notice>}
+      {!recommending && !recommendError && !recommendations.length && <Notice>추천할 여행자가 아직 없어요. 친구 ID로 검색하거나 나중에 새로고침해 주세요.</Notice>}
+      {recommendations.filter(profile => profile.id !== owner && !connection(profile.id) && !follows.some(follow => follow.followee_id === profile.id))
+        .map(profile => row(profile.id, profile, false))}
+    </View>}
   </View>;
 }
 

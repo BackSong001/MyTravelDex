@@ -33,6 +33,7 @@ test.beforeAll(async()=>{
   bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"'},plugins:[{name:'native-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
+    if(args.path==='../src/journalRecords')return {path:path.resolve('frontend/src/journalRecords.ts'),namespace:'file'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};
     if(args.importer.endsWith('/frontend/app/index.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
    });

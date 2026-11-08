@@ -6,7 +6,8 @@ import {colors as c} from './theme';
 import {travelerAvatar} from './avatarAsset';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
-import {oceanOrnaments,ornamentMarkup} from './MapOrnament';
+import ClusterBrowser from './ClusterBrowser';
+import {oceanOrnaments,landOrnaments,ornamentMarkup} from './MapOrnament';
 import {mapStyle, KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS} from './mapStyle';
 import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
 
@@ -24,6 +25,8 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
   const clearSelection = useRef(() => {selected.current = null; restyle.current(); redraw.current();});
   const [selectedId, setSelectedId] = useState<string | null>(null), [clusterIds, setCluster] = useState<string[]>([]);
   const cluster = mapRecords(records, !!onCoordinate).filter(record => clusterIds.includes(record.id));
+  const [mapHeight,setMapHeight]=useState(fullScreen?600:expanded?440:290),[creditHeight,setCreditHeight]=useState(40);
+  const panelBottom=creditHeight+14,panelHeight=Math.max(60,Math.min(420,mapHeight-panelBottom-(fullScreen?116:16)));
   const [error, setError] = useState(false), [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (error || !host.current) return;
@@ -63,7 +66,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         markers.splice(0).forEach(marker => marker.remove());
         const {records, covers, authors, ownRecords, landmarks, onCoordinate} = current.current;
         const ownGroups = groupProvinceRecords(ownRecords ?? []), zoom = activeMap.getZoom();
-        if(zoom<9)oceanOrnaments.forEach(ornament=>{
+        if(zoom<9)[...oceanOrnaments,...(onCoordinate?[]:landOrnaments)].forEach(ornament=>{
           const element=document.createElement('div');element.setAttribute('aria-hidden','true');element.dataset.mapOrnament=ornament.kind;element.style.pointerEvents='none';
           // 마크업은 사용자 입력이 아닌 고정된 SVG 장식 데이터만 사용한다.
           element.innerHTML=ornamentMarkup(ornament.kind,zoom);
@@ -83,19 +86,27 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         // MapLibre의 512px 타일을 기존 256px 기준 군집 헬퍼에 맞춘다.
         mapMarkerGroups(records, zoom + 1, !!onCoordinate).forEach(({record, records: grouped}) => {
           const content = document.createElement('div');
-          Object.assign(content.style, {display:'flex', alignItems:'center', flexDirection:'column', width:'76px'});
+          Object.assign(content.style, {display:'flex', alignItems:'center', flexDirection:'column', width:'76px',position:'relative'});
+          if(grouped.length>1){
+            content.dataset.clusterStack='true';
+            grouped.slice(1,3).reverse().forEach((item,index)=>{
+              const back=document.createElement('div');Object.assign(back.style,{position:'absolute',top:`${3-index*2}px`,left:`${12+index*4}px`,width:'52px',height:'52px',boxSizing:'border-box',border:`3px solid ${c.sheet}`,borderRadius:'12px',background:c.warm,transform:`rotate(${index===0?12:-10}deg)`,boxShadow:'0 3px 7px #4A3B3226',zIndex:'0',pointerEvents:'none'});
+              if(covers[item.id]){const photo=document.createElement('img');photo.src=covers[item.id];photo.alt='';Object.assign(photo.style,{width:'100%',height:'100%',objectFit:'cover',borderRadius:'8px'});back.appendChild(photo);}
+              content.appendChild(back);
+            });
+          }
           const dot = () => {
             const element = document.createElement('span');
-            Object.assign(element.style, {display:'block', width:'38px', height:'38px', borderRadius:'50%', background:c.map.locationPin, border:`3px solid ${c.map.locationPinBorder}`});
+            Object.assign(element.style, {display:'block', width:'38px', height:'38px', borderRadius:'50%', background:c.map.locationPin,position:'relative',zIndex:'1',border:`3px solid ${c.map.locationPinBorder}`});
             return element;
           };
           if (covers[record.id]) {
             const image = document.createElement('img'); image.src = covers[record.id]; image.alt = '대표사진'; image.draggable = false;
             image.onerror = () => image.replaceWith(dot());
-            Object.assign(image.style, {width:'52px', height:'52px', objectFit:'cover', borderRadius:'12px', border:`3px solid ${c.map.locationPinBorder}`}); content.appendChild(image);
+            Object.assign(image.style, {width:'52px', height:'52px', objectFit:'cover', position:'relative',zIndex:'1',borderRadius:'12px', border:`3px solid ${c.map.locationPinBorder}`}); content.appendChild(image);
           } else content.appendChild(dot());
           const author = authors[record.owner_id], badge = document.createElement('div');
-          Object.assign(badge.style, {display:'flex', alignItems:'center', maxWidth:'100%', borderRadius:'10px', background:c.surface, padding:'3px', gap:'3px', color:c.textPrimary, fontSize:'12px'});
+          Object.assign(badge.style, {display:'flex', alignItems:'center', maxWidth:'100%', borderRadius:'10px', background:c.surface, padding:'3px', gap:'3px', color:c.textPrimary, fontSize:'12px',position:'relative',zIndex:'1'});
           if (grouped.length === 1 && !onCoordinate) {
             const avatar = document.createElement('img'); avatar.src = author?.avatar_url || travelerAvatar; avatar.alt = ''; avatar.draggable = false;
             avatar.onerror = () => {avatar.onerror=null;avatar.src=travelerAvatar;};
@@ -146,15 +157,15 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
     if (correctionLat != null && correctionLng != null) {map.current?.setMaxBounds(undefined);map.current?.jumpTo({center:[correctionLng, correctionLat], zoom:focus?8:onCoordinate?12:8});}
   }, [correctionLat, correctionLng, attempt, error, !!onCoordinate, !!focus]);
   const trips = selectedId ? groupProvinceRecords(records)[selectedId] ?? [] : [];
-  return <View style={[fullScreen ? {flex:1, width:'100%', height:'100%'} : {height:expanded ? 440 : 290, borderRadius:18}, {overflow:'hidden', backgroundColor:c.map.ocean}]}>
+  return <View onLayout={event=>setMapHeight(event.nativeEvent.layout.height)} style={[fullScreen ? {flex:1, width:'100%', height:'100%'} : {height:expanded ? 440 : 290, borderRadius:18}, {overflow:'hidden', backgroundColor:c.map.ocean}]}>
     {error ? <>
       {!onCoordinate && <ProvinceMap showHeading={false} records={mapRecords(records)} ownRecords={ownRecords} onOpen={record => onSelect?.(record)} onRegion={onRegion}/>}
       <View style={onCoordinate ? {flex:1, justifyContent:'center', alignItems:'center', padding:16, backgroundColor:c.surface} : {position:'absolute', top:112, left:12, right:12, alignItems:'center', backgroundColor:c.surface, borderRadius:12}}>
         <Text style={{fontSize:12, color:c.muted, padding:6}}>{onCoordinate ? '지도 연결을 확인해 주세요. 장소 검색으로 대표 위치를 선택할 수 있어요.' : '지도 연결 실패 · 국내 경계 대체 보기 · 해외 위치·확대·위치 보정 미지원'}</Text>
         <Pressable accessibilityRole="button" onPress={() => {setError(false); setAttempt(value => value + 1);}} style={{padding:12}}><Text style={{color:c.sea}}>지도 다시 연결</Text></Pressable>
       </View>
-    </> : <><div ref={host} data-testid="travel-map" role="region" aria-label="여행 지도" style={{width:'100%', height:'100%'}}/>
-      <MapAttribution records={records} landmarks={landmarks} onHeight={onAttributionLayout}/></>}
+    </> : <><div ref={host} data-testid="travel-map" role="region" aria-label="여행 지도" style={{width:'100%',height:'100%',position:'absolute',inset:0,zIndex:0}}/>
+      <MapAttribution records={records} landmarks={landmarks} onHeight={height=>{setCreditHeight(height);onAttributionLayout?.(height);}}/></>}
     {!error && <View style={{position:'absolute', bottom:48, right:12, gap:4}}>
       {[
         {label:'지도 확대', text:'+', action:() => map.current?.zoomIn({duration:0})},
@@ -162,12 +173,12 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         {label:'대한민국 전체 보기', text:'전체', action:() => map.current?.fitBounds(KOREA_BOUNDS, {padding:24, duration:0})},
       ].map(control => <Pressable key={control.label} accessibilityRole="button" accessibilityLabel={control.label} onPress={control.action} style={{minWidth:48, minHeight:48, alignItems:'center', justifyContent:'center', backgroundColor:c.surface, borderRadius:8}}><Text style={{color:c.textPrimary}}>{control.text}</Text></Pressable>)}
     </View>}
-    {!error && (selectedId || cluster.length > 0) && <View style={{position:'absolute', bottom:48, left:12, right:76, backgroundColor:c.surface, borderRadius:16, padding:12}}>
-      <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}><Text style={{color:c.textPrimary, fontWeight:'700'}}>{selectedId ? `${provinceLabels[selectedId].name} 여행 · ${trips.length}개` : `${onCoordinate?'장소':'여행'} ${cluster.length}${onCoordinate?'곳':'개'}`}</Text><Pressable accessibilityRole="button" accessibilityLabel="지도 선택 닫기" onPress={() => {setSelectedId(null); setCluster([]); clearSelection.current();}} style={{padding:12}}><Text>닫기</Text></Pressable></View>
-      {cluster.length > 0 ? <ScrollView style={{maxHeight:180}}>{cluster.map(record => <Pressable key={record.id} accessibilityRole="button" accessibilityLabel={markerDescription(record, authors, !!onCoordinate)} onPress={() => {setCluster([]); onSelect?.(record);}} style={{padding:12}}><Text style={{color:c.textPrimary}}>{markerDescription(record, authors, !!onCoordinate)}</Text></Pressable>)}</ScrollView> : <>
-        {!trips.length && <Text style={{color:c.muted}}>이 지역의 기록이 아직 없어요.</Text>}
-        {onRegion && <Pressable accessibilityRole="button" onPress={() => onRegion(selectedId!, provinceLabels[selectedId!].name)} style={{padding:12}}><Text style={{color:c.sea}}>도감에서 보기</Text></Pressable>}
-      </>}
+    {!error && cluster.length>0 && <View style={{position:'absolute',bottom:panelBottom,left:12,right:76,maxWidth:520,backgroundColor:c.surface,borderRadius:20,padding:12,borderWidth:1,borderColor:c.line}}>
+      <ClusterBrowser records={cluster} covers={covers} authors={authors} correction={!!onCoordinate} maxHeight={panelHeight} onClose={()=>setCluster([])} onSelect={record=>{setCluster([]);onSelect?.(record);}}/>
+    </View>}
+    {!error && selectedId && cluster.length===0 && <View style={{position:'absolute',bottom:panelBottom,left:12,right:76,backgroundColor:c.surface,borderRadius:16,padding:12}}>
+      <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text style={{color:c.textPrimary,fontWeight:'700'}}>{provinceLabels[selectedId].name} 여행 · {trips.length}개</Text><Pressable accessibilityRole="button" accessibilityLabel="지도 선택 닫기" onPress={()=>{setSelectedId(null);clearSelection.current();}} style={{padding:12,minWidth:48,minHeight:48}}><Text>닫기</Text></Pressable></View>
+      {!trips.length&&<Text style={{color:c.muted}}>이 지역의 기록이 아직 없어요.</Text>}{onRegion&&<Pressable accessibilityRole="button" onPress={()=>onRegion(selectedId,provinceLabels[selectedId].name)} style={{padding:12}}><Text style={{color:c.sea}}>도감에서 보기</Text></Pressable>}
     </View>}
   </View>;
 }

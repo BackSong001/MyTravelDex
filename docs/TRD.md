@@ -1,5 +1,17 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 추천/도감/군집 확장 계약 (2026-11-08)
+
+FR-FRIEND-004: additive migration의 `public.friend_recommendations()`는 security invoker, 고정 search_path, authenticated 실행만 허용한다. public_profiles projection의 공개 동의/RLS를 유지하며 auth.uid 본인·friend_requests 당사자(pending/accepted)·본인 follows 대상을 제외하고 무작위 후보 최대50행 반환한다. 인자/사용자ID/limit 우회를 허용하지 않는다. 새로고침 시 같은 후보가 나올 수 있고 다른 집합을 보장하지 않는다. 추천 RPC 실패와 관계 목록 실패는 별도로 표시한다. 검색/UUID/관계 API와 기존 private/draft·Storage 권한은 변경하지 않는다.
+
+FR-UI-013: 기존 TravelApi.list/following 날짜·지역 인자 API는 호환성을 위해 유지하되 도감은 범위로 조회한 records에 공통 검색/정렬 함수를 적용한다. region_name(없으면 좌표의 시도), city_name/place_name, title/content를 검색하고 지역 정렬은 대표 지역·도시·장소 순 문자열을 한국어 비교한다. 기본 start_date desc, 모든 동률 id asc, 원본 배열 불변. 지도 시도 선택은 기존 지역 제한·해제를 유지한다.
+
+FR-UI-014: native/web 양쪽의 기존 mapMarkerGroups와 최신 clusterIds→mapRecords 해석을 유지한다. 공통 군집 브라우저는 썸네일 가로 ScrollView와 세로 빠른 목록, 닫기·현재 객체 콜백을 제공한다. 모든 외부 텍스트는 React/textContent로 렌더하고 signed cover 만료 재발급은 기존 Home 흐름을 따른다. 사용 가능한 지도 높이와 측정된 MapAttribution 높이로 패널을 제한한다. 반응 효과는 기존 Feedback/MotionProvider, 최소48dp·큰 글꼴·동작 줄이기를 따른다.
+
+FR-UI-015: 기존 province GeoJSON 아래 얕은 offset/line 측면을 추가하며 실높이/DEM/위성 타일은 도입하지 않는다. 고정 SVG 산/풀은 별도 landOrnaments로 선언해 지역 내부 anchor·aria-hidden/pointer-events none·줌9 숨김을 검증한다. 바다용 oceanOrnaments와 분리한다. 원본 palette/경계/좌표는 수정하지 않는다.
+
+배포 순서: 기존 friend_requests migration→추천 RPC migration을 검토/승인 후 서버에 적용하고 클라이언트를 업데이트한다. 로컬은 reset 없이 migration up. 원격 적용은 이번 구현에 자동 포함하지 않는다. 이전 클라이언트 호환; 롤백은 이전 앱으로 먼저 되돌리고 신규 RPC는 사용하지 않는 상태로 보존한다. 강제 데이터 삭제/수축 migration은 하지 않는다. 환경 전환 빌드 시 이전 cached JS를 재사용한 이력이 있으므로 실제 번들의 target host를 확인한 후 설치한다.
+
 ## 사진첩 UI·공통 반응 표면 (2026-11-07)
 
 FR-UI-012는 기존 React Native Animated/Pressable과 시스템 글꼴을 사용하며 새 의존성을 추가하지 않는다. 루트에서 reduceMotion 상태를 한 번 구독하고 기본/오류 시 감소 상태를 적용한다. 공통 Pressable은 ref·이벤트·disabled·접근성·style 콜백을 보존하며 눌림/호버 크기 효과와 키보드 포커스를 제공한다. 설정 변경/언마운트 시 움직임을 중지하고 비활성은 scale=1이다. API 요청을 애니메이션 종료에 연결하지 않는다.

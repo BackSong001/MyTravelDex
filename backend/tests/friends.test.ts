@@ -5,6 +5,7 @@ import {TravelApi} from '../../frontend/src/api';
 
 const base='http://127.0.0.1:54321';
 let admin:TravelApi, guest:TravelApi;
+let localAnon:string;
 const users:{id:string;api:TravelApi}[]=[],records:string[]=[],locations:string[]=[],objects:string[]=[];
 const requestPath=(from=0,to=1)=>`/rest/v1/friend_requests?requester_id=eq.${users[from].id}&recipient_id=eq.${users[to].id}`;
 const pair=(from=0,to=1)=>({requester_id:users[from].id,recipient_id:users[to].id});
@@ -15,7 +16,7 @@ beforeAll(async()=>{
  const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
  if(status.API_URL!==base)throw new Error('Only local Supabase is allowed');
  admin=new TravelApi(base,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;
- guest=new TravelApi(base,status.ANON_KEY);
+ localAnon=status.ANON_KEY;guest=new TravelApi(base,localAnon);
  for(let index=0;index<4;index++){
   const email=`friends-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;
   const user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});
@@ -90,4 +91,25 @@ test('TC-FRIEND-002/003: participants remove, reject or cancel; crossed requests
  const failure=crossed.find(result=>result.status==='rejected') as PromiseRejectedResult;
  expect(failure.reason).toMatchObject({status:409,serverCode:'23505'});
  expect(await users[0].api.request('/rest/v1/friend_requests')).toHaveLength(1);
+});
+
+
+test('TC-FRIEND-006: authenticated recommendations cap 50 public minimal profiles and exclude relations',async()=>{
+ for(let index=0;index<56;index++){
+  const email=`recommend-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;
+  const user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});
+  const api=new TravelApi(base,localAnon);await api.login(email,password);users.push({id:user.id,api});
+  await api.request(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:'같은 추천 이름',public_profile_enabled:index!==55});
+ }
+ await users[0].api.request('/rest/v1/follows','POST',{follower_id:users[0].id,followee_id:users[2].id});
+ await send(4,0);await send(0,5);await accept(0,5);
+ const excluded=[0,1,2,4,5,59].map(index=>users[index].id);
+ for(let i=0;i<2;i++){
+  const rows=await users[0].api.rpc('friend_recommendations',{});
+  expect(rows).toHaveLength(50);expect(new Set(rows.map((p:any)=>p.id)).size).toBe(50);
+  for(const row of rows){expect(Object.keys(row).sort()).toEqual(['avatar_url','display_name','id']);expect(excluded).not.toContain(row.id);}
+ }
+ await expect(guest.rpc('friend_recommendations',{})).rejects.toMatchObject({status:401});
+ await expect(users[0].api.rpc('friend_recommendations',{limit:500,owner:users[2].id})).rejects.toMatchObject({status:404});
+ expect(await users[0].api.request(`/rest/v1/profiles?id=eq.${users[5].id}`)).toEqual([]);
 });

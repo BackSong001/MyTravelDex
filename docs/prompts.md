@@ -1041,3 +1041,25 @@ t14는 코드 리뷰와 QA를 담당한다.
 | 2026-11-08 00:16 KST | 안드로이드 스튜디어에서 테스트 해줄 수 있어? | 별도 Android Studio API37 AVD에서 자체 APK의 사진 선택·업로드·대표 변경·수정·삭제·마지막 사진 보호·재시작 조회를 실제 Local DB/Storage와 검증했다. 가로 화면 목록 높이 문제와 실기기/OAuth 등 미검증 범위를 기록하고 fixture를 정리했다. | 변경 파일: `docs/TEST_CASE.md`, `DEVELOPMENT_STATUS.md`, `docs/prompts.md`, `docs/design/verification/android-studio-upload-20261108.png`, `docs/design/verification/android-studio-restart-20261108.png`, `docs/design/verification/android-studio-last-photo-guard-20261108.png`, `docs/design/verification/android-studio-landscape-20261108.png` |
 
 | 2026-11-08 08:51 KST | 내가 켜둔 안드로이드 에뮬레이터에 테스트 해줘 | 사용자5554에 실제 서버 설정의 최신 APK를 업데이트하고 기존 로그인/기록 유지, 상세·필터·군집 선택·Photo Picker 취소를 검증했다. Local 생성 번들 재사용은 재생성으로 우회했으며 영구 수정은 미실행이다. 원격 친구 테이블 누락을 확인했고 기존 기록 변경 없이 홈을 열어두었다. | 변경 파일: `docs/TEST_CASE.md`, `DEVELOPMENT_STATUS.md`, `docs/prompts.md` |
+
+### 2026-11-08 09:26 KST — 추천 친구·군집·검색·입체 지도
+
+사용자 프롬프트 원문:
+
+```text
+아래의 요구사항을 테스트 하고 구현해줘.
+1. 친구 추가 기능과 모든 유저 정보를 가져와서 추천친구 50개까지 보여주기. 새로고침 가능
+2. 유저 고유 ID를 만들어서 중복 닉네임이 가능하고, 고유ID로 친구 추가 가능하게 하기.
+3. 새로운 계정으로 로그인하여, 사진을 추가하고, 친구추가를 하여 친구 사진이 보여지는지 테스트
+4. 사진이 위치가 같으면, 숫자로 표기하고 사진이 겹쳐보이는 효과 및 디자인 추가.
+5. 겹쳐진 사진을 클릭하면, 썸네일이 보여지는 슬라이드 형식과 밑에 리스트도 표해서 비주얼 적으로도 볼 수 있고 리스트로도 빠르게 찾을 수 있게 변경
+6. 도감 필터에서 지역, 시작일, 종료일 필터보다는 지역 내림차순, 오름차순, 시작일 기준 내림차순, 오름차순으로 필터 할 수 있게해주고, 검색 기능을 넣어줘.
+그리고 디폴트 필터는 시작일 기준 내림차순
+7. 지도 UI를 더 입체적으로 만들어주고, 산이나 풀 효과도 추가해줘
+
+명세작성 후, 테스트 완료 후 구현. 작업 후 리뷰 세션에게 검토받고 refactor 하여 구현
+```
+
+결과: 명세→실패테스트→공개추천50/refresh·기존UUID친구/중복이름·군집공통브라우저·검색4정렬·측면/산풀 구현. 새계정 실제사진업로드/친구수락·공개사진조회, HTTP/단위/UI/types/export/Android Local기기까지 검증했다. t14 회차1의 추천닉네임유실을 보정해 회차2승인, 지도라벨비침은stackcontext로수정했다. 원격dry-run만완료했으며 실제DB/사용자앱적용은승인대기다. 전체Auth개인정보노출없이공개3필드만추천하고실제Google/실기기/운영수용은별도다.
+
+변경 파일: `AGENTS.md`, `README.local.md`, `DEVELOPMENT_STATUS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/planning.md`, `docs/prompts.md`, `backend/supabase/migrations/20261108010000_friend_recommendations.sql`, `backend/tests/friends.test.ts`, `backend/tests/journal.test.ts`, `backend/tests/map-ocean.test.ts`, `backend/tests/maps-native.test.ts`, `frontend/src/Social.tsx`, `frontend/src/journalRecords.ts`, `frontend/src/ClusterBrowser.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/MapOrnament.tsx`, `frontend/src/mapStyle.ts`, `frontend/app/index.tsx`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/journal.spec.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/design.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/e2e/invite-session.spec.ts`, `frontend/e2e/helpers.ts`, `docs/design/verification/cluster-photo-browser-20261108.png`, `docs/design/verification/interactive-*20261108.png`, `docs/design/verification/feature7-native-*20261108.png`.
