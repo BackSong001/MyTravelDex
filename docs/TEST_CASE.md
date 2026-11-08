@@ -1,5 +1,15 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 2026-11-08 10:55 KST — 실제 mytrveldex 최신 APK 설치 보정
+
+직전 앱 실행 요청에서는 기존 설치 APK만 열었고 작업7 최신 APK를 사용자 기본 AVD에 설치하지 않았다. 작업7의 Android 검증은 별도 Medium_Phone/Local APK였으며 이를 사용자 기기에 반영된 상태처럼 받아들일 수 있게 전달한 점을 정정한다.
+
+- AVD 이름을 직접 확인해 `mytrveldex`/emulator-5554를 선택했다. 보조 Medium_Phone와 다른 실행 기기는 조작하지 않았다. 기존 계정/기록 데이터 초기화 없이 실제 `.env` 프로젝트 설정의 최신 자체 APK를 `android:configured -- --device mytrveldex`로 빌드/설치(t51, Gradle50초)했다. cached Local 설정 방지를 위해 생성 JS bundle만 제거하고 재생성했다.
+- 기기에 설치된 base.apk를 직접 꺼내 빌드 APK와 SHA256 일치를 검증했다: `2bddab2c67ce431407531e3bdaf1846aae090f1e8138205a10e13d637bb0a4b5`. bundle에 실제 서버 host 및 `friend_recommendations`/검색/정렬/군집 새 문자열이 포함됨을 assert했다. 개발 서명이며 Play 제출용이 아니다.
+- 같은 기기의 실제 native XML/화면에서 기존 로그인·기록3개 유지, 검색창·정렬4개/default시작일desc, 시작일asc 실제선택, 검색0건·초기화, 지도측면/산/풀, 숫자군집2개→가로썸네일/빠른목록→선택미리보기를 확인했다. 앱 AndroidRuntime fatal 항목은 발견하지 못했다. 자동 테스트 통과 수에 합산하지 않는다.
+- 실제 친구 탭에서 `public.friend_requests` schema cache 오류를 재확인했고 실제 프로젝트 공개 REST도 HTTP404였다. 최신 클라이언트 설치와 별개로 원격 친구 요청/추천 migration2개의 승인/적용은 여전히 미완료다. 원격 DB 변경·새 실제계정 로그인·기존 기록 수정/삭제는 하지 않았다.
+- Appium 세션만 종료하고 앱/AVD를 그대로 열어둔다. 실제 사용자 이름/사진이 포함된 화면/XML은 `/tmp` 검증 증거로만 사용하며 저장소에 커밋하지 않는다. 이전 Local 사진업로드/친구수락 통과를 실제 서버 수용으로 합산하지 않는다.
+
 ## 추천·군집·검색 수용 계획 (2026-11-08)
 
 - TC-FRIEND-006 ↔ FR-FRIEND-004: 실제 Local HTTP로 50명 상한/고정 필드/anon 및 인자 우회 거부, 비공개·본인·양방향 pending/accepted·팔로우 제외, 새로고침·실패/재시도 입력 보존. 친구 ID/중복 이름과 기존 RLS 회귀 유지.
