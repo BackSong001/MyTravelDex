@@ -62,3 +62,5 @@ Batch11은 무료·비결제 기능으로만 구현한다. 목적지 후보는 �
 
 
 17E는기존ProfileForm의snapshot/편집과ownRows확정집계를연결했고t14동적a11y·native윤곽정규화지정리뷰승인을받았다. 원본GeoJSON/project비율을유지하며Native잘림은최종29초APK에서보강확인했다. 최종단일전체웹112(t133,6.2분)통과이며중간112실패/중단과구분한다. 내여행행배치/방문자/전역테마·Batch11은후속이다.
+
+17E e9f1f50후t9d가My내여행friendOwner잔존P2를찾아t12가실제Local Red→진입조건정리Green1/types·t14정적승인으로보강했다. 이전전체112/APK와보강후대상을분리한다. 다음My내여행행은ownRows complete·metadata40/URL4/세대보호재사용, 상세진입출처/스크롤복귀·CRUD동기화를우선한다.

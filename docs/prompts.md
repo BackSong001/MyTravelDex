@@ -1247,3 +1247,7 @@ t9d가guest미조회관계수0표시P2를재현해t12가표시조건에owner를�
 **결과**: My본인요약과마지막성공snapshot→기존편집/실패입력보존/취소/저장즉시요약, owncomplete기반17전체/모은스탬프와실Figma상징2개를연결했다. 가상인물/샘플방문·팔로잉수를주입하지않았다. 관련47/단위12·추가owner/집계3통과후t14동적a11yP2 Red→focused5/types승인. 실제Native윤곽잘림은중간56/31초APK에서미수용후로컬좌표정규화로보강, 단위11/Web1/types·최종actualAPK29초설치/hash/target/기존SDK요약·모은2행·가로font2재시작후스크롤접근확인및t14geometry승인. 중간전체112의69pass/2fail/1중단/40미실행과최종예정전체를구분한다. 사용자쓰기/원격변경없음·기기설정원복. 고정최종전체웹112(t133,6.2분)/최종export(t134)통과와기존PNG원복을TEST_CASE17E에추가했고My첫조각커밋후t9d완료전달·답변을받는다. 요약내여행행/방문자/전역테마·Batch11은미완료다.
 
 **변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{Social.tsx,Avatar.tsx,StampCatalog.tsx,theme.ts,uiAssets.ts}, frontend/assets/ui/{manifest.json,busan-seagull-stamp-v1.png,seoul-ginkgo-stamp-v1.png}, frontend/e2e/{profile,profile-stamps,design,friends,invite-session,refactor,vnext,journal,travel}.spec.ts, backend/tests/{ui-assets,stamp-catalog}.test.ts, docs/design/verification/figma-my-{profile,stamps}-20261109.png.
+
+### 작업17E 완료검토 후 진입범위 최소 보강
+
+t9d가friendOwner잔존P2를코드추적해t12가A완료4행대신0행의실제LocalRed(t136)를재현했다. 내여행클릭에서친구/초안/지역/검색어/앨범스크롤을초기화하고정렬은유지해Green1(t137)/types(t138)·t14지정정적승인. 기존112/APK는보강전이고전체/기기재실행으로합산하지않는다. 변경파일: frontend/app/index.tsx, frontend/e2e/profile-stamps.spec.ts, docs/{REQUIREMENT,PRD,TRD,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, DEVELOPMENT_STATUS.md.

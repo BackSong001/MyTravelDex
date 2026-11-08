@@ -1,7 +1,7 @@
 import {expect,test} from '@playwright/test';
 import {randomUUID} from 'node:crypto';
 import {TravelApi} from '../src/api';
-import {admin,cleanRecords,jpeg,login,status} from './helpers';
+import {admin,cleanRecords,draft,jpeg,login,save,status} from './helpers';
 let user:{id:string;email:string;password:string};const unregistered=new Set<string>();
 test.beforeAll(async()=>{
  const email=`stamp-catalog-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;
@@ -54,4 +54,21 @@ test('TC-FIGMA-STAMP-001: a failed refresh cannot turn a previous visit count in
  await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'공개 여행',exact:true}).click();await page.getByRole('tab',{name:'My',exact:true}).click();
  await expect(page.getByTestId('profile-visits')).toHaveText('확인 필요');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 확인 필요');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 확인 필요');await expect(page.getByText('0 / 17',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'목록 다시 불러오기',exact:true})).toBeVisible();
  await page.unroute('**/rest/v1/travel_records?**');await page.getByRole('button',{name:'목록 다시 불러오기',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 17');
+});
+
+
+test('TC-FIGMA-PROFILE-001: my trips clears a prior friend map and draft/search filters but preserves sorting',async({page,browser})=>{
+ const email=`own-entry-peer-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`,peer=await admin('/auth/v1/admin/users','POST',{email,password,email_confirm:true});
+ const context=await browser.newContext({baseURL:'http://127.0.0.1:8082'}),other=await context.newPage();
+ try{
+  await admin(`/rest/v1/profiles?id=eq.${peer.id}`,'PATCH',{display_name:'친구 범위 검증',public_profile_enabled:true});
+  await login(other,email,password);await draft(other);await other.getByLabel('여행 제목',{exact:true}).fill('상대만의 공개 여행');await save(other);await other.getByRole('button',{name:'공개로 변경',exact:true}).click();await expect(other.getByRole('button',{name:'비공개로 변경',exact:true})).toBeVisible();
+  const api=new TravelApi(status.API_URL,status.ANON_KEY);await api.login(user.email,user.password);await api.request('/rest/v1/follows','POST',{follower_id:user.id,followee_id:peer.id});
+  await login(page,user.email,user.password);await page.getByRole('tab',{name:'친구',exact:true}).click();
+  await page.getByLabel('팔로잉 목록',{exact:true}).getByTestId(`friend-person-${peer.id}`).getByRole('button',{name:/^지도 보기 ·/}).click();
+  await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'내 여행 보기',exact:true}).click();
+  const mine=page.getByRole('button',{name:/^검증 (부산|서울|서울 중복|해외 완료),/});await expect(mine).toHaveCount(4);await expect(page.getByRole('button',{name:/^상대만의 공개 여행,/})).toHaveCount(0);await expect(page.getByRole('button',{name:/^검증 제주 초안,/})).toHaveCount(0);
+  await page.getByRole('button',{name:'필터',exact:true}).click();await page.getByRole('radio',{name:'지역 내림차순',exact:true}).click();await page.getByLabel('여행 검색',{exact:true}).fill('이전 검색 조건');await page.getByRole('button',{name:'임시저장 복구',exact:true}).click();
+  await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'내 여행 보기',exact:true}).click();await expect(mine).toHaveCount(4);await expect(page.getByLabel('여행 검색',{exact:true})).toHaveValue('');await expect(page.getByRole('button',{name:/^검증 제주 초안,/})).toHaveCount(0);await expect(page.getByRole('radio',{name:'지역 내림차순',exact:true})).toBeChecked();
+ }finally{await context.close();await cleanRecords(peer.id);await admin(`/auth/v1/admin/users/${peer.id}`,'DELETE');}
 });

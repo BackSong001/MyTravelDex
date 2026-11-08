@@ -777,3 +777,5 @@ follows/friend_requests는기존listPages를재사용하되ID없는행은followe
 기존ProfileForm이프로필조회/편집/저장과마지막성공snapshot을한곳에서소유한다. owner key/active guard·useUserId독립effect를유지하고미저장form과요약snapshot을분리한다. Home ownRows의load성공여부를별도로추적해로그아웃/owner변경시무효화한다. groupProvinceRecords(ownRows)만재사용하며loading/listError/미조회에는확정방문수를표시하지않는다. 기존목록retry/세션epoch·request보호/본인complete조회API를그대로사용한다. 스탬프윤곽은기존provincePaths/GeoJSON과동일투영/비율이며KOSTAT2018출처를유지한다. 부산·서울PNG는실제Figma다운로드/원본hash추적을추가한다. API/DB/RLS/schema/환경변수변경없음.
 
 17E Native표시보강: 같은GeoJSON/project의모든polygon/ring을동일scale·평행이동으로163×94로컬Path좌표에정규화해원점/그룹변환의존을줄인다. 원본자료·기존지도코드는보존하고축비율/각점내포/점수·ring명령을검사한다.
+
+My내여행진입은friendOwner='',drafts=false,provinceFilter='',journalQuery='',albumScroll=0 및scope=mine/navigate(album)을같은이벤트에서적용한다. journalOrder는변경하지않는다. load의친구특정조회우선순위를전역변경하지않고진입자소유상태를정리해다른친구지도/초안계약을보존한다.

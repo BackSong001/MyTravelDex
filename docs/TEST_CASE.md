@@ -801,3 +801,9 @@ bd13192푸시후t9d가경계대역ReactSSR로guest의미조회팔로잉0을재�
 - 새요약PNG의0/17은profile.spec의빈Localfixture, 새카탈로그PNG의2/17은profile-stamps.spec의별도Localfixture다. 같은계정의모순된집계가아니다. t14최종지정기록/PNG정적검토승인을받았고최종전체결과만후속추가한다.
 
 - **최종고정코드 단일전체웹112 passed(6.2분,t133)**. 이전전체106은17Dguest보강전이며guest신규1+My신규5를포함한현재112와구분한다. 유형/개별focused결과는이수에더하지않는다. 최종types(t132)/actual web export(t134)/최신APK29초(t130)와일치하는geometry코드다. 기존verification자동변경은HEAD원본으로복원하고신규합성LocalPNG2장만보관했다. t14제품/최종기록승인후전체결과1건을추가했다.
+
+17E t9d 코드추적 P2: 친구지도friendOwner가남은My→내여행진입에서mine보다친구분기가우선하는경로다. 친구공개기록을가진Localpeer를팔로우→친구지도→My→내여행에서본인private/public complete4행/상대·draft제외와기존검색·초안해제/정렬보존을Red→Green검증한다. e9f1f50의전체112/APK는이진입보강전결과로구분한다.
+
+#### 17E t9d 완료검토 후 내여행 진입 보강
+
+e9f1f50후t9d가친구지도friendOwner잔존경로를코드추적했다. 실제Local A own4완료행대신0행으로Red(t136)→My내여행handler의친구/초안/지역/검색어/앨범스크롤초기화·mine진입Green1(t137,10.7초)/types(t138). 상대공개기록/draft제외와기존검색·초안해제/4정렬보존도같은회귀에서확인했다. t14지정handler정적승인, 추가독립실행없음. 이전전체112/최신APK29초는이handler보강전이며이번대상통과를새전체/Android재실행으로합산하지않는다. 지도지역초기화는handler정적확인이고이조합의별도지도지역주입은이번미실행이다.
