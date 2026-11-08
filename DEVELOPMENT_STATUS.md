@@ -1,8 +1,8 @@
 # 여행가봥 개발 상태
 
-갱신: 2026-11-08 19:52 KST · 개발 t12 · 리뷰/QA t14
+갱신: 2026-11-09 02:10 KST · 개발 t12 · 리뷰/QA t14 · 완료 확인 t9d
 
-브랜치: `feature/android-release-readiness` (기준 `af32bfe`). 기존 미추적 `agent-prompts/`, `storyboard.png`는 작업에서 제외한다. 전체 수용·배포 가능 판정은 보류한다.
+브랜치: `integration/android-ui-assets` (개발 `57ed240`과 UI 자산 `797caab`을 `f0fd26e`로 병합). 기존 미추적 `agent-prompts/`, `storyboard.png`는 작업에서 제외한다. main 반영·전체 수용·배포 가능 판정은 별도다.
 
 ## 현재 구현과 우선순위
 
@@ -165,3 +165,5 @@
 - t12 검증 → t14 지정 리뷰 → 통합 완료 결과를 t9d에 전달/답변 수신 → t12 후속 처리 순서를 따른다. 원격 DB/배포/디자인 적용은 수행하지 않는다.
 
 - t14 작업16 회차1 병합 범위 승인: staged473파일(자산471+이력2), 충돌0·원격 자산 tree 일치·런타임 불변을 독립 Git 확인했다. 자산의 전체 시각 품질/앱 구현/이미지 OCR 전수 검토 승인은 아니다. merge commit 및 새 통합 브랜치 push 후 t9d에 완료 결과를 전달한다.
+
+- Git/전달 완료: merge commit `f0fd26e`를 `origin/integration/android-ui-assets`로 신규 push했다. 이후 t9d가 부모/473파일 범위/자산 및 런타임 tree·기존 명세 불변/diff check를 독립 읽기 확인하고 병합 차단·필수 리팩토링이 없다고 답변했다. t12는 선택 권고인 이 문서 상단 날짜/브랜치만 현재 값으로 갱신했다. main(`af32bfe`)·기존 개발(`57ed240`)·자산 브랜치(`797caab`)는 유지한다. 이 최종 이력 변경도 통합 브랜치에만 반영한다.

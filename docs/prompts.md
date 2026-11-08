@@ -1189,7 +1189,7 @@ t14에게 단계별로 리뷰받으면서 진행해줘
 
 ### 결과 요약
 
-현재 개발 브랜치를 기준으로 별도 `integration/android-ui-assets`를 만들고 `origin/codex/ui-assets`의 Batch01~11 시각 자산471개를 자동 병합했다. 충돌은 없었고 앱 코드·DB·기존 명세/원본 자산·미추적 파일을 보존한다. TypeScript(t9g)와 자산 무결성(t9h: PNG398/JSON46/SVG5/ZIP9·manifest 7개의 파일207개 항목 SHA256)·원본 tree 일치를 통과했다. 느린 임시 검사 스크립트를 중단/보정한 t9f는 자산 결함 실패로 합산하지 않는다. t14 리뷰 후 완료 결과를 t9d에 전달하고 답변을 받는다. main 직접 병합/앱 시안 적용/운영 변경은 수행하지 않는다.
+현재 개발 브랜치를 기준으로 별도 `integration/android-ui-assets`를 만들고 `origin/codex/ui-assets`의 Batch01~11 시각 자산471개를 자동 병합했다. 충돌은 없었고 앱 코드·DB·기존 명세/원본 자산·미추적 파일을 보존한다. TypeScript(t9g)와 자산 무결성(t9h: PNG398/JSON46/SVG5/ZIP9·manifest 7개의 파일207개 항목 SHA256)·원본 tree 일치를 통과했다. 느린 임시 검사 스크립트를 중단/보정한 t9f는 자산 결함 실패로 합산하지 않는다. t14 병합 회차1 승인을 받은 뒤 merge commit `f0fd26e`를 `origin/integration/android-ui-assets`로 신규 push하고 t9d에 전달했다. t9d는 독립 읽기 Git 확인에서 병합 차단·필수 수정 없음으로 답변했으며, t12는 권고대로 개발 상태 문서 상단의 현재 날짜/브랜치를 갱신했다. main 직접 병합/앱 시안 적용/운영 변경은 수행하지 않는다.
 
 ### 변경 파일
 
