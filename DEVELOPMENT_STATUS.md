@@ -138,3 +138,10 @@
 - 산풀타입/path/anchor와native/web참조제거, 바다/실제경계·사진/군집·출처유지. Red native신규1fail→단위8/WebGL8/types통과. t14회차1승인/별도8+대상1pass. 원본증거PNG는자동재생성분복원.
 - actual설정APK37초성공/mytrveldex5556최신설치·바이트/hash/envtarget일치·산풀anchor부재확인. 기존로그인/지도·출처/확대·전체보기와시각산풀없음확인, 실제사용자사진증거는저장소에남기지않음. Appium만종료/사용자앱홈유지.
 - ID는현행6자리숫자(영문혼합아님). 비순환원자sequence/UNIQUE/불변trigger로중복과수정방어, Local동시24계정포함HTTP2pass·실서버최소code읽기 profile1/중복0/숫자1/혼합0. ID코드/DB/API/Auth변경없음. 영숫자전환시기존ID정책사용자선택대기/임의재번호·remote변경없음. 상세TEST_CASE16:10절.
+
+## 작업14 — 영문·숫자 유저 ID/명칭 전환 완료 (2026-11-08 16:32 KST)
+
+- user_code의불변6자리영문+숫자혼합/비순환sequence+일대일26×10×36^4 인코딩/UNIQUE·형식·불변보호구현. 기존숫자friend_code/UUID보존·새lookup의publicopt-in 4필드/소문자·숫자alias해석, My·친구/접근성명칭유저ID통일. 신규숫자legacy미발급/old앱새계정숫자ID제약은문서명시. 코드커밋f52d920/작업브랜치푸시완료.
+- LocalHTTP57(24동시/경계·1024표본·권한/alias포함)/웹friends11 및보정invite1+사진3+vnext14=18/types통과. t14회차1승인·독립HTTP4/UI4구분. 초기harness누락은제품Red아님.
+- 실제서버dryrun1→리뷰후migration1적용→up-to-date, 기존profile1에새mixed발급/old숫자보존·소문자/alias해석·기존여행/사진/위치/관계계수동일확인. 실제QA2신규Auth발급/private/변경403검증후삭제/원래계수재확인. 개인정보credential/snapshot/CLI임시파일정리.
+- 실제설정APK38초성공/mytrveldex5556설치hash/target일치·기존로그인/My혼합ID와유저ID명칭/소문자검색·숫자alias검색확인. 사용자이미지/코드증거미저장, Appium만종료/앱홈유지. 새OAuth/Play·실기기는이번미검증. 상세TEST_CASE16:32절.

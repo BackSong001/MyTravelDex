@@ -1144,3 +1144,18 @@ DEVELOPMENT_STATUS.md, docs/TEST_CASE.md, docs/prompts.md, docs/design/verificat
 ### 변경 파일
 
 AGENTS.md, README.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,API_SPEC,DISAN,TEST_CASE,prompts}.md, frontend/src/{MapOrnament,TravelMap,TravelMap.web}.tsx, backend/tests/{maps-native,map-ocean}.test.ts, frontend/e2e/maps.spec.ts.
+
+
+## 2026-11-08 16:32 KST
+
+### 사용자 프롬프트 원문
+
+영문 숫자 조합으로 바꿔주고, 내 친구 ID가 아닌 유저 ID로 이름 바꿔줘. 용도가 친구추가를 위한 ID이지, 내 친구 ID는 아니야
+
+### 답변·결과 요약
+
+기존·신규계정에영문숫자혼합6자리user_code를추가하고원자적비순환sequence/일대일인코더/UNIQUE·불변제약으로중복을방지, My/친구·접근성명칭유저ID통일. 기존숫자ID/UUID보존·이전초대/소문자해석호환. 명세/Red→LocalHTTP57/웹11+18/types·t14회차1승인후실제서버migration1적용/기존계수·alias보존, 실제QA2발급·권한검증/삭제. actualAPK빌드38초/mytrveldex5556설치hash/target·기존로그인/새MyID·명칭·새/이전ID검색확인. old앱새계정숫자ID제약/미검증은TEST_CASE구분. 사용자실제ID/계정/사진·키/host값은기록하지않고앱홈유지.
+
+### 변경 파일
+
+AGENTS.md, README.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,API_SPEC,DISAN,TEST_CASE,prompts}.md, backend/supabase/migrations/20261108073000_user_codes.sql, backend/tests/friend-codes.test.ts, frontend/src/Social.tsx, frontend/app/index.tsx, frontend/e2e/{friends,vnext,invite-session,photo-autofill}.spec.ts. 원격검토된migration1건및실제설정APK설치포함.

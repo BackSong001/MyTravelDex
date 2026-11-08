@@ -1,5 +1,17 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 2026-11-08 16:32 KST — 영문·숫자 유저 ID 구현·실제 반영
+
+- 사용자 “영문 숫자 조합으로 바꿔주고…유저 ID로 이름 바꿔줘” 요청을 기존·신규 사용자에게 혼합 유저 ID를 제공하는 범위로 처리했다. 기존숫자값을재번호/삭제하지않고user_code를추가·backfill하며old ID 검색/초대는alias로유지했다. 명세선반영후Local migration up/reset없음. 제품코드리뷰된구현은 `f52d920`으로작업브랜치에커밋/푸시했다.
+- Red: 신규user_code부재의실제Local HTTP실패(t77, setup4개skipped는행동4실패로합산안함), 실제My의유저IDlabel부재웹실패(t79). Green: friend-codes4+friends5+vnext4+photo44 = 실제Local HTTP **57 passed**(t78). 동시24계정의혼합6자/유일/metadata강제무시/불변client·admin403, 기존최소projection·private0·숫자alias, 인코더0/35/36/36^4/10×36^4/최대/범위밖 및1024표본역변환·중복없음·client인코더접근차단/신규숫자ID미발급을검증했다. 전체436700160개전수실험이라고표현하지않으며일대일변환/sequence+UNIQUE불변조건과표본검사를구분한다.
+- 웹: friends **11 passed**(t7b, 소문자mixed검색/새초대/UUID·숫자alias초대성공소비/새My명칭/동명계정요청·수락/실제Local사진·친구사진회귀/페이지·독립ID실패). 동시실행한invite-session1은기존domain mock의validCoordinates미export컴파일실패였고제품행동Red가아니다. 순수domain실물을재사용하도록보정한뒤 invite1+photo-autofill3+vnext14 **18 passed**(t7d). TypeScript t7c/최종t7v통과. 불필요한제품리팩터링/새dependency없음.
+- t14 회차1승인: 코드/역할RLS/정적lookup·고정search_path·혼합진법일대일·불변/포맷/구·신규클라이언트제약검토, 독립HTTP4(t7j)와mixed초대/My+UUID/독립실패/숫자alias4(t7m)통과. old앱의새계정숫자ID부재제약은명세대로이며기존계정숫자alias/UUID·기존3/4필드API는유지한다.
+- 실제서버: dry-run **20261108073000_user_codes.sql 1건**(t7g)→리뷰후1건적용성공(t7p)→후속dryrun **up to date**(t7r). 기존프로필UUID/숫자ID/공개여부의최소snapshot과여행·사진·위치·관계/follows계수를비공개로기록한뒤비교했다(t7k→t7q). profile1개혼합/유일·숫자alias보존·기존계수동일·공개4필드directory1행/소문자현재ID·숫자alias가동일사용자로해석됨확인. 이는계수/식별자비교이며모든데이터바이트를백업/전수비교한보증이아니다. 기존숫자ID/sequence는삭제·reset하지않았다.
+- 실제신규발급(t7s): 별도admin-confirmed QA2계정을생성/비밀번호로그인해user_code혼합형·friend_code null/metadata ID강제무시·기본private lookup0·client user_code PATCH403을확인한후두계정을삭제했다. 일반사용자메일회원가입/새Google가입수용이아니다. 정리후snapshot비교(t7t)에서원래profile1/공개1·oldalias/계수동일재확인. 실제ID/계정/host/키·토큰을로그·문서·이미지에남기지않고credential/snapshot임시파일및CLI임시경로를삭제했다.
+- Android: 실제.env standalone개발서명APK **38초성공**(t7f), AVD명 **mytrveldex(5556)** 확인후설치base.apk와빌드바이트/hash일치: `58472373572eb395aaae0a4df9bf922cc9a23990b2449ed0ef137317b8fe3cd9`. 설치bundle actual.env프로젝트URL정확일치확인/Local서버또는테스트로그인APK아님. 기존로그인유지/My영숫자6자·유저ID명칭·old내친구ID문구부재·profile정상, 친구탭소문자mixed조회/이전숫자alias조회가동일새유저ID1행으로표시됨을Appium확인. 결과가화면아래있을때스크롤후관측했다. 실제사용자화면/코드는증거이미지로저장하지않았다.
+- Appium만종료하고최신앱홈/mytrveldex유지. 사용자기존관계/여행/사진쓰기·새OAuth·Play제출·실기기/모든큰글꼴수용은이번범위가아니다. 산/풀제거상태는유지된다. 최종검증기록은제품리뷰와별도정적리뷰대상이며이수동/원격관측을기존자동통과수에합산하지않는다.
+
+
 ## 혼합 유저 ID 수용 계획 (2026-11-08)
 
 TC-USER-ID-001 ↔ FR-USER-ID001~003: Local동시24계정의user_code6자·영숫자둘다포함/유일·metadata강제무시·불변/권한·인코더경계0/35/36/36^4/10×36^4/최대/범위밖과표본1024코드일대일·sequence직접소모RPC거부. 기존숫자ID→user_code해석/비공개alias0/공개4필드·legacy3/4필드·신규숫자ID미발급확인. 웹My명칭/소문자ID/영숫자초대·숫자/UUID호환·요청후alias초대소비/친구사진회귀. native는기존계정새MyID/명칭·실제서버schema·설치hash/target을구분하고기존관계/사진보존한다.
