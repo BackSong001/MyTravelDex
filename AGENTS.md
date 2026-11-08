@@ -523,3 +523,7 @@ Auth SDK 이벤트를 클라이언트 세션의 단일 원천으로 사용한다
 ## Figma 바다·한 열 도감 구현 (2026-11-09)
 
 바다PNG는고정anchor와외접원+8px의해안clearance를공유하고이동중/보정/줌9에서숨긴다. 도감은한열64dp/최대640dp·독립상태Text/행접근성이름을유지한다. 목록은count=exact/실제offset으로끝까지순회하고시작bearer·Home request세대를보존한다. metadata in40/대표URL작업당동시4와ListLoadError·listError 단일UI소유권/저장후실패중단을유지한다. 상세·삭제복귀는도감위치를복원하고query/order/scope/지역/초안/소유자변경은초기화한다. Native폰트검증은실시간변경과재시작후를구분하고설정을원복한다. 실제수용범위는TEST_CASE최신17C절을따른다.
+
+## Figma 친구 내부 탭 (2026-11-09)
+
+FriendsList는owner key와active/listRequest/searchRequest를유지하며내부탭은검색어/결과/20명directory페이지를초기화하지않는다. 초대는찾기탭만열고명시요청후소비한다. 관계전체조회는기존listPages를재사용하되follows=followee_id/requests=requester_id·recipient_id 복합키와유일정렬을사용한다. 비공개상대의기존관계/해제를보존하고공개projection/RLS를확대하지않는다. 실제Native읽기와Local관계쓰기검증범위는TEST_CASE17D를따른다.

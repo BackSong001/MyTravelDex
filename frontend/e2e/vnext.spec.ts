@@ -46,7 +46,7 @@ async function noOverflow(page:Page){
  expect(size.body).toBeLessThanOrEqual(size.width+1);expect(size.document).toBeLessThanOrEqual(size.width+1);
 }
 async function navVisible(page:Page){
- const nav=page.getByRole('tablist');await expect(nav).toBeInViewport();
+ const nav=page.getByRole('tablist',{name:'주요 탐색',exact:true});await expect(nav).toBeInViewport();
  expect(await nav.getByRole('tab').allTextContents()).toEqual(['홈','여행도감','친구','My']);
  const add=nav.getByRole('button',{name:'기록 만들기',exact:true});await expect(add).toBeInViewport();
  const order=await nav.locator('[role="tab"], [role="button"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')));
@@ -61,7 +61,7 @@ test('TC-VNEXT-UI-010 짧은 화면·큰 헤더에서도 작성 패널은 콘텐
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
  const panel=page.getByLabel('여행 작성 패널',{exact:true});await expect(panel).toBeVisible();
  await expect.poll(async()=>{
-  const box=await panel.boundingBox(),nav=await page.getByRole('tablist').boundingBox();
+  const box=await panel.boundingBox(),nav=await page.getByRole('tablist',{name:'주요 탐색',exact:true}).boundingBox();
   return !!box&&!!nav&&box.y>=header!.y+header!.height&&box.y+box.height<=nav.y+1;
  }).toBe(true);
  await navVisible(page);await noOverflow(page);
@@ -245,7 +245,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   await admin(`/rest/v1/profiles?id=eq.${other.id}`,'PATCH',{display_name:'검색%_친구'});
-  await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill('%_');
+  await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill('%_');
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();
   await expect(page.getByText('검색%_친구',{exact:true})).toBeVisible();
   await expect(page.getByText('친구 도감 여행자',{exact:true})).toHaveCount(0);
@@ -273,7 +273,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   const peerRow=page.getByTestId(`friend-person-${peer.id}`).first();
-  await peerRow.getByRole('button',{name:'지도 보기',exact:true}).click();
+  await peerRow.getByRole('button',{name:/^지도 보기 ·/}).click();
   await expect(page.getByRole('tab',{name:'홈',exact:true})).toHaveAttribute('aria-selected','true');
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
   const individual=page.getByRole('button',{name:/^친구 공개 여행,/});

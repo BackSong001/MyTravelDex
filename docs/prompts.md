@@ -1227,3 +1227,11 @@ AGENTS.md, DEVELOPMENT_STATUS.md, docs/{FIGMA_IMPLEMENTATION,REQUIREMENT,PRD,TRD
 **결과**: Figma26:188한열64dp/최대640dp·기존검색4정렬/초안/권한/실제사진을연결했다. 실제Local2행상한에서페이지누락Red를고치고metadata묶음40/URL작업당4·bearer고정·오류중단을구현했다. 상세·삭제복귀와상태/a11y·목록error소유권을회귀Red→Green으로보강후t14승인. 최종단일웹103(5.9분)/types/export·backend/domain133+외부1skip·최신actualAPK38초설치hash/target/기존3행·가로font2재시작후복귀확인. 실시간글꼴변경은재시작후와구분하고설정원복/사용자데이터쓰기없음. 원격변경없으며친구/My/테마/새뽑기기능은미완료다. 커밋후t9d완료전달·답변받고계속진행한다.
 
 **변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{api.ts,Journal.tsx}, frontend/e2e/{journal-list,friends,invite-session,travel,vnext}.spec.ts, backend/tests/vnext.test.ts, docs/design/verification/figma-journal-list-20261109.png.
+
+## 2026-11-09 03:28 KST — 작업17D 친구 내부 탭·관계 페이지
+
+**진행 근거**: 작업17A에원문을기록한동일사용자지속구현요청. 17C a7680a6→t9d답변(필수보완없음/08내부탭·관계끝행권장)→t12명세/Red·Green→t14회차1지정코드승인순서를따랐다.
+
+**결과**: 실제Batch08 context/렌더를기준으로기존FriendsList내부탭/48dp아바타/전체관계페이지조회·검색과페이지보존을구현했다. 친구요청·수락·거절·취소·삭제/별도follow/초대공유·소비/현재mixedID와이전alias·UUID를유지했다. backend/domain134+외부1skip·친구focused12/cap2UI1/지연검색1·types/export통과, actualAPK35초설치/hash·target/기존SDK로그인·검색탭왕복/가로font2재시작후검색스크롤접근확인. 실제사용자관계쓰기/원격변경없음, 최종단일전체웹106(t11x,5.8분)통과·t14최종기록승인. 실시간글꼴P2·My/테마/Batch11후속은미완료다. 커밋후t9d완료전달·답변을받는다.
+
+**변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{api.ts,Journal.tsx,Social.tsx}, frontend/e2e/{compact,design,figma-assets,friends,vnext}.spec.ts, backend/tests/vnext.test.ts, docs/design/verification/figma-friends-search-20261109.png.

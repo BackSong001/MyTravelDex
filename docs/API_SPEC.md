@@ -249,3 +249,8 @@ MapLibre 지도 표시는 로컬 경계 스타일을 사용하고 외부 검색�
 ## 17C 목록 순회 (2026-11-09)
 
 기존travel_records/following_travel_records GET의필터/응답배열/권한은유지한다. 클라이언트는limit=100/offset과Prefer:count=exact의Content-Range로실제서버상한뒤페이지를순회한다. 본인초안은owner_id/status=draft/order=created_at.desc,id.asc로별도조회한다. 메타데이터기본request는배열응답그대로유지하고순회내부에서만범위header를사용한다. 사진/공개프로필in40/목록대표사진URL발급을한조회작업당동시4개로제한한다. 페이지범위header이상/중간오류는실패로반환하며미완료배열을전체성공으로반환하지않는다. 공개/private/draft의RLS·view경계와URL만료/실패계약은변경하지않는다.
+
+
+## 17D 관계 클라이언트 조회
+
+follows/friend_requests의GET·필드·RLS는유지하며listPages의중복키를각각followee_id와requester_id/recipient_id쌍으로지정한다. 친구요청의created_at동률은두당사자ID까지정렬한다. 공개metadata는20ID묶음으로순회하되전체directory사용자검색은기존20페이지를유지한다. 새RPC/권한/서버schema변경없음.

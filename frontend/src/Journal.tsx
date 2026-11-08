@@ -64,7 +64,7 @@ const tabs = [
 export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab: JournalTab) => void; onCreate: () => void}) {
   const insets = useSafeAreaInsets();
   const compact = useWindowDimensions().height < 500;
-  return <View accessibilityRole="tablist" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
+  return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
     {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={[s.fab,compact&&{width:50,height:50}]}><JournalIcon name="plus" size={compact?32:54}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
       {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={32}/></View>}
       <Text style={[s.navText,tab===item.id&&s.navTextSelected]}>{item.label}</Text>

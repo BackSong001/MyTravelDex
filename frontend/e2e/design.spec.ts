@@ -33,7 +33,7 @@ test('TC-DESIGN-005 adaptive screens and reduced motion keep navigation usable',
  for(const [width,height] of [[320,600],[360,800],[412,915],[768,1024],[1280,800],[844,390]]){
   await page.setViewportSize({width,height});
   for(const tab of ['홈','여행도감','친구','My']){
-   await page.getByRole('tab',{name:tab,exact:true}).click();await expect(page.getByRole('tablist')).toBeInViewport();
+   await page.getByRole('tab',{name:tab,exact:true}).click();await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true})).toBeInViewport();
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
   }
  }
@@ -56,7 +56,7 @@ test('TC-DESIGN-003 closed preview response cannot overwrite reopened gallery',a
   await preview.getByRole('button',{name:'다음 사진',exact:true}).click();await expect(preview.getByText('2 / 2',{exact:true})).toBeVisible();
   release();await expect(preview.getByText('Old preview denied',{exact:false})).toHaveCount(0);
   await expect(preview.getByText('2 / 2',{exact:true})).toBeVisible();
-  await expect(page.getByRole('tablist')).toBeInViewport();
+  await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true})).toBeInViewport();
  }finally{release();}
 });
 
@@ -78,7 +78,7 @@ test('TC-DESIGN-006/007 filter feedback, keyboard focus and reduced motion prese
  await page.emulateMedia({reducedMotion:'reduce'});await filters.hover();
  await expect.poll(scale).toBe(1);
  await filters.click();await expect(filters).toHaveAttribute('aria-expanded','false');
- await expect(page.getByRole('tablist')).toBeInViewport();
+ await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true})).toBeInViewport();
 });
 
 test('TC-DESIGN-007 real photos adapt from phone to desktop and preview remains bounded',async({page})=>{
@@ -97,7 +97,7 @@ test('TC-DESIGN-007 real photos adapt from phone to desktop and preview remains 
  await expect.poll(()=>page.locator('img').evaluateAll(images=>{const photos=images.filter((image):image is HTMLImageElement=>image instanceof HTMLImageElement&&image.src.includes('/storage/'));return photos.length===2&&photos.every(image=>image.complete&&image.naturalWidth>0);})).toBe(true);
  for(const width of [390,768,1280]){
   await page.setViewportSize({width,height:844});await page.mouse.move(0,0);
-  await expect(page.getByRole('tablist')).toBeInViewport();
+  await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true})).toBeInViewport();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
   await page.screenshot({path:`docs/design/verification/interactive-album-${width}-20261108.png`});
  }

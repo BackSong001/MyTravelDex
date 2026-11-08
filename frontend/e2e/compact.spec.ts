@@ -6,7 +6,7 @@ test.beforeAll(async()=>{const email=`compact-${randomUUID()}@example.test`,pass
 test.afterAll(async()=>{await cleanRecords(user.id);await admin(`/auth/v1/admin/users/${user.id}`,'DELETE');});
 test('TC-DESIGN-008: short landscape keeps map, scope menu and navigation usable',async({page},info)=>{
  await page.setViewportSize({width:844,height:390});await login(page,user.email,user.password);
- const nav=page.getByRole('tablist').first();
+ const nav=page.getByRole('tablist',{name:'주요 탐색',exact:true}).first();
  expect((await nav.boundingBox())!.height).toBeLessThanOrEqual(78);
  expect((await page.getByTestId('travel-map').boundingBox())!.height).toBeGreaterThanOrEqual(260);
  await page.getByRole('button',{name:/^표시 범위/}).click();

@@ -23,13 +23,17 @@ export class TravelApi {
     }
     return {data,response};
   }
-  async listPages(path:string) {
+  async listPages(path:string,identity:(row:any)=>string=row=>row.id) {
     const token=this.token,records=new Map<string,any>();let offset=0;
     for(;;){
       const {data,response}=await this.send(`${path}&limit=100&offset=${offset}`,'GET',undefined,'application/json',token,'return=representation,count=exact');
       const range=response.headers.get('Content-Range'),total=range?.match(/\/(\d+)$/);
       if(!Array.isArray(data)||!total||(!data.length&&offset<Number(total[1])))throw new ApiError('INCOMPLETE_RESPONSE',500,'목록을 모두 불러오지 못했습니다. 다시 시도해 주세요.');
-      for(const row of data)records.set(row.id,row);
+      for(const row of data){
+        const key=identity(row);
+        if(typeof key!=='string'||!key)throw new ApiError('INCOMPLETE_RESPONSE',500,'목록의 식별 정보를 확인하지 못했습니다.');
+        records.set(key,row);
+      }
       offset+=data.length;
       if(offset>=Number(total[1]))return [...records.values()];
     }

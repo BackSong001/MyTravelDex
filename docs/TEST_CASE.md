@@ -756,3 +756,20 @@ FR-FIGMA-010: 실제바다PNG4개 원본hash·기본66/60/70/68슬롯·공통sou
 - **최신actual.env standalone 개발서명APK38초(t11f)**. 앞선34초(t10w)·중간APK와구분하며설치base.apk와최종빌드바이트·actual URL/key target일치: `b6982233688695f8eca1ecd3737c145ebe3f016c539b67fbe20e9925a3fa5658`. AVD명mytrveldex/5556에서기존로그인·기록3개·64dp사진3개(밀도2.625에서각168px)·상태를포함한행접근성이름/한열표시를확인했다.
 - Native 가로+font_scale2.0은 cold restart후스크롤로중간기록상세를읽고목록으로복귀했다. 같은3행의보이는bounds가복귀전후정확히같았다: `[360,199][2040,377]`, `[360,377][2040,703]`, `[360,704][2040,849]`. 목록ScrollView `[0,199][2400,849]`는물리650px이며모든행이한번에보인다는뜻은아니다. 실제사용자기록/사진/관계/프로필은쓰기·삭제하지않았고화면/XML은Git에보관하지않았다. font_scale1.0/user_rotation0/accelerometer_rotation1/세로를원복·재시작후함께보기SDK세션복원확인, Appium세션만종료하고기존AVD/앱홈유지. 현재프로세스FATAL EXCEPTION0은장시간/전체시스템보증이아니다.
 - font_scale를실행중바꾼직후에는일부글자paint/측정잘림을관측했고cold restart후정상레이아웃을확인했다. 따라서이번Native큰글꼴수용은재시작후의범위이며실시간설정변경전체수용으로확대하지않는다(추후동적재측정검토). TalkBack실조작/실기기/새Google동의·취소·만료/Play/대량실사용자운영수용은미검증. 새QA PNG의사진은 Mobius6 [Jeonju Hanok Village 20230408 008.jpg](https://commons.wikimedia.org/wiki/File:Jeonju_Hanok_Village_20230408_008.jpg), CC BY-SA4.0이며합성Local계정만보인다. 기존verification이미지는원본복원했다.
+
+
+## TC-FIGMA-FRIENDS-001/002 수용 계획 (2026-11-09)
+
+실제Local서버응답상한2로팔로우/친구요청4관계끝행·ID없는중복키·received/pending/accepted·공개metadata보존을확인한다. Web의기존친구/초대/동명이인ID/전체20페이지/실제사진공유회귀와함께내부탭role/선택/검색·페이지보존·초대찾기진입/지연검색·계정전환·실패재시도/중복액션/320·390·768·타깃50·주요nav식별을검증한다. 실제Native한열/탭/원복범위는별도기록하고실시간글꼴P2는해결전미수용으로유지한다.
+
+### 17D 내부 친구 탭·관계 전체 조회 실행 (2026-11-09)
+
+- Batch08 `31:8`/`31:114`의 실제 context/렌더를 기준으로 FriendsList 내부에 팔로잉/여행자 찾기 탭과48dp아바타·최대640dp행을 적용했다. 기존 pending/accepted·수락/거절/취소/삭제와 일방팔로우, 초대공유·검색만진입·명시요청후소비, mixed6자리/숫자alias/UUID를 유지한다. 오래된시안의 요청없음/축약ID/추천목록을 현재정책으로 대체하지 않는다.
+- 관계행에는 id열이없어 기존listPages의id키병합이4행을1행으로줄이는실제Local Red(t11k)를확인했다. 기존helper의identity를 follows=followee_id, friend_requests=requester_id/recipient_id 복합키로확장하고 안정적유일정렬·metadata20묶음페이지순회를재사용했다. 관계/코드/vnext HTTP15 Green(t11m). 전체backend/domain134 passed+외부1 skipped(t11v,18파일)은 순수함수/대역검사를포함하므로 전부실제HTTP로계산하지않는다.
+- 탭누락Red(t11n)→친구기존흐름포함12 Green(t11q). 20명공개directory의다음페이지→탭왕복→검색어/현재페이지보존, named 주요탐색/친구메뉴·Enter/선택상태·320/390/768·최소48타깃·PNG아바타48px를확인했다. 추가실제Local UI상한2에서관계4행/중복없음/opt-out기본표시·팔로우해제·받은요청보존1(t11s), 이전검색지연→내부탭왕복→새검색우선1(t11t) 통과. 이각focused는 단일전체실행에합산하지않는다.
+- TypeScript(t11w)·actual환경web export(t11y) 통과. 최종전체웹/Android 및 t14지정리뷰 결과는 후속절에기록한다. 원격schema/함수/환경변수/의존성변경없으며 실시간native font변경P2는별도미해결이다.
+- t14 회차1은지정코드정적리뷰승인/새필수결함없음이며독립실행은diff check뿐이다. 위HTTP/UI통과수를t14독립결과로중복계산하지않는다.
+- 최신actual.env standalone 개발서명APK35초(t11z) 설치. AVD명mytrveldex/5556에서설치base.apk와빌드바이트/actual URL·key target일치, SHA256 `d41f97f3dd9b98f0b83085baa2404affd56612411b4620e335f946c8ac19f258`. 기존SDK로그인유지·팔로잉0/친구요청빈상태·찾기탭/공개목록·검색0건을확인하고검색어를입력한뒤내부탭왕복보존을확인했다. 실제서버관계쓰기/초대공유전송/계정전환을이번Native에서수행하지않았다.
+- Native 가로+font_scale2.0은cold restart후내부탭bounds높이156px(밀도2.625), 스크롤후입력높이166px/검색버튼132px와검색0건접근을확인했다. 첫화면에서입력이부분노출되므로스크롤접근범위이며모든내용동시가시를주장하지않는다. 기존실시간글꼴변경P2는이번에해결하지않았다. font_scale1.0/user_rotation0/accelerometer_rotation1/세로를원복·재시작후함께보기SDK세션확인, Appium세션만종료하고AVD/앱홈을유지했다. 현재프로세스fatal0은전체시스템무오류보증이아니다. 실제사용자화면/XML은/tmp에만두고Git보관하지않았다.
+
+- **최종고정코드 단일전체웹106 passed(5.8분,t11x)**. 이전17C103에친구신규3개가추가됐으며focused결과와합산하지않는다. t14최종지정기록/새QA PNG정적검토승인후결과1건을추가했다. 기존자동생성verification PNG는HEAD원본으로복원했고새친구검색PNG1개만보관한다. My/테마/Batch11·실기기/TalkBack/새OAuth/Play는후속이다.

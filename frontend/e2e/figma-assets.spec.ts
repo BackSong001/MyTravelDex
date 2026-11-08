@@ -6,7 +6,7 @@ test.beforeAll(async()=>{const email=`figma-assets-${randomUUID()}@example.test`
 test.afterAll(async()=>{if(user)await admin(`/auth/v1/admin/users/${user.id}`,'DELETE');});
 test('TC-FIGMA-ASSET-001/NAV-001: actual Figma images occupy navigation and brand slots and preserve actions',async({page})=>{
  await login(page,user.email,user.password);
- const nav=page.getByRole('tablist').first();
+ const nav=page.getByRole('tablist',{name:'주요 탐색',exact:true}).first();
  for(const [label,file] of [['홈','nav-home-v1'],['여행도감','nav-journal-v1'],['친구','nav-friends-v1'],['My','nav-my-v1']]){
   const control=nav.getByRole('tab',{name:label,exact:true}),image=control.locator(`img[src*="${file}"]`);
   await expect(image).toHaveCount(1);await expect.poll(()=>image.evaluate(node=>node instanceof HTMLImageElement&&node.complete&&node.naturalWidth>0)).toBe(true);
