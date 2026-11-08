@@ -10,8 +10,8 @@ test.beforeAll(async()=>{
  const root=path.resolve('.');
  // 실제 Home/LocationPicker/React/RNW를 실행하며 사진 수신·Auth·지도·서버 경계만 대체한다.
  const stubs:Record<string,string>={
-  '../src/photos':`import {readExif} from '${root}/frontend/src/domain.ts';export const pickPhotos=async()=>({canceled:false,assets:window.pickedAssets});export const photoMetadata=async asset=>readExif(asset.exif??{});export const photoPermission=async()=>false,cleanupPickedPhotos=()=>{},compressPhoto=()=>{};`,
-  '../src/auth':`const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};export const auth={auth:{onAuthStateChange:f=>({data:{subscription:{unsubscribe(){}}}}),getSession:async()=>({data:{session}})}};export const googleLogin=()=>{};`,
+  '../src/photos':`import {readExif} from '${root}/frontend/src/domain.ts';export const pickPhotos=async()=>{const request=(window.pickCalls??0)+1;window.pickCalls=request;if(window.holdPicker)await new Promise(resolve=>window.releasePicker=resolve);window.lastFinishedPick=request;return {canceled:false,assets:window.pickedAssets};};export const photoMetadata=async asset=>readExif(asset.exif??{});export const photoPermission=async()=>false,cleanupPickedPhotos=()=>{},compressPhoto=()=>{};`,
+  '../src/auth':`const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},getSession:async()=>({data:{session}})}};export const googleLogin=()=>{};`,
   '../src/runtime':`export const api={list:async()=>[],following:async()=>[],request:async(path,method,body)=>{if(path==='/functions/v1/geocode-location'){const r=await fetch('/geocode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('EXTERNAL_SERVICE_ERROR');return r.json();}return [];}};`,
   '../src/Social':`export const ProfileEditor=()=>null,Friends=()=>null,isUserId=()=>false;`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({});`,
@@ -65,4 +65,24 @@ test('TC-PHOTO-LOCATION-003: failed address and delayed previous photo response 
  await page.route('**/geocode',async r=>{await gate;await r.fulfill({json:address});});
  try{await choose(page,[first]);await choose(page,[{...first,exif:{}}]);release();await expect(page.getByRole('button',{name:'여행 위치 검색',exact:true})).toContainText('장소명 또는 주소 검색');await expect(page.getByLabel('여행 시작일',{exact:true})).toHaveValue('');}finally{release();}
  await page.route('**/geocode',r=>r.fulfill({status:502,json:{error:'EXTERNAL_SERVICE_ERROR'}}));await choose(page,[first]);await expect(page.getByRole('button',{name:'여행 위치 검색',exact:true})).toContainText('35.81510, 127.15390');await expect(page.getByLabel('여행 시작일',{exact:true})).toHaveValue('2026-11-03');
+});
+
+
+test('TC-SESSION-001: a late photo picker result belongs only to its original account',async({page})=>{
+ await page.evaluate(asset=>{(window as any).pickedAssets=[asset];(window as any).holdPicker=true;},first);
+ await page.getByRole('button',{name:'사진 선택',exact:true}).click();await page.waitForFunction(()=>!!(window as any).releasePicker);
+ await page.evaluate(()=>{(window as any).authEvent('SIGNED_OUT',null);(window as any).authEvent('SIGNED_IN',{user:{id:'22222222-2222-4222-8222-222222222222'},access_token:'new-fixture'});(window as any).releasePicker();});
+ await expect(page.getByLabel('처리 중',{exact:true})).toHaveCount(0);await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
+ await expect(page.getByText('0 / 20장 선택',{exact:true})).toBeVisible();await expect(page.getByLabel('여행 시작일',{exact:true})).toHaveValue('');await expect(page.getByRole('button',{name:'여행 위치 검색',exact:true})).toContainText('장소명 또는 주소 검색');
+});
+
+
+test('TC-SESSION-001: old picker never blocks the next owner or unlocks the next active operation',async({page})=>{
+ await page.evaluate(asset=>{(window as any).pickedAssets=[asset];(window as any).holdPicker=true;},first);
+ await page.getByRole('button',{name:'사진 선택',exact:true}).click();await page.waitForFunction(()=>!!(window as any).releasePicker);
+ await page.evaluate(()=>{(window as any).oldPicker=(window as any).releasePicker;(window as any).authEvent('SIGNED_IN',{user:{id:'22222222-2222-4222-8222-222222222222'},access_token:'new-owner'});});
+ await page.getByRole('button',{name:'기록 만들기',exact:true}).click();const title=page.getByLabel('여행 제목',{exact:true});await expect(title).toBeEditable();await title.fill('B의 새 입력');
+ await page.getByRole('button',{name:'사진 선택',exact:true}).click();await page.waitForFunction(()=>(window as any).pickCalls===2);await expect(title).not.toBeEditable();
+ await page.evaluate(()=>(window as any).oldPicker());await page.waitForFunction(()=>(window as any).lastFinishedPick===1);await expect(title).not.toBeEditable();
+ await page.evaluate(()=>(window as any).releasePicker());await expect(title).toBeEditable();await expect(title).toHaveValue('B의 새 입력');await expect(page.getByText('1 / 20장 선택',{exact:true})).toBeVisible();
 });

@@ -1,5 +1,10 @@
 # MyTravelDex API 명세서
 
+## 리팩터링의 API 보존 경계 (2026-11-08)
+
+계정전환/compact UI/도감검색개선은새endpoint/DB권한을추가하지않는다. 목록의본인complete조회중복만줄이며공개·친구/본인스탬프·server조회범위를보존한다. 세션갱신과로그아웃구분은기존SupabaseAuth이벤트를사용하고서명URL기발급분즉시회수를주장하지않는다. 환경별native target검증은빌드책임이며서버secret은클라이언트로전달하지않는다.
+
+
 ## 유저 ID API (2026-11-08)
 
 본인 GET profiles?select=user_code는6자리영문+숫자신규유저ID, 변경PATCH는거부한다. GET user_directory의공개projection은id/display_name/avatar_url/user_code정확히4필드이며기존friend_directory/public_profiles반환형은유지한다. POST rpc/lookup_user_id {user_id:string}는영숫자6자리(영/숫자포함) 또는이전6숫자ID만대소문자무시exact해석해공개4필드배열0~1행반환한다. 비공개/invalid/없는ID는빈배열, UUID/name검색은기존view필터를사용한다. 친구요청본문UUID/기존권한은변경없음. 신규friend_code는null일수있으며구버전의숫자코드조회전용제약을롤백범위에명시한다. 새환경변수/서버secret없음.

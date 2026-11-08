@@ -1,6 +1,6 @@
 import Pressable from './Feedback';
 import React, {useState} from 'react';
-import {Image, StyleSheet, Text, View, useWindowDimensions} from 'react-native';
+import {Image, Platform, StyleSheet, Text, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path, Rect} from 'react-native-svg';
 import TravelMap from './TravelMap';
@@ -48,29 +48,29 @@ export function Author({author}: {author?: PublicAuthor | null}) {
   return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url}/></View>;
 }
 
-export function Collection({records, covers, tab, onOpen, authors = {}, children}: {
+export function Collection({records, covers, tab, onOpen, authors = {}, emptySearch=false, children}: {
   records: any[]; covers: Record<string, string>; tab: JournalTab;
-  onOpen: (record: any) => void; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
+  onOpen: (record: any) => void; emptySearch?: boolean; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
 }) {
-  const {width, fontScale} = useWindowDimensions();
+  const {width, height, fontScale} = useWindowDimensions();
   const [containerWidth, setContainerWidth] = useState<number>();
   const available = containerWidth ?? Math.max(0, width - 32);
   const columns = Math.max(1, Math.min(4, Math.floor((available + 12) / (144 * fontScale + 12))));
   const cardWidth = Math.max(0, (available - 12 * (columns - 1)) / columns);
   const album = tab === 'album';
   return <>
-    <View style={s.titleRow}><Text accessibilityRole="header" style={s.title}>{album ? '여행도감' : '여행의 한 장'}</Text><Text style={s.subtitle}>{album ? `총 ${records.length}개의 여행 기록` : '가방에 담아 온 기억을 펼쳐보세요.'}</Text></View>
+    <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={s.title}>{album ? '여행도감' : '여행의 한 장'}</Text><Text style={s.subtitle}>{album ? `총 ${records.length}개의 여행 기록` : '가방에 담아 온 기억을 펼쳐보세요.'}</Text></View>
     {children}
     {!album && <View style={s.mapFrame}><View style={s.mapCaption}><Text style={s.mapCaptionText}>여행 발자국</Text><Text style={s.total}>{records.length}개의 여행</Text></View><TravelMap records={records} onSelect={onOpen}/></View>}
     {!album&&<View style={s.section}><Text style={s.sectionTitle}>최근 여행 기록</Text></View>}
-    {!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>첫 번째 여행을 펼쳐보세요</Text><Text style={s.subtitle}>갤러리의 사진 한 장이면 시작할 수 있어요.</Text></View>}
+    {!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
     <View style={s.grid} onLayout={event => setContainerWidth(event.nativeEvent.layout.width)}>{records.map(record => {
       const author = authors[record.owner_id];
       const title = record.title || '제목 없는 여행';
       const place = record.locations?.place_name || record.locations?.region_name || '지도에 남긴 여행';
       return <View key={record.id} style={[s.card,{width: cardWidth}]}>
         <Pressable accessibilityRole="button" accessibilityLabel={`${title}, ${author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}`} onPress={() => onOpen(record)} style={({pressed}) => [s.cardAction, pressed && s.cardPressed]}>
-          {covers[record.id] ? <Image accessible accessibilityRole="image" accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} style={s.gridPhoto}/> : <View style={[s.photoPlaceholder, s.gridPhoto]}><JournalIcon name="album" color={c.sea}/><Text style={s.caption}>여행의 한 장</Text></View>}
+          {covers[record.id] ? <Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} style={s.gridPhoto}/> : <View style={[s.photoPlaceholder, s.gridPhoto]}><JournalIcon name="album" color={c.sea}/><Text style={s.caption}>여행의 한 장</Text></View>}
           <View style={s.cardBody}><Text style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date} ~ {record.end_date}</Text><Text numberOfLines={2} style={s.cardPlace}>{record.content||place}</Text></View>
         </Pressable>
         <View style={s.cardFooter}><Text style={s.visibility}>{record.status === 'draft' ? '작성 중' : record.visibility === 'private' ? '나만 보기' : '공개 여행'}</Text><Author author={author}/></View>
@@ -85,9 +85,10 @@ const tabs = [
 ] as const;
 export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab: JournalTab) => void; onCreate: () => void}) {
   const insets = useSafeAreaInsets();
+  const compact = useWindowDimensions().height < 500;
   // 이동·크기 애니메이션 없이 즉시 색상으로 반응해 동작 줄이기 설정도 따른다.
-  return <View accessibilityRole="tablist" style={[s.nav, {paddingBottom: Math.max(8, insets.bottom)}]}><View style={s.navRail}>
-    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={({pressed}) => [s.fab, pressed && {backgroundColor: c.addButton.pressed}]}><JournalIcon name="plus" color={c.onPrimary}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected: tab === item.id}} aria-selected={tab === item.id} onPress={() => onTab(item.id)} style={({pressed}) => [s.navItem, tab === item.id && s.navSelected, pressed && {backgroundColor: c.primaryLight}]}><JournalIcon name={item.id} color={tab === item.id ? c.navigation.activeIcon : c.navigation.inactiveIcon}/><Text style={[s.navText, tab === item.id && s.navTextSelected]}>{item.label}</Text></Pressable>)}
+  return <View accessibilityRole="tablist" style={[s.nav, compact&&{paddingTop:4}, {paddingBottom: Math.max(compact?4:8, insets.bottom)}]}><View style={s.navRail}>
+    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={({pressed}) => [s.fab, pressed && {backgroundColor: c.addButton.pressed}]}><JournalIcon name="plus" color={c.onPrimary}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected: tab === item.id}} aria-selected={tab === item.id} onPress={() => onTab(item.id)} style={({pressed}) => [s.navItem,compact&&{minHeight:50,paddingVertical:2}, tab === item.id && s.navSelected, pressed && {backgroundColor: c.primaryLight}]}>{!compact&&<JournalIcon name={item.id} color={tab === item.id ? c.navigation.activeIcon : c.navigation.inactiveIcon}/>}<Text style={[s.navText,compact&&{marginTop:0}, tab === item.id && s.navTextSelected]}>{item.label}</Text></Pressable>)}
   </View></View>;
 }
 

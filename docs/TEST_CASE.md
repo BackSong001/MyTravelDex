@@ -1,5 +1,31 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 전체 기능·개선 수용 계획 (2026-11-08)
+
+TC-SESSION-001 ↔ FR-AUTH-SESSION-001: 실제Local두탭로그아웃/다른계정로그인으로개인상세/작성사진·입력정리,지연open무효화·같은계정TOKEN_REFRESHED 작성/선택보존. 서버초안/기록은삭제하지않는다. 지연 비밀번호/Google 완료가 최신 Auth 이벤트를 덮지 않는지, 이전 picker가 새 계정 busy를 점유/해제하지 않는지, A→null→A 재로그인 후 기존 초안의 old locations 응답이 새 저장값을 PATCH하지 않는지 검사한다.
+TC-PERF-001 ↔ NFR-CLIENT-LOAD-001: 실제Local범위변경갱신중owner GET1회/스탬프·목록회귀·My집계재사용확인.
+TC-RELEASE-002 ↔ NFR-ANDROID-CONFIG-001: 빌드스크립트별환경A→B stale generated bundle무효화/최종target검증·비밀값비노출,실제configured APK설치hash/env일치.
+TC-DESIGN-008~009 ↔ FR-UI-018 (`compact.spec.ts` 및 `journal.spec.ts`의 검색/clear 회귀): 320/390/768/1280 및844×390/fontScale1/2에서compact본문·nav최소48/입력보존·menu출처비가림·검색지우기정렬보존·empty검색문구. 완전히 디코딩된 대표사진의 접근성 image가 정확히 1개인지 검증한다. 기존motion/a11y·기록CRUD·사진/지도/소셜전체회귀를유지한다. backend/node/types/web baseline과개선후전체재실행수/외부skip·실기기미검증을구분한다.
+
+
+## 2026-11-08 19:52 KST — 전체 회귀·세션/빌드 경계 리팩터링·compact 디자인
+
+- **범위/기준:** `c7ee7e4`에서 명세를 먼저 동기화하고 기존 기능/권한/팔레트/원본 자산을 유지했다. t14 단계1 정적 분석→단계2a 세션/성능→단계2b 번들 환경→단계3 짧은 화면/검색 순으로 지정 리뷰했다. 원격 migration·함수 배포·실제 사용자 기록/프로필/친구 관계 쓰기는 실행하지 않았다. Local 테스트 자체 fixture만 생성/정리했으며 reset하지 않았다.
+- **Baseline:** backend/domain 전체 **129 passed + 외부1 skipped**(17파일, t7x), node 빌드검사9(t7y), types(t7z), 전체 웹82(t80) 통과. 건수는 순수/mock/실제 Local HTTP가 섞여 있으므로 모두 실제HTTP/실제 OAuth로 계산하지 않는다. 제외1개는 기존 TC-EXT-004 실제 Google 동의/취소/Android 딥링크 수용이다.
+- **세션 Red→Green:** t81 외부 로그아웃 정리/owner GET 횟수 두 행동 실패, t85 지연 Google·비밀번호 완료/이전 picker busy/old save 목록 이동 네 행동 실패, t8c A→null→A 재로그인 후 old draft locations 응답이 새값에 PATCH하는 행동 실패를 각각 고정했다. SDK 세션을 단일 원천으로 사용하고 owner/sessionEpoch·operationVersion과 각 저장 action 앞뒤 검사로 수정했다. 같은 owner TOKEN_REFRESHED 작성/사진은 보존한다. 최신 focused14(t8d)·types(t8f) 통과. 실제 Local 두탭/Storage 회귀와 Auth·사진 경계대역 React/Chromium 검사를 구분한다. 이미 전송된 요청 취소나 전체 업로드 트랜잭션을 새로 보장하지 않는다.
+- **성능 개선:** public 범위 갱신의 본인 complete HTTP GET **2→1**을 실제 요청 카운터로 확인했다. My의 반복 지역 집계35회는 ownRows 변경당1회 useMemo로 재사용한다. 카메라/지도 기록 범위/서명URL 정책을 변경하지 않았으며 속도·메모리 벤치마크 개선율은 측정하지 않았다.
+- **번들 환경:** 신규 plugin/mod 계약검사 t8g 실패는 등록/모듈 부재에 대한 구현전 검사이며 실제 빌드 행동 Red와 혼동하지 않는다. RN Gradle 공통 bundle task의 환경 입력 누락을 SHA256 입력으로 해결하고 필수3값/생성 Hermes URL·key 일치 검사를 추가했다. t8j prebuild→fixture A APK→actual B APK에서 generated 파일 수동 삭제 없이 각 target 존재/직전 target 부재를 assert했다. A는 설치하지 않았다. AAB도 같은 task를 사용하고 기존 업로드 서명 검증을 보존한다.
+- **디자인/접근성:** 844×390 nav89px가 상한78을 넘는 Red(t8k) 뒤 compact header/nav·scope 메뉴 스크롤로 수정했다. compact+design6+journal8개(t8m), 확대 nav CSS24px/필터/검색 추가2개(t8p) 통과. 검색어 지우기는 정렬·지역을 초기화하지 않으며 검색0건과 처음 기록0건 안내를 분리한다. 기존 Feedback의 누름/호버/키보드 포커스/실시간 reduced motion 검사는 그대로 유지한다. 웹 CSS24px 검사를 native 전체 fontScale2 수용과 동일시하지 않는다.
+- **전체 웹 중간 실패와 보정:** 최초 개선후 전체93 중89 통과/4 실패(t8s). 2건은 즉시 로그아웃 login 전환 후 사라진 My를 재클릭하던 기대, 1건은 검색0건 새문구 미동기화였다. 나머지 친구 사진 카드는 RN Web outer image role+inner img alt 중복이었으며 실제 decode 완료후 role2→기대1 Red(t8y)로 재현했다. web만 explicit role을 제거하고 native image role/label/동작은 유지했다. 대상4개 통과(t8z). 2차 전체93에서는91 통과/2 실패(t92)로, 남은 두 검사가 outer[role=img]→inner img의 옛 구조를 강제하고 있었다. 모든 caller를 검색해 해당2곳만 실제 getByRole(img) 직접 선택으로 보정했으며 decode/naturalWidth·교체된 사진 ID의 src 검사는 보존했다. 대상2개(t96) 및 types(t97) 통과 뒤 3차 전체를 실행했다. 추가 제품 변경은 없다. 새 image 검사에 DOM 타입 좁히기가 빠진 t90 타입 실패를 instanceof HTMLImageElement로 보정했고 t91 통과했다. 이를 제품 행동 Red로 합산하지 않는다.
+- **최종 자동 회귀:** backend/domain 전체 **130 passed + 외부1 skipped**(17파일, t8q), node11(t8r), TypeScript(t97) 통과. 최종 3차 전체 웹 **93 passed (4.5분, t98)**. 앞선 대상 통과를 합쳐 계산한 수가 아니라 최종 코드의 단일 전체 재실행 결과다. 웹 export는 최종 코드로 `/tmp/mytraveldex-task15-web` 생성 성공(t94). 새 dependencies/API/DB 스키마 변경은 없다.
+- **실제 Android 빌드/전달:** AVD명을 확인한 **mytrveldex, emulator-5556**만 사용했다. 초기 actual configured APK38초(t8t) 후 web 역할 분기 보강까지 포함한 최신 APK34초(t93)를 동일 명령으로 재빌드/설치했다. 최신 설치 base.apk와 빌드 APK의 바이트/SHA256 일치 및 실제 .env의 정확 URL/key 포함·fixture target 부재를 assert했다. 최신 SHA256=`30061e4a8d9f50df6f779f4fd94afc7e5d33bbf128a0e6fa3d180a38d7d52ca8`, 보관 `/tmp/mytraveldex-task15-configured.apk`. 이전38초 artifact와 구분하며 최신 설치는 개발 서명 시험용이고 Play용이 아니다.
+- **Native 수동 확인:** 기존 로그인 유지, 도감 스크롤·검색/clear·정렬, 실제서버 친구 목록 새로고침·schema cache 오류 없음, My 혼합 유저 ID 조회를 확인했다. 기존 기록/관계/사진은 수정·삭제하지 않았다. 같은 primary AVD 가로 XML에서 도감 scroll viewport는 baseline `[0,231][2400,801]` **570px**→compact fontScale1 `[0,179][2400,839]` **660px**(+90px, 약34.3dp)로 늘었고 검색 입력 전체가 보였다. 최신 APK에서도 시스템 font_scale=2.0·가로에서 scroll `[0,199][2400,839]` **640px**, 각 탐색 target136px/밀도2.625≥48dp·스크롤 후 기록 선택→여행 사진 표시를 확인했다. 이는 과거의 카드 목록35px 관찰을 동일 조건으로 재측정한 값이 아니라 **실제 scroll container 높이 비교**다. 모든 내용이 스크롤 없이 보인다고 주장하지 않는다. font_scale를 원래1.0/세로로 복원하고 cold restart 후 SDK 로그인 복원을 확인했다. Appium 세션만 종료했고 기존 AVD/앱은 홈에서 실행 중으로 유지했다. 현재 앱 프로세스 AndroidRuntime FATAL EXCEPTION0 관찰은 장시간/전체 시스템 무오류 보증이 아니다.
+- **AAB:** 최종 코드로 QA 서명 AAB44초(t95) 생성·공통 번들 target/서명 검증 통과. 이전 QA AAB48초(t8w)와 구분한다. 실제 공개 프로젝트 설정/APP_ENV=production을 사용했으나 저장소 밖 단기 QA 업로드 key를 생성해 finally 삭제했다. `/tmp/mytraveldex-task15-qa-only.aab`는 제출할 수 없고 운영 key 등록/Play 제출·실기기 수용을 수행하지 않았다.
+- **리뷰/증거:** t14 단계2a 회차3 승인(마지막 draft gate 독립 Local1 통과, 이전 OAuth mock5 별도), 단계2b 회차1 승인(독립 node7), 단계3 회차2 승인(회차1 독립 compact/journal2, 회차2 역할 분기는 정적 확인). 이 독립/대상 재통과는 전체 건수에 더하지 않는다. [가로 지도](design/verification/compact-map-20261108.png)·[큰 탭 글꼴/검색·정렬](design/verification/compact-album-20261108.png)은 공개지도/폐기 Local fixture UI이며 실제 사용자 이미지/ID/계정값을 보관하지 않는다. 기존 자동 생성 verification PNG는 원본으로 복원했다.
+- **최종 기록 리뷰:** t14가 실행 건수/단계별 독립성/두 이미지/개인정보/최신 산출물 구분을 정적으로 승인했다. 추가 기기·원격·전체 QA 재실행으로 합산하지 않는다.
+- **남은 gate:** 계정 삭제 앱/웹 흐름은 기존 정책 답변 대기 P1로 미구현이다. 실기기·클라우드 전용 사진·권한 거부·새 Google 동의/취소/만료·TalkBack·Play 서명/16KB 기기 실행은 이번 전체 자동검사나 native 읽기 조작으로 수용 완료하지 않는다. 위 범위의 기능 유지/개선을 확인하는 작업이며 모든 기기/외부 서비스 정상 보증이 아니다.
+
+
 ## 2026-11-08 16:32 KST — 영문·숫자 유저 ID 구현·실제 반영
 
 - 사용자 “영문 숫자 조합으로 바꿔주고…유저 ID로 이름 바꿔줘” 요청을 기존·신규 사용자에게 혼합 유저 ID를 제공하는 범위로 처리했다. 기존숫자값을재번호/삭제하지않고user_code를추가·backfill하며old ID 검색/초대는alias로유지했다. 명세선반영후Local migration up/reset없음. 제품코드리뷰된구현은 `f52d920`으로작업브랜치에커밋/푸시했다.

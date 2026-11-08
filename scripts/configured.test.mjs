@@ -23,7 +23,7 @@ test('secret/service role keys cannot become client credentials', () => {
 test('native prebuild keeps package/scheme and uses MapLibre without map keys',()=>{
   const result=appConfig({config:{name:'previous',slug:'mytraveldex',scheme:'mytraveldex',android:{package:'com.mytraveldex.app'},plugins:['expo-router']}});
   assert.equal(result.name,'여행가봥');assert.equal(result.scheme,'mytraveldex');assert.equal(result.android.package,'com.mytraveldex.app');
-  assert.deepEqual(result.plugins,['expo-router','@maplibre/maplibre-react-native']);
+  assert.deepEqual(result.plugins,['expo-router','@maplibre/maplibre-react-native','./plugins/withBundleEnvironment.cjs']);
   const publicEnv=publicConfiguration({EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',GEOAPIFY_API_KEY:'private-fixture',EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY:'obsolete-map-key'});
   assert.equal(publicEnv.GEOAPIFY_API_KEY,undefined);assert.equal(publicEnv.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,undefined);
 });

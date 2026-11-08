@@ -1,5 +1,14 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 안전한 리팩터링 경계 (2026-11-08)
+
+Home의인증수신을하나의사용자경계함수로모아이전/새UUID비교시소유자종속state와navigationVersion/listRequest를무효화한다. Auth초기getSession이후도착한실제Auth이벤트를덮지않게guard하고같은UUID refresh/중복SIGNED_IN은화면·작성보존. explicitlogout도같은정리경로를사용한다. 세션영속화는기존Auth SDK storage를단일원천으로사용하고읽는곳없는커스텀mytraveldex-session쓰기/API token중복반영을제거한다(기존키는초기청소). 비밀번호token응답은세션세대일치시SDK setSession만호출하고Google완료결과를Home에서재적용하지않는다. 브라우저교환전세대검사·작업세대busy소유권·저장후목록await뒤고정세대/nav검사로늦은작업이새소유자에영향주지않는다. save는 고정 sessionEpoch를 각 비동기 action 시작/응답 후 검사한다. found/locations 이후 UPDATE, 압축/Storage 이후 photos INSERT 및 finalize가 이전 세션의 작업을 새 권한으로 재개하지 않는다. 이미 전송된 요청의 취소/원자적 전체 업로드를 보장하는 것은 아니다. 새DB/API/권한/서버세션정책변경없음.
+
+load의own배열을본인목록·ownRows에재사용하고ownRows그룹은useMemo로1회집계한다. list request/계정/상세지연guard·위치/사진UUID재시도는유지한다. native 번들 환경은 Expo withBundleEnvironment plugin이 공통 RN createBundle*JsAndAssets task의 SHA256 입력으로 추적한다. 필수 URL/key/APP_ENV 누락은 실행 전에, 생성된 Hermes bundle의 URL/key 불일치는 실행 후 차단한다. configured APK와 android-bundle AAB에 prebuild로 동일하게 적용하고 환경값·키를 새 명령행/로그/생성 스크립트에 쓰지 않는다. 환경이 같으면 UP-TO-DATE를 허용하며 수동 generated 파일 삭제는 필요하지 않다.
+
+UI는height<500 compact shell과도감작은간격·명시검색지우기/emptySearch표시·지도범위menu높이제한을기존컴포넌트에서확장한다. min48/largefont/키보드/실시간reduced motion·현재선택값유지/실제좌표·출처보존. TC-SESSION-001/TC-PERF-001/TC-RELEASE-002/TC-DESIGN-008~009로관측하고평가전후크기/요청수를기록한다.
+
+
 ## 혼합 유저 ID와 숫자 alias 호환 (2026-11-08)
 
 profiles.user_code text NOT NULL UNIQUE CHECK ^[A-Z][0-9][A-Z0-9]{4}$ 추가/default/backfill. sequence bigint 0..436700159 NO CYCLE의 n을영문26×숫자10×base36네자리의일대일코드로인코딩(A00000..Z9ZZZZ), 36^4=1679616. 공개클라이언트sequence/인코더실행거부, server role만인코더검사허용. 불변trigger/UPDATE열grant미허용. 기존UUID·friend_code/불변trigger/숫자alias·old public_profiles/추천RPC·friend_directory4필드유지. friend_code는nullable/default없음으로바꿔신규계정의폐기된숫자공간발급을멈춘다. 새계정은old앱숫자MyID조회가없을수있으나기존계정숫자alias·3필드/UUID관계API는보존한다.

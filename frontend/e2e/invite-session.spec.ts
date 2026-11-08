@@ -18,11 +18,11 @@ test.beforeAll(async()=>{
   '@react-native-async-storage/async-storage':`export default {getItem:async()=>null,setItem:async()=>{},removeItem:async()=>{}};`,
   '../src/photos':`export const photoPermission=()=>{},photoMetadata=()=>{},compressPhoto=()=>{},pickPhotos=()=>{},cleanupPickedPhotos=()=>{};`,
   'expo-crypto':`export const randomUUID=()=>'';`,
-  '../src/runtime':`export const api={list:async()=>[],following:async()=>[],request:async()=>[],token:null};`,
+  '../src/runtime':`const passwordLogin=async()=>{await new Promise(resolve=>window.finishPasswordLogin=resolve);return ${JSON.stringify(session)};};export const api={list:async()=>[],following:async()=>[],login:passwordLogin,request:async path=>path.startsWith('/auth/v1/token')?passwordLogin():[],token:null};`,
   '../src/api':`export class ApiError extends Error {}`,
-  '../src/Social':`import React from '${react}';export const isUserId=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=()=>React.createElement('div',{'data-testid':'friends'});export const ProfileEditor=()=>null;`,
+  '../src/Social':`import React from '${react}';export const isUserId=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=({session})=>React.createElement('div',{'data-testid':'friends'},React.createElement('span',{'data-testid':'session-owner'},session?.user.id??'guest'));export const ProfileEditor=()=>null;`,
   '../src/provinces':`export const groupProvinceRecords=()=>({}),provinceLabels={};`,
-  '../src/auth':`export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},getSession:async()=>({data:{session:null}})}};
+  '../src/auth':`export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},setSession:async()=>{window.sdkSets=(window.sdkSets??0)+1;const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);return {data:{session},error:null};},getSession:async()=>({data:{session:null}})}};
    export const googleLogin=async()=>{const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);await new Promise(resolve=>window.finishGoogle=resolve);return session;};`,
   '../src/Journal':`import React from '${react}';export const Author=()=>null,Backpack=()=>null,Collection=()=>null,Welcome=()=>null;
    export const JournalNav=({tab,onTab})=>React.createElement('nav',null,React.createElement('span',{'data-testid':'current-tab'},tab),React.createElement('button',{onClick:()=>onTab('account')},'account'));`,
@@ -53,4 +53,17 @@ test('TC-FRIEND-005: delayed native Google completion preserves the invite tab a
  await expect(page.getByLabel('처리 중',{exact:true})).toHaveCount(0);
  await expect(page.getByTestId('current-tab')).toHaveText('friends');
  await expect(page.getByTestId('friends')).toHaveCount(1);
+});
+
+
+for(const loginType of ['google','password'] as const)test(`TC-SESSION-001: delayed ${loginType} completion cannot replace a newer authenticated owner`,async({page})=>{
+ await page.setContent('<div id="root"></div>');await page.addScriptTag({content:bundle});
+ await expect(page.getByTestId('current-tab')).toHaveText('friends');await page.getByRole('button',{name:'account',exact:true}).click();
+ await page.getByRole('button',{name:loginType==='google'?'Google 로그인':'테스트 계정 로그인',exact:true}).click();
+ await page.waitForFunction(type=>!!(window as any)[type==='google'?'finishGoogle':'finishPasswordLogin'],loginType);
+ await page.evaluate(()=>{(window as any).authEvent('SIGNED_OUT',null);(window as any).authEvent('SIGNED_IN',{user:{id:'33333333-3333-4333-8333-333333333333'},access_token:'newer'});});
+ await expect(page.getByTestId('session-owner')).toHaveText('33333333-3333-4333-8333-333333333333');
+ await page.evaluate(type=>(window as any)[type==='google'?'finishGoogle':'finishPasswordLogin'](),loginType);
+ await expect(page.getByLabel('처리 중',{exact:true})).toHaveCount(0);await expect(page.getByTestId('session-owner')).toHaveText('33333333-3333-4333-8333-333333333333');
+ if(loginType==='password')expect(await page.evaluate(()=>(window as any).sdkSets??0)).toBe(0);
 });

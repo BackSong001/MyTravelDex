@@ -1159,3 +1159,24 @@ AGENTS.md, README.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,API_SPEC,
 ### 변경 파일
 
 AGENTS.md, README.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,API_SPEC,DISAN,TEST_CASE,prompts}.md, backend/supabase/migrations/20261108073000_user_codes.sql, backend/tests/friend-codes.test.ts, frontend/src/Social.tsx, frontend/app/index.tsx, frontend/e2e/{friends,vnext,invite-session,photo-autofill}.spec.ts. 원격검토된migration1건및실제설정APK설치포함.
+
+## 2026-11-08 19:52 KST — 전체 기능·디자인 검증과 단계별 리팩터링
+
+### 사용자 프롬프트 원문
+
+```text
+모든 기능과 디자인 검증하고 리팩토링해줘. 기존에 기능은 모두 통과되면서, 기존 기능보다 더 나은점이 존재해야해. 디자인도 간격하면서도 반응형 효과를 넣어서 이전 디자인보다 더 나은점이 존재해야해.
+t14에게 단계별로 리뷰받으면서 진행해줘
+```
+
+### 결과 요약
+
+- 기준 c7ee7e4의 전체 baseline 후 명세를 동기화하고 t14 단계별 리뷰로 세션/저장 경합, 중복 본인 조회, Android 환경별 캐시 번들, 낮은 화면의 header/nav·지도 메뉴·검색/접근성을 개선했다. source auth/perf 회차3·빌드 회차1·UI 회차2 승인을 받았다.
+- 본인 GET2→1·My 지역 집계 재사용, 이전 세션 작업의 새 계정/재로그인 덮기 방어, generated 삭제 없는 A→B 실제 APK target 변경, 검색어만 지우기/정렬 보존·검색0건 안내·웹 중복 image 역할 제거를 검증했다. Native 도감 scroll viewport570→660px와 fontScale2에서640px/기록 사진 열기를 확인했다.
+- 최종 backend/domain130 passed+외부OAuth1 skipped, node11 passed, TypeScript와 웹 export 성공. 웹 전체는 최초89/93→2차91/93 및 대상4+2 통과를 구분한 뒤, 최종 단일 전체 재실행93 passed(t98,4.5분)를 확인했다. 동일 대상 재검사는 전체 합계에 더하지 않는다.
+- 최신 actual configured APK34초 빌드/설치·바이트/target/hash 일치, 기존 SDK 로그인 복원·유저ID 조회를 확인했다. 사용자 font_scale1.0/세로·앱 홈으로 복원하고 Appium만 종료했다. 최신 QA AAB44초 생성·서명/target 검증 후 외부 단기QA키를 삭제했다. 원격 변경·실제 사용자 쓰기·Play 제출은 없다. 실제 사용자 정보는 새 증거에 남기지 않는다.
+- 계정 삭제 정책/구현 P1 및 실기기·클라우드 전용 사진·권한 거부·새 Google 동의/취소/만료·TalkBack·Play/16KB 기기 수용은 남는다. 수용 범위를 과장하지 않으며 t14 제품/최종 기록 리뷰를 승인받아 작업 브랜치에 반영한다.
+
+### 변경 파일
+
+`frontend/app/index.tsx`, `frontend/src/auth.ts`, `frontend/src/Journal.tsx`, `frontend/app.config.ts`, `frontend/plugins/withBundleEnvironment.cjs`, `frontend/e2e/refactor.spec.ts`, `frontend/e2e/compact.spec.ts`, `frontend/e2e/invite-session.spec.ts`, `frontend/e2e/photo-autofill.spec.ts`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/journal.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `backend/tests/oauth.test.ts`, `scripts/bundle-environment.test.mjs`, `scripts/configured.test.mjs`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/TEST_CASE.md`, `DEVELOPMENT_STATUS.md`, `AGENTS.md`, `README.md`, `docs/prompts.md`, `docs/design/verification/compact-map-20261108.png`, `docs/design/verification/compact-album-20261108.png`.

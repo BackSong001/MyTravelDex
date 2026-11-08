@@ -17,7 +17,7 @@ test('TC-VNEXT-UI-004 대표사진·제목 수정은 목록에 즉시 반영하�
  await expect(page.getByLabel('제목 수정',{exact:true})).toHaveCount(0);
  await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveAttribute('aria-selected','true');
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();
- const cover=page.getByRole('img',{name:'제주 여행 대표사진',exact:true}).and(page.locator('[role="img"]')).locator('img');
+ const cover=page.getByRole('img',{name:'제주 여행 대표사진',exact:true});
  await expect(cover).toHaveAttribute('src',new RegExp(photos[1].id));
  await page.getByRole('button',{name:/^제주 여행,/}).click();
  await page.getByRole('button',{name:'여행 관리',exact:true}).click();
@@ -171,7 +171,7 @@ for(const width of [320,1024]){
   await noOverflow(page);await navVisible(page);
   await page.getByRole('button',{name:'필터',exact:true}).click();
   await page.getByLabel('여행 검색',{exact:true}).fill('존재하지않는지역');
-  await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
+  await expect(page.getByText('검색 결과가 없어요',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'정렬·검색 초기화',exact:true}).click();
   await expect(card).toBeVisible();await noOverflow(page);
   await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
@@ -282,7 +282,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await page.getByRole('button',{name:'필터',exact:true}).click();
   for(const [label,value] of [['여행 검색','없는제목'],['여행 검색','존재하지않는지역']]){
    await page.getByLabel(label,{exact:true}).fill(value);
-   await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
+   await expect(page.getByText('검색 결과가 없어요',{exact:true})).toBeVisible();
    await expect(individual).toHaveCount(0);
    await page.getByRole('button',{name:'정렬·검색 초기화',exact:true}).click();
    await expect(individual).toBeVisible();
