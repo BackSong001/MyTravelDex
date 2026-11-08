@@ -1,5 +1,17 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 2026-11-08 14:55 KST — 실제서버 신규 QA계정·Android 사진/친구 흐름 보완
+
+- 사용자 “왜 검증안해? 문제가있어?”에 대해 앞선 설치/읽기 확인으로 끝낸 검증 범위 부족을 인정하고 실제서버 쓰기 흐름을 보완했다. 기존제품소스/스키마/함수배포변경은 없다. 기존관리권한으로 임시 QA계정2개를 생성·이메일확인 처리했고 같은generic닉네임/서로다른6코드를 확인했다(t6j). 이는 admin-confirmed 계정과 비밀번호Auth를 사용한 신규계정 검증이며, 일반회원가입/메일전달/신규Google계정생성 검증이 아니다. 관계·기록·Storage 쓰기/정리는 이번생성UUID의전용fixture만 대상으로 했다.
+- AVD이름으로 보조 **Medium_Phone(5558/read-only)** 을 확인했다. 일반actualAPK에서는 Google로그인만 표시하므로 native업무흐름은 실제.env URL/공개key를 그대로 사용하고 기존 `EXPO_PUBLIC_APP_ENV=local` 테스트로그인 진입만 켠 별도APK를 빌드했다(t6k). 저장/지도/친구 코드는 같고 새인증우회/코드변경없음. 설치base.apk와빌드 바이트/hash일치 및 실제project URL포함 확인: `9a9796f974728d5a097075d3b265864dcd34c5a9c690e423aef57a869388776a`. LocalSupabase를사용한검증이아니다. 사용자 mytrveldex5556의일반actualAPK/로그인/기록은변경하지않았다. 보조기기에서만앱데이터를지워계정을분리했고 실제사용자에대한전역Auth signOut은호출하지않았다.
+- **실제 native 업로드:** QA A로그인→원본파일선택으로공개fixture사진에합성한유효EXIF수신→두날짜2026-11-08/원GPS자동입력→실제서버역주소보완→제목/출처입력→저장→공개전환. native상세사진1/1을확인했다. 소유자실제HTTP에서complete/사진1/공개, signed URL로 Storage 압축보관본445200 bytes·썸네일78797 bytes읽기성공(t6n). 실기기원래촬영정보/클라우드전용사진수용으로확대하지않는다. 첫완료검사는저장처리중에조회해t6m실패했고 완료UI관측뒤재검사통과했으므로제품데이터손실실패로합산하지않는다.
+- **실제 친구 흐름:** native QA B로그인→A의6코드검색→친구요청/pending UI. 실제서버수신자A 토큰으로HTTP수락→친구feed에A public/complete기록존재(t6p). 수락버튼의native조작은이번범위가아니며앞선Local UI검증과구분한다. B에서목록갱신→친구도감1개/사진썸네일→상세사진실제표시확인. B가공개썸네일signed URL로HTTP200/78797 bytes다운로드성공(t6r). 최초B의original발급404(t6q)는기존소유자전용원본정책에맞는거부이며허용된공개thumbnail경로로검사를보정했다.
+- **실제 비공개 방어:** A토큰HTTP로검증기록만private전환→B feed에서제외·새thumbnail URL HTTP404거부(t6s), B native친구도감0개·검증제목없음확인. 이미발급된URL/다운로드를즉시회수한다는주장은없다(기존최대300초정책유지).
+- **일반APK Google 경로 관측:** QA로그인APK설치전일반actualAPK의Google로그인화면→Google버튼실행→home/처리중종료→My프로필/6코드서버조회정상관측. 별도비밀번호입력없이인증후앱화면으로복귀했다. 브라우저계정선택/동의화면은독립관측하지않았으며기존SSO캐시가능성을배제하지않는다. 새Google동의/사용자생성·취소·만료·강제재동의/실기기OAuth수용으로합산하지않는다. 실제Google계정값/코드/사진은증거에저장하지않았다.
+- **정리/잔여:** 전용QA2계정/프로필·관계·여행·사진·위치·등록Storage경로/전용cleanup job정리, 각QA Storage prefix/프로필잔여0 확인(t6t). 정리후원격공개목록1행복귀·기존3필드projection/비공개profiles0·anon관계/추천401확인. 관리key와QA계정정보를저장했던저장소밖임시파일도삭제했다. Appium세션/우리보조AVD만종료, 기존mytrveldex유지. 현재QA앱프로세스fatal표시0이며전체시스템/장시간성능무오류를보증하지않는다.
+- [실제서버 친구도감](design/verification/actual-friend-album-20261108.png), [친구상세](design/verification/actual-friend-detail-20261108.png), [비공개전환후0개](design/verification/actual-friend-private-20261108.png). 세이미지는공개라이선스fixture사진/출처·generic검증제목만포함한다. 실제사용자정보/계정/친구코드/host/서명URL/key/token을포함하지않는다. 이번결과는수동native+전용HTTP검사이며기존자동테스트통과수에합산하지않는다. 확인범위에서제품결함을발견하지못했고추가코드수정은없다.
+
+
 ## 2026-11-08 14:17 KST — 승인된 실제서버 migration·mytrveldex 설치 확인
 
 - 사용자 “진행해줘”는 직전 제안한 실제서버 친구요청/추천/6자리ID migration3건 및 mytrveldex 최신APK설치를 승인한 응답으로 적용했다. 재검토 dry-run(t69)은 승인대상 `20261107140000_friend_requests.sql`, `20261108010000_friend_recommendations.sql`, `20261108040000_friend_codes.sql`만 표시했다. `db push --linked --yes` **3건 적용 성공**(t6b), 후속 dry-run **Remote database is up to date**(t6d). reset/기존테이블삭제/코드재번호/원격fixture생성/함수배포/Play제출은 실행하지 않았다.

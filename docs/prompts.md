@@ -1114,3 +1114,18 @@ AGENTS.md, README.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,API_SPEC,
 ### 변경 파일
 
 DEVELOPMENT_STATUS.md, docs/TEST_CASE.md, docs/prompts.md. 제품소스변경없음; 검토된기존3migration원격적용및기존actualAPK설치수행.
+
+
+## 2026-11-08 14:55 KST
+
+### 사용자 프롬프트 원문
+
+왜 검증안해? 문제가있어?
+
+### 답변·결과 요약
+
+발견된문제때문에중단한것이아니라설치/조회로검증을제한한판단이부족했음을설명하고실제서버흐름보완. 전용QA2계정/보조Medium_Phone·실제서버APK에기존테스트로그인만활성화해native사진업로드/자동메타·주소/공개→6ID친구요청/수신자HTTP수락→친구사진실제표시·다운로드→비공개조회차단확인. 일반APK Google버튼후인증화면복귀도관측했으나동의/취소/만료전체수용과구분. QA데이터/Storage/credential파일·보조기기정리, 기존사용자primary보존. 제품소스변경/확인된추가결함없음. 범위와초기조기검사·의도된원본거부는TEST_CASE기록.
+
+### 변경 파일
+
+DEVELOPMENT_STATUS.md, docs/TEST_CASE.md, docs/prompts.md, docs/design/verification/actual-friend-album-20261108.png, docs/design/verification/actual-friend-detail-20261108.png, docs/design/verification/actual-friend-private-20261108.png.

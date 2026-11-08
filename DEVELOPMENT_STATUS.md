@@ -125,3 +125,10 @@
 - 사용자 진행해줘 승인후원격dryrun동일3건(t69)→3migration적용성공(t6b)→추가변경없음(t6d). 공개directory4필드/6코드·기존3필드projection200/공개1행, profiles0·추천/관계anon401확인(t6c). 기존UUID/기록/Storage변환·삭제/reset없음.
 - mytrveldex명/5556확인후검토된actualAPK업데이트·설치바이트/hash/실제envtarget일치확인. 신규빌드없음/LocalAPK아님. 기존로그인유지/My6ID/전체공개1명·refresh·6코드검색확인, schema오류없음. 이전도감viewport카드2개동일이며전체DB보존독립증명으로확대하지않는다.
 - 실제사용자정보/코드/사진/계정·host/키는기록하지않고원격추가fixture/관계·프로필·여행쓰기없음. 새OAuth·실기기/Play는별도. Appium만종료/사용자최신앱홈과AVD유지. 상세TEST_CASE14:17절. 작업10의서버적용/설치승인대기는해소됐다.
+
+## 작업12 — 실제서버 사진/친구 쓰기 흐름 보완 완료 (2026-11-08 14:55 KST)
+
+- 이전설치/조회확인으로끝낸검증범위를보완했다. 실제서버전용신규admin-confirmed QA2계정/서로다른6ID·동명프로필로보조Medium_Phone5558에서actualURL/key+기존테스트로그인진입만켠APK사용(일반사용자APK와구분). 사용자mytrveldex5556/일반actualAPK·데이터미변경.
+- native A사진선택/합성EXIF기간GPS·실제주소→저장/공개·상세1/1, 서버complete·Storage보관본445200/썸네일78797 bytes읽기. native B6ID검색/요청→A토큰HTTP수락→B친구도감/상세실제사진·공개thumbnail200. Aprivate전환후Bfeed/도감0·새thumbnailURL404. original404는기존소유자전용정책/저장직후조기조회실패는완료후통과로구분.
+- 일반actualAPK Google버튼전로그인→실행후home/My인증조회정상관측. 브라우저동의UI독립관측없음/SSO캐시가능·신규Google동의/취소/만료·실기기는별도. native수락버튼검증과HTTP수신자수락도분리한다.
+- QA2계정/관계/기록/사진/위치/Storage/전용정리작업·임시credential파일정리/QA prefix와profile잔여0/공개1행복귀. Appium/우리보조AVD만종료, primary유지. 제품소스변경/추가결함없음. TEST_CASE14:55절/증거3장·t14기록리뷰대상이며자동테스트수로합산하지않는다.
