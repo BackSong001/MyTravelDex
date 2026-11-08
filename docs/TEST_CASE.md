@@ -1,5 +1,20 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 2026-11-08 16:10 KST — 산·풀 제거 및 기존 ID 발급 검증
+
+- TC-MAPLIBRE-011 Red(t6w): 기존native산/풀Marker가남아신규부재assert실패(기존3개통과/신규1개실패). 선명세후공통타입/path/landOrnaments와native/web사용처를삭제했다. map-ocean4+maps-native4 **8 passed**(t70), 실제WebGL지도전체 **8 passed**(t71), TypeScript통과(t72). 사진군집/최신payload·출처/카메라/위치보정·SVG실패fallback/바다장식회귀를포함한다. 과거land추가/선표현전용테스트는FR-UI-017로대체했다.
+- ID검증: 생성기/소유UUID/FK/코드/스키마는변경하지않았다. 현재6자리숫자는비순환sequence `100000..999999`의원자적nextval/default로발급하고UNIQUE/format/불변trigger·열UPDATE grant제한으로중복/형식/수정을방어한다. 삭제후sequence를되돌리거나코드를재사용하지않으며900000개고갈시신규발급실패로차단한다. 영어가섞인생성기가아니며무작위코드/인증비밀이라고설명하지않는다.
+- 기존 TC-FRIEND-008/009 실제Local HTTP **2 passed**(t6x): 24동시QA계정6숫자·유일·user_metadata강제값무시·닉네임변경후불변·client/admin코드변경403·타인profiles0·공개4필드/기존3필드·비공개제외/페이지확인. 실제서버는최소friend_code필드만페이지읽기하여profile1/중복0/숫자6자리1/영숫자혼합0확인(t6z). 표본에서중복0이라는관측과DB UNIQUE/sequence에의한불변조건을구분하며원격계정생성/코드수정은하지않았다. 관리자key임시파일및CLI임시경로는삭제했고값/실제코드는기록하지않았다.
+- t14 제품회차1승인: 별도 map-ocean/native8(t74), 실제WebGL TC011/군집·출처·바다1(t75) 통과와좁은diff검토. IDmigration/Social/Auth/API구현변경없음확인. 원본cluster검증PNG는테스트재생성분만baseline으로복원했다.
+- 실제.env standalone개발서명APK **37초빌드성공**(t73), 생성JS삭제후실제target반영. AVD이름 **mytrveldex(5556)** 확인후업데이트했고설치base.apk와빌드바이트/hash일치: `ac809f9bfbf171e1661ba2ed1a7eda6373f08de7bfe463f007463d11e71258c3`. 설치bundle에서산풀anchor4개ID부재/기존west-boat존재·정확한actual.env프로젝트URL포함확인. LocalAPK/QA로그인APK를설치하지않았다.
+- 실제native기존로그인·지도·출처·탭유지, 확대/대한민국전체보기조작·시각검토로산풀없음/바다장식과사진·군집유지확인. 실제사용자사진이포함될수있는native화면은Git/문서증거로저장하지않았다. 기존로그인/사진/기록/친구코드/원격관계쓰기없음. Appium만종료하고사용자mytrveldex/최신앱홈유지. 새OAuth·실기기/큰글꼴전체수용은이번범위가아니다.
+- 영숫자혼합6자리로전환시기존발급ID보존/전환·이전검색호환의정책선택을사용자에게질문했다. 응답전임의재번호/혼합IDmigration/원격변경은하지않는다. 이번확인결과는“현재숫자ID는중복없음/영문혼합아님”이다.
+
+## 산·풀 제거/ID 생성 검증 계획 (2026-11-08)
+
+TC-MAPLIBRE-011 ↔ FR-UI-017: native 전체지도·보정지도에서 mountain/grass Marker 부재/기존바다Marker유지, 실제WebGL 산풀DOM부재·사진/군집/카메라/출처회귀검증. 기존ID는TC-FRIEND-008의동시발급/UNIQUE/변경차단/유출제한을재검증하고숫자와영숫자혼합여부를구분한다. 기존ID재발급/원격스키마변경은형식정책확정및승인전수행하지않는다.
+
+
 ## 2026-11-08 14:55 KST — 실제서버 신규 QA계정·Android 사진/친구 흐름 보완
 
 - 사용자 “왜 검증안해? 문제가있어?”에 대해 앞선 설치/읽기 확인으로 끝낸 검증 범위 부족을 인정하고 실제서버 쓰기 흐름을 보완했다. 기존제품소스/스키마/함수배포변경은 없다. 기존관리권한으로 임시 QA계정2개를 생성·이메일확인 처리했고 같은generic닉네임/서로다른6코드를 확인했다(t6j). 이는 admin-confirmed 계정과 비밀번호Auth를 사용한 신규계정 검증이며, 일반회원가입/메일전달/신규Google계정생성 검증이 아니다. 관계·기록·Storage 쓰기/정리는 이번생성UUID의전용fixture만 대상으로 했다.

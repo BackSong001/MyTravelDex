@@ -7,7 +7,7 @@ import {travelerAvatar} from './avatarAsset';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
 import ClusterBrowser from './ClusterBrowser';
-import {oceanOrnaments,landOrnaments,ornamentMarkup} from './MapOrnament';
+import {oceanOrnaments,ornamentMarkup} from './MapOrnament';
 import {mapStyle, KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS} from './mapStyle';
 import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
 
@@ -66,7 +66,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         markers.splice(0).forEach(marker => marker.remove());
         const {records, covers, authors, ownRecords, landmarks, onCoordinate} = current.current;
         const ownGroups = groupProvinceRecords(ownRecords ?? []), zoom = activeMap.getZoom();
-        if(zoom<9)[...oceanOrnaments,...(onCoordinate?[]:landOrnaments)].forEach(ornament=>{
+        if(zoom<9)oceanOrnaments.forEach(ornament=>{
           const element=document.createElement('div');element.setAttribute('aria-hidden','true');element.dataset.mapOrnament=ornament.kind;element.style.pointerEvents='none';
           // 마크업은 사용자 입력이 아닌 고정된 SVG 장식 데이터만 사용한다.
           element.innerHTML=ornamentMarkup(ornament.kind,zoom);

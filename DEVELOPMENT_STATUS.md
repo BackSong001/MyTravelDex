@@ -132,3 +132,9 @@
 - native A사진선택/합성EXIF기간GPS·실제주소→저장/공개·상세1/1, 서버complete·Storage보관본445200/썸네일78797 bytes읽기. native B6ID검색/요청→A토큰HTTP수락→B친구도감/상세실제사진·공개thumbnail200. Aprivate전환후Bfeed/도감0·새thumbnailURL404. original404는기존소유자전용정책/저장직후조기조회실패는완료후통과로구분.
 - 일반actualAPK Google버튼전로그인→실행후home/My인증조회정상관측. 브라우저동의UI독립관측없음/SSO캐시가능·신규Google동의/취소/만료·실기기는별도. native수락버튼검증과HTTP수신자수락도분리한다.
 - QA2계정/관계/기록/사진/위치/Storage/전용정리작업·임시credential파일정리/QA prefix와profile잔여0/공개1행복귀. Appium/우리보조AVD만종료, primary유지. 제품소스변경/추가결함없음. TEST_CASE14:55절/증거3장·t14기록리뷰대상이며자동테스트수로합산하지않는다.
+
+## 작업13 — 산·풀 제거/기존 ID 감사 완료, 형식 전환 정책 응답 대기 (2026-11-08 16:10 KST)
+
+- 산풀타입/path/anchor와native/web참조제거, 바다/실제경계·사진/군집·출처유지. Red native신규1fail→단위8/WebGL8/types통과. t14회차1승인/별도8+대상1pass. 원본증거PNG는자동재생성분복원.
+- actual설정APK37초성공/mytrveldex5556최신설치·바이트/hash/envtarget일치·산풀anchor부재확인. 기존로그인/지도·출처/확대·전체보기와시각산풀없음확인, 실제사용자사진증거는저장소에남기지않음. Appium만종료/사용자앱홈유지.
+- ID는현행6자리숫자(영문혼합아님). 비순환원자sequence/UNIQUE/불변trigger로중복과수정방어, Local동시24계정포함HTTP2pass·실서버최소code읽기 profile1/중복0/숫자1/혼합0. ID코드/DB/API/Auth변경없음. 영숫자전환시기존ID정책사용자선택대기/임의재번호·remote변경없음. 상세TEST_CASE16:10절.

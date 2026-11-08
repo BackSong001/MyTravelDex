@@ -33,3 +33,13 @@ test('own stamps stay separate from friend records and correction pin does not n
  renderToStaticMarkup(React.createElement(TravelMap,{records:[{id:'selection',locations:{latitude:35.815,longitude:127.153}}],onCoordinate:()=>{}}));
  expect(pins.find(p=>p.id==='selection').lngLat).toEqual([127.153,35.815]);
 });
+
+
+test('TC-MAPLIBRE-011: native maps keep ocean ornaments without mountain or grass markers',()=>{
+ for(const onCoordinate of [undefined,()=>{}]){
+  pins.length=0;renderToStaticMarkup(React.createElement(TravelMap,{records:[],onCoordinate}));
+  const ornaments=pins.filter(p=>p.id.startsWith('ornament-'));
+  expect(ornaments.length).toBeGreaterThan(0);
+  expect(ornaments.some(p=>/mountain|grass/.test(p.id))).toBe(false);
+ }
+});

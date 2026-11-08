@@ -1129,3 +1129,18 @@ DEVELOPMENT_STATUS.md, docs/TEST_CASE.md, docs/prompts.md. 제품소스변경없
 ### 변경 파일
 
 DEVELOPMENT_STATUS.md, docs/TEST_CASE.md, docs/prompts.md, docs/design/verification/actual-friend-album-20261108.png, docs/design/verification/actual-friend-detail-20261108.png, docs/design/verification/actual-friend-private-20261108.png.
+
+
+## 2026-11-08 16:10 KST
+
+### 사용자 프롬프트 원문
+
+일단 지도에 산 표시랑 풀 표시는 너무 지도 화면을 가리는것 같으니, 없애줘. 그리고 유저 ID 생성하는 알고리즘이 중복없는 영어와 숫자를 섞은 ID로 생성하는지 검증해줘. 고유한 번호여야해
+
+### 답변·결과 요약
+
+산풀장식을native/web에서제거하고단위8/WebGL8/types·t14회차1리뷰통과. actualAPK빌드37초/mytrveldex5556설치·hash/envtarget/산풀bundle부재·native지도시각/확대·전체보기확인. 현ID는영문혼합아닌6자리숫자이며원자적비순환sequence+UNIQUE+불변trigger로중복/수정방어. Local24동시계정포함HTTP2통과/실서버최소code읽기1계정중복0·숫자1/혼합0확인. 기존ID재번호/혼합전환은정책선택질문응답전미시행. 실제사용자정보/사진/코드/key·host값은기록하지않고사용자세션/기록유지.
+
+### 변경 파일
+
+AGENTS.md, README.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,API_SPEC,DISAN,TEST_CASE,prompts}.md, frontend/src/{MapOrnament,TravelMap,TravelMap.web}.tsx, backend/tests/{maps-native,map-ocean}.test.ts, frontend/e2e/maps.spec.ts.

@@ -1,5 +1,10 @@
 # MyTravelDex API 명세서
 
+## 산·풀 제거와 ID 검증 범위 (2026-11-08)
+
+지도 장식 제거는 클라이언트 표시 변경이며 API·권한 변경없음. 현재 friend_code는 숫자6자리sequence+UNIQUE+불변trigger다. 영문이 섞인 생성기라고 설명하지 않는다. 기존발급ID의 형식변경은 별도계약확정전 시행하지 않는다.
+
+
 ## 짧은 친구 ID와 디렉터리 API (2026-11-08)
 
 본인 `GET /rest/v1/profiles?id=eq.<uuid>&select=friend_code` → `{friend_code:"100000"}`. 본인 RLS 유지, 다른 프로필 직접조회는 기존처럼 거부/빈목록. friend_code PATCH/클라이언트 발급은 허용하지 않는다. `GET /rest/v1/friend_directory?select=id,display_name,avatar_url,friend_code&order=display_name.asc,id.asc&limit=20&offset=0`는 공개동의 행만 반환한다. 짧은ID `friend_code=eq.<6digits>`, legacy UUID `id=eq.<uuid>`, 닉네임은 기존 escape한 ilike 부분검색. 전체 탐색은 페이지별 조회이며 모든 Auth 데이터 일괄 다운로드 API는 없다. 요청/관계는 기존 UUID friend_requests/follows를 사용한다. public_profiles·friend_recommendations의 기존3필드 응답은 변경하지 않는다.

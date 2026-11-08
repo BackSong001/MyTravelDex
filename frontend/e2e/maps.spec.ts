@@ -227,12 +227,12 @@ test('correction context-loss fallback stays compact and offers place-search gui
  });
 
 
-test('TC-MAPLIBRE-008/009: thumbnail slides select current records, terrain stays decorative and panel clears credits',async({page},info)=>{
+test('TC-MAPLIBRE-008/009: TC-MAPLIBRE-011 thumbnail slides select current records without land ornaments and panel clears credits',async({page},info)=>{
  await ready(page);
  const cover='data:image/jpeg;base64,'+(await readFile('frontend/e2e/fixtures/jeonju.jpg')).toString('base64');
  await page.evaluate(({records,cover})=>(window as any).renderMap({records,covers:{first:cover,second:cover}}),{records:[record('first'),record('second')],cover});
- await expect(page.locator('[data-map-ornament="mountain"]')).toHaveCount(2);await expect(page.locator('[data-map-ornament="grass"]')).toHaveCount(2);
- for(const kind of ['mountain','grass'])await expect(page.locator(`[data-map-ornament="${kind}"] path:not([fill="none"])`)).toHaveCount(0);
+ await expect(page.locator('[data-map-ornament="mountain"],[data-map-ornament="grass"]')).toHaveCount(0);
+ await expect(page.locator('[data-map-ornament="boat"]').first()).toBeAttached();
  await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
  const panel=page.getByTestId('cluster-browser');await expect(panel).toBeVisible();
  const credits=page.getByTestId('map-attribution');

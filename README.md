@@ -163,3 +163,7 @@ MVP 계약은 `REQUIREMENT → PRD → TRD → API_SPEC → TEST_CASE` 순서로
 ## 6자리 친구 ID와 공개 디렉터리 (2026-11-08)
 
 UUID/FK를 유지한 서버 발급 불변 6자리 friend_code와 공개 동의된 최소 4필드 friend_directory를 사용한다. 전체 목록은 20명씩 페이지로 조회하고 비공개 프로필/Auth 정보는 노출하지 않는다. 기존 public_profiles·추천RPC 3필드/UUID 초대는 호환한다. 원격은 친구 요청→추천→코드 migration을 검토·승인 후 적용하고 새 앱을 설치한다. 이전 앱 우선 롤백하며 코드/sequence를 삭제·재번호·reset하지 않는다. 산·풀은 공통 SVG 선 표현만 사용하며 자세한 검증은 docs/TEST_CASE.md 최신 이력을 따른다.
+
+## 산·풀 제거 및 ID 형식 검증 (2026-11-08)
+
+지도에는 산·풀 장식을 표시하지 않으며 기존 바다 장식·사진/군집·경계·출처는 유지한다. 현재 friend_code는 영문혼합이 아닌 서버sequence 기반6자리숫자이며 UNIQUE/불변trigger로 중복·변경을 차단한다. 기존ID를 임의로 재번호하지 않는다. 영숫자 전환의 기존ID 호환 정책과 원격적용은 별도 확정한다. 자세한 관측/수용범위는 TEST_CASE 최신 이력을 따른다.

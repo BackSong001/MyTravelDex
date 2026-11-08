@@ -1,5 +1,10 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 산·풀 장식 제거 계약 (2026-11-08)
+
+FR-UI-017: 공통 MapOrnament의 mountain/grass 타입·path·landOrnaments를 제거하고 native/web TravelMap은 기존 oceanOrnaments만 사용한다. 실제 경계/style/camera·Marker 좌표/사진·ClusterBrowser·출처/검색모드는 변경하지 않는다. 새 dependency/DB/API/env 없음. TC-MAPLIBRE-011 native Marker 목록과 실제WebGL 장식DOM에서 산풀부재/기존바다·마커 유지로 검증한다.
+
+
 ## 6자리 ID 발급·전체 디렉터리 (2026-11-08)
 
 FR-FRIEND-005: additive migration으로 profiles.friend_code text NOT NULL UNIQUE를 추가한다. 100000~999999 비순환 PostgreSQL sequence/default로 기존 행 backfill과 신규 Auth profile trigger INSERT를 원자적으로 지원한다. 클라이언트 UPDATE grant를 주지 않고 불변 trigger로 service role의 우발적 변경도 차단한다. UUID/FK/관계/기록·기존 public_profiles 3필드와 추천RPC 3필드는 유지한다. sequence 직접 사용은 public/anon/authenticated에 허용하지 않는다. 총900000개 발급 한계이며 고갈 시 잘라내기/재사용 대신 신규발급을 실패시킨다(용량 확장 시 별도 계약변경). 코드가 순차적이므로 비밀/인증수단으로 사용하지 않는다.
