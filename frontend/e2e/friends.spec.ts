@@ -62,6 +62,8 @@ test('TC-FRIEND-004: rejection, cancellation and network failure preserve search
 test('TC-FRIEND-005: invite opens guest search and requires explicit login and request',async({page})=>{
  await page.goto(`/?friend=${accounts[1].code}`);
  await expect(page.getByRole('heading',{name:'친구',exact:true})).toBeVisible();
+ await expect(page.getByRole('tablist',{name:'친구 메뉴',exact:true}).getByRole('tab',{name:'팔로잉',exact:true})).toBeDisabled();
+ await expect(page.getByRole('tab',{name:'팔로잉 0',exact:true})).toHaveCount(0);
  await expect(page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true})).toHaveValue(accounts[1].code);
  await expect(page.getByRole('button',{name:'로그인 후 친구 요청',exact:true})).toBeDisabled();
  await page.goto('/');
@@ -187,7 +189,7 @@ test('TC-USER-ID-001: numeric alias invites resolve the new user ID and are cons
 test('TC-FIGMA-FRIENDS-001: inner tabs preserve search independently from main navigation',async({page})=>{
  await friends(page,0);const tabs=page.getByRole('tablist',{name:'친구 메뉴',exact:true});
  const following=tabs.getByRole('tab',{name:/^팔로잉/}),find=tabs.getByRole('tab',{name:'여행자 찾기',exact:true});
- await expect(following).toHaveAttribute('aria-selected','true');await find.focus();await page.keyboard.press('Enter');await expect(find).toHaveAttribute('aria-selected','true');
+ await expect(following).toHaveText('팔로잉 0');await expect(following).toHaveAttribute('aria-selected','true');await find.focus();await page.keyboard.press('Enter');await expect(find).toHaveAttribute('aria-selected','true');
  await search(page,1);const input=page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true});
  await following.click();await expect(input).toHaveCount(0);await find.click();await expect(input).toHaveValue(accounts[1].code.toLowerCase());
  const person=page.getByLabel('전체 여행자 목록',{exact:true}).getByTestId(`friend-person-${accounts[1].id}`);await expect(person).toContainText(accounts[1].code);
@@ -218,6 +220,7 @@ test('TC-FIGMA-FRIENDS-002: capped relationship pages retain final rows and opte
   });
   await friends(page,0);const following=page.getByLabel('팔로잉 목록',{exact:true}),relations=page.getByLabel('친구와 요청 목록',{exact:true});
   await expect(following.getByTestId(/^friend-person-/)).toHaveCount(4);await expect(relations.getByTestId(/^friend-person-/)).toHaveCount(4);
+  await expect(page.getByRole('tablist',{name:'친구 메뉴',exact:true}).getByRole('tab',{name:'팔로잉 4',exact:true})).toBeVisible();
   for(const id of targets){await expect(following.getByTestId(`friend-person-${id}`)).toHaveCount(1);await expect(relations.getByTestId(`friend-person-${id}`)).toHaveCount(1);}
   const hidden=following.getByTestId(`friend-person-${targets[3]}`);await expect(hidden).toContainText('유저 ID 비공개');await expect(hidden).toContainText('공개 프로필을 사용하지 않는 여행자');
   await hidden.getByRole('button',{name:'팔로우 해제',exact:true}).click();await expect(hidden).toHaveCount(0);
@@ -243,4 +246,11 @@ test('TC-FIGMA-FRIENDS-001: a delayed search cannot replace newer results after 
   const section=page.getByLabel('전체 여행자 목록',{exact:true});await expect(section.getByTestId(`friend-person-${accounts[0].id}`)).toBeVisible();
   release();await expect(page.getByLabel('여행자 검색 중',{exact:true})).toHaveCount(0);await expect(section.getByTestId(`friend-person-${accounts[1].id}`)).toHaveCount(0);await expect(input).toHaveValue(accounts[0].code);
  }finally{release();}
+});
+
+
+test('TC-FIGMA-FRIENDS-001: guests never see an unqueried personal following count',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();await page.getByRole('tablist',{name:'주요 탐색',exact:true}).getByRole('tab',{name:'친구',exact:true}).click();
+ const tab=page.getByRole('tablist',{name:'친구 메뉴',exact:true}).getByRole('tab',{name:'팔로잉',exact:true});await expect(tab).toBeDisabled();await expect(tab).toHaveText('팔로잉');
+ await expect(page.getByRole('tab',{name:'팔로잉 0',exact:true})).toHaveCount(0);
 });

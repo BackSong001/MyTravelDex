@@ -1235,3 +1235,7 @@ AGENTS.md, DEVELOPMENT_STATUS.md, docs/{FIGMA_IMPLEMENTATION,REQUIREMENT,PRD,TRD
 **결과**: 실제Batch08 context/렌더를기준으로기존FriendsList내부탭/48dp아바타/전체관계페이지조회·검색과페이지보존을구현했다. 친구요청·수락·거절·취소·삭제/별도follow/초대공유·소비/현재mixedID와이전alias·UUID를유지했다. backend/domain134+외부1skip·친구focused12/cap2UI1/지연검색1·types/export통과, actualAPK35초설치/hash·target/기존SDK로그인·검색탭왕복/가로font2재시작후검색스크롤접근확인. 실제사용자관계쓰기/원격변경없음, 최종단일전체웹106(t11x,5.8분)통과·t14최종기록승인. 실시간글꼴P2·My/테마/Batch11후속은미완료다. 커밋후t9d완료전달·답변을받는다.
 
 **변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{api.ts,Journal.tsx,Social.tsx}, frontend/e2e/{compact,design,figma-assets,friends,vnext}.spec.ts, backend/tests/vnext.test.ts, docs/design/verification/figma-friends-search-20261109.png.
+
+### 작업17D 완료검토 후 최소 보강
+
+t9d가guest미조회관계수0표시P2를재현해t12가표시조건에owner를추가했다. 초대guest Red→관련3Green/types후일반guest·로그인0/양수4까지focused회귀를확장했으며t14지정한줄정적승인·보정후focused4(t125)/types(t126)통과. t124의잘못된guest진입중단은제품Red로계산하지않는다. 기존전체106/actualAPK는보강전이므로재실행으로합산하지않는다. 변경파일: frontend/src/Social.tsx, frontend/e2e/friends.spec.ts, docs/{TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, DEVELOPMENT_STATUS.md.

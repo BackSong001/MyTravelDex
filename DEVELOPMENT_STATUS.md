@@ -179,3 +179,5 @@
 - 작업17B t9d답변: 필수보완없음/독립단위15. 작업17C는실제Figma한열도감·페이지순회·스크롤복귀·상태/a11y·목록오류소유권을t14보강승인후완료했다. 고정최종웹103/타입/export, backend/domain133+외부1skip, 최신actualAPK38초설치/hash·실제3행/64dp사진·가로font2재시작후상세복귀를확인했다. Native실시간font변경직후측정관측은별도미수용이며사용자화면Git미보관/설정원복·기존데이터쓰기없음. 세부이력/중간실패와중단은TEST_CASE17C참조.
 
 - 작업17C a7680a6후t9d독립읽기/API대역4검사에서필수보완없음답변을받고17D를진행했다. Batch08 FriendsList내부탭/48dp아바타/전체관계페이지·검색보존을구현했고t14회차1지정코드승인. 관계LocalHTTP15/기존친구웹12+cap2UI1+지연검색1/types/export, backend/domain134+외부1skip통과. actualAPK35초설치/hash/target·기존SDK로그인/탭/검색왕복·가로font2재시작후스크롤접근을확인했다. 사용자관계/기록쓰기·원격변경없으며최종단일전체웹106(t11x,5.8분)통과. 실시간font변경P2/실기기/TalkBack/Play미수용은유지한다.
+
+- 작업17D bd13192푸시후t9d가guest미조회팔로잉0 P2를재현했다. owner숫자guard1줄/일반·초대guest와로그인0/양수회귀로보강하고t14정적승인을받았다. 보강전전체106/APK와보강후focused4(t125)/types(t126)는TEST_CASE에서분리한다. 다음My는owner요약/기존ProfileForm편집/17지역모두·모은스탬프를우선하며로딩·실패집계와계정전환보호를유지한다.

@@ -54,3 +54,5 @@ Batch11은 무료·비결제 기능으로만 구현한다. 목적지 후보는 �
 
 
 17D는FriendsList내부탭/관계복합키전체조회·48dp행을구현하고t14코드/최종기록승인을받았다. 단일전체웹106(t11x,5.8분)/backend134+외부1skip/types/export·actualAPK35초설치와읽기수용범위는TEST_CASE17D를따른다. 기존verification자동변경은복원하고새QA PNG1개만남겼다. 커밋후t9d완료전달·답변을받은뒤My를진행한다.
+
+17D bd13192후t9d가guest미조회관계수0 P2를찾아owner숫자guard와일반/초대guest·로그인0/양수회귀를보강했고t14정적승인을받았다. 보강전전체106/APK와보강후focused4(t125)/types(t126)를분리한다. 다음My최소수용은owner요약→기존편집→17지역스탬프이며비공개complete포함·draft제외/미확정집계·계정전환을보호한다. 방문자화면/전역테마전환·새보상은후속으로분리한다.
