@@ -119,3 +119,9 @@
 - 실제LocalHTTP55/outline단위5/타입통과. 웹21pass+중복locator1fail은해당follow/지도2pass로보정; 별도페이지2(My중복)/조회실패독립1pass. 총합으로중복계산하지않는다.
 - actual설정APK50초/LocalAPK51초 빌드성공. 보조Medium_Phone5558/read-only에Local최신설치해해시일치·신규계정My코드·native선지도·6코드검색/요청·취소/전체목록새로고침확인. fixture2계정·Appium·우리보조AVD정리, 기존mytrveldex5556/원격·사용자데이터보존. 실제설정APK는아직사용자기기에설치하지않았다.
 - 원격dryrun3migration 성공/미적용. 기존승인규칙에따라실제DB적용승인후실제설정APK설치검증이남았다. 상세범위/미검증/증거3장은TEST_CASE12:42절.
+
+## 작업11 — 승인된 실제서버/사용자 AVD 반영 완료 (2026-11-08 14:17 KST)
+
+- 사용자 진행해줘 승인후원격dryrun동일3건(t69)→3migration적용성공(t6b)→추가변경없음(t6d). 공개directory4필드/6코드·기존3필드projection200/공개1행, profiles0·추천/관계anon401확인(t6c). 기존UUID/기록/Storage변환·삭제/reset없음.
+- mytrveldex명/5556확인후검토된actualAPK업데이트·설치바이트/hash/실제envtarget일치확인. 신규빌드없음/LocalAPK아님. 기존로그인유지/My6ID/전체공개1명·refresh·6코드검색확인, schema오류없음. 이전도감viewport카드2개동일이며전체DB보존독립증명으로확대하지않는다.
+- 실제사용자정보/코드/사진/계정·host/키는기록하지않고원격추가fixture/관계·프로필·여행쓰기없음. 새OAuth·실기기/Play는별도. Appium만종료/사용자최신앱홈과AVD유지. 상세TEST_CASE14:17절. 작업10의서버적용/설치승인대기는해소됐다.

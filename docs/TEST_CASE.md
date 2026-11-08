@@ -1,5 +1,14 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 2026-11-08 14:17 KST — 승인된 실제서버 migration·mytrveldex 설치 확인
+
+- 사용자 “진행해줘”는 직전 제안한 실제서버 친구요청/추천/6자리ID migration3건 및 mytrveldex 최신APK설치를 승인한 응답으로 적용했다. 재검토 dry-run(t69)은 승인대상 `20261107140000_friend_requests.sql`, `20261108010000_friend_recommendations.sql`, `20261108040000_friend_codes.sql`만 표시했다. `db push --linked --yes` **3건 적용 성공**(t6b), 후속 dry-run **Remote database is up to date**(t6d). reset/기존테이블삭제/코드재번호/원격fixture생성/함수배포/Play제출은 실행하지 않았다.
+- 원격 읽기 검증(t6c exit0): anon friend_directory HTTP200·공개동의1행/정확히4필드·6숫자코드, legacy public_profiles HTTP200·정확히기존3필드·1행, profiles HTTP200·0행. 추천RPC와관계목록anon은각HTTP401거부. 공개1행을 DB전체회원1명으로 해석하지 않는다. 인증후관계변경·신규계정전체RLS회귀는 Local검증과 구분하며 이번실제서버에서는실행하지 않았다.
+- AVD이름을 재확인해 **mytrveldex(5556)** 에만 `adb install -r` 업데이트. 이전에검토/빌드한actual설정APK `/tmp/mytraveldex-task10-configured.apk`와 설치base.apk의바이트/SHA256일치: `be2bc6805ad7c9da7f3188d71523231e4bd19974262cfddf692498298d0d8383`. 이번새빌드는하지않았다. 설치bundle의신규friend_directory/friend_code문자열 및 실제.env의정확한프로젝트URL포함을검사했고실제host/키값은기록하지않았다. LocalAPK를설치하지않았다.
+- 실제 Android/Appium 읽기조작: 기존로그인유지→My6자리코드/프로필편집표시/ID오류없음→전체공개목록1행→새로고침→실제공개6코드검색1행을확인했다. 기존schema cache/테이블404오류는발견하지못했다. 기존도감viewport에보였던날짜카드2개의접근성표시가설치전후동일함을확인했으며 DB전체기록수/원본사진보존을독립입증한결과로확대하지않는다.
+- 개인정보보호: 실제닉네임/친구코드/사진·계정/host·키·토큰을로그/문서/새스크린샷에남기지않았다. 원격관계요청/수락·팔로우·프로필편집·여행CRUD쓰기는하지않았다. 현재앱프로세스AndroidRuntime fatal표시0; 전체시스템로그/실기기/새Google동의·만료·복귀/Play설치수용은미검증이다. Appium세션만종료하고mytrveldex와최신앱홈은열어두었다.
+- 앞선작업10의실제서버승인대기/actual미설치는당시이력이며이번승인적용으로해소됐다. 제품소스변경없음. 구현리뷰는작업10 t14회차1승인을유지하고이번기록은별도정적리뷰대상이다.
+
 ## 6자리 ID·전체 목록·선 장식 수용 계획 (2026-11-08)
 
 TC-FRIEND-008 ↔ FR-FRIEND-005: 실제Local Auth 신규/동시계정에6숫자·중복없음·닉네임수정후불변, 클라이언트/관리자의코드변경거부·타인profiles RLS·공개디렉터리최소4필드/비공개제외. 기존UUID/API3필드·친구수락후공개사진회귀를 유지한다.
