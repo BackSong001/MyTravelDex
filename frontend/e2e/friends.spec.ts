@@ -112,7 +112,7 @@ test('TC-FRIEND-007: new accounts upload actual photos, connect by ID, accept an
   await other.getByRole('button',{name:'목록 새로고침',exact:true}).click();await expect(other.getByRole('button',{name:'친구 삭제',exact:true}).first()).toBeVisible();
   await other.getByRole('tab',{name:'여행도감',exact:true}).click();await other.getByRole('button',{name:'친구 여행',exact:true}).click();
   const visible=other.getByRole('button',{name:/^친구에게 보여줄 여행,/});await expect(visible).toBeVisible();await expect(other.getByRole('button',{name:/^나만의 비공개 여행,/})).toHaveCount(0);
-  await expect.poll(()=>visible.locator('img').evaluateAll(images=>images.length===1&&images.every(image=>image instanceof HTMLImageElement&&image.complete&&image.naturalWidth>0))).toBe(true);
+  const cover=visible.getByRole('img',{name:'친구에게 보여줄 여행 대표사진',exact:true});await expect(cover).toHaveCount(1);await expect.poll(()=>cover.evaluate(image=>image instanceof HTMLImageElement&&image.complete&&image.naturalWidth>0)).toBe(true);
   await expect(other.getByRole('img',{name:'친구에게 보여줄 여행 대표사진',exact:true})).toHaveCount(1);await visible.click();
   await expect(other.getByRole('img',{name:'여행 사진',exact:true})).toBeVisible();
   await expect.poll(()=>other.getByRole('img',{name:'여행 사진',exact:true}).evaluate(img=>(img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);

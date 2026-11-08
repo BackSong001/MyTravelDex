@@ -205,7 +205,7 @@ test('TC-VNEXT-UI-005 공개 프로필 기본 비공개·명시적 동의·작�
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();
  await expect(page.getByRole('button',{name:/^제주 여행, 도감 여행자,/})).toBeVisible();
  const author=page.getByLabel('작성자 도감 여행자',{exact:true});await expect(author).toBeVisible();
- await expect(author.locator('img')).toHaveCount(0);
+ const fallback=author.locator('img');await expect(fallback).toHaveCount(1);await expect(fallback).toHaveAttribute('src',/avatar-bear-v1/);await expect.poll(()=>fallback.evaluate(image=>image instanceof HTMLImageElement&&image.complete&&image.naturalWidth>0)).toBe(true);
  await expect(page.getByText(user.email,{exact:true})).toHaveCount(0);
  await page.getByRole('tab',{name:'My',exact:true}).click();await toggle.uncheck();
  await page.getByRole('button',{name:'프로필 저장',exact:true}).click();

@@ -24,7 +24,7 @@ test.beforeAll(async()=>{
   '../src/provinces':`export const groupProvinceRecords=()=>({}),provinceLabels={};`,
   '../src/auth':`export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},setSession:async()=>{window.sdkSets=(window.sdkSets??0)+1;const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);return {data:{session},error:null};},getSession:async()=>({data:{session:null}})}};
    export const googleLogin=async()=>{const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);await new Promise(resolve=>window.finishGoogle=resolve);return session;};`,
-  '../src/Journal':`import React from '${react}';export const Author=()=>null,Backpack=()=>null,Collection=()=>null,Welcome=()=>null;
+  '../src/Journal':`import React from '${react}';export const Author=()=>null,JournalIcon=()=>null,Backpack=()=>null,Collection=()=>null,Welcome=()=>null;
    export const JournalNav=({tab,onTab})=>React.createElement('nav',null,React.createElement('span',{'data-testid':'current-tab'},tab),React.createElement('button',{onClick:()=>onTab('account')},'account'));`,
   '../src/theme':`export const colors={map:{ocean:'blue'}};`,
  };

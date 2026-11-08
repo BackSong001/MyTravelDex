@@ -738,3 +738,21 @@ FR-FIGMA-010: 실제바다PNG4개 원본hash·기본66/60/70/68슬롯·공통sou
 - t14 최종diff 코드/웹승인, 독립단위10/대상WebGL1 통과는 t12합계에 더하지않는다. 기존anchor7개/geoJSON원본·사진/군집·지도권한/출처는불변. 완성화면을runtime이미지로사용하지않는다. 새검증PNG는 가상데이터없는 WebGL지도한장만추가했으며기존자동생성증거는원본복원했다.
 - 실제.env APK 1차49초(t107) 이후최종moving guard코드로다시32초빌드·설치(t10b). AVD명mytrveldex/5556, 설치바이트/actual target일치·최종SHA256 `2a1563d89743d46d9ff09abb33765e35b23587c13e60969abe143f4090be6df0`. 기존로그인/사용자기록유지, 실제화면의PNG비행기/물결·사진군집/두줄출처, 확대4회·전체보기복귀를관측했다. 확대화면의장식부재만으로전체카메라·연속gesture타이밍수용을주장하지않는다. 원래홈에복귀후Appium세션만종료했으며기존AVD/앱유지·사용자쓰기/원격변경없음. 사용자화면은Git에저장하지않았다.
 - 실제기기/큰글꼴/권한/새OAuth/전체앱회귀/Play/24테마는이번범위미검증이다. 바다조각완료이며 전체Figma구현완료는아니다.
+
+
+## TC-FIGMA-JOURNAL-001/002 계획 (2026-11-09)
+
+서버GET상한을2로강제하는실제LocalHTTP에서마지막행/중복없는순회·동일날짜ID정렬·본인complete/private/초안분리·친구public만/기존필터를검증한다. 실제Home도감에서320/390/768한열/64px/최대640/작성자a11y/상세복귀·삭제후복귀·검색4정렬값유지와변경시위치초기화/목록끝메뉴비가림을확인한다. 페이지오류/사진실패를성공전체로꾸미지않는다. 새샘플12건을실데이터로삽입하지않으며기존CRUD·세션·스탬프회귀를유지한다. Native범위는별도로구분한다.
+
+
+### 17C 한 열 도감·전체 조회 실행 (2026-11-09 03:07 KST)
+
+- Figma Batch07 `26:188` high-fidelity context/렌더를 기준으로 실제 RN 한열행/64dp사진/제목2줄/날짜·장소/오른쪽작성자/도감book헤더·최대640dp를 적용했다. 오래된 시안 기간입력 대신 기존검색4정렬/범위/지역/초안기능을 유지한다. 양수표시와달리 pending/failed에는미확정숫자·첫여행·목록끝을꾸미지않는다.
+- 실제Local HTTP의 GET 반환상한2에서 첫페이지만나오는Red(t10d)→vnext전체5 Green(t10f). 관련 photo44+friends5+vnext5=실제Local HTTP54와 journal정렬단위2를합쳐56(t10g)이며전부HTTP라고합산하지않는다. 시작bearer교체/중간503/초안분리 보강후5통과(t10r), 사진metadata도2행상한으로확인한대상1통과(t111, 나머지4는grep제외). listPages는count=exact/실제반환수offset/ID중복제거·시작token고정, Home metadata는in40·대표URL작업당동시4를사용한다. 서버동시수정 snapshot보장은없다.
+- UI그리드와목록복귀top행동Red2(t10k)→한열/상세·삭제복귀Green2(t10p). 앞선t10j의538,779B원본을512KiB제한thumbnail에올린RLS실패는fixture오류이며제품Red가아니다. 실제앱압축thumbnail을재사용하도록보정했다. 해당실패의미등록Local파일1개는정확한실행시각범위·삭제된fixture소유자/기록·원본바이트를검사해별도정리했고, 이후fixture는미등록업로드경로도추적해정리한다.
+- t14 P2①긴장소에상태가묻힘: 행label에상태포함/독립Text로분리, 긴장소/private/public/draft/320px Red→Green(t10x→t10y). pending/오류후retry도확인(t110). P2②목록오류의일반오류재게시잔존: 공개503→다른범위성공Red(t112)→목록error/loading의request소유권/ListLoadError throw/cause·effect자동catch분리Green(t113). 저장성공후목록실패의작성화면retry도 Red(t11b)→Green(t11c), 실제DB complete를확인했다. t14 지정코드최종승인 및 마지막표시callsite정적승인, 독립5+추가대상1은 t12합계에더하지않는다.
+- 중간전체98(t10v)는95pass/3fail: 행안작성자이미지추가/곰PNGfallback전환의구조기대2개와 작업중소스갱신때DOMdetach1개였다. 두이미지검사를고유대표사진role·실decode/곰PNGsrc·decode로동기화했고관련3대상재통과(t115). 이후중간102실행(t117)은최종작성화면retry1개추가후불필요한중복실행을멈췄다(61pass/1중단/40미실행); Green으로합산하지않는다.
+- **고정최종코드 단일전체 웹103 passed(5.9분,t11d)**. 마지막작성화면retry추가로예정102보다1개늘었다. TypeScript(t11g), 실제env web export(t11h, `/tmp/mytraveldex-task17-web`) 통과. backend/domain전체133 passed+기존외부1 skipped(t10t,18파일)와위추가metadata대상1은구분한다. 원격/API서버스키마/환경변수/dependency변경없음.
+- **최신actual.env standalone 개발서명APK38초(t11f)**. 앞선34초(t10w)·중간APK와구분하며설치base.apk와최종빌드바이트·actual URL/key target일치: `b6982233688695f8eca1ecd3737c145ebe3f016c539b67fbe20e9925a3fa5658`. AVD명mytrveldex/5556에서기존로그인·기록3개·64dp사진3개(밀도2.625에서각168px)·상태를포함한행접근성이름/한열표시를확인했다.
+- Native 가로+font_scale2.0은 cold restart후스크롤로중간기록상세를읽고목록으로복귀했다. 같은3행의보이는bounds가복귀전후정확히같았다: `[360,199][2040,377]`, `[360,377][2040,703]`, `[360,704][2040,849]`. 목록ScrollView `[0,199][2400,849]`는물리650px이며모든행이한번에보인다는뜻은아니다. 실제사용자기록/사진/관계/프로필은쓰기·삭제하지않았고화면/XML은Git에보관하지않았다. font_scale1.0/user_rotation0/accelerometer_rotation1/세로를원복·재시작후함께보기SDK세션복원확인, Appium세션만종료하고기존AVD/앱홈유지. 현재프로세스FATAL EXCEPTION0은장시간/전체시스템보증이아니다.
+- font_scale를실행중바꾼직후에는일부글자paint/측정잘림을관측했고cold restart후정상레이아웃을확인했다. 따라서이번Native큰글꼴수용은재시작후의범위이며실시간설정변경전체수용으로확대하지않는다(추후동적재측정검토). TalkBack실조작/실기기/새Google동의·취소·만료/Play/대량실사용자운영수용은미검증. 새QA PNG의사진은 Mobius6 [Jeonju Hanok Village 20230408 008.jpg](https://commons.wikimedia.org/wiki/File:Jeonju_Hanok_Village_20230408_008.jpg), CC BY-SA4.0이며합성Local계정만보인다. 기존verification이미지는원본복원했다.

@@ -18,9 +18,11 @@ import LocationPicker from '../src/LocationPicker';
 import {ProfileEditor,Friends,isUserId} from '../src/Social';
 import {groupProvinceRecords,provinceLabels} from '../src/provinces';
 import {googleLogin,auth} from '../src/auth';
-import {Author, Backpack, Collection, JournalNav, Welcome, JournalTab} from '../src/Journal';
+import {Author, Backpack, Collection, JournalNav, JournalIcon, Welcome, JournalTab} from '../src/Journal';
 import {journalRecords, journalOrders, type JournalOrder} from '../src/journalRecords';
 import {colors as c} from '../src/theme';
+
+class ListLoadError extends Error {}
 
 type Selected={id:string;asset:ImagePickerAsset;captured_date:string|null;captured_at:string|null;latitude:number|null;longitude:number|null};
 export default function Home(){
@@ -30,14 +32,14 @@ export default function Home(){
  useEffect(()=>{let active=true;void AsyncStorage.getItem('mytraveldex-friend-invite').then(value=>{if(active&&isUserId(value))setStoredInvite(value);}).catch(()=>{});return()=>{active=false;};},[]);
  useEffect(()=>{if(isUserId(friend))void AsyncStorage.setItem('mytraveldex-friend-invite',friend).catch(()=>{});},[friend]);
  function dismissInvite(){setStoredInvite(undefined);router.setParams({friend:undefined});void AsyncStorage.removeItem('mytraveldex-friend-invite').catch(()=>{});}
- const scroll=useRef<ScrollView>(null),listRequest=useRef(0),navigationVersion=useRef(0);
+ const scroll=useRef<ScrollView>(null),listRequest=useRef(0),navigationVersion=useRef(0),albumScroll=useRef(0);
  const latestLoad=useRef<()=>Promise<void>>(async()=>{}),busyRef=useRef(false),authOwner=useRef<string|null>(null),sessionEpoch=useRef(0),operationVersion=useRef(0);
  const edited=useRef({start:false,end:false,location:false});
  const fieldRefs=useRef<Record<string,TextInput|null>>({}),fieldPositions=useRef<Record<string,number>>({}),photoButton=useRef<View>(null);
  const [invalidField,setInvalidField]=useState(''),[replacement,setReplacement]=useState<any>(null);
  const detailRequests=useRef(new Map<any,Promise<void>>());
  const [screen,setScreen]=useState('login'),[session,setSession]=useState<any>(null),[rows,setRows]=useState<any[]>([]),[selected,setSelected]=useState<any>(null);
- const [composer,setComposer]=useState(false),[discard,setDiscard]=useState(false),[saved,setSaved]=useState(''),[loading,setLoading]=useState(false);
+ const [composer,setComposer]=useState(false),[discard,setDiscard]=useState(false),[saved,setSaved]=useState(''),[loading,setLoading]=useState(false),[listError,setListError]=useState('');
  const [journalOrder,setJournalOrder]=useState<JournalOrder>('start_desc'),[journalQuery,setJournalQuery]=useState('');
  const [authors,setAuthors]=useState<Record<string,any>>({}),[ownRows,setOwnRows]=useState<any[]>([]),[placeInfo,setPlaceInfo]=useState<any>(null),[preview,setPreview]=useState<any>(null);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false),[scope,setScope]=useState('combined'),[start,setStart]=useState(''),[end,setEnd]=useState(''),[friendOwner,setFriendOwner]=useState(''),[provinceFilter,setProvinceFilter]=useState('');
@@ -74,7 +76,8 @@ export default function Home(){
  const [landmarks,setLandmarks]=useState<{id:string;name:string;latitude:number;longitude:number}[]>([]);
  useEffect(()=>()=>cleanupPickedPhotos(photos.map(p=>p.asset)),[photos]);
  useEffect(()=>{if(!session)return;let cancelled=false;Promise.all(['전주한옥마을','경복궁','남산서울타워','해운대해수욕장','성산일출봉'].map(async query=>{try{const results=await api.request('/functions/v1/geocode-location','POST',{query});return results.find((p:any)=>p.name?.replace(/\s/g,'')===query.replace(/\s/g,''))??null;}catch{return null;}})).then(results=>{if(!cancelled)setLandmarks(results.filter(Boolean));});return()=>{cancelled=true;};},[session?.user?.id]);
- useEffect(()=>{scroll.current?.scrollTo({y:0,animated:false});},[screen,tab]);
+ useEffect(()=>{const y=screen==='list'&&tab==='album'?albumScroll.current:0;const frame=requestAnimationFrame(()=>scroll.current?.scrollTo({y,animated:false}));return()=>cancelAnimationFrame(frame);},[screen,tab]);
+ useEffect(()=>{albumScroll.current=0;if(screenRef.current==='list'&&tab==='album')scroll.current?.scrollTo({y:0,animated:false});},[journalQuery,journalOrder,scope,provinceFilter,friendOwner,drafts]);
  useEffect(()=>{if(!saved)return;const timer=setTimeout(()=>setSaved(''),4000);return()=>clearTimeout(timer);},[saved]);
  const field=(label:string,value:string,onChange:(s:string)=>void,extra:any={})=><View style={s.field} onLayout={event=>{fieldPositions.current[label]=event.nativeEvent.layout.y;}}><Text style={s.label}>{label}</Text><TextInput ref={node=>{fieldRefs.current[label]=node;}} accessibilityLabel={label} accessibilityHint={invalidField===label?error:undefined} accessibilityState={{disabled:busy}} aria-invalid={invalidField===label} editable={!busy} style={[s.input,invalidField===label&&s.invalidInput]} value={value} onChangeText={next=>{if(invalidField===label){setInvalidField('');setError('');}onChange(next);}} placeholderTextColor={c.muted} {...extra}/>{invalidField===label&&<Text style={s.fieldError}>{error}</Text>}</View>;
 
@@ -91,15 +94,17 @@ export default function Home(){
  }
  async function perform(action:()=>Promise<void>){
   if(busyRef.current)return;const operation=++operationVersion.current;busyRef.current=true;setError('');setInvalidField('');setSaved('');setBusy(true);
-  try{await action();}catch(e){if(operation!==operationVersion.current)return;const message=e instanceof Error?e.message:'요청을 처리하지 못했습니다.';setError(message);if(e instanceof RecordValidationError)focusInvalid(({photos:'사진 선택',start_date:'여행 시작일',end_date:'여행 종료일',location:'장소 검색'} as const)[e.field],message);}
+  try{await action();}catch(e){if(operation!==operationVersion.current||e instanceof ListLoadError)return;const message=e instanceof Error?e.message:'요청을 처리하지 못했습니다.';setError(message);if(e instanceof RecordValidationError)focusInvalid(({photos:'사진 선택',start_date:'여행 시작일',end_date:'여행 종료일',location:'장소 검색'} as const)[e.field],message);}
   finally{if(operation===operationVersion.current){busyRef.current=false;setBusy(false);}}
  }
 
  async function load(current=session){
-  const request=++listRequest.current;
+  const request=++listRequest.current;setLoading(true);setListError('');
+  try{
   const own=current?await api.list(current.user.id):[];
+  if(request!==listRequest.current)return;
   let result:any[];
-  if(drafts&&current)result=await api.request(`/rest/v1/travel_records?owner_id=eq.${current.user.id}&status=eq.draft&select=*,locations(*)&order=created_at.desc`);
+  if(drafts&&current)result=await api.drafts(current.user.id);
   else if(!current||scope==='public')result=await api.list(undefined);
   else if(friendOwner)result=(await api.following()).filter((record:any)=>record.owner_id===friendOwner);
   else if(scope==='mine')result=own;
@@ -110,13 +115,22 @@ export default function Home(){
   setOwnRows(own);
   const next:Record<string,string>={};
   const ownIds=result.filter(r=>r.owner_id===current?.user.id).map(r=>r.id),otherIds=result.filter(r=>r.owner_id!==current?.user.id).map(r=>r.id);
-  for(const [table,ids] of [['photos',ownIds],['public_photos',otherIds]] as const){if(!ids.length)continue;
-   const photos=await api.request(`/rest/v1/${table}?select=id,travel_record_id&is_cover=eq.true&travel_record_id=in.(${ids.join(',')})`);
-   await Promise.all(photos.map(async(p:any)=>{try{next[p.travel_record_id]=await api.photoUrl(p.id);}catch{/* 사진 URL 실패가 기록 조회를 막지 않는다. */}}));
+  for(const [table,ids] of [['photos',ownIds],['public_photos',otherIds]] as const)for(let index=0;index<ids.length;index+=40){
+   if(request!==listRequest.current)return;
+   const photos=await api.listPages(`/rest/v1/${table}?select=id,travel_record_id&is_cover=eq.true&travel_record_id=in.(${ids.slice(index,index+40).join(',')})&order=id.asc`);
+   for(let photo=0;photo<photos.length;photo+=4){
+    if(request!==listRequest.current)return;
+    await Promise.all(photos.slice(photo,photo+4).map(async(p:any)=>{try{next[p.travel_record_id]=await api.photoUrl(p.id);}catch{/* 사진 URL 실패가 기록 조회를 막지 않는다. */}}));
+   }
   }
-  const ids=[...new Set(result.map(r=>r.owner_id))];
-  const profiles=ids.length?await api.request(`/rest/v1/public_profiles?select=id,display_name,avatar_url&id=in.(${ids.join(',')})`):[];
+  const ids=[...new Set(result.map(r=>r.owner_id))],profiles:any[]=[];
+  for(let index=0;index<ids.length;index+=40){
+   if(request!==listRequest.current)return;
+   profiles.push(...await api.listPages(`/rest/v1/public_profiles?select=id,display_name,avatar_url&id=in.(${ids.slice(index,index+40).join(',')})&order=id.asc`));
+  }
   if(request===listRequest.current){setCovers(next);setAuthors(Object.fromEntries(profiles.map((p:any)=>[p.id,p])));}
+  }catch(error){const message=error instanceof Error?error.message:'목록을 불러오지 못했습니다.';if(request===listRequest.current)setListError(message);throw new ListLoadError(message,{cause:error});}
+  finally{if(request===listRequest.current)setLoading(false);}
  }
 
  latestLoad.current=()=>load();
@@ -124,14 +138,14 @@ export default function Home(){
   const owner=next?.user?.id??null,changed=owner!==authOwner.current;
   authOwner.current=owner;api.token=next?.access_token??null;setSession(next);
   if(!changed)return;
-  sessionEpoch.current++;operationVersion.current++;busyRef.current=false;setBusy(false);
+  albumScroll.current=0;sessionEpoch.current++;operationVersion.current++;busyRef.current=false;setBusy(false);
   // 이전 사용자의 진행 중 응답은 개인 상태를 다시 채울 수 없다.
   navigationVersion.current++;listRequest.current++;selectedRef.current=null;screenRef.current=next?'list':'login';
   setSelected(null);setUrls({});setPreview(null);setRows([]);setOwnRows([]);setCovers({});setAuthors({});
   setComposer(false);setPending(null);setPhotos([]);setPlaceInfo(null);setLatitude('');setLongitude('');
   setTitle('');setContent('');setStart('');setEnd('');setEditTitle('');setEditContent('');setVisibility('private');
   setDiscard(false);setReplacement(null);setManage(false);setLocationOpen(false);setInvalidField('');setPhotoNotice('');
-  setError('');setSaved('');setFriendOwner('');setProvinceFilter('');setDrafts(false);setScope(next?'combined':'public');setTab('home');setScreen(next?'list':'login');
+  setError('');setSaved('');setListError('');setLoading(false);setFriendOwner('');setProvinceFilter('');setDrafts(false);setScope(next?'combined':'public');setTab('home');setScreen(next?'list':'login');
  }
  useEffect(()=>{let active=true,changed=false;
   void AsyncStorage.removeItem('mytraveldex-session').catch(()=>{});
@@ -139,8 +153,8 @@ export default function Home(){
   void auth.auth.getSession().then(({data})=>{if(active&&!changed)receiveSession(data.session);}).catch(error=>{if(active&&!changed)setError(error.message);});
   return()=>{active=false;data.subscription.unsubscribe();};
  },[]);
- useEffect(()=>{let active=true;setLoading(true);load().catch(error=>{if(active)setError(error.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[session,scope,drafts,friendOwner,provinceFilter]);
- useEffect(()=>{const refresh=()=>{void Promise.all([latestLoad.current(),refreshDetailUrls()]).catch(e=>setError(e.message));};const timer=setInterval(refresh,240000);const subscription=AppState.addEventListener('change',state=>{if(state==='active')refresh();});return()=>{clearInterval(timer);subscription.remove();};},[session,scope,drafts,friendOwner,provinceFilter]);
+ useEffect(()=>{void load().catch(()=>{});},[session,scope,drafts,friendOwner,provinceFilter]);
+ useEffect(()=>{const refresh=()=>{const epoch=sessionEpoch.current,version=navigationVersion.current,record=selectedRef.current;void latestLoad.current().catch(()=>{});void refreshDetailUrls().catch(e=>{if(epoch===sessionEpoch.current&&version===navigationVersion.current&&record===selectedRef.current&&screenRef.current==='detail')setError(e.message);});};const timer=setInterval(refresh,240000);const subscription=AppState.addEventListener('change',state=>{if(state==='active')refresh();});return()=>{clearInterval(timer);subscription.remove();};},[session,scope,drafts,friendOwner,provinceFilter]);
  async function login(){
   const epoch=sessionEpoch.current;
   const result=await api.request('/auth/v1/token?grant_type=password','POST',{email,password});
@@ -228,7 +242,8 @@ export default function Home(){
 
  {screen==='list'&&tab==='album'&&<>
 
-  <Collection emptySearch={!!journalQuery.trim()} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} tab={tab} authors={authors} onOpen={r=>perform(()=>open(r))}>
+  <Collection loading={loading} failed={!!listError} disabled={busy||loading} emptySearch={!!journalQuery.trim()} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} authors={authors} onOpen={r=>perform(()=>open(r))}>
+   {!!listError&&<View><Text style={s.description}>{rows.length?'이전 목록을 표시하고 있어요.':'목록을 불러오지 못했어요.'}</Text>{button('목록 다시 불러오기',()=>perform(()=>load()),true)}</View>}
    <View style={s.filterBar}><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:8,alignItems:'center'}}>{['combined','mine','following','public'].filter(x=>session||x==='public').map(x=><View key={x}>{button(({combined:'함께 보기',mine:'내 여행',following:'친구 여행',public:'공개 여행'} as any)[x],()=>{setFriendOwner('');setScope(x);},scope!==x)}</View>)}</ScrollView><Pressable accessibilityRole="button" accessibilityLabel="필터" accessibilityState={{expanded:filtersOpen}} aria-expanded={filtersOpen} aria-controls={filtersOpen?'album-filters':undefined} onPress={()=>setFiltersOpen(!filtersOpen)} style={({pressed})=>[s.filterToggle,(filtersOpen||journalOrder!=='start_desc'||provinceFilter)&&{backgroundColor:c.warm},pressed&&{backgroundColor:c.rose}]}><Text style={{color:c.ink,fontWeight:'600'}}>필터 {filtersOpen?'⌃':'⌄'}</Text></Pressable></View>
    <View style={{flexDirection:'row',alignItems:'center',gap:8}}><View style={{flex:1,minWidth:0}}>{field('여행 검색',journalQuery,setJournalQuery,{placeholder:'제목, 한줄평, 지역 또는 장소 검색',returnKeyType:'search'})}</View>{!!journalQuery&&<Pressable accessibilityRole="button" accessibilityLabel="검색어 지우기" onPress={()=>setJournalQuery('')} style={[s.filterToggle,{marginTop:18}]}><Text style={s.buttonText}>×</Text></Pressable>}</View>
    <Text style={s.description}>현재 범위에서 불러온 여행을 검색해요.</Text>
@@ -253,10 +268,14 @@ export default function Home(){
  {screen==='create'&&!!pending?.existing&&<Text style={s.description}>이미 등록된 사진 {pending.existing}장과 선택한 사진을 함께 저장합니다.</Text>}
  {screen==='list'&&tab==='friends'&&<Friends session={session} inviteCode={inviteCode} onInviteHandled={dismissInvite} onChanged={()=>{void perform(()=>load());}} onMap={(owner:string)=>{setFriendOwner(owner);setScope('following');navigate('home');}}/>}
  {screen==='account'&&<><Text style={s.heading}>나의 계정</Text><ProfileEditor session={session} onChanged={()=>{void perform(()=>load());}}/><Text style={s.sectionTitle}>나의 여행 스탬프 · {Object.keys(ownGroups).length} / 17</Text><View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{Object.entries(provinceLabels).map(([id,p])=><View key={id} style={[s.stamp,{backgroundColor:ownGroups[id]?c.rose:c.sheet}]}><Text style={{color:c.ink}}>{ownGroups[id]?'✓ ':''}{p.name}</Text></View>)}</View>{button('내 여행 보기',()=>{setScope('mine');navigate('album');},true)}{button('로그아웃',()=>perform(async()=>{const result=await auth.auth.signOut();if(result.error)throw result.error;}))}</>}
+ {!!listError&&!(screen==='list'&&tab==='album')&&<View accessibilityRole="alert" style={s.error}><Text style={{color:c.error}}>{listError}</Text>{button('목록 다시 불러오기',()=>perform(()=>load()),true)}</View>}
  {!!saved&&<Pressable accessibilityRole="button" accessibilityLabel="완료 안내 닫기" onPress={()=>setSaved('')}><Text accessibilityRole="alert" style={s.description}>{saved}</Text></Pressable>}{(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" color="#176865" style={{margin:20}}/>}{!!error&&<View accessibilityRole="alert" style={s.error}><Text style={{color:'#973c37'}}>{error}</Text><Text style={s.description}>입력은 유지됩니다. 확인 후 다시 시도해 주세요.</Text></View>}
  </>;}
- return <SafeAreaView edges={['top','left','right']} style={s.safe}><View style={[s.top,compact&&{minHeight:44,paddingVertical:4,paddingHorizontal:12}]}><View style={{flexDirection:'row',alignItems:'center',gap:8}}><Backpack size={compact?22:28}/><Text style={[s.brand,compact&&{fontSize:18}]}>여행가봥</Text></View>{!compact&&<Text style={s.motto}>나만의 여행도감</Text>}</View>{(mapHome||screen==='create')?<View onLayout={e=>setMapHeight(e.nativeEvent.layout.height)} style={{flex:1}}><TravelMap fullScreen onAttributionLayout={setAttributionHeight} landmarks={landmarks} records={rows} ownRecords={ownRows} covers={covers} authors={authors} onSelect={setPreview} onRegion={(id)=>{setProvinceFilter(id);navigate('album');}}/>{mapHome&&<View style={s.mapTools}>{button(`표시 범위 · ${scopeNames[scope]}`,()=>setScopeOpen(!scopeOpen),true)}{scopeOpen&&<ScrollView testID="map-scope-menu" keyboardShouldPersistTaps="handled" style={{maxHeight:Math.max(50,mapHeight-100),backgroundColor:c.sheet,borderRadius:18}} contentContainerStyle={{padding:8}}>{['combined','mine','following','public'].filter(x=>session||x==='public').map(x=>button(scopeNames[x],()=>{setFriendOwner('');setScope(x);setPreview(null);setScopeOpen(false);},scope!==x))}</ScrollView>}</View>}{mapHome&&preview&&<RecordPreview availableHeight={mapHeight} attributionHeight={attributionHeight} key={preview.id} record={preview} owner={session?.user?.id} author={authors[preview.owner_id]} onOpen={()=>{void perform(()=>open(preview));}} onClose={()=>setPreview(null)}/>}{screen==='create'&&<ComposerSheet><ScrollView ref={scroll} contentContainerStyle={[s.page,compact&&{padding:12,paddingBottom:24}]} keyboardShouldPersistTaps="handled">{renderContent()}</ScrollView></ComposerSheet>}</View>:<ScrollView ref={scroll} contentContainerStyle={[s.page,compact&&{padding:12,paddingBottom:24},screen==='list'&&tab==='album'&&{maxWidth:1120}]} keyboardShouldPersistTaps="handled">
+ return <SafeAreaView edges={['top','left','right']} style={s.safe}><View style={[s.top,screen==='list'&&tab==='album'&&{maxWidth:640,paddingHorizontal:16},compact&&{minHeight:44,paddingVertical:4,paddingHorizontal:12}]}><View style={{flexDirection:'row',alignItems:'center',gap:8}}>{screen==='list'&&tab==='album'?<JournalIcon name="album" size={compact?22:32}/>:<Backpack size={compact?22:28}/>}<Text style={[s.brand,compact&&{fontSize:18}]}>여행가봥</Text></View>{!compact&&!(screen==='list'&&tab==='album')&&<Text style={s.motto}>나만의 여행도감</Text>}</View>{(mapHome||screen==='create')?<View onLayout={e=>setMapHeight(e.nativeEvent.layout.height)} style={{flex:1}}><TravelMap fullScreen onAttributionLayout={setAttributionHeight} landmarks={landmarks} records={rows} ownRecords={ownRows} covers={covers} authors={authors} onSelect={setPreview} onRegion={(id)=>{setProvinceFilter(id);navigate('album');}}/>{mapHome&&<View style={s.mapTools}>{button(`표시 범위 · ${scopeNames[scope]}`,()=>setScopeOpen(!scopeOpen),true)}{scopeOpen&&<ScrollView testID="map-scope-menu" keyboardShouldPersistTaps="handled" style={{maxHeight:Math.max(50,mapHeight-100),backgroundColor:c.sheet,borderRadius:18}} contentContainerStyle={{padding:8}}>{['combined','mine','following','public'].filter(x=>session||x==='public').map(x=>button(scopeNames[x],()=>{setFriendOwner('');setScope(x);setPreview(null);setScopeOpen(false);},scope!==x))}</ScrollView>}</View>}{mapHome&&preview&&<RecordPreview availableHeight={mapHeight} attributionHeight={attributionHeight} key={preview.id} record={preview} owner={session?.user?.id} author={authors[preview.owner_id]} onOpen={()=>{void perform(()=>open(preview));}} onClose={()=>setPreview(null)}/>}{screen==='create'&&<ComposerSheet><ScrollView ref={scroll} contentContainerStyle={[s.page,compact&&{padding:12,paddingBottom:24}]} keyboardShouldPersistTaps="handled">{renderContent()}</ScrollView></ComposerSheet>}</View>:<ScrollView ref={scroll} scrollEventThrottle={16} onScroll={event=>{if(screen==='list'&&tab==='album')albumScroll.current=event.nativeEvent.contentOffset.y;}} contentContainerStyle={[s.page,compact&&{padding:12,paddingBottom:24},screen==='list'&&tab==='album'&&{maxWidth:640,padding:16,paddingTop:12,paddingBottom:32}]} keyboardShouldPersistTaps="handled">
 {renderContent()}
- </ScrollView>}{mapHome&&(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" style={{position:'absolute',top:90,alignSelf:'center'}}/>}{mapHome&&!!saved&&<View pointerEvents="none" style={[s.error,{position:'absolute',bottom:120,left:16,right:16}]}><Text accessibilityRole="alert">{saved}</Text></View>}{mapHome&&!!error&&<View accessibilityRole="alert" style={[s.error,{position:'absolute',bottom:92,left:16,right:16}]}><Text style={{color:'#973c37'}}>{error}</Text><Pressable accessibilityRole="button" onPress={()=>setError('')} style={{padding:12}}><Text>안내 닫기</Text></Pressable></View>}{['list','detail','account','create','confirm'].includes(screen)&&<JournalNav tab={screen==='account'?'account':tab} onTab={navigate} onCreate={startCreate}/>}{locationOpen&&<LocationPicker initialPlace={latitude&&longitude?{...placeInfo,latitude:Number(latitude),longitude:Number(longitude)}:null} onClose={()=>setLocationOpen(false)} onConfirm={applyPlace} footer={<JournalNav tab={tab} onTab={navigate} onCreate={startCreate}/>}/>}</SafeAreaView>;
+ </ScrollView>}{mapHome&&(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" style={{position:'absolute',top:90,alignSelf:'center'}}/>}{mapHome&&!!saved&&<View pointerEvents="none" style={[s.error,{position:'absolute',bottom:120,left:16,right:16}]}><Text accessibilityRole="alert">{saved}</Text></View>}{mapHome&&!!(error||listError)&&<View accessibilityRole="alert" style={[s.error,{position:'absolute',bottom:92,left:16,right:16}]}>
+ {!!error&&<><Text style={{color:c.error}}>{error}</Text><Pressable accessibilityRole="button" onPress={()=>setError('')} style={{padding:12}}><Text>안내 닫기</Text></Pressable></>}
+ {!!listError&&<><Text style={{color:c.error}}>{listError}</Text>{button('목록 다시 불러오기',()=>perform(()=>load()),true)}</>}
+ </View>}{['list','detail','account','create','confirm'].includes(screen)&&<JournalNav tab={screen==='account'?'account':tab} onTab={navigate} onCreate={startCreate}/>}{locationOpen&&<LocationPicker initialPlace={latitude&&longitude?{...placeInfo,latitude:Number(latitude),longitude:Number(longitude)}:null} onClose={()=>setLocationOpen(false)} onConfirm={applyPlace} footer={<JournalNav tab={tab} onTab={navigate} onCreate={startCreate}/>}/>}</SafeAreaView>;
 }
 const s=StyleSheet.create({filterBar:{flexDirection:'row',alignItems:'center',gap:12},filterToggle:{paddingHorizontal:16,justifyContent:'center',borderRadius:16,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line},filterPanel:{padding:16,marginTop:12,borderRadius:20,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,maxWidth:640},motto:{fontSize:12,color:c.muted},invalidInput:{borderColor:c.error,borderWidth:2},fieldError:{color:c.error,fontSize:14,lineHeight:22,marginTop:6},stamp:{padding:14,minHeight:48,borderRadius:20,borderWidth:1,borderColor:c.line},mapTools:{position:'absolute',top:8,left:12,maxWidth:280,gap:4},mapBadge:{alignSelf:'flex-end',padding:12,backgroundColor:c.sheet,color:c.ink,borderRadius:16,fontWeight:'700'},mapPreview:{position:'absolute',bottom:16,left:16,right:16,maxWidth:440,backgroundColor:c.sheet,padding:20,borderRadius:20,borderWidth:1,borderColor:c.line},loginNote:{textAlign:'center',color:c.muted,fontSize:13,marginTop:12,marginBottom:6},safe:{flex:1,backgroundColor:c.paper},top:{minHeight:64,width:'100%',maxWidth:1120,alignSelf:'center',flexWrap:'wrap',gap:8,paddingHorizontal:20,paddingVertical:10,flexDirection:'row',justifyContent:'space-between',alignItems:'center',backgroundColor:c.paper},brand:{fontSize:21,fontWeight:'800',letterSpacing:-.8,color:c.ink},account:{color:c.ink,fontSize:15},page:{padding:20,maxWidth:760,width:'100%',alignSelf:'center',paddingBottom:48},kicker:{fontSize:14,color:c.sea,marginTop:14,marginBottom:12,fontWeight:'600'},heading:{fontSize:24,lineHeight:34,letterSpacing:-1.2,fontWeight:'800',color:c.ink,marginBottom:14},description:{fontSize:14,lineHeight:23,color:c.muted,marginBottom:14},section:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:24,marginBottom:12},sectionTitle:{fontSize:21,fontWeight:'700',color:c.ink},count:{color:'#4b9690'},button:{minHeight:48,minWidth:48,backgroundColor:c.coral,borderRadius:16,paddingHorizontal:18,paddingVertical:14,marginVertical:6,alignItems:'center'},secondary:{backgroundColor:c.warm},buttonText:{color:'#30241E',fontSize:15,fontWeight:'600'},tabs:{flexDirection:'row',gap:8,marginBottom:12},tab:{padding:12,paddingHorizontal:22,borderRadius:22,backgroundColor:c.warm},activeTab:{backgroundColor:c.coral},field:{marginVertical:7},label:{fontSize:13,fontWeight:'600',color:c.ink,marginBottom:6},input:{backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,borderRadius:9,paddingHorizontal:14,paddingVertical:12,fontSize:16,color:c.ink,minHeight:48},empty:{paddingVertical:30},emptyTitle:{color:c.ink,fontWeight:'600',fontSize:18,marginBottom:8},record:{backgroundColor:c.sheet,padding:20,borderRadius:14,marginTop:12,borderLeftWidth:4,borderColor:c.rose},recordTitle:{fontSize:20,fontWeight:'700',color:c.ink,marginBottom:8},place:{fontSize:13,color:c.sea,marginVertical:6},preview:{width:84,height:84,borderRadius:10,marginRight:10},detailPhoto:{width:'100%',height:240,borderRadius:14,marginTop:16},actions:{flexDirection:'row',flexWrap:'wrap',gap:8},error:{backgroundColor:'#fff0ed',padding:16,borderRadius:10,marginTop:12},footer:{padding:12,backgroundColor:c.warm},footerText:{fontSize:11,textAlign:'center',color:'#527f7a'}});

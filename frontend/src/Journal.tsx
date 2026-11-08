@@ -1,10 +1,9 @@
 import Pressable from './Feedback';
-import React, {useState} from 'react';
+import React from 'react';
 import {Image, Platform, StyleSheet, Text, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
 import {uiAssets} from './uiAssets';
-import TravelMap from './TravelMap';
 import Avatar from './Avatar';
 import {colors as c} from './theme';
 
@@ -29,39 +28,32 @@ export type JournalTab = 'home' | 'album' | 'friends' | 'account';
 
 // 공개 프로필 projection만 전달하며 Auth 메타데이터를 기본값으로 사용하지 않는다.
 export type PublicAuthor = {display_name?: string | null; avatar_url?: string | null};
-export function Author({author}: {author?: PublicAuthor | null}) {
+export function Author({author,size=28}: {author?: PublicAuthor | null;size?:number}) {
   const name = author?.display_name?.trim() || '여행자';
-  return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url}/></View>;
+  return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url} size={size}/></View>;
 }
 
-export function Collection({records, covers, tab, onOpen, authors = {}, emptySearch=false, children}: {
-  records: any[]; covers: Record<string, string>; tab: JournalTab;
-  onOpen: (record: any) => void; emptySearch?: boolean; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
+export function Collection({records, covers, onOpen, authors = {}, emptySearch=false, disabled=false, loading=false, failed=false, children}: {
+  records: any[]; covers: Record<string, string>;
+  onOpen: (record: any) => void; emptySearch?: boolean; disabled?:boolean; loading?:boolean; failed?:boolean; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
 }) {
-  const {width, height, fontScale} = useWindowDimensions();
-  const [containerWidth, setContainerWidth] = useState<number>();
-  const available = containerWidth ?? Math.max(0, width - 32);
-  const columns = Math.max(1, Math.min(4, Math.floor((available + 12) / (144 * fontScale + 12))));
-  const cardWidth = Math.max(0, (available - 12 * (columns - 1)) / columns);
-  const album = tab === 'album';
+  const {height}=useWindowDimensions();
   return <>
-    <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={s.title}>{album ? '여행도감' : '여행의 한 장'}</Text><Text style={s.subtitle}>{album ? `총 ${records.length}개의 여행 기록` : '가방에 담아 온 기억을 펼쳐보세요.'}</Text></View>
+    <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={s.title}>여행도감</Text><Text accessibilityLabel={loading?'여행 기록 불러오는 중':undefined} style={s.subtitle}>{loading?'불러오는 중':failed?'확인 필요':`${records.length}개`}</Text></View>
     {children}
-    {!album && <View style={s.mapFrame}><View style={s.mapCaption}><Text style={s.mapCaptionText}>여행 발자국</Text><Text style={s.total}>{records.length}개의 여행</Text></View><TravelMap records={records} onSelect={onOpen}/></View>}
-    {!album&&<View style={s.section}><Text style={s.sectionTitle}>최근 여행 기록</Text></View>}
-    {!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
-    <View style={s.grid} onLayout={event => setContainerWidth(event.nativeEvent.layout.width)}>{records.map(record => {
+    {!loading&&!failed&&!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
+    <View style={s.list}>{records.map(record => {
       const author = authors[record.owner_id];
       const title = record.title || '제목 없는 여행';
       const place = record.locations?.place_name || record.locations?.region_name || '지도에 남긴 여행';
-      return <View key={record.id} style={[s.card,{width: cardWidth}]}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`${title}, ${author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}`} onPress={() => onOpen(record)} style={({pressed}) => [s.cardAction, pressed && s.cardPressed]}>
-          {covers[record.id] ? <Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} style={s.gridPhoto}/> : <View style={[s.photoPlaceholder, s.gridPhoto]}><JournalIcon name="album" color={c.sea}/><Text style={s.caption}>여행의 한 장</Text></View>}
-          <View style={s.cardBody}><Text style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date} ~ {record.end_date}</Text><Text numberOfLines={2} style={s.cardPlace}>{record.content||place}</Text></View>
-        </Pressable>
-        <View style={s.cardFooter}><Text style={s.visibility}>{record.status === 'draft' ? '작성 중' : record.visibility === 'private' ? '나만 보기' : '공개 여행'}</Text><Author author={author}/></View>
-      </View>;
+      const visibility=record.status==='draft'?'작성 중':record.visibility==='private'?'나만 보기':'공개 여행';
+      return <Pressable key={record.id} disabled={disabled} accessibilityRole="button" accessibilityLabel={`${title}, ${author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={() => onOpen(record)} style={({pressed}) => [s.listRow, pressed && s.cardPressed]}>
+        {covers[record.id] ? <Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} style={s.listPhoto}/> : <View style={[s.photoPlaceholder,s.listPhoto]}><JournalIcon name="album" size={30}/></View>}
+        <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={s.placeStatus}><Text numberOfLines={2} style={[s.cardPlace,{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View></View>
+        <View style={s.rowTrailing}><Author author={author} size={20}/><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>
+      </Pressable>;
     })}</View>
+    {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>불러온 {records.length}개의 여행 기록</Text>}
   </>;
 }
 
@@ -87,22 +79,23 @@ const s = StyleSheet.create({
   wordmark: {color: c.ink, fontSize: 30, fontWeight: '800', marginTop: 12, textAlign: 'center',letterSpacing:-1},
   intro: {color: c.muted, fontSize: 16, lineHeight:26,textAlign: 'center'},
   caption: {fontSize: 12, color: c.muted, textAlign: 'center', marginTop: 8},
-  titleRow: {marginTop: 10, marginBottom: 20}, title: {fontSize: 28, fontWeight: '800', color: c.ink, letterSpacing: -1}, subtitle: {fontSize: 14, lineHeight: 22, color: c.muted, marginTop: 8},
+  titleRow: {marginTop:0,marginBottom:16,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}, title: {fontSize:24, lineHeight:35,fontWeight: '700', color: c.ink, letterSpacing: -1}, subtitle: {fontSize: 14, lineHeight: 22, color: c.muted, marginTop: 8},
   mapFrame: {borderWidth: 1, borderColor: c.line, borderRadius: 22, overflow: 'hidden', backgroundColor: c.sheet}, mapCaption: {padding: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center'}, mapCaptionText: {fontSize: 13, color: c.ink}, total: {color: c.sea, fontWeight: '700', fontSize: 13},
   section: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, marginBottom: 12}, sectionTitle: {fontSize: 18, fontWeight: '700', color: c.ink},
   empty: {alignItems: 'center', paddingVertical: 26}, emptyTitle: {color: c.ink, fontSize: 18, fontWeight: '700', marginTop: 12},
-  grid: {flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start',marginTop:20},
-  card: {backgroundColor: c.sheet, borderRadius: 20},
-  cardAction: {borderRadius:20,backgroundColor:c.sheet},
-  cardPressed: {backgroundColor: c.warm, borderColor: c.focus},
-  gridPhoto: {width: '100%', aspectRatio: 1.12, borderRadius: 18},
-  photoPlaceholder: {backgroundColor: c.warm, alignItems: 'center', justifyContent: 'center'},
-  cardBody: {paddingTop: 12, paddingHorizontal: 12, paddingBottom: 4, minWidth: 0},
-  cardFooter: {paddingHorizontal:12,paddingBottom:8,flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:8},
-  cardTitle: {fontSize: 16, fontWeight: '700', color: c.ink},
-  cardDate: {fontSize: 12, color: c.muted, marginTop: 6},
-  cardPlace: {fontSize: 13, lineHeight:20,color: c.muted, marginTop: 6},
-  visibility: {fontSize: 12, color: c.sea,backgroundColor:c.warm,paddingHorizontal:8,paddingVertical:4,borderRadius:8,flexShrink:1},
+  list: {marginHorizontal:-16,marginTop:16,backgroundColor:c.sheet},
+  listRow: {flexDirection:'row',alignItems:'center',gap:12,paddingHorizontal:16,paddingVertical:12,minHeight:88,borderBottomWidth:1,borderColor:c.line,backgroundColor:c.sheet},
+  cardPressed: {backgroundColor:c.warm},
+  listPhoto: {width:64,height:64,borderRadius:10,flexShrink:0},
+  photoPlaceholder: {backgroundColor:c.warm,alignItems:'center',justifyContent:'center'},
+  rowBody: {flex:1,minWidth:0,gap:3},
+  rowTrailing: {width:20,alignItems:'center',flexShrink:0},
+  cardTitle: {fontSize:15,lineHeight:22,fontWeight:'700',color:c.ink},
+  cardDate: {fontSize:12,lineHeight:18,color:c.muted},
+  placeStatus: {flexDirection:'row',alignItems:'flex-start',gap:6},
+  cardPlace: {fontSize:11,lineHeight:16,color:c.muted},
+  chevron: {fontSize:18,lineHeight:22,color:c.muted},
+  listEnd: {padding:18,textAlign:'center',fontSize:11,color:c.muted},
   author: {flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 2},
   avatar: {width: 26, height: 26, borderRadius: 13, backgroundColor: c.warm},
   avatarFallback: {alignItems: 'center', justifyContent: 'center', overflow: 'hidden'},

@@ -244,3 +244,8 @@ MapLibre 지도 표시는 로컬 경계 스타일을 사용하고 외부 검색�
 - `POST /functions/v1/cleanup-storage`는 service role Bearer만 허용한다. 24시간 유예가 지난 미등록 파일을 서버 전용 큐로 처리하고 활성 기록 파일은 제외한다. 일반 사용자가 시간 인자를 보내 정리를 앞당길 수 없다.
 
 위치 비교 창도 기존 geocode-location의 query/Geoapify place_id/좌표 역지오코딩 계약을 재사용한다. 신규 서버 엔드포인트·권한·DB 컬럼은 추가하지 않는다. 선택한 주소는 기존 정규화 응답의 place_name/address/latitude/longitude/provider_place_id/attribution을 확정 후 기존 locations POST로 전달한다.
+
+
+## 17C 목록 순회 (2026-11-09)
+
+기존travel_records/following_travel_records GET의필터/응답배열/권한은유지한다. 클라이언트는limit=100/offset과Prefer:count=exact의Content-Range로실제서버상한뒤페이지를순회한다. 본인초안은owner_id/status=draft/order=created_at.desc,id.asc로별도조회한다. 메타데이터기본request는배열응답그대로유지하고순회내부에서만범위header를사용한다. 사진/공개프로필in40/목록대표사진URL발급을한조회작업당동시4개로제한한다. 페이지범위header이상/중간오류는실패로반환하며미완료배열을전체성공으로반환하지않는다. 공개/private/draft의RLS·view경계와URL만료/실패계약은변경하지않는다.

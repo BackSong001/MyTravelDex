@@ -1,6 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
-import {afterAll, beforeAll, expect, test} from 'vitest';
+import {afterAll, beforeAll, expect, test, vi} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
 
 const base = 'http://127.0.0.1:54321';
@@ -219,4 +219,39 @@ test('TC-VNEXT-HTTP-001: TravelApi profile/search/follow callers preserve safe f
   expect(await api.request(pairPath, 'DELETE')).toEqual([]);
   await api.request(ownPath, 'PATCH', {public_profile_enabled: false});
   expect(await anonymousApi.request(`/rest/v1/public_profiles?id=eq.${users[0].id}`)).toEqual([]);
+});
+
+
+test('TC-FIGMA-JOURNAL-002: real HTTP pages below the requested size reach every permitted record',async()=>{
+ expect((await profile(1,{display_name:'여행자',public_profile_enabled:true})).status).toBe(200);
+ expect([201,409]).toContain((await rest('follows',users[0].token,'POST',pair())).status);
+ const ownIds=[];for(let i=0;i<7;i++)ownIds.push((await record(0,true,i%2?'public':'private')).id);
+ const ownDraft=(await record(0,false,'private')).id;
+ const peerPublic=(await record(1,true,'public')).id,peerPrivate=(await record(1,true,'private')).id,peerDraft=(await record(1,false,'public')).id;
+ const api=new TravelApi(base,anon);api.token=users[0].token;
+ const originalFetch=globalThis.fetch;const offsets:number[]=[];let failAt:number|undefined,switchOwner=false;
+ const capped=vi.spyOn(globalThis,'fetch').mockImplementation((input,init)=>{
+  const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
+  if(init?.method==='GET'&&['/rest/v1/travel_records','/rest/v1/following_travel_records','/rest/v1/photos','/rest/v1/public_profiles'].includes(url.pathname)){
+   const offset=Number(url.searchParams.get('offset')??0);offsets.push(offset);url.searchParams.set('limit','2');
+   if(offset===failAt)return Promise.resolve(new Response(JSON.stringify({message:'Page unavailable'}),{status:503,headers:{'Content-Type':'application/json'}}));
+   if(switchOwner&&offset===0){switchOwner=false;return originalFetch(url,init).then(response=>{api.token=users[1].token;return response;});}
+  }
+  return originalFetch(url,init);
+ });
+ try{
+  const own=await api.list(users[0].id);expect(ownIds.every(id=>own.some((r:any)=>r.id===id))).toBe(true);
+  expect(new Set(own.map((r:any)=>r.id)).size).toBe(own.length);expect(own.some((r:any)=>r.id===ownDraft)).toBe(false);
+  expect(own.map((r:any)=>r.id)).toEqual(own.map((r:any)=>r.id).sort());
+  expect(offsets.slice(0,4)).toEqual([0,2,4,6]);
+  const publicRows=await api.list();expect(publicRows.some((r:any)=>r.id===peerPublic)).toBe(true);
+  expect(publicRows.some((r:any)=>[peerPrivate,peerDraft,ownDraft].includes(r.id))).toBe(false);
+  const regional=await api.list(users[0].id,'2026-11-01','2026-11-03','서울특별시');expect(regional.map((r:any)=>r.id)).toEqual(own.map((r:any)=>r.id));
+  const following=await api.following();expect(following.some((r:any)=>r.id===peerPublic)).toBe(true);
+  expect(following.some((r:any)=>[peerPrivate,peerDraft,ownDraft].includes(r.id))).toBe(false);
+  const meta=await api.listPages(`/rest/v1/photos?select=id,travel_record_id&travel_record_id=in.(${ownIds.join(',')})&order=id.asc`);expect(new Set(meta.map((p:any)=>p.travel_record_id))).toEqual(new Set(ownIds));
+  const drafts=await api.drafts(users[0].id);expect(drafts.some((r:any)=>r.id===ownDraft)).toBe(true);expect(drafts.some((r:any)=>ownIds.includes(r.id))).toBe(false);
+  switchOwner=true;const pinned=await api.list(users[0].id);expect(pinned.map((r:any)=>r.id)).toEqual(own.map((r:any)=>r.id));api.token=users[0].token;
+  failAt=2;await expect(api.list(users[0].id)).rejects.toMatchObject({status:503});
+ }finally{capped.mockRestore();}
 });

@@ -518,3 +518,8 @@ Auth SDK 이벤트를 클라이언트 세션의 단일 원천으로 사용한다
 ## Figma 실제 구현 (2026-11-09)
 
 새 사용자 구현 요청은 docs/FIGMA_IMPLEMENTATION.md의 최신 Batch 매핑을 따른다. 실제 자산을 로컬 번들에 사용하고 원본 PNG/색상/스토리보드와 기존 Auth·RLS·ID·초안·사진/지도를 유지한다. 시안의 가상 데이터를 실제 계정/여행으로 주입하지 않는다. 각 단계 명세→Red/Green→t14→수정→커밋/푸시→t9d답변→t12 순환을 지키며 운영 DB/배포는 별도 승인한다.
+
+
+## Figma 바다·한 열 도감 구현 (2026-11-09)
+
+바다PNG는고정anchor와외접원+8px의해안clearance를공유하고이동중/보정/줌9에서숨긴다. 도감은한열64dp/최대640dp·독립상태Text/행접근성이름을유지한다. 목록은count=exact/실제offset으로끝까지순회하고시작bearer·Home request세대를보존한다. metadata in40/대표URL작업당동시4와ListLoadError·listError 단일UI소유권/저장후실패중단을유지한다. 상세·삭제복귀는도감위치를복원하고query/order/scope/지역/초안/소유자변경은초기화한다. Native폰트검증은실시간변경과재시작후를구분하고설정을원복한다. 실제수용범위는TEST_CASE최신17C절을따른다.

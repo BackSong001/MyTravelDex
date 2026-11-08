@@ -67,7 +67,7 @@ test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
 });
 test('UI-JOURNAL-002 하단 도감과 지도 및 MY 탐색',async({page})=>{
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();await expect(page.getByRole('tab',{name:'여행도감',exact:true})).toHaveAttribute('aria-selected','true');
- await expect(page.getByText('총 0개의 여행 기록',{exact:true})).toBeVisible();
+ await expect(page.getByText('0개',{exact:true})).toBeVisible();
  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByTestId('travel-map')).toBeVisible();
  await page.getByRole('button',{name:'서울 지역 선택',exact:true}).click();await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
  await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();

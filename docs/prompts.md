@@ -1218,3 +1218,12 @@ AGENTS.md, DEVELOPMENT_STATUS.md, docs/{FIGMA_IMPLEMENTATION,REQUIREMENT,PRD,TRD
 **결과**: Figma바다4PNG를추가하고양지도에서해안과간격이충분한줌만표시한다. 위치보정/줌9/카메라이동중숨김, 기존anchor·마커·사진·출처보존. Redt101→전체WebGL10/단위19/types통과, t14승인후최종actualAPK32초설치/hash/target·PNG표시/확대·전체보기확인. 원격변경/사용자쓰기없음. 바다조각커밋후t9d전달예정; 테마/목록/소셜/My/새뽑기는후속이다.
 
 **변경 파일**: docs/{REQUIREMENT,PRD,TRD,DISAN,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, DEVELOPMENT_STATUS.md, frontend/assets/ui/{manifest.json,ocean-*.png}, frontend/src/{MapOrnament,TravelMap,TravelMap.web,provinces,uiAssets}, frontend/e2e/maps.spec.ts, backend/tests/{map-ocean,maps-native,ui-assets}.test.ts, docs/design/verification/figma-ocean-map-20261109.png.
+
+
+## 2026-11-09 03:07 KST — 작업17C 한 열 도감·전체 탐색
+
+**진행 근거**: 작업17A에원문을기록한동일사용자지속구현요청. 17B커밋0b6d9fa→t9d독립완료답변(필수보완없음/도감복귀·전체탐색권장)→t12명세와구현→t14보강승인순서를따랐다.
+
+**결과**: Figma26:188한열64dp/최대640dp·기존검색4정렬/초안/권한/실제사진을연결했다. 실제Local2행상한에서페이지누락Red를고치고metadata묶음40/URL작업당4·bearer고정·오류중단을구현했다. 상세·삭제복귀와상태/a11y·목록error소유권을회귀Red→Green으로보강후t14승인. 최종단일웹103(5.9분)/types/export·backend/domain133+외부1skip·최신actualAPK38초설치hash/target/기존3행·가로font2재시작후복귀확인. 실시간글꼴변경은재시작후와구분하고설정원복/사용자데이터쓰기없음. 원격변경없으며친구/My/테마/새뽑기기능은미완료다. 커밋후t9d완료전달·답변받고계속진행한다.
+
+**변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app/index.tsx, frontend/src/{api.ts,Journal.tsx}, frontend/e2e/{journal-list,friends,invite-session,travel,vnext}.spec.ts, backend/tests/vnext.test.ts, docs/design/verification/figma-journal-list-20261109.png.
