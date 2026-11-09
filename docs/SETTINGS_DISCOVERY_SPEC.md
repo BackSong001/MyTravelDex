@@ -70,3 +70,6 @@ Batch11의실제capsule/opened/뱃지5개PNG를로컬정적require로재사용�
 
 
 최종 backend 재실행 t16x는 새 client 세대 검사까지 포함해25파일/148통과+외부1skip(총149),37.39초다. t16t147은 이전 실행으로 보존하며 합산하지 않는다. 전체 웹 t16w의 parent-cover 실패는 로그인 직후 처리 중0이 Home cover 발급 완료를 보장하지 않는 테스트 전제였다. 대상 인증 photo-url HTTP200을 기다린 뒤 armed를 설정하도록 이 테스트만 보강했고 제품 MyTrips는 변경하지 않았다. 첫/둘 수동 재발급 횟수·Storage404·실PNG decode/재시도 제거 검사를 유지했으며 t14 지정 정적 승인, t16y 반복3 통과를 받았다. 전체138 통과를 새로 실행한 것은 아니다.
+
+
+최종 저장 상태: 구현 커밋 `dce12ca`를 `feature/figma-assets-implementation`에 t16z exit0으로 푸시했다(1b8a186→dce12ca). 이 뒤 변경은 실행 기록 정리뿐이며 새 제품 수정/검사는 없다. 최종 tsc/diff-check exit0, 테스트 자동 verification PNG는 원래 HEAD로 복원했다. 기존 untracked agent-prompts/·storyboard.png는 보존했다. 소유 Local 웹/함수 서버만 종료했으며 사용자 에뮬레이터 t16p/emulator-5554는 켜둔 상태다. 원격 migration·새 APK 설치는 하지 않았고 뽑기 대상 및 스타일 결과는 사용자 답변 대기다.
