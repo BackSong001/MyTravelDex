@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react';
-import {Text,View} from 'react-native';
+import Text from '../../src/FontText';
+import {View} from 'react-native';
 import {router,useLocalSearchParams} from 'expo-router';
 import {Pressable} from 'react-native';
 import {exchangeOAuthCode} from '../../src/auth';

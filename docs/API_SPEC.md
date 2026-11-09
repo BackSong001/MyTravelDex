@@ -264,3 +264,7 @@ follows/friend_requests의GET·필드·RLS는유지하며listPages의중복키�
 ### 17F My 최근 기록 조회
 
 travel_records는기존Home owner/complete 전체조회결과를재사용하고추가중복목록GET을시작하지않는다. 대표사진은실제표시3기록의photos metadata/기존photo-url 호출만추가할수있다. metadata40·서버페이지끝까지/URL작업당4·권한/만료는기존계약그대로다. 새서버endpoint나RLS확대없음.
+
+### 17G 동적 글꼴 보강 범위
+
+Android글꼴측정보강은클라이언트렌더경계이며API/DB/RLS/인증/사진URL계약을변경하지않는다. 서버쓰기나전체사용자조회가필요하지않다.

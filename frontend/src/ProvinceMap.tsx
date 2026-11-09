@@ -1,5 +1,6 @@
 import React, {useMemo, useState} from 'react';
-import {Linking, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
+import Text from './FontText';
+import {Linking, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import Svg, {G, Path, Text as SvgText} from 'react-native-svg';
 import {colors as c} from './theme';
 import {colors as palette} from './design/colors.json';

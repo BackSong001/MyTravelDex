@@ -1,6 +1,7 @@
 import Pressable from './Feedback';
 import React from 'react';
-import {Image, Platform, StyleSheet, Text, View, useWindowDimensions} from 'react-native';
+import Text from './FontText';
+import {Image, Platform, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
 import {uiAssets} from './uiAssets';

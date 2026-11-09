@@ -1,5 +1,6 @@
 import React,{useState} from 'react';
-import {ActivityIndicator,Image,Linking,StyleSheet,Text,View} from 'react-native';
+import Text from './FontText';
+import {ActivityIndicator,Image,Linking,StyleSheet,View} from 'react-native';
 import Svg,{Path} from 'react-native-svg';
 import Pressable from './Feedback';
 import {polygons,project,provinceFeatures,provinceLabels} from './provinces';

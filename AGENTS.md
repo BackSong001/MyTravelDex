@@ -535,3 +535,7 @@ ProfileForm은마지막조회/저장성공snapshot과미저장편집을분리하
 ## My 최근 여행과 출처별 복귀 (2026-11-09)
 
 My 최근행은현재feed가아닌ownRows complete최근3을사용한다. 기존Collection/상세/CRUD와metadata40·페이지순회/한작업URL4를공유하고실제표시URL의실패만명시retry한다. My출처상세/삭제는My스크롤로복귀하며계정전환시출처/복원/개인사진을무효화한다. 서명URL을문서/Git/로그에보관·노출하거나이미지오류자동재발급루프를추가하지않는다. 세부증거/미수용은TEST_CASE17F를따른다.
+
+## 17G 동적 Android 글꼴 호환 경계
+
+RN 정확0.81.5/STABLE/newArch의 withFontScale plugin과 앱 소유 FontText를 사용한다. Manifest fontScale/표준 stable provider의 단일 font flag/실제 delegate super 뒤 root.post의 requestLayout·DeviceInfo 한 모듈 알림을 보존한다. Application metrics/직접 measure/로그 실험은 최종 구현에 남기지 않는다. RN/Expo/Kotlin 변경시 내부 진입점·template·초기화 조건을 재검토하며 조용히 Canary나 다른 releaseLevel로 전환하지 않는다. Text element만 Android fontScale key로 갱신하고 input/부모/Modal/지도·카메라 key를 바꾸지 않는다. TalkBack 포커스·copy 선택 보존은 별도 검증하며 실제 사용자 화면/XML은 /tmp에만 둔다.

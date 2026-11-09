@@ -1,5 +1,6 @@
 import React from 'react';
-import {Linking,Text,View} from 'react-native';
+import Text from './FontText';
+import {Linking,View} from 'react-native';
 import {MAP_ATTRIBUTION} from './mapStyle';
 import {colors as c} from './theme';
 

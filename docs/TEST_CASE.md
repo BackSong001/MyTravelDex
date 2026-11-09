@@ -839,3 +839,38 @@ e9f1f50후t9d가친구지도friendOwner잔존경로를코드추적했다. 실제
 566fde2후t9d는연결읽기/비DBrecord-covers3(162ms)/diffcheck0에서새제품필수결함없음을답변했다. REQUIREMENT상단의006테마/007목적지/008뱃지예약이본문006스탬프/007My행/008복귀와충돌하는문서P2를발견해기존본문·TC ID를보존하고상단을정정했다. 후속009테마/011목적지/012뱃지/013스타일은미사용ID예약으로만구분한다. 이문서보강에서DB/UI/types/Android는재실행하지않으며기존117/APK결과와구분한다.
 
 ID문서보강 t14검토에서기존010바다PNG사용을추가확인해새010목적지예약을폐기했다. 최종예약은009테마/011목적지/012뱃지/013스타일이며010바다기존본문/TC는그대로다. 전체FR-FIGMA정의검색·중복assert/예약미사용검사·010목적지문장0·diffcheck0으로확인했다. 제품회귀를반복하지않았다.
+
+## 17G 동적 font P2 재현 계획
+
+기존actual개발서명APK에서같은프로세스의font1→2→1을My/도감/친구에서관측하고회전시측정/끝행·nav접근및미저장입력/사진/계정세션보존을확인한다. 실제사용자화면/XML은/tmp만보관하고프로필/기록/관계저장은하지않는다. 측정잘림·인풋손실이재현되면Red를기록한뒤원인최소보강/해당focused를검증한다. cold restart는시작상태만준비하며실시간단계중재시작으로Green을대체하지않는다. 검증후font/회전설정과화면을원복한다.
+
+17G baseline Red: 17F actualAPK의My에서font1→2 foreground설정후PID8291이같지만홈으로돌아가고paint가잘렸다. 이어font1에서My편집미저장문자`Font change unsaved`입력→Android Settings전면→font2설정→기존app task복귀후미저장문자/편집란이없고홈선택임을확인했다. 두경로모두강제중지/재시작/프로필저장없이검사했으며화면/XML은/tmp에만보관한다.
+
+17G 첫보강APK49초(t14d)는컴파일/설치target/hash `fec6c38db03548a237834f3afe1558f8c2d215fa9945e9a6ba85566d6f7f77f3`를확인했다. My미저장입력/선택·Settings복귀는보존되고입력높이126→약170→126물리px로갱신됐다. 하지만My요약행foreground font1→2의paint/bounds불일치가남아최종수용하지않았다. 회전후정상복구와도구측정은실시간문제해결전체증거가아니다. PII없는임시root/자원scale로그·post재측정진단APK를빌드해원인추적중이며최종에서임시로그를제거한다.
+
+17G 중간Artifact 구분: Activity root.post의44초APK(t14g, SHA256 `97aab2da33b722b17a99e0d929102ff33b0247e45e9d83b9c56977c0f2b8edcb`)는My/도감/친구의1→2→1 입력·선택과My실사진/행측정개선을확인했다. 최종해결로판정하지않으며LocationPicker열린Modal에서는header/tab/Text잘림이남았다. Expo의비동기config전달뒤측정하도록anonymous RN delegate안으로hook을옮긴48초APK(t14h, SHA256 `be48bb84eb1ed331352eac4115b5de607219c56aa798ed5438a272f921630705`)도열린Modal잘림이남아미수용이다. 검색어/작성제목은유지되고사진·프로필·위치저장은하지않았다. Activity root의측정실행여부를분리추적하는진단t14j를진행중이며Modal재마운트/직접state변경/서버쓰기는추가하지않는다.
+
+### 17G 최종 공통 Text 구현과 실행 기록
+
+- 기존 FR-UI-010/FR-FIGMA-002에 TC-DESIGN-FONT-001을 연결한다. 신규 backend/API/DB/RLS/환경변수 변경은 없다. 앱 소유16모듈의 RNText import만 FontText로 연결했다. 입력/상위View·Pressable/Modal/지도·camera/후보 key·SvgText·기존 style/글꼴 정책은 보존했다.
+- 초기 manifest 누락과 Activity 재생성 경계, RN font flag 경계, 기존 Text 측정 경계를 분리했다. 같은 PID는 Activity/React tree 보존 증거로 사용하지 않는다. t14d/14f/14g/14h/14j는 중간 artifact이며 열린 Modal 미해결을 남겼다. t14p의5모듈 Text 갱신은 Modal 개선/다른 My Text 실패로 전체 수용하지 않았다. t14r/14s 직접 측정 순서와 t14t/14v Application metrics 실험도 폐기했다. t14t의 긍정 관측을 반복 실패 t14v보다 강한 증거로 쓰지 않으며 Java SP cache 불일치를 원인으로 확정하지 않았다. 최종 plugin/generated native에는 Application metrics/직접 measure/EXACTLY/진단 Log가 없다.
+- FontText 없음 t14k는 module 환경실패, 단순 passthrough의 key 동일 t14m은 계약 Red다. t14y 순수 단위21(6파일,1.16초)은 font key/props/ref·기존 지도/윤곽/자산 경계 증거다. t14x 웹3(3.2초)은 실제 React 부모 input/후보/버튼 identity·ref/액션·link 접근성이름/같은 scale key/cleanup을 mock RN platform으로 확인한다. 실제 iOS/native paint/TalkBack 수용 증거가 아니다. 관련 지도/위치 웹16(t14q,55.8초)은 별도 targeted 결과이며 전체와 합산하지 않는다.
+- 초기 node t14c8은 당시 실행범위다. 최종 재확인 명령 node --test scripts/configured.test.mjs scripts/font-scale.test.mjs는6 passed(167.5ms)이며 plugin 등록/2회 멱등/버전·template 거부/stable 초기화와 단일 delegate hook/flags 범위를 검사한다. 프로젝트 local tsc --noEmit -p frontend/tsconfig.json exit0. 전체 backend138+외부1skip은17F 결과이며17G 새 전체로 합산하지 않는다.
+- 최종 actual.env 개발서명 APK t14w46초는 설치 검증시 target/바이트 일치, SHA256 `36e1cc80fe5ff14e373426f23c162606607794688c0b3c8b759891888beb08b4`다. 보관 APK hash를 다시 확인했다. 기존 SDK 세션의 mytrveldex AVD에서 재시작 없이 같은 artifact를 관측했다. Native 사실은 t12 실행기록이며 t14의 독립 재실행으로 합산하지 않는다.
+- My font1→2→1→2에서 사진/3행·My 선택이 유지됐고 두번째 행의 물리 높이354↔429가 반복됐다. font2 screenshot의 실제 줄바꿈/사진과 XML bounds를 함께 확인했다. 모든 행이 동시에 완전히 보인다는 주장은 하지 않는다.
+- My 미저장 generic 입력을 둔 채 Settings 복귀/1→2·키보드 열림닫힘·가로회전→Settings에서1·세로복귀에 입력/선택이 유지됐다. 관측한 input node identity도 유지됐다. 취소해 실제 profile 저장을 하지 않았다. 도감/친구 query1→2→1도 같은 input identity와 값/탭을 유지했고 높이는 각각126→169→126,126→158→126물리px였다.
+- 열린 LocationPicker에서 서울 검색/실제 읽기 전용 장소 상세·후보선택 뒤 font1→2/가로회전/Settings에서1/세로복귀를 관측했다. Modal header/tab의 paint+bounds, 검색어·같은 input/닫기 node·확정 enabled 유지, 관측된 핀/확대 지도영역을 확인했다. font2/가로에서 선택행이 viewport 밖인 경우를 선택 소실로 계산하지 않았고 카메라 수치를 계측했다고 주장하지 않는다. 명시 확정 후 부모 generic 작성제목이 유지됐다. 위치 확정은 클라이언트 입력만 바꾸며 사진/위치/기록 저장을 하지 않았다. 출처 node의 focusable/enabled 관측과 정적 link 정책만 확인했으며 native 링크 실제 활성화/TalkBack 포커스·반복안내/copy 선택은 미검증이다.
+- 검증 후 임시 작성은 입력 버리기, profile 편집 취소, 검색어 제거/홈 선택으로 정리했다. font1.0/user_rotation0/accelerometer1/세로를 원복하고 당시 pid17321의 AndroidRuntime fatal0과 소유 Appium session 종료를 확인했다. 실제 사용자 사진/프로필/기록/관계 쓰기나 새 OAuth 없음. 실제 장소 읽기 HTTP는 있었으며 원격 통신 자체가 없었다고 쓰지 않는다. 실제 화면/XML은 /tmp만 보관하고 신규 Git PNG는 없다. 이후 emulator 터미널 holder_lost 알림은 QA 이후 종료이며 추가 Android 수용 증거가 아니다.
+- 최초 전체120 예정 t14z 및 export t150은 terminal holder_lost/exit code 없음으로 완료를 입증하지 못했다. .last-run만으로 성공 처리하지 않고 새 전체 t151/actual export t152로 확인한다. t152 export exit0. t151은 현재 진행 중이며 완료 후 단일 결과를 추가한다.
+
+#### 17G와 분리한 후속 후보
+
+사용자 전달 대역/정적 추적은 별도 백로그이며17G 결함/독립 HTTP 재현으로 합산하지 않는다. 우선순위는 신규 사진 누락 P1 후보(중간사진 삭제로 [0,2]인 초안 복구 뒤 count 기반 order2 충돌을 23505 멱등성으로 삼켜 finalize하는 경로)의 실제 Local Red→최소보강이다. 사진수와 다음 order를 분리하고 동일 UUID/owner/record/path 등록 확인시에만 멱등 처리하며 순서경쟁은 오류/선택 보존한다. 다음은 무효 EXIF GPS91/181의 결측 정규화 후보다. API 비JSON/본문 stream 실패의 오류 분류, 생성된 압축 캐시 URI 정리, 문서24h 초안 만료와 실제 복구/정리의 정책 불일치는 별도다. 초안을 검토 없이 삭제하거나 운영 정리를 추가하지 않는다.
+
+추가 후속 대역 후보: 원본 provider의 명백한20MiB 초과 size는 복사 전에 거부하고 복사후 실제 size를 dimensions보다 먼저 검사할 필요가 있다(대역50MiB 관측, 실제 disk-full 미재현). 초대 AsyncStorage 복원의 늦은 응답이 dismiss/성공소비 뒤 재등장하는 후보도 초대 전용 세대 경계로 검증한다. 모두 현재17G/P1사진순서와 분리하며 로그인왕복·선택/원본 보존을 유지한다.
+
+후속 상세갱신 후보도 별도 추적한다. 다른 클라이언트의 사진 삭제 뒤 selected.photos가 낡으면 URL Promise.all의 한404가 유효 사진까지 지우는 대역 경로다. 갱신시 현재 접근 가능한 기록/사진을 재확인하는 회귀가 필요하며 401/403·비공개/기록삭제 전체차단을 단순404무시로 약화하지 않는다. 실HTTP/UI 재현·수정은 아직 하지 않았다.
+
+17G 전체 재실행 t151은119 passed/1 failed(6.5분)로 종료했다. 실패는 travel:123의 전역 empty 기대이며 DOM에는 대상 여행이 없고 다른 공개fixture2건이 남았다. 다른 사용자/fixture를 삭제하거나 reset하지 않고 해당case를 대상 record의 목록부재·anonymous 직접조회[]·새 photo-url404/서명값없음 검사로 보강했다. targeted t153 진행중이며 그 통과를 새 전체120Green으로 합산하지 않는다. 제품 FontText 변경은 없다.
+
+17G 대상 권한회귀 t153은1 passed(8.8초). 전체119/1과분리하며최종단일전체120통과로표현하지않는다. t14제품·최종기록초안승인과테스트보정검토를거쳐작업브랜치에반영한다. 기존verification 자동변경은HEAD복원하고원래untracked2개를보존한다. 후속은사진순서P1의Local Red부터진행한다.

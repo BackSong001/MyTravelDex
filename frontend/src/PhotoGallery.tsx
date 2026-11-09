@@ -1,6 +1,7 @@
 import Pressable,{useReducedMotion} from './Feedback';
 import React,{useEffect,useRef,useState} from 'react';
-import {ActivityIndicator,Image,Platform,ScrollView,Text,View,useWindowDimensions} from 'react-native';
+import Text from './FontText';
+import {ActivityIndicator,Image,Platform,ScrollView,View,useWindowDimensions} from 'react-native';
 import {GalleryPhoto,orderedPhotos} from './gallery';
 import {colors as c} from './theme';
 export default function PhotoGallery({photos,urls,onError,compact=false}:{photos:GalleryPhoto[];urls:Record<string,string>;onError:()=>void;compact?:boolean}){

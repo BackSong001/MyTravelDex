@@ -1,5 +1,6 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {ActivityIndicator,Text,View} from 'react-native';
+import Text from './FontText';
+import {ActivityIndicator,View} from 'react-native';
 import Pressable from './Feedback';
 import {Collection} from './Journal';
 import {api} from './runtime';

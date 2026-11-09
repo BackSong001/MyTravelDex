@@ -1,5 +1,6 @@
 import React, {type ReactNode, useEffect, useRef, useState} from 'react';
-import {Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
+import Text from './FontText';
+import {Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import TravelMap from './TravelMap';

@@ -114,13 +114,18 @@ test('TC-UI-004 화면에서 대표사진 교체 후 다른 사진 삭제',async
 });
 test('TC-UI-005 비로그인 사용자의 공개 상세 조회와 비공개 전환 후 차단',async({page,browser})=>{
  await draft(page);await save(page);await page.getByRole('button',{name:'공개로 변경',exact:true}).click();await expect(page.getByRole('button',{name:'비공개로 변경',exact:true})).toBeVisible();
+ const record=(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`))[0],photo=(await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}`))[0];
  const context=await browser.newContext();const guest=await context.newPage();
  try{
   await guest.route('https://maps.googleapis.com/**',r=>r.abort());await guest.goto('/');await guest.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();await guest.getByRole('tab',{name:'여행도감',exact:true}).click();
   await guest.getByRole('button',{name:/^제주 여행(?:,|$)/}).click();await expect(guest.getByRole('img',{name:'여행 사진',exact:true})).toBeVisible();
   await expect(guest.getByLabel('제목 수정',{exact:true})).toHaveCount(0);await expect(guest.getByRole('button',{name:'기록 삭제',exact:true})).toHaveCount(0);
   await page.getByRole('button',{name:'비공개로 변경',exact:true}).click();await expect(page.getByRole('button',{name:'공개로 변경',exact:true})).toBeVisible();
-  await guest.getByRole('button',{name:'목록으로',exact:true}).click();await expect(guest.getByText('첫 번째 여행을 펼쳐보세요')).toBeVisible();
+  const refreshed=guest.waitForResponse(response=>response.request().method()==='GET'&&new URL(response.url()).pathname==='/rest/v1/travel_records');
+  await guest.getByRole('button',{name:'목록으로',exact:true}).click();expect((await refreshed).ok()).toBe(true);await expect(guest.getByLabel('처리 중',{exact:true})).toHaveCount(0);await expect(guest.getByRole('button',{name:/^제주 여행(?:,|$)/})).toHaveCount(0);
+  const anonymous={apikey:status.ANON_KEY};
+  const detail=await guest.request.get(`${status.API_URL}/rest/v1/travel_records?id=eq.${record.id}&select=id`,{headers:anonymous});expect(detail.status()).toBe(200);expect(await detail.json()).toEqual([]);
+  const denied=await guest.request.post(`${status.API_URL}/functions/v1/photo-url`,{headers:anonymous,data:{photo_id:photo.id,variant:'thumbnail'}});expect(denied.status()).toBe(404);expect(await denied.json()).not.toHaveProperty('signed_url');
  }finally{await context.close();}
 });
 test('TC-UI-007 키보드로 작성 진입·입력 포커스·저장 및 접근성 트리 확인',async({page})=>{

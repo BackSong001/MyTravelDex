@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Text, Pressable, ScrollView} from 'react-native';
+import Text from './FontText';
+import {View, Pressable, ScrollView} from 'react-native';
 import {Map as LibreMap, Marker, setWorkerUrl} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import {colors as c} from './theme';

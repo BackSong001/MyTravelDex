@@ -1,5 +1,6 @@
 import React,{useEffect,useRef} from 'react';
-import {Animated,KeyboardAvoidingView,Platform,StyleSheet,Text,View} from 'react-native';
+import Text from './FontText';
+import {Animated,KeyboardAvoidingView,Platform,StyleSheet,View} from 'react-native';
 import {useReducedMotion} from './Feedback';
 import {colors as c} from './theme';
 

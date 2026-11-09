@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Image, Pressable, ScrollView, Text, View, useWindowDimensions} from 'react-native';
+import Text from './FontText';
+import {Image, Pressable, ScrollView, View, useWindowDimensions} from 'react-native';
 import {Map, Camera, Marker, Layer, type CameraRef, type InitialViewState, type StyleSpecification} from '@maplibre/maplibre-react-native';
 import Avatar from './Avatar';
 import ProvinceMap from './ProvinceMap';

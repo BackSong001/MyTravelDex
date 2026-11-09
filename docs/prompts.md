@@ -1267,3 +1267,15 @@ t9d가friendOwner잔존P2를코드추적해t12가A완료4행대신0행의실제L
 t9d의566fde2완료답변은새제품필수결함없음/독립비DB대역3·diffcheck0이며문서예약ID의이중의미P2를지적했다. 기존본문/TC006스탬프·007My행·008복귀를보존하고REQUIREMENT상단을현행매핑으로정정,미사용009테마·011목적지·012뱃지·013스타일을후속예약했다. 새DB/UI/기기실행이나제품변경없음. 다음실시간font P2 독립재현→방문자최소계약순서로이어간다. 변경파일: docs/{REQUIREMENT,FIGMA_IMPLEMENTATION,TEST_CASE,prompts}.md, DEVELOPMENT_STATUS.md.
 
 문서보강t14리뷰에서기존010바다PNG계약과최초목적지예약의충돌을지적받아010은바다로보존하고예약009/011/012/013으로정정했다. 기존001~008/010정의중복없음·예약미사용·010목적지문장0/diffcheck0을확인했으며제품/DB/UI실행없음.
+
+## 2026-11-09 09:00 KST — 작업17G 실시간 글꼴 변경
+
+**진행 근거**: 작업17A에 원문을 기록한 동일 사용자의 지속 구현 요청과 6752df3 후 t9d 답변에 따라 동적 font P2부터 진행했다. t14 방향/제품diff 지정 리뷰를 거쳤다.
+
+**결과**: 실행 중 Activity 입력 손실과 기존 Text 측정을 분리 재현하고 단일 font flag·Manifest/실제 delegate 알림 plugin 및 앱 소유16모듈 FontText를 적용했다. 중간 metrics/직접측정/로그 실험은 폐기했다. 최종46초APK 같은 artifact의 My/도감/친구/열린Modal·Settings/IME/회전과 미저장입력/사진/후보를 관측하고 설정/임시입력을 원복했다. t14 제품정적승인, 순수단위21/대역웹3/관련웹16·localtypes0/node최종명령6/export t1520. t14z/t150 연결 소실을 완료로 삼지 않고 새 전체 t151120을 진행중으로 기록한다. 기존 backend138은17F 결과이며 TalkBack/선택보존/실기기 미수용을 유지한다.
+
+**변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, docs/{REQUIREMENT,PRD,TRD,DISAN,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app.config.ts, frontend/plugins/withFontScale.cjs, frontend/src/FontText.tsx, 앱 소유16모듈 RNText import, frontend/e2e/{font-text,invite-session}.spec.ts, backend/tests/{font-text,maps-native,stamp-catalog}.test.ts, scripts/{configured.test,font-scale.test}.mjs. 신규 Git PNG 없음.
+
+17G 전체 재실행 t151은119 passed/1 failed(6.5분)로 종료했다. 실패는 travel:123의 전역 empty 기대이며 DOM에는 대상 여행이 없고 다른 공개fixture2건이 남았다. 다른 사용자/fixture를 삭제하거나 reset하지 않고 해당case를 대상 record의 목록부재·anonymous 직접조회[]·새 photo-url404/서명값없음 검사로 보강했다. targeted t153 진행중이며 그 통과를 새 전체120Green으로 합산하지 않는다. 제품 FontText 변경은 없다.
+
+17G 대상 권한회귀 t153은1 passed(8.8초). 전체119/1과분리하며최종단일전체120통과로표현하지않는다. t14제품·최종기록초안승인과테스트보정검토를거쳐작업브랜치에반영한다. 기존verification 자동변경은HEAD복원하고원래untracked2개를보존한다. 후속은사진순서P1의Local Red부터진행한다.

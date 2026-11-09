@@ -786,3 +786,13 @@ My내여행진입은friendOwner='',drafts=false,provinceFilter='',journalQuery='
 Home ownRows/ownLoaded를유일한본인목록원천으로재사용하고My행은owner/complete확인후최근3개만선택한다. 기존Home대표사진파이프라인을공통함수로옮겨My도metadata in40·listPages·URL동시4/오류/시작token·호출세대guard를사용한다. Parent cover가유효하면재사용하고My전용missing사진은표시3행에한해조회한다. 이미지오류는명시retry로만재발급한다.
 
 상세진입은album/account 출처와스크롤을고정한다. 변경후재조회는출처를유지하고back/delete는My출처만account로복귀한다. account스크롤은프로필snapshot레이아웃준비후최종복원해비동기헤더높이변경에대응한다. 사용자가스크롤/터치하면예약복원을취소한다. owner전환/명시다른탐색은예약·출처를무효화한다. API/DB/RLS/환경변수변경없음.
+
+## 17G 동적 글꼴 측정 경계
+
+설치된RN/Expo의Android Configuration→DeviceInfo/Dimensions→Text/Fabric측정경로를먼저추적하고,실제동일프로세스에서font1→2→1/회전의표시·bounds/입력·사진·세션을검증한다. 책임소유자의측정갱신만보강하며컴포넌트전체재마운트/프로필재저장/세션초기화로우회하지않는다. generated Android직접수정이필요하면prebuild지속성의소유plugin/설정을사용한다. API/DB/RLS/환경변수변경은없다.
+
+17G 호환 shim은RN정확0.81.5/newArch/STABLE에한정한다. 표준stableprovider 전체를delegate하고enableFontScaleChangesUpdatingLayout만true로두며해당internal loadWithFeatureFlags 호출부에만Suppress를제한한다. 기존SoLoader/newArch조건/edge조건/ExpoLifecycle초기화순서를보존하고지원전제가바뀌면prebuild/Gradle이명확히실패한다. RN/Expo/Kotlin업그레이드시shim제거또는재검토가필수다. 공식RN후속측정변경참고: https://github.com/facebook/react-native/commit/e02e7b1a2943b3ec6e1eb15723c86a8255b100a6 . 이코드가0.81.5에그대로있다고주장하지않는다.
+
+17G 최종 구현은 withFontScale prebuild plugin이 Manifest fontScale과 단일 stable 초기화를 소유한다. 실제 anonymous DefaultReactActivityDelegate의 super.onConfigurationChanged 뒤 fontScale 변경 때만 같은 React root.post에서 requestLayout→기존 DeviceInfo 모듈 하나의 onHostResume(표준 Dimensions 변경 알림)를 호출한다. Activity/Host 전체 resume를 재호출하지 않는다. Application metrics/직접 EXACTLY measure/진단 로그 실험은 모두 제거했다. 초기화의 내부 API 억제는 helper 한곳에 한정되며 Kotlin의 INVISIBLE_REFERENCE 경고는 미래 호환성 제한이다. RN 0.81.5/STABLE/newArch/Expo template 전제가 달라지면 명확히 실패하고 업그레이드 때 재검토한다.
+
+FontText는 앱 소유16모듈의 기존 RNText import를 대체하며 Android에서 RNText element의 key만 fontScale로 바꾼다. props/ref/children·style·allowFontScaling·link/press/a11y 정책은 전달하고 state 있는 input/부모/Modal/지도는 재생성하지 않는다. useWindowDimensions의 leaf별 구독 비용은 인지한 제한이며 병목 관측시 공통 구독으로 옮긴다. 같은 scale에서 state/회전은 Text key를 바꾸지 않는다. Text 자체 선택/접근성 포커스·읽기 보존은 이 전략으로 보증하지 않는다. Surface/Java SP cache 시점차이는 진단 가설이었고 원인으로 확정하지 않았다.

@@ -1,5 +1,6 @@
 import React from 'react';
-import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
+import Text from './FontText';
+import {Image, ScrollView, StyleSheet, View} from 'react-native';
 import Pressable from './Feedback';
 import {markerDescription, type TravelMapProps} from './provinces';
 import {colors as c} from './theme';

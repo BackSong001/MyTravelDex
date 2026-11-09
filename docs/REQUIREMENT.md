@@ -360,3 +360,9 @@ FR-FIGMA-007: My요약아래본인complete ownRows의최근3개(start_date내림
 FR-FIGMA-008: My에서연상세/수정/대표교체/공개전환/삭제후에는My로돌아와기존스크롤위치를복원·삭제후범위에맞게clamp한다. 기존홈/도감/작성의album복귀는유지한다. 계정전환은출처/스크롤/사진작업을무효화하고같은owner refresh는편집입력을보존한다. My표시3행의대표사진만metadata40/페이지완결·URL동시4로조회·갱신하고기존유효covers를재사용한다. 목록/사진실패는확정0으로꾸미지않고이전상태·대체표시/명시retry를제공한다.
 
 17F 대표사진retry는parent cover와local재발급결과를합성한현재유효URL에대해실패여부를판정한다. parent P실패→재발급L실패후명시retry에서도새URL을발급하고정상parent재사용/자동반복없음을유지한다.
+
+## 17G — 재시작 없는 Android 글꼴 변경 검증
+
+기존큰글꼴·접근성계약의미해결P2를독립검증한다. 실행중font_scale1→2→1과화면회전에서My/도감/친구의텍스트측정·스크롤접근이현재글꼴을반영하고기존입력/사진/선택/세션을보존해야한다. cold restart정상을실시간수용으로대체하지않는다. 원인재현후해당책임경계만최소수정하며화면전체key교체로입력/세션을초기화하거나font scaling을비활성화하지않는다. 새기능/테마/방문자/서버변경은이조각에포함하지않는다.
+
+17G 수용 연결은 기존 FR-UI-010/FR-FIGMA-002와 TC-DESIGN-FONT-001이다. 앱 소유 RNText 표시만 Android fontScale 변경 때 native Text element를 갱신한다. TextInput/Modal/상위 View·Pressable/지도·카메라·후보 선택의 key와 기존 글꼴·확대 정책은 보존한다. web/iOS의 element 교체 정책은 바꾸지 않는다. 선택 텍스트·TalkBack 포커스/진행 중 읽기의 보존은 별도 미검증이다.
