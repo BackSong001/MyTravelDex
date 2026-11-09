@@ -1,6 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
-import {afterAll, beforeAll, expect, test} from 'vitest';
+import {afterAll, beforeAll, expect, test, vi} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
 
 const base = 'http://127.0.0.1:54321';
@@ -33,7 +33,7 @@ beforeAll(async () => {
   if (status.API_URL !== base) throw new Error('Only local Supabase is allowed; environment failure is not TDD Red.');
   anon = status.ANON_KEY;
   service = status.SERVICE_ROLE_KEY;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 5; i++) {
     const email = `vnext-${randomUUID()}@example.test`;
     const password = `${randomUUID()}-Aa1!`;
     const created = await call('/auth/v1/admin/users', service, 'POST', {email, password, email_confirm: true});
@@ -219,4 +219,60 @@ test('TC-VNEXT-HTTP-001: TravelApi profile/search/follow callers preserve safe f
   expect(await api.request(pairPath, 'DELETE')).toEqual([]);
   await api.request(ownPath, 'PATCH', {public_profile_enabled: false});
   expect(await anonymousApi.request(`/rest/v1/public_profiles?id=eq.${users[0].id}`)).toEqual([]);
+});
+
+
+test('TC-FIGMA-JOURNAL-002: real HTTP pages below the requested size reach every permitted record',async()=>{
+ expect((await profile(1,{display_name:'여행자',public_profile_enabled:true})).status).toBe(200);
+ expect([201,409]).toContain((await rest('follows',users[0].token,'POST',pair())).status);
+ const ownIds=[];for(let i=0;i<7;i++)ownIds.push((await record(0,true,i%2?'public':'private')).id);
+ const ownDraft=(await record(0,false,'private')).id;
+ const peerPublic=(await record(1,true,'public')).id,peerPrivate=(await record(1,true,'private')).id,peerDraft=(await record(1,false,'public')).id;
+ const api=new TravelApi(base,anon);api.token=users[0].token;
+ const originalFetch=globalThis.fetch;const offsets:number[]=[];let failAt:number|undefined,switchOwner=false;
+ const capped=vi.spyOn(globalThis,'fetch').mockImplementation((input,init)=>{
+  const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
+  if(init?.method==='GET'&&['/rest/v1/travel_records','/rest/v1/following_travel_records','/rest/v1/photos','/rest/v1/public_profiles'].includes(url.pathname)){
+   const offset=Number(url.searchParams.get('offset')??0);offsets.push(offset);url.searchParams.set('limit','2');
+   if(offset===failAt)return Promise.resolve(new Response(JSON.stringify({message:'Page unavailable'}),{status:503,headers:{'Content-Type':'application/json'}}));
+   if(switchOwner&&offset===0){switchOwner=false;return originalFetch(url,init).then(response=>{api.token=users[1].token;return response;});}
+  }
+  return originalFetch(url,init);
+ });
+ try{
+  const own=await api.list(users[0].id);expect(ownIds.every(id=>own.some((r:any)=>r.id===id))).toBe(true);
+  expect(new Set(own.map((r:any)=>r.id)).size).toBe(own.length);expect(own.some((r:any)=>r.id===ownDraft)).toBe(false);
+  expect(own.map((r:any)=>r.id)).toEqual(own.map((r:any)=>r.id).sort());
+  expect(offsets.slice(0,4)).toEqual([0,2,4,6]);
+  const publicRows=await api.list();expect(publicRows.some((r:any)=>r.id===peerPublic)).toBe(true);
+  expect(publicRows.some((r:any)=>[peerPrivate,peerDraft,ownDraft].includes(r.id))).toBe(false);
+  const regional=await api.list(users[0].id,'2026-11-01','2026-11-03','서울특별시');expect(regional.map((r:any)=>r.id)).toEqual(own.map((r:any)=>r.id));
+  const following=await api.following();expect(following.some((r:any)=>r.id===peerPublic)).toBe(true);
+  expect(following.some((r:any)=>[peerPrivate,peerDraft,ownDraft].includes(r.id))).toBe(false);
+  const meta=await api.listPages(`/rest/v1/photos?select=id,travel_record_id&travel_record_id=in.(${ownIds.join(',')})&order=id.asc`);expect(new Set(meta.map((p:any)=>p.travel_record_id))).toEqual(new Set(ownIds));
+  const drafts=await api.drafts(users[0].id);expect(drafts.some((r:any)=>r.id===ownDraft)).toBe(true);expect(drafts.some((r:any)=>ownIds.includes(r.id))).toBe(false);
+  switchOwner=true;const pinned=await api.list(users[0].id);expect(pinned.map((r:any)=>r.id)).toEqual(own.map((r:any)=>r.id));api.token=users[0].token;
+  failAt=2;await expect(api.list(users[0].id)).rejects.toMatchObject({status:503});
+ }finally{capped.mockRestore();}
+});
+
+
+test('TC-FIGMA-FRIENDS-002: paged relationships retain every composite-key row under a two-row server cap',async()=>{
+ for(let index=0;index<5;index++)expect((await profile(index,{display_name:'페이지 검증 여행자',public_profile_enabled:true})).status).toBe(200);
+ for(let index=1;index<5;index++)expect([201,409]).toContain((await rest('follows',users[0].token,'POST',pair(0,index))).status);
+ for(const [sender,recipient] of [[0,1],[0,2],[3,0],[4,0]])expect((await rest('friend_requests',users[sender].token,'POST',{requester_id:users[sender].id,recipient_id:users[recipient].id})).status).toBe(201);
+ expect((await rest(`friend_requests?requester_id=eq.${users[4].id}&recipient_id=eq.${users[0].id}`,users[0].token,'PATCH',{status:'accepted'})).status).toBe(200);
+ const api=new TravelApi(base,anon);api.token=users[0].token;const originalFetch=globalThis.fetch;
+ const capped=vi.spyOn(globalThis,'fetch').mockImplementation((input,init)=>{
+  const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
+  if(init?.method==='GET'&&['/rest/v1/follows','/rest/v1/friend_requests','/rest/v1/user_directory'].includes(url.pathname))url.searchParams.set('limit','2');
+  return originalFetch(url,init);
+ });
+ try{
+  const follows=await api.listPages(`/rest/v1/follows?follower_id=eq.${users[0].id}&select=followee_id,created_at&order=created_at.desc,followee_id.asc`,row=>row.followee_id);
+  expect(new Set(follows.map((r:any)=>r.followee_id))).toEqual(new Set(users.slice(1).map(u=>u.id)));
+  const requests=await api.listPages('/rest/v1/friend_requests?select=requester_id,recipient_id,status,created_at&order=created_at.desc,requester_id.asc,recipient_id.asc',row=>`${row.requester_id}/${row.recipient_id}`);
+  expect(requests).toHaveLength(4);expect(requests.filter((r:any)=>r.status==='accepted')).toHaveLength(1);expect(requests.filter((r:any)=>r.recipient_id===users[0].id)).toHaveLength(2);
+  const authors=await api.listPages(`/rest/v1/user_directory?id=in.(${users.map(u=>u.id).join(',')})&select=id,display_name,avatar_url,user_code&order=id.asc`);expect(authors).toHaveLength(5);
+ }finally{capped.mockRestore();}
 });

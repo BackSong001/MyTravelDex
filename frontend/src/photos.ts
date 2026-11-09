@@ -4,7 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as MediaLibrary from 'expo-media-library';
 import * as Manipulator from 'expo-image-manipulator';
 import {File,Paths} from 'expo-file-system';
-import {readExif} from './domain';
+import {readExif,validCoordinates} from './domain';
 
 export async function photoPermission() {
   if (Platform.OS === 'web') return true;
@@ -69,7 +69,7 @@ export async function photoMetadata(asset: ImagePicker.ImagePickerAsset) {
     try {
       const info = await MediaLibrary.getAssetInfoAsync(asset.assetId);
       metadata = readExif({...info.exif, ...asset.exif});
-      if (info.location) metadata = {...metadata, latitude: info.location.latitude, longitude: info.location.longitude};
+      if (info.location && validCoordinates(info.location.latitude,info.location.longitude)) metadata = {...metadata, latitude: info.location.latitude, longitude: info.location.longitude};
     } catch { /* 선택 사진의 메타데이터 접근이 제한되면 직접 입력한다. */ }
   }
   return metadata;

@@ -257,3 +257,31 @@ APK는 `frontend/android/app/build/outputs/apk/release/app-release.apk`에 생�
 - [API_SPEC.md](docs/API_SPEC.md): 엔드포인트·요청·응답·권한
 - [TEST_CASE.md](docs/TEST_CASE.md): 백엔드 테스트 케이스
 - [AGENTS.md](AGENTS.md): 프로젝트 작업 규칙
+
+
+## Android 제출용 AAB 로컬 생성
+
+기존 `android:configured` APK는 개발 서명 시험용이다. 제출용 빌드 경로는 `npm --prefix frontend run android:bundle`이며 클라우드 빌드나 자동 제출을 하지 않는다.
+
+JDK 17, Android SDK, 설치된 frontend 의존성이 필요하다. 저장소 밖의 보안 환경 파일에 production Supabase 공개 URL/anon key, `EXPO_PUBLIC_APP_ENV=production`, `.env.example`의 `ANDROID_UPLOAD_*` 네 값을 준비한다. 업로드 키는 저장소 밖 절대 경로로 두고 비밀번호를 명령행 인자로 전달하지 않는다. 파일 예시 경로만 아래에 표시한다.
+
+```bash
+node --env-file=/secure/path/production.env scripts/android-bundle.mjs
+```
+
+실행기는 원본 환경 파일과 `.env.local`을 수정하지 않으며 debug 인증서·서버 key·누락 설정을 거부한다. Expo prebuild로 네이티브 파일을 재생성한 후 Gradle init script가 환경에서 업로드 서명을 읽는다. 출력은 `frontend/android/app/build/outputs/bundle/release/app-release.aab`이며 JAR 서명·업로드 인증서 일치를 확인한 뒤에만 성공을 표시한다. `app.json`의 `android.versionCode`는 제출마다 증가시킨다.
+
+실제 업로드 키의 백업/등록, Play App Signing, 배포 인증서 OAuth, Play 내부 테스트와 실기기 검증은 별도다. QA fixture 설정/임시 키로 생성한 AAB를 운영에 제출하지 않는다. 계정 삭제 경로 등 `DEVELOPMENT_STATUS.md`의 배포 차단 항목과 TC-RELEASE-001을 확인하고, 실제 제출/운영 변경은 사용자 승인 후 진행한다.
+
+
+## 친구 요청·초대 추가 — 2026-11-07
+
+기존 닉네임 중복·일방 팔로우를 유지하며 친구 코드(기존 사용자 UUID), 요청·수락·거절·취소·삭제와 설치된 앱 초대 링크를 추가한다. 초대는 검색만 열며 로그인 후에도 명시적으로 요청/수락한다. 수락한 친구도 complete/public 기록만 지도/도감에서 조회하고 private/draft·프로필 원본 권한은 확대하지 않는다. 기존 팔로우는 자동 변환/삭제하지 않는다. 링크를 열어 보관한 초대 코드는 요청 성공이나 직접 닫기 후 지운다. 연락처 수집과 미설치자 웹/스토어 fallback은 추가하지 않는다.
+
+로컬 검증용 additive migration은 `20261107140000_friend_requests.sql`이다. 원격 적용/배포는 사용자 승인 전 수행하지 않는다. 기존 문서의 상호 친구 제외 설명은 이전 구현 시점의 범위이며, 새 계약은 REQUIREMENT의 FR-FRIEND-001~003·TRD 상단·API_SPEC와 TEST_CASE의 TC-FRIEND-001~005를 따른다. 실제 Android 초대/공유/OAuth 왕복과 원격 수용 여부는 DEVELOPMENT_STATUS.md 및 최신 테스트 실행 이력에서 구분한다.
+
+## 2026-11-08 추천·군집·도감
+
+친구추천은 로그인한 사용자에게 공개프로필 최대50명만 제공한다. 기존 UUID 친구 ID/중복닉네임/요청수락을 재사용한다. 도감은 검색과 지역·시작일 양방향 정렬(기본 시작일 내림차순)이며 날짜/지역 범위 입력을 대체한다. 지도 군집은 겹친 사진·가로썸네일/빠른목록, 지도는 측면·산/풀 장식을 추가했다. 로컬은 `npx supabase migration up --local --workdir backend`로 신규추천RPC를 적용하며 원격은 승인후 기존friend_requests→추천migration 순서다. 실제테스트·승인/미검증범위는 `docs/TEST_CASE.md`의 2026-11-08 작업7 결과를 따른다. 새 환경변수·외부서비스·의존성은 없다.
+
+사진 선택 후 metadata가 제공되면 기간/첫GPS가 자동 제안된다. 위치는 입력형 검색바에서 별도 검색창을 열어 확정하며 GPS가 있으면 좌표/주소를 보완한다. metadata가 없으면 추측해 채우지 않는다. 원본파일/시스템선택 경로와 실제 검증 범위는 TEST_CASE의 FR-PHOTO-LOCATION 절을 따른다. 새 환경변수/migration은 없다.

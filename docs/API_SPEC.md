@@ -1,5 +1,45 @@
 # MyTravelDex API 명세서
 
+## Figma 공통 자산 17A (2026-11-09)
+
+UI 자산 적용은 기존 Auth/사진 URL·업로드·프로필/친구·목록 API와 RLS를 변경하지 않는다. Figma 가상 데이터/임시 다운로드 URL을 API 응답이나 실제 사용자 사진으로 주입하지 않는다. 후속 여행 도구 서버 계약은 구현 전 이 문서에 별도 정의한다.
+
+
+## 리팩터링의 API 보존 경계 (2026-11-08)
+
+계정전환/compact UI/도감검색개선은새endpoint/DB권한을추가하지않는다. 목록의본인complete조회중복만줄이며공개·친구/본인스탬프·server조회범위를보존한다. 세션갱신과로그아웃구분은기존SupabaseAuth이벤트를사용하고서명URL기발급분즉시회수를주장하지않는다. 환경별native target검증은빌드책임이며서버secret은클라이언트로전달하지않는다.
+
+
+## 유저 ID API (2026-11-08)
+
+본인 GET profiles?select=user_code는6자리영문+숫자신규유저ID, 변경PATCH는거부한다. GET user_directory의공개projection은id/display_name/avatar_url/user_code정확히4필드이며기존friend_directory/public_profiles반환형은유지한다. POST rpc/lookup_user_id {user_id:string}는영숫자6자리(영/숫자포함) 또는이전6숫자ID만대소문자무시exact해석해공개4필드배열0~1행반환한다. 비공개/invalid/없는ID는빈배열, UUID/name검색은기존view필터를사용한다. 친구요청본문UUID/기존권한은변경없음. 신규friend_code는null일수있으며구버전의숫자코드조회전용제약을롤백범위에명시한다. 새환경변수/서버secret없음.
+
+
+## 산·풀 제거와 ID 검증 범위 (2026-11-08)
+
+지도 장식 제거는 클라이언트 표시 변경이며 API·권한 변경없음. 현재 friend_code는 숫자6자리sequence+UNIQUE+불변trigger다. 영문이 섞인 생성기라고 설명하지 않는다. 기존발급ID의 형식변경은 별도계약확정전 시행하지 않는다.
+
+
+## 짧은 친구 ID와 디렉터리 API (2026-11-08)
+
+본인 `GET /rest/v1/profiles?id=eq.<uuid>&select=friend_code` → `{friend_code:"100000"}`. 본인 RLS 유지, 다른 프로필 직접조회는 기존처럼 거부/빈목록. friend_code PATCH/클라이언트 발급은 허용하지 않는다. `GET /rest/v1/friend_directory?select=id,display_name,avatar_url,friend_code&order=display_name.asc,id.asc&limit=20&offset=0`는 공개동의 행만 반환한다. 짧은ID `friend_code=eq.<6digits>`, legacy UUID `id=eq.<uuid>`, 닉네임은 기존 escape한 ilike 부분검색. 전체 탐색은 페이지별 조회이며 모든 Auth 데이터 일괄 다운로드 API는 없다. 요청/관계는 기존 UUID friend_requests/follows를 사용한다. public_profiles·friend_recommendations의 기존3필드 응답은 변경하지 않는다.
+
+## 사진 위치 자동 보완 클라이언트 (2026-11-08)
+
+기존 `POST /functions/v1/geocode-location`의 `{latitude,longitude}` 역조회 응답으로 검색바 장소/주소를 보완한다. 요청·인증·외부 오류 계약은 변경하지 않는다. 응답의 좌표/source는 EXIF 대표 위치를 대체하지 않으며 저장은 기존 locations source=exif와 원사진좌표를 사용한다. 수동 장소 확정 후에는 해당 장소의 기존 source/provider 정보를 사용한다. GPS 누락은 검색/핀확정이 필요하고 빈값을 0좌표나 현재 위치로 전송하지 않는다.
+
+## 추천 친구 API (2026-11-08)
+
+`POST /rest/v1/rpc/friend_recommendations`, body `{}`, authenticated 전용. 응답은 최대50개의 `{id: uuid, display_name: string|null, avatar_url: string|null}`. 공개 프로필만 조회하며 본인/친구/대기 요청/기존 팔로우 제외; 이메일/Auth 메타데이터·비공개 프로필 열은 반환하지 않는다. anon은 실행 권한 없어 HTTP401, 인자(limit/owner 등) 추가는 일치 함수가 없어 거부된다. 재호출은 후보 재조회이며 서로 다른 결과를 보장하지 않는다. refresh 실패 시 화면의 기존 후보·검색 입력 유지. 고유 친구 ID는 기존 UUID이며 public_profiles ID 검색 및 friend_requests 요청/수락 계약을 재사용한다.
+
+도감 검색/정렬·군집 UI는 기존 records/locations/서명 thumbnail 데이터를 재사용한다. 기존 날짜/지역 list API는 호환 유지하며 새 서버 개인정보 조회 API는 추가하지 않는다.
+
+## 친구 요청 추가 (2026-11-07)
+
+인증된 사용자만 `/rest/v1/friend_requests`를 사용한다. GET은 자신이 requester/recipient인 `requester_id,recipient_id,status,created_at`만 반환한다. POST body는 `{requester_id:현재사용자UUID,recipient_id:공개프로필UUID}`이며 status는 서버 기본 pending이다. 자기 요청은 400/23514, 같은 쌍/역방향 중복은 409/23505, 위조/비공개 대상/anon은 401/403이다. PATCH `?requester_id=eq.{UUID}&recipient_id=eq.{UUID}`와 `{status:"accepted"}`는 pending 수신자만 가능하며 권한 밖 행은 빈 결과다. DELETE는 같은 쌍 필터로 당사자만 거절/취소/친구 삭제하고 타인의 행은 빈 결과다. status 외 변경은 403이다. 클라이언트는 변경 결과 행이 없는 것을 성공으로 표시하지 않는다.
+
+`following_travel_records`는 기존 팔로우와 accepted 친구의 complete/public 합집합이며 기존 응답·FK 임베딩·권한·photo-url 만료 계약을 유지한다. 친구 코드는 public_profiles.id의 UUID이고 해당 projection은 기존 세 필드만 제공한다. 초대 링크는 검색 진입만 제공하고 자동 관계 생성 API는 없다.
+
 ## 밝은 파스텔 UI 개편 (2026-11-07)
 
 기존 기능 계약을 유지하는 디자인 개편이다. 원본 팔레트/스토리보드는 보존하고 theme 의미 토큰으로 하늘 #EFFAFF·민트 #E9F8F1·기존 코랄을 확장한다. 홈 발자국 배지만 제거하고 My 스탬프는 유지한다. 네 지도 범위는 선택기 하나로 통합하고 로그인/계정은 My로 접근한다. 지역명은 상자/체크 없는 회색 글자로 줌 5~9에서 11~15로 변화하며 충돌과 글꼴 확대를 고려한다. 기존 17개 실제 경계 아래 얕은 그림자·구분 레이어를 추가하되 좌표/경계와 선택 강조는 보존한다.
@@ -204,3 +244,70 @@ MapLibre 지도 표시는 로컬 경계 스타일을 사용하고 외부 검색�
 - `POST /functions/v1/cleanup-storage`는 service role Bearer만 허용한다. 24시간 유예가 지난 미등록 파일을 서버 전용 큐로 처리하고 활성 기록 파일은 제외한다. 일반 사용자가 시간 인자를 보내 정리를 앞당길 수 없다.
 
 위치 비교 창도 기존 geocode-location의 query/Geoapify place_id/좌표 역지오코딩 계약을 재사용한다. 신규 서버 엔드포인트·권한·DB 컬럼은 추가하지 않는다. 선택한 주소는 기존 정규화 응답의 place_name/address/latitude/longitude/provider_place_id/attribution을 확정 후 기존 locations POST로 전달한다.
+
+
+## 17C 목록 순회 (2026-11-09)
+
+기존travel_records/following_travel_records GET의필터/응답배열/권한은유지한다. 클라이언트는limit=100/offset과Prefer:count=exact의Content-Range로실제서버상한뒤페이지를순회한다. 본인초안은owner_id/status=draft/order=created_at.desc,id.asc로별도조회한다. 메타데이터기본request는배열응답그대로유지하고순회내부에서만범위header를사용한다. 사진/공개프로필in40/목록대표사진URL발급을한조회작업당동시4개로제한한다. 페이지범위header이상/중간오류는실패로반환하며미완료배열을전체성공으로반환하지않는다. 공개/private/draft의RLS·view경계와URL만료/실패계약은변경하지않는다.
+
+
+## 17D 관계 클라이언트 조회
+
+follows/friend_requests의GET·필드·RLS는유지하며listPages의중복키를각각followee_id와requester_id/recipient_id쌍으로지정한다. 친구요청의created_at동률은두당사자ID까지정렬한다. 공개metadata는20ID묶음으로순회하되전체directory사용자검색은기존20페이지를유지한다. 새RPC/권한/서버schema변경없음.
+
+
+### 17E My 호출 계약
+
+기존본인profiles 조회/PATCH·user_code독립조회와travel_records owner/complete 목록만재사용한다. 스탬프획득은클라이언트의기존17지역집계이며신규보상저장/API가아니다. 공개profiles/방문자projection·Auth·Storage권한변경없음. 편집/저장실패/계정전환계약은TRD17E를따른다.
+
+
+### 17F My 최근 기록 조회
+
+travel_records는기존Home owner/complete 전체조회결과를재사용하고추가중복목록GET을시작하지않는다. 대표사진은실제표시3기록의photos metadata/기존photo-url 호출만추가할수있다. metadata40·서버페이지끝까지/URL작업당4·권한/만료는기존계약그대로다. 새서버endpoint나RLS확대없음.
+
+### 17G 동적 글꼴 보강 범위
+
+Android글꼴측정보강은클라이언트렌더경계이며API/DB/RLS/인증/사진URL계약을변경하지않는다. 서버쓰기나전체사용자조회가필요하지않다.
+
+### 17H 사진 등록 재시도
+
+기존 owner photos GET/POST를 사용한다. 저장 전 조회는 travel_record_id 조건·안정 order/display_order,id와 count=exact 페이지 순회를 사용한다. 다음 display_order는 개수가 아닌 기존 최댓값+1이다. 동일 id/owner_id/travel_record_id/original_path/thumbnail_path가 실제 존재할 때만 멱등 등록으로 처리한다. 일반409/23505와 다른 제약 오류는 성공으로 변환하지 않는다. 기존20장 제한·서버 잠금/UNIQUE/삭제 비재번호 계약을 보존한다.
+
+### 17I 사진 GPS 요청 전 정규화
+
+기존 photos POST의 exif_latitude/exif_longitude는 유효한 축 또는 null만 전달한다. 무효 GPS를 대표장소로 대체하거나 서버의 범위CHECK를 완화하지 않는다. MediaLibrary 보완도 기존 동일 좌표검증을 거치며 새 endpoint/필드/권한은 추가하지 않는다.
+
+
+## 2026-11-09 선택형 테마 — FR-FIGMA-009 / TC-FIGMA-THEME-001
+
+사용자 승인: 기존 디자인 1개 + Batch03 자산/Batch04 팔레트의 동일 5개 + Batch06 지도 24개를 단일 테마 버튼의 30개 선택지로 제공한다. 기본은 기존 디자인이며 원본 colors.json/PNG/GeoJSON은 변경하지 않는다. 지도24도 앱 전체 의미 토큰·메뉴·지도색을 함께 적용한다. 시안의 title/sub/tag/가상 사용자·샘플 여행·오래된 목록 구성은 주입하지 않는다.
+
+단일 로컬 선택 ID를 ThemeProvider가 소유하고 불변 팔레트/명시적 Metro 자산맵을 공급한다. 미지원 ID는 기존 테마로 대체하고 초기 읽기와 사용자 선택의 경합·빠른 연속 저장을 보호한다. 계정 DB/API/RLS는 변경하지 않는다. module-level StyleSheet는 테마 의존 factory로 옮기며 전역 colors mutation/Proxy는 금지한다. 원형 외 테마의 표면은 절제하고 실제 사진·지도·기존 자산에 색을 집중한다. 새 폰트/반복 모션/장식은 추가하지 않는다.
+
+테마 전환은 화면/Stack/Modal/지도/입력 key를 바꾸지 않는다. 세션·UUID·미저장 입력·edited·사진·검색/정렬/페이지·후보/핀·상세 출처/스크롤·지역/군집/카메라를 보존한다. 데이터 load/저장 effect에 theme 의존성을 추가하지 않는다. 지도는 동일 지역 ID 순서의 색 매핑을 web/native/SVG에서 공유하며 web은 기존 인스턴스 paint와 marker만 갱신한다. Native는 고정 source와 Layer paint를 갱신하고 카메라 key를 유지한다. fontScale의 기존 Text leaf key 계약은 별개로 유지한다.
+
+수용: 30개 정의와 자산 슬롯/감성 journal-v2, 각 배경·버튼·보조문자·오류·focus 대비, 선택 저장복구/읽기경합/연속쓰기, 전환 중 작성·사진·검색/상세·열린 위치창 상태/지도 identity·카메라 보존, 320px/큰글꼴/48dp/role·선택. 기존 backend/Local HTTP/웹 회귀를 재실행한 수치와 이전125/140+skip을 분리 기록한다. Android/실기기·실제 OAuth·TalkBack은 실제 실행 전까지 미수용이며 빌드/에뮬레이터는 저자원·빌드후60초 정책을 따른다. t14 제품리뷰와 t9d 구조/리팩터링 검토를 반영하되 미완료 실행을 성공으로 합산하지 않는다.
+
+
+## 2026-11-09 설정/여행도구 신규 계약 초안
+
+사용자 신규 요청의 구현 전 기준은 [SETTINGS_DISCOVERY_SPEC](SETTINGS_DISCOVERY_SPEC.md)이다. 지도 그림자는 모든 테마에서 흰색/폭1px로 축소하고 이름 옆3선설정은 원래화면/입력을보존한다. 예약011목적지·012개인뱃지·013스타일은이초안의server/RLS/멱등/소유자/미확정상태계약으로구체화하며 t14 승인 전 제품코드를바꾸지않는다. 원문의여행자/시안의여행지는사용자확인대기이고목적지기반구현은확정전보류한다. 원격DB/배포는Local검증과별도승인대상이다.
+
+
+### 설정/여행 도구 확정 범위 구현 상태
+
+FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE-001~004는 [설정 계약 7절](SETTINGS_DISCOVERY_SPEC.md#7-구현-및-검증-상태-2026-11-09-1312-kst)의 실행 범위를 따른다. t14 명세·지정 제품 읽기 승인과 t9d 지연 성공 P2 보강 확인을 받았다. 신규 권한·멱등/동시성·대표/지도 검사 및 웹6을 확인했고, 최종 전체 backend t16x는148통과+1skip(37.39초)이다. 전체 웹 t16v는 최종 액션 시작 전 세대 guard 보강으로53통과/1중단/84미실행에서 의도 중단했으며 최종 전체 t16w는137통과/1실패(12.9분)이며 parent-cover 선행 HTTP 응답 대기를 보강한 t16y 대상 반복3은 별도 통과(19.6초)했다. 새 전체138 Green으로 합산하지 않는다. 또한 이전132+대상6을 전체 통과로 합산하지 않는다. 여행자/목적지 확인 전 FR-FIGMA-011/013 결과는 보류 안내만 있다. Local migration 적용과 원격 미적용, 기존 APK 유지와 신규 Native 미검증을 구분한다.
+
+
+## 2026-11-09 웹 우선 로그인·지도 선 장식 계약
+
+사용자 새 요청의 기준은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md)이다. 모든 테마의 기존 흰색 지도 그림자를 유지하고 PNG 비행기/배 모형을 렌더링에서 제외하며 구름·물결·비행기는 공통 흰색 SVG 선으로 표시한다. 원본 자산·테마·지도 상태·RLS/실제 사진·SDK 세션은 보존한다. 웹 로그인/콜백 디자인과 PKCE·정적 배포 경계를 t14 승인 후 구현한다. actual localhost:8083/정적 export 검증과 실제 Google 동의 성공/원격 배포를 구분하며 에뮬레이터는 재실행하지 않는다.
+
+
+웹 우선 구현·검증 결과는 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md)의 실행 결과와 [WEB_DEPLOYMENT](WEB_DEPLOYMENT.md)를 따른다. t14 명세 확인/구현/t9d 최종 답변을 반영했고 관련17/Node2/근접31/최종 지도·정적23을 유형·시점별로 구분한다. 실제 Google 로그인 후 앱 복귀는 사용자 확인이며 설치SDK 대역과 분리한다. 실제 Vercel 배포·원격 설정·Android 수용으로 확대하지 않는다.
+
+
+웹 지도 창 크기 변경 보강 TC-WEB-MAP-LAYOUT-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 실제 앱의 MapLibre CSS 소유/좌표 anchor와 CSS 표시 크기를 검증하고 원본 좌표·카메라·군집·Native를 보존한다. map CSS를 수동 주입한 기존 단독 회귀와 실제 no-dev/정적 앱 수용을 구분한다.
+
+
+웹 홈 지도 전체 맞춤 TC-WEB-MAP-OVERVIEW-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 상단 앱 이름/설정/테마와 폭·중앙축을 공유하는 지도 viewport 및 기존 국내 전체 경계 맞춤·자동 전체/사용자 탐색 수명을 분리하고 Native/작성·상세·보정/데이터·권한은 유지한다.

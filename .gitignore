@@ -1,4 +1,8 @@
 .env
+.env.*
+!.env.example
+*.jks
+*.keystore
 node_modules/
 .expo/
 frontend/dist/

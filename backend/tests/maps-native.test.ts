@@ -2,16 +2,18 @@ import {afterEach, expect, test, vi} from 'vitest';
 import React from '../../frontend/node_modules/react';
 import {renderToStaticMarkup} from '../../frontend/node_modules/react-dom/server';
 const {maps,pins,layers}=vi.hoisted(()=>({maps:[] as any[],pins:[] as any[],layers:[] as any[]}));
-vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {useWindowDimensions:()=>({width:390,height:844,fontScale:1}),View:'section',Text:({numberOfLines,...p}:any)=>createElement('span',p),Image:({source,onLoad,onError,onLoadEnd,...p}:any)=>createElement('img',{...p,src:source?.uri}),Pressable:({accessibilityLabel,accessibilityRole,onPress,style,...p}:any)=>createElement('button',{...p,'aria-label':accessibilityLabel}),ScrollView:'div',StyleSheet:{create:(s:any)=>s}};});
+vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Platform:{OS:'android'},useWindowDimensions:()=>({width:390,height:844,fontScale:1}),View:'section',Text:({numberOfLines,...p}:any)=>createElement('span',p),Image:({source,onLoad,onError,onLoadEnd,...p}:any)=>createElement('img',{...p,src:source?.uri}),Pressable:({accessibilityLabel,accessibilityRole,onPress,style,...p}:any)=>createElement('button',{...p,'aria-label':accessibilityLabel}),ScrollView:'div',StyleSheet:{create:(s:any)=>s}};});
 vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circle:'circle',G:'g',Path:'path',Text:'text'}));
 vi.mock('../../frontend/node_modules/@maplibre/maplibre-react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Map:(p:any)=>{maps.push(p);return createElement('native-map',null,p.children);},Camera:()=>null,Layer:(p:any)=>{layers.push(p);return null;},Marker:(p:any)=>{pins.push(p);return createElement('native-marker',{title:p.accessibilityLabel},p.children);}};});
+vi.mock('../../frontend/src/Feedback',async()=>({default:(await import('../../frontend/node_modules/react-native')).Pressable}));
+vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{defaultAvatar:{uri:'fixture://default-bear'},ocean:Object.fromEntries(['wave','cloud','plane','boat'].map(kind=>[kind,{uri:'fixture://'+kind}]))}}));
 import TravelMap from '../../frontend/src/TravelMap';
 import {provinceFeatures} from '../../frontend/src/provinces';
 afterEach(()=>{maps.length=0;pins.length=0;layers.length=0;});
 
 test('MapLibre mounts without Google configuration and style retains all rings and holes',()=>{
  const markup=renderToStaticMarkup(React.createElement(TravelMap,{records:[],fullScreen:true}));
- expect(markup).toContain('<native-map');expect(markup).toContain('<svg');expect(markup).not.toContain('지도 표시 실패');
+ expect(markup).toContain('<native-map');expect(markup).toContain('stroke="#FFFFFF"');expect(markup).not.toContain('fixture://plane');expect(markup).not.toContain('지도 표시 실패');
  expect(maps[0].mapStyle.sources.provinces.data.features.map((f:any)=>f.geometry)).toEqual(provinceFeatures.map(f=>f.geometry));
  expect(maps[0].mapStyle.sources.provinces.data.features).toHaveLength(17);
  expect(maps[0].logo).toBe(false);expect(markup).toContain('지도 확대');expect(markup).toContain('대한민국 전체 보기');
@@ -31,4 +33,14 @@ test('own stamps stay separate from friend records and correction pin does not n
  pins.length=0;
  renderToStaticMarkup(React.createElement(TravelMap,{records:[{id:'selection',locations:{latitude:35.815,longitude:127.153}}],onCoordinate:()=>{}}));
  expect(pins.find(p=>p.id==='selection').lngLat).toEqual([127.153,35.815]);
+});
+
+
+test('TC-MAPLIBRE-011: native maps keep ocean ornaments without mountain or grass markers',()=>{
+ for(const onCoordinate of [undefined,()=>{}]){
+  pins.length=0;renderToStaticMarkup(React.createElement(TravelMap,{records:[],onCoordinate}));
+  const ornaments=pins.filter(p=>p.id.startsWith('ornament-'));
+  if(onCoordinate)expect(ornaments).toHaveLength(0);else expect(ornaments.length).toBeGreaterThan(0);
+  expect(ornaments.some(p=>/mountain|grass/.test(p.id))).toBe(false);
+ }
 });

@@ -1,0 +1,15 @@
+{
+  "framework": null,
+  "installCommand": "npm ci && npm --prefix frontend ci",
+  "buildCommand": "node scripts/export-web.mjs",
+  "outputDirectory": "frontend/dist",
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/auth/callback/?",
+      "dest": "/index.html"
+    }
+  ]
+}

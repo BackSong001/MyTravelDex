@@ -1,0 +1,453 @@
+{
+  "date": "2026-11-08",
+  "screens": [
+    {
+      "nodeId": "35:8",
+      "width": 320,
+      "height": 844,
+      "stampRegions": [
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "부산",
+        "제주"
+      ],
+      "checkedStampLabels": [
+        "✓ 전북"
+      ],
+      "counts": [
+        "1 / 17"
+      ],
+      "rootOverflow": [],
+      "contentHeight": 561,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:94",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "부산",
+        "제주"
+      ],
+      "checkedStampLabels": [
+        "✓ 전북"
+      ],
+      "counts": [
+        "1 / 17"
+      ],
+      "rootOverflow": [],
+      "contentHeight": 503,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:179",
+      "width": 768,
+      "height": 1024,
+      "stampRegions": [
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "부산",
+        "제주"
+      ],
+      "checkedStampLabels": [
+        "✓ 전북"
+      ],
+      "counts": [
+        "1 / 17"
+      ],
+      "rootOverflow": [],
+      "contentHeight": 503,
+      "viewportHeight": 800,
+      "contentFits": true,
+      "viewportBottom": 932,
+      "navTop": 948,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:267",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [],
+      "checkedStampLabels": [],
+      "counts": [],
+      "rootOverflow": [],
+      "contentHeight": 383,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:318",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [],
+      "checkedStampLabels": [],
+      "counts": [],
+      "rootOverflow": [],
+      "contentHeight": 383,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:369",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [],
+      "checkedStampLabels": [],
+      "counts": [],
+      "rootOverflow": [],
+      "contentHeight": 415,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:424",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "부산",
+        "제주"
+      ],
+      "checkedStampLabels": [],
+      "counts": [
+        "0 / 17"
+      ],
+      "rootOverflow": [],
+      "contentHeight": 503,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:509",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [],
+      "checkedStampLabels": [],
+      "counts": [],
+      "rootOverflow": [],
+      "contentHeight": 239,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:541",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "부산",
+        "제주"
+      ],
+      "checkedStampLabels": [],
+      "counts": [
+        "— / 17"
+      ],
+      "rootOverflow": [],
+      "contentHeight": 390,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:618",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [],
+      "checkedStampLabels": [],
+      "counts": [],
+      "rootOverflow": [],
+      "contentHeight": 239,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:653",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "부산",
+        "제주"
+      ],
+      "checkedStampLabels": [
+        "✓ 전북"
+      ],
+      "counts": [
+        "1 / 17"
+      ],
+      "rootOverflow": [],
+      "contentHeight": 503,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    },
+    {
+      "nodeId": "35:738",
+      "width": 390,
+      "height": 844,
+      "stampRegions": [
+        "서울",
+        "인천",
+        "경기",
+        "강원",
+        "충북",
+        "충남",
+        "세종",
+        "대전",
+        "전북",
+        "전남",
+        "광주",
+        "경북",
+        "대구",
+        "경남",
+        "울산",
+        "부산",
+        "제주"
+      ],
+      "checkedStampLabels": [
+        "✓ 전북"
+      ],
+      "counts": [
+        "1 / 17"
+      ],
+      "rootOverflow": [],
+      "contentHeight": 503,
+      "viewportHeight": 620,
+      "contentFits": true,
+      "viewportBottom": 752,
+      "navTop": 768,
+      "navOrder": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "fonts": [
+        "Noto Sans KR"
+      ]
+    }
+  ],
+  "visualReview": {
+    "responsive": true,
+    "profile": true,
+    "states": true,
+    "themes": true
+  },
+  "runtime": "not tested",
+  "accessibility": "not tested",
+  "android": "not tested",
+  "sourceCodeChanged": false
+}

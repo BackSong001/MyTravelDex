@@ -1,0 +1,31 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-11-08",
+  "prompts": [
+    {
+      "key": "traveler-portrait",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. Create an original editorial traveler avatar for a Korean travel journal app profile. Bust portrait of a fictional adult East Asian woman, short dark wavy bob, warm open expression, cobalt blue lightweight jacket, coral-orange camera strap, holding a small travel notebook. Graphic screenprint illustration, confident navy ink contours, restrained flat color planes and subtle paper grain. Contemporary independent travel magazine style. NOT 3D, NOT clay, NOT chibi, NOT animal mascot. Square composition, entire head hair shoulders and notebook inside generous margins suitable for rounded-square crop. Color palette cobalt #254DC4, ink #172D4A, ice blue #DDE8FA, orange #ED9B6B, natural warm skin. Transparent background outside the subject; actual alpha, no white rectangle. No letters, no typography, no logos, no watermark."
+    },
+    {
+      "key": "busan-seagull-stamp",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. One original collectible travel stamp illustration representing Busan: a proud white seagull standing on a short cobalt-blue wave, small orange rising sun. Bold minimal screenprint / risograph graphic, subtle paper ink grain, navy outlines, flat cobalt, white, ice blue and soft orange. Centered inside a thin angular square postage-stamp border with slightly toothed edges. Entire stamp fully visible with 12 percent clear margin. Transparent background outside the design and within uninked negative space, actual alpha. Contemporary travel journal emblem, visually legible at 64px. Do not draw any map or geographic boundaries. No words, no letters, no numbers, no watermark. Not clay or 3D, no existing characters or brands."
+    },
+    {
+      "key": "seoul-ginkgo-stamp",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. One original collectible travel stamp illustration representing Seoul: one elegant fan-shaped golden ginkgo leaf with simple navy veins and a short stem, small cobalt blue circular seal accent. Bold minimal screenprint / risograph graphic, subtle paper ink grain, navy outlines, flat golden ochre, cobalt, pale ice blue and tiny orange accent. Centered inside a thin angular square postage-stamp border with slightly toothed edges. Entire stamp fully visible with 12 percent clear margin. Transparent background outside the design and within uninked negative space, actual alpha. Contemporary travel journal emblem, visually legible at 64px. Do not draw any map or geographic boundaries. No words, no letters, no numbers, no watermark. Not clay or 3D, no existing characters or brands."
+    },
+    {
+      "key": "coastal-trip-sample",
+      "transparent": false,
+      "prompt": "Use case: illustration-story. Landscape 3:2 editorial travel illustration for a fictional travel diary thumbnail: quiet Korean coastal walk, turquoise sea, distant low coastal buildings, white rail, small person in cobalt jacket viewed from behind, warm late afternoon. Flat graphic travel magazine art with subtle screenprint ink texture, confident navy contours, cobalt and turquoise water, pale ice blue, soft orange accents. Original standalone scene, visually sophisticated, not clay or 3D or chibi. No identifiable real person. This is an illustrative fictional coast, do not label it as an accurate real landmark. Full bleed opaque background. No text, no logos, no watermark."
+    },
+    {
+      "key": "city-trip-sample",
+      "transparent": false,
+      "prompt": "Use case: illustration-story. Landscape 3:2 editorial travel illustration for a fictional travel diary thumbnail: calm Korean city neighborhood walk beneath golden ginkgo trees, small tiled-roof house next to modern low-rise facades, person with cobalt blue travel bag seen from behind, clear pale sky. Flat graphic travel magazine art with subtle screenprint ink texture, confident navy contours, cobalt and ice blue, golden yellow leaves and soft orange accents. Original standalone scene, visually sophisticated, not clay or 3D or chibi. No identifiable real person. Illustrative fictional city, not an accurate named landmark. Full bleed opaque background. No text, no logos, no watermark."
+    }
+  ]
+}

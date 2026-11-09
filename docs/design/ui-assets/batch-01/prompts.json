@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-08",
+  "tool": "built-in image_gen",
+  "reference": "backpack-v1.png",
+  "assets": [
+    {
+      "file": "backpack-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: standalone travel brand prop for Korean app 여행가봥. Create ONE coral travel backpack, square 1024x1024 composition, fully isolated with genuine transparent alpha background. Soft rounded matte clay 3D illustration, subtle handmade smooth texture, front three-quarter view, upper-left broad softbox light, very soft self-shadow only, no ground plane or cast shadow outside the object. Coral #F59E8C body, warm cream #FFF4E8 front pocket, mint #BBDDD0 rolled blanket strapped on top, tiny sky-blue zipper tab, dark warm brown details. Tasteful simple shape, tactile and friendly, no face. Centered with generous 15 percent clear margin, clean readable silhouette at small size. No text, letters, logos, watermark, border, gradient background, checkerboard graphic, extra items. This backpack establishes the visual style for a matching animal travel-avatar and ocean-decoration asset family."
+    },
+    {
+      "file": "avatar-bear-v1.png",
+      "prompt": "Use case: stylized-concept. Create exactly ONE standalone square app asset with genuine transparent alpha background. Reference image is STYLE REFERENCE only: match its soft rounded matte clay 3D material, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA and warm brown, subtle fine handmade texture, upper-left soft studio light and gentle self shadows. No text, lettering, logo, watermark, ground plane, checkerboard graphic or surrounding objects. Complete unclipped silhouette, centered with 15% margin. Designed for Korean travel journal app 여행가봥. Subject: A friendly cream teddy bear traveler avatar, chubby round face, tiny round ears, warm brown dot eyes and small smile. Bust portrait in three-quarter view with face toward viewer, coral backpack worn behind one shoulder, mint rolled blanket and visible shoulder straps. Face ears and recognizable backpack all contained within central 70% diameter circular safe area. Big head and simple details readable at 32px. No hat or other props."
+    },
+    {
+      "file": "avatar-rabbit-v1.png",
+      "prompt": "Use case: stylized-concept. Create exactly ONE standalone square app asset with genuine transparent alpha background. Reference image is STYLE REFERENCE only: match its soft rounded matte clay 3D material, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA and warm brown, subtle fine handmade texture, upper-left soft studio light and gentle self shadows. No text, lettering, logo, watermark, ground plane, checkerboard graphic or surrounding objects. Complete unclipped silhouette, centered with 15% margin. Designed for Korean travel journal app 여행가봥. Subject: A friendly cream rabbit traveler avatar, rounded upright short rabbit ears (not tall), warm brown dot eyes and small smile, subtle coral inner ears. Bust portrait in three-quarter view with face toward viewer, coral backpack worn behind one shoulder, mint rolled blanket and visible shoulder straps. Face ears and recognizable backpack all contained within central 70% diameter circular safe area. Big head and simple details readable at 32px. No hat or other props."
+    },
+    {
+      "file": "avatar-cat-v1.png",
+      "prompt": "Use case: stylized-concept. Create exactly ONE standalone square app asset with genuine transparent alpha background. Reference image is STYLE REFERENCE only: match its soft rounded matte clay 3D material, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA and warm brown, subtle fine handmade texture, upper-left soft studio light and gentle self shadows. No text, lettering, logo, watermark, ground plane, checkerboard graphic or surrounding objects. Complete unclipped silhouette, centered with 15% margin. Designed for Korean travel journal app 여행가봥. Subject: A friendly warm cream cat traveler avatar, rounded triangular short ears, warm brown dot eyes, tiny brown nose and small smile, minimal whiskers. Bust portrait in three-quarter view with face toward viewer, coral backpack worn behind one shoulder, mint rolled blanket and visible shoulder straps. Face ears and recognizable backpack all contained within central 70% diameter circular safe area. Big head and simple details readable at 32px. No hat or other props."
+    },
+    {
+      "file": "ocean-cloud-v1.png",
+      "prompt": "Use case: stylized-concept. Create exactly ONE standalone square app asset with genuine transparent alpha background. Reference image is STYLE REFERENCE only: match its soft rounded matte clay 3D material, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA and warm brown, subtle fine handmade texture, upper-left soft studio light and gentle self shadows. No text, lettering, logo, watermark, ground plane, checkerboard graphic or surrounding objects. Complete unclipped silhouette, centered with 15% margin. Designed for Korean travel journal app 여행가봥. Subject: One soft puffy cloud made of three rounded cream and pale sky-blue clay lobes, simple horizontal silhouette. No face, rain, sun or backpack. Decorative floating cloud for ocean background, recognizable at 48px."
+    },
+    {
+      "file": "ocean-waves-v1.png",
+      "prompt": "Use case: stylized-concept. Create exactly ONE standalone square app asset with genuine transparent alpha background. Reference image is STYLE REFERENCE only: match its soft rounded matte clay 3D material, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA and warm brown, subtle fine handmade texture, upper-left soft studio light and gentle self shadows. No text, lettering, logo, watermark, ground plane, checkerboard graphic or surrounding objects. Complete unclipped silhouette, centered with 15% margin. Designed for Korean travel journal app 여행가봥. Subject: One compact decorative wave motif consisting of three parallel short rounded gently curved sky-blue clay ribbons, subtle cream highlight. Clearly stylized water ripples, not a landmark or geographic boundary. No backpack or other props. Readable at 48px."
+    },
+    {
+      "file": "ocean-airplane-v1.png",
+      "prompt": "Use case: stylized-concept. Create exactly ONE standalone square app asset with genuine transparent alpha background. Reference image is STYLE REFERENCE only: match its soft rounded matte clay 3D material, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA and warm brown, subtle fine handmade texture, upper-left soft studio light and gentle self shadows. No text, lettering, logo, watermark, ground plane, checkerboard graphic or surrounding objects. Complete unclipped silhouette, centered with 15% margin. Designed for Korean travel journal app 여행가봥. Subject: One tiny rounded toy passenger airplane, three-quarter top view pointing diagonally upper right, cream fuselage, coral wings and tail, pale sky windshield. Short chunky proportions and extremely simple details, no trail or backpack, readable at 48px."
+    },
+    {
+      "file": "ocean-boat-v1.png",
+      "prompt": "Use case: stylized-concept. Create exactly ONE standalone square app asset with genuine transparent alpha background. Reference image is STYLE REFERENCE only: match its soft rounded matte clay 3D material, coral #F59E8C, cream #FFF4E8, mint #BBDDD0, sky #A9DFFA and warm brown, subtle fine handmade texture, upper-left soft studio light and gentle self shadows. No text, lettering, logo, watermark, ground plane, checkerboard graphic or surrounding objects. Complete unclipped silhouette, centered with 15% margin. Designed for Korean travel journal app 여행가봥. Subject: One tiny friendly rounded toy sailboat, three-quarter view, coral hull, cream triangular sail, mint smaller sail and warm brown short mast. Compact simple silhouette readable at 48px. No sea plane, wake, backpack or other objects."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-08",
+  "themes": [
+    {
+      "key": "neon",
+      "name": "네온",
+      "style": "Cyber neon light sculpture. Bright electric cyan #30F2FF and hot pink #FF48BF tubes, violet translucent glass cores, precise luminous edges with restrained soft transparent colored halos, high contrast. Sleek glossy dimensional tubing, not clay. Black may appear INSIDE the object only; the outer canvas must be transparent.",
+      "bg": "#101225",
+      "ink": "#F2F4FF",
+      "accent": "#30F2FF"
+    },
+    {
+      "key": "tiny-friends",
+      "name": "포근한 소동물",
+      "style": "Original Japanese kawaii storybook doodle. Flat ivory, pale peach and butter yellow fills, thin warm cocoa hand-drawn outlines, tiny dot eyes, little w mouth and bashful pink blush. Very simple rounded shapes, tender and slightly shy mood. Independently designed tiny animal motifs, not any existing franchise character. Mostly flat hand ink, not 3D clay.",
+      "bg": "#FFF9EE",
+      "ink": "#5D493F",
+      "accent": "#E9A78C"
+    },
+    {
+      "key": "sentimental",
+      "files": {"journal": "nav-journal-v2.png"},
+      "name": "감성적인",
+      "style": "Quiet nostalgic handmade paper-cut and soft gouache watercolor. Warm ivory #F8EEDB, dusty apricot #DDA78A, desaturated sage #8DAD9B, muted cocoa #826D61. Delicate paper grain, gently imperfect edges and layered cut-paper depth. Understated travel diary atmosphere, broad simple shapes, no tiny ornaments. Not glossy, neon or clay.",
+      "bg": "#F7F0E6",
+      "ink": "#5A4D43",
+      "accent": "#8DAD9B"
+    },
+    {
+      "key": "maximal",
+      "name": "화려한",
+      "style": "Luxurious colorful enamel jewelry icon. Rich ruby pink, sapphire blue, emerald green and tiny polished gold bevels. Glossy rounded gemstone surfaces and crisp jewel-like highlights, decorative yet legible. No more than two small four-point sparkles near silhouette, generous clear margins. Strong saturated color and refined depth, not pale clay.",
+      "bg": "#21172B",
+      "ink": "#FFF0DA",
+      "accent": "#F5CC68"
+    },
+    {
+      "key": "sunshine",
+      "name": "밝은",
+      "style": "Joyful sunny graphic sticker illustration. Bold clean shapes, sunshine yellow #FFD34F, juicy tangerine #FF8B52, clear sky blue #70CBED and fresh mint #80D6B2. Crisp dark teal #285B66 edge accents, lively rounded geometry, predominantly flat cel shading with one broad highlight. Fresh bright optimistic mood, no paper grain or clay texture.",
+      "bg": "#F1FCFF",
+      "ink": "#285B66",
+      "accent": "#FFA84E"
+    }
+  ],
+  "roles": [
+    "home",
+    "journal",
+    "add",
+    "friends",
+    "my"
+  ]
+}

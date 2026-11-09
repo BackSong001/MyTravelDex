@@ -1,2 +1,3 @@
-// 지도 DOM과 네이티브에서 같은 로컬 여행 캐릭터를 사용한다.
-export const travelerAvatar = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#D7F0FF"/><path d="M12 64V52q0-15 20-15t20 15v12" fill="#80BDB6"/><circle cx="32" cy="28" r="15" fill="#FFE2B5"/><path d="M14 24q2-15 18-15t18 15" fill="#F59E8C"/><path d="M10 24h44" stroke="#437C87" stroke-width="4" stroke-linecap="round"/><circle cx="27" cy="29" r="2" fill="#4A555F"/><circle cx="37" cy="29" r="2" fill="#4A555F"/><path d="M27 36q5 4 10 0" fill="none" stroke="#A15D59" stroke-width="2" stroke-linecap="round"/></svg>');
+import {uiAssets} from './uiAssets';
+// Web 지도 DOM도 React Avatar와 같은 번들 자산을 사용한다.
+export const travelerAvatar: string = uiAssets.defaultAvatar.uri;

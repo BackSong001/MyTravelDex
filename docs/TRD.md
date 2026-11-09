@@ -1,5 +1,91 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 실제 Figma 자산 공통 UI (2026-11-09)
+
+FR-FIGMA-001/002의 런타임 자산은 frontend/assets/ui의 로컬 PNG와 공통 source registry로 제공한다. 원격 아바타는 기존 검증된 URL/실패 경로를 유지하고 기본 곰만 대체한다. 원본/선택본·Figma node·SHA256으로 추적하며 사용하지 않는 보드 PNG는 번들에 포함하지 않는다. 후속 바다 PNG 적용은 두 플랫폼에서 같은 이미지/기존 좌표·줌/보정 숨김 계약을 사용하며, 17A에서는 기존 SVG 바다 장식을 유지한다. 공통 메뉴는 32/54 이미지와 선택 표시를 갖되 실제 터치 영역은 min50·compact/안전영역/큰 글꼴을 유지한다. 새 의존성·DB/API/환경변수 없음. 후속 테마/새 기능 계약은 FIGMA_IMPLEMENTATION을 따른다.
+
+
+## 안전한 리팩터링 경계 (2026-11-08)
+
+Home의인증수신을하나의사용자경계함수로모아이전/새UUID비교시소유자종속state와navigationVersion/listRequest를무효화한다. Auth초기getSession이후도착한실제Auth이벤트를덮지않게guard하고같은UUID refresh/중복SIGNED_IN은화면·작성보존. explicitlogout도같은정리경로를사용한다. 세션영속화는기존Auth SDK storage를단일원천으로사용하고읽는곳없는커스텀mytraveldex-session쓰기/API token중복반영을제거한다(기존키는초기청소). 비밀번호token응답은세션세대일치시SDK setSession만호출하고Google완료결과를Home에서재적용하지않는다. 브라우저교환전세대검사·작업세대busy소유권·저장후목록await뒤고정세대/nav검사로늦은작업이새소유자에영향주지않는다. save는 고정 sessionEpoch를 각 비동기 action 시작/응답 후 검사한다. found/locations 이후 UPDATE, 압축/Storage 이후 photos INSERT 및 finalize가 이전 세션의 작업을 새 권한으로 재개하지 않는다. 이미 전송된 요청의 취소/원자적 전체 업로드를 보장하는 것은 아니다. 새DB/API/권한/서버세션정책변경없음.
+
+load의own배열을본인목록·ownRows에재사용하고ownRows그룹은useMemo로1회집계한다. list request/계정/상세지연guard·위치/사진UUID재시도는유지한다. native 번들 환경은 Expo withBundleEnvironment plugin이 공통 RN createBundle*JsAndAssets task의 SHA256 입력으로 추적한다. 필수 URL/key/APP_ENV 누락은 실행 전에, 생성된 Hermes bundle의 URL/key 불일치는 실행 후 차단한다. configured APK와 android-bundle AAB에 prebuild로 동일하게 적용하고 환경값·키를 새 명령행/로그/생성 스크립트에 쓰지 않는다. 환경이 같으면 UP-TO-DATE를 허용하며 수동 generated 파일 삭제는 필요하지 않다.
+
+UI는height<500 compact shell과도감작은간격·명시검색지우기/emptySearch표시·지도범위menu높이제한을기존컴포넌트에서확장한다. min48/largefont/키보드/실시간reduced motion·현재선택값유지/실제좌표·출처보존. TC-SESSION-001/TC-PERF-001/TC-RELEASE-002/TC-DESIGN-008~009로관측하고평가전후크기/요청수를기록한다.
+
+
+## 혼합 유저 ID와 숫자 alias 호환 (2026-11-08)
+
+profiles.user_code text NOT NULL UNIQUE CHECK ^[A-Z][0-9][A-Z0-9]{4}$ 추가/default/backfill. sequence bigint 0..436700159 NO CYCLE의 n을영문26×숫자10×base36네자리의일대일코드로인코딩(A00000..Z9ZZZZ), 36^4=1679616. 공개클라이언트sequence/인코더실행거부, server role만인코더검사허용. 불변trigger/UPDATE열grant미허용. 기존UUID·friend_code/불변trigger/숫자alias·old public_profiles/추천RPC·friend_directory4필드유지. friend_code는nullable/default없음으로바꿔신규계정의폐기된숫자공간발급을멈춘다. 새계정은old앱숫자MyID조회가없을수있으나기존계정숫자alias·3필드/UUID관계API는보존한다.
+
+새user_directory는기존restricted public profile reader가소유하는security_barrier view(id,display_name,avatar_url,user_code)다. 새lookup_user_id(user_id text)는고정search_path·동일reader소유SECURITY DEFINER의read-only SQL함수로공개동의행에서upper(user_code) 또는6숫자friend_code를exact해석하고동일4필드만최대1행반환한다. reader는public_profile_enabled RLS만통과하고서버secret/auth/여행/관계권한없음. anon/auth 조회허용·입력6숫자/6영숫자검증, 비공개alias유출금지. 이름/UUID검색은user_directory/기존escaped ilike·20페이지를재사용한다.
+
+신규클라이언트는user_code/My·directory를사용하고영숫자/숫자exact는lookup RPC, UUID/name은view로조회한다. 기존friend 링크param/저장키는호환유지하고invite해석결과UUID로만관계액션/성공시원래alias초대를소비한다. 별도ID조회실패가프로필편집을막지않는다. DB먼저검토·Local→HTTP→웹→Android검증/리뷰후원격확인·클라이언트설치. 기존ID/sequence를삭제·reset하지않으며롤백은이전앱우선(새계정의old숫자ID조회제한은명시). 원격적용권한은기존승인범위와이번ID변경요청을확인해판단하며무검토적용하지않는다.
+
+
+## 산·풀 장식 제거 계약 (2026-11-08)
+
+FR-UI-017: 공통 MapOrnament의 mountain/grass 타입·path·landOrnaments를 제거하고 native/web TravelMap은 기존 oceanOrnaments만 사용한다. 실제 경계/style/camera·Marker 좌표/사진·ClusterBrowser·출처/검색모드는 변경하지 않는다. 새 dependency/DB/API/env 없음. TC-MAPLIBRE-011 native Marker 목록과 실제WebGL 장식DOM에서 산풀부재/기존바다·마커 유지로 검증한다.
+
+
+## 6자리 ID 발급·전체 디렉터리 (2026-11-08)
+
+FR-FRIEND-005: additive migration으로 profiles.friend_code text NOT NULL UNIQUE를 추가한다. 100000~999999 비순환 PostgreSQL sequence/default로 기존 행 backfill과 신규 Auth profile trigger INSERT를 원자적으로 지원한다. 클라이언트 UPDATE grant를 주지 않고 불변 trigger로 service role의 우발적 변경도 차단한다. UUID/FK/관계/기록·기존 public_profiles 3필드와 추천RPC 3필드는 유지한다. sequence 직접 사용은 public/anon/authenticated에 허용하지 않는다. 총900000개 발급 한계이며 고갈 시 잘라내기/재사용 대신 신규발급을 실패시킨다(용량 확장 시 별도 계약변경). 코드가 순차적이므로 비밀/인증수단으로 사용하지 않는다.
+
+FR-FRIEND-006: 기존 최소 projection 전용 reader 역할에 friend_code SELECT 열만 추가하고 새 security_barrier friend_directory(id,display_name,avatar_url,friend_code)를 제공한다. 기존 공개동의 행 RLS만 사용하며 profiles 본인 정책을 변경하지 않는다. anon 기존초대검색 호환·authenticated 조회를 허용한다. UI는 20행씩 display_name asc/id asc로 페이지 조회하고 빈 검색 전체/6자리friend_code exact/UUID id exact/닉네임 부분검색을 지원한다. 기존 추천RPC는 이전클라이언트용으로 보존하고 새UI는 추천섹션을 전체목록으로 대체한다. 관계 액션은 UUID 검증을 계속 사용한다. 새ID 초대성공 시 code→profile.id 해석 후 저장된초대를 지우며 계정전환/늦은목록은 기존 key/request guard로 방어한다. My ID조회 실패가 기존 프로필 편집을 막지 않게 별도로 처리한다.
+
+배포: 기존 friend_requests→추천RPC→friend_code/directory migration 순서로 검토·승인 후 원격 적용하고 새앱 설치. Local은 migration up/reset 없음. 이전클라이언트는 기존3필드/UUID API로 동작한다. 롤백은 이전 앱 우선/새열·코드·sequence 보존이며 재번호/삭제/sequence reset은 하지 않는다. 원격 DB 변경은 별도 승인 전 수행하지 않는다. 새 환경변수/의존성 없음.
+
+## 사진 GPS 주소 보완과 위치 검색바 (2026-11-08)
+
+FR-PHOTO-LOCATION-001~003은 기존 choose→photoMetadata→suggestRecord와 서버 geocode-location 좌표 역조회 계약을 재사용한다. 날짜 min/max/첫사진GPS·edited refs/초안 재시도·사진 압축/Storage 정책은 유지한다. 위치 진입부는 입력창처럼 보이는 focus 가능한 button이며 클릭/키보드로 별도 Modal 검색 탭을 연다(읽기전용 TextInput의 포커스 복귀 재오픈/불필요한 키보드를 피한다). 검색어 입력/장소 확정은 기존 LocationPicker가 소유한다.
+
+유효 EXIF 좌표를 즉시 placeInfo(source=exif,원 latitude/longitude)와 검색바에 표시한다. Home의 주소 보완 effect는 좌표·source·사진 선택·계정/작성 상태를 따라 취소하고 현재 자동 위치와 일치할 때만 응답의 장소/주소를 반영한다. 수동 편집 플래그는 즉시 검사하며 서버 반환 좌표/source보다 원사진 좌표/exif를 우선한다. 취소/오류는 기본 촬영위치와 좌표를 유지하고 저장을 주소 응답에 종속시키지 않는다. 응답 자체가 유효하지 않으면 적용하지 않는다. 공개 대표 위치와 사진 EXIF 정밀좌표의 기존 구분은 유지한다.
+
+새 DB/API/환경변수·의존성 없음. 원격 migration/배포 권한은 포함하지 않는다. 검증은 metadata 파서/실제 Local HTTP 회귀→실제 Home의 사진 경계 대역 자동입력/지연 응답 회귀와 실제 Local 위치 UI→Android mytrveldex 최신빌드/검색바 조작으로 구분한다. 실기기/클라우드 전용 사진 EXIF 수신은 실제 기기 증거 없이 완료로 표시하지 않는다.
+
+## 추천/도감/군집 확장 계약 (2026-11-08)
+
+FR-FRIEND-004: additive migration의 `public.friend_recommendations()`는 security invoker, 고정 search_path, authenticated 실행만 허용한다. public_profiles projection의 공개 동의/RLS를 유지하며 auth.uid 본인·friend_requests 당사자(pending/accepted)·본인 follows 대상을 제외하고 무작위 후보 최대50행 반환한다. 인자/사용자ID/limit 우회를 허용하지 않는다. 새로고침 시 같은 후보가 나올 수 있고 다른 집합을 보장하지 않는다. 추천 RPC 실패와 관계 목록 실패는 별도로 표시한다. 검색/UUID/관계 API와 기존 private/draft·Storage 권한은 변경하지 않는다.
+
+FR-UI-013: 기존 TravelApi.list/following 날짜·지역 인자 API는 호환성을 위해 유지하되 도감은 범위로 조회한 records에 공통 검색/정렬 함수를 적용한다. region_name(없으면 좌표의 시도), city_name/place_name, title/content를 검색하고 지역 정렬은 대표 지역·도시·장소 순 문자열을 한국어 비교한다. 기본 start_date desc, 모든 동률 id asc, 원본 배열 불변. 지도 시도 선택은 기존 지역 제한·해제를 유지한다.
+
+FR-UI-014: native/web 양쪽의 기존 mapMarkerGroups와 최신 clusterIds→mapRecords 해석을 유지한다. 공통 군집 브라우저는 썸네일 가로 ScrollView와 세로 빠른 목록, 닫기·현재 객체 콜백을 제공한다. 모든 외부 텍스트는 React/textContent로 렌더하고 signed cover 만료 재발급은 기존 Home 흐름을 따른다. 사용 가능한 지도 높이와 측정된 MapAttribution 높이로 패널을 제한한다. 반응 효과는 기존 Feedback/MotionProvider, 최소48dp·큰 글꼴·동작 줄이기를 따른다.
+
+FR-UI-015: 기존 province GeoJSON 아래 얕은 offset/line 측면을 추가하며 실높이/DEM/위성 타일은 도입하지 않는다. 고정 SVG 산/풀은 별도 landOrnaments로 선언해 지역 내부 anchor·aria-hidden/pointer-events none·줌9 숨김을 검증한다. 바다용 oceanOrnaments와 분리한다. 원본 palette/경계/좌표는 수정하지 않는다.
+
+배포 순서: 기존 friend_requests migration→추천 RPC migration을 검토/승인 후 서버에 적용하고 클라이언트를 업데이트한다. 로컬은 reset 없이 migration up. 원격 적용은 이번 구현에 자동 포함하지 않는다. 이전 클라이언트 호환; 롤백은 이전 앱으로 먼저 되돌리고 신규 RPC는 사용하지 않는 상태로 보존한다. 강제 데이터 삭제/수축 migration은 하지 않는다. 환경 전환 빌드 시 이전 cached JS를 재사용한 이력이 있으므로 실제 번들의 target host를 확인한 후 설치한다.
+
+## 사진첩 UI·공통 반응 표면 (2026-11-07)
+
+FR-UI-012는 기존 React Native Animated/Pressable과 시스템 글꼴을 사용하며 새 의존성을 추가하지 않는다. 루트에서 reduceMotion 상태를 한 번 구독하고 기본/오류 시 감소 상태를 적용한다. 공통 Pressable은 ref·이벤트·disabled·접근성·style 콜백을 보존하며 눌림/호버 크기 효과와 키보드 포커스를 제공한다. 설정 변경/언마운트 시 움직임을 중지하고 비활성은 scale=1이다. API 요청을 애니메이션 종료에 연결하지 않는다.
+
+도감의 필터 펼침은 로컬 UI 상태로 입력/적용 조건을 지우지 않는다. Collection의 제목 뒤에 기존 범위/필터 UI를 배치하며 320~1280 폭·fontScale 1/1.5/2에서 카드 열 수를 조절한다. 작성·미리보기는 모션 설정 조회 실패에도 즉시 내용을 보여준다. 기존 Storage/서명 URL·초안/UUID·서버/HTTP·OAuth·친구 요청·지도 카메라/좌표 계약은 변경하지 않는다. API_SPEC/환경변수/DB 검토 결과 변경은 없으며 Local HTTP 회귀 후 UI를 검증한다. TC-DESIGN-006~007과 기존 디자인/작성/친구/지도 검사를 연결한다.
+
+최소 터치는 caller style 이후의 50dp 하한과 눌림 0.975배로 보장한다. MapAttribution의 onLayout 높이를 native/web TravelMap→Home→RecordPreview로 전달해 bottom=max(48,height+14)를 적용하고 남은 패널 높이를 계산한다. 미리보기와 출처가 겹치지 않으며 줄바꿈으로 출처 높이가 달라져도 다시 계산한다. 지도 전체 스타일·카메라를 재생성하지 않는다.
+
+## 친구 요청·초대 계약 (2026-11-07)
+
+`friend_requests(requester_id uuid, recipient_id uuid, status pending|accepted default pending, created_at timestamptz)`를 additive migration으로 추가한다. 양 ID는 profiles FK/on delete cascade, 자기 요청 금지, 순서 없는 두 ID 조합은 unique다. authenticated는 당사자 행만 SELECT/DELETE, 본인이 requester인 pending 요청의 두 ID 열만 INSERT하며 대상 public_profiles 존재를 검사한다. status 열만 UPDATE할 수 있고 수신자의 pending→accepted만 RLS로 허용한다. 직접 상태/소유권 위조·제삼자·anon은 거부한다. 거절/취소/친구 삭제는 해당 관계 행 DELETE다. 원래 profiles 본인 RLS와 public_profiles 세 필드는 변경하지 않는다.
+
+`following_travel_records`는 기존 follows 또는 accepted 친구 관계를 조회하되 기존 security_invoker·complete/public 필터와 반환 필드를 유지한다. 상대의 private/draft·EXIF/원본 파일 접근은 확대하지 않는다. 관계 삭제는 legacy follows를 변경하지 않는다. 코드에는 기존 UUID를 사용해 새 식별자 테이블/개인정보를 추가하지 않는다. 설치된 앱 초대 링크 `mytraveldex:///?friend={UUID}`는 홈에서 친구 탭 검색으로 전달하고 명시적인 요청 전에는 관계를 쓰지 않는다. 잘못된 코드는 무시하며 URL은 Expo Linking으로 만든다. 유효 초대 UUID는 별도 AsyncStorage 키에 보관해 기존 OAuth callback의 `/` 복귀·재시작에서도 검색을 재개하며, 요청 성공 또는 명시적 초대 닫기 시 지운다. 기존 Google OAuth callback 계약은 변경하지 않는다. 실제 신규 OAuth 왕복과 미설치자 초대 fallback은 후속 수용 범위다.
+
+검증: TC-FRIEND-001~005로 Local DB/RLS·실제 TravelApi HTTP·웹 요청/수락/거절/삭제·초대 검색을 연결한다. 원격 migration 적용은 승인 전 수행하지 않고 로컬 `migration up`만 사용한다.
+
+전환은 migration 검토/승인·적용 후 새 클라이언트 배포 순서다. 구버전 클라이언트의 follows CRUD와 기존 feed 필드/FK 임베딩은 계속 지원하며 기존 관계 데이터를 변환하거나 삭제하지 않는다. 롤백은 우선 이전 클라이언트로 되돌리고, 필요하면 새 보정 migration으로 feed의 기존 follows 조건만 복원한다. friend_requests 행은 보존하고 테이블/데이터 삭제는 별도 승인 없이 수행하지 않는다. 링크 로그인은 Auth 이벤트와 지연 로그인 완료의 순서에 관계없이 남은 초대가 있으면 친구 탭으로 복귀한다.
+
+## Android 제출용 AAB 계약 (2026-11-07)
+
+`npm --prefix frontend run android:bundle`은 프로세스 환경의 `EXPO_PUBLIC_APP_ENV=production`, HTTPS Supabase URL, 공개 anon/publishable key와 `ANDROID_UPLOAD_STORE_FILE`, `ANDROID_UPLOAD_STORE_PASSWORD`, `ANDROID_UPLOAD_KEY_ALIAS`, `ANDROID_UPLOAD_KEY_PASSWORD`를 검증한다. 실제 설정 파일은 저장소 밖에서 로드하며 루트 .env나 frontend/.env.local을 자동 읽거나 변경하지 않는다. 업로드 키 경로는 저장소 밖 절대 경로여야 하고 keytool로 실제 인증서를 읽어 debug 인증서를 거부한다. JDK 17/Android SDK와 기존 Expo/Gradle 의존성을 사용한다.
+
+Expo prebuild 후 Gradle init script의 AGP `finalizeDsl`에서 프로세스 `ANDROID_UPLOAD_*` 환경으로 release 서명을 지정해 `:app:bundleRelease`를 실행한다. 네이티브 생성 파일에 키/비밀번호를 쓰지 않으며 prebuild 재생성에도 실행 경로가 유지된다. 새 의존성·클라우드 빌드·배포는 추가하지 않는다. 출력 AAB의 JAR 서명과 업로드 인증서 일치를 확인한다. Gradle 실패 시 기존 산출물을 성공으로 보고하지 않는다. versionCode는 app.json에서 명시하고 다음 제출 전에 증가시킨다. 기존 `android:configured`의 개발 서명/환경은 유지한다.
+
+NFR-RELEASE-001·TC-RELEASE-001 연결. Auth/DB/API/RLS 변경은 없다. Play App Signing 배포 인증서와 업로드 인증서는 다르므로 Play 설치본 OAuth는 별도 검증한다. 참고: [Android 앱 서명](https://developer.android.com/studio/publish/app-signing), [Gradle init scripts](https://docs.gradle.org/current/userguide/init_scripts.html), [AGP finalizeDsl](https://developer.android.com/reference/tools/gradle-api/8.9/com/android/build/api/variant/AndroidComponentsExtension).
+
+## 지도 군집 선택 상태 보정 (2026-11-07)
+
+FR-UI-004·FR-MAPLIBRE-002의 군집 선택은 기록 ID만 보관하고 현재 전달된 유효 지도 기록에서 표시·선택 데이터를 계산한다. 범위 변경·삭제·draft 전환·위치 무효화로 제외된 기록은 열린 목록에서도 즉시 제외한다. 같은 ID의 제목·날짜·위치 갱신은 최신 객체를 사용한다. 지도 카메라나 전체 스타일을 다시 생성하지 않는다. 기존 API·DB·RLS·공개 범위는 유지하며 TC-MAPLIBRE-007로 검증한다.
+
 ## 밝은 파스텔 UI 개편 (2026-11-07)
 
 기존 기능 계약을 유지하는 디자인 개편이다. 원본 팔레트/스토리보드는 보존하고 theme 의미 토큰으로 하늘 #EFFAFF·민트 #E9F8F1·기존 코랄을 확장한다. 홈 발자국 배지만 제거하고 My 스탬프는 유지한다. 네 지도 범위는 선택기 하나로 통합하고 로그인/계정은 My로 접근한다. 지역명은 상자/체크 없는 회색 글자로 줌 5~9에서 11~15로 변화하며 충돌과 글꼴 확대를 고려한다. 기존 17개 실제 경계 아래 얕은 그림자·구분 레이어를 추가하되 좌표/경계와 선택 강조는 보존한다.
@@ -661,3 +747,95 @@ GOOGLE_OAUTH_REDIRECT_URL_PRODUCTION=https://your-production-domain.example/auth
 7. 문서 검토가 끝난 뒤에만 구현 코드를 수정한다.
 
 위치 비교 창 구현은 LocationPicker 컴포넌트에 두고 후보 데이터와 부모 폼의 확정 데이터를 분리한다. 상세 조회 후에는 주변 후보의 군집에 합치지 않고 선택한 장소 핀 하나만 표시한다. 검색 중인 목록의 후보는 아직 부모 위치가 아니며, 부모 폼은 명시 확정 콜백에서만 변경된다. TravelMap의 focus 좌표는 카메라 이동에만 사용하고 마커 원본 좌표를 변형하지 않는다.
+
+
+## 17B — 바다 PNG 적용 계약 (2026-11-09)
+
+FR-FIGMA-010: 실제 Batch01 cloud66/waves60/airplane70/boat68px 정사각 contain 슬롯을 양 플랫폼에 적용한다. 기존 바다 anchor 좌표와 지도를 유지한다. 기울기 비활성의 평면 Mercator 지도에서 각 이미지 외접원+8px가 실제 경계와 만나는 줌에서는 해당 장식을 숨겨 해안을 가리지 않는다. 카메라 이동 중에는 숨겨 이전 줌의 판정이 남지 않게 하고, 이동 종료 후 다시 판정한다. 줌9 이상과 위치보정 모드에서는 모두 숨긴다. 동일 이미지·크기·안전 판정을 공유하며 터치/접근성 제외·사진/군집/출처/카메라/실패fallback은 보존한다. 새 테마/산풀/서버변경은 이번조각에 넣지 않는다.
+
+
+## 17C — 한 열 도감과 전체 탐색 계약 (2026-11-09)
+
+FR-FIGMA-003 수용: Batch07 26:188의 한열 행(64px 대표사진/제목최대2줄/기간·장소·공개상태/오른쪽작성자·상세표시), 최대640px를 적용한다. 기존검색4정렬/기본시작일내림차순/지역선택/초안복구·작성·삭제/실제사진·유저ID·공개권한을 유지한다. 미리보기/상세에서돌아오면 도감스크롤을복원하고, 검색·정렬·조회범위·지역·초안모드·사용자전환은목록처음으로간다. 삭제후복귀는남은목록길이에맞게위치를제한한다.
+
+기록조회는동일필터·안정ID동률정렬/최대100행요청과Content-Range의실제행수/총수를사용해다음offset을진행한다. 서버상한이더작아도실제반환수만큼전진하며끝까지받고ID중복을제거한다. 한읽기순회는시작시bearer를고정해계정전환후새사용자권한으로옛목록을이어읽지않고,Home의listRequest/owner세대guard가옛응답표시를거부한다. 서버동시수정의원자적스냅샷은보장하지않고새로고침으로재조회한다. 실패시불완전목록을전체완료로표시하지않는다. 사진/공개프로필in조회는40개씩/목록대표사진서명URL은한조회작업당동시최대4개로제한한다. 지도/My스탬프의본인complete집계/기존날짜·지역HTTP계약은유지한다. 새서버스키마/권한변경은없다.
+
+17C 상태보강: 공개/나만보기/작성중은장소와분리된Text와행접근성이름에항상포함한다. 불러오는중에는확정0개/첫여행/목록끝을표시하지않고, 목록읽기오류는일반작성오류와분리해이전목록/입력보존·명시재시도를제공한다.
+
+
+## 17D — Figma 친구 탐색 (2026-11-09)
+
+FR-FIGMA-004: Batch08 31:8/31:114의친구헤더/팔로잉·여행자찾기탭/48dp아바타·공개식별/간결행·최대640dp를기존FriendsList에적용한다. owner key/active/request세대와busy 단일액션을유지하고탭전환은query/lastQuery/offset/검색결과를보존한다. 로그인기본은팔로잉, guest/유효초대는찾기탭이다. 내부친구탭과주요탐색tablist를접근성이름으로구분하고role/선택/키보드Enter/50dp타깃을유지한다. 실제6자리유저ID는축약하지않고현재mixed/숫자alias/UUID·초대소비를보존한다.
+
+팔로잉은실제팔로우목록과친구/보낸·받은요청을구분해표시한다. pending/accepted·수신자수락·거절/취소/삭제, 일방팔로우·공개여행지도·공개해제상대의관계해제는보존한다. 찾기는기존공개20명페이지/명시검색·새로고침·입력/오류보존과초대공유를유지한다. 공개동의없는상대는기본표시와관계만남기며개인Auth/profile을추가조회하지않는다. 시안의가상곰/토끼/고양이표본은실제공개사진/기본아바타로대체하고회원/관계를자동생성하지않는다.
+
+follows/friend_requests는기존listPages를재사용하되ID없는행은followee_id/요청당사자쌍을중복키로사용한다. 정렬은created_at.desc+followee_id.asc 또는created_at.desc+requester_id.asc+recipient_id.asc로안정화한다. 공개프로필metadata는20ID묶음+페이지순회로누락을막는다. directory 검색은20명페이지를그대로유지하고추천RPC/기존공개projection/RLS/DB·Auth·Storage는변경하지않는다.
+
+
+## 17E My 상태 소유권
+
+기존ProfileForm이프로필조회/편집/저장과마지막성공snapshot을한곳에서소유한다. owner key/active guard·useUserId독립effect를유지하고미저장form과요약snapshot을분리한다. Home ownRows의load성공여부를별도로추적해로그아웃/owner변경시무효화한다. groupProvinceRecords(ownRows)만재사용하며loading/listError/미조회에는확정방문수를표시하지않는다. 기존목록retry/세션epoch·request보호/본인complete조회API를그대로사용한다. 스탬프윤곽은기존provincePaths/GeoJSON과동일투영/비율이며KOSTAT2018출처를유지한다. 부산·서울PNG는실제Figma다운로드/원본hash추적을추가한다. API/DB/RLS/schema/환경변수변경없음.
+
+17E Native표시보강: 같은GeoJSON/project의모든polygon/ring을동일scale·평행이동으로163×94로컬Path좌표에정규화해원점/그룹변환의존을줄인다. 원본자료·기존지도코드는보존하고축비율/각점내포/점수·ring명령을검사한다.
+
+My내여행진입은friendOwner='',drafts=false,provinceFilter='',journalQuery='',albumScroll=0 및scope=mine/navigate(album)을같은이벤트에서적용한다. journalOrder는변경하지않는다. load의친구특정조회우선순위를전역변경하지않고진입자소유상태를정리해다른친구지도/초안계약을보존한다.
+
+
+## 17F My 기록·사진·복귀 소유권
+
+Home ownRows/ownLoaded를유일한본인목록원천으로재사용하고My행은owner/complete확인후최근3개만선택한다. 기존Home대표사진파이프라인을공통함수로옮겨My도metadata in40·listPages·URL동시4/오류/시작token·호출세대guard를사용한다. Parent cover가유효하면재사용하고My전용missing사진은표시3행에한해조회한다. 이미지오류는명시retry로만재발급한다.
+
+상세진입은album/account 출처와스크롤을고정한다. 변경후재조회는출처를유지하고back/delete는My출처만account로복귀한다. account스크롤은프로필snapshot레이아웃준비후최종복원해비동기헤더높이변경에대응한다. 사용자가스크롤/터치하면예약복원을취소한다. owner전환/명시다른탐색은예약·출처를무효화한다. API/DB/RLS/환경변수변경없음.
+
+## 17G 동적 글꼴 측정 경계
+
+설치된RN/Expo의Android Configuration→DeviceInfo/Dimensions→Text/Fabric측정경로를먼저추적하고,실제동일프로세스에서font1→2→1/회전의표시·bounds/입력·사진·세션을검증한다. 책임소유자의측정갱신만보강하며컴포넌트전체재마운트/프로필재저장/세션초기화로우회하지않는다. generated Android직접수정이필요하면prebuild지속성의소유plugin/설정을사용한다. API/DB/RLS/환경변수변경은없다.
+
+17G 호환 shim은RN정확0.81.5/newArch/STABLE에한정한다. 표준stableprovider 전체를delegate하고enableFontScaleChangesUpdatingLayout만true로두며해당internal loadWithFeatureFlags 호출부에만Suppress를제한한다. 기존SoLoader/newArch조건/edge조건/ExpoLifecycle초기화순서를보존하고지원전제가바뀌면prebuild/Gradle이명확히실패한다. RN/Expo/Kotlin업그레이드시shim제거또는재검토가필수다. 공식RN후속측정변경참고: https://github.com/facebook/react-native/commit/e02e7b1a2943b3ec6e1eb15723c86a8255b100a6 . 이코드가0.81.5에그대로있다고주장하지않는다.
+
+17G 최종 구현은 withFontScale prebuild plugin이 Manifest fontScale과 단일 stable 초기화를 소유한다. 실제 anonymous DefaultReactActivityDelegate의 super.onConfigurationChanged 뒤 fontScale 변경 때만 같은 React root.post에서 requestLayout→기존 DeviceInfo 모듈 하나의 onHostResume(표준 Dimensions 변경 알림)를 호출한다. Activity/Host 전체 resume를 재호출하지 않는다. Application metrics/직접 EXACTLY measure/진단 로그 실험은 모두 제거했다. 초기화의 내부 API 억제는 helper 한곳에 한정되며 Kotlin의 INVISIBLE_REFERENCE 경고는 미래 호환성 제한이다. RN 0.81.5/STABLE/newArch/Expo template 전제가 달라지면 명확히 실패하고 업그레이드 때 재검토한다.
+
+FontText는 앱 소유16모듈의 기존 RNText import를 대체하며 Android에서 RNText element의 key만 fontScale로 바꾼다. props/ref/children·style·allowFontScaling·link/press/a11y 정책은 전달하고 state 있는 input/부모/Modal/지도는 재생성하지 않는다. useWindowDimensions의 leaf별 구독 비용은 인지한 제한이며 병목 관측시 공통 구독으로 옮긴다. 같은 scale에서 state/회전은 Text key를 바꾸지 않는다. Text 자체 선택/접근성 포커스·읽기 보존은 이 전략으로 보증하지 않는다. Surface/Java SP cache 시점차이는 진단 가설이었고 원인으로 확정하지 않았다.
+
+## 17H 사진 순서/멱등성 소유권
+
+저장 오케스트레이션은 시작 세대 guard 아래 소유 기록의 photos를 안정 id/order 정렬·기존 listPages로 끝까지 조회한다. 등록 수와 선택 중 미등록 UUID 수의 합으로20장을 검증하며 다음 순서는 max(display_order)+1이다. 이미 같은 owner/record/id/두 경로가 등록됐으면 재POST 없이 재사용해20번째 응답 유실도 복구한다. 등록 중23505는 같은 UUID 조회로 동일 귀속/경로를 확인한 경우만 성공이고 순서·다른 제약 충돌은 원래 오류를 전달한다. max+1은 경쟁 예약이 아니며 최종 권한·최대수·순서 UNIQUE/부모 잠금은 기존 DB 소유다. 오류시 finalize/선택초기화를 건너뛰고 명시 재시도로 재조회한다. API/schema/RLS/운영 정리는 변경하지 않는다.
+
+## 17I GPS metadata 소유 경계
+
+readExif는 기존 부호처리 뒤 validCoordinates를 사용해 각 축의 비유한/허용범위밖 값을 null로 반환한다. photoMetadata는 EXIF 병합 후 MediaLibrary info.location의 두 축이 유효한 경우만 보완한다. 무효 info.location은 정상 EXIF를 덮지 않는다. 날짜/offset·출처/대표장소와 사진EXIF 구분·RLS/서버CHECK/API는 변경하지 않는다. Native 메타 수신은 경계대역, 실제 선택 UI/업로드·등록·완료는 Local HTTP로 구분해 검증한다.
+
+
+## 2026-11-09 선택형 테마 — FR-FIGMA-009 / TC-FIGMA-THEME-001
+
+사용자 승인: 기존 디자인 1개 + Batch03 자산/Batch04 팔레트의 동일 5개 + Batch06 지도 24개를 단일 테마 버튼의 30개 선택지로 제공한다. 기본은 기존 디자인이며 원본 colors.json/PNG/GeoJSON은 변경하지 않는다. 지도24도 앱 전체 의미 토큰·메뉴·지도색을 함께 적용한다. 시안의 title/sub/tag/가상 사용자·샘플 여행·오래된 목록 구성은 주입하지 않는다.
+
+단일 로컬 선택 ID를 ThemeProvider가 소유하고 불변 팔레트/명시적 Metro 자산맵을 공급한다. 미지원 ID는 기존 테마로 대체하고 초기 읽기와 사용자 선택의 경합·빠른 연속 저장을 보호한다. 계정 DB/API/RLS는 변경하지 않는다. module-level StyleSheet는 테마 의존 factory로 옮기며 전역 colors mutation/Proxy는 금지한다. 원형 외 테마의 표면은 절제하고 실제 사진·지도·기존 자산에 색을 집중한다. 새 폰트/반복 모션/장식은 추가하지 않는다.
+
+테마 전환은 화면/Stack/Modal/지도/입력 key를 바꾸지 않는다. 세션·UUID·미저장 입력·edited·사진·검색/정렬/페이지·후보/핀·상세 출처/스크롤·지역/군집/카메라를 보존한다. 데이터 load/저장 effect에 theme 의존성을 추가하지 않는다. 지도는 동일 지역 ID 순서의 색 매핑을 web/native/SVG에서 공유하며 web은 기존 인스턴스 paint와 marker만 갱신한다. Native는 고정 source와 Layer paint를 갱신하고 카메라 key를 유지한다. fontScale의 기존 Text leaf key 계약은 별개로 유지한다.
+
+수용: 30개 정의와 자산 슬롯/감성 journal-v2, 각 배경·버튼·보조문자·오류·focus 대비, 선택 저장복구/읽기경합/연속쓰기, 전환 중 작성·사진·검색/상세·열린 위치창 상태/지도 identity·카메라 보존, 320px/큰글꼴/48dp/role·선택. 기존 backend/Local HTTP/웹 회귀를 재실행한 수치와 이전125/140+skip을 분리 기록한다. Android/실기기·실제 OAuth·TalkBack은 실제 실행 전까지 미수용이며 빌드/에뮬레이터는 저자원·빌드후60초 정책을 따른다. t14 제품리뷰와 t9d 구조/리팩터링 검토를 반영하되 미완료 실행을 성공으로 합산하지 않는다.
+
+
+## 2026-11-09 설정/여행도구 신규 계약 초안
+
+사용자 신규 요청의 구현 전 기준은 [SETTINGS_DISCOVERY_SPEC](SETTINGS_DISCOVERY_SPEC.md)이다. 지도 그림자는 모든 테마에서 흰색/폭1px로 축소하고 이름 옆3선설정은 원래화면/입력을보존한다. 예약011목적지·012개인뱃지·013스타일은이초안의server/RLS/멱등/소유자/미확정상태계약으로구체화하며 t14 승인 전 제품코드를바꾸지않는다. 원문의여행자/시안의여행지는사용자확인대기이고목적지기반구현은확정전보류한다. 원격DB/배포는Local검증과별도승인대상이다.
+
+
+### 설정/여행 도구 확정 범위 구현 상태
+
+FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE-001~004는 [설정 계약 7절](SETTINGS_DISCOVERY_SPEC.md#7-구현-및-검증-상태-2026-11-09-1312-kst)의 실행 범위를 따른다. t14 명세·지정 제품 읽기 승인과 t9d 지연 성공 P2 보강 확인을 받았다. 신규 권한·멱등/동시성·대표/지도 검사 및 웹6을 확인했고, 최종 전체 backend t16x는148통과+1skip(37.39초)이다. 전체 웹 t16v는 최종 액션 시작 전 세대 guard 보강으로53통과/1중단/84미실행에서 의도 중단했으며 최종 전체 t16w는137통과/1실패(12.9분)이며 parent-cover 선행 HTTP 응답 대기를 보강한 t16y 대상 반복3은 별도 통과(19.6초)했다. 새 전체138 Green으로 합산하지 않는다. 또한 이전132+대상6을 전체 통과로 합산하지 않는다. 여행자/목적지 확인 전 FR-FIGMA-011/013 결과는 보류 안내만 있다. Local migration 적용과 원격 미적용, 기존 APK 유지와 신규 Native 미검증을 구분한다.
+
+
+## 2026-11-09 웹 우선 로그인·지도 선 장식 계약
+
+사용자 새 요청의 기준은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md)이다. 모든 테마의 기존 흰색 지도 그림자를 유지하고 PNG 비행기/배 모형을 렌더링에서 제외하며 구름·물결·비행기는 공통 흰색 SVG 선으로 표시한다. 원본 자산·테마·지도 상태·RLS/실제 사진·SDK 세션은 보존한다. 웹 로그인/콜백 디자인과 PKCE·정적 배포 경계를 t14 승인 후 구현한다. actual localhost:8083/정적 export 검증과 실제 Google 동의 성공/원격 배포를 구분하며 에뮬레이터는 재실행하지 않는다.
+
+
+웹 우선 구현·검증 결과는 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md)의 실행 결과와 [WEB_DEPLOYMENT](WEB_DEPLOYMENT.md)를 따른다. t14 명세 확인/구현/t9d 최종 답변을 반영했고 관련17/Node2/근접31/최종 지도·정적23을 유형·시점별로 구분한다. 실제 Google 로그인 후 앱 복귀는 사용자 확인이며 설치SDK 대역과 분리한다. 실제 Vercel 배포·원격 설정·Android 수용으로 확대하지 않는다.
+
+
+웹 지도 창 크기 변경 보강 TC-WEB-MAP-LAYOUT-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 실제 앱의 MapLibre CSS 소유/좌표 anchor와 CSS 표시 크기를 검증하고 원본 좌표·카메라·군집·Native를 보존한다. map CSS를 수동 주입한 기존 단독 회귀와 실제 no-dev/정적 앱 수용을 구분한다.
+
+
+웹 홈 지도 전체 맞춤 TC-WEB-MAP-OVERVIEW-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 상단 앱 이름/설정/테마와 폭·중앙축을 공유하는 지도 viewport 및 기존 국내 전체 경계 맞춤·자동 전체/사용자 탐색 수명을 분리하고 Native/작성·상세·보정/데이터·권한은 유지한다.

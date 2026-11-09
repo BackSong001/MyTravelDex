@@ -17,7 +17,7 @@ test('TC-VNEXT-UI-004 대표사진·제목 수정은 목록에 즉시 반영하�
  await expect(page.getByLabel('제목 수정',{exact:true})).toHaveCount(0);
  await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveAttribute('aria-selected','true');
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();
- const cover=page.getByRole('img',{name:'제주 여행 대표사진',exact:true}).and(page.locator('[role="img"]')).locator('img');
+ const cover=page.getByRole('img',{name:'제주 여행 대표사진',exact:true});
  await expect(cover).toHaveAttribute('src',new RegExp(photos[1].id));
  await page.getByRole('button',{name:/^제주 여행,/}).click();
  await page.getByRole('button',{name:'여행 관리',exact:true}).click();
@@ -46,7 +46,7 @@ async function noOverflow(page:Page){
  expect(size.body).toBeLessThanOrEqual(size.width+1);expect(size.document).toBeLessThanOrEqual(size.width+1);
 }
 async function navVisible(page:Page){
- const nav=page.getByRole('tablist');await expect(nav).toBeInViewport();
+ const nav=page.getByRole('tablist',{name:'주요 탐색',exact:true});await expect(nav).toBeInViewport();
  expect(await nav.getByRole('tab').allTextContents()).toEqual(['홈','여행도감','친구','My']);
  const add=nav.getByRole('button',{name:'기록 만들기',exact:true});await expect(add).toBeInViewport();
  const order=await nav.locator('[role="tab"], [role="button"]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')));
@@ -61,7 +61,7 @@ test('TC-VNEXT-UI-010 짧은 화면·큰 헤더에서도 작성 패널은 콘텐
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
  const panel=page.getByLabel('여행 작성 패널',{exact:true});await expect(panel).toBeVisible();
  await expect.poll(async()=>{
-  const box=await panel.boundingBox(),nav=await page.getByRole('tablist').boundingBox();
+  const box=await panel.boundingBox(),nav=await page.getByRole('tablist',{name:'주요 탐색',exact:true}).boundingBox();
   return !!box&&!!nav&&box.y>=header!.y+header!.height&&box.y+box.height<=nav.y+1;
  }).toBe(true);
  await navVisible(page);await noOverflow(page);
@@ -143,7 +143,7 @@ test('TC-VNEXT-UI-007 저장 중 탭 이동해도 실제 완료는 한 번·입�
    for(const label of ['여행 제목','여행 내용','여행 시작일','여행 종료일']){
     await expect.soft(page.getByLabel(label,{exact:true})).not.toBeEditable();
    }
-   await expect.soft(page.getByRole('button',{name:'위치 선택',exact:true})).toBeDisabled();
+   await expect.soft(page.getByRole('button',{name:'여행 위치 검색',exact:true})).toBeDisabled();
   }finally{
    await page.getByRole('tab',{name:'My',exact:true}).click();
   }
@@ -169,10 +169,10 @@ for(const width of [320,1024]){
   await expect(page.getByText(accounts[0].email,{exact:true})).toHaveCount(0);
   const bounds=await card.boundingBox();expect(bounds).not.toBeNull();expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(width);
   await noOverflow(page);await navVisible(page);
-  await page.getByLabel('지역 필터',{exact:true}).fill('존재하지않는지역');
-  await page.getByRole('button',{name:'필터 적용',exact:true}).click();
-  await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'필터 해제',exact:true}).click();
+  await page.getByRole('button',{name:'필터',exact:true}).click();
+  await page.getByLabel('여행 검색',{exact:true}).fill('존재하지않는지역');
+  await expect(page.getByText('검색 결과가 없어요',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'정렬·검색 초기화',exact:true}).click();
   await expect(card).toBeVisible();await noOverflow(page);
   await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
   await noOverflow(page);await navVisible(page);
@@ -183,7 +183,7 @@ for(const width of [320,1024]){
 test('TC-VNEXT-UI-005 공개 프로필 기본 비공개·명시적 동의·작성자·사진 실패 대체',async({page})=>{
  const user=accounts[0];
  await page.route('https://lh3.googleusercontent.com/**',route=>route.abort());
- await page.getByRole('tab',{name:'My',exact:true}).click();
+ await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'프로필 수정',exact:true}).click();
  const toggle=page.getByRole('switch',{name:'프로필 공개',exact:true});
  await expect(toggle).not.toBeChecked();
  expect(await admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual([]);
@@ -198,16 +198,16 @@ test('TC-VNEXT-UI-005 공개 프로필 기본 비공개·명시적 동의·작�
  expect((await response).ok()).toBe(true);
  await expect(page.getByText('프로필을 저장했어요.',{exact:true})).toBeVisible();
  expect(await admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual([{id:user.id,display_name:'도감 여행자',avatar_url:null}]);
- await page.getByRole('radio',{name:'Google 사진 사용',exact:true}).click();
+ await page.getByRole('button',{name:'프로필 수정',exact:true}).click();await page.getByRole('radio',{name:'Google 사진 사용',exact:true}).click();
  await page.getByRole('button',{name:'프로필 저장',exact:true}).click();
  await expect.poll(async()=> (await admin(`/rest/v1/public_profiles?id=eq.${user.id}`))[0]?.avatar_url).toBe('https://lh3.googleusercontent.com/a/e2e-avatar');
  await draft(page);await save(page);
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();
  await expect(page.getByRole('button',{name:/^제주 여행, 도감 여행자,/})).toBeVisible();
  const author=page.getByLabel('작성자 도감 여행자',{exact:true});await expect(author).toBeVisible();
- await expect(author.locator('img')).toHaveCount(0);
+ const fallback=author.locator('img');await expect(fallback).toHaveCount(1);await expect(fallback).toHaveAttribute('src',/avatar-bear-v1/);await expect.poll(()=>fallback.evaluate(image=>image instanceof HTMLImageElement&&image.complete&&image.naturalWidth>0)).toBe(true);
  await expect(page.getByText(user.email,{exact:true})).toHaveCount(0);
- await page.getByRole('tab',{name:'My',exact:true}).click();await toggle.uncheck();
+ await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'프로필 수정',exact:true}).click();await toggle.uncheck();
  await page.getByRole('button',{name:'프로필 저장',exact:true}).click();
  await expect.poll(()=>admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual([]);
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();
@@ -221,7 +221,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
  const otherContext=await browser.newContext();const otherFriend=await otherContext.newPage();
  try{
   await login(friend,peer.email,peer.password);
-  await friend.getByRole('tab',{name:'My',exact:true}).click();
+  await friend.getByRole('tab',{name:'My',exact:true}).click();await friend.getByRole('button',{name:'프로필 수정',exact:true}).click();
   await friend.getByLabel('닉네임',{exact:true}).fill('친구 도감 여행자');
   await friend.getByRole('switch',{name:'프로필 공개',exact:true}).check();
   await friend.getByRole('button',{name:'프로필 저장',exact:true}).click();
@@ -242,16 +242,16 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await otherFriend.getByRole('button',{name:'공개로 변경',exact:true}).click();
   await expect(otherFriend.getByRole('button',{name:'비공개로 변경',exact:true})).toBeVisible();
   await page.getByRole('tab',{name:'My',exact:true}).click();
-  await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();
+  await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   await admin(`/rest/v1/profiles?id=eq.${other.id}`,'PATCH',{display_name:'검색%_친구'});
-  await page.getByLabel('공개 여행자 닉네임 또는 사용자 ID',{exact:true}).fill('%_');
+  await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill('%_');
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();
   await expect(page.getByText('검색%_친구',{exact:true})).toBeVisible();
   await expect(page.getByText('친구 도감 여행자',{exact:true})).toHaveCount(0);
   await admin(`/rest/v1/profiles?id=eq.${other.id}`,'PATCH',{display_name:'다른 친구 여행자'});
-  await page.getByLabel('공개 여행자 닉네임 또는 사용자 ID',{exact:true}).fill(peer.id);
-  const search=page.waitForResponse(r=>r.url().includes('/rest/v1/public_profiles?')&&new URL(r.url()).searchParams.get('id')===`eq.${peer.id}`);
+  await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill(peer.id);
+  const search=page.waitForResponse(r=>r.url().includes('/rest/v1/user_directory?')&&new URL(r.url()).searchParams.get('id')===`eq.${peer.id}`);
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();expect((await search).ok()).toBe(true);
   await expect(page.getByText('친구 도감 여행자',{exact:true})).toBeVisible();
   const followed=page.waitForResponse(r=>r.url().endsWith('/rest/v1/follows')&&r.request().method()==='POST');
@@ -259,7 +259,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await page.getByRole('button',{name:'팔로우',exact:true}).click();expect((await followed).status()).toBe(409);
   await expect(page.getByText('팔로우했어요. 친구의 공개 여행을 만나보세요.',{exact:true})).toBeVisible();
   await expect.poll(async()=>await admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${peer.id}`)).toHaveLength(1);
-  await page.getByLabel('공개 여행자 닉네임 또는 사용자 ID',{exact:true}).fill(other.id);
+  await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill(other.id);
   await page.getByRole('button',{name:'여행자 검색',exact:true}).click();
   await expect(page.getByText('다른 친구 여행자',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'팔로우',exact:true}).click();
@@ -272,33 +272,33 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect(page.getByRole('button',{name:/^친구 공개 여행,/})).toBeVisible();
   await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toBeVisible();
   await page.getByRole('tab',{name:'친구',exact:true}).click();
-  const peerRow=page.locator('div').filter({has:page.getByText(peer.id,{exact:true})}).filter({has:page.getByRole('button',{name:'지도 보기',exact:true})}).last();
-  await peerRow.getByRole('button',{name:'지도 보기',exact:true}).click();
+  const peerRow=page.getByTestId(`friend-person-${peer.id}`).first();
+  await peerRow.getByRole('button',{name:/^지도 보기 ·/}).click();
   await expect(page.getByRole('tab',{name:'홈',exact:true})).toHaveAttribute('aria-selected','true');
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
   const individual=page.getByRole('button',{name:/^친구 공개 여행,/});
   await expect(individual).toBeVisible();
   await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toHaveCount(0);
-  for(const [label,value] of [['시작일 필터','2100-01-01'],['지역 필터','존재하지않는지역']]){
+  await page.getByRole('button',{name:'필터',exact:true}).click();
+  for(const [label,value] of [['여행 검색','없는제목'],['여행 검색','존재하지않는지역']]){
    await page.getByLabel(label,{exact:true}).fill(value);
-   await page.getByRole('button',{name:'필터 적용',exact:true}).click();
-   await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
+   await expect(page.getByText('검색 결과가 없어요',{exact:true})).toBeVisible();
    await expect(individual).toHaveCount(0);
-   await page.getByRole('button',{name:'필터 해제',exact:true}).click();
+   await page.getByRole('button',{name:'정렬·검색 초기화',exact:true}).click();
    await expect(individual).toBeVisible();
    await expect(page.getByRole('button',{name:/^다른 친구 공개 여행,/})).toHaveCount(0);
   }
   await page.getByRole('tab',{name:'친구',exact:true}).click();
-  const otherRow=page.locator('div').filter({has:page.getByText(other.id,{exact:true})}).filter({has:page.getByRole('button',{name:'팔로우 해제',exact:true})}).last();
+  const otherRow=page.getByTestId(`friend-person-${other.id}`).first();
   await otherRow.getByRole('button',{name:'팔로우 해제',exact:true}).click();
   await expect.poll(()=>admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${other.id}`)).toEqual([]);
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
   await page.getByRole('button',{name:'내 여행',exact:true}).click();await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
-  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByText('내 발자국 0 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();await page.getByRole('tab',{name:'홈',exact:true}).click();
-  await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByText('나의 여행 스탬프 · 0 / 17',{exact:true})).toBeVisible();
+  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByText('내 발자국 0 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');await page.getByRole('tab',{name:'홈',exact:true}).click();
+  await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   const removed=page.waitForResponse(r=>r.url().includes('/rest/v1/follows?')&&r.request().method()==='DELETE');
-  await page.getByRole('button',{name:'팔로우 해제',exact:true}).click();expect((await removed).ok()).toBe(true);
+  await page.getByTestId(`friend-person-${peer.id}`).first().getByRole('button',{name:'팔로우 해제',exact:true}).click();expect((await removed).ok()).toBe(true);
   expect(await admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${peer.id}`)).toEqual([]);
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();if(await page.getByRole('button',{name:/^표시 범위/}).isVisible())await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'친구 여행',exact:true}).click();
   await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
@@ -315,15 +315,16 @@ test('TC-VNEXT-UI-005/STAMP-001 내 비공개 완료·중복 방문·초안 제�
  const location=await admin('/rest/v1/locations','POST',{owner_id:user.id,latitude:37.56,longitude:126.97,source:'manual',country_code:'KR',region_name:'서울특별시'});
  await admin('/rest/v1/travel_records','POST',{owner_id:user.id,location_id:location[0].id,start_date:'2026-01-10',end_date:'2026-01-10',title:'완료하지 않은 서울',visibility:'private'});
  await page.reload();await page.getByRole('tab',{name:'My',exact:true}).click();
- await expect(page.getByText('나의 여행 스탬프 · 1 / 17',{exact:true})).toBeVisible();
- await expect(page.getByText('✓ 제주',{exact:true})).toBeVisible();
- await expect(page.getByText('✓ 서울',{exact:true})).toHaveCount(0);
+ await expect(page.getByTestId('profile-visits')).toHaveText('1 / 17');
+ await page.getByRole('button',{name:/^여행 스탬프 보기 ·/}).click();
+ await expect(page.getByLabel('제주, 방문 완료',{exact:true})).toBeVisible();await expect(page.getByLabel('서울, 미획득',{exact:true})).toHaveCount(1);
+ await page.getByRole('button',{name:'프로필로 돌아가기',exact:true}).click();
  for(const [title,remaining] of [['제주 첫 기록',1],['제주 두 번째 기록',0]] as const){
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
   await page.getByRole('button',{name:new RegExp(`^${title},`)}).click();
   await page.getByRole('button',{name:'여행 관리',exact:true}).click();await page.getByRole('button',{name:'기록 삭제',exact:true}).click();await page.getByRole('button',{name:'삭제 확인',exact:true}).click();
   await page.getByRole('tab',{name:'My',exact:true}).click();
-  await expect(page.getByText(`나의 여행 스탬프 · ${remaining} / 17`,{exact:true})).toBeVisible();
+  await expect(page.getByTestId('profile-visits')).toHaveText(`${remaining} / 17`);
  }
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}`)).toHaveLength(1);
 });

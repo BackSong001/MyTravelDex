@@ -1,14 +1,18 @@
+import {useThemeColors} from './ThemeContext';
+import Pressable,{useReducedMotion} from './Feedback';
 import React,{useEffect,useRef,useState} from 'react';
-import {AccessibilityInfo,Animated,AppState,Pressable,ScrollView,Text,View,useWindowDimensions} from 'react-native';
+import Text from './FontText';
+import {Animated,AppState,ScrollView,View,useWindowDimensions} from 'react-native';
 import {api} from './runtime';
 import PhotoGallery from './PhotoGallery';
 import {Author,PublicAuthor} from './Journal';
-import {colors as c} from './theme';
-export default function RecordPreview({record,owner,author,onOpen,onClose,availableHeight}:{record:any;owner?:string;author?:PublicAuthor;onOpen:()=>void;onClose:()=>void;availableHeight:number}){
- const opacity=useRef(new Animated.Value(1)).current;
- useEffect(()=>{let alive=true;const changed=AccessibilityInfo.addEventListener('reduceMotionChanged',reduced=>{if(reduced){opacity.stopAnimation();opacity.setValue(1);}});AccessibilityInfo.isReduceMotionEnabled().then(reduced=>{if(alive&&!reduced){opacity.setValue(.7);Animated.timing(opacity,{toValue:1,duration:160,useNativeDriver:true}).start();}}).catch(()=>{});return()=>{alive=false;opacity.stopAnimation();changed.remove();};},[opacity]);
- const {height}=useWindowDimensions(),[photos,setPhotos]=useState<any[]>([]),[urls,setUrls]=useState<Record<string,string>>({}),[error,setError]=useState('');
+export default function RecordPreview({record,owner,author,onOpen,onClose,availableHeight,attributionHeight=0}:{record:any;owner?:string;author?:PublicAuthor;onOpen:()=>void;onClose:()=>void;availableHeight:number;attributionHeight?:number}){
+ const c=useThemeColors();
+ const opacity=useRef(new Animated.Value(1)).current,offset=useRef(new Animated.Value(0)).current,reduced=useReducedMotion();
+ useEffect(()=>{opacity.stopAnimation();offset.stopAnimation();if(reduced){opacity.setValue(1);offset.setValue(0);}else{opacity.setValue(.8);offset.setValue(12);Animated.parallel([Animated.timing(opacity,{toValue:1,duration:160,useNativeDriver:true}),Animated.timing(offset,{toValue:0,duration:160,useNativeDriver:true})]).start();}return()=>{opacity.stopAnimation();offset.stopAnimation();};},[opacity,offset,reduced]);
+ const {height,width}=useWindowDimensions(),[photos,setPhotos]=useState<any[]>([]),[urls,setUrls]=useState<Record<string,string>>({}),[error,setError]=useState('');
  const reload=useRef(()=>{});
+ const bottom=Math.max(48,attributionHeight+14);
  useEffect(()=>{
   let alive=true,inFlight=false;setPhotos([]);setUrls({});setError('');
   async function load(){if(inFlight)return;inFlight=true;
@@ -21,7 +25,7 @@ export default function RecordPreview({record,owner,author,onOpen,onClose,availa
   const timer=setInterval(()=>{void load();},240000),subscription=AppState.addEventListener('change',state=>{if(state==='active')void load();});
   return()=>{alive=false;clearInterval(timer);subscription.remove();reload.current=()=>{};};
  },[record.id,record.owner_id,owner]);
- return <Animated.View testID="record-preview" style={{position:'absolute',bottom:48,left:12,right:12,maxWidth:600,alignSelf:'center',maxHeight:Math.min(height*.6,Math.max(80,availableHeight-64)),opacity,backgroundColor:c.sheet,borderRadius:24,borderWidth:1,borderColor:c.line,overflow:'hidden'}}>
+ return <Animated.View testID="record-preview" style={{position:'absolute',bottom,left:12,width:width>=768?420:Math.max(0,width-24),maxHeight:Math.min(height*.6,Math.max(80,availableHeight-bottom-16)),opacity,transform:[{translateY:offset}],backgroundColor:c.sheet,borderRadius:24,borderWidth:1,borderColor:c.line,boxShadow:'0 10px 32px #286F7124',overflow:'hidden'}}>
  <ScrollView contentContainerStyle={{padding:12}}><View style={{flexDirection:'row',justifyContent:'flex-end'}}><Pressable accessibilityRole="button" accessibilityLabel="미리보기 닫기" onPress={onClose} style={{minWidth:48,minHeight:48,justifyContent:'center',alignItems:'center'}}><Text style={{color:c.sea}}>닫기</Text></Pressable></View>
  {photos.length>0?<PhotoGallery compact photos={photos} urls={urls} onError={()=>reload.current()}/>:<Text style={{color:c.muted,padding:12}}>{error||'사진을 불러오고 있어요.'}</Text>}
  {!!error&&<Pressable accessibilityRole="button" accessibilityLabel="사진 다시 불러오기" onPress={()=>reload.current()} style={{padding:12,minHeight:48}}><Text style={{color:c.error}}>{error} · 다시 시도</Text></Pressable>}

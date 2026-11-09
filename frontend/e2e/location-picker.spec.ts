@@ -38,7 +38,7 @@ test.afterEach(async()=>{
 });
 
 async function openPicker(page:Page){
- await page.getByRole('button',{name:'위치 선택',exact:true}).click();
+ await page.getByRole('button',{name:'여행 위치 검색',exact:true}).click();
  const picker=page.getByTestId('location-picker');
  await expect(picker.getByRole('heading',{name:'위치 선택',exact:true})).toBeVisible();
  await picker.getByRole('tab',{name:'검색',exact:true}).click();
@@ -208,4 +208,15 @@ test('서로 가까운 검색 결과도 확정 후보는 묶지 않고 선택한
  await expect(map.getByRole('button',{name:new RegExp(place.name)})).toBeInViewport();
  await expect(map.getByRole('button',{name:/모아 보기/})).toHaveCount(0);
  await expect(map.getByRole('button',{name:/서울 후보/})).toHaveCount(0);
+});
+
+
+test('TC-PHOTO-LOCATION-002: empty location search bar opens search by keyboard and cancellation preserves input',async({page})=>{
+ await expect(page.getByRole('button',{name:'위치 선택',exact:true})).toHaveCount(0);
+ const entry=page.getByRole('button',{name:'여행 위치 검색',exact:true});await expect(entry).toContainText('장소명 또는 주소 검색');
+ await entry.focus();await page.keyboard.press('Enter');
+ const picker=page.getByTestId('location-picker');await expect(picker).toBeVisible();
+ await expect(picker.getByRole('tab',{name:'검색',exact:true})).toHaveAttribute('aria-selected','true');
+ await picker.getByRole('button',{name:'닫기',exact:true}).click();
+ await expect(entry).toContainText('장소명 또는 주소 검색');await expect(page.getByLabel('여행 시작일',{exact:true})).toHaveValue('2026-11-01');await expect(page.getByLabel('여행 종료일',{exact:true})).toHaveValue('2026-11-03');
 });

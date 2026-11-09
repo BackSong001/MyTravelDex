@@ -1,11 +1,15 @@
+import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import React, {useMemo, useState} from 'react';
-import {Linking, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
+import Text from './FontText';
+import {Linking, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import Svg, {G, Path, Text as SvgText} from 'react-native-svg';
-import {colors as c} from './theme';
-import {colors as palette} from './design/colors.json';
-import {groupProvinceRecords, project, provinceLabels, provincePaths, provinceColors} from './provinces';
+import {groupProvinceRecords, project, provinceLabels, provincePaths, provinceColors,provincePalette} from './provinces';
 
 export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,showHeading = true}: {records: any[];ownRecords?: any[];onOpen: (record:any)=>void;onRegion?: (id:string,name:string)=>void;showHeading?: boolean}) {
+ const c=useThemeColors();
+ const palette=c;
+ const provinceColors=provincePalette(c.map.regionPastels);
+ const s=useThemeStyles(makeStyles);
   const ownGroups=useMemo(()=>groupProvinceRecords(ownRecords),[ownRecords]);
   const groups=useMemo(()=>groupProvinceRecords(records),[records]);
   const [selected,setSelected]=useState<string|null>(null),[showRegions,setShowRegions]=useState(false);
@@ -36,7 +40,7 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
   </View>;
 }
 
-const s=StyleSheet.create({
- container:{flex:1,backgroundColor:palette.map.ocean,minHeight:290},top:{position:'absolute',top:18,left:20,right:20,flexDirection:'row',justifyContent:'space-between',alignItems:'flex-start'},heading:{flex:1,paddingRight:8},title:{fontSize:22,fontWeight:'800',color:c.ink,letterSpacing:-.6},description:{fontSize:12,lineHeight:19,color:c.muted,marginTop:5},stamp:{borderWidth:1.5,borderStyle:'dashed',borderColor:'#BB935E',backgroundColor:c.sheet,padding:10,borderRadius:6,alignItems:'center',transform:[{rotate:'3deg'}]},stampLabel:{fontSize:11,color:c.muted},count:{fontSize:24,fontWeight:'800',color:c.ink,marginTop:3},
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({
+ container:{flex:1,backgroundColor:c.map.ocean,minHeight:290},top:{position:'absolute',top:18,left:20,right:20,flexDirection:'row',justifyContent:'space-between',alignItems:'flex-start'},heading:{flex:1,paddingRight:8},title:{fontSize:22,fontWeight:'800',color:c.ink,letterSpacing:-.6},description:{fontSize:12,lineHeight:19,color:c.muted,marginTop:5},stamp:{borderWidth:1.5,borderStyle:'dashed',borderColor:c.map.stampBorder,backgroundColor:c.sheet,padding:10,borderRadius:6,alignItems:'center',transform:[{rotate:'3deg'}]},stampLabel:{fontSize:11,color:c.muted},count:{fontSize:24,fontWeight:'800',color:c.ink,marginTop:3},
  bottom:{position:'absolute',bottom:2,left:16,right:16},legend:{flexDirection:'row',alignItems:'center',justifyContent:'space-between'},legendText:{fontSize:12,color:c.sea,backgroundColor:c.paper,padding:8,borderRadius:12},regionButton:{padding:14,minHeight:48,backgroundColor:c.sheet,borderRadius:24,borderWidth:1,borderColor:c.line},regionButtonText:{color:c.ink,fontSize:13},regions:{gap:8,paddingVertical:10},regionChip:{backgroundColor:c.sheet,padding:14,minHeight:48,borderRadius:22,borderColor:c.line,borderWidth:1},regionChipText:{color:c.ink},panel:{backgroundColor:c.sheet,borderRadius:16,borderWidth:1,borderColor:c.line,paddingHorizontal:16,paddingBottom:16},panelHeading:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},panelTitle:{fontSize:17,fontWeight:'700',color:c.ink},close:{padding:14,minHeight:48},trip:{paddingVertical:9,borderTopWidth:1,borderColor:c.line},tripTitle:{color:c.ink,fontSize:14,fontWeight:'600'},attribution:{alignSelf:'center',padding:8,minHeight:48},attributionText:{fontSize:9,color:c.muted},
 });

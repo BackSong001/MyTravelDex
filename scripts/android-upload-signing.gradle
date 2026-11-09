@@ -1,0 +1,16 @@
+gradle.beforeProject { project ->
+    project.pluginManager.withPlugin('com.android.application') {
+        project.extensions.getByName('androidComponents').finalizeDsl { android ->
+            def environment = System.getenv()
+            ['ANDROID_UPLOAD_STORE_FILE', 'ANDROID_UPLOAD_STORE_PASSWORD', 'ANDROID_UPLOAD_KEY_ALIAS', 'ANDROID_UPLOAD_KEY_PASSWORD'].each { name ->
+                if (!environment[name]) throw new GradleException("Missing signing environment: ${name}")
+            }
+            def upload = android.signingConfigs.maybeCreate('upload')
+            upload.storeFile = new File(environment['ANDROID_UPLOAD_STORE_FILE'])
+            upload.storePassword = environment['ANDROID_UPLOAD_STORE_PASSWORD']
+            upload.keyAlias = environment['ANDROID_UPLOAD_KEY_ALIAS']
+            upload.keyPassword = environment['ANDROID_UPLOAD_KEY_PASSWORD']
+            android.buildTypes.getByName('release').signingConfig = upload
+        }
+    }
+}

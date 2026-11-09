@@ -152,3 +152,31 @@ Production 배포 전에는 migration, RLS, Storage 접근 정책, OAuth Redirec
 - [프롬프트·작업 이력](docs/prompts.md)
 
 MVP 계약은 `REQUIREMENT → PRD → TRD → API_SPEC → TEST_CASE` 순서로 갱신하고, 범위·운영 문서(`AGENTS`, `README`, `README.local`, `planning`, `.env.example`)의 영향을 함께 확인한다. 여행 기록은 사진 업로드 중 `draft`, 필수 조건 검증 후 `complete` 상태가 된다.
+
+
+## 친구 요청·초대 추가 — 2026-11-07
+
+기존 닉네임 중복·일방 팔로우를 유지하며 친구 코드(기존 사용자 UUID), 요청·수락·거절·취소·삭제와 설치된 앱 초대 링크를 추가한다. 초대는 검색만 열며 로그인 후에도 명시적으로 요청/수락한다. 수락한 친구도 complete/public 기록만 지도/도감에서 조회하고 private/draft·프로필 원본 권한은 확대하지 않는다. 기존 팔로우는 자동 변환/삭제하지 않는다. 링크를 열어 보관한 초대 코드는 요청 성공이나 직접 닫기 후 지운다. 연락처 수집과 미설치자 웹/스토어 fallback은 추가하지 않는다.
+
+로컬 검증용 additive migration은 `20261107140000_friend_requests.sql`이다. 원격 적용/배포는 사용자 승인 전 수행하지 않는다. 기존 문서의 상호 친구 제외 설명은 이전 구현 시점의 범위이며, 새 계약은 REQUIREMENT의 FR-FRIEND-001~003·TRD 상단·API_SPEC와 TEST_CASE의 TC-FRIEND-001~005를 따른다. 실제 Android 초대/공유/OAuth 왕복과 원격 수용 여부는 DEVELOPMENT_STATUS.md 및 최신 테스트 실행 이력에서 구분한다.
+
+## 6자리 친구 ID와 공개 디렉터리 (2026-11-08)
+
+UUID/FK를 유지한 서버 발급 불변 6자리 friend_code와 공개 동의된 최소 4필드 friend_directory를 사용한다. 전체 목록은 20명씩 페이지로 조회하고 비공개 프로필/Auth 정보는 노출하지 않는다. 기존 public_profiles·추천RPC 3필드/UUID 초대는 호환한다. 원격은 친구 요청→추천→코드 migration을 검토·승인 후 적용하고 새 앱을 설치한다. 이전 앱 우선 롤백하며 코드/sequence를 삭제·재번호·reset하지 않는다. 산·풀은 공통 SVG 선 표현만 사용하며 자세한 검증은 docs/TEST_CASE.md 최신 이력을 따른다.
+
+## 산·풀 제거 및 ID 형식 검증 (2026-11-08)
+
+지도에는 산·풀 장식을 표시하지 않으며 기존 바다 장식·사진/군집·경계·출처는 유지한다. 현재 friend_code는 영문혼합이 아닌 서버sequence 기반6자리숫자이며 UNIQUE/불변trigger로 중복·변경을 차단한다. 기존ID를 임의로 재번호하지 않는다. 영숫자 전환의 기존ID 호환 정책과 원격적용은 별도 확정한다. 자세한 관측/수용범위는 TEST_CASE 최신 이력을 따른다.
+
+## 영문·숫자 유저 ID (2026-11-08)
+
+현재표시ID는profiles.user_code의불변6자리영문·숫자혼합이며My/친구/접근성명칭은유저 ID다. 기존friend_code숫자값/UUID는보존하고새lookup_user_id는restrictedreader의공개동의RLS로만이전숫자alias/대소문자무시현재ID를최소4필드로해석한다. 신규계정의legacy숫자ID는발급하지않아null일수있으며구버전롤백의숫자ID전용조회제약을명시한다. user_code_seq의비순환공간436700160개/UNIQUE·불변/수용검증과원격적용은TRD·TEST_CASE최신절을따른다. 기존ID/sequence를재번호·reset하지않는다.
+
+## 세션·빌드·짧은 화면 회귀 (2026-11-08)
+
+Auth SDK 이벤트를 클라이언트 세션의 단일 원천으로 사용한다. 사용자 전환의 sessionEpoch와 작업별 busy 소유권을 유지하며, 이전 작업은 각 await 후 다음 저장 요청을 시작하기 전에 세대를 검사한다. 같은 사용자 token refresh는 작성 내용을 보존한다. Android prebuild는 공통 번들 task에 공개 환경의 SHA256 입력과 출력 target 검사를 추가하므로 환경 전환을 위해 generated JS를 수동 삭제하지 않는다. 낮은 화면 높이의 compact header/nav와 검색어만 지우는 동작은 기존 Feedback·최소48·접근성·동작 줄이기를 유지한다. 전체/대상 회귀·actual APK/QA AAB 및 미검증 배포 조건은 [TEST_CASE](docs/TEST_CASE.md) 최신 작업15 기록을 따른다.
+
+
+### 웹 우선 배포 준비
+
+현재 작업의 Google 로그인·정적 export·Vercel 루트 설정은 [WEB_DEPLOYMENT](docs/WEB_DEPLOYMENT.md)를 따른다. 실제 Google 동의 완료와 SDK 대역 검사를 구분하며 production export는 `node scripts/export-web.mjs`로 공개 환경을 검증한다. 실제 배포·원격 설정 변경은 별도다.

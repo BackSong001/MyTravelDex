@@ -1,14 +1,18 @@
+import {useThemeColors} from './ThemeContext';
+import Pressable,{useReducedMotion} from './Feedback';
 import React,{useEffect,useRef,useState} from 'react';
-import {ActivityIndicator,Image,Platform,Pressable,ScrollView,Text,View,useWindowDimensions} from 'react-native';
+import Text from './FontText';
+import {ActivityIndicator,Image,Platform,ScrollView,View,useWindowDimensions} from 'react-native';
 import {GalleryPhoto,orderedPhotos} from './gallery';
-import {colors as c} from './theme';
 export default function PhotoGallery({photos,urls,onError,compact=false}:{photos:GalleryPhoto[];urls:Record<string,string>;onError:()=>void;compact?:boolean}){
+ const c=useThemeColors();
  const {height}=useWindowDimensions(),[width,setWidth]=useState(0),[index,setIndex]=useState(0);
+ const reduced=useReducedMotion();
  const scroll=useRef<ScrollView>(null),items=orderedPhotos(photos);
  const ids=items.map(p=>p.id).join(',');
  useEffect(()=>{setIndex(0);scroll.current?.scrollTo({x:0,animated:false});},[ids]);
- useEffect(()=>{scroll.current?.scrollTo({x:index*width,animated:false});},[width]);
- function go(next:number){const value=Math.max(0,Math.min(items.length-1,next));setIndex(value);scroll.current?.scrollTo({x:value*width,animated:false});}
+ useEffect(()=>{scroll.current?.scrollTo({x:index*width,animated:false});},[width,reduced]);
+ function go(next:number){const value=Math.max(0,Math.min(items.length-1,next));setIndex(value);scroll.current?.scrollTo({x:value*width,animated:!reduced});}
  const control=(label:string,text:string,disabled:boolean,action:()=>void)=><Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{disabled}} disabled={disabled} onPress={action} style={{minWidth:48,minHeight:48,justifyContent:'center',alignItems:'center',opacity:disabled ? .3 : 1}}><Text style={{fontSize:20,color:c.sea}}>{text}</Text></Pressable>;
  return <View testID="photo-gallery" onLayout={e=>setWidth(e.nativeEvent.layout.width)} {...(Platform.OS==='web'?{tabIndex:0,onKeyDown:(e:any)=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();go(index+(e.key==='ArrowRight'?1:-1));}}}:{})}>
  <ScrollView ref={scroll} horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={e=>{const value=Math.max(0,Math.min(items.length-1,Math.round(e.nativeEvent.contentOffset.x/Math.max(1,width))));setIndex(value);}}>

@@ -1,79 +1,68 @@
-import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet, Text, View, useWindowDimensions} from 'react-native';
+import {useThemeAssets} from './themeAssets';
+import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
+import Pressable from './Feedback';
+import React from 'react';
+import Text from './FontText';
+import {Image, Platform, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Path, Rect} from 'react-native-svg';
-import TravelMap from './TravelMap';
+import Svg, {Path} from 'react-native-svg';
 import Avatar from './Avatar';
-import {colors as c} from './theme';
 
 export function Backpack({size = 42}: {size?: number}) {
-  return <Svg width={size} height={size * 1.08} viewBox="0 0 100 108" accessible={false}>
-    <Path d="M28 30 22 9Q28 2 36 8L42 25M58 25 65 8Q73 2 79 9L73 31" fill="#E9BF8B" stroke={c.ink} strokeWidth="3"/>
-    <Path d="M35 26Q35 10 50 10T65 26" fill="none" stroke={c.ink} strokeWidth="4"/>
-    <Rect x="8" y="55" width="18" height="34" rx="6" fill="#D9A565" stroke={c.ink} strokeWidth="3"/>
-    <Rect x="74" y="55" width="18" height="34" rx="6" fill="#D9A565" stroke={c.ink} strokeWidth="3"/>
-    <Path d="M19 91 22 48Q24 23 50 23T78 48L81 91Q79 102 50 102T19 91Z" fill="#F1CB96" stroke={c.ink} strokeWidth="3"/>
-    <Path d="M28 66 30 47Q33 32 50 32T70 47L72 66" fill="#FFF0D7" stroke="#B47D41" strokeWidth="2"/>
-    <Rect x="29" y="67" width="42" height="26" rx="7" fill="#FFF0D7" stroke="#B47D41" strokeWidth="2"/>
-    <Path d="M35 74H64M38 74v7" fill="none" stroke={c.ink} strokeWidth="2" strokeLinecap="round"/>
-  </Svg>;
+ const uiAssets=useThemeAssets();
+  return <Image source={uiAssets.backpack} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
 }
 
-export function JournalIcon({name, color = c.ink}: {name: string; color?: string}) {
-  const paths: Record<string, string> = {
-    home: 'M3 11 12 3l9 8v10h-6v-7H9v7H3Z',
-    album: 'M12 5C8 2 4 3 2 4v16c4-2 7-1 10 1 3-2 6-3 10-1V4c-4-2-7-1-10 1Zm0 0v16',
-    map: 'M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6',
-    friends: 'M2 21v-2a6 6 0 0 1 12 0v2M8 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 4a4 4 0 0 1 0 8M17 15a5 5 0 0 1 5 5v1',
-    account: 'M5 22v-3a7 7 0 0 1 14 0v3M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8',
-    plus: 'M12 4v16M4 12h16',
-  };
-  return <Svg width={26} height={26} viewBox="0 0 24 24" accessible={false}><Path d={paths[name] ?? paths.map} fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
+export function JournalIcon({name, color, size = 26}: {name: string; color?: string; size?: number}) {
+ const c=useThemeColors();
+
+ const uiAssets=useThemeAssets();
+  const source = uiAssets.navigation[name as keyof typeof uiAssets.navigation];
+  if (source) return <Image source={source} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
+  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d="M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="none" stroke={color??c.ink} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
-export function Welcome() {
-  return <View style={s.welcome}>
-    <Backpack size={100}/><Text accessibilityRole="header" style={s.wordmark}>여행가봥</Text>
-    <Text style={s.intro}>여행의 순간을 가방에 담아{'\n'}차곡차곡 모아보세요!</Text>
-  </View>;
+export function Welcome({children}:{children?:React.ReactNode}) {
+ const c=useThemeColors(),wide=useWindowDimensions().width>=760;
+ return <View testID="login-layout" style={{width:'100%',maxWidth:960,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:wide?'center':'stretch',gap:wide?64:24,paddingVertical:wide?64:24}}>
+  <View style={{flex:wide?1:undefined,gap:16}}><Backpack size={84}/><Text accessibilityRole="header" style={{color:c.ink,fontSize:32,lineHeight:42,fontWeight:'600'}}>나만의 여행도감</Text><Text style={{color:c.muted,fontSize:16,lineHeight:26,maxWidth:360}}>사진에 남은 장소를 모아{ '\n'}다음 여행으로 이어가세요</Text></View>
+  {children&&<View style={{flex:wide?1:undefined,width:'100%',maxWidth:400,gap:8}}>{children}</View>}
+ </View>;
 }
 
 export type JournalTab = 'home' | 'album' | 'friends' | 'account';
 
 // 공개 프로필 projection만 전달하며 Auth 메타데이터를 기본값으로 사용하지 않는다.
 export type PublicAuthor = {display_name?: string | null; avatar_url?: string | null};
-export function Author({author}: {author?: PublicAuthor | null}) {
+export function Author({author,size=28}: {author?: PublicAuthor | null;size?:number}) {
+ const s=useThemeStyles(makeStyles);
   const name = author?.display_name?.trim() || '여행자';
-  return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url}/></View>;
+  return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url} size={size}/></View>;
 }
 
-export function Collection({records, covers, tab, onOpen, authors = {}}: {
-  records: any[]; covers: Record<string, string>; tab: JournalTab;
-  onOpen: (record: any) => void; authors?: Record<string, PublicAuthor | null>;
+export function Collection({records, covers, onOpen, authors = {}, emptySearch=false, disabled=false, loading=false, failed=false, children,profile=false,total=records.length,onCoverError}: {
+  records: any[]; covers: Record<string, string>;
+  onOpen: (record: any) => void; emptySearch?: boolean; disabled?:boolean; loading?:boolean; failed?:boolean; profile?:boolean; total?:number; onCoverError?:(id:string,url:string)=>void; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
 }) {
-  const {width, fontScale} = useWindowDimensions();
-  const [containerWidth, setContainerWidth] = useState<number>();
-  const available = containerWidth ?? Math.max(0, width - 32);
-  const columns = Math.max(1, Math.min(4, Math.floor((available + 12) / (144 * fontScale + 12))));
-  const cardWidth = Math.max(0, (available - 12 * (columns - 1)) / columns);
-  const album = tab === 'album';
+ const s=useThemeStyles(makeStyles);
+  const {height}=useWindowDimensions();
+  const countLabel=loading?'불러오는 중':failed?'확인 필요':profile?`전체 ${total}개 중 최근 ${records.length}개`:`${records.length}개`;
   return <>
-    <View style={s.titleRow}><Text accessibilityRole="header" style={s.title}>{album ? '여행도감' : '여행의 한 장'}</Text><Text style={s.subtitle}>{album ? '사진으로 펼쳐보는 나의 여행 이야기' : '가방에 담아 온 기억을 펼쳐보세요.'}</Text></View>
-    {!album && <View style={s.mapFrame}><View style={s.mapCaption}><Text style={s.mapCaptionText}>여행 발자국</Text><Text style={s.total}>{records.length}개의 여행</Text></View><TravelMap records={records} onSelect={onOpen}/></View>}
-    <View style={s.section}><Text style={s.sectionTitle}>{album ? `총 ${records.length}개의 여행 기록` : '최근 여행 기록'}</Text></View>
-    {!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>첫 번째 여행을 펼쳐보세요</Text><Text style={s.subtitle}>갤러리의 사진 한 장이면 시작할 수 있어요.</Text></View>}
-    <View style={s.grid} onLayout={event => setContainerWidth(event.nativeEvent.layout.width)}>{records.map(record => {
+    <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={[s.title,profile&&s.profileTitle]}>{profile?'나의 여행':'여행도감'}</Text><Text testID={profile?'profile-trip-count':undefined} accessibilityLabel={profile?`나의 여행 기록 · ${countLabel}`:loading?'여행 기록 불러오는 중':undefined} style={[s.subtitle,profile&&s.profileSubtitle]}>{countLabel}</Text></View>
+    {children}
+    {!loading&&!failed&&!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
+    <View style={s.list}>{records.map(record => {
       const author = authors[record.owner_id];
       const title = record.title || '제목 없는 여행';
       const place = record.locations?.place_name || record.locations?.region_name || '지도에 남긴 여행';
-      return <View key={record.id} style={{width: cardWidth}}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`${title}, ${author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}`} onPress={() => onOpen(record)} style={({pressed}) => [s.card, pressed && s.cardPressed]}>
-          {covers[record.id] ? <Image accessible accessibilityRole="image" accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} style={s.gridPhoto}/> : <View style={[s.photoPlaceholder, s.gridPhoto]}><JournalIcon name="album" color={c.sea}/><Text style={s.caption}>여행의 한 장</Text></View>}
-          <View style={s.cardBody}><Text style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date} ~ {record.end_date}</Text><Text numberOfLines={2} style={s.cardPlace}>{record.content||place}</Text><Text style={s.visibility}>{record.status === 'draft' ? '작성 중' : record.visibility === 'private' ? '나만 보기' : '공개 여행'}</Text></View>
-        </Pressable>
-        <Author author={author}/>
-      </View>;
+      const visibility=record.status==='draft'?'작성 중':record.visibility==='private'?'나만 보기':'공개 여행';
+      return <Pressable key={record.id} disabled={disabled} accessibilityRole="button" accessibilityLabel={`${title}, ${profile?'내 여행':author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={() => onOpen(record)} style={({pressed}) => [s.listRow,profile&&s.profileRow, pressed && s.cardPressed]}>
+        {covers[record.id] ? <Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} onError={onCoverError?()=>onCoverError(record.id,covers[record.id]):undefined} style={[s.listPhoto,profile&&s.profilePhoto]}/> : <View style={[s.photoPlaceholder,s.listPhoto,profile&&s.profilePhoto]}><JournalIcon name="album" size={30}/></View>}
+        <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={s.placeStatus}><Text numberOfLines={2} style={[s.cardPlace,{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
+        {!profile&&<View style={s.rowTrailing}><Author author={author} size={20}/><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>}
+      </Pressable>;
     })}</View>
+    {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>{profile?`최근 ${records.length}개를 표시해요. 전체 ${total}개는 내 여행 보기에서 확인해요.`:`불러온 ${records.length}개의 여행 기록`}</Text>}
   </>;
 }
 
@@ -82,41 +71,54 @@ const tabs = [
   {id: 'plus', label: '기록 만들기'}, {id: 'friends', label: '친구'}, {id: 'account', label: 'My'},
 ] as const;
 export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab: JournalTab) => void; onCreate: () => void}) {
+ const c=useThemeColors();
+ const s=useThemeStyles(makeStyles);
   const insets = useSafeAreaInsets();
-  // 이동·크기 애니메이션 없이 즉시 색상으로 반응해 동작 줄이기 설정도 따른다.
-  return <View accessibilityRole="tablist" style={[s.nav, {paddingBottom: Math.max(8, insets.bottom)}]}>
-    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={({pressed}) => [s.fab, pressed && {backgroundColor: c.addButton.pressed}]}><JournalIcon name="plus" color={c.onPrimary}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected: tab === item.id}} aria-selected={tab === item.id} onPress={() => onTab(item.id)} style={({pressed}) => [s.navItem, tab === item.id && s.navSelected, pressed && {backgroundColor: c.primaryLight}]}><JournalIcon name={item.id} color={tab === item.id ? c.navigation.activeIcon : c.navigation.inactiveIcon}/><Text style={[s.navText, tab === item.id && s.navTextSelected]}>{item.label}</Text></Pressable>)}
-  </View>;
+  const compact = useWindowDimensions().height < 500;
+  return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
+    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={[s.fab,compact&&{width:50,height:50}]}><JournalIcon name="plus" size={compact?32:54}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
+      {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={32}/></View>}
+      <Text style={[s.navText,tab===item.id&&s.navTextSelected]}>{item.label}</Text>
+      <View testID={tab===item.id?'nav-selection':undefined} style={[s.navIndicator,tab!==item.id&&{opacity:0}]}/>
+    </Pressable>)}
+  </View></View>;
 }
 
-const s = StyleSheet.create({
-  welcome: {alignItems: 'center', paddingVertical: 16, width: '100%'},
-  wordmark: {color: c.ink, fontSize: 32, fontWeight: '800', marginTop: 12, textAlign: 'center'},
-  intro: {color: c.ink, fontSize: 16, textAlign: 'center', marginTop: 16},
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   caption: {fontSize: 12, color: c.muted, textAlign: 'center', marginTop: 8},
-  titleRow: {marginTop: 10, marginBottom: 12}, title: {fontSize: 24, fontWeight: '800', color: c.ink, letterSpacing: -1}, subtitle: {fontSize: 14, lineHeight: 22, color: c.muted, marginTop: 8},
+  titleRow: {marginTop:0,marginBottom:16,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}, title: {fontSize:24, lineHeight:35,fontWeight: '700', color: c.ink, letterSpacing: -1}, subtitle: {fontSize: 14, lineHeight: 22, color: c.muted, marginTop: 8},
   mapFrame: {borderWidth: 1, borderColor: c.line, borderRadius: 22, overflow: 'hidden', backgroundColor: c.sheet}, mapCaption: {padding: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center'}, mapCaptionText: {fontSize: 13, color: c.ink}, total: {color: c.sea, fontWeight: '700', fontSize: 13},
   section: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, marginBottom: 12}, sectionTitle: {fontSize: 18, fontWeight: '700', color: c.ink},
   empty: {alignItems: 'center', paddingVertical: 26}, emptyTitle: {color: c.ink, fontSize: 18, fontWeight: '700', marginTop: 12},
-  grid: {flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start'},
-  card: {minHeight: 48, padding: 8, backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 20},
-  cardPressed: {backgroundColor: c.warm, borderColor: c.focus},
-  gridPhoto: {width: '100%', aspectRatio: 1.05, borderRadius: 14},
-  photoPlaceholder: {backgroundColor: c.warm, alignItems: 'center', justifyContent: 'center'},
-  cardBody: {paddingTop: 10, paddingHorizontal: 2, paddingBottom: 4, minWidth: 0},
-  cardTitle: {fontSize: 14, fontWeight: '700', color: c.ink},
-  cardDate: {fontSize: 12, color: c.muted, marginTop: 6},
-  cardPlace: {fontSize: 12, color: c.muted, marginTop: 6},
-  visibility: {fontSize: 12, color: c.sea, marginTop: 8},
+  list: {marginHorizontal:-16,marginTop:16,backgroundColor:c.sheet},
+  profileTitle:{fontSize:15,lineHeight:22,letterSpacing:0,color:c.profile.ink,flexShrink:1},
+  profileSubtitle:{flex:1,fontSize:12,lineHeight:18,marginTop:0,textAlign:'right',color:c.profile.muted},
+  profileRow:{paddingHorizontal:20,paddingVertical:16,gap:16,borderColor:c.profile.line},
+  profilePhoto:{width:94,height:102,borderRadius:3},
+  listRow: {flexDirection:'row',alignItems:'center',gap:12,paddingHorizontal:16,paddingVertical:12,minHeight:88,borderBottomWidth:1,borderColor:c.line,backgroundColor:c.sheet},
+  cardPressed: {backgroundColor:c.warm},
+  listPhoto: {width:64,height:64,borderRadius:10,flexShrink:0},
+  photoPlaceholder: {backgroundColor:c.warm,alignItems:'center',justifyContent:'center'},
+  rowBody: {flex:1,minWidth:0,gap:3},
+  rowTrailing: {width:20,alignItems:'center',flexShrink:0},
+  cardTitle: {fontSize:15,lineHeight:22,fontWeight:'700',color:c.ink},
+  cardDate: {fontSize:12,lineHeight:18,color:c.muted},
+  placeStatus: {flexDirection:'row',alignItems:'flex-start',gap:6},
+  cardPlace: {fontSize:11,lineHeight:16,color:c.muted},
+  chevron: {fontSize:18,lineHeight:22,color:c.muted},
+  listEnd: {padding:18,textAlign:'center',fontSize:11,color:c.muted},
   author: {flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 2},
   avatar: {width: 26, height: 26, borderRadius: 13, backgroundColor: c.warm},
   avatarFallback: {alignItems: 'center', justifyContent: 'center', overflow: 'hidden'},
   authorName: {flex: 1, fontSize: 12, color: c.muted},
-  nav: {flexShrink: 0, flexDirection: 'row', alignItems: 'stretch', paddingHorizontal: 4, paddingTop: 8, backgroundColor: c.navigation.background, borderTopWidth: 1, borderColor: c.line},
-  navItem: {flex: 1, minWidth: 48, minHeight: 56, paddingHorizontal: 2, paddingVertical: 6, alignItems: 'center', justifyContent: 'center', borderRadius: 12, borderTopWidth: 2, borderTopColor: 'transparent'},
-  navSelected: {borderTopColor: 'transparent', backgroundColor: c.warm},
-  navText: {fontSize: 12, marginTop: 4, color: c.navigation.inactiveLabel, textAlign: 'center', alignSelf: 'stretch'},
-  navTextSelected: {color: c.navigation.activeLabel, fontWeight: '700'},
+  nav: {flexShrink: 0,alignItems:'center',paddingHorizontal:12,paddingTop:4,backgroundColor:c.paper},
+  navRail: {width:'100%',maxWidth:640,flexDirection:'row',alignItems:'stretch',padding:4,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,borderRadius:18,boxShadow:'0 4px 20px #286F7112'},
+  navItem: {flex:1,minWidth:50,minHeight:66,paddingHorizontal:2,paddingVertical:4,alignItems:'center',justifyContent:'center',borderRadius:14},
+  navIconSlot: {width:50,height:40,alignItems:'center',justifyContent:'center',borderRadius:14},
+  navSelected: {backgroundColor:c.warm},
+  navText: {fontSize:11,lineHeight:16,marginTop:1,color:c.navigation.inactiveLabel,textAlign:'center',alignSelf:'stretch'},
+  navTextSelected: {color:c.navigation.activeLabel,fontWeight:'700'},
+  navIndicator: {height:3,width:16,borderRadius:2,marginTop:1,backgroundColor:c.navigation.activeLabel},
   createSlot: {flex: 1, minWidth: 48, alignItems: 'center', justifyContent: 'center'},
-  fab: {width: 52, height: 52, borderRadius: 26, backgroundColor: c.addButton.background, borderWidth: 2, borderColor: c.sheet, alignItems: 'center', justifyContent: 'center'},
+  fab: {width:54,height:54,alignItems:'center',justifyContent:'center',borderRadius:27},
 });

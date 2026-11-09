@@ -1,0 +1,284 @@
+{
+  "date": "2026-11-08",
+  "version": "v2",
+  "screens": [
+    {
+      "nodeId": "17:265",
+      "name": "코랄 여행 저널 / mobile",
+      "width": 390,
+      "height": 844,
+      "nativeTextCount": 25,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 0.8799999849295911,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:335",
+      "name": "코랄 여행 저널 / tablet",
+      "width": 768,
+      "height": 1024,
+      "nativeTextCount": 31,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 1.120000015070409,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:421",
+      "name": "코랄 여행 저널 / desktop",
+      "width": 1280,
+      "height": 900,
+      "nativeTextCount": 32,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 1.3499999811619887,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:513",
+      "name": "포레스트 탐험 / mobile",
+      "width": 390,
+      "height": 844,
+      "nativeTextCount": 25,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 0.8799999849295911,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:583",
+      "name": "포레스트 탐험 / tablet",
+      "width": 768,
+      "height": 1024,
+      "nativeTextCount": 31,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 1.120000015070409,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:669",
+      "name": "포레스트 탐험 / desktop",
+      "width": 1280,
+      "height": 900,
+      "nativeTextCount": 32,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 1.3499999811619887,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:761",
+      "name": "포토 에어 / mobile",
+      "width": 390,
+      "height": 844,
+      "nativeTextCount": 25,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 0.7599999698591821,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:831",
+      "name": "포토 에어 / tablet",
+      "width": 768,
+      "height": 1024,
+      "nativeTextCount": 31,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 1.120000015070409,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    },
+    {
+      "nodeId": "17:917",
+      "name": "포토 에어 / desktop",
+      "width": 1280,
+      "height": 900,
+      "nativeTextCount": 32,
+      "fonts": [
+        "Noto Sans KR"
+      ],
+      "provinceCount": 17,
+      "mapUniformScale": 1.3499999811619887,
+      "avatarPresent": true,
+      "navigation": [
+        "홈",
+        "여행도감",
+        "+",
+        "친구",
+        "My"
+      ],
+      "rootOverflow": []
+    }
+  ],
+  "editable": true,
+  "pageId": "16:397",
+  "initialGeometryChecks": [
+    {
+      "theme": "coral-journal",
+      "scale": 0.88,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "coral-journal",
+      "scale": 1.12,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "coral-journal",
+      "scale": 1.35,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "forest-explorer",
+      "scale": 0.88,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "forest-explorer",
+      "scale": 1.12,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "forest-explorer",
+      "scale": 1.35,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "photo-air",
+      "scale": 0.88,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "photo-air",
+      "scale": 1.12,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    },
+    {
+      "theme": "photo-air",
+      "scale": 1.35,
+      "regions": 17,
+      "originalVectorPathsBeforeUniformScale": true,
+      "uniformTransform": true
+    }
+  ],
+  "visualReview": {
+    "mobileComparison": "reviewed after refinement",
+    "tabletPhoto": "reviewed after refinement",
+    "allNineScreens": "reviewed in three final responsive boards; mobile comparison and photo tablet also reviewed at individual size",
+    "unexpectedClipping": "none observed in reviewed static layouts",
+    "photoRepeats": "same credited fixture across fictional records",
+    "functionality": "not tested",
+    "responsiveRuntime": "not tested",
+    "accessibility": "not tested",
+    "width320": "not rendered",
+    "fontScale": "not tested",
+    "android": "not tested"
+  },
+  "scope": {
+    "appCode": false,
+    "backend": false,
+    "environment": false,
+    "originalAssets": false,
+    "commit": false,
+    "push": false,
+    "merge": false
+  }
+}

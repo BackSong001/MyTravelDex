@@ -9,7 +9,7 @@ test('shadows do not translate actual geographic fills',()=>{
  const layers=mapStyle(null).layers;
  expect(layers.findIndex(l=>l.id==='province-shadow')).toBeLessThan(layers.findIndex(l=>l.id==='province-fill'));
  expect(layers.find(l=>l.id==='province-fill')?.paint).not.toHaveProperty('fill-translate');
- expect(layers.find(l=>l.id==='province-shadow')).toMatchObject({type:'line',paint:{'line-translate':[0,2]}});
+ expect(layers.find(l=>l.id==='province-shadow')).toMatchObject({type:'line',paint:{'line-translate':[0,0]}});
 });
 test('gallery starts with cover and retains the remaining display order without mutating rows',async()=>{
  const {orderedPhotos}=await import('../../frontend/src/gallery');
