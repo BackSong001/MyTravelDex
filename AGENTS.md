@@ -554,4 +554,9 @@ RN 정확0.81.5/STABLE/newArch의 withFontScale plugin과 앱 소유 FontText를
 
 ## 선택형 테마 (FR-FIGMA-009)
 
-기존classic1+Batch03자산/04팔레트5+Batch06지도24를단일로컬선택30개로제공한다. 원본colors.json/PNG/GeoJSON은보존하며sampleData/title/sub/tag는제품데이터가아니다. ThemeProvider가불변테마/선택ID를공급하고초기읽기성공·실패세대와연속쓰기순서를보호한다. theme를화면/Modal/Map key·데이터effect의dependency로쓰지않는다. StyleSheet factory는테마별공유하고web기존map paint/marker와native고정source/Layer를갱신한다. classic지도shadow/stampBorder기존값과감성journal-v2를유지하고네온/화려한원본자산에임의tint를하지않는다. 새테마표면은절제하되대비·pressed·오류·focus·48dp·동적글꼴과상태보존을우선한다. backend/Local/web/native/실기기증거는TEST_CASE최신실행기록으로구분한다.
+기존classic1+Batch03자산/04팔레트5+Batch06지도24를단일로컬선택30개로제공한다. 원본colors.json/PNG/GeoJSON은보존하며sampleData/title/sub/tag는제품데이터가아니다. ThemeProvider가불변테마/선택ID를공급하고초기읽기성공·실패세대와연속쓰기순서를보호한다. theme를화면/Modal/Map key·데이터effect의dependency로쓰지않는다. StyleSheet factory는테마별공유하고web기존map paint/marker와native고정source/Layer를갱신한다. classic지도stampBorder기존값과감성journal-v2를유지하고네온/화려한원본자산에임의tint를하지않는다. 새테마표면은절제하되대비·pressed·오류·focus·48dp·동적글꼴과상태보존을우선한다. backend/Local/web/native/실기기증거는TEST_CASE최신실행기록으로구분한다.
+
+
+## 설정·개인 뱃지 (2026-11-09)
+
+SETTINGS_DISCOVERY_SPEC의 guest/pane/footer 계약을 따른다. 설정의 탐색은 Modal 닫기 후 기존 navigate/startCreate를 재사용하며 composer/사진/지도 identity를 초기화하지 않는다. 모든 테마의 지도 그림자는 이번 사용자 요청에 따라 흰색1px/blur0/translate0으로 대체한다. 뱃지는 owner-only 신규 테이블/RPC만 확장하고 직접 DML/anon 변경을 열지 않는다. draw와 대표 변경은 동일 본인 profiles 잠금으로 직렬화하며 owner/request UUID 원결과를 보존한다. 이력 자동 TTL/drop/reset 롤백을 추가하지 않는다. pending UUID 수명과 UI 수명을 분리해 늦은 성공은 동일 owner/id의 pending만 확인하고, 새 pane의 stale 재시도는 새 지급 없이 inventory를 갱신한다. 명시 로그아웃/프로세스 재시작의 미확정 요청 복구 한계와 최신 inventory 확인을 안내한다. Local 적용을 원격 적용으로 확대하지 않으며 여행자/목적지 확인 전 목적지·스타일 결과 구현은 보류한다.

@@ -14,7 +14,7 @@ test('TC-FIGMA-THEME-001: thirty complete palettes preserve the legacy default a
 });
 
 test('TC-FIGMA-THEME-001: classic map shadow and stamp border keep their previous exact values',()=>{
- const c=getTheme('classic').colors;expect(c.map.stampBorder).toBe('#BB935E');expect(mapStyle(null).layers.find(l=>l.id==='province-shadow')!.paint!['line-color' as never]).toBe('#568BA6');
+ const c=getTheme('classic').colors;expect(c.map.stampBorder).toBe('#BB935E');expect(mapStyle(null).layers.find(l=>l.id==='province-shadow')!.paint!['line-color' as never]).toBe('#FFFFFF');
 });
 
 test('TC-FIGMA-THEME-001: every selected local asset is an exact source copy with an explicit Metro slot',async()=>{

@@ -1,0 +1,40 @@
+{
+  "source": "Figma Batch11 original assets; no sample records or counts",
+  "assets": [
+    {
+      "file": "badge-camera-v1.png",
+      "source": "docs/design/ui-assets/batch-11-discovery/assets/badge-camera-v1.png",
+      "sha256": "3751216a3c1a47689e8e27e40149bba57cef58bc577c24b18091d12591ec482e"
+    },
+    {
+      "file": "badge-camp-v1.png",
+      "source": "docs/design/ui-assets/batch-11-discovery/assets/badge-camp-v1.png",
+      "sha256": "ae6d3f71f42b31c36ccaa4e036b24284225a23f057476300032a10f1f9947f36"
+    },
+    {
+      "file": "badge-coffee-v1.png",
+      "source": "docs/design/ui-assets/batch-11-discovery/assets/badge-coffee-v1.png",
+      "sha256": "fd29c93d6411c60608a682eb8984462584c448d3b5d613a12c8dcc056918b02c"
+    },
+    {
+      "file": "badge-gate-v1.png",
+      "source": "docs/design/ui-assets/batch-11-discovery/assets/badge-gate-v1.png",
+      "sha256": "98637cbb559ce310c483ad45065dc8f45b8784f44b61a2032dfcd161835c4051"
+    },
+    {
+      "file": "badge-passport-v1.png",
+      "source": "docs/design/ui-assets/batch-11-discovery/assets/badge-passport-v1.png",
+      "sha256": "53025becfa4c32155260e1ed0f38cc8d1d21b35d394a10754fb8221b52e596d9"
+    },
+    {
+      "file": "capsule-machine-v1.png",
+      "source": "docs/design/ui-assets/batch-11-discovery/assets/capsule-machine-v1.png",
+      "sha256": "372b28b6282da9a6703c7a006477c7b3b9f9529a1562781f2cab5cb0dd2060de"
+    },
+    {
+      "file": "opened-capsule-v1.png",
+      "source": "docs/design/ui-assets/batch-11-discovery/assets/opened-capsule-v1.png",
+      "sha256": "afb0b008f9bd8937bc140bd1b11ace13ab606fe982734777117fc5a7c83a6c76"
+    }
+  ]
+}

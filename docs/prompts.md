@@ -1395,3 +1395,21 @@ unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydami
 사용자 프롬프트 원문: /feedback 내가 끊음. 사양 더 올려봐
 
 사용자확인에따라t16n exit137은직접종료로분류하며OOM/앱충돌로확정하지않는다. CPU4→6/RAM6→8GiB,host RadeonGPU유지·affinity0-5/기본우선순위nice0으로t16p를실행했다. 실제hardware-qemu6코어/RAM8192MiB·guestCPU0-5/MemTotal8127912kB를확인했고부팅16.010초후앱을열어뒀다. heap1024요청은실제576MiB로구분한다. 앱데이터보존/빌드·초기화·DB/제품변경없음,끊김해소보증검사는아니다. 저장소밖AVDconfig백업·수정,AGENTS.md실행규칙/docs/prompts.md동기화. 기존변경보존/커밋푸시없음.
+
+
+## 2026-11-09 13:12 KST — 설정·개인 뱃지 확정 범위 구현
+
+사용자 프롬프트 원문:
+
+> 에뮬레이터는 그대로 켜두고, 디자인과 신규 기능 넣어줘.
+> 1. 테마 변경 시, 지도에 그림자가, UI 가독성을 떨어트림. 그림자를 흰색으로 바꾸거나 그림자 폭 줄이기
+> 2. 여행가봥 앱 이름 옆에 작대기 세개 설정 버튼 만들기
+> 3. 설정 버튼에 여행자 뽑기, 뱃지보관함, 스타일 여행 기능추가
+>
+> t12 너는 메인개발자고, 명세를 작성하여 t14에게 전달하고 리뷰를 받은 다음에 개발하여 테스트하고 구현해줘. 구현한 다음에는 t9d 에게 보내서 리팩토링하고 개선해줘.
+> 토큰을 모두사용할때까지 진행되어야하므로 연속적으로 계속 세션을 이어가며, 내가 중지 요청을 할때까지 개발해줘.
+> 커밋과 푸쉬는 꼭 남기도록
+
+결과: 명세 t14 P2네건 보완 승인 후 설정/흰색1px 지도 그림자/개인 뱃지 Local RPC·UI를 구현했다. t9d 지연 성공의 pending/UI 수명 P2를 보강하고 지정 재확인을 받았다. Local/지도4, 인접포함 단일15, 웹 focused6, 최종 전체 backend t16x148+외부1skip을 각각 구분한다. 전체 웹 t16v는 최종 액션 시작 전 세대 guard 보강으로53통과/1중단/84미실행에서 의도 중단했으며 최종 전체 t16w는137통과/1실패(12.9분)이며 parent-cover 선행 HTTP 응답 대기를 보강한 t16y 대상 반복3은 별도 통과(19.6초)했다. 새 전체138 Green으로 합산하지 않는다. 또한 통과로 합산하지 않는다. 기존 작업은1b8a186으로 checkpoint/push했고 이번 설정 변경도 같은 작업 브랜치의 커밋으로 기록한다. 여행자/목적지 대상 답변 전 뽑기·스타일 결과는 보류 안내만이며 신규 Native/원격 적용은 미실행이다. 기존 에뮬레이터 t16p를 유지했고 새 빌드/실사용자 쓰기를 하지 않았다.
+
+변경 파일: frontend/e2e/profile-stamps.spec.ts, docs/FIGMA_IMPLEMENTATION.md, docs/SETTINGS_DISCOVERY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, docs/DISAN.md, AGENTS.md, docs/prompts.md, backend/supabase/migrations/20261109040000_badge_cabinets.sql, backend/tests/badges.test.ts, backend/tests/settings-map.test.ts, backend/tests/themes.test.ts, backend/tests/design.test.ts, frontend/src/AppSettings.tsx, frontend/src/BadgeCabinet.tsx, frontend/src/badges.ts, frontend/src/mapStyle.ts, frontend/app/index.tsx, frontend/e2e/settings.spec.ts, backend/tests/badge-client.test.ts, frontend/assets/ui/discovery/ (원본 PNG7개와 manifest). 기존 untracked agent-prompts/·storyboard.png는 보존했다.

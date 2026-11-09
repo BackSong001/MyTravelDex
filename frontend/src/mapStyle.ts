@@ -15,8 +15,8 @@ export function mapStyle(selected: string | null, ownIds: string[] = [], colors:
  const fill:ExpressionSpecification=c.map.regionPastels===defaultColors.map.regionPastels?['get','color']:['match',['get','shapeISO'],'KR-11',fills['KR-11'],...Object.entries(fills).filter(([id])=>id!=='KR-11').flat(),c.map.landDefault];
  return {version:8,sources:{provinces:{type:'geojson',data:colored as GeoJSON.FeatureCollection,attribution:MAP_ATTRIBUTION}},layers:[
   {id:'paper',type:'background',paint:{'background-color':c.map.ocean}},
-  {id:'province-shadow',type:'line',source:'provinces',paint:{'line-color':c.map.shadow,'line-opacity':.23,'line-width':5,'line-blur':3,'line-translate':[0,2],'line-translate-anchor':'viewport'}},
-  {id:'province-depth',type:'line',source:'provinces',paint:{'line-color':c.map.visitedRegionBorder,'line-opacity':.5,'line-width':5,'line-translate':[0,4],'line-translate-anchor':'viewport'}},
+  {id:'province-shadow',type:'line',source:'provinces',paint:{'line-color':'#FFFFFF','line-opacity':.23,'line-width':1,'line-blur':0,'line-translate':[0,0],'line-translate-anchor':'viewport'}},
+  {id:'province-depth',type:'line',source:'provinces',paint:{'line-color':'#FFFFFF','line-opacity':.23,'line-width':1,'line-blur':0,'line-translate':[0,0],'line-translate-anchor':'viewport'}},
   {id:'province-fill',type:'fill',source:'provinces',paint:{'fill-color':fill,'fill-opacity':['case',['in',['get','shapeISO'],['literal',ownIds]],1,.87],'fill-antialias':true}},
   {id:'province-coast',type:'line',source:'provinces',paint:{'line-color':c.map.oceanHighlight,'line-width':1.2}},
   {id:'province-selected',type:'line',source:'provinces',filter:['==',['get','shapeISO'],selected??''],paint:{'line-color':c.map.regionBorderSelected,'line-width':2.5}},
