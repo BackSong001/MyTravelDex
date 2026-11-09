@@ -570,3 +570,8 @@ SETTINGS_DISCOVERY_SPEC의 guest/pane/footer 계약을 따른다. 설정의 탐�
 ## 웹 지도 CSS와 크기 변경 (2026-11-09)
 
 TC-WEB-MAP-LAYOUT-001을 따른다. 설치된 MapLibre CSS는 기존 prepare-maplibre/postinstall에서 worker/shared와 같은 버전으로 public/vendor에 복사하고 public/index.html의 전역 link로 소비한다. 지역 컴포넌트 CSS import나 테스트 CSS 주입만으로 실제 no-dev/export의 배치 수용을 대체하지 않는다. 창 크기/CSS 배율에서 지역명·사진 DOM anchor와 지도 투영점·52px 사진/24px 아바타 본문 크기를 확인하며 라벨은 현재 지도 줌 정책을 유지한다. 브라우저 접근성 확대를 역scale로 취소하지 않는다. 원본 좌표·offset·카메라·군집·Native는 변경하지 않는다.
+
+
+## 웹 홈 지도 전체 맞춤 (2026-11-09)
+
+TC-WEB-MAP-OVERVIEW-001을 따른다. Home의 web&&mapHome에만 지도 폭min(720px,가용높이*.9)/가운데 배치를 적용하고 상단 앱 이름·설정·테마도 같은 계산폭을 공유한다. 명시 homeOverview는 fullScreen 작성 지도와 구분하며 Native는 소비하지 않는다. 홈 전체 맞춤은 KOREA_BOUNDS/높이별여백·조작버튼영역을 사용하고 fill강제maxBounds는 홈에서 해제한다. 현재home/자동overview일 때만 resize-fit하며 원래사용자event/zoom버튼은auto를끄고 전체버튼이재개한다. 작성 전환은렌더에서auto를끄고 최신ref를읽어auto-fit을유입하지않으며기존PAN_BOUNDS/상세·보정경로를유지한다. 지도재생성/데이터effect/사진CSS정책은변경하지않는다. 실제모든label동시노출/직접drag·pinch수용/Android수용으로확대하지않는다.

@@ -16,14 +16,16 @@ setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');
 const EMPTY_COVERS: NonNullable<TravelMapProps['covers']> = {};
 const EMPTY_AUTHORS: NonNullable<TravelMapProps['authors']> = {};
 
-export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMPTY_AUTHORS, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate, expanded = false, fullScreen = false, onAttributionLayout}: TravelMapProps) {
+export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMPTY_AUTHORS, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate, expanded = false, fullScreen = false, homeOverview = false, onAttributionLayout}: TravelMapProps) {
  const c=useThemeColors();
   const paletteRef=useRef(c);paletteRef.current=c;
   const host = useRef<HTMLDivElement>(null), map = useRef<LibreMap | null>(null);
-  const current = useRef({records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate});
-  current.current = {records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate};
+  const current = useRef({records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate,homeOverview});
+  current.current = {records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate,homeOverview};
   const selected = useRef<string | null>(null);
   const redraw = useRef<() => void>(() => {}), restyle = useRef<() => void>(() => {});
+  const overview=useRef(false),fitCountry=useRef<() => void>(()=>{});
+  if(!homeOverview)overview.current=false;
   const clearSelection = useRef(() => {selected.current = null; restyle.current(); redraw.current();});
   const [selectedId, setSelectedId] = useState<string | null>(null), [clusterIds, setCluster] = useState<string[]>([]);
   const cluster = mapRecords(records, !!onCoordinate).filter(record => clusterIds.includes(record.id));
@@ -39,13 +41,17 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
     const select = (id: string) => {
       selected.current = id; setSelectedId(id); setCluster([]); restyle.current(); redraw.current();
     };
+    const initialOverview=homeOverview&&!onCoordinate&&!focus;
+    overview.current=initialOverview;
+    const overviewOptions=()=>({padding:{top:Math.min(80,Math.max(72,host.current!.clientHeight*.18)),bottom:Math.min(48,host.current!.clientHeight*.12),left:24,right:72},duration:0});
     try {
       instance = new LibreMap({container:host.current,
         style:mapStyle(selected.current, Object.keys(groupProvinceRecords(current.current.ownRecords ?? [])),paletteRef.current),
-        bounds:HOME_BOUNDS, maxBounds:PAN_BOUNDS, fitBoundsOptions:{padding:{top:onCoordinate?16:100,bottom:onCoordinate?24:45,left:16,right:16}}, attributionControl:false,
+        bounds:initialOverview?KOREA_BOUNDS:HOME_BOUNDS, maxBounds:initialOverview?undefined:PAN_BOUNDS, fitBoundsOptions:initialOverview?overviewOptions():{padding:{top:onCoordinate?16:100,bottom:onCoordinate?24:45,left:16,right:16}}, attributionControl:false,
         renderWorldCopies:false, minZoom:3,maxZoom:18,dragRotate:false,pitchWithRotate:false,touchPitch:false,maxPitch:0,cooperativeGestures:!fullScreen});
       map.current = instance;
       const activeMap = instance;
+      fitCountry.current=()=>{const home=current.current.homeOverview&&!current.current.focus&&!current.current.onCoordinate;overview.current=home;activeMap.fitBounds(KOREA_BOUNDS,home?overviewOptions():{padding:24,duration:0});};
       activeMap.getCanvas().setAttribute('aria-label', '지도 화면');
       let styleKey = JSON.stringify([selected.current, Object.keys(groupProvinceRecords(current.current.ownRecords ?? []))]);
       restyle.current = () => {
@@ -133,24 +139,25 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       activeMap.on('idle',()=>restyle.current());
       activeMap.on('error', fail);
       activeMap.on('webglcontextlost', fail);
-      activeMap.on('movestart',()=>markers.forEach(marker=>{const node=marker.getElement();if(node.dataset.mapOrnament)node.style.visibility='hidden';}));
+      activeMap.on('movestart',event=>{if(event.originalEvent)overview.current=false;markers.forEach(marker=>{const node=marker.getElement();if(node.dataset.mapOrnament)node.style.visibility='hidden';});});
       activeMap.on('moveend', () => redraw.current());
       activeMap.on('click', event => {
         if (current.current.onCoordinate) current.current.onCoordinate(event.lngLat.lat, event.lngLat.lng);
         else {const id = provinceAt(event.lngLat.lat, event.lngLat.lng); if (id) select(id);}
       });
       redraw.current();
-      const observer = new ResizeObserver(() => activeMap.resize()); observer.observe(host.current);
+      const observer = new ResizeObserver(() => {activeMap.resize();if(overview.current&&current.current.homeOverview)fitCountry.current();}); observer.observe(host.current);
       return () => {
         disposed = true; window.clearTimeout(timeout); observer.disconnect();
         markers.forEach(marker => marker.remove()); activeMap.remove(); map.current = null;
-        redraw.current = () => {}; restyle.current = () => {};
+        redraw.current = () => {}; restyle.current = () => {}; fitCountry.current=()=>{};
       };
     } catch {
       instance?.remove(); map.current = null; window.clearTimeout(timeout); fail();
     }
     return () => {disposed = true;};
   }, [attempt, error]);
+  useEffect(()=>{const activeMap=map.current;if(!activeMap||onCoordinate||focus)return;activeMap.setMaxBounds(homeOverview?undefined:PAN_BOUNDS);if(homeOverview)fitCountry.current();},[homeOverview]);
   useEffect(() => {restyle.current();}, [ownRecords,c]);
   useEffect(() => {redraw.current();}, [records, covers, authors, ownRecords, landmarks, !!onCoordinate,c]);
   useEffect(() => {
@@ -162,7 +169,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
   const correctionLat = correction ? Number(correction.locations.latitude) : undefined;
   const correctionLng = correction ? Number(correction.locations.longitude) : undefined;
   useEffect(() => {
-    if (correctionLat != null && correctionLng != null) {map.current?.setMaxBounds(undefined);map.current?.jumpTo({center:[correctionLng, correctionLat], zoom:focus?8:onCoordinate?12:8});}
+    if (correctionLat != null && correctionLng != null) {overview.current=false;map.current?.setMaxBounds(undefined);map.current?.jumpTo({center:[correctionLng, correctionLat], zoom:focus?8:onCoordinate?12:8});}
   }, [correctionLat, correctionLng, attempt, error, !!onCoordinate, !!focus]);
   const trips = selectedId ? groupProvinceRecords(records)[selectedId] ?? [] : [];
   return <View onLayout={event=>setMapHeight(event.nativeEvent.layout.height)} style={[fullScreen ? {flex:1, width:'100%', height:'100%'} : {height:expanded ? 440 : 290, borderRadius:18}, {overflow:'hidden', backgroundColor:c.map.ocean}]}>
@@ -176,9 +183,9 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       <MapAttribution records={records} landmarks={landmarks} onHeight={height=>{setCreditHeight(height);onAttributionLayout?.(height);}}/></>}
     {!error && <View style={{position:'absolute', bottom:48, right:12, gap:4}}>
       {[
-        {label:'지도 확대', text:'+', action:() => map.current?.zoomIn({duration:0})},
-        {label:'지도 축소', text:'−', action:() => map.current?.zoomOut({duration:0})},
-        {label:'대한민국 전체 보기', text:'전체', action:() => map.current?.fitBounds(KOREA_BOUNDS, {padding:24, duration:0})},
+        {label:'지도 확대', text:'+', action:() => {overview.current=false;map.current?.zoomIn({duration:0});}},
+        {label:'지도 축소', text:'−', action:() => {overview.current=false;map.current?.zoomOut({duration:0});}},
+        {label:'대한민국 전체 보기', text:'전체', action:() => fitCountry.current()},
       ].map(control => <Pressable key={control.label} accessibilityRole="button" accessibilityLabel={control.label} onPress={control.action} style={{minWidth:48, minHeight:48, alignItems:'center', justifyContent:'center', backgroundColor:c.surface, borderRadius:8}}><Text style={{color:c.textPrimary}}>{control.text}</Text></Pressable>)}
     </View>}
     {!error && cluster.length>0 && <View style={{position:'absolute',bottom:panelBottom,left:12,right:76,maxWidth:520,backgroundColor:c.surface,borderRadius:20,padding:12,borderWidth:1,borderColor:c.line}}>

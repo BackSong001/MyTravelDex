@@ -19,6 +19,7 @@ test.beforeAll(async () => {
       import React from 'react'; import {createRoot} from 'react-dom/client';
       import {ThemeContext} from './src/ThemeContext';import {getTheme,themes} from './src/themes';import {ornamentMarkup} from './src/MapOrnament';
       import * as maplibregl from 'maplibre-gl'; import TravelMap from './src/TravelMap.web';
+      const fitBounds=maplibregl.Map.prototype.fitBounds;window.fitRequests=[];maplibregl.Map.prototype.fitBounds=function(bounds,...args){window.fitRequests.push(bounds);return fitBounds.call(this,bounds,...args);};
       window.ornamentMarkup=ornamentMarkup;window.themeIds=themes.map(t=>t.id);window.events=[];window.selectedRecords=[]; window.mapSnapshots=[];window.styleLoads=0;
       // 실제 엔진의 idle 이후만 관찰하며 지도 인스턴스는 앱이나 테스트에 노출하지 않는다.
       const fire=maplibregl.Map.prototype.fire;
@@ -304,4 +305,13 @@ test('TC-WEB-MAP-LINE-001: each line path including stroke stays in its shared s
  const ids=await page.evaluate(()=>(window as any).themeIds as string[]);
  for(const id of ids){await page.evaluate(id=>(window as any).setMapTheme(id),id);await expect(page.getByTestId('map-current-theme')).toHaveAttribute('data-theme-id',id);await expect(page.locator('[data-map-ornament] svg').first()).toHaveAttribute('stroke','#FFFFFF');await expect(page.locator('[data-map-ornament] img,[data-map-ornament="boat"]')).toHaveCount(0);}
  const previous=await page.evaluate(()=>(window as any).mapSnapshots.length);await page.evaluate(()=>(window as any).setMapTheme('classic'));await expect(page.getByTestId('map-current-theme')).toHaveAttribute('data-theme-id','classic');await expect.poll(()=>page.evaluate(previous=>{const snapshots=(window as any).mapSnapshots;return {fresh:snapshots.length>previous,ocean:snapshots.at(-1).ocean};},previous)).toEqual({fresh:true,ocean:'#A9DFFA'});await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));await page.waitForTimeout(350);await page.screenshot({path:'/tmp/mytraveldex-web-review/after-map-lines.png'});
+});
+
+test('TC-WEB-MAP-OVERVIEW-001: a composer map retains its original bounds and never inherits home resize fitting',async({page})=>{
+ await ready(page);
+ const initial=await page.evaluate(()=>(window as any).mapSnapshots.at(-1));
+ await page.evaluate(()=>(window as any).renderMap({homeOverview:true}));await expect.poll(()=>page.evaluate(()=>(window as any).fitRequests.length)).toBeGreaterThan(1);
+ await page.evaluate(()=>(window as any).renderMap({homeOverview:false}));const count=await page.evaluate(()=>(window as any).fitRequests.length);
+ await page.locator('#root').evaluate(node=>{node.style.width='600px';});await expect.poll(()=>page.locator('canvas.maplibregl-canvas').evaluate(node=>node.clientWidth)).toBe(600);
+ expect(await page.evaluate(()=>(window as any).fitRequests.length)).toBe(count);expect(initial.zoom).toBeGreaterThan(5);
 });

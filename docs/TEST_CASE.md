@@ -1029,3 +1029,18 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 ### 2026-11-09 19:25 KST — 최신 actual APK 재빌드
 
 최신 efba7fe 코드의 actual Supabase 환경 내장 APK를 저자원으로 재빌드했다. 첫 t17s는 임시 init-script가 included build의 :app을 찾는 설정 오류로9초 실패했으며 제품 Red로 계산하지 않는다. 임시 script를 app 존재 조건으로 제한하고60초 이상 휴식 후 t17t는 exit0/10분8초,411task(60실행/351재사용)로 성공했다. CPU affinity2/nice10/Gradle worker1·병렬false/Java heap1536MiB/Metro worker1·Node1536MiB를 사용했다. 빌드 뒤60초 이상 휴식하고 서명 검증·이전 APK와 인증서 동일·package com.mytraveldex.app/version1.0.0 code1/minSDK24·scheme mytraveldex·4ABI·내장JS가 build output 및 요청한 공개 서버 환경과 일치함을 확인했다. 설치파일은 저장소 밖 Downloads/MyTravelDex-20261109-efba7fe.apk(154.5MiB), SHA256 a7baca63c6075049f58b2440941dda5a709bffec3caab5dd104191e7b953c21a다. 개발 서명 자체 설치용이며 Play 제출용이 아니다. 에뮬레이터/자동설치/실기기 로그인·저장/원격 설정·migration은 실행하지 않았고 신규 badge 원격 미적용 조건은 유지한다. actual8083과 기존 별도 변경은 유지했다.
+
+
+웹 홈 지도 전체 맞춤 TC-WEB-MAP-OVERVIEW-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 상단 앱 이름/설정/테마와 폭·중앙축을 공유하는 지도 viewport 및 기존 국내 전체 경계 맞춤·자동 전체/사용자 탐색 수명을 분리하고 Native/작성·상세·보정/데이터·권한은 유지한다.
+
+
+### 웹 홈 전체 지도·상단 정렬 실행 결과 — 2026-11-09
+
+- t14 명세 승인 후 t17w에서 실제 앱의 전체 경계가 viewport 밖으로 나가는2건 Red를 재현했다. 웹 홈만 폭min(720,가용높이*.9)/중앙으로 제한하고 KOREA_BOUNDS 전체 맞춤을 적용했다. 홈의 fill강제 maxBounds는 해제하며 minZoom3/maxZoom18은 유지한다. 위72~80/오른쪽72 및 높이별 아래 여백으로 상단 범위·조작 영역을 피한다.
+- t14 제품 P2(전체화면 작성 지도를 홈으로 오판)를 보강했다. Home의 명시 homeOverview={mapHome}, false렌더 즉시auto해제/최신ref·mode effect로 홈→작성 resize 유입을 차단하고 비홈PAN_BOUNDS를 복구한다. Native/작성폭/상세·보정/지도 생성effect·key·데이터세대·사진CSS는 유지한다. t14 지정 보강 승인과 t9d 최소 구조/리팩터링 답변을 받았으며 새 계층은 없다.
+- 자동overview에서만 resize-fit, 원래 사용자event와 확대/축소 버튼은auto를해제하고 전체 버튼은재개한다. 실행 증거는 확대 버튼→resize→전체복귀이며 직접drag/wheel/pinch 성공까지 확대하지 않는다. 작성 모드 보존은 실제MapLibre 컴포넌트 대역의 fitBounds 호출 검사이며 실제사용자 작성 왕복으로 합산하지 않는다.
+- t17x4실패/t17y3통과1실패는 낮은 줌의 라벨 숨김/marker 정수rounding을 계측이 가정하지 못한 검사였다. 서울·제주2점의 회전 없는Mercator 공통축척을 사용해 남은 독립지역과 기록 DOM anchor를 비교하며 기존2px 기준은 유지한다. t17z4통과 뒤 t180은16통과1실패(폭onLayout직후의즉시assert), 폭·높이·bounds를 같은poll로기다린 t181은4통과11.4초다.
+- 헤더 보강 전 production export t182 exit0/60초 이상휴식 뒤 t184 단일19통과1.1분(실export무주입지도4/지도대역13/정적2)을 확인했다. 추가 사용자 요청의 상단정렬 수용으로 합산하지 않는다.
+- 추가 상단 요청은 t185에서 header/map 좌우200px 차이 Red를 확인했다. Home의 homeMapWidth 계산 한 곳을 web&&mapHome header와map wrapper가 공유하고 기존padding/flex-wrap/compact/48px·다른화면은 유지한다. t14/t9d 지정 읽기 승인, actual8083 t186 단일4통과11.1초다.
+- 최종 header 포함 production export t187 exit0. 빌드후60초 이상휴식 뒤 t188은 단일6통과11.6초(실export 지도/크기/전체/헤더/확대복귀4+callback/자산MIME·바이트2)다. 1920x1080/1440x900/390x844/320x568/844x390의 최종폭/높이/bounds/header좌우/설정·테마 버튼 안쪽을 같은poll에서 확인했다. 사진52/아바타24 및 CSSzoom0.8/1.25/1은 유지하며 브라우저 실제Ctrl 확대와 구분한다.
+- 최종 frontend TypeScript exit0/diffcheck exit0. 실제 no-dev/production guest의 합성 기록/1px 합성PNG·기존곰 자산만 사용했다. /tmp 캡처를 직접 확인했으며 흰색 합성사진은 실제풍경 품질 증거가 아니다. 새Git이미지/계정화면은 없고 자동 verification PNG2개는 원복했다. 자체8084서버 종료/actual8083 유지, 에뮬레이터·새APK·실기기·실배포·원격설정/DB쓰기·전체 backend/전체웹 재실행은 하지 않았다. 기존 루트Expo58 package/lock/tsconfig 및 untracked는 보존·커밋 제외한다. 이전 실행을 최종 전체Green으로 합산하지 않는다.

@@ -1455,3 +1455,16 @@ unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydami
 결과: 최신 efba7fe 코드의 actual Supabase 환경 내장 APK를 저자원으로 재빌드했다. 첫 t17s는 임시 init-script가 included build의 :app을 찾는 설정 오류로9초 실패했으며 제품 Red로 계산하지 않는다. 임시 script를 app 존재 조건으로 제한하고60초 이상 휴식 후 t17t는 exit0/10분8초,411task(60실행/351재사용)로 성공했다. CPU affinity2/nice10/Gradle worker1·병렬false/Java heap1536MiB/Metro worker1·Node1536MiB를 사용했다. 빌드 뒤60초 이상 휴식하고 서명 검증·이전 APK와 인증서 동일·package com.mytraveldex.app/version1.0.0 code1/minSDK24·scheme mytraveldex·4ABI·내장JS가 build output 및 요청한 공개 서버 환경과 일치함을 확인했다. 설치파일은 저장소 밖 Downloads/MyTravelDex-20261109-efba7fe.apk(154.5MiB), SHA256 a7baca63c6075049f58b2440941dda5a709bffec3caab5dd104191e7b953c21a다. 개발 서명 자체 설치용이며 Play 제출용이 아니다. 에뮬레이터/자동설치/실기기 로그인·저장/원격 설정·migration은 실행하지 않았고 신규 badge 원격 미적용 조건은 유지한다. actual8083과 기존 별도 변경은 유지했다.
 
 변경 파일: docs/TEST_CASE.md, docs/prompts.md. 제품 소스 변경 없음. APK와 저자원 임시 빌드 script는 Git에 추가하지 않는다.
+
+
+## 2026-11-09 19:40 KST — 웹 홈 전체 지도·상단 정렬
+
+사용자 프롬프트 원문:
+> 웹앱 전체화면을 하면, 화면이 너무 꽉차서 지도가 잘안보이는데, 가로 폭을 줄여서 지도 화면은 전체가 다보이게 설정해줘. 모바일로 보든 모니터로 보든, 지도화면은 전체가 보여야해
+
+추가 사용자 프롬프트 원문:
+> /feedback 웹 앱에서 상단에 앱 이름이나 테마 버튼도 위치를 맞춰줘
+
+결과: 웹 홈 지도와 상단이 동일 계산폭/중앙축을 공유하고 국내 전체 경계를 가용viewport에맞췄다. 원래사용자 탐색과자동overview 수명을나누고홈명시prop으로작성/Native경계를보존했다. t14명세/제품P2보강및헤더승인·t9d최종읽기답변을받았다. t17w/t185 Red와 중간계측실패를보존하며헤더전t18419통과를헤더수용으로합산하지않는다. 최종actual8083 t1864통과11.1초/exportt1870→60초이상휴식→실artifact t1886통과11.6초/타입0/diff0. /tmp합성guest캡처에서모니터·모바일세로·가로를직접확인,사진품질/직접gesture·실기기/실배포/새APK수용은아니다. actual8083유지/자체8084종료,기존별도변경보존.
+
+변경 파일: AGENTS.md, docs/{WEB_LOGIN_DESIGN_SPEC,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,DISAN,prompts}.md, frontend/app/index.tsx, frontend/src/{TravelMap.web.tsx,provinces.ts}, frontend/e2e/{map-layout,maps}.spec.ts.

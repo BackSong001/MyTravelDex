@@ -90,6 +90,7 @@ export function visibleProvinceLabels(zoom: number, selected: string | null, fon
   });
 }
 export type TravelMapProps = {
+  homeOverview?: boolean;
   records: any[];
   focus?: {latitude:number;longitude:number};
   landmarks?: {id:string;name:string;latitude:number;longitude:number}[];
