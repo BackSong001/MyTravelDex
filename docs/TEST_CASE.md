@@ -1011,3 +1011,16 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 
 
 최종 TypeScript exit0, Node export 계약2통과(64.5ms), git diff --check exit0를 확인했다. 실제 Google 런타임 사용과 원격 설정 변경은 다르며, 원격 Auth/DB 설정·migration·배포 및 실제 사용자 여행/프로필 수동 수정은 수행하지 않았다. 코드·명세·검증 기록은 feature/figma-assets-implementation 브랜치에 커밋/푸시하며 결과 해시는 Git 이력과 최종 전달에서 확인한다.
+
+
+웹 지도 창 크기 변경 보강 TC-WEB-MAP-LAYOUT-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 실제 앱의 MapLibre CSS 소유/좌표 anchor와 CSS 표시 크기를 검증하고 원본 좌표·카메라·군집·Native를 보존한다. map CSS를 수동 주입한 기존 단독 회귀와 실제 no-dev/정적 앱 수용을 구분한다.
+
+
+### TC-WEB-MAP-LAYOUT-001 실행 결과 — 2026-11-09
+
+- t17g는 실제 no-dev 앱에서 CSS 미로딩/static marker와 약935px 투영 오차로2실패했다. 루트 CSS import 이동만 시도한 t17h도2실패해 채택하지 않았다. 최종 방식은 기존 prepare-maplibre/postinstall에 고정 설치본 CSS 복사를 추가하고 public/index.html에서 /vendor/maplibre/maplibre-gl.css를 전역 link로 소비하는 것이다. TravelMap 지역 import만 제거하며 좌표·anchor·offset·카메라·생성 effect·Native는 유지한다.
+- CSS 연결 뒤 t17j의2실패는 현재 지도 줌에 따른 기존 라벨 크기 변화와 CSS zoom의 border 반올림을 이전 크기와 엄밀 비교한 전제였다. 실제52px 사진 본문과24px 아바타, 현재 투영 줌의11~15px 라벨 정책으로 검사한다. DOM anchor 오차2px 미만 기준은 완화하지 않았다. t17k no-dev2통과6.5초 뒤 작성자 아바타 검사도 양쪽에 추가했다.
+- 최종 production export t17m exit0, 60초 이상 휴식 뒤 t17p는 실제 export 무주입 지도 resize/CSS zoom2+정적 callback/자산2의 단일4통과7.3초다. 실제 HTML link/CSS text/css·바이트와 JS/worker/shared/PNG·누락asset404를 확인했다. Expo serve는 지도 루트만 검사하고 callback은 Vercel 규칙을 읽는 기존 QA 서버에서 검사했다.
+- t17q는 실제 localhost:8083을 새 guest context로 열어 합성 공개 기록/사진 응답만 제공한 무주입 지도2+기존 지도12의 단일14통과58.2초다. 창1440/390/320/1024/1440 및 CSS zoom0.8/1.25/1에서 경북과기록 DOM anchor를 별도 Mercator 투영점과 비교하고 사진52/아바타24 본문 크기를 확인했다. 기존 지도12는 CSS를 수동 주입하는 단독 검사이며 실제앱2와 구분한다. 중복 검사/이전 전체 통과를 합산하지 않는다.
+- Node configured5통과129ms, frontend TypeScript exit0, diffcheck exit0. t14 제품 정적 승인 후 누락 avatar 검사를 보완했고 t9d의 추가 필수 보강/새 계층 불필요 답변을 확인했다.
+- 캡처는 /tmp 합성 guest 화면만 사용하고 자동 변경된 기존 verification PNG2개는 원복했다. 새 Git 이미지·사용자 사진/계정 기록은 없다. 테스트용8082/정적8084 서버는 종료하고 actual8083은 유지한다. 에뮬레이터/Android/전체 backend·웹 회귀/실배포/원격 설정 변경은 하지 않았다. CSS zoom을 브라우저 실제 Ctrl 확대 수용으로 확대하지 않는다. 별도 루트 Expo58 package/lock/tsconfig와 기존 untracked는 보존·이번 커밋 제외한다.

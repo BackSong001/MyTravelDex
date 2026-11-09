@@ -53,3 +53,23 @@ Expo web.output=single의 정적 배포를 유지한다. Vercel 저장소 루트
 
 
 최종 TypeScript exit0, Node export 계약2통과(64.5ms), git diff --check exit0를 확인했다. 실제 Google 런타임 사용과 원격 설정 변경은 다르며, 원격 Auth/DB 설정·migration·배포 및 실제 사용자 여행/프로필 수동 수정은 수행하지 않았다. 코드·명세·검증 기록은 feature/figma-assets-implementation 브랜치에 커밋/푸시하며 결과 해시는 Git 이력과 최종 전달에서 확인한다.
+
+## 웹 지도 크기 변경·마커 배치 보강 (TC-WEB-MAP-LAYOUT-001)
+
+사용자 관측: 창 크기를 바꾸면 지역명/여행 기록이 지도 위치에서 밀리고 크기도 유지되지 않는다. actual8083을 새 guest 브라우저로 열어 확인한 결과 stylesheet link가 없고 MapLibre marker/canvas의 computed position이 static이었다. 장식 marker가 지도 아래 문서 흐름에 배치되고 폭이1440px로 늘어났다. 기존 map 전용 회귀는 map CSS를 직접 주입하므로 이 앱 통합 경계를 검증하지 못했다.
+
+MapLibre 전역 CSS는 Expo Router 루트 layout에서 소유하도록 이동하고 컴포넌트 지역 import로 중복하지 않는다. 설치된 Expo/Metro 경계상 이 방법이 no-dev에서도 CSS를 제공하는지 실제 앱 회귀로 먼저 판정한다. 단순한 marker translate 보정값/viewport별 좌표/임의 역scale로 증상을 덮지 않는다. CSS 로딩이 여전히 누락되는 경우에는 동일 설치본 스타일을 웹 전역에 명시적으로 연결하는 가장 작은 방식을 사용한다. 원본 JSON·GPS·marker anchor/offset·카메라/선택·군집·서명URL·테마/기존 Native는 변경하지 않는다.
+
+창1440→390→320→1024→1440에서 canvas가 host 크기와 일치하고, 지역명/기록 marker의 실제 DOM anchor가 MapLibre transform 좌표를 따라가는지 검사한다. 썸네일52 CSS px/아바타24 CSS px의 본문 크기를 유지한다. 라벨은 현재 지도 줌의 기존11~15px 정책을 따른다. 창 크기에 따라 maxBounds가 지도 줌을 조정할 수 있으므로 이전 줌의 글자 크기를 강제로 고정하지 않는다. CSS 배율의 테두리 반올림은 본문 크기와 구분한다. 브라우저 확대/축소의 접근성 동작을 역scale로 취소하지 않으며, CSS scale에서도 정규화한 anchor와 기준 CSS 크기를 검증한다. 지도 자체 줌에서의 기존 라벨 가독성/충돌 숨김 정책은 유지한다.
+
+회귀는 별도 map CSS 주입 없이 실제 no-dev Expo 앱을 열고 합성 공개 기록/사진 응답만 제공해 위치·크기·실이미지 decode를 검사한다. production export에서도 전역 CSS/캔버스/marker 배치를 검사하며 기존 지도/카메라·테마 회귀와 구분한다. 원격 기록을 쓰거나 실제 사용자 사진을 캡처하지 않는다. 루트 Expo58 package/lock/tsconfig의 별도 변경은 보존·이번 커밋 제외한다.
+
+
+### TC-WEB-MAP-LAYOUT-001 실행 결과 — 2026-11-09
+
+- t17g는 실제 no-dev 앱에서 CSS 미로딩/static marker와 약935px 투영 오차로2실패했다. 루트 CSS import 이동만 시도한 t17h도2실패해 채택하지 않았다. 최종 방식은 기존 prepare-maplibre/postinstall에 고정 설치본 CSS 복사를 추가하고 public/index.html에서 /vendor/maplibre/maplibre-gl.css를 전역 link로 소비하는 것이다. TravelMap 지역 import만 제거하며 좌표·anchor·offset·카메라·생성 effect·Native는 유지한다.
+- CSS 연결 뒤 t17j의2실패는 현재 지도 줌에 따른 기존 라벨 크기 변화와 CSS zoom의 border 반올림을 이전 크기와 엄밀 비교한 전제였다. 실제52px 사진 본문과24px 아바타, 현재 투영 줌의11~15px 라벨 정책으로 검사한다. DOM anchor 오차2px 미만 기준은 완화하지 않았다. t17k no-dev2통과6.5초 뒤 작성자 아바타 검사도 양쪽에 추가했다.
+- 최종 production export t17m exit0, 60초 이상 휴식 뒤 t17p는 실제 export 무주입 지도 resize/CSS zoom2+정적 callback/자산2의 단일4통과7.3초다. 실제 HTML link/CSS text/css·바이트와 JS/worker/shared/PNG·누락asset404를 확인했다. Expo serve는 지도 루트만 검사하고 callback은 Vercel 규칙을 읽는 기존 QA 서버에서 검사했다.
+- t17q는 실제 localhost:8083을 새 guest context로 열어 합성 공개 기록/사진 응답만 제공한 무주입 지도2+기존 지도12의 단일14통과58.2초다. 창1440/390/320/1024/1440 및 CSS zoom0.8/1.25/1에서 경북과기록 DOM anchor를 별도 Mercator 투영점과 비교하고 사진52/아바타24 본문 크기를 확인했다. 기존 지도12는 CSS를 수동 주입하는 단독 검사이며 실제앱2와 구분한다. 중복 검사/이전 전체 통과를 합산하지 않는다.
+- Node configured5통과129ms, frontend TypeScript exit0, diffcheck exit0. t14 제품 정적 승인 후 누락 avatar 검사를 보완했고 t9d의 추가 필수 보강/새 계층 불필요 답변을 확인했다.
+- 캡처는 /tmp 합성 guest 화면만 사용하고 자동 변경된 기존 verification PNG2개는 원복했다. 새 Git 이미지·사용자 사진/계정 기록은 없다. 테스트용8082/정적8084 서버는 종료하고 actual8083은 유지한다. 에뮬레이터/Android/전체 backend·웹 회귀/실배포/원격 설정 변경은 하지 않았다. CSS zoom을 브라우저 실제 Ctrl 확대 수용으로 확대하지 않는다. 별도 루트 Expo58 package/lock/tsconfig와 기존 untracked는 보존·이번 커밋 제외한다.

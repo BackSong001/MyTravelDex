@@ -28,10 +28,11 @@ test('native prebuild keeps package/scheme and uses MapLibre without map keys',(
   assert.equal(publicEnv.GEOAPIFY_API_KEY,undefined);assert.equal(publicEnv.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,undefined);
 });
 
-test('MapLibre module workers are generated locally from the pinned dependency',async()=>{
+test('MapLibre workers and document stylesheet match the pinned dependency',async()=>{
   const {execFileSync}=await import('node:child_process');const {readFileSync}=await import('node:fs');
   execFileSync(process.execPath,['scripts/prepare-maplibre.mjs']);
-  for(const name of ['maplibre-gl-worker.mjs','maplibre-gl-shared.mjs']){
+  assert.match(readFileSync('frontend/public/index.html','utf8'),/<link rel="stylesheet" href="\/vendor\/maplibre\/maplibre-gl\.css"/);
+  for(const name of ['maplibre-gl-worker.mjs','maplibre-gl-shared.mjs','maplibre-gl.css']){
     assert.deepEqual(readFileSync(`frontend/public/vendor/maplibre/${name}`),readFileSync(`frontend/node_modules/maplibre-gl/dist/${name}`));
   }
 });

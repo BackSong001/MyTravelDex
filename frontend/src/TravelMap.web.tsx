@@ -3,7 +3,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import Text from './FontText';
 import {View, Pressable, ScrollView} from 'react-native';
 import {Map as LibreMap, Marker, setWorkerUrl} from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
 import {travelerAvatar} from './avatarAsset';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';

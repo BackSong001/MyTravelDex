@@ -565,3 +565,8 @@ SETTINGS_DISCOVERY_SPEC의 guest/pane/footer 계약을 따른다. 설정의 탐�
 ## 웹 우선 디자인·로그인 검증 (2026-11-09)
 
 현재 사용자 우선순위는 웹이며 에뮬레이터를 재실행하지 않는다. WEB_LOGIN_DESIGN_SPEC/WEB_DEPLOYMENT를 따른다. MapOrnament는 세 종류의 공통 흰색 SVG 선만 표시하며 원본 PNG는 보존하되 런타임 ocean 모형 require는 사용하지 않는다. 모든 테마 그림자/바다 anchor·clearance/줌·이동·보정·지도 identity와 실제 사진은 유지한다. Google 계정 입력 화면 도달/설치SDK 대역/실제 동의·token·Home 완료/정적 산출물/실배포를 분리한다. production export는 공개 환경 검증과 dotenv 차단을 거치며, Vercel filesystem 우선과 callback 전용 fallback/누락asset404를 유지한다. 비밀번호/OTP/code/verifier/token 및 실제 계정 화면을 Git/로그에 남기지 않는다. t14 명세 확인 후 구현하고 t9d 결과 답변을 확인한다.
+
+
+## 웹 지도 CSS와 크기 변경 (2026-11-09)
+
+TC-WEB-MAP-LAYOUT-001을 따른다. 설치된 MapLibre CSS는 기존 prepare-maplibre/postinstall에서 worker/shared와 같은 버전으로 public/vendor에 복사하고 public/index.html의 전역 link로 소비한다. 지역 컴포넌트 CSS import나 테스트 CSS 주입만으로 실제 no-dev/export의 배치 수용을 대체하지 않는다. 창 크기/CSS 배율에서 지역명·사진 DOM anchor와 지도 투영점·52px 사진/24px 아바타 본문 크기를 확인하며 라벨은 현재 지도 줌 정책을 유지한다. 브라우저 접근성 확대를 역scale로 취소하지 않는다. 원본 좌표·offset·카메라·군집·Native는 변경하지 않는다.

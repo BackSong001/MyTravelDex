@@ -1435,3 +1435,13 @@ unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydami
 결과: frontend-design/unslop 방향과 명세 t14 승인을 거쳐 3종 공통 흰색 SVG·PNG모형 런타임 제거·반응형 로그인·안전한 callback/기존SDK세션·production export 및 Vercel callback 전용 라우팅을 구현했다. 연속 테마 paint 누락을 t179에서 재현하고 idle의 단일 최신 paint 보강 후 t17b 및 t17d23 통과, t14/t9d 지정 확인을 받았다. 관련17/Node2/SDK3/지도12/근접31/최종23은 중복 합산하지 않는다. 실제 Google settings/authorize/계정입력은 직접, 동의 후 앱 복귀는 사용자 관측으로 구분했다. 최신 export t17c0·정적 MIME/바이트/404·production 비밀번호 UI 없음 확인. 실제 Vercel·원격 Auth/DB 설정 변경·Native는 미실행이다. 에뮬레이터 재기동 없이 actual8083을 유지했다. 전체 실행으로 확대하지 않으며 t9d 마지막 답변을 확인한 뒤 이번 범위를 종료한다. 루트 Expo58의 별도 package 변경과 기존 untracked는 보존·이번 커밋에서 제외한다.
 
 변경 파일: AGENTS.md, README.md, docs/{WEB_LOGIN_DESIGN_SPEC,WEB_DEPLOYMENT,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,DISAN,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app.json, frontend/app/auth/callback.tsx, frontend/app/index.tsx, frontend/src/{MapOrnament,Journal}.tsx, frontend/src/TravelMap.web.tsx, frontend/src/{auth,uiAssets}.ts, frontend/e2e/{web-oauth,static-web,maps,invite-session}.spec.ts, backend/tests/{map-ocean,maps-native,oauth,ui-assets}.test.ts, scripts/export-web.mjs, scripts/export-web.test.mjs, vercel.json 및 docs/design/verification/web-login-desktop-20261109.png·web-login-mobile-20261109.png·web-map-white-lines-20261109.png.
+
+
+## 2026-11-09 19:07 KST — 웹 지도 CSS/크기 변경 보강
+
+사용자 프롬프트 원문:
+> 현재 웹앱에서 지역 이름이나, 여행 기록들이 밀려서 지도 UI 위치에 생기지않아. 웹 앱에 크기를 줄이거나 키워도 크기를 유지하게 만들어줘.
+
+결과: report-prompt 적용. 명세 t14 승인 후 actual no-dev의 CSS 누락/static marker Red를 확인했다. 루트 import 단독 실패 후 기존 postinstall 복사에 동일 설치본 CSS를 추가하고 웹 문서 전역 link로 연결했다. 좌표/카메라/Native는 유지한다. 최신 export t17m0, 휴식 후 export 지도/정적 t17p4통과7.3초, actual8083/지도 근접 t17q14통과58.2초, Node5/타입0/diff0이며 서로 중복 합산하지 않는다. t14 정적 승인·avatar 검사 보완과 t9d 답변을 확인했다. 52px 사진/24px 아바타/투영 anchor를 확인했고 라벨은 현재 지도 줌 정책을 유지한다. CSS zoom과 실제 브라우저 Ctrl 확대를 구분한다. actual8083 유지, 자체8082/8084 종료. Android/실배포/전체 재실행은 하지 않았고 기존 별도 Expo58 변경을 보존·커밋 제외한다.
+
+변경 파일: AGENTS.md, docs/{WEB_LOGIN_DESIGN_SPEC,WEB_DEPLOYMENT,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,DISAN,prompts}.md, frontend/src/TravelMap.web.tsx, frontend/public/index.html, frontend/e2e/{map-layout,static-web}.spec.ts, scripts/{prepare-maplibre.mjs,configured.test.mjs}.

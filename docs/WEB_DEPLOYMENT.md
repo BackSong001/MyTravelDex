@@ -37,3 +37,6 @@ WEB_EXPORT_DIR=frontend/dist npx playwright test frontend/e2e/static-web.spec.ts
 web-oauth.spec는 설치 SDK가 만든 challenge/verifier와 실제 브라우저 저장/복귀/cold reload를 검사하지만 Provider/token 응답은 대역이다. 실제 Google 인증 완료로 보고하지 않는다. Callback은 취소·누락 verifier·SDK 오류를 고정된 복구 문구로 표시하며 기존 SDK 세션을 지우지 않는다. 복귀 버튼은 과거 code/query를 제거한다.
 
 실제 Vercel 프로젝트 생성/Preview·production 배포, 원격 allowlist/DB 변경은 이 준비 작업에 포함하지 않는다.
+
+
+지도 전역 CSS는 frontend/public/index.html에서 /vendor/maplibre/maplibre-gl.css로 연결한다. frontend ci의 기존 postinstall이 고정 설치본 MapLibre CSS/worker/shared를 함께 준비하며 별도 CDN은 사용하지 않는다. export HTML의 link와 CSS MIME/바이트, CSS를 주입하지 않는 실제 지도 resize/anchor 검사를 함께 확인한다(TC-WEB-MAP-LAYOUT-001).

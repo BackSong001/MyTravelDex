@@ -21,7 +21,7 @@ test('TC-WEB-EXPORT-001: callback serves actual index HTML while JS, worker, sha
  const callback=await fetch(origin+'/auth/callback?error=access_denied');expect(callback.status).toBe(200);expect(callback.headers.get('content-type')).toBe('text/html');expect(Buffer.from(await callback.arrayBuffer()).equals(await readFile(path.join(root,'index.html')))).toBe(true);
  const js=(await readdir(path.join(root,'_expo/static/js/web'))).find(f=>f.startsWith('entry-'))!;
  const assets=await readdir(path.join(root,'assets/assets/ui')),png=assets.find(f=>f.startsWith('backpack-v1.'))!;
- for(const [file,mime] of [[`_expo/static/js/web/${js}`,'application/javascript'],['vendor/maplibre/maplibre-gl-worker.mjs','application/javascript'],['vendor/maplibre/maplibre-gl-shared.mjs','application/javascript'],[`assets/assets/ui/${png}`,'image/png']]){
+ for(const [file,mime] of [[`_expo/static/js/web/${js}`,'application/javascript'],['vendor/maplibre/maplibre-gl.css','text/css'],['vendor/maplibre/maplibre-gl-worker.mjs','application/javascript'],['vendor/maplibre/maplibre-gl-shared.mjs','application/javascript'],[`assets/assets/ui/${png}`,'image/png']]){
   const response=await fetch(`${origin}/${file}`);expect(response.status,file).toBe(200);expect(response.headers.get('content-type')).toBe(mime);expect(Buffer.from(await response.arrayBuffer()).equals(await readFile(path.join(root,file)))).toBe(true);
  }
  for(const missing of ['/assets/missing.png','/vendor/missing.mjs','/_expo/missing.js'])expect((await fetch(origin+missing)).status).toBe(404);
