@@ -222,16 +222,27 @@ export default function Home(){
   let record=pending;
   const values={start_date:start,end_date:end,title:title||null,content:content||null,visibility};
   if(!record){const loc=await inSession(()=>api.request('/rest/v1/locations','POST',locationValues()));record={id:Crypto.randomUUID(),location:loc[0].id,existing:0};setPending(record);}
-  const recordId=record.id,existing=record.existing,location=record.location;
+  const recordId=record.id,location=record.location;
   const found=await inSession(()=>api.request(`/rest/v1/travel_records?id=eq.${recordId}&select=id`));
   if(!found.length)await inSession(()=>api.request('/rest/v1/travel_records','POST',{id:recordId,owner_id:session.user.id,location_id:location,...values}));
   else {const loc=await inSession(()=>api.request('/rest/v1/locations','POST',locationValues()));await inSession(()=>api.update(recordId,{location_id:loc[0].id,...values}));}
-  for(let index=0;index<photos.length;index++){
-   const p=photos[index];
-   const main=await inSession(()=>compressPhoto(p.asset,2048,5*1024*1024)),thumb=await inSession(()=>compressPhoto(p.asset,512,512*1024));
+  const registered=new Map<string,any>((await inSession(()=>api.listPages(`/rest/v1/photos?travel_record_id=eq.${recordId}&select=id,owner_id,travel_record_id,original_path,thumbnail_path,display_order&order=display_order.asc,id.asc`))).map((photo:any)=>[photo.id,photo]));
+  validateRecord({start_date:start,end_date:end,latitude:Number(latitude),longitude:Number(longitude)},registered.size+photos.filter(photo=>!registered.has(photo.id)).length);
+  let nextOrder=Math.max(-1,...[...registered.values()].map(photo=>photo.display_order))+1;
+  for(const p of photos){
    const mime='image/jpeg',root=`${session.user.id}/${recordId}/${p.id}`,originalPath=`${root}/original.jpg`,thumbnailPath=`${root}/thumbnail.jpg`;
+   const samePhoto=(photo:any)=>photo?.id===p.id&&photo.owner_id===session.user.id&&photo.travel_record_id===recordId&&photo.original_path===originalPath&&photo.thumbnail_path===thumbnailPath;
+   if(registered.has(p.id)){
+    if(!samePhoto(registered.get(p.id)))throw new ApiError('VALIDATION_ERROR',409,'Photo registration conflict');
+    continue;
+   }
+   const main=await inSession(()=>compressPhoto(p.asset,2048,5*1024*1024)),thumb=await inSession(()=>compressPhoto(p.asset,512,512*1024));
    for(const [path,bytes] of [[originalPath,main.bytes],[thumbnailPath,thumb.bytes]] as const){try{await inSession(()=>api.request(`/storage/v1/object/travel-photos/${path}`,'POST',bytes,mime));}catch(e:any){if(e.serverCode!=='KeyAlreadyExists')throw e;}}
-   try{await inSession(()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,original_path:originalPath,thumbnail_path:thumbnailPath,display_order:existing+index,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude,width:main.width,height:main.height,mime_type:mime,file_size_bytes:main.bytes.byteLength}));}catch(e:any){if(e.serverCode!=='23505')throw e;}
+   try{await inSession(()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,original_path:originalPath,thumbnail_path:thumbnailPath,display_order:nextOrder++,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude,width:main.width,height:main.height,mime_type:mime,file_size_bytes:main.bytes.byteLength}));}catch(e:any){
+    if(e.serverCode!=='23505')throw e;
+    const rows=await inSession(()=>api.request(`/rest/v1/photos?id=eq.${p.id}&select=id,owner_id,travel_record_id,original_path,thumbnail_path`));
+    if(!samePhoto(rows[0]))throw e;
+   }
   }
   const complete=await inSession(()=>api.rpc('finalize_travel_record',{record_id:recordId}));setPending(null);setPhotos([]);setComposer(false);setDrafts(false);setSaved('여행을 저장했어요.');
   await inSession(()=>latestLoad.current());if(version===navigationVersion.current&&screenRef.current==='create')await inSession(()=>open(complete,version));

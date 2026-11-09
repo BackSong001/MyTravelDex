@@ -796,3 +796,7 @@ Home ownRows/ownLoaded를유일한본인목록원천으로재사용하고My행�
 17G 최종 구현은 withFontScale prebuild plugin이 Manifest fontScale과 단일 stable 초기화를 소유한다. 실제 anonymous DefaultReactActivityDelegate의 super.onConfigurationChanged 뒤 fontScale 변경 때만 같은 React root.post에서 requestLayout→기존 DeviceInfo 모듈 하나의 onHostResume(표준 Dimensions 변경 알림)를 호출한다. Activity/Host 전체 resume를 재호출하지 않는다. Application metrics/직접 EXACTLY measure/진단 로그 실험은 모두 제거했다. 초기화의 내부 API 억제는 helper 한곳에 한정되며 Kotlin의 INVISIBLE_REFERENCE 경고는 미래 호환성 제한이다. RN 0.81.5/STABLE/newArch/Expo template 전제가 달라지면 명확히 실패하고 업그레이드 때 재검토한다.
 
 FontText는 앱 소유16모듈의 기존 RNText import를 대체하며 Android에서 RNText element의 key만 fontScale로 바꾼다. props/ref/children·style·allowFontScaling·link/press/a11y 정책은 전달하고 state 있는 input/부모/Modal/지도는 재생성하지 않는다. useWindowDimensions의 leaf별 구독 비용은 인지한 제한이며 병목 관측시 공통 구독으로 옮긴다. 같은 scale에서 state/회전은 Text key를 바꾸지 않는다. Text 자체 선택/접근성 포커스·읽기 보존은 이 전략으로 보증하지 않는다. Surface/Java SP cache 시점차이는 진단 가설이었고 원인으로 확정하지 않았다.
+
+## 17H 사진 순서/멱등성 소유권
+
+저장 오케스트레이션은 시작 세대 guard 아래 소유 기록의 photos를 안정 id/order 정렬·기존 listPages로 끝까지 조회한다. 등록 수와 선택 중 미등록 UUID 수의 합으로20장을 검증하며 다음 순서는 max(display_order)+1이다. 이미 같은 owner/record/id/두 경로가 등록됐으면 재POST 없이 재사용해20번째 응답 유실도 복구한다. 등록 중23505는 같은 UUID 조회로 동일 귀속/경로를 확인한 경우만 성공이고 순서·다른 제약 충돌은 원래 오류를 전달한다. max+1은 경쟁 예약이 아니며 최종 권한·최대수·순서 UNIQUE/부모 잠금은 기존 DB 소유다. 오류시 finalize/선택초기화를 건너뛰고 명시 재시도로 재조회한다. API/schema/RLS/운영 정리는 변경하지 않는다.

@@ -1279,3 +1279,21 @@ t9d의566fde2완료답변은새제품필수결함없음/독립비DB대역3·diff
 17G 전체 재실행 t151은119 passed/1 failed(6.5분)로 종료했다. 실패는 travel:123의 전역 empty 기대이며 DOM에는 대상 여행이 없고 다른 공개fixture2건이 남았다. 다른 사용자/fixture를 삭제하거나 reset하지 않고 해당case를 대상 record의 목록부재·anonymous 직접조회[]·새 photo-url404/서명값없음 검사로 보강했다. targeted t153 진행중이며 그 통과를 새 전체120Green으로 합산하지 않는다. 제품 FontText 변경은 없다.
 
 17G 대상 권한회귀 t153은1 passed(8.8초). 전체119/1과분리하며최종단일전체120통과로표현하지않는다. t14제품·최종기록초안승인과테스트보정검토를거쳐작업브랜치에반영한다. 기존verification 자동변경은HEAD복원하고원래untracked2개를보존한다. 후속은사진순서P1의Local Red부터진행한다.
+
+## 2026-11-09 09:44 KST — 작업17H 사진 순서 P1 보강 재개
+
+**진행 근거**: 사용자가 지속 목표를 active로 재전환했다. 17G c2fb9a7 상태를 확인하고 테마보다 데이터 무결성 후보를 우선했다. 이전 일시중지 당시17H는 미착수였으며 이번부터 명세/Local 검증을 시작했다.
+
+**사용자 전달 원문**:
+
+> 우선P1후보 재현: index.tsx save display_order=record.existing+index,existing은사진개수. delete_photo RPC는재번호안해[0,2]가합법,복구후새UUID사진을추가하면order2충돌23505. save는모든23505를동일UUID재시도로삼켜finalize→setPhotos([])→저장성공까지진행해새사진누락. 현save함수AST추출/메모리실행+API대역에서 insertOrders[2]/finalize1/cleared=true/성공문구 재현. DB/UI실행아님. 도달경로:3장draft중간사진삭제→초안복구→새사진추가. 부모잠금/사진순서UNIQUE는정상. Local Red로실제경로확인후보강권장,현17G와별도지만데이터무결성이므로테마보다우선입니다.
+
+> 위P1 최소보강방향: 사진수검증용existing과다음display_order를분리하고,기존최대order+1기준(또는기존부모잠금내서버할당)으로이어쓰기. count만max로바꾸면20장검증깨지므로주의. 23505는동일photo UUID가해당owner/record/path로이미등록된경우를확인한뒤에만멱등성공;순서충돌/다른제약은입력/초안보존후오류. 동시클라이언트경쟁도max+1만으로보장되지않으므로충돌을삼키지않는게필수. 회귀는[0,2]복구추가가0/2/3+새UUID존재,동일UUID응답유실재시도중복없음,순서경쟁시누락성공금지/선택보존. 원본갤러리파일손실을재현한것은아니며선택신규사진의DB누락입니다.
+
+**진행 결과**: 명세5종을 먼저 동기화하고 함수서버미기동503은환경실패로분리했다. functions복구후backend/photo44통과, 실제Local sparse draft Red t159→선조회실수/max분리·UUID귀속/경로검증으로신규3 Green t15b/types0. 신규4+인접회귀18(t15c)은진행중이며실행결과·t14지정리뷰후완료기록을추가한다. 원격/사용자기기/실사용자쓰기·schema변경없음.
+
+**변경 파일**: AGENTS.md, DEVELOPMENT_STATUS.md, frontend/app/index.tsx, frontend/e2e/photo-order.spec.ts, docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,FIGMA_IMPLEMENTATION,prompts}.md.
+
+17H 신규4건과 인접기존14건의 단일실행 t15c는18 passed(1.5분). 대상회귀이며 앱전체123건 성공을 의미하지 않는다. 저장전 등록수/최대순서 분리와 등록동일성 확인은 기존선택·세션·응답유실 재시도를 보존했다. 구현전 backend/photo44(t158)는 불변 서버계약 회귀, 최초503(t156)은 환경실패, sparse 실제DB누락(t159)은 제품Red로 구분한다. 17G전체119/1+대상1·이전APK와 합산하지 않는다. 새 이미지·의존성·schema/API/RLS·원본파일 변경없음. 이번 Android/새전체 재실행은 없으며 원본갤러리파일 손실이 아닌 선택신규사진의DB등록 누락을 보강했다.
+
+17H t14지정정적리뷰는필수제품결함없음으로승인했다. 변경파일목록에AGENTS/상태·추적문서를동기화했고diffcheck0/최종types0,신규4를포함한단일18통과를확인했다. 독립리뷰의읽기확인과t12실행수를합산하지않는다. 커밋/푸시후t9d완료전달로이어간다.

@@ -268,3 +268,7 @@ travel_records는기존Home owner/complete 전체조회결과를재사용하고�
 ### 17G 동적 글꼴 보강 범위
 
 Android글꼴측정보강은클라이언트렌더경계이며API/DB/RLS/인증/사진URL계약을변경하지않는다. 서버쓰기나전체사용자조회가필요하지않다.
+
+### 17H 사진 등록 재시도
+
+기존 owner photos GET/POST를 사용한다. 저장 전 조회는 travel_record_id 조건·안정 order/display_order,id와 count=exact 페이지 순회를 사용한다. 다음 display_order는 개수가 아닌 기존 최댓값+1이다. 동일 id/owner_id/travel_record_id/original_path/thumbnail_path가 실제 존재할 때만 멱등 등록으로 처리한다. 일반409/23505와 다른 제약 오류는 성공으로 변환하지 않는다. 기존20장 제한·서버 잠금/UNIQUE/삭제 비재번호 계약을 보존한다.

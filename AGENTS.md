@@ -539,3 +539,7 @@ My 최근행은현재feed가아닌ownRows complete최근3을사용한다. 기존
 ## 17G 동적 Android 글꼴 호환 경계
 
 RN 정확0.81.5/STABLE/newArch의 withFontScale plugin과 앱 소유 FontText를 사용한다. Manifest fontScale/표준 stable provider의 단일 font flag/실제 delegate super 뒤 root.post의 requestLayout·DeviceInfo 한 모듈 알림을 보존한다. Application metrics/직접 measure/로그 실험은 최종 구현에 남기지 않는다. RN/Expo/Kotlin 변경시 내부 진입점·template·초기화 조건을 재검토하며 조용히 Canary나 다른 releaseLevel로 전환하지 않는다. Text element만 Android fontScale key로 갱신하고 input/부모/Modal/지도·카메라 key를 바꾸지 않는다. TalkBack 포커스·copy 선택 보존은 별도 검증하며 실제 사용자 화면/XML은 /tmp에만 둔다.
+
+## 17H 사진 순서·멱등 저장
+
+사진 수를 display_order로 사용하지 않는다. 저장 전 소유 photos 전체 조회로 실제 수/최대순서를 분리하고 동일 UUID/owner/record/두 경로가 일치할 때만 재사용한다. 일반23505를 성공으로 삼키지 말고 세대guard 아래 기존행 확인 후 판정한다. 순서 경쟁은 DB UNIQUE/부모잠금으로 거부하며 실패시 finalize·입력삭제 없이 명시 재시도를 제공한다. 기존 서버20장 제한·원본/초안·잠금/RLS를 보존한다.
