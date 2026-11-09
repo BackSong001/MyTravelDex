@@ -150,3 +150,8 @@ My진입에서도테마를바꾸고감성선택후앱COLD재기동→radio check
 사용자 새 요청에 따라 [SETTINGS_DISCOVERY_SPEC](SETTINGS_DISCOVERY_SPEC.md)을 t14에게 먼저 검토받아 guest·footer·UUID 수명·expand-only 계약을 확정했다. 흰색1px 지도 그림자, 이름 옆3선 설정과 개인 뱃지 Local RPC/UI를 구현하고 t9d의 지연 성공 P2를 보강했다. 대상 확인 전 여행자/여행지 뽑기와 스타일 결과는 안내만 표시하며 완료로 계산하지 않는다. 원본 Batch11의 기계/열린캡슐/뱃지5 PNG를 정적 번들에 사용하고 샘플 수량이나 사용자 데이터는 넣지 않는다.
 
 신규 웹6 및 최종 전체 backend t16x148+외부1skip(25파일/37.39초)을 확인했다. 전체 웹 t16v는 최종 액션 시작 전 세대 guard 보강으로53통과/1중단/84미실행에서 의도 중단했으며 최종 전체 t16w는137통과/1실패(12.9분)이며 parent-cover 선행 HTTP 응답 대기를 보강한 t16y 대상 반복3은 별도 통과(19.6초)했다. 새 전체138 Green으로 합산하지 않는다. 또한 이전132+focused를 합산하지 않는다. 현재 에뮬레이터는 이전 APK 그대로 유지했으므로 신규 Native 수용/실기기/원격 migration은 미실행이다. 기준 theme/GPS 작업은1b8a186으로 checkpoint/push했고 신규 설정 구현 dce12ca를 같은 브랜치에 t16z exit0으로 푸시했다. 이 이후 문서 변경은 실행 기록 정리이며 제품/검사 범위는 늘리지 않는다.
+
+
+## 웹 우선 지도 선 장식·로그인 (2026-11-09)
+
+사용자 최신 요청으로 이전 바다PNG 렌더 계약을 공통 흰색 SVG 선 구름/물결/비행기로 대체한다. 모형 PNG 파일은 보존하지만 런타임 ocean require와 boat anchor는 제거한다. 모든 테마의 흰색 그림자/원본17경계·palette/바다 clearance/줌·보정·카메라는 유지한다. 로그인 반응형 동작 영역/안전한 callback·SDK 세션 보존과 정적 배포 준비를 연결했으며 상세 근거는 WEB_LOGIN_DESIGN_SPEC/WEB_DEPLOYMENT/TEST_CASE 최신 실행 결과다. t14와 t9d 지정 답변을 확인했다. 실제 Google 앱 복귀는 사용자 확인, 원격 배포·Android는 별도다.

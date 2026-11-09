@@ -17,9 +17,9 @@ test.beforeAll(async () => {
     resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],
     stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
       import React from 'react'; import {createRoot} from 'react-dom/client';
-      import {ThemeContext} from './src/ThemeContext';import {getTheme} from './src/themes';
+      import {ThemeContext} from './src/ThemeContext';import {getTheme,themes} from './src/themes';import {ornamentMarkup} from './src/MapOrnament';
       import * as maplibregl from 'maplibre-gl'; import TravelMap from './src/TravelMap.web';
-      window.events=[];window.selectedRecords=[]; window.mapSnapshots=[];window.styleLoads=0;
+      window.ornamentMarkup=ornamentMarkup;window.themeIds=themes.map(t=>t.id);window.events=[];window.selectedRecords=[]; window.mapSnapshots=[];window.styleLoads=0;
       // 실제 엔진의 idle 이후만 관찰하며 지도 인스턴스는 앱이나 테스트에 노출하지 않는다.
       const fire=maplibregl.Map.prototype.fire;
       maplibregl.Map.prototype.fire=function(event,...args){
@@ -32,7 +32,7 @@ test.beforeAll(async () => {
       };
       const root=createRoot(document.getElementById('root'));
       let current={records:[],fullScreen:true},theme=getTheme('classic');
-      window.renderMap=(props={})=>{current={...current,...props};root.render(<ThemeContext.Provider value={{theme,select:()=>{},storageError:''}}><TravelMap {...current} onSelect={record=>{window.events.push(['record',record.id]);window.selectedRecords.push(record);}} onRegion={(id,name)=>window.events.push(['region',id,name])}/></ThemeContext.Provider>);};
+      window.renderMap=(props={})=>{current={...current,...props};root.render(<ThemeContext.Provider value={{theme,select:()=>{},storageError:''}}><div data-testid="map-current-theme" data-theme-id={theme.id}/><TravelMap {...current} onSelect={record=>{window.events.push(['record',record.id]);window.selectedRecords.push(record);}} onRegion={(id,name)=>window.events.push(['region',id,name])}/></ThemeContext.Provider>);};
       window.setMapTheme=id=>{theme=getTheme(id);window.renderMap();};
       window.renderMap();
     `}});
@@ -89,11 +89,11 @@ test('TC-FIGMA-ASSET-001: map author avatars use the Figma bear for missing and 
  }
 });
 
-test('TC-FIGMA-OCEAN-001: ocean decorations decode actual PNGs and stay absent from correction and close zoom',async({page})=>{
+test('TC-FIGMA-OCEAN-001: ocean decorations use white line SVGs without PNG models and stay absent from correction and close zoom',async({page})=>{
  await ready(page);
  const ornaments=page.locator('[data-map-ornament]');
  await expect(ornaments.first()).toBeAttached();
- await expect.poll(()=>ornaments.evaluateAll(nodes=>nodes.every(node=>{const img=node.querySelector('img');return !!img&&img.complete&&img.naturalWidth===1254;}))).toBe(true);
+ await expect.poll(()=>ornaments.evaluateAll(nodes=>nodes.every(node=>{const svg=node.querySelector('svg');return !!svg&&svg.getAttribute('stroke')==='#FFFFFF'&&svg.getAttribute('fill')==='none'&&!node.querySelector('img');}))).toBe(true);
  for(const node of await ornaments.all()){
   await expect(node).toHaveAttribute('aria-hidden','true');expect(await node.evaluate(n=>getComputedStyle(n).pointerEvents)).toBe('none');
  }
@@ -261,7 +261,7 @@ test('TC-MAPLIBRE-008/009: TC-MAPLIBRE-011 thumbnail slides select current recor
  const cover='data:image/jpeg;base64,'+(await readFile('frontend/e2e/fixtures/jeonju.jpg')).toString('base64');
  await page.evaluate(({records,cover})=>(window as any).renderMap({records,covers:{first:cover,second:cover}}),{records:[record('first'),record('second')],cover});
  await expect(page.locator('[data-map-ornament="mountain"],[data-map-ornament="grass"]')).toHaveCount(0);
- await expect(page.locator('[data-map-ornament="boat"]').first()).toBeAttached();
+ await expect(page.locator('[data-map-ornament="boat"]')).toHaveCount(0);await expect(page.locator('[data-map-ornament="wave"]').first()).toBeAttached();
  await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
  const panel=page.getByTestId('cluster-browser');await expect(panel).toBeVisible();
  const credits=page.getByTestId('map-attribution');
@@ -292,4 +292,16 @@ test('TC-FIGMA-THEME-001: theme paint updates keep the actual map camera and sel
  const after=await page.evaluate(()=>{const w=window as any;return {snapshot:w.mapSnapshots.at(-1),loads:w.styleLoads};});
  expect(after.loads).toBe(before.loads);after.snapshot.center.forEach((value:number,index:number)=>expect(value).toBeCloseTo(before.snapshot.center[index],8));expect(after.snapshot.zoom).toBeCloseTo(before.snapshot.zoom,8);
  await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
+});
+
+test('TC-WEB-MAP-LINE-001: each line path including stroke stays in its shared slot and all thirty themes retain white decoration',async({page})=>{
+ await ready(page);
+ const bounds=await page.evaluate(()=>['wave','cloud','plane'].map(kind=>{
+  const wrapper=document.createElement('div');wrapper.innerHTML=(window as any).ornamentMarkup(kind,6);document.body.append(wrapper);const svg=wrapper.querySelector('svg')!,paths=Array.from(svg.querySelectorAll('path'));
+  const inside=paths.every(path=>{const b=path.getBBox(),half=Number(svg.getAttribute('stroke-width'))/2;return b.x-half>=0&&b.y-half>=0&&b.x+b.width+half<=64&&b.y+b.height+half<=64;});const result={kind,inside,viewBox:svg.getAttribute('viewBox'),stroke:svg.getAttribute('stroke'),fill:svg.getAttribute('fill')};wrapper.remove();return result;
+ }));
+ for(const item of bounds)expect(item).toMatchObject({inside:true,viewBox:'0 0 64 64',stroke:'#FFFFFF',fill:'none'});
+ const ids=await page.evaluate(()=>(window as any).themeIds as string[]);
+ for(const id of ids){await page.evaluate(id=>(window as any).setMapTheme(id),id);await expect(page.getByTestId('map-current-theme')).toHaveAttribute('data-theme-id',id);await expect(page.locator('[data-map-ornament] svg').first()).toHaveAttribute('stroke','#FFFFFF');await expect(page.locator('[data-map-ornament] img,[data-map-ornament="boat"]')).toHaveCount(0);}
+ const previous=await page.evaluate(()=>(window as any).mapSnapshots.length);await page.evaluate(()=>(window as any).setMapTheme('classic'));await expect(page.getByTestId('map-current-theme')).toHaveAttribute('data-theme-id','classic');await expect.poll(()=>page.evaluate(previous=>{const snapshots=(window as any).mapSnapshots;return {fresh:snapshots.length>previous,ocean:snapshots.at(-1).ocean};},previous)).toEqual({fresh:true,ocean:'#A9DFFA'});await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));await page.waitForTimeout(350);await page.screenshot({path:'/tmp/mytraveldex-web-review/after-map-lines.png'});
 });

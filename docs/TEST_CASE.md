@@ -988,3 +988,26 @@ My진입에서도테마를바꾸고감성선택후앱COLD재기동→radio check
 ### 설정/여행 도구 확정 범위 구현 상태
 
 FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE-001~004는 [설정 계약 7절](SETTINGS_DISCOVERY_SPEC.md#7-구현-및-검증-상태-2026-11-09-1312-kst)의 실행 범위를 따른다. t14 명세·지정 제품 읽기 승인과 t9d 지연 성공 P2 보강 확인을 받았다. 신규 권한·멱등/동시성·대표/지도 검사 및 웹6을 확인했고, 최종 전체 backend t16x는148통과+1skip(37.39초)이다. 전체 웹 t16v는 최종 액션 시작 전 세대 guard 보강으로53통과/1중단/84미실행에서 의도 중단했으며 최종 전체 t16w는137통과/1실패(12.9분)이며 parent-cover 선행 HTTP 응답 대기를 보강한 t16y 대상 반복3은 별도 통과(19.6초)했다. 새 전체138 Green으로 합산하지 않는다. 또한 이전132+대상6을 전체 통과로 합산하지 않는다. 여행자/목적지 확인 전 FR-FIGMA-011/013 결과는 보류 안내만 있다. Local migration 적용과 원격 미적용, 기존 APK 유지와 신규 Native 미검증을 구분한다.
+
+
+## 2026-11-09 웹 우선 로그인·지도 선 장식 계약
+
+사용자 새 요청의 기준은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md)이다. 모든 테마의 기존 흰색 지도 그림자를 유지하고 PNG 비행기/배 모형을 렌더링에서 제외하며 구름·물결·비행기는 공통 흰색 SVG 선으로 표시한다. 원본 자산·테마·지도 상태·RLS/실제 사진·SDK 세션은 보존한다. 웹 로그인/콜백 디자인과 PKCE·정적 배포 경계를 t14 승인 후 구현한다. actual localhost:8083/정적 export 검증과 실제 Google 동의 성공/원격 배포를 구분하며 에뮬레이터는 재실행하지 않는다.
+
+
+## 실행 결과 — 2026-11-09 웹 우선 구현
+
+- t14 명세 승인 후 구현했고 t9d 결과·정적 배포·마지막 idle 경계 답변까지 확인했다. 추가 필수 보완/별도 리팩터링 권고는 없다.
+- 지도 그림자는 기존30테마 공통 흰색1px를 재사용했다. PNG 비행기/배 모형의 런타임 require를 제거하고 공통 흰색 SVG 구름·물결·비행기로 교체했다. 원본13PNG/manifest/GeoJSON/팔레트는 보존했다.
+- 로그인은 두 열/모바일 한 열, 기존 배낭 원본과600 제목·좁은 동작 영역으로 정리했다. Callback raw provider/SDK message를 노출하지 않고 기존 SDK 세션을 보존하며 복귀 때 query를 제거한다.
+- actual localhost:8083에서 settings200→authorize302→Google 계정 입력 화면을 직접 확인했다. 사용자가 '로그인 후 앱 복귀 완료'라고 답변했다. 실제 Google 동의·복귀는 사용자 관측이며 token HTTP를 제가 독립 캡처한 증거로 계산하지 않는다. 자동 PKCE/challenge/verifier·cold reload 검사는 설치 SDK와 대역 Provider/token 응답을 사용한다.
+- 관련 Vitest 5파일17통과(1.13초), export Node 계약2통과. SDK/디자인 focused t1713통과, 지도 t17212통과, 근접 t17731통과(2.8분)이며 서로 겹치는 검사를 합산하지 않는다.
+- 최종 시각 검사에서 t179는 연속 테마 전환 뒤 classic DOM 선택과 실제 지도 paint 불일치를 재현했다(지도1실패/정적2통과). restyle이 isStyleLoaded=false에서 마지막 테마 적용을 건너뛰는 경계를 기존 지도 idle 재확인으로 보강했다. 같은 styleKey는 즉시 반환하므로 반복 paint 루프가 없고 source/Camera/생성 effect를 유지한다. t14/t9d 지정 승인, 강화 회귀 t17b1통과(7.8초)를 받았다.
+- 이 보강 후 최신 production export t17c exit0, 60초 이상 휴식 후 최종 t17d는 지도12/위치창6/테마3/정적2의 단일23통과(2.0분)다. Vercel 설정을 읽는 QA 서버에서 실제 export의 callback HTML·JS/worker/shared/PNG MIME와 바이트·누락asset404·production 로컬 비밀번호 UI 부재를 확인했다. 실제 Vercel 배포 검사는 아니다. SDK54 expo serve의 callback404 관측은 성공으로 계산하지 않는다.
+- 중간 TypeScript 실패는 테스트의 NodeList spread를 Array.from으로 보강했다. 최종 타입/diff 검사는 완료 결과를 따로 기록한다. 전체 backend/전체 웹을 이번 작업에서 새로 실행한 것은 아니며 이전148+skip/137+실패 등의 실행과 합산하지 않는다.
+- 기록용 캡처는 실제 production 정적 guest 로그인 화면과 공개 경계/합성 빈 기록 지도다. MapLibre 기본 paint 전환300ms 뒤 촬영하며 UI 선택/실제 paint를 먼저 확인한다. 새 PNG에는 계정/email/원격 host/key/code/서명URL/사용자 사진이 없다. 기존 자동 verification PNG는 원복하고 새 web-login desktop/mobile·web-map-white-lines 세 장만 추가한다.
+- 실제 배포 URL은 없으며 Vercel 배포·원격 Auth/DB 설정 변경·Android/실기기/새 APK 검증은 하지 않았다. 에뮬레이터 재실행도 없다. 미확정 여행자/스타일·기존 뱃지 정책을 확대하지 않았다.
+- 작업 중 출처 미확인의 루트 Expo58 설치 변경(package.json/package-lock.json)을 발견했으나 이번 명령에는 설치가 없었으며 앱의 frontend SDK54 변경과 분리해 보존/커밋 제외한다. 기존 untracked agent-prompts/·storyboard.png도 유지한다.
+
+
+최종 TypeScript exit0, Node export 계약2통과(64.5ms), git diff --check exit0를 확인했다. 실제 Google 런타임 사용과 원격 설정 변경은 다르며, 원격 Auth/DB 설정·migration·배포 및 실제 사용자 여행/프로필 수동 수정은 수행하지 않았다. 코드·명세·검증 기록은 feature/figma-assets-implementation 브랜치에 커밋/푸시하며 결과 해시는 Git 이력과 최종 전달에서 확인한다.

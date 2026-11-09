@@ -560,3 +560,8 @@ RN 정확0.81.5/STABLE/newArch의 withFontScale plugin과 앱 소유 FontText를
 ## 설정·개인 뱃지 (2026-11-09)
 
 SETTINGS_DISCOVERY_SPEC의 guest/pane/footer 계약을 따른다. 설정의 탐색은 Modal 닫기 후 기존 navigate/startCreate를 재사용하며 composer/사진/지도 identity를 초기화하지 않는다. 모든 테마의 지도 그림자는 이번 사용자 요청에 따라 흰색1px/blur0/translate0으로 대체한다. 뱃지는 owner-only 신규 테이블/RPC만 확장하고 직접 DML/anon 변경을 열지 않는다. draw와 대표 변경은 동일 본인 profiles 잠금으로 직렬화하며 owner/request UUID 원결과를 보존한다. 이력 자동 TTL/drop/reset 롤백을 추가하지 않는다. pending UUID 수명과 UI 수명을 분리해 늦은 성공은 동일 owner/id의 pending만 확인하고, 새 pane의 stale 재시도는 새 지급 없이 inventory를 갱신한다. 명시 로그아웃/프로세스 재시작의 미확정 요청 복구 한계와 최신 inventory 확인을 안내한다. Local 적용을 원격 적용으로 확대하지 않으며 여행자/목적지 확인 전 목적지·스타일 결과 구현은 보류한다.
+
+
+## 웹 우선 디자인·로그인 검증 (2026-11-09)
+
+현재 사용자 우선순위는 웹이며 에뮬레이터를 재실행하지 않는다. WEB_LOGIN_DESIGN_SPEC/WEB_DEPLOYMENT를 따른다. MapOrnament는 세 종류의 공통 흰색 SVG 선만 표시하며 원본 PNG는 보존하되 런타임 ocean 모형 require는 사용하지 않는다. 모든 테마 그림자/바다 anchor·clearance/줌·이동·보정·지도 identity와 실제 사진은 유지한다. Google 계정 입력 화면 도달/설치SDK 대역/실제 동의·token·Home 완료/정적 산출물/실배포를 분리한다. production export는 공개 환경 검증과 dotenv 차단을 거치며, Vercel filesystem 우선과 callback 전용 fallback/누락asset404를 유지한다. 비밀번호/OTP/code/verifier/token 및 실제 계정 화면을 Git/로그에 남기지 않는다. t14 명세 확인 후 구현하고 t9d 결과 답변을 확인한다.

@@ -6,12 +6,6 @@ export const uiAssets = {
   'KR-26': require('../assets/ui/busan-seagull-stamp-v1.png'),
   'KR-11': require('../assets/ui/seoul-ginkgo-stamp-v1.png'),
  },
- ocean: {
-  cloud: require('../assets/ui/ocean-cloud-v1.png'),
-  wave: require('../assets/ui/ocean-waves-v1.png'),
-  plane: require('../assets/ui/ocean-airplane-v1.png'),
-  boat: require('../assets/ui/ocean-boat-v1.png'),
- },
  navigation: {
   home: require('../assets/ui/nav-home-v1.png'),
   album: require('../assets/ui/nav-journal-v1.png'),

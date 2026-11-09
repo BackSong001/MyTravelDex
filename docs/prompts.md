@@ -1416,3 +1416,22 @@ unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydami
 
 
 최종 저장 상태: 구현 커밋 `dce12ca`를 `feature/figma-assets-implementation`에 t16z exit0으로 푸시했다(1b8a186→dce12ca). 이 뒤 변경은 실행 기록 정리뿐이며 새 제품 수정/검사는 없다. 최종 tsc/diff-check exit0, 테스트 자동 verification PNG는 원래 HEAD로 복원했다. 기존 untracked agent-prompts/·storyboard.png는 보존했다. 소유 Local 웹/함수 서버만 종료했으며 사용자 에뮬레이터 t16p/emulator-5554는 켜둔 상태다. 원격 migration·새 APK 설치는 하지 않았고 뽑기 대상 및 스타일 결과는 사용자 답변 대기다.
+
+
+## 2026-11-09 18:50 KST — 웹 우선 Google 로그인·선 장식 디자인
+
+사용자 프롬프트 원문:
+
+> 에뮬레이터가 자주 끊기는데, 일단은 웹 앱 배포를 먼저 기준으로 삼아서 웹 앱에 구글 로그인 검증과 디자인을 수정해줘.
+> 1. 모든 테마 포함해서 지도 UI의 그림자 색을 흰색으로 변경
+> 2. 모든 테마 포함해서 비행기 모형 제거
+> 3. 배경 조형물 흰색 선으로 구름, 바다물결표시, 비행기 표시
+> 4. AI 느낌이 나는 UI 개선
+>
+> frontend-design 과 unslop을 이용해서 디자인을 만들어주고, 명세를 작성해서 t14에게 리뷰를 받고, 테스트와 구현을 진행해줘. 구현이 끝났다면 t9d에게 작업결과를 보내고, t9d의 답변을 기다려.
+
+사용자 확인 원문: 배포 URL '없음', 실제 Google 단계 '로그인 후 앱 복귀 완료'.
+
+결과: frontend-design/unslop 방향과 명세 t14 승인을 거쳐 3종 공통 흰색 SVG·PNG모형 런타임 제거·반응형 로그인·안전한 callback/기존SDK세션·production export 및 Vercel callback 전용 라우팅을 구현했다. 연속 테마 paint 누락을 t179에서 재현하고 idle의 단일 최신 paint 보강 후 t17b 및 t17d23 통과, t14/t9d 지정 확인을 받았다. 관련17/Node2/SDK3/지도12/근접31/최종23은 중복 합산하지 않는다. 실제 Google settings/authorize/계정입력은 직접, 동의 후 앱 복귀는 사용자 관측으로 구분했다. 최신 export t17c0·정적 MIME/바이트/404·production 비밀번호 UI 없음 확인. 실제 Vercel·원격 Auth/DB 설정 변경·Native는 미실행이다. 에뮬레이터 재기동 없이 actual8083을 유지했다. 전체 실행으로 확대하지 않으며 t9d 마지막 답변을 확인한 뒤 이번 범위를 종료한다. 루트 Expo58의 별도 package 변경과 기존 untracked는 보존·이번 커밋에서 제외한다.
+
+변경 파일: AGENTS.md, README.md, docs/{WEB_LOGIN_DESIGN_SPEC,WEB_DEPLOYMENT,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,DISAN,FIGMA_IMPLEMENTATION,prompts}.md, frontend/app.json, frontend/app/auth/callback.tsx, frontend/app/index.tsx, frontend/src/{MapOrnament,Journal}.tsx, frontend/src/TravelMap.web.tsx, frontend/src/{auth,uiAssets}.ts, frontend/e2e/{web-oauth,static-web,maps,invite-session}.spec.ts, backend/tests/{map-ocean,maps-native,oauth,ui-assets}.test.ts, scripts/export-web.mjs, scripts/export-web.test.mjs, vercel.json 및 docs/design/verification/web-login-desktop-20261109.png·web-login-mobile-20261109.png·web-map-white-lines-20261109.png.

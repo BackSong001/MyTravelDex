@@ -13,7 +13,7 @@ afterEach(()=>{maps.length=0;pins.length=0;layers.length=0;});
 
 test('MapLibre mounts without Google configuration and style retains all rings and holes',()=>{
  const markup=renderToStaticMarkup(React.createElement(TravelMap,{records:[],fullScreen:true}));
- expect(markup).toContain('<native-map');expect(markup).toContain('<img');expect(markup).not.toContain('지도 표시 실패');
+ expect(markup).toContain('<native-map');expect(markup).toContain('stroke="#FFFFFF"');expect(markup).not.toContain('fixture://plane');expect(markup).not.toContain('지도 표시 실패');
  expect(maps[0].mapStyle.sources.provinces.data.features.map((f:any)=>f.geometry)).toEqual(provinceFeatures.map(f=>f.geometry));
  expect(maps[0].mapStyle.sources.provinces.data.features).toHaveLength(17);
  expect(maps[0].logo).toBe(false);expect(markup).toContain('지도 확대');expect(markup).toContain('대한민국 전체 보기');

@@ -29,3 +29,10 @@ export async function googleLogin(isCurrent:()=>boolean=()=>true){
  const code=new URL(result.url).searchParams.get('code');if(!code)throw new Error('로그인 응답을 확인하지 못했습니다.');
  return exchangeOAuthCode(code);
 }
+
+export function oauthFailureMessage(reason:unknown){
+ const code=typeof reason==='string'?reason:reason&&typeof reason==='object'&&'code' in reason?reason.code:undefined;
+ if(code==='access_denied')return 'Google 로그인을 취소했어요. 로그인 화면에서 다시 시작할 수 있어요.';
+ if(code==='pkce_code_verifier_not_found'||code==='bad_code_verifier')return '로그인을 시작한 같은 브라우저와 주소에서 다시 시도해 주세요.';
+ return '로그인을 완료하지 못했어요. 로그인 화면에서 다시 시작해 주세요.';
+}

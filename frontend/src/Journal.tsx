@@ -22,12 +22,12 @@ export function JournalIcon({name, color, size = 26}: {name: string; color?: str
   return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d="M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="none" stroke={color??c.ink} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
-export function Welcome() {
- const s=useThemeStyles(makeStyles);
-  return <View style={s.welcome}>
-    <View style={s.welcomeMark}><Backpack size={84}/></View><Text accessibilityRole="header" style={s.wordmark}>나만의 여행도감</Text>
-    <Text style={s.intro}>발길이 닿은 곳,{'\n'}사진으로 차곡차곡.</Text>
-  </View>;
+export function Welcome({children}:{children?:React.ReactNode}) {
+ const c=useThemeColors(),wide=useWindowDimensions().width>=760;
+ return <View testID="login-layout" style={{width:'100%',maxWidth:960,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:wide?'center':'stretch',gap:wide?64:24,paddingVertical:wide?64:24}}>
+  <View style={{flex:wide?1:undefined,gap:16}}><Backpack size={84}/><Text accessibilityRole="header" style={{color:c.ink,fontSize:32,lineHeight:42,fontWeight:'600'}}>나만의 여행도감</Text><Text style={{color:c.muted,fontSize:16,lineHeight:26,maxWidth:360}}>사진에 남은 장소를 모아{ '\n'}다음 여행으로 이어가세요</Text></View>
+  {children&&<View style={{flex:wide?1:undefined,width:'100%',maxWidth:400,gap:8}}>{children}</View>}
+ </View>;
 }
 
 export type JournalTab = 'home' | 'album' | 'friends' | 'account';
@@ -85,10 +85,6 @@ export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab
 }
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
-  welcome: {alignItems: 'center', paddingVertical: 28, width: '100%',gap:12},
-  welcomeMark: {width:136,height:136,borderRadius:44,backgroundColor:c.warm,alignItems:'center',justifyContent:'center',transform:[{rotate:'-5deg'}]},
-  wordmark: {color: c.ink, fontSize: 30, fontWeight: '800', marginTop: 12, textAlign: 'center',letterSpacing:-1},
-  intro: {color: c.muted, fontSize: 16, lineHeight:26,textAlign: 'center'},
   caption: {fontSize: 12, color: c.muted, textAlign: 'center', marginTop: 8},
   titleRow: {marginTop:0,marginBottom:16,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}, title: {fontSize:24, lineHeight:35,fontWeight: '700', color: c.ink, letterSpacing: -1}, subtitle: {fontSize: 14, lineHeight: 22, color: c.muted, marginTop: 8},
   mapFrame: {borderWidth: 1, borderColor: c.line, borderRadius: 22, overflow: 'hidden', backgroundColor: c.sheet}, mapCaption: {padding: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center'}, mapCaptionText: {fontSize: 13, color: c.ink}, total: {color: c.sea, fontWeight: '700', fontSize: 13},

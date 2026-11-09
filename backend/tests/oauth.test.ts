@@ -8,7 +8,7 @@ vi.mock('../../frontend/node_modules/react-native', () => ({Platform: platform})
 vi.mock('../../frontend/node_modules/expo-linking', () => ({createURL:()=> 'mytraveldex://auth/callback'}));
 vi.mock('../../frontend/node_modules/expo-web-browser', () => ({maybeCompleteAuthSession: () => {},openAuthSessionAsync:browser}));
 vi.mock('../../frontend/node_modules/expo-constants', () => ({default:ownership}));
-import {exchangeOAuthCode,googleLogin} from '../../frontend/src/auth';
+import {exchangeOAuthCode,googleLogin,oauthFailureMessage} from '../../frontend/src/auth';
 
 beforeEach(() => {vi.resetAllMocks();platform.OS='web';ownership.appOwnership=null;});
 test('OAuth browser and callback exchange the same PKCE code only once', async () => {
@@ -41,4 +41,10 @@ test('a browser result from an obsolete owner cannot start a new PKCE exchange',
  platform.OS='android';settings.mockResolvedValue({external:{google:true}});signIn.mockResolvedValue({data:{url:'https://example.test/oauth'}});
  let current=true;browser.mockImplementation(async()=>{current=false;return {type:'success',url:'mytraveldex://auth/callback?code=obsolete-owner'};});
  expect(await googleLogin(()=>current)).toBeNull();expect(exchange).not.toHaveBeenCalled();
+});
+
+test('callback failures never expose provider or SDK raw messages',()=>{
+ expect(oauthFailureMessage({code:'pkce_code_verifier_not_found',message:'private verifier raw'})).toContain('같은 브라우저');
+ expect(oauthFailureMessage('access_denied')).toContain('취소');
+ for(const error of [new Error('secret-token-raw'),{code:'untrusted',message:'<html>secret</html>'}])expect(oauthFailureMessage(error)).not.toMatch(/secret|html|untrusted/);
 });

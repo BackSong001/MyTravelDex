@@ -74,7 +74,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         const ownGroups = groupProvinceRecords(ownRecords ?? []), zoom = activeMap.getZoom();
         if(!onCoordinate&&!activeMap.isMoving())visibleOceanOrnaments(zoom).forEach(ornament=>{
           const element=document.createElement('div');element.setAttribute('aria-hidden','true');element.dataset.mapOrnament=ornament.kind;element.style.pointerEvents='none';
-          // 마크업은 사용자 입력이 아닌 로컬 Figma 이미지 데이터만 사용한다.
+          // 마크업은 사용자 입력이 아닌 고정 SVG path만 사용한다.
           element.innerHTML=ornamentMarkup(ornament.kind,zoom);
           markers.push(new Marker({element,anchor:'center'}).setLngLat(ornament.coordinate).addTo(activeMap));
         });
@@ -130,6 +130,8 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         });
       };
       activeMap.on('load', () => {window.clearTimeout(timeout); restyle.current(); redraw.current();});
+      // 스타일 갱신 중 건너뛴 마지막 테마도 완료 시 반영한다. 동일 key는 재적용하지 않는다.
+      activeMap.on('idle',()=>restyle.current());
       activeMap.on('error', fail);
       activeMap.on('webglcontextlost', fail);
       activeMap.on('movestart',()=>markers.forEach(marker=>{const node=marker.getElement();if(node.dataset.mapOrnament)node.style.visibility='hidden';}));
