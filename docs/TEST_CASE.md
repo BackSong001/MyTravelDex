@@ -1024,3 +1024,8 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 - t17q는 실제 localhost:8083을 새 guest context로 열어 합성 공개 기록/사진 응답만 제공한 무주입 지도2+기존 지도12의 단일14통과58.2초다. 창1440/390/320/1024/1440 및 CSS zoom0.8/1.25/1에서 경북과기록 DOM anchor를 별도 Mercator 투영점과 비교하고 사진52/아바타24 본문 크기를 확인했다. 기존 지도12는 CSS를 수동 주입하는 단독 검사이며 실제앱2와 구분한다. 중복 검사/이전 전체 통과를 합산하지 않는다.
 - Node configured5통과129ms, frontend TypeScript exit0, diffcheck exit0. t14 제품 정적 승인 후 누락 avatar 검사를 보완했고 t9d의 추가 필수 보강/새 계층 불필요 답변을 확인했다.
 - 캡처는 /tmp 합성 guest 화면만 사용하고 자동 변경된 기존 verification PNG2개는 원복했다. 새 Git 이미지·사용자 사진/계정 기록은 없다. 테스트용8082/정적8084 서버는 종료하고 actual8083은 유지한다. 에뮬레이터/Android/전체 backend·웹 회귀/실배포/원격 설정 변경은 하지 않았다. CSS zoom을 브라우저 실제 Ctrl 확대 수용으로 확대하지 않는다. 별도 루트 Expo58 package/lock/tsconfig와 기존 untracked는 보존·이번 커밋 제외한다.
+
+
+### 2026-11-09 19:25 KST — 최신 actual APK 재빌드
+
+최신 efba7fe 코드의 actual Supabase 환경 내장 APK를 저자원으로 재빌드했다. 첫 t17s는 임시 init-script가 included build의 :app을 찾는 설정 오류로9초 실패했으며 제품 Red로 계산하지 않는다. 임시 script를 app 존재 조건으로 제한하고60초 이상 휴식 후 t17t는 exit0/10분8초,411task(60실행/351재사용)로 성공했다. CPU affinity2/nice10/Gradle worker1·병렬false/Java heap1536MiB/Metro worker1·Node1536MiB를 사용했다. 빌드 뒤60초 이상 휴식하고 서명 검증·이전 APK와 인증서 동일·package com.mytraveldex.app/version1.0.0 code1/minSDK24·scheme mytraveldex·4ABI·내장JS가 build output 및 요청한 공개 서버 환경과 일치함을 확인했다. 설치파일은 저장소 밖 Downloads/MyTravelDex-20261109-efba7fe.apk(154.5MiB), SHA256 a7baca63c6075049f58b2440941dda5a709bffec3caab5dd104191e7b953c21a다. 개발 서명 자체 설치용이며 Play 제출용이 아니다. 에뮬레이터/자동설치/실기기 로그인·저장/원격 설정·migration은 실행하지 않았고 신규 badge 원격 미적용 조건은 유지한다. actual8083과 기존 별도 변경은 유지했다.

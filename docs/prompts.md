@@ -1445,3 +1445,13 @@ unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydami
 결과: report-prompt 적용. 명세 t14 승인 후 actual no-dev의 CSS 누락/static marker Red를 확인했다. 루트 import 단독 실패 후 기존 postinstall 복사에 동일 설치본 CSS를 추가하고 웹 문서 전역 link로 연결했다. 좌표/카메라/Native는 유지한다. 최신 export t17m0, 휴식 후 export 지도/정적 t17p4통과7.3초, actual8083/지도 근접 t17q14통과58.2초, Node5/타입0/diff0이며 서로 중복 합산하지 않는다. t14 정적 승인·avatar 검사 보완과 t9d 답변을 확인했다. 52px 사진/24px 아바타/투영 anchor를 확인했고 라벨은 현재 지도 줌 정책을 유지한다. CSS zoom과 실제 브라우저 Ctrl 확대를 구분한다. actual8083 유지, 자체8082/8084 종료. Android/실배포/전체 재실행은 하지 않았고 기존 별도 Expo58 변경을 보존·커밋 제외한다.
 
 변경 파일: AGENTS.md, docs/{WEB_LOGIN_DESIGN_SPEC,WEB_DEPLOYMENT,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,DISAN,prompts}.md, frontend/src/TravelMap.web.tsx, frontend/public/index.html, frontend/e2e/{map-layout,static-web}.spec.ts, scripts/{prepare-maplibre.mjs,configured.test.mjs}.
+
+
+## 2026-11-09 19:25 KST — APK 재빌드
+
+사용자 프롬프트 원문:
+> 그럼 APK 를 재 빌드하고 내가 APK를
+
+결과: 최신 efba7fe 코드의 actual Supabase 환경 내장 APK를 저자원으로 재빌드했다. 첫 t17s는 임시 init-script가 included build의 :app을 찾는 설정 오류로9초 실패했으며 제품 Red로 계산하지 않는다. 임시 script를 app 존재 조건으로 제한하고60초 이상 휴식 후 t17t는 exit0/10분8초,411task(60실행/351재사용)로 성공했다. CPU affinity2/nice10/Gradle worker1·병렬false/Java heap1536MiB/Metro worker1·Node1536MiB를 사용했다. 빌드 뒤60초 이상 휴식하고 서명 검증·이전 APK와 인증서 동일·package com.mytraveldex.app/version1.0.0 code1/minSDK24·scheme mytraveldex·4ABI·내장JS가 build output 및 요청한 공개 서버 환경과 일치함을 확인했다. 설치파일은 저장소 밖 Downloads/MyTravelDex-20261109-efba7fe.apk(154.5MiB), SHA256 a7baca63c6075049f58b2440941dda5a709bffec3caab5dd104191e7b953c21a다. 개발 서명 자체 설치용이며 Play 제출용이 아니다. 에뮬레이터/자동설치/실기기 로그인·저장/원격 설정·migration은 실행하지 않았고 신규 badge 원격 미적용 조건은 유지한다. actual8083과 기존 별도 변경은 유지했다.
+
+변경 파일: docs/TEST_CASE.md, docs/prompts.md. 제품 소스 변경 없음. APK와 저자원 임시 빌드 script는 Git에 추가하지 않는다.
