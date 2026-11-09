@@ -800,3 +800,18 @@ FontText는 앱 소유16모듈의 기존 RNText import를 대체하며 Android�
 ## 17H 사진 순서/멱등성 소유권
 
 저장 오케스트레이션은 시작 세대 guard 아래 소유 기록의 photos를 안정 id/order 정렬·기존 listPages로 끝까지 조회한다. 등록 수와 선택 중 미등록 UUID 수의 합으로20장을 검증하며 다음 순서는 max(display_order)+1이다. 이미 같은 owner/record/id/두 경로가 등록됐으면 재POST 없이 재사용해20번째 응답 유실도 복구한다. 등록 중23505는 같은 UUID 조회로 동일 귀속/경로를 확인한 경우만 성공이고 순서·다른 제약 충돌은 원래 오류를 전달한다. max+1은 경쟁 예약이 아니며 최종 권한·최대수·순서 UNIQUE/부모 잠금은 기존 DB 소유다. 오류시 finalize/선택초기화를 건너뛰고 명시 재시도로 재조회한다. API/schema/RLS/운영 정리는 변경하지 않는다.
+
+## 17I GPS metadata 소유 경계
+
+readExif는 기존 부호처리 뒤 validCoordinates를 사용해 각 축의 비유한/허용범위밖 값을 null로 반환한다. photoMetadata는 EXIF 병합 후 MediaLibrary info.location의 두 축이 유효한 경우만 보완한다. 무효 info.location은 정상 EXIF를 덮지 않는다. 날짜/offset·출처/대표장소와 사진EXIF 구분·RLS/서버CHECK/API는 변경하지 않는다. Native 메타 수신은 경계대역, 실제 선택 UI/업로드·등록·완료는 Local HTTP로 구분해 검증한다.
+
+
+## 2026-11-09 선택형 테마 — FR-FIGMA-009 / TC-FIGMA-THEME-001
+
+사용자 승인: 기존 디자인 1개 + Batch03 자산/Batch04 팔레트의 동일 5개 + Batch06 지도 24개를 단일 테마 버튼의 30개 선택지로 제공한다. 기본은 기존 디자인이며 원본 colors.json/PNG/GeoJSON은 변경하지 않는다. 지도24도 앱 전체 의미 토큰·메뉴·지도색을 함께 적용한다. 시안의 title/sub/tag/가상 사용자·샘플 여행·오래된 목록 구성은 주입하지 않는다.
+
+단일 로컬 선택 ID를 ThemeProvider가 소유하고 불변 팔레트/명시적 Metro 자산맵을 공급한다. 미지원 ID는 기존 테마로 대체하고 초기 읽기와 사용자 선택의 경합·빠른 연속 저장을 보호한다. 계정 DB/API/RLS는 변경하지 않는다. module-level StyleSheet는 테마 의존 factory로 옮기며 전역 colors mutation/Proxy는 금지한다. 원형 외 테마의 표면은 절제하고 실제 사진·지도·기존 자산에 색을 집중한다. 새 폰트/반복 모션/장식은 추가하지 않는다.
+
+테마 전환은 화면/Stack/Modal/지도/입력 key를 바꾸지 않는다. 세션·UUID·미저장 입력·edited·사진·검색/정렬/페이지·후보/핀·상세 출처/스크롤·지역/군집/카메라를 보존한다. 데이터 load/저장 effect에 theme 의존성을 추가하지 않는다. 지도는 동일 지역 ID 순서의 색 매핑을 web/native/SVG에서 공유하며 web은 기존 인스턴스 paint와 marker만 갱신한다. Native는 고정 source와 Layer paint를 갱신하고 카메라 key를 유지한다. fontScale의 기존 Text leaf key 계약은 별개로 유지한다.
+
+수용: 30개 정의와 자산 슬롯/감성 journal-v2, 각 배경·버튼·보조문자·오류·focus 대비, 선택 저장복구/읽기경합/연속쓰기, 전환 중 작성·사진·검색/상세·열린 위치창 상태/지도 identity·카메라 보존, 320px/큰글꼴/48dp/role·선택. 기존 backend/Local HTTP/웹 회귀를 재실행한 수치와 이전125/140+skip을 분리 기록한다. Android/실기기·실제 OAuth·TalkBack은 실제 실행 전까지 미수용이며 빌드/에뮬레이터는 저자원·빌드후60초 정책을 따른다. t14 제품리뷰와 t9d 구조/리팩터링 검토를 반영하되 미완료 실행을 성공으로 합산하지 않는다.

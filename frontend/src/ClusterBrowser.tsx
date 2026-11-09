@@ -1,14 +1,15 @@
+import {useThemeStyles,type ThemeColors} from './ThemeContext';
 import React from 'react';
 import Text from './FontText';
 import {Image, ScrollView, StyleSheet, View} from 'react-native';
 import Pressable from './Feedback';
 import {markerDescription, type TravelMapProps} from './provinces';
-import {colors as c} from './theme';
 
 type Props = Pick<TravelMapProps, 'records' | 'covers' | 'authors' | 'onSelect'> & {
   correction?: boolean; maxHeight: number; onClose: () => void;
 };
 export default function ClusterBrowser({records, covers = {}, authors = {}, onSelect, correction = false, maxHeight, onClose}: Props) {
+ const s=useThemeStyles(makeStyles);
   return <ScrollView testID="cluster-browser" style={{maxHeight}} contentContainerStyle={{gap:12}} nestedScrollEnabled>
     <View style={s.heading}><Text accessibilityRole="header" style={s.title}>{correction ? `장소 ${records.length}곳` : `여행 ${records.length}개`}</Text>
       <Pressable accessibilityRole="button" accessibilityLabel="지도 선택 닫기" onPress={onClose} style={s.close}><Text style={s.text}>닫기</Text></Pressable></View>
@@ -26,7 +27,7 @@ export default function ClusterBrowser({records, covers = {}, authors = {}, onSe
     </Pressable>)}
   </ScrollView>;
 }
-const s = StyleSheet.create({
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   heading:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:8},
   title:{fontSize:16,fontWeight:'700',color:c.ink,flex:1},text:{fontSize:14,color:c.ink},
   close:{padding:12,backgroundColor:c.warm,borderRadius:14,alignItems:'center',justifyContent:'center'},

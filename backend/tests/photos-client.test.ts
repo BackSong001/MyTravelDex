@@ -59,3 +59,14 @@ test('limited access is explained and denied EXIF access retains picker metadata
  info.mockResolvedValue({exif:{DateTimeOriginal:'2026:11:01 12:00:00'},location:{latitude:-33,longitude:126}});
  expect(await photoMetadata(asset)).toMatchObject({captured_date:'2026-11-01',latitude:-33,longitude:126});
 });
+
+test('TC-PHOTO-GPS-001: invalid EXIF and library GPS are missing while valid metadata stays intact',async()=>{
+ const exif={DateTimeOriginal:'2026:01:10 00:15:00',OffsetTimeOriginal:'+09:00',GPSLatitude:-33,GPSLatitudeRef:'S',GPSLongitude:-126,GPSLongitudeRef:'W'};
+ for(const [latitude,longitude] of [[91,181],[NaN,Infinity],[-Infinity,-181]]){
+  expect(await photoMetadata({...asset,assetId:null,exif:{...exif,GPSLatitude:latitude,GPSLongitude:longitude}})).toMatchObject({captured_date:'2026-01-10',captured_at:'2026-01-09T15:15:00.000Z',latitude:null,longitude:null});
+  info.mockResolvedValue({location:{latitude,longitude}});
+  expect(await photoMetadata({...asset,exif})).toMatchObject({latitude:-33,longitude:-126});
+ }
+ info.mockResolvedValue({location:{latitude:0,longitude:0}});expect(await photoMetadata({...asset,exif})).toMatchObject({latitude:0,longitude:0});
+ info.mockResolvedValue({location:{latitude:37.56,longitude:126.98}});expect(await photoMetadata({...asset,exif:{GPSLatitude:91,GPSLongitude:181}})).toMatchObject({latitude:37.56,longitude:126.98});
+});

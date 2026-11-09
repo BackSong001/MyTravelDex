@@ -74,9 +74,10 @@ export function groupProvinceRecords(records: any[]) {
 }
 
 // 색은 데이터 배열 순서가 아니라 고정 지역 ID 순서로 배정한다.
-export const provinceColors: Record<string, string> = Object.fromEntries(
-  Object.keys(provinceLabels).sort().map((id, index) => [id, palette.map.regionPastels[index % palette.map.regionPastels.length]]),
-);
+export function provincePalette(regions: string[]): Record<string,string> {
+ return Object.fromEntries(Object.keys(provinceLabels).sort().map((id,index)=>[id,regions[index%regions.length]]));
+}
+export const provinceColors = provincePalette(palette.map.regionPastels);
 export function provinceLabelSize(zoom: number, fontScale = 1) {return (11 + Math.max(0, Math.min(4, zoom - 5))) * fontScale;}
 export function visibleProvinceLabels(zoom: number, selected: string | null, fontScale = 1) {
   const candidates = Object.entries(provinceLabels).filter(([id]) => id === selected || (zoom < 7 ? ['KR-11','KR-42','KR-44','KR-45','KR-47','KR-48','KR-26','KR-49'].includes(id) : true));

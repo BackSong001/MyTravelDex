@@ -1,9 +1,9 @@
+import {useThemeColors} from './ThemeContext';
 import React, {useEffect, useRef, useState} from 'react';
 import Text from './FontText';
 import {View, Pressable, ScrollView} from 'react-native';
 import {Map as LibreMap, Marker, setWorkerUrl} from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import {colors as c} from './theme';
 import {travelerAvatar} from './avatarAsset';
 import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
@@ -18,6 +18,8 @@ const EMPTY_COVERS: NonNullable<TravelMapProps['covers']> = {};
 const EMPTY_AUTHORS: NonNullable<TravelMapProps['authors']> = {};
 
 export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMPTY_AUTHORS, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate, expanded = false, fullScreen = false, onAttributionLayout}: TravelMapProps) {
+ const c=useThemeColors();
+  const paletteRef=useRef(c);paletteRef.current=c;
   const host = useRef<HTMLDivElement>(null), map = useRef<LibreMap | null>(null);
   const current = useRef({records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate});
   current.current = {records, covers, authors, ownRecords, landmarks, focus, onSelect, onRegion, onCoordinate};
@@ -40,7 +42,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
     };
     try {
       instance = new LibreMap({container:host.current,
-        style:mapStyle(selected.current, Object.keys(groupProvinceRecords(current.current.ownRecords ?? []))),
+        style:mapStyle(selected.current, Object.keys(groupProvinceRecords(current.current.ownRecords ?? [])),paletteRef.current),
         bounds:HOME_BOUNDS, maxBounds:PAN_BOUNDS, fitBoundsOptions:{padding:{top:onCoordinate?16:100,bottom:onCoordinate?24:45,left:16,right:16}}, attributionControl:false,
         renderWorldCopies:false, minZoom:3,maxZoom:18,dragRotate:false,pitchWithRotate:false,touchPitch:false,maxPitch:0,cooperativeGestures:!fullScreen});
       map.current = instance;
@@ -50,9 +52,11 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       restyle.current = () => {
         if(!activeMap.isStyleLoaded())return;
         const ownIds = Object.keys(groupProvinceRecords(current.current.ownRecords ?? []));
-        const nextKey = JSON.stringify([selected.current, ownIds]);
+        const nextKey = JSON.stringify([selected.current, ownIds,paletteRef.current]);
         if (nextKey === styleKey) return;
         styleKey = nextKey;
+        const layers=mapStyle(selected.current,ownIds,paletteRef.current).layers;
+        for(const layer of layers)for(const [property,value] of Object.entries(layer.paint??{}))activeMap.setPaintProperty(layer.id,property as Parameters<LibreMap['setPaintProperty']>[1],value);
         activeMap.setFilter('province-selected',['==',['get','shapeISO'],selected.current??'']);
         activeMap.setPaintProperty('province-fill','fill-opacity',['case',['in',['get','shapeISO'],['literal',ownIds]],1,.87]);
       };
@@ -64,6 +68,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         markers.push(new Marker({element, anchor:layer === 1 ? 'center' : 'bottom', offset}).setLngLat(position).addTo(activeMap));
       };
       redraw.current = () => {
+        const c=paletteRef.current;
         markers.splice(0).forEach(marker => marker.remove());
         const {records, covers, authors, ownRecords, landmarks, onCoordinate} = current.current;
         const ownGroups = groupProvinceRecords(ownRecords ?? []), zoom = activeMap.getZoom();
@@ -145,8 +150,8 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
     }
     return () => {disposed = true;};
   }, [attempt, error]);
-  useEffect(() => {restyle.current();}, [ownRecords]);
-  useEffect(() => {redraw.current();}, [records, covers, authors, ownRecords, landmarks, !!onCoordinate]);
+  useEffect(() => {restyle.current();}, [ownRecords,c]);
+  useEffect(() => {redraw.current();}, [records, covers, authors, ownRecords, landmarks, !!onCoordinate,c]);
   useEffect(() => {
     const activeMap = map.current; if (!activeMap) return;
     if (fullScreen) activeMap.cooperativeGestures.disable(); else activeMap.cooperativeGestures.enable();
@@ -179,7 +184,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       <ClusterBrowser records={cluster} covers={covers} authors={authors} correction={!!onCoordinate} maxHeight={panelHeight} onClose={()=>setCluster([])} onSelect={record=>{setCluster([]);onSelect?.(record);}}/>
     </View>}
     {!error && selectedId && cluster.length===0 && <View style={{position:'absolute',bottom:panelBottom,left:12,right:76,backgroundColor:c.surface,borderRadius:16,padding:12}}>
-      <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text style={{color:c.textPrimary,fontWeight:'700'}}>{provinceLabels[selectedId].name} 여행 · {trips.length}개</Text><Pressable accessibilityRole="button" accessibilityLabel="지도 선택 닫기" onPress={()=>{setSelectedId(null);clearSelection.current();}} style={{padding:12,minWidth:48,minHeight:48}}><Text>닫기</Text></Pressable></View>
+      <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text style={{color:c.textPrimary,fontWeight:'700'}}>{provinceLabels[selectedId].name} 여행 · {trips.length}개</Text><Pressable accessibilityRole="button" accessibilityLabel="지도 선택 닫기" onPress={()=>{setSelectedId(null);clearSelection.current();}} style={{padding:12,minWidth:48,minHeight:48}}><Text style={{color:c.ink}}>닫기</Text></Pressable></View>
       {!trips.length&&<Text style={{color:c.muted}}>이 지역의 기록이 아직 없어요.</Text>}{onRegion&&<Pressable accessibilityRole="button" onPress={()=>onRegion(selectedId,provinceLabels[selectedId].name)} style={{padding:12}}><Text style={{color:c.sea}}>도감에서 보기</Text></Pressable>}
     </View>}
   </View>;

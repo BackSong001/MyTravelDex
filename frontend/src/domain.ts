@@ -12,9 +12,11 @@ export function readExif(exif: Record<string, unknown>) {
   const offset = typeof exif.OffsetTimeOriginal === 'string' ? exif.OffsetTimeOriginal : '';
   const instant = `${date}T${raw.slice(11, 19)}${offset}`;
   const captured_at = validDate(date) && /^[+-]\d{2}:\d{2}$/.test(offset) && !Number.isNaN(Date.parse(instant)) ? new Date(instant).toISOString() : null;
+  const latitude = typeof exif.GPSLatitude === 'number' && exif.GPSLatitudeRef !== '' ? (exif.GPSLatitudeRef === 'S' ? -Math.abs(exif.GPSLatitude) : exif.GPSLatitude) : null;
+  const longitude = typeof exif.GPSLongitude === 'number' && exif.GPSLongitudeRef !== '' ? (exif.GPSLongitudeRef === 'W' ? -Math.abs(exif.GPSLongitude) : exif.GPSLongitude) : null;
   return { captured_date: validDate(date) ? date : null, captured_at,
-    latitude: typeof exif.GPSLatitude === 'number' && exif.GPSLatitudeRef !== '' ? (exif.GPSLatitudeRef === 'S' ? -Math.abs(exif.GPSLatitude) : exif.GPSLatitude) : null,
-    longitude: typeof exif.GPSLongitude === 'number' && exif.GPSLongitudeRef !== '' ? (exif.GPSLongitudeRef === 'W' ? -Math.abs(exif.GPSLongitude) : exif.GPSLongitude) : null };
+    latitude: latitude !== null && validCoordinates(latitude,0) ? latitude : null,
+    longitude: longitude !== null && validCoordinates(0,longitude) ? longitude : null };
 }
 export function suggestRecord(photos: PhotoInput[]) {
   const dates = photos.map(p => p.captured_date).filter((s): s is string => !!s && validDate(s)).sort();

@@ -1,6 +1,6 @@
+import {useThemeColors} from './ThemeContext';
 import React, {createContext, forwardRef, useContext, useEffect, useRef, useState} from 'react';
 import {AccessibilityInfo, Animated, Platform, Pressable, type PressableProps} from 'react-native';
-import {colors as c} from './theme';
 
 const ReducedMotion = createContext(true);
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -26,6 +26,7 @@ export const useReducedMotion = () => useContext(ReducedMotion);
 const FeedbackPressable = forwardRef<React.ElementRef<typeof Pressable>, PressableProps>(function FeedbackPressable({
   style, disabled, onPressIn, onPressOut, onHoverIn, onHoverOut, onFocus, onBlur, ...props
 }, ref) {
+ const c=useThemeColors();
   const reduced = useReducedMotion();
   const scale = useRef(new Animated.Value(1)).current;
   const [pressed, setPressed] = useState(false), [hovered, setHovered] = useState(false), [focused, setFocused] = useState(false);

@@ -1297,3 +1297,101 @@ t9d의566fde2완료답변은새제품필수결함없음/독립비DB대역3·diff
 17H 신규4건과 인접기존14건의 단일실행 t15c는18 passed(1.5분). 대상회귀이며 앱전체123건 성공을 의미하지 않는다. 저장전 등록수/최대순서 분리와 등록동일성 확인은 기존선택·세션·응답유실 재시도를 보존했다. 구현전 backend/photo44(t158)는 불변 서버계약 회귀, 최초503(t156)은 환경실패, sparse 실제DB누락(t159)은 제품Red로 구분한다. 17G전체119/1+대상1·이전APK와 합산하지 않는다. 새 이미지·의존성·schema/API/RLS·원본파일 변경없음. 이번 Android/새전체 재실행은 없으며 원본갤러리파일 손실이 아닌 선택신규사진의DB등록 누락을 보강했다.
 
 17H t14지정정적리뷰는필수제품결함없음으로승인했다. 변경파일목록에AGENTS/상태·추적문서를동기화했고diffcheck0/최종types0,신규4를포함한단일18통과를확인했다. 독립리뷰의읽기확인과t12실행수를합산하지않는다. 커밋/푸시후t9d완료전달로이어간다.
+
+## 2026-11-09 09:51 KST — 최신 중지 요청과 17I 미완료 상태
+
+**사용자 프롬프트 원문**:
+
+> 사용자 최신 중지 지시에 따라 이번 전달로 무한 개선·추가 리뷰 순환을 종료합니다. 진행 중인 17H 검증을 마무리하고, 최종 커밋/푸시 상태, 실제 통과한 검사와 실패·미완료 검사, 변경 범위, 남은 위험과 백로그를 구분하여 사용자에게 마지막으로 정리해 주세요. 완료 전 검사 결과를 성공으로 합산하지 말아 주세요. 이 답변을 다음 작업 착수 승인으로 해석하지 말고, 추가 개선 작업과 반복 리뷰 요청은 중지해 주세요.
+
+**결과**: 17H33da430은명세/LocalRed→신규4+인접14=18통과/타입·t14지정승인후feature/figma-assets-implementation에푸시완료(t15d)했다. 목표재활성화후착수한17I는readExif각축범위정규화와photoMetadata보완guard/명세·회귀를작성했고대역Red2개→단위·Local70(t15h)/types0을확인했다. 웹harness확장t15j는화면진입1fail후중지요청에따라종료해1중단/4미실행이며신규GPS Local UI저장을입증하지못했다. 17I변경은미완료·미커밋으로남기고추가개선/리뷰/테스트를시작하지않는다. 기존17G119/1+대상1/Android수용범위를유지한다.
+
+**현재 미커밋 변경 파일**: frontend/src/{domain,photos}.ts, frontend/e2e/photo-autofill.spec.ts, backend/tests/photos-client.test.ts, docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md. 원래agent-prompts/·storyboard.png미추적항목보존.
+
+## 2026-11-09 10:21 KST — 웹과 에뮬레이터 실행 점검
+
+**사용자 프롬프트 원문**: 에물레이터랑 웹사이트 열어서 정상적으로 되는지 테스트 해줘
+
+**결과**: 실제설정웹/별도Chromium과mytrveldex AVD를열고현재코드의actual개발서명APK3분42초빌드·설치/기존SDK세션을확인했다. 웹공개지도·도감·정렬/검색·친구·로그인보호·320/390/768/이미지decode와Android홈실사진/군집·My편집취소·도감검색·친구탭·실제서울위치검색/후보·작성입력보존·임시입력폐기/홈복귀를관측했다. 사용자기록쓰기는없고공개장소읽기HTTP는있다. 이번smoke는17I미완료GPS저장/전체회귀·OAuth/실기기/배포수용이아니다. 웹/에뮬레이터는열어두고소유Appium만종료했다. 기존소스변경은보존했고새제품수정·커밋·푸시는없다.
+
+**변경 파일**: docs/TEST_CASE.md, docs/prompts.md (기존미커밋문서에실행기록추가). 캡처/XML은/tmp만.
+
+## 2026-11-09 — 에뮬레이터·빌드 자원 제한
+
+**사용자 프롬프트 원문**:
+
+> 잠깐. 앞으로 에뮬레이터를 실행하거나, 빌드를 할때, 하드웨어 자원을 조금만써줘. 현재 빌드를 하거나 에뮬레이터를 킬때, 메모리와 CPU자원을 100%로 사용해서 부담이감.
+> 에뮬레이터는 가상메모리와 CPU 코어를 저사양으로 줄이고, 빌드를 하고나면 1분정도 텀을 줘
+
+**결과**: 검사를중지하고실행중mytrveldex/Gradle데몬1개를정상종료했다. AVD를4→2코어/RAM2048→1536MiB/heap228→192MiB로변경하고사용자Gradle설정에worker1/병렬·데몬끄기/JVM1536MiB·metaspace384MiB/Kotlin512MiB를적용했다. 기존환경파일은인접백업했고시스템swap/다른앱프로세스는변경하지않았다. 향후CPU affinity2코어/nice10·CMake1/고부하동시실행금지/빌드완료후60초휴식을AGENTS에기록했다. 설정값정적assert만확인했으며새빌드/AVD재기동/부하측정은하지않았다.
+
+**변경 파일**: AGENTS.md, docs/prompts.md; 저장소밖 ~/.android/avd/mytrveldex.avd/config.ini, ~/.gradle/gradle.properties. 기존미커밋17I변경보존,커밋/푸시없음.
+
+## 2026-11-09 10:38 KST — 남은 테스트 재개
+
+**사용자 프롬프트 원문**: 이제 남은 테스트 진행해줘
+
+**진행 결과**: 저자원정책을유지하며17I테스트번들의누락된Expo웹환경값/process/global을진단·보완했다. 합성origin의Local통신ERR_FAILED를실제Localorigin으로분리한GPS저장1과,기존사진/세션/순서/대표/삭제/응답유실을포함한단일20(t15y,1.6분)이통과했다. 실제Home·실제사진metadata/압축·TravelApi/Storage/등록/완료·decode·DB nullGPS/유효수동장소를검사하며사진수신/Auth세션/지도경계만대역이다. 전체backend21파일140pass+외부1skip(t15z,40.32초),전체웹125(t160)은진행중이며완료후최종기록을추가한다. 에뮬레이터/Android빌드는실행하지않고CPU2/worker1/순차실행·웹번들완료후60초휴식을지켰다. 실제사용자쓰기/원격변경없음. 새Google로그인은직접계정조작필요/실기기는미연결로구분한다.
+
+**변경 파일**: frontend/e2e/photo-autofill.spec.ts, docs/TEST_CASE.md, docs/prompts.md. 이전미커밋17I제품/명세·자원제한변경은보존했다. 새기능·의존성·DB변경·추가리뷰순환을시작하지않는다.
+
+**최종 결과**: 단일전체웹125 passed(t160,9.9분),전체backend·도메인140 passed+실제Google외부동의1skip(t15z,40.32초),프로젝트local types exit0. 이전대상20/개별GPS1·실패/중단을합산하지않는다. 17I손상GPS사진의수동장소·실제Local저장/완료/decode검증을완료했고사진CRUD·대표·삭제·재시도·세션회귀도포함됐다. 자동이미지변경11개를원복했으며추가구현/리뷰·커밋/푸시는하지않는다. Google직접로그인/실기기연결이필요한검사는미실행으로남긴다. 실제사용자데이터/production변경없음.
+
+## 2026-11-09 10:56 KST — 실제 웹 로그인 조사와 t14 리뷰
+
+**사용자 프롬프트 원문**: 근데 왜 웹페이지는 로그인 안되냐. 그리고 t14에게 리뷰도 받아
+
+**결과**: 실제로그인완료를검증하지않고기본smoke를정상이라고넓게표현한점을정정했다. 사용자실패주소/오류를질문하고actual8083의settings200/authorize302/Google계정입력까지직접관측했다. LocalGoogle비활성도확인했지만사용자실패주소가확정되지않아원인으로단정하지않았다. 계정입력이후콜백·PKCE/최종세션은미검증이며로그인성공으로표현하지않는다. t14지정정적리뷰를받아origin/storage/명시callback경계와실제실패단계확인필요를검토했다. 기본브라우저에8083을열었고인증소스/원격설정·프로젝트전환변경은없다. CPU2/nice10으로진단브라우저를실행했고emulator/Gradle빌드는없었다.
+
+**변경 파일**: docs/TEST_CASE.md, docs/prompts.md. 진단스크립트·안전요약·캡처는/tmp만. 기존미커밋변경보존,커밋/푸시없음.
+
+
+## 2026-11-09 11:09 KST — unslop 선택형 테마 사전 감사
+
+### 사용자 요청 원문
+
+$unslop 현재 figma에 있는 디자인 자원을 현재 구성에 맞게 사용해서 업데이트 전에 디자인과 기존 디자인 모두 포함해서 하나의 테마로 만들어줘. 테마 버튼으로 모든 디자인을 사용하게 만들거야.
+unslop 스킬로 ai 티가 안나게 해주고, t14에게 리뷰를 받고 t9d 에게 계속해서 리팩토링을 받으면서 개선해줘.
+단, 기존에 통과했던 기능들은 통과해야해
+
+### 결과 요약
+
+기존 미커밋 GPS/검증 변경을 보존했다. theme.ts의 공통 팔레트와 별도 profile 팔레트, Batch03/04의 5개 테마 및 Batch06의 지도24개 카탈로그·실제 Figma22:12/22:75 context/렌더를 확인했다. 기존 원형과 Figma 변형을 공통 선택기에 연결하고 상태/CRUD/권한/48dp/동적글꼴 계약을 보존하는 방향을 제안했다. unslop Run it 4의 방향 확인 절차에 따라 테마 구성 답변 대기이며 제품 구현/회귀실행은 아직 하지 않았다. t14와 t9d 기존 세션에 읽기 전용 경계/구조 사전 검토를 요청했으며 결과를 미리 승인으로 기록하지 않는다. 빌드/에뮬레이터 미실행. unslop by Damir Sokolovsky (@heydamir), CC BY 4.0.
+
+### 변경 파일
+
+- `docs/prompts.md` (이번 요청의 사전 감사 기록만 추가; 기존 변경 유지)
+
+
+### 위 선택형 테마 요청의 방향 승인과 최종 결과 (2026-11-09 12:18 KST)
+
+사용자 방향 답변 원문: 이 방향으로 진행 (추천)
+
+기존1/Figma5/지도24 단일메뉴를구현했고t14리뷰P2세건(보조pressed대비/초기read실패경합/classic지도색)을수정·재검토승인받았다. t9d의hook/스타일공유·Native계산/의존소유권리팩터링의견도반영·읽기확인받았다. 현재구조/실사진/사용자입력·세션·권한·공개필드와원본자산을유지했고테마를화면key/데이터effect에넣지않았다.
+
+최종 단일 전체web132(t16f,10.6분)·backend143+외부1skip(t16b,33.78초),node6/types0/export0/APK5분14초·대표Native전환/저장복구/열린위치창livefont1→2→1입력보존을확인했다. 최초전체web129pass1fail2미실행은초대하네스import경계실패로실제ThemeContext연결후대상8과동결전체를다시검증했으며성공으로합산하지않았다. 이전GPS변경은보존했다. actualSDK읽기만사용하고실제사용자쓰기·원격배포·새OAuth·실기기/TalkBack은수행하지않았다. 빌드후60초간격·CPU2/worker1·AVD1536MiB/2core를지켰고설정/기본테마/임시입력을원복했다. 소유테스트서버/Appium/AVD종료,기존actual웹유지,verification원복/untracked2보존,커밋푸시없음. 세부감사/9pass/증거한계는FIGMA_IMPLEMENTATION/TEST_CASE최신009절을따른다.
+
+이번 변경 파일: `AGENTS.md`, `DEVELOPMENT_STATUS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/TEST_CASE.md`, `docs/FIGMA_IMPLEMENTATION.md`, `docs/prompts.md`; `frontend/src/theme.ts`, `themes.ts`, `ThemeContext.ts`, `ThemeProvider.tsx`, `ThemePicker.tsx`, `themeAssets.ts`, `design/themeCatalog.json`, `frontend/assets/ui/themes/`의PNG30개와`theme-manifest.json`; `frontend/app/_layout.tsx`, `index.tsx`, `auth/callback.tsx`; `frontend/src/Avatar.tsx`, `ClusterBrowser.tsx`, `ComposerSheet.tsx`, `Feedback.tsx`, `Journal.tsx`, `LocationPicker.tsx`, `MapAttribution.tsx`, `MyTrips.tsx`, `PhotoGallery.tsx`, `ProvinceMap.tsx`, `RecordPreview.tsx`, `Social.tsx`, `StampCatalog.tsx`, `TravelMap.tsx`, `TravelMap.web.tsx`, `mapStyle.ts`, `provinces.ts`; `backend/tests/themes.test.ts`, `frontend/e2e/themes.spec.ts`, `theme-storage.spec.ts`, `maps.spec.ts`, `invite-session.spec.ts`. 기존미커밋GPS의`domain.ts`/`photos.ts`/`photos-client.test.ts`/`photo-autofill.spec.ts`는이번테마추가로변경하지않았다.
+
+unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydamir/unslop
+
+
+## 2026-11-09 — 에뮬레이터 끊김 완화
+
+사용자 프롬프트 원문: 에뮬레이터가 계속 끊겨. 사양을 조금 올려줄 수 있어?
+
+결과: 메모리요청값과실기동값차이(요청1536/실제4096MiB)를확인해앞선안내를정정했다. CPU2→3/동일nice10·3CPU affinity와SwiftShader→AMD Radeon680M host GPU로재시작했다. RAM2048/heap256요청은실제4096/576으로기동되어RAM증설성공으로쓰지않는다. 부팅18.299초/앱·지도표시확인,끊김개선정도는추가실사용관측대상이다. 앱데이터와현재테마보존/제품·DB수정·빌드없음. AVDconfig백업/실행규칙동기화. 변경: 저장소밖~/.android/avd/mytrveldex.avd/config.ini, AGENTS.md, docs/TEST_CASE.md, docs/prompts.md. 기존작업변경보존/커밋푸시없음.
+
+
+## 2026-11-09 12:44 KST — 에뮬레이터 추가 증설
+
+사용자 프롬프트 원문: 끊긴다. 조금더 사양을 올려줘
+
+결과: 기존3CPU/실제4GiB에서4CPU/실제6GiB로증설해앱을다시열었다. host GPU유지,CPU affinity0,1,2,3/nice5,heap768요청은실제576MiB였다. config백업/사용자앱데이터보존·snapshot없이재기동,부팅16.647초. /proc/meminfo MemTotal6064404kB/CPU present0-3과hardware-qemuRAM6144를확인했다. 끊김해소/장시간FPS를보증하는검사는하지않았다. 빌드/DB/제품코드변경없음. 변경: 저장소밖AVDconfig,AGENTS.md,docs/prompts.md. 빌드는기존저자원설정유지,커밋푸시없음.
+
+
+## 2026-11-09 12:48 KST — 사용자 직접 종료 확인/에뮬레이터 추가 증설
+
+사용자 프롬프트 원문: /feedback 내가 끊음. 사양 더 올려봐
+
+사용자확인에따라t16n exit137은직접종료로분류하며OOM/앱충돌로확정하지않는다. CPU4→6/RAM6→8GiB,host RadeonGPU유지·affinity0-5/기본우선순위nice0으로t16p를실행했다. 실제hardware-qemu6코어/RAM8192MiB·guestCPU0-5/MemTotal8127912kB를확인했고부팅16.010초후앱을열어뒀다. heap1024요청은실제576MiB로구분한다. 앱데이터보존/빌드·초기화·DB/제품변경없음,끊김해소보증검사는아니다. 저장소밖AVDconfig백업·수정,AGENTS.md실행규칙/docs/prompts.md동기화. 기존변경보존/커밋푸시없음.

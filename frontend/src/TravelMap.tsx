@@ -1,3 +1,4 @@
+import {useThemeColors} from './ThemeContext';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Text from './FontText';
 import {Image, Pressable, ScrollView, View, useWindowDimensions} from 'react-native';
@@ -7,11 +8,12 @@ import ProvinceMap from './ProvinceMap';
 import MapAttribution from './MapAttribution';
 import ClusterBrowser from './ClusterBrowser';
 import MapOrnament,{visibleOceanOrnaments} from './MapOrnament';
-import {colors as c} from './theme';
 import {groupProvinceRecords, mapMarkerGroups, mapRecords, markerDescription, provinceAt, provinceLabels, TravelMapProps, visibleProvinceLabels, provinceLabelSize} from './provinces';
-import {KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS, BASE_MAP_STYLE} from './mapStyle';
+import {KOREA_BOUNDS, HOME_BOUNDS, PAN_BOUNDS, BASE_MAP_STYLE,mapStyle} from './mapStyle';
 
+const nativeMapSource={...BASE_MAP_STYLE,layers:[]};
 export default function TravelMap({records,covers={},authors={},ownRecords=[],landmarks=[],focus,onSelect,onRegion,onCoordinate,expanded=false,fullScreen=false,onAttributionLayout}:TravelMapProps){
+ const c=useThemeColors();
  const {fontScale}=useWindowDimensions();
  const camera=useRef<CameraRef>(null);
  const [moving,setMoving]=useState(false);
@@ -20,6 +22,8 @@ export default function TravelMap({records,covers={},authors={},ownRecords=[],la
  const panelBottom=creditHeight+14,panelHeight=Math.max(60,Math.min(420,mapHeight-panelBottom-(fullScreen?116:16)));
  const ownIds=Object.keys(groupProvinceRecords(ownRecords)).sort().join(',');
 
+ const layers=useMemo(()=>mapStyle(selected,ownIds?ownIds.split(','):[],c).layers,[selected,ownIds,c]);
+ const fillPaint=layers.find(layer=>layer.id==='province-fill')!.paint as Extract<React.ComponentProps<typeof Layer>,{type:'fill'}>['paint'];
  const positions=mapRecords(records,!!onCoordinate),single=focus?{locations:focus}:!fullScreen&&positions.length===1?positions[0]:null;
  const cluster=positions.filter(record=>clusterIds.includes(record.id));
  const longitude=single?Number(single.locations.longitude):null,latitude=single?Number(single.locations.latitude):null;
@@ -29,11 +33,12 @@ export default function TravelMap({records,covers={},authors={},ownRecords=[],la
  const trips=selected?groupProvinceRecords(records)[selected]??[]:[];
  const control=(label:string,text:string,action:()=>void)=><Pressable accessibilityRole="button" accessibilityLabel={label} onPress={action} style={({pressed})=>({minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',backgroundColor:pressed?c.warm:c.sheet,borderRadius:14})}><Text style={{fontSize:20,color:c.ink}}>{text}</Text></Pressable>;
  return <View onLayout={event=>setMapHeight(event.nativeEvent.layout.height)} style={[fullScreen?{flex:1,width:'100%',height:'100%'}:{height:expanded?440:290,borderRadius:18},{overflow:'hidden',backgroundColor:c.map.ocean}]}>
- {!failed?<Map key={attempt} style={{flex:1}} androidView="texture" mapStyle={BASE_MAP_STYLE as StyleSpecification} logo={false} attribution={false} compass={false} touchRotate={false} touchPitch={false}
+ {!failed?<Map key={attempt} style={{flex:1}} androidView="texture" mapStyle={nativeMapSource as StyleSpecification} logo={false} attribution={false} compass={false} touchRotate={false} touchPitch={false}
   onDidFailLoadingMap={()=>setFailed(true)} onRegionWillChange={()=>setMoving(true)} onRegionDidChange={event=>{setZoom(event.nativeEvent.zoom);setMoving(false);}}
   onPress={event=>{const [lng,lat]=event.nativeEvent.lngLat;if(onCoordinate){onCoordinate(lat,lng);return;}setSelected(provinceAt(lat,lng)??null);setCluster([]);}}>
+  {layers.map(layer=><Layer key={layer.id} {...layer as React.ComponentProps<typeof Layer>}/>)}
   <Camera ref={camera} initialViewState={initial} maxBounds={single?undefined:[PAN_BOUNDS[0][0],PAN_BOUNDS[0][1],PAN_BOUNDS[1][0],PAN_BOUNDS[1][1]]} minZoom={5} maxZoom={16}/>
-  <Layer id="own-visits" type="fill" source="provinces" filter={['in',['get','shapeISO'],['literal',ownIds?ownIds.split(','):[]]]} paint={{'fill-color':['get','color'],'fill-opacity':1}}/>
+  <Layer id="own-visits" type="fill" source="provinces" filter={['in',['get','shapeISO'],['literal',ownIds?ownIds.split(','):[]]]} paint={{...fillPaint,'fill-opacity':1}}/>
   <Layer id="selection-outline" type="line" source="provinces" filter={['==',['get','shapeISO'],selected??'']} paint={{'line-color':c.map.regionBorderSelected,'line-width':2.5}}/>
   {!onCoordinate&&!moving&&visibleOceanOrnaments(zoom).map(ornament=><Marker key={ornament.id} id={`ornament-${ornament.id}`} lngLat={ornament.coordinate} pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><MapOrnament kind={ornament.kind} zoom={zoom}/></Marker>)}
   {visibleProvinceLabels(zoom,selected,fontScale).map(([id,label])=><Marker key={id} id={`region-${id}`} lngLat={[label.point[0],label.point[1]]} accessibilityLabel={`${label.name} 지역 선택`} onPress={event=>{event.stopPropagation();if(!onCoordinate){setSelected(id);setCluster([]);}}}>
@@ -53,7 +58,7 @@ export default function TravelMap({records,covers={},authors={},ownRecords=[],la
  </>}
  {!failed&&<View style={{position:'absolute',right:12,bottom:32,gap:6}}>{control('지도 확대','+',()=>camera.current?.zoomTo(Math.min(18,zoom+1),{duration:0}))}{control('지도 축소','−',()=>camera.current?.zoomTo(Math.max(3,zoom-1),{duration:0}))}{control('대한민국 전체 보기','⌂',overview)}</View>}
  {!failed&&cluster.length>0&&<View style={{position:'absolute',bottom:panelBottom,left:12,right:74,maxWidth:520,backgroundColor:c.sheet,borderRadius:20,padding:12,borderWidth:1,borderColor:c.line,elevation:8}}><ClusterBrowser records={cluster} covers={covers} authors={authors} correction={!!onCoordinate} maxHeight={panelHeight} onClose={()=>setCluster([])} onSelect={record=>{setCluster([]);onSelect?.(record);}}/></View>}
- {!failed&&selected&&cluster.length===0&&<View style={{position:'absolute',bottom:panelBottom,left:12,right:74,backgroundColor:c.sheet,borderRadius:16,padding:12}}><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text style={{color:c.ink,fontWeight:'700'}}>{provinceLabels[selected].name} 여행 · {trips.length}개</Text>{control('지도 선택 닫기','×',()=>setSelected(null))}</View>{!trips.length&&<Text>이 지역의 기록이 아직 없어요.</Text>}{onRegion&&<Pressable accessibilityRole="button" onPress={()=>onRegion(selected,provinceLabels[selected].name)} style={{padding:12}}><Text>도감에서 보기</Text></Pressable>}</View>}
+ {!failed&&selected&&cluster.length===0&&<View style={{position:'absolute',bottom:panelBottom,left:12,right:74,backgroundColor:c.sheet,borderRadius:16,padding:12}}><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text style={{color:c.ink,fontWeight:'700'}}>{provinceLabels[selected].name} 여행 · {trips.length}개</Text>{control('지도 선택 닫기','×',()=>setSelected(null))}</View>{!trips.length&&<Text style={{color:c.ink}}>이 지역의 기록이 아직 없어요.</Text>}{onRegion&&<Pressable accessibilityRole="button" onPress={()=>onRegion(selected,provinceLabels[selected].name)} style={{padding:12}}><Text style={{color:c.ink}}>도감에서 보기</Text></Pressable>}</View>}
  <MapAttribution records={records} landmarks={landmarks} onHeight={height=>{setCreditHeight(height);onAttributionLayout?.(height);}}/>
  </View>;
 }

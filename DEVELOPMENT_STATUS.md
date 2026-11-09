@@ -205,3 +205,28 @@
 사용자 목표 재활성화 후 c2fb9a7에서 사진누락후보를 우선했다. 실제Local3장draft 중간삭제→[0,2]복구추가가 저장성공 후에도[0,2]만남는 Red(t159)를 확인했다. Home save에서 전체등록사진 실제수/최대순서를 분리하고 UUID/owner/record/두경로 실재확인으로 멱등을 제한해 신규4+인접기존14 단일18(t15c,1.5분)/types를 확인했다. 불변 backend/photo44(t158)와환경503(t156)을분리한다. t14지정리뷰진행중이며방문자/테마·Batch11은미착수다. 원격/사용자기기/실사용자쓰기/schema/API/RLS변경없고Android/새전체회귀는실행하지않았다.
 
 17H t14지정정적리뷰는필수제품결함없음으로승인했다. 변경파일목록에AGENTS/상태·추적문서를동기화했고diffcheck0/최종types0,신규4를포함한단일18통과를확인했다. 독립리뷰의읽기확인과t12실행수를합산하지않는다. 커밋/푸시후t9d완료전달로이어간다.
+
+
+## FR-FIGMA-009 선택형 테마 (2026-11-09)
+
+사용자승인한30개(기존1/Figma5/지도24)의공통팔레트·메뉴/백팩/지도와테마선택·로컬복구를구현했다. t14 P2세건과t9d소유구조/중복계산보완을반영하고지정정적승인을받았다. 신규/기존기능은TEST_CASE의실행수를따른다. 현재최종backend143+외부1skip,대상7/보정후대상8·node6/types0이며,첫전체웹129pass1fail2미실행의초대대역interface를보정해t16f동결전체132를진행중이다. 웹build/Android는아직미완료다. 이전17I GPS미커밋변경은보존하며이번테마에귀속해중복합산하지않는다. 방문자/Batch11/원격배포·계정삭제정책대기는별도다.
+
+
+최종 동결 전체 웹 t16f는 단일132 passed(10.6분)/exit0로 종료했다. 첫 t16c129pass/1fail/2미실행과 대상t16d8을 합산한 수가 아니다. 기존 verification 자동변경을 HEAD로 복원했고 기존 사용자 untracked2개는 보존했다. 현재 웹 export와 Android 별도 검증만 남아 있다.
+
+웹 export t16g exit0: 실제 공개 환경만 주입한 production JS/정적출력을 /tmp/mytraveldex-themes-20261109-web에 생성했다(entry2.85MB·CSS71.3kB). 원격 배포는 하지 않았다. 종료시각12:00:52 KST 이후60초 휴식 후 Android 빌드를 진행한다.
+
+Android t16h는x86_64개발서명release자체APK를5분14초/393task(40실행353up-to-date)로빌드했다(exit0). SHA256 c6e3c3ae4862bb69ea21333df3bbbcf8ea6d9762a5e419c7547c49e3b9ec3403 /75,518,206bytes. Play서명·제출·실기기수용과다르며실기동은별도진행한다. 종료12:07:20KST뒤최소60초휴식한다.
+
+
+### FR-FIGMA-009 최종 Android/정리 (2026-11-09 12:18 KST)
+
+최종t16h APK(c6e3c3...ec3403/75,518,206bytes/개발서명/x86_64)를low AVD mytrveldex에서설치·기동했다. CPU2/RAM1536MiB/heap192·nice10/affinity0,1·snapshotload/save없음이며콜드부팅114.821초였다. boot완료전설치2회의package서비스미준비는환경대기로분리하고boot_completed=1후installSuccess를확인했다. 웹export종료12:00:52→Android빌드12:02:02,빌드종료12:07:20→AVD기동12:08:30으로각각60초이상휴식했다.
+
+동일artifact에서기존→네온→감성→네온→테라코타→기존을확인했다. Native실제지도water색#101B32가screencap에1,192,182pixel존재하고메뉴/백팩/지도색을직접시각확인했다. 작성임시제목을입력한채테마전환하고열린위치창의generic검색입력도보존했다. 재시작없이font1→2에서위치창header/탭의확대된bounds와paint,새테마메뉴의30번째항목스크롤접근·checked=true를확인한뒤font1로복원하고창닫기/부모제목유지를확인했다. Native노드/React identity·수치camera보존/TalkBack포커스보존을이관측으로보증하지않는다(Web은별도DOM/camera수치검사). 새사진갤러리/실기기/모든30개Native전수조합검사는하지않았다.
+
+My진입에서도테마를바꾸고감성선택후앱COLD재기동→radio checked=true로로컬선택복구를확인했다. 기본기존디자인으로되돌렸다. 기존SDK인증세션/서버읽기를사용했으며실제사용자기록/프로필을저장·삭제하거나새OAuth를수행하지않았다. 임시작성입력을버리고font1.0/자동회전1/user_rotation0을원래값으로확인했다. 현재최종프로세스log의FATAL EXCEPTION0은이관측범위이고장시간무오류보증은아니다.
+
+실제화면/XML은/tmp한정이며GitPNG추가없음,원래verification자동변경HEAD복원,기존untracked agent-prompts/·storyboard.png보존을확인했다. 소유Appium세션만삭제하고SDK홈으로나간뒤AVD종료(exit0),소유Local웹/함수서버만정상종료했다. 기존actual8083/Supabasecore는유지한다.
+
+최종확인: 단일전체web132(t16f,10.6분),backend143+외부1skip(t16b,33.78초),node6/types0/webexport0/APKbuild0와위대표Native관측이다. 단위/대역/실HTTP/Native/독립정적리뷰를합산하지않는다. t14지정P2보강승인·t9d리팩터링확인완료이며새전체실기기/Google동의완료/Play배포/계정삭제정책P1해결을뜻하지않는다. 코드·테마요청범위는완료했고방문자/Batch11/별도API·캐시·초대경합후보는추가착수하지않았다. 커밋·푸시는수행하지않았다.

@@ -1,10 +1,11 @@
+import {useThemeColors} from './ThemeContext';
 import Pressable,{useReducedMotion} from './Feedback';
 import React,{useEffect,useRef,useState} from 'react';
 import Text from './FontText';
 import {ActivityIndicator,Image,Platform,ScrollView,View,useWindowDimensions} from 'react-native';
 import {GalleryPhoto,orderedPhotos} from './gallery';
-import {colors as c} from './theme';
 export default function PhotoGallery({photos,urls,onError,compact=false}:{photos:GalleryPhoto[];urls:Record<string,string>;onError:()=>void;compact?:boolean}){
+ const c=useThemeColors();
  const {height}=useWindowDimensions(),[width,setWidth]=useState(0),[index,setIndex]=useState(0);
  const reduced=useReducedMotion();
  const scroll=useRef<ScrollView>(null),items=orderedPhotos(photos);

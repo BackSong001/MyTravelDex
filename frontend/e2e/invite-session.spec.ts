@@ -28,14 +28,13 @@ test.beforeAll(async()=>{
    export const googleLogin=async()=>{const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);await new Promise(resolve=>window.finishGoogle=resolve);return session;};`,
   '../src/Journal':`import React from '${react}';export const Author=()=>null,JournalIcon=()=>null,Backpack=()=>null,Collection=()=>null,Welcome=()=>null;
    export const JournalNav=({tab,onTab})=>React.createElement('nav',null,React.createElement('span',{'data-testid':'current-tab'},tab),React.createElement('button',{onClick:()=>onTab('account')},'account'));`,
-  '../src/theme':`export const colors={map:{ocean:'blue'}};`,
  };
  const compiled=await build({stdin:{resolveDir:root,contents:`import React from './frontend/node_modules/react/index.js';import {createRoot} from './frontend/node_modules/react-dom/client.js';import Home from './frontend/app/index.tsx';createRoot(document.getElementById('root')).render(React.createElement(Home));`,loader:'js'},
   bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"'},plugins:[{name:'native-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
     if(args.path==='../src/FontText')return {path:path.resolve('frontend/src/FontText.tsx'),namespace:'file'};
-    if(['../src/journalRecords','../src/domain','../src/recordCovers'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
+    if(['../src/journalRecords','../src/domain','../src/recordCovers','../src/ThemeContext'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};
     if(args.importer.endsWith('/frontend/app/index.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
    });

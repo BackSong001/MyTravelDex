@@ -884,3 +884,97 @@ TC-PHOTO-ORDER-001은 기존 TC-PHOTO-001/TC-HTTP-006/TC-UI-003·006의 사진 �
 17H 신규4건과 인접기존14건의 단일실행 t15c는18 passed(1.5분). 대상회귀이며 앱전체123건 성공을 의미하지 않는다. 저장전 등록수/최대순서 분리와 등록동일성 확인은 기존선택·세션·응답유실 재시도를 보존했다. 구현전 backend/photo44(t158)는 불변 서버계약 회귀, 최초503(t156)은 환경실패, sparse 실제DB누락(t159)은 제품Red로 구분한다. 17G전체119/1+대상1·이전APK와 합산하지 않는다. 새 이미지·의존성·schema/API/RLS·원본파일 변경없음. 이번 Android/새전체 재실행은 없으며 원본갤러리파일 손실이 아닌 선택신규사진의DB등록 누락을 보강했다.
 
 17H t14지정정적리뷰는필수제품결함없음으로승인했다. 변경파일목록에AGENTS/상태·추적문서를동기화했고diffcheck0/최종types0,신규4를포함한단일18통과를확인했다. 독립리뷰의읽기확인과t12실행수를합산하지않는다. 커밋/푸시후t9d완료전달로이어간다.
+
+## 17I 무효 EXIF/MediaLibrary GPS 검증 계획
+
+TC-PHOTO-GPS-001은 기존 사진metadata/수동대표장소/첫사진·edited/날짜계약을 보강한다. readExif의91/181·NaN/Infinity 및 정상경계0/0/남서부호·날짜offset을 확인하고 photoMetadata의무효Library위치차단/유효보완/정상EXIF보존을 검사한다. 사진수신만native경계로 대체한 실제Home에서 손상GPS사진선택→수동장소확정→실제Local Storage/metadata/finalize·저장행의null EXIF와유효대표좌표를 검증한다. Android실제파일EXIF/실기기수용으로 확대하지 않는다. 17H·17G결과와 합산하지 않는다.
+
+### 17I 중지 시점 실행 상태
+
+EXIF 무효축 -91/-181→null 기대의대역Red(t15f) 후 readExif를보강했다. 이어무효MediaLibrary91/181이정상EXIF를덮는대역Red(t15g)를확인하고validCoordinates guard를추가했다. photos-client7+photos-picker19+실제Local photo44의단일70(t15h,9.19초)과local tsc exit0은통과했다. 이는새사진GPS UI저장수용완료가아니다.
+
+기존photo-autofill harness에실제photos/LocalAPI저장경로를연결한t15j는첫기존case의화면진입실패1건이있었고사용자중지요청으로Ctrl+C종료(signal2)했다. 최종1 failed/1 interrupted/4 did not run이며신규GPS Local UI 저장은미실행이다. 시작문제원인은미확정이며GPS저장제품Red/Green으로계산하지않는다. 추가수정·회귀·리뷰를중지하고17I전체변경은미완료·미커밋으로남긴다. 17H33da430의18통과/서버44와합산하지않는다.
+
+### 웹·에뮬레이터 수동 실행 확인 (2026-11-09 10:21 KST)
+
+사용자 요청으로 실제 설정 웹을 localhost:8083에서 켰고 내장브라우저 연결이 없어 데스크톱 Chromium 창에서 직접 확인했다. 비로그인 공개홈 지도/확대·지역선택→도감, 정렬·검색지우기시정렬보존, 친구공개검색빈상태/guest팔로잉비활성, My로그인보호를확인했다.320/390/768px 가로overflow없음·현재홈이미지10/10decode·관측pageerror0. Google로그인/계정생성/사용자데이터쓰기는하지않았다.
+
+현재worktree(17H커밋+미커밋17I)를 actual.env 개발서명APK로 새빌드/설치했다(t15n exit0,3분42초,411task). SHA256 `6427bc4d377bf1f98625e4cd6debbd0727c64f56abdf8727faca8dcb18e14420`. mytrveldex AVD/emulator-5554의기존SDK세션에서홈지도·실사진/군집/My요약·최근3행·편집generic임시입력→취소/도감3행·검색빈상태→지우기/친구내부탭왕복입력보존을확인했다. 작성generic제목→위치창실제서울검색/후보선택/핀·확정enabled→닫기후제목보존→작성취소/입력버리기를확인하고홈선택으로복귀했다. 새프로필/여행/사진/관계저장·삭제는하지않았다. 공개장소읽기HTTP는있었다. 현재앱process crash버퍼FATAL0이며장기무오류나실기기보증이아니다.
+
+UI자동화가느린중간구간에서프로필locator한번실패후fresh화면을다시확인하고편집/취소를완료했다. 이번수동smoke를기존전체결과나17I GPS사진저장Green으로합산하지않는다. 실제파일GPS·사진업로드/저장·삭제·새OAuth·TalkBack/실기기·Play수용은추가하지않았다. 실제사용자화면/XML은/tmp만,공유가능한웹guest홈/서울위치창캡처도/tmp만보관했다. 소유Appium세션은종료하되사용자가볼수있게웹서버/Chromium·AVD/앱홈을열어두었다. 제품소스/원격schema/서버설정변경없음,중지된무한구현목표는재개하지않는다.
+
+### 17I 미완료 검사 재개 — 저자원 순차 실행
+
+사용자 요청으로 미완료 검사를 재개했다. t15p의process미정의/t15q의global미정의는실제photos·Expo의존성으로확장한테스트번들의환경누락이었다. 설치Expo소스의EXPO_OS/APP_MANIFEST와Metro globalThis를테스트define에명시해기존메타데이터case t15r1pass(8.7초)를확인했다. 제품GPS Red로계산하지않는다.
+
+6건실행t15t는기존5pass/신규GPS Local저장1fail(30.9초)이었고합성문서origin에서Local요청net::ERR_FAILED(t15v)를확인했다. 신규Local case만실제Local HTTP origin을연뒤HTML을설정해주소공간/CORS영향을분리했다. 보안기능을끄거나API응답/사진압축성공을대체하지않았다. 실제GPS사진선택·수동장소·Storage/metadata/finalize/사진decode와DB nullEXIF·유효대표좌표를확인한t15w1pass(12.5초),이후신규GPS·기존metadata/세션·순서·사진저장/대표교체/삭제/비공개전환/응답유실의단일20(t15y,1.6분)이통과했다. 개별통과와20을합산하지않는다.
+
+CPU affinity0,1/nice10/Playwright1worker로실행했고LocalMetro도max-workers1을사용했다. 웹번들준비완료확인후60초이상쉬고검사를시작했으며에뮬레이터/Gradle빌드는동시실행하지않았다. 전체backend t15z와이후전체웹·types는완료후별도기록한다. 실제Google동의/실기기/Android실파일GPS는이Local검사에포함되지않는다.
+
+저자원 전체backend는 taskset0,1/nice10/Vitest maxWorkers1·file-parallelism해제로단독실행해21파일140 passed+외부1skip(t15z,40.32초)을확인했다. 이전17H44/17I70과중복합산하지않는다. 이후같은코드의전체웹125 예정(t160,workers1)은진행중이며완료전성공으로기록하지않는다. 현재연결실기기없음/새Google계정동의는사용자직접조작이필요하므로자동검사와별도다.
+
+### 17I 최종 Local 자동검증 결과 (2026-11-09 10:48 KST)
+
+현재코드의단일전체웹125 passed(t160,9.9분)/전체backend·도메인21파일140 passed+외부1skip(t15z,40.32초)을확인했다. 125는17G기준120에사진순서4/GPS저장1을추가한현재회귀이며이전119pass1fail/보정대상1을합산한결과가아니다. 대상20(t15y)·개별GPS1(t15w)·이전70/44도전체결과에중복합산하지않는다. startup환경실패(t15p/process,t15q/global)와합성origin통신실패(t15t/t15v)는중간이력으로보존한다.
+
+신규GPS 저장은실제Home의수동장소확정→실제compressPhoto/TravelApi→Local Storage·사진등록·완료·decode/DB null EXIF를검증해앞서미완료였던Local UI검사를완료했다. 사진수신/Auth SDK/지도·장소검색선택데이터경계는대역이며전체125/140이모두실기기·실HTTP인것으로표현하지않는다. 실제새Google동의·취소/Android OAuth딥링크는 TC-EXT-004 external acceptance 1skip으로남고실기기는미연결이다. 사용자직접Google로그인가능여부를질문했으며응답없이동의를진행하지않았다. Android실파일GPS·새APK/전체동적TalkBack 수용으로확대하지않는다.
+
+기존verification 자동변경11개는HEAD로복원하고원래미추적2개를보존했다. CPU0,1/nice10·한worker·순차실행/웹번들후60초휴식을유지했다. 프로덕션변경/실제사용자쓰기/원격배포·추가개선리뷰순환은없으며이번테스트보강과17I기존변경은미커밋으로남긴다.
+
+### 실제 웹 Google 로그인 실패 조사 / t14 지정 읽기 리뷰 (2026-11-09 10:56 KST)
+
+사용자 실패 제보와t14리뷰요청에따라정상로그인미검증을정정하고actual웹8083을별도브라우저에서재현했다. 실제설정backend의settings200/googleEnabled=true→authorize302→Google계정입력(/v3/signin/identifier)까지관측했고JS/provider오류는없었다. 요청redirect_to의origin/path는http://localhost:8083/auth/callback이었다. 계정입력/콜백/PKCE token교환/최종Home세션은아직미검증이며authorize정상만으로allowlist/최종복귀성공을주장하지않는다.
+
+별도로Local54321의settings200/googleEnabled=false를확인했다. Local웹8082는테스트환경이고현재서버는종료돼있다. 이전Local검사의자동탭이사용자실패주소와일치하는지는응답대기이므로원인후보로만남긴다. 실제8083주소를기본브라우저에도열었다. 사용자실패주소/오류를질문했으며아직확정증거가없다. 원격설정/다른프로젝트로자동전환하지않았다.
+
+t14는auth/runtime/callback/configured·Home세션/설치auth-js PKCE를읽고같은origin저장소/명시callback교환경계를확인했으며확정P1·로그인정상승인없이실제실패단계확인을요청했다. t14는추가UI/DB/기기검사를실행하지않았다. 이4개인증소스는HEAD대비변경없고추가코드/원격설정수정근거는아직없다. 실제code/token/verifier/전체authorize URL은로그·문서에기록하지않고/tmp의진단JSON도대상분류/경로/상태·코드존재여부만저장했다.
+
+
+## 2026-11-09 선택형 테마 — FR-FIGMA-009 / TC-FIGMA-THEME-001
+
+사용자 승인: 기존 디자인 1개 + Batch03 자산/Batch04 팔레트의 동일 5개 + Batch06 지도 24개를 단일 테마 버튼의 30개 선택지로 제공한다. 기본은 기존 디자인이며 원본 colors.json/PNG/GeoJSON은 변경하지 않는다. 지도24도 앱 전체 의미 토큰·메뉴·지도색을 함께 적용한다. 시안의 title/sub/tag/가상 사용자·샘플 여행·오래된 목록 구성은 주입하지 않는다.
+
+단일 로컬 선택 ID를 ThemeProvider가 소유하고 불변 팔레트/명시적 Metro 자산맵을 공급한다. 미지원 ID는 기존 테마로 대체하고 초기 읽기와 사용자 선택의 경합·빠른 연속 저장을 보호한다. 계정 DB/API/RLS는 변경하지 않는다. module-level StyleSheet는 테마 의존 factory로 옮기며 전역 colors mutation/Proxy는 금지한다. 원형 외 테마의 표면은 절제하고 실제 사진·지도·기존 자산에 색을 집중한다. 새 폰트/반복 모션/장식은 추가하지 않는다.
+
+테마 전환은 화면/Stack/Modal/지도/입력 key를 바꾸지 않는다. 세션·UUID·미저장 입력·edited·사진·검색/정렬/페이지·후보/핀·상세 출처/스크롤·지역/군집/카메라를 보존한다. 데이터 load/저장 effect에 theme 의존성을 추가하지 않는다. 지도는 동일 지역 ID 순서의 색 매핑을 web/native/SVG에서 공유하며 web은 기존 인스턴스 paint와 marker만 갱신한다. Native는 고정 source와 Layer paint를 갱신하고 카메라 key를 유지한다. fontScale의 기존 Text leaf key 계약은 별개로 유지한다.
+
+수용: 30개 정의와 자산 슬롯/감성 journal-v2, 각 배경·버튼·보조문자·오류·focus 대비, 선택 저장복구/읽기경합/연속쓰기, 전환 중 작성·사진·검색/상세·열린 위치창 상태/지도 identity·카메라 보존, 320px/큰글꼴/48dp/role·선택. 기존 backend/Local HTTP/웹 회귀를 재실행한 수치와 이전125/140+skip을 분리 기록한다. Android/실기기·실제 OAuth·TalkBack은 실제 실행 전까지 미수용이며 빌드/에뮬레이터는 저자원·빌드후60초 정책을 따른다. t14 제품리뷰와 t9d 구조/리팩터링 검토를 반영하되 미완료 실행을 성공으로 합산하지 않는다.
+
+
+### FR-FIGMA-009 선택형 테마 실행 기록 (2026-11-09)
+
+- 사용자 방향 승인 후 기존1/Figma5/지도24, 합계30개를 단일 선택기에 구현했다. 원본 보존·공통 팔레트/정적 자산/현재 화면 구조·로컬 선택 저장 계약을 따른다. 날짜/친구ID/가상 여행/샘플 프로필 데이터는 주입하지 않았다. 기존 미커밋17I GPS/하네스 변경은 보존했다.
+- 초기 themes.test 모듈없음은0test/환경 준비 단계이고 제품 Red로 세지 않는다. 실제 대비 Red는 ink-atlas 버튼4.169...<4.5였고 검증된 문자색 fallback으로 보강했다.
+- t168 단일대상7passed(54.3초):30개 전환/로컬복구·작성입력/선택사진/열린검색창·지연초기읽기resolve/reject·직렬쓰기실패복구·dark보조버튼pointer-down/320px끝항목/48dp·실제WebGL카메라/지역/스타일로드수보존. 카메라 최초대상t165/t166은확대완료전snapshot/부동소수비교검사실패로분리하고idle이후/수치허용오차로보정했다.
+- t14는secondary pressed대비/초기읽기실패세대/classic지도shadow·stampBorder P2세건을보강후지정정적승인했다. t9d의지연catch세대/불필요hook제거/Native계산공유와후속의존경로읽기확인도반영했다. 독립리뷰는읽기이며실행수에더하지않는다.
+- 최초전체backend t169는141passed/1failed/1skipped(34.24초),실패는classic fill표현호환검사였다. classic get-color표현을유지하고기존색토큰을복원해최종t16b단일전체143passed/외부1skip(33.78초),후속default아바타파란배경보존후관련12passed를확인했다. 순수/대역/Local HTTP가섞인전체이며전부실HTTP라고쓰지않는다.
+- 첫전체웹t16c는129passed/1failed/2미실행(10.7분). invite-session의새ThemeContext를empty UI모듈로대체한bundler interface실패이며실제초대상태행동Red가아니다. 기존단일소스ThemeContext를실제로해석하도록allowlist만확장하고폐기된색대역을제거했다. t16d단일8passed(42.7초):기존초대/계정3+프로필2+새테마3. 이를새전체132통과로합산하지않고t16f동결전체132를진행중으로둔다.
+- 최종소스타입검사exit0/명시node configured+font-scale6pass,관련단위12pass. 기존기능함수save/load/choose/perform/recoverDraft/dismissInvite는HEAD와AST본문동일함을범위확인했고실행증거로합산하지않았다.
+- Figma실제5홈+24지도홈의high-fidelity context/렌더와비교판상세를읽었다. 추가PNG30개는theme-manifest에서원본경로/hash/bytes를검사하고감성책v2를쓴다. 약24MiB원본이며임의PNG변환/새이미지생성/글로벌RNpatch/새의존성은없다.
+- 시각확인은Local합성fixture의기존/네온홈및네온My/tmp PNG에한정했다. 앱실데이터집계·사진decode·Native전체수용을PNG만으로대체하지않는다. 실제계정화면/secret/서명URL을Git에추가하지않는다. 기존verification자동변경은전체종료후원복할예정이며현재완료선언은아니다.
+- 웹export/Android빌드·실기동은아직미완료다. 저자원2CPU/Gradle worker1/에뮬레이터1536MiB·2core/빌드후60초정책을지키며동시에돌리지않는다. 새전체/실기기/TalkBack/실제Google동의완료는관측전까지미수용이다. 원격schema/DB/배포/실제사용자기록쓰기없음.
+
+
+최종 동결 전체 웹 t16f는 단일132 passed(10.6분)/exit0로 종료했다. 첫 t16c129pass/1fail/2미실행과 대상t16d8을 합산한 수가 아니다. 기존 verification 자동변경을 HEAD로 복원했고 기존 사용자 untracked2개는 보존했다. 현재 웹 export와 Android 별도 검증만 남아 있다.
+
+웹 export t16g exit0: 실제 공개 환경만 주입한 production JS/정적출력을 /tmp/mytraveldex-themes-20261109-web에 생성했다(entry2.85MB·CSS71.3kB). 원격 배포는 하지 않았다. 종료시각12:00:52 KST 이후60초 휴식 후 Android 빌드를 진행한다.
+
+Android t16h는x86_64개발서명release자체APK를5분14초/393task(40실행353up-to-date)로빌드했다(exit0). SHA256 c6e3c3ae4862bb69ea21333df3bbbcf8ea6d9762a5e419c7547c49e3b9ec3403 /75,518,206bytes. Play서명·제출·실기기수용과다르며실기동은별도진행한다. 종료12:07:20KST뒤최소60초휴식한다.
+
+
+### FR-FIGMA-009 최종 Android/정리 (2026-11-09 12:18 KST)
+
+최종t16h APK(c6e3c3...ec3403/75,518,206bytes/개발서명/x86_64)를low AVD mytrveldex에서설치·기동했다. CPU2/RAM1536MiB/heap192·nice10/affinity0,1·snapshotload/save없음이며콜드부팅114.821초였다. boot완료전설치2회의package서비스미준비는환경대기로분리하고boot_completed=1후installSuccess를확인했다. 웹export종료12:00:52→Android빌드12:02:02,빌드종료12:07:20→AVD기동12:08:30으로각각60초이상휴식했다.
+
+동일artifact에서기존→네온→감성→네온→테라코타→기존을확인했다. Native실제지도water색#101B32가screencap에1,192,182pixel존재하고메뉴/백팩/지도색을직접시각확인했다. 작성임시제목을입력한채테마전환하고열린위치창의generic검색입력도보존했다. 재시작없이font1→2에서위치창header/탭의확대된bounds와paint,새테마메뉴의30번째항목스크롤접근·checked=true를확인한뒤font1로복원하고창닫기/부모제목유지를확인했다. Native노드/React identity·수치camera보존/TalkBack포커스보존을이관측으로보증하지않는다(Web은별도DOM/camera수치검사). 새사진갤러리/실기기/모든30개Native전수조합검사는하지않았다.
+
+My진입에서도테마를바꾸고감성선택후앱COLD재기동→radio checked=true로로컬선택복구를확인했다. 기본기존디자인으로되돌렸다. 기존SDK인증세션/서버읽기를사용했으며실제사용자기록/프로필을저장·삭제하거나새OAuth를수행하지않았다. 임시작성입력을버리고font1.0/자동회전1/user_rotation0을원래값으로확인했다. 현재최종프로세스log의FATAL EXCEPTION0은이관측범위이고장시간무오류보증은아니다.
+
+실제화면/XML은/tmp한정이며GitPNG추가없음,원래verification자동변경HEAD복원,기존untracked agent-prompts/·storyboard.png보존을확인했다. 소유Appium세션만삭제하고SDK홈으로나간뒤AVD종료(exit0),소유Local웹/함수서버만정상종료했다. 기존actual8083/Supabasecore는유지한다.
+
+최종확인: 단일전체web132(t16f,10.6분),backend143+외부1skip(t16b,33.78초),node6/types0/webexport0/APKbuild0와위대표Native관측이다. 단위/대역/실HTTP/Native/독립정적리뷰를합산하지않는다. t14지정P2보강승인·t9d리팩터링확인완료이며새전체실기기/Google동의완료/Play배포/계정삭제정책P1해결을뜻하지않는다. 코드·테마요청범위는완료했고방문자/Batch11/별도API·캐시·초대경합후보는추가착수하지않았다. 커밋·푸시는수행하지않았다.
+
+
+### 2026-11-09 에뮬레이터 자원/렌더러 관측 정정
+
+사용자 끊김 신고 후 t16k의 실행중 /proc/meminfo와hardware-qemu.ini를 읽어 실제 RAM약4GiB/heap576MiB를 확인했다. 기존1536MiB/heap192는config/CLI요청값이며실제상한을측정한수치가아니다. 이전테마Native관측의RAM표기도요청값으로읽고실제1.5GiB동작보증으로사용하지않는다. t16m은CPU3/affinity0,1,2/nice10·GPUhost(Radeon680M)로재시작했고RAM2048/heap256요청에도실제hardware4096/576을관측했다. RAM을더늘렸다고주장하지않는다. 부팅18.299초·앱기동/지도표시·현재프로세스fatal0을확인했지만상호작용FPS/끊김소멸/장시간안정성을측정한것은아니다. 앱데이터/사용자선택테마를유지하고빌드·APK재설치·DB/제품코드변경없이실행설정만바꿨다. 기존AVD config는저장소밖에백업했다.

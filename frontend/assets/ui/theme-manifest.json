@@ -1,0 +1,185 @@
+{
+  "fileKey": "aPCC23R7WhYuUBKu72m9Ya",
+  "assets": [
+    {
+      "file": "frontend/assets/ui/themes/maximal/brand-backpack-v1.png",
+      "source": "docs/design/ui-assets/batch-04-app-previews/maximal/brand-backpack-v1.png",
+      "sha256": "0553247273efd8279ddecb3987de0c9b175dee8a8d0bc9d07123a8b9b14a1393",
+      "bytes": 1495453
+    },
+    {
+      "file": "frontend/assets/ui/themes/maximal/nav-add-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/maximal/nav-add-v1.png",
+      "sha256": "8f309b36722a7aaa8bcdb2463e59fd4c6241e6777bc6ae790feafa01772ea4bd",
+      "bytes": 738168
+    },
+    {
+      "file": "frontend/assets/ui/themes/maximal/nav-friends-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/maximal/nav-friends-v1.png",
+      "sha256": "4538309616b8c82a8b9a2d4aeb4c7d532841e1e728692346e788f93fc9fcd1ba",
+      "bytes": 738066
+    },
+    {
+      "file": "frontend/assets/ui/themes/maximal/nav-home-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/maximal/nav-home-v1.png",
+      "sha256": "ca05d305b40ada8dc54cb4e387edf664e947e63d1c04b3137091f0a27ddff369",
+      "bytes": 883786
+    },
+    {
+      "file": "frontend/assets/ui/themes/maximal/nav-journal-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/maximal/nav-journal-v1.png",
+      "sha256": "cc30d040e7ec013cdb6c1efbb92449d3b68b5b89e17972d25499cd3328454d0c",
+      "bytes": 760814
+    },
+    {
+      "file": "frontend/assets/ui/themes/maximal/nav-my-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/maximal/nav-my-v1.png",
+      "sha256": "570c2fc1fbd286dbfd58a3ed92d6d98c124b8ccc750c06c75efee87c31db7027",
+      "bytes": 724382
+    },
+    {
+      "file": "frontend/assets/ui/themes/neon/brand-backpack-v1.png",
+      "source": "docs/design/ui-assets/batch-04-app-previews/neon/brand-backpack-v1.png",
+      "sha256": "156c70ef69af8aed36f605feea64682869ad02cc1d6e35432432cb5c95fc5dc6",
+      "bytes": 1278248
+    },
+    {
+      "file": "frontend/assets/ui/themes/neon/nav-add-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/neon/nav-add-v1.png",
+      "sha256": "860757a42f3c369801fb217f71d3ca2485a5c6a54c93375bb364e0b865362932",
+      "bytes": 698338
+    },
+    {
+      "file": "frontend/assets/ui/themes/neon/nav-friends-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/neon/nav-friends-v1.png",
+      "sha256": "39018862ed6dae2e4f9b95b640f046d70038fd2b9a1ee4377f5483d28cef4a84",
+      "bytes": 654099
+    },
+    {
+      "file": "frontend/assets/ui/themes/neon/nav-home-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/neon/nav-home-v1.png",
+      "sha256": "bab875e23a8657cb00601a875b32b9c155b8900bb596248a39e90512a26b5a46",
+      "bytes": 685640
+    },
+    {
+      "file": "frontend/assets/ui/themes/neon/nav-journal-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/neon/nav-journal-v1.png",
+      "sha256": "eeac98cc40859edf59aae0747aee2e4f80d00a7a1cca1a02ea938b2eae22b538",
+      "bytes": 648889
+    },
+    {
+      "file": "frontend/assets/ui/themes/neon/nav-my-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/neon/nav-my-v1.png",
+      "sha256": "b7ed6ee6ec201e269dcb8b220bcd9b060d6af87eb6bf7e8e907729121e28c7bf",
+      "bytes": 759577
+    },
+    {
+      "file": "frontend/assets/ui/themes/sentimental/brand-backpack-v1.png",
+      "source": "docs/design/ui-assets/batch-04-app-previews/sentimental/brand-backpack-v1.png",
+      "sha256": "228e341c0fb6451d48cfc34c4a58664315484458cc45cf71028cd9dd999328e4",
+      "bytes": 1849279
+    },
+    {
+      "file": "frontend/assets/ui/themes/sentimental/nav-add-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sentimental/nav-add-v1.png",
+      "sha256": "e6e9b099e73b0102c190ba0a7c72baba5e09e1636d8690b5671ad98446538359",
+      "bytes": 1032628
+    },
+    {
+      "file": "frontend/assets/ui/themes/sentimental/nav-friends-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sentimental/nav-friends-v1.png",
+      "sha256": "49fb1885ee2072d5bf9c65f01c1df278b371c441874cf5c2b707fc26368b0c12",
+      "bytes": 865988
+    },
+    {
+      "file": "frontend/assets/ui/themes/sentimental/nav-home-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sentimental/nav-home-v1.png",
+      "sha256": "2a3f7de28ff647115561c0c980d52ad20c015fbf00edd4c76bcc594264ea8547",
+      "bytes": 1610482
+    },
+    {
+      "file": "frontend/assets/ui/themes/sentimental/nav-journal-v2.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sentimental/nav-journal-v2.png",
+      "sha256": "afc8e9c177a845550d3c1eb1917c4fcd2bf0ff185af0b9b43ca946d92e6f4320",
+      "bytes": 936337
+    },
+    {
+      "file": "frontend/assets/ui/themes/sentimental/nav-my-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sentimental/nav-my-v1.png",
+      "sha256": "9e0d35115f27a7490512134659af623f761c3ee83de09595f9b86125e2beb7d3",
+      "bytes": 738735
+    },
+    {
+      "file": "frontend/assets/ui/themes/sunshine/brand-backpack-v1.png",
+      "source": "docs/design/ui-assets/batch-04-app-previews/sunshine/brand-backpack-v1.png",
+      "sha256": "048f5dced8119b8b7bd7e06e5d991d3f9eefcdb98f7ff0ce26245ff69a5ac8cc",
+      "bytes": 988115
+    },
+    {
+      "file": "frontend/assets/ui/themes/sunshine/nav-add-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sunshine/nav-add-v1.png",
+      "sha256": "102a41ee74aafc4e36127e981c3909fdfb15b36b81b9cded4b8f3fac4a71eb44",
+      "bytes": 477838
+    },
+    {
+      "file": "frontend/assets/ui/themes/sunshine/nav-friends-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sunshine/nav-friends-v1.png",
+      "sha256": "2620153f49ee3acaa0e7cb688ed517ba670e2f1475ee6b2a8bc78271d8eaa2ef",
+      "bytes": 445304
+    },
+    {
+      "file": "frontend/assets/ui/themes/sunshine/nav-home-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sunshine/nav-home-v1.png",
+      "sha256": "5a0cd351e13f7b04cf54449654e147f29b0e984236bdb1a416cc2f287e4b6dfc",
+      "bytes": 499964
+    },
+    {
+      "file": "frontend/assets/ui/themes/sunshine/nav-journal-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sunshine/nav-journal-v1.png",
+      "sha256": "30f3c99bfef5a64ac20c8561d980f40dddbaf287164d17d68acc3f041212794c",
+      "bytes": 457704
+    },
+    {
+      "file": "frontend/assets/ui/themes/sunshine/nav-my-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/sunshine/nav-my-v1.png",
+      "sha256": "e22c27ee9750a329f1828677025999b14ac020a8a44a63a43692b658447dd390",
+      "bytes": 394232
+    },
+    {
+      "file": "frontend/assets/ui/themes/tiny-friends/brand-backpack-v1.png",
+      "source": "docs/design/ui-assets/batch-04-app-previews/tiny-friends/brand-backpack-v1.png",
+      "sha256": "14151c03bdc0c187f646662e445f60f9cc9d18ffa7dc332d078c0f880fbcca13",
+      "bytes": 1316947
+    },
+    {
+      "file": "frontend/assets/ui/themes/tiny-friends/nav-add-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/tiny-friends/nav-add-v1.png",
+      "sha256": "63482e39a83c0d6cd19f7ec8d5f5c8c258bd53f3521972642b2d98f0d9032fe9",
+      "bytes": 435828
+    },
+    {
+      "file": "frontend/assets/ui/themes/tiny-friends/nav-friends-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/tiny-friends/nav-friends-v1.png",
+      "sha256": "1101d3ec81dde14b9ab7f7273c0e2de3bad1b458e81a14260a6f03214628c3b5",
+      "bytes": 610567
+    },
+    {
+      "file": "frontend/assets/ui/themes/tiny-friends/nav-home-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/tiny-friends/nav-home-v1.png",
+      "sha256": "a70e79892b3366680500be9b122478c290bf6890e0d974dfad79583188a8712d",
+      "bytes": 659914
+    },
+    {
+      "file": "frontend/assets/ui/themes/tiny-friends/nav-journal-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/tiny-friends/nav-journal-v1.png",
+      "sha256": "68fae6b7b9d5ded26f15add790a877a06ab1beec23b36b86689e298d5ff9812f",
+      "bytes": 465680
+    },
+    {
+      "file": "frontend/assets/ui/themes/tiny-friends/nav-my-v1.png",
+      "source": "docs/design/ui-assets/batch-03-themes/tiny-friends/nav-my-v1.png",
+      "sha256": "802c0673c090287ef64fb3888ddd7b54c1dddeea4d6ff8d0efc08722f815b0b6",
+      "bytes": 503381
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import {useThemeColors,useThemeStyles,type ThemeColors} from '../src/ThemeContext';
 import React, {useEffect, useState} from 'react';
 import Text from '../src/FontText';
 import {StyleSheet, View} from 'react-native';
@@ -5,13 +6,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SplashScreen, Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
 import {Backpack} from '../src/Journal';
-import {colors as c} from '../src/theme';
 import {api} from '../src/runtime';
+import {contrastRatio} from '../src/themes';
+import {ThemeProvider} from '../src/ThemeProvider';
 import {MotionProvider} from '../src/Feedback';
 
 void SplashScreen.preventAutoHideAsync().catch(() => {});
 
-export default function Layout() {
+export default function Layout(){return <ThemeProvider><ThemedLayout/></ThemeProvider>;}
+function ThemedLayout() {
+ const c=useThemeColors();
+ const s=useThemeStyles(makeStyles);
   const [localReady, setLocalReady] = useState(false);
   const [laidOut, setLaidOut] = useState(false);
   const ready = localReady && laidOut;
@@ -28,7 +33,7 @@ export default function Layout() {
     if (ready) void SplashScreen.hideAsync().catch(() => {});
   }, [ready]);
   return <MotionProvider><View style={s.root} onLayout={() => setLaidOut(true)}>
-    <StatusBar style="dark"/>
+    <StatusBar style={contrastRatio('#FFFFFF',c.paper)>contrastRatio('#000000',c.paper)?'light':'dark'}/>
     <View style={s.root} accessibilityElementsHidden={!ready} importantForAccessibility={ready ? 'auto' : 'no-hide-descendants'}>
       <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>
     </View>
@@ -38,7 +43,7 @@ export default function Layout() {
   </View></MotionProvider>;
 }
 
-const s = StyleSheet.create({
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   root: {flex: 1, backgroundColor: c.paper},
   splash: {...StyleSheet.absoluteFillObject, backgroundColor: c.paper, justifyContent: 'center', alignItems: 'center', padding: 24},
   brand: {fontSize: 32, fontWeight: '800', color: c.ink, marginTop: 20, textAlign: 'center'},

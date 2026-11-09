@@ -17,6 +17,7 @@ test.beforeAll(async () => {
     resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],
     stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
       import React from 'react'; import {createRoot} from 'react-dom/client';
+      import {ThemeContext} from './src/ThemeContext';import {getTheme} from './src/themes';
       import * as maplibregl from 'maplibre-gl'; import TravelMap from './src/TravelMap.web';
       window.events=[];window.selectedRecords=[]; window.mapSnapshots=[];window.styleLoads=0;
       // 실제 엔진의 idle 이후만 관찰하며 지도 인스턴스는 앱이나 테스트에 노출하지 않는다.
@@ -25,13 +26,14 @@ test.beforeAll(async () => {
         const type=typeof event==='string'?event:event.type;if(type==='style.load')window.styleLoads++;
         const result=fire.call(this,event,...args);
         if((typeof event==='string'?event:event.type)==='idle'){
-          window.mapSnapshots.push({zoom:this.getZoom(),center:this.getCenter().toArray(),sources:this.getStyle().sources});
+          window.mapSnapshots.push({zoom:this.getZoom(),center:this.getCenter().toArray(),sources:this.getStyle().sources,ocean:this.getPaintProperty('paper','background-color')});
         }
         return result;
       };
       const root=createRoot(document.getElementById('root'));
-      let current={records:[],fullScreen:true};
-      window.renderMap=(props={})=>{current={...current,...props};root.render(<TravelMap {...current} onSelect={record=>{window.events.push(['record',record.id]);window.selectedRecords.push(record);}} onRegion={(id,name)=>window.events.push(['region',id,name])}/>);};
+      let current={records:[],fullScreen:true},theme=getTheme('classic');
+      window.renderMap=(props={})=>{current={...current,...props};root.render(<ThemeContext.Provider value={{theme,select:()=>{},storageError:''}}><TravelMap {...current} onSelect={record=>{window.events.push(['record',record.id]);window.selectedRecords.push(record);}} onRegion={(id,name)=>window.events.push(['region',id,name])}/></ThemeContext.Provider>);};
+      window.setMapTheme=id=>{theme=getTheme(id);window.renderMap();};
       window.renderMap();
     `}});
   bundle = result.outputFiles[0].text;
@@ -278,4 +280,16 @@ test('TC-MAPLIBRE-008/009: TC-MAPLIBRE-011 thumbnail slides select current recor
  await page.screenshot({path:'docs/design/verification/cluster-photo-browser-20261108.png'});
  await page.evaluate(()=>(window as any).renderMap({onCoordinate:()=>{}}));
  await expect(page.locator('[data-map-ornament="mountain"],[data-map-ornament="grass"]')).toHaveCount(0);
+});
+
+
+test('TC-FIGMA-THEME-001: theme paint updates keep the actual map camera and selected region',async({page})=>{
+ await ready(page);const initialZoom=await page.evaluate(()=>(window as any).mapSnapshots.at(-1).zoom);await page.getByRole('button',{name:'지도 확대',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).mapSnapshots.at(-1).zoom)).toBeGreaterThan(initialZoom+.9);await page.getByRole('button',{name:'서울 지역 선택',exact:true}).click();
+ await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
+ const before=await page.evaluate(()=>{const w=window as any;return {snapshot:w.mapSnapshots.at(-1),loads:w.styleLoads};});
+ await page.evaluate(()=>(window as any).setMapTheme('neon'));
+ await expect.poll(()=>page.evaluate(()=>(window as any).mapSnapshots.at(-1).ocean)).toBe('#101B32');
+ const after=await page.evaluate(()=>{const w=window as any;return {snapshot:w.mapSnapshots.at(-1),loads:w.styleLoads};});
+ expect(after.loads).toBe(before.loads);after.snapshot.center.forEach((value:number,index:number)=>expect(value).toBeCloseTo(before.snapshot.center[index],8));expect(after.snapshot.zoom).toBeCloseTo(before.snapshot.zoom,8);
+ await expect(page.getByText('서울 여행 · 0개',{exact:true})).toBeVisible();
 });

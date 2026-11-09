@@ -1,3 +1,4 @@
+import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import TravelerAvatar from './Avatar';
 import {JournalIcon} from './Journal';
@@ -7,7 +8,6 @@ import {ActivityIndicator, Image,  Share, StyleSheet, Switch, TextInput, View} f
 import * as Linking from 'expo-linking';
 import {ApiError} from './api';
 import {api} from './runtime';
-import {colors as c} from './theme';
 
 type Props = {session: any; onChanged?: () => void};
 type Author = {id: string; display_name: string | null; avatar_url: string | null; user_code?: string};
@@ -72,6 +72,7 @@ function message(error: unknown) {
 }
 
 function Button({label, onPress, disabled = false, secondary = false, compact=false}: {label: string; onPress: () => void; disabled?: boolean; secondary?: boolean; compact?:boolean}) {
+ const s=useThemeStyles(makeStyles);
   return <Pressable accessibilityRole="button" accessibilityState={{disabled}} disabled={disabled} onPress={onPress}
     style={({pressed}) => [s.button, compact&&s.compactButton, secondary && s.secondary, (disabled || pressed) && s.dim]}>
     <Text style={[s.buttonText,compact&&s.compactButtonText, secondary && s.secondaryText]}>{label}</Text>
@@ -79,6 +80,7 @@ function Button({label, onPress, disabled = false, secondary = false, compact=fa
 }
 
 function Notice({children, error = false}: {children: string; error?: boolean}) {
+ const s=useThemeStyles(makeStyles);
   return <Text accessibilityRole={error ? 'alert' : undefined} accessibilityLiveRegion="polite" style={[s.hint, error && s.error]}>{children}</Text>;
 }
 
@@ -87,11 +89,14 @@ function Avatar({url,size=44}: {url: string | null;size?:number}) {return <Trave
 type ProfileProps=Props & {onSummaryReady:()=>void;visits:number|null;visitsFailed:boolean;onStamps:()=>void;onFollowing:()=>void;showStamps:boolean;children?:React.ReactNode};
 
 export function ProfileEditor(props: ProfileProps) {
+ const s=useThemeStyles(makeStyles);
   return props.session?.user?.id ? <ProfileForm key={props.session.user.id} {...props}/>
     : <View style={s.sheet}><Text accessibilityRole="header" style={s.title}>나의 프로필</Text><Notice>로그인하면 닉네임과 공개 프로필을 설정할 수 있어요. My에서 로그인해 주세요.</Notice></View>;
 }
 
 function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowing,showStamps,children,onSummaryReady}: ProfileProps) {
+ const c=useThemeColors();
+ const s=useThemeStyles(makeStyles);
   const [editing,setEditing]=useState(false);
   const [snapshot,setSnapshot]=useState<{name:string;avatar:string|null;enabled:boolean}|null>(null);
   const owner = session.user.id as string;
@@ -206,6 +211,8 @@ export function Friends(props: FriendsProps) {
 }
 
 function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: FriendsProps) {
+ const c=useThemeColors();
+ const s=useThemeStyles(makeStyles);
   const owner = session?.user?.id as string | undefined;
   const identity = useUserId(owner);
   const [pane,setPane]=useState<'following'|'search'>(()=>!owner||isUserId(inviteCode)?'search':'following');
@@ -387,7 +394,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
   </View>;
 }
 
-const s = StyleSheet.create({
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   profilePage:{gap:16},
   profileCard:{backgroundColor:c.profile.sheet,padding:20,gap:12},
   profileHeading:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:12},

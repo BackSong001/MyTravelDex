@@ -1,3 +1,5 @@
+import ThemePicker from './ThemePicker';
+import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import React, {type ReactNode, useEffect, useRef, useState} from 'react';
 import Text from './FontText';
 import {Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View} from 'react-native';
@@ -5,7 +7,6 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import TravelMap from './TravelMap';
 import {api} from './runtime';
-import {colors as c} from './theme';
 
 type Props = {
   initialPlace: any | null;
@@ -22,6 +23,8 @@ function validPlace(place: any) {
 }
 
 export default function LocationPicker({initialPlace, onConfirm, onClose, footer}: Props) {
+ const c=useThemeColors();
+ const s=useThemeStyles(makeStyles);
   const [tab, setTab] = useState<'map' | 'search'>('search');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
@@ -116,7 +119,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
   return <Modal visible presentationStyle="fullScreen" animationType="slide" onRequestClose={close}>
     <SafeAreaView testID="location-picker" style={s.safe}>
       <View style={s.header}>
-        <Text accessibilityRole="header" style={s.heading}>위치 선택</Text>
+        <Text accessibilityRole="header" style={s.heading}>위치 선택</Text><ThemePicker/>
         <Pressable accessibilityRole="button" accessibilityLabel="닫기" onPress={close} style={s.button}><Text style={s.text}>닫기</Text></Pressable>
       </View>
       <KeyboardAvoidingView style={s.main} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -158,7 +161,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
   </Modal>;
 }
 
-const s = StyleSheet.create({
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   safe: {flex: 1, backgroundColor: c.paper},
   main: {flex: 1, minHeight: 0},
   header: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, gap: 8},

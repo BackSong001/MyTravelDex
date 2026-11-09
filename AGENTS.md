@@ -543,3 +543,15 @@ RN 정확0.81.5/STABLE/newArch의 withFontScale plugin과 앱 소유 FontText를
 ## 17H 사진 순서·멱등 저장
 
 사진 수를 display_order로 사용하지 않는다. 저장 전 소유 photos 전체 조회로 실제 수/최대순서를 분리하고 동일 UUID/owner/record/두 경로가 일치할 때만 재사용한다. 일반23505를 성공으로 삼키지 말고 세대guard 아래 기존행 확인 후 판정한다. 순서 경쟁은 DB UNIQUE/부모잠금으로 거부하며 실패시 finalize·입력삭제 없이 명시 재시도를 제공한다. 기존 서버20장 제한·원본/초안·잠금/RLS를 보존한다.
+
+## 저자원 실행 규칙 (사용자 지정)
+
+- 에뮬레이터는 기본 mytrveldex를 CPU6코어/RAM8192MiB/GPU host로 실행한다. 2026-11-09 반복 증설 요청에 따라 실제6코어·RAM8192MiB 기동을 확인했다. VM heap1024MiB 요청은 실제576MiB로 기동되므로 요청값과 실측값을 구분한다. 기존 고사양 snapshot 대신 최초 한 번은 -no-snapshot-load를 사용한다. 시스템 swap은 변경하지 않는다.
+- Android 빌드는 허용된CPU중2개(taskset -c 0,1), 에뮬레이터는6개(taskset -c 0,1,2,3,4,5)로 제한한다. 빌드는nice -n10, 에뮬레이터는기본우선순위(nice0)를 사용한다. 다른호스트에서는os.sched_getaffinity(0)로허용CPU를확인한다. SwiftShader 대신 host GPU 사용은 2026-11-09 끊김 완화 요청에 따른다.
+- 빌드는 Gradle workers.max=1/parallel=false/daemon=false/JVM heap1536MiB·metaspace384MiB/Kotlin daemon512MiB, CMAKE_BUILD_PARALLEL_LEVEL=1을사용한다. 사용자 ~/.gradle/gradle.properties에적용했으며비밀값은기록하지않는다. Metro도위CPU affinity를상속시켜worker수를제한한다.
+- 빌드와 에뮬레이터 기동/다른 고부하 검사를 동시에 실행하지 않는다. 빌드가 성공·실패로 끝나면 최소60초 쉬고 다음 고부하 작업을 시작한다. 사용자가 명시적으로 바꾸기 전까지 이 제한을 유지한다.
+
+
+## 선택형 테마 (FR-FIGMA-009)
+
+기존classic1+Batch03자산/04팔레트5+Batch06지도24를단일로컬선택30개로제공한다. 원본colors.json/PNG/GeoJSON은보존하며sampleData/title/sub/tag는제품데이터가아니다. ThemeProvider가불변테마/선택ID를공급하고초기읽기성공·실패세대와연속쓰기순서를보호한다. theme를화면/Modal/Map key·데이터effect의dependency로쓰지않는다. StyleSheet factory는테마별공유하고web기존map paint/marker와native고정source/Layer를갱신한다. classic지도shadow/stampBorder기존값과감성journal-v2를유지하고네온/화려한원본자산에임의tint를하지않는다. 새테마표면은절제하되대비·pressed·오류·focus·48dp·동적글꼴과상태보존을우선한다. backend/Local/web/native/실기기증거는TEST_CASE최신실행기록으로구분한다.

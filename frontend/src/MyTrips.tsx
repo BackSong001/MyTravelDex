@@ -1,3 +1,4 @@
+import {useThemeColors} from './ThemeContext';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import Text from './FontText';
 import {ActivityIndicator,View} from 'react-native';
@@ -5,9 +6,9 @@ import Pressable from './Feedback';
 import {Collection} from './Journal';
 import {api} from './runtime';
 import {recordCovers} from './recordCovers';
-import {colors as c} from './theme';
 
 export default function MyTrips({owner,records,covers,loaded,loading,failed,disabled,onOpen}:{owner:string;records:any[];covers:Record<string,string>;loaded:boolean;loading:boolean;failed:boolean;disabled:boolean;onOpen:(record:any)=>void}){
+ const c=useThemeColors();
  const own=useMemo(()=>records.filter(record=>record.owner_id===owner&&record.status==='complete').sort((a,b)=>b.start_date.localeCompare(a.start_date)||a.id.localeCompare(b.id)),[records,owner]);
  const visible=useMemo(()=>own.slice(0,3),[own]);
  const [images,setImages]=useState<Record<string,{url:string;parent?:string}>>({}),[broken,setBroken]=useState<Record<string,string>>({}),[photoLoading,setPhotoLoading]=useState(false),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);

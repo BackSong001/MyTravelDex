@@ -1,3 +1,4 @@
+import {useThemeColors} from './ThemeContext';
 import Pressable,{useReducedMotion} from './Feedback';
 import React,{useEffect,useRef,useState} from 'react';
 import Text from './FontText';
@@ -5,8 +6,8 @@ import {Animated,AppState,ScrollView,View,useWindowDimensions} from 'react-nativ
 import {api} from './runtime';
 import PhotoGallery from './PhotoGallery';
 import {Author,PublicAuthor} from './Journal';
-import {colors as c} from './theme';
 export default function RecordPreview({record,owner,author,onOpen,onClose,availableHeight,attributionHeight=0}:{record:any;owner?:string;author?:PublicAuthor;onOpen:()=>void;onClose:()=>void;availableHeight:number;attributionHeight?:number}){
+ const c=useThemeColors();
  const opacity=useRef(new Animated.Value(1)).current,offset=useRef(new Animated.Value(0)).current,reduced=useReducedMotion();
  useEffect(()=>{opacity.stopAnimation();offset.stopAnimation();if(reduced){opacity.setValue(1);offset.setValue(0);}else{opacity.setValue(.8);offset.setValue(12);Animated.parallel([Animated.timing(opacity,{toValue:1,duration:160,useNativeDriver:true}),Animated.timing(offset,{toValue:0,duration:160,useNativeDriver:true})]).start();}return()=>{opacity.stopAnimation();offset.stopAnimation();};},[opacity,offset,reduced]);
  const {height,width}=useWindowDimensions(),[photos,setPhotos]=useState<any[]>([]),[urls,setUrls]=useState<Record<string,string>>({}),[error,setError]=useState('');

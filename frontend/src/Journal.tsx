@@ -1,24 +1,29 @@
+import {useThemeAssets} from './themeAssets';
+import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import React from 'react';
 import Text from './FontText';
 import {Image, Platform, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
-import {uiAssets} from './uiAssets';
 import Avatar from './Avatar';
-import {colors as c} from './theme';
 
 export function Backpack({size = 42}: {size?: number}) {
+ const uiAssets=useThemeAssets();
   return <Image source={uiAssets.backpack} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
 }
 
-export function JournalIcon({name, color = c.ink, size = 26}: {name: string; color?: string; size?: number}) {
+export function JournalIcon({name, color, size = 26}: {name: string; color?: string; size?: number}) {
+ const c=useThemeColors();
+
+ const uiAssets=useThemeAssets();
   const source = uiAssets.navigation[name as keyof typeof uiAssets.navigation];
   if (source) return <Image source={source} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
-  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d="M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
+  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d="M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="none" stroke={color??c.ink} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
 export function Welcome() {
+ const s=useThemeStyles(makeStyles);
   return <View style={s.welcome}>
     <View style={s.welcomeMark}><Backpack size={84}/></View><Text accessibilityRole="header" style={s.wordmark}>나만의 여행도감</Text>
     <Text style={s.intro}>발길이 닿은 곳,{'\n'}사진으로 차곡차곡.</Text>
@@ -30,6 +35,7 @@ export type JournalTab = 'home' | 'album' | 'friends' | 'account';
 // 공개 프로필 projection만 전달하며 Auth 메타데이터를 기본값으로 사용하지 않는다.
 export type PublicAuthor = {display_name?: string | null; avatar_url?: string | null};
 export function Author({author,size=28}: {author?: PublicAuthor | null;size?:number}) {
+ const s=useThemeStyles(makeStyles);
   const name = author?.display_name?.trim() || '여행자';
   return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url} size={size}/></View>;
 }
@@ -38,6 +44,7 @@ export function Collection({records, covers, onOpen, authors = {}, emptySearch=f
   records: any[]; covers: Record<string, string>;
   onOpen: (record: any) => void; emptySearch?: boolean; disabled?:boolean; loading?:boolean; failed?:boolean; profile?:boolean; total?:number; onCoverError?:(id:string,url:string)=>void; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
 }) {
+ const s=useThemeStyles(makeStyles);
   const {height}=useWindowDimensions();
   const countLabel=loading?'불러오는 중':failed?'확인 필요':profile?`전체 ${total}개 중 최근 ${records.length}개`:`${records.length}개`;
   return <>
@@ -64,6 +71,8 @@ const tabs = [
   {id: 'plus', label: '기록 만들기'}, {id: 'friends', label: '친구'}, {id: 'account', label: 'My'},
 ] as const;
 export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab: JournalTab) => void; onCreate: () => void}) {
+ const c=useThemeColors();
+ const s=useThemeStyles(makeStyles);
   const insets = useSafeAreaInsets();
   const compact = useWindowDimensions().height < 500;
   return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
@@ -75,7 +84,7 @@ export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab
   </View></View>;
 }
 
-const s = StyleSheet.create({
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   welcome: {alignItems: 'center', paddingVertical: 28, width: '100%',gap:12},
   welcomeMark: {width:136,height:136,borderRadius:44,backgroundColor:c.warm,alignItems:'center',justifyContent:'center',transform:[{rotate:'-5deg'}]},
   wordmark: {color: c.ink, fontSize: 30, fontWeight: '800', marginTop: 12, textAlign: 'center',letterSpacing:-1},

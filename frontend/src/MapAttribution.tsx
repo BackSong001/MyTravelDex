@@ -1,10 +1,11 @@
+import {useThemeColors} from './ThemeContext';
 import React from 'react';
 import Text from './FontText';
 import {Linking,View} from 'react-native';
 import {MAP_ATTRIBUTION} from './mapStyle';
-import {colors as c} from './theme';
 
 export default function MapAttribution({records,landmarks=[],onHeight}:{records:any[];landmarks?:unknown[];onHeight?:(height:number)=>void}){
+ const c=useThemeColors();
  const credits=[...new Set(records.filter(record=>record.locations?.source!=='google').map(record=>record.locations?.attribution).filter(Boolean))];
  const external=landmarks.length>0||credits.length>0;
  const additional=credits.filter(credit=>credit!=='Powered by Geoapify | © OpenStreetMap contributors');
