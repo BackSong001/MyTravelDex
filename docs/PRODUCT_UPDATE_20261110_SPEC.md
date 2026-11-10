@@ -98,3 +98,7 @@ Phase A 사진pure/parser/대역→실Local HTTP→웹실File입력/저장, Phas
 exifr는7.1.3으로고정한다. 실제Android빌드에서기본ESM/UMD의Node전용동적import문법이Hermes컴파일을막는것을확인했다. legacy UMD는단독컴파일되지만PNG bytes검사에서오류가발생해채택하지않는다. 전체source진입점도실APK시작에서navigator.userAgent가없는Native의불필요한브라우저회전기능때문에실패해폐기했다. Native는설치README의공식모듈구성방식으로core/JPEG/PNG/TIFF와EXIF/GPS키사전만정적연결하고, 그소스의Node전용util/import.mjs만browser분기와같은undefined반환으로대체한다. 입력은기존소유층이읽은Uint8Array이며Node fs/http/zlib reader는사용하지않는다. Web은기존진입점을유지하고새자체EXIF엔진/전역polyfill/변환복제본을추가하지않는다. 양진입점의JPEG/PNG·LE/BE·raw날짜/offset·DMS검사와실제APK빌드를구분한다. 원본접근권한이나제공자GPS제거를이호환보강으로해결했다고주장하지않는다.
 
 Native 실선택에서 Downloads의 MediaStore-backed 문서(msf:<숫자ID>)는 복사본의 GPS가 제거될 수 있음을 확인했다. 설치 Expo ImagePicker의 getMediaStoreAssetId와 같은 공급자/문서형식 해석을 원본 DocumentPicker에도 적용해 기존 MediaLibrary의 setRequireOriginal 보완을 사용한다. legacy 숫자 Downloads ID/raw filesystem/클라우드 ID를 MediaStore ID로 추측하거나 파일명으로 갤러리를 검색하지 않는다.
+
+### Android 기본 선택의 기존 권한 활용 (실패 재현 후 추가 게이트)
+
+실 APK의 modern PhotoPicker는 GPS가 있는 QA 파일에서도 원URI/MediaStore ID와 GPS를 제거해 날짜만 전달하는 것을 관측했다. 기본 버튼에서도 이미 부여된 전체 사진/위치 접근을 활용하려면 SDK가 문서/Downloads ID를 유지하는 선택 경로가 필요하다. Android에서 선택 전에는 getPermissionsAsync로 기존 권한만 확인한다(새 권한 요청 없음). 전체 접근이 이미 있으면 설치 Expo ImagePicker의 legacy=true GET_CONTENT 경로로 시스템/클라우드 제공자와 선택 ID를 유지하고, 미허용/제한 접근은 기존 modern PhotoPicker를 그대로 사용한다. broad 권한을 자동 요청하거나 선택하지 않은 갤러리를 열거하지 않는다. 원본 버튼만 기존 명시 requestPermissionsAsync 경로를 유지한다. GPS가 제거된 제한/클라우드 결과는 원본 선택/검색 안내를 제공하고 복원했다고 주장하지 않는다. Web 선택과 iOS는 변경하지 않는다. 기존 '전체권한과무관하게항상modern' 검사 계약은 이번 기본 GPS 요구로 이 범위에서 변경한다. 권한 조회 실패는 modern으로 안전하게 복귀하고 기존 입력을 보존한다.

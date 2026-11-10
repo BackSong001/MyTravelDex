@@ -326,3 +326,8 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 
 - POST `/rest/v1/rpc/lookup_contact_id`, `{user_id}` → `[{id,user_code}]` 최대1행. 인증만 허용, 현재영숫자6자리 대소문자무시/기존숫자alias 정확일치. UUID·부분검색·와일드카드는 결과없음. 이름/avatar는 기존 동의 projection에서만 별도 보완한다.
 - POST `/rest/v1/rpc/request_friend_by_id`, `{user_id}` → `{requester_id,recipient_id,status,created_at}`. auth.uid와 code를 서버에서 다시 해석해 비동의 상대에게도 pending 요청 허용. 동일/역방향 기존관계를 그대로 반환하며 자동수락하지 않는다. anon/변경GET/자기요청 거부, 동시취소 경합은 명시 재시도. 기존 직접INSERT RLS·목록/추천/익명조회·수신자수락/참여자조회삭제는 유지. 미지원404는 서버 업데이트 필요이며 원격 적용 전 실제수용을 선언하지 않는다.
+
+
+### Android 기본 사진 선택의 기존 권한 활용 (2026-11-10)
+
+PRODUCT_UPDATE_20261110_SPEC의 추가 게이트를 따른다. Android 기본 선택은 getPermissionsAsync(false,['photo'])만 조회하며 granted && accessPrivileges==='all'인 경우에만 기존 ImagePicker legacy GET_CONTENT를 사용한다. 제한/거부/조회 실패는 modern 선택을 유지한다. 기본 버튼의 새 권한 요청·갤러리 열거는 없고, 원본 버튼만 기존 명시 권한 요청을 유지한다. Web/iOS는 변경하지 않는다. 취소·20장·세션세대·수동 입력 보존과 공급자가 제거한 GPS의 원본/검색 복구 안내를 유지한다. all/limited/denied/reject·권한 요청0회와 실제 Native 수신/저장을 별도로 검증한다.

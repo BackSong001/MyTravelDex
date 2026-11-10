@@ -1512,3 +1512,8 @@ t14 A~D/ID 지정 정적 승인과 t9d 구조 검토를 받았다. t9d의 Native
 ### 2026-11-10 19:13 KST Native 통합 후속
 
 main 21cc0ff 푸시 뒤 실제 Android에서 exifr 동적import/Hermes컴파일과 불필요한 browser orientation의 startup크래시를 발견했다. 같은7.1.3 upstream JPEG/PNG/TIFF 모듈만 Native에 연결하고 제한된 Node import shim을 사용한다. legacy/full 후보 실패를 최신성공과 분리했다. Native-like VM/양parser와기존사진35통과, 최신 APK1분45초 성공이며 실제GPS저장은 진행중이다. Downloads msf exact ID를 기존MediaLibrary보완으로 연결했고 합성PNG fixture CRC도 정정했다. t14/t9d 읽기승인, 원격은3개migration dry-run까지만이며 사용자승인대기다. 변경파일: `frontend/metro.config.js`, `frontend/src/exifrNative.js`, `frontend/src/exifrNativeImport.ts`, `frontend/src/photos.ts`, `backend/tests/{native-exif,photo-metadata,photos-picker}.test.ts`, `backend/tests/fixtures/photo-exif.ts`, `docs/PRODUCT_UPDATE_20261110_SPEC.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`.
+
+
+### 2026-11-10 19:25 KST 기본 선택 보강
+
+기존13항목 GPS 요구를 완료하기 위해 실제 Android 원본2장/날짜·좌표·접기보존·Local저장 성공 뒤 기본modern선택의GPS누락을 별도로 재현했다. 새권한 없이 기존photo전체권한만 조회해 Android GET_CONTENT 경로를 선택하는 계약을 t14와 승인하고 canonical을 동기화했다. 권한/경로Red6→관련39통과, t14/t9d 지정승인, 저자원APK1분48초 성공이며 기본경로 실수신/저장은 후속 검증한다. 변경파일: `frontend/src/photos.ts`, `frontend/app/index.tsx`, `backend/tests/photos-client.test.ts`, `backend/tests/photos-picker.test.ts`, `docs/PRODUCT_UPDATE_20261110_SPEC.md`, canonical6, `docs/prompts.md`.

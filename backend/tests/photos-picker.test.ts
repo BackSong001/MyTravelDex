@@ -30,11 +30,11 @@ beforeEach(()=>{
   bytes.mockReturnValue(123);let id=0;uuid.mockImplementation(()=>`photo-${++id}`);
 });
 
-test.each([true,false])('default system picker ignores broad access (%s)',async fullAccess=>{
+test.each([true,false])('Android system picker uses existing full access without requesting or enumerating (%s)',async fullAccess=>{
   const result={canceled:false,assets:[{uri:'file:///app/cache/cloud.jpg',width:2,height:3,assetId:null,exif:{}}]};
   library.mockResolvedValue(result);
   expect(await photos.pickPhotos(fullAccess)).toEqual(result);
-  expect(library).toHaveBeenCalledWith({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true});
+  expect(library).toHaveBeenCalledWith({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true,...(fullAccess?{legacy:true}:{})});
   expect(document).not.toHaveBeenCalled();expect(info).not.toHaveBeenCalled();
 });
 
@@ -43,6 +43,7 @@ test('explicit system, limited original and non-Android original use ImagePicker
   platform.OS='ios';await photos.pickPhotos(true,'original');
   platform.OS='web';await photos.pickPhotos(true,'original');
   expect(library).toHaveBeenCalledTimes(4);expect(document).not.toHaveBeenCalled();
+  for(const index of [1,2,3])expect(library.mock.calls[index][0]).not.toHaveProperty('legacy');
 });
 
 test('original documents are cached and keep supplied file metadata without invented EXIF',async()=>{

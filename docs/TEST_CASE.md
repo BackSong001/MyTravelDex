@@ -1081,3 +1081,22 @@ actual Android QA는 Local54321만 연결하는 별도 release APK/새Local QA�
 5. Downloads의 msf:<MediaStore ID>를 원본 picker가 놓쳐 기존MediaLibrary setRequireOriginal 위치보완이 빠진 실경계를 확인했다. 설치Expo ImagePickerUtils의 authority/msf exact 해석을 재사용하며 legacy숫자/raw/cloud ID는 추측하지 않는다. 추가 Red1/19→포함35 통과1.44초, t14/t9d 지정 정적 승인 후 최신 APK1분45초 exit0이다. 최신 실제 GPS 수신·저장/마커터치는 아직 진행 전이므로 완료로 기록하지 않는다. Native entry는 내용동일 .js로 두어 RN Gradle의 JS 입력 추적에 포함했다.
 
 Appium의 첫 instrumentation 준비 실패는 이후 embedded session(autoLaunch=false/noReset/기존서버)으로 회복했고, 앱의 UA startup크래시와 별개 환경 이력으로 유지한다. 시스템 파일선택기에서는 QA 파일만 선택하고 계정 항목/기존 실사진을 QA로 사용하지 않는다. 원격migration/실Google/실기기/iOS 실행은 하지 않았다.
+
+
+### Android 기본 사진 선택의 기존 권한 활용 (2026-11-10)
+
+PRODUCT_UPDATE_20261110_SPEC의 추가 게이트를 따른다. Android 기본 선택은 getPermissionsAsync(false,['photo'])만 조회하며 granted && accessPrivileges==='all'인 경우에만 기존 ImagePicker legacy GET_CONTENT를 사용한다. 제한/거부/조회 실패는 modern 선택을 유지한다. 기본 버튼의 새 권한 요청·갤러리 열거는 없고, 원본 버튼만 기존 명시 권한 요청을 유지한다. Web/iOS는 변경하지 않는다. 취소·20장·세션세대·수동 입력 보존과 공급자가 제거한 GPS의 원본/검색 복구 안내를 유지한다. all/limited/denied/reject·권한 요청0회와 실제 Native 수신/저장을 별도로 검증한다.
+
+
+### Native 원본 성공과 기본 선택 보강 (19:25 KST)
+
+Downloads msf 보강 APK에서 원본 JPEG(no GPS)+PNG(GPS)를 실제 Android 시스템 파일선택기로 선택했다. 날짜11/9~10·GPS35.8151/127.1539 자동입력, 핸들 아래드래그 접기/재개 후 제목·2사진 유지, Local 실제저장1complete/사진2 및 EXIF없음/유효GPS의 각metadata를 확인했다. 신규 프로필 설정도 완료 후 cold 재시작에서 반복되지 않았다. 같은 권한의 modern 기본 선택은 QA GPS파일에서도 날짜만 있고GPS없음을 재현했으므로 이 성공과 분리한다. 실제 파일 위치권한/사진권한은 부여된 상태였다.
+
+기본선택 추가계약을 t14와 검토하고 canonical을 동기화했다. 권한조회5·picker 옵션의 신규행동 Red6/기존29 뒤 관련39 통과1.18초다. granted/all만 legacy, 제한/거부/필드없음/조회실패 modern, 기본request0/미선택갤러리조회0·Web/iOS불변을 검사한다. t14 제품/t9d 구조 정적 승인을 받았고 새 APK 빌드는1분48초 성공했다. Native 기본경로 수신·저장은 아직 검사 전이다. 공급자가 제거한 GPS/클라우드/물리기기 수용을 보장하지 않는다.
+
+
+### Android 기본 선택 실제 수용 (19:30 KST)
+
+1분48초 새 QA APK를 빌드 뒤60초 이상 쉬고 기존 앱데이터를 보존해 설치했다. 기존전체권한에서 기본 버튼이 실제 ACTION_GET_CONTENT를 호출하는 것을 확인했다. Android37의 시스템이 이를 PhotoPickerGetContentActivity로 처리해 UI가 비슷해도 원래 modern 계약과 같은 Intent로 간주하지 않는다. QA GPS사진 선택→날짜2026-11-10/사진GPS35.81510,127.15390 자동표시→제목 Native GPS 검증2 저장을 수행했고 Local조회에서 complete·source=exif 대표좌표와사진EXIF좌표 일치를 확인했다. 이전원본2장 기록도 complete와11/9~10·각GPS존재/없음 metadata를 유지했다.
+
+같은Native SDK 지도에 두QA기록이 군집2로 표시됐으며 700ms 길게누르기→두제목/작성자별목록이 열렸다. 비공개프로필의 작성자는 Auth이름이 아닌 여행자/기본avatar로 표시됐다. 닫은뒤 마커위240px드래그는 작성자목록을 열지 않았고 pinch조작후앱/지도는 유지됐다. 이는 한AVD의실제터치대표검사이며 모든SDK/기기/스크린리더/클라우드제공자/제한권한조합 수용은 아니다. 제한/거부/조회실패는 단위검사의modern복귀로 구분한다.

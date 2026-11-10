@@ -580,3 +580,8 @@ TC-WEB-MAP-OVERVIEW-001을 따른다. Home의 web&&mapHome에만 지도 폭min(7
 ## 2026-11-10 사용자13항목 개편
 
 PRODUCT_UPDATE_20261110_SPEC의phase/확정범위와t14게이트를따른다. GPS를우선하고실File/Native수신·실HTTP·대역/웹을구분한다. 사진자동좌표는첫유효쌍,날짜min-max이며수동edited/계정세대/원본보존을지킨다. 작성drag는접기이고입력폐기가아니다. 이름설정은프로필공개동의가아니며ID필수공개는인증exact검색·친구요청만허용하고이름/사진공개동의를유지한다. 여행지뽑기는사용자가대상을확정했고스타일은이번디자인만이다. 모든제품변경은명세후진행,기존원본자산/관계/RLS/UUID재시도보존,main커밋/푸시하되외부package/lock/untracked변경은제외한다. 원격schema변경은별도승인전실행하지않고저자원빌드/후60초휴식을유지한다.
+
+
+## Android 기본 선택의 기존 권한 활용 (2026-11-10)
+
+기본 사진 선택은 Android에서 photo 범위의 기존 권한만 조회한다. granted 및 accessPrivileges all이면 설치 SDK의 legacy GET_CONTENT를 사용하고 limited/denied/조회 실패는 modern을 유지한다. 새 권한 요청·갤러리 열거를 추가하지 않으며 원본 버튼의 명시 권한, Web/iOS 경로는 유지한다. 실제 GPS 수신·저장과 parser/대역 검증을 구분한다.

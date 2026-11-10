@@ -7,7 +7,14 @@ import {File,Paths} from 'expo-file-system';
 import {readExif,validCoordinates,RecordValidationError} from './domain';
 import {parse} from 'exifr';
 
-export async function photoPermission() {
+export async function photoPermission(request = true) {
+  if (!request) {
+    if (Platform.OS !== 'android') return false;
+    try {
+      const permission = await MediaLibrary.getPermissionsAsync(false, ['photo']);
+      return permission.granted && permission.accessPrivileges === 'all';
+    } catch { return false; }
+  }
   if (Platform.OS === 'web') return true;
   const permission = await MediaLibrary.requestPermissionsAsync(false, ['photo']);
   return permission.granted && permission.accessPrivileges !== 'limited';
@@ -28,7 +35,7 @@ export function cleanupPickedPhotos(assets: readonly {uri:string}[]) {
 
 export async function pickPhotos(fullAccess: boolean, source: 'system' | 'original' = 'system') {
   if (source !== 'original' || Platform.OS !== 'android' || !fullAccess) {
-    const result = await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true});
+    const result = await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true,...(Platform.OS==='android'&&fullAccess?{legacy:true}:{})});
     if (!result.canceled && result.assets.length > 20) {
       cleanupPickedPhotos(result.assets);
       throw new Error('사진은 20장까지 선택할 수 있습니다.');

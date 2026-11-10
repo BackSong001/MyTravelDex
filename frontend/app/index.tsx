@@ -184,7 +184,7 @@ export default function Home(){
 
  async function choose(source:'system'|'original'='system'){
   const epoch=sessionEpoch.current;
-  const fullAccess=source==='original'?await photoPermission():false;
+  const fullAccess=await photoPermission(source==='original');
   if(epoch!==sessionEpoch.current)return;
   const picked=await pickPhotos(fullAccess,source);if(picked.canceled)return;
   if(epoch!==sessionEpoch.current){cleanupPickedPhotos(picked.assets);return;}

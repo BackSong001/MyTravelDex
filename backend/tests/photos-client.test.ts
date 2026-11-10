@@ -1,11 +1,11 @@
 import {beforeEach,expect,test,vi} from 'vitest';
-const {manipulate,read,permission,info,pick,size,library,copy,uuid,platform,fileState}=vi.hoisted(()=>({platform:{OS:'android'},fileState:{size:100},manipulate:vi.fn(),read:vi.fn(),permission:vi.fn(),info:vi.fn(),pick:vi.fn(),size:vi.fn(),library:vi.fn(),copy:vi.fn(),uuid:vi.fn()}));
+const {manipulate,read,permission,queryPermission,info,pick,size,library,copy,uuid,platform,fileState}=vi.hoisted(()=>({platform:{OS:'android'},fileState:{size:100},manipulate:vi.fn(),read:vi.fn(),permission:vi.fn(),queryPermission:vi.fn(),info:vi.fn(),pick:vi.fn(),size:vi.fn(),library:vi.fn(),copy:vi.fn(),uuid:vi.fn()}));
 vi.mock('../../frontend/node_modules/expo-crypto',()=>({randomUUID:uuid}));
 vi.mock('../../frontend/node_modules/expo-file-system/legacy',()=>({copyAsync:copy}));
 vi.mock('../../frontend/node_modules/react-native',()=>({Platform:platform,Image:{getSize:size}}));
 vi.mock('../../frontend/node_modules/expo-image-picker',()=>({launchImageLibraryAsync:library}));
 vi.mock('../../frontend/node_modules/expo-document-picker',()=>({getDocumentAsync:pick}));
-vi.mock('../../frontend/node_modules/expo-media-library',()=>({requestPermissionsAsync:permission,getAssetInfoAsync:info}));
+vi.mock('../../frontend/node_modules/expo-media-library',()=>({requestPermissionsAsync:permission,getPermissionsAsync:queryPermission,getAssetInfoAsync:info}));
 vi.mock('../../frontend/node_modules/expo-image-manipulator',()=>({manipulateAsync:manipulate,SaveFormat:{JPEG:'jpeg'}}));
 vi.mock('../../frontend/node_modules/expo-file-system',()=>({
  Paths:{cache:{uri:'file:///app/cache/'}},
@@ -88,3 +88,12 @@ test('TC-PHOTO-METADATA-002: a Web File supplies capture metadata; candidates ne
  expect(await photoMetadata({...asset,assetId:null,file:file as any})).toMatchObject({captured_date:'2026-11-03',latitude:0,longitude:0});
  platform.OS='android';info.mockResolvedValue({exif:{GPSLongitude:127}});read.mockRejectedValue(new Error('Unavailable'));expect(await photoMetadata({...asset,exif:{GPSLatitude:37}})).toMatchObject({latitude:null,longitude:null});
 });
+
+ test.each([{granted:true,accessPrivileges:'all',expected:true},{granted:true,accessPrivileges:'limited',expected:false},{granted:false,accessPrivileges:'none',expected:false},{granted:true,expected:false}])('Android default permission query is photo-only and never requests access: %j',async({expected,...response})=>{
+ queryPermission.mockResolvedValue(response);expect(await photoPermission(false)).toBe(expected);expect(queryPermission).toHaveBeenCalledWith(false,['photo']);expect(permission).not.toHaveBeenCalled();expect(info).not.toHaveBeenCalled();
+ });
+ test('default permission query failure and non-Android paths keep modern selection',async()=>{
+ queryPermission.mockRejectedValue(new Error('Query failed'));expect(await photoPermission(false)).toBe(false);
+ queryPermission.mockClear();for(const os of ['web','ios']){platform.OS=os;expect(await photoPermission(false)).toBe(false);}
+ expect(queryPermission).not.toHaveBeenCalled();expect(permission).not.toHaveBeenCalled();
+ });
