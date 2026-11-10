@@ -92,3 +92,9 @@ Phase A 사진pure/parser/대역→실Local HTTP→웹실File입력/저장, Phas
 ### Phase C 구현 계약 보충
 
 `profile_setup_status()`는 본인 완료 여부만 반환하는 인증 전용 STABLE RPC다. `complete_profile_setup(display_name,avatar_url,public_profile_enabled)`는 owner 입력 없이 본인 profile 행 잠금 후 이름 trim1~30/공개동의 boolean을 검증하고 선택값과 완료 true를 원자 저장한다. avatar는 null(기본곰) 또는 본인 auth.identities의 Google provider identity_data avatar_url/picture을 명시 선택한 값만 허용한다. 이미 완료된 요청의 재시도는 기존 값을 반환하고 프로필을 다시 덮지 않으며 이후 My 편집은 기존 경로를 쓴다. anon/GET mutation/직접 완료 PATCH를 거부한다. 기존 공개 view에는 완료열을 추가하지 않는다. 미지원 status RPC404는 기존 서버 호환 안내만 남기고 기존 로그인 흐름을 유지하며 새 온보딩 성공으로 기록하지 않는다. 일시 오류는 재시도/로그아웃을 제공하고 완료로 추측하지 않는다.
+
+### Native EXIF 배포본 호환 보강
+
+exifr는7.1.3으로고정한다. 실제Android빌드에서기본ESM/UMD의Node전용동적import문법이Hermes컴파일을막는것을확인했다. legacy UMD는단독컴파일되지만PNG bytes검사에서오류가발생해채택하지않는다. 전체source진입점도실APK시작에서navigator.userAgent가없는Native의불필요한브라우저회전기능때문에실패해폐기했다. Native는설치README의공식모듈구성방식으로core/JPEG/PNG/TIFF와EXIF/GPS키사전만정적연결하고, 그소스의Node전용util/import.mjs만browser분기와같은undefined반환으로대체한다. 입력은기존소유층이읽은Uint8Array이며Node fs/http/zlib reader는사용하지않는다. Web은기존진입점을유지하고새자체EXIF엔진/전역polyfill/변환복제본을추가하지않는다. 양진입점의JPEG/PNG·LE/BE·raw날짜/offset·DMS검사와실제APK빌드를구분한다. 원본접근권한이나제공자GPS제거를이호환보강으로해결했다고주장하지않는다.
+
+Native 실선택에서 Downloads의 MediaStore-backed 문서(msf:<숫자ID>)는 복사본의 GPS가 제거될 수 있음을 확인했다. 설치 Expo ImagePicker의 getMediaStoreAssetId와 같은 공급자/문서형식 해석을 원본 DocumentPicker에도 적용해 기존 MediaLibrary의 setRequireOriginal 보완을 사용한다. legacy 숫자 Downloads ID/raw filesystem/클라우드 ID를 MediaStore ID로 추측하거나 파일명으로 갤러리를 검색하지 않는다.

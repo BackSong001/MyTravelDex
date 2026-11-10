@@ -1508,3 +1508,7 @@ unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydami
 ### 2026-11-10 18:38 KST 체크포인트
 
 t14 A~D/ID 지정 정적 승인과 t9d 구조 검토를 받았다. t9d의 Native 재진입 취소 경계를 보강해 집중5 통과했고 불필요한 import2개만 정리했다. 전체 웹 1차156/4/2skip의 실패는3곳 옛기대값 및 신규status fixture누락을 보강한 대상4 통과로 분리한다. 새전체/Android/원격 수용을 완료로 기록하지 않는다. main 체크포인트에 구현·명세·검사를 저장하며 기존루트package/lock·untracked와 자동갱신PNG는 제외한다.
+
+### 2026-11-10 19:13 KST Native 통합 후속
+
+main 21cc0ff 푸시 뒤 실제 Android에서 exifr 동적import/Hermes컴파일과 불필요한 browser orientation의 startup크래시를 발견했다. 같은7.1.3 upstream JPEG/PNG/TIFF 모듈만 Native에 연결하고 제한된 Node import shim을 사용한다. legacy/full 후보 실패를 최신성공과 분리했다. Native-like VM/양parser와기존사진35통과, 최신 APK1분45초 성공이며 실제GPS저장은 진행중이다. Downloads msf exact ID를 기존MediaLibrary보완으로 연결했고 합성PNG fixture CRC도 정정했다. t14/t9d 읽기승인, 원격은3개migration dry-run까지만이며 사용자승인대기다. 변경파일: `frontend/metro.config.js`, `frontend/src/exifrNative.js`, `frontend/src/exifrNativeImport.ts`, `frontend/src/photos.ts`, `backend/tests/{native-exif,photo-metadata,photos-picker}.test.ts`, `backend/tests/fixtures/photo-exif.ts`, `docs/PRODUCT_UPDATE_20261110_SPEC.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`.

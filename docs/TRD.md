@@ -844,3 +844,5 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 ## 2026-11-10 사진 자동입력·작성·프로필·여행 도구 개편
 
 사용자13항목의현행확정/답변대기·요구사항/TC·실행범위는 [PRODUCT_UPDATE_20261110_SPEC](PRODUCT_UPDATE_20261110_SPEC.md)을 따른다. 사진선택순서의첫유효GPS/웹실File추출/Android원본보완·수동입력보존을우선한다. 작성시지도폭/드래그접기·공개radio/헤더·온보딩·단일군집작성자·여행지랜덤/선반·스타일디자인을단계별검증한다. ID필수공개는로그인exact검색·친구요청만허용하고이름/avatar동의·목록/추천/anon·private/초안/서명URL보호를유지한다. 새서버항목은Local검증과원격별도승인/앱우선롤백으로분리하고main푸시·실배포수용은동일하지않다.
+
+Native EXIF parser의 exifr7.1.3 기본배포본은 Node용 동적 import가 Hermes에 남아 Android컴파일이 실패했다. legacy UMD 후보는 PNG bytes 검사 실패로 폐기했다. Metro android/ios만 같은 설치본 core/JPEG/PNG/TIFF·EXIF/GPS사전만 정적으로 연결하고 Node전용 util/import만 browser의 undefined 반환으로 대체한다. 선택 Uint8Array만 파싱하며 Web 기본진입점/파싱·원좌표·날짜·권한 계약은 유지한다. 실제 배포본별 bytes/날짜 검사와 APK 빌드를 별도로 확인한다(사용자13항목 SPEC의 Native호환 보강 절).

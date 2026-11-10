@@ -149,3 +149,9 @@ test('partial copy failure preserves successful files and continues with the nex
   expect(copy).toHaveBeenCalledTimes(3);
   expect(remove.mock.calls).toEqual([['file:///app/cache/photo-2.jpg']]);
 });
+
+test('TC-PHOTO-METADATA-004: Downloads msf document identity reuses selected MediaStore metadata without guessing legacy IDs',async()=>{
+ document.mockResolvedValue({canceled:false,assets:[{uri:'content://com.android.providers.downloads.documents/document/msf%3A111',name:'selected.png',mimeType:'image/png'}]});info.mockResolvedValue({location:{latitude:35.8151,longitude:127.1539},exif:{DateTimeOriginal:'2026:11:10 12:00:00'}});
+ const picked=await photos.pickPhotos(true,'original');expect(picked.assets?.[0].assetId).toBe('111');expect(await photos.photoMetadata(picked.assets![0])).toMatchObject({latitude:35.8151,longitude:127.1539});expect(info).toHaveBeenCalledWith('111');
+ info.mockClear();document.mockResolvedValue({canceled:false,assets:[{uri:'content://com.android.providers.downloads.documents/document/111',name:'legacy.jpg'}]});const legacy=await photos.pickPhotos(true,'original');expect(legacy.assets?.[0].assetId).toBeNull();expect(info).not.toHaveBeenCalled();
+});

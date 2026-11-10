@@ -1069,3 +1069,15 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 전체 웹 1차는 **156통과/4실패/정적artifact2skip(162),14.9분**이다. 실패는 travel의 all-invalid 새공통안내/이전main Welcome heading/기존로그인 OAuth취소 복귀버튼의 옛 기대값3건과, web-oauth SDK fixture가 새 status RPC에도[]를 반환해 정상 Gate에 차단된1건이다. 제품 gate/권한을 완화하지 않고 0/20선택·owner기록0/guest탐색·SDK동일owner 유지까지 보존한 기대값 및 완료fixture bool응답으로 보강했다. t14가 보정 방향을 읽기 확인했고 대상 **4통과17.4초**다. 이 결과를 새전체162 Green으로 합산하지 않는다.
 
 t9d는 추가 구조 재설계가 필요 없다고 읽기 검토했고, Native Pressability 재진입에서 onPressIn이 moved 취소를 풀던 경계만 보강했다. 해당 핸들러의 이동9→재진입→long/release 억제 및 취소 후 비포인터 접근성 활성 회귀는 Red1/4→**Native5통과0.839초**다. 실제 새 touch에서만 초기화하고 비포인터 onPress는 허용한다. 미사용 import2개만 제거했다. 이 Native 좁은 수정은 웹 bundle 경로에 포함되지 않으며 Android SDK 실제 전달 수용과 구분한다. 전체 웹 재실행은 production artifact 환경을 명시해2skip도 별도로 검사할 예정이다.
+
+### Native EXIF 실제 통합 보강 (19:13 KST)
+
+actual Android QA는 Local54321만 연결하는 별도 release APK/새Local QA계정/합성3파일로 진행한다. CPU2/nice10/Gradle worker1·heap1536MiB/Node1536MiB/Metro1, 각 빌드 뒤60초 이상 휴식을 지킨다. AVD mytrveldex는CPU2/메모리3072MiB/host GPU로 실행하며 기존사용자앱데이터를clear하지 않는다.
+
+1. 기본 exifr 배포본의 Node 동적 import가 Hermes에 남아 실제 APK 컴파일 실패(1분6초)했다. legacy UMD 후보는 단독Hermesc compile0이어도 PNG bytes1fail/32pass라 폐기했다.
+2. upstream full source+Node import shim은 APK빌드2분14초 exit0이었지만 실제 시작에서 navigator.userAgent 없는 환경의 orientation ua.includes로 크래시했다. sourcemap으로 upstream highlevel/orientation의 시작경계를 확인했다. 이 빌드 성공을 실행 성공으로 합산하지 않는다.
+3. 공식 모듈식 core/JPEG/PNG/tiff-exif/ifd0·exif·gps·interop 키사전으로 Native entry를 좁혔다. 잘못된 초기 module 경로의 조립 실패와, pick 시 interop사전 누락의 구현 오류를 검사에서 잡아 보강했다. userAgent/Node/Buffer없는 VM의 실제 bytes/pick 검사와 양parser/client/picker를 포함한34 통과 후 APK1분43초 exit0, 실제 앱시작/Local 새계정 프로필완료/원본선택 날짜minmax를 관측했다. 공식SDK의 Native 런타임과 VM 결과는 따로 판정한다.
+4. 합성 PNG의 기존 IDAT CRC가 잘못돼 Android가 해당파일을 제외하고 정상사진1장/부분제외 안내를 유지했다. fixture checksum만 바로잡아 PNG verify/decode 및 실제2장 선택·2026-11-09~10 자동기간을 확인했다. 이는 제품 PNG parser 실패와 구분한다.
+5. Downloads의 msf:<MediaStore ID>를 원본 picker가 놓쳐 기존MediaLibrary setRequireOriginal 위치보완이 빠진 실경계를 확인했다. 설치Expo ImagePickerUtils의 authority/msf exact 해석을 재사용하며 legacy숫자/raw/cloud ID는 추측하지 않는다. 추가 Red1/19→포함35 통과1.44초, t14/t9d 지정 정적 승인 후 최신 APK1분45초 exit0이다. 최신 실제 GPS 수신·저장/마커터치는 아직 진행 전이므로 완료로 기록하지 않는다. Native entry는 내용동일 .js로 두어 RN Gradle의 JS 입력 추적에 포함했다.
+
+Appium의 첫 instrumentation 준비 실패는 이후 embedded session(autoLaunch=false/noReset/기존서버)으로 회복했고, 앱의 UA startup크래시와 별개 환경 이력으로 유지한다. 시스템 파일선택기에서는 QA 파일만 선택하고 계정 항목/기존 실사진을 QA로 사용하지 않는다. 원격migration/실Google/실기기/iOS 실행은 하지 않았다.

@@ -11,7 +11,7 @@ export function metadataPhoto({format='jpeg',little=true,latitude=35.8151,longit
   for(const [p,n]of [[384,latitude],[432,longitude]]){const value=Math.abs(n),degrees=Math.floor(value),minutes=Math.floor((value-degrees)*60),seconds=((value-degrees)*60-minutes)*60;[degrees,minutes,seconds].forEach((v,i)=>{u32(p+i*8,Math.round(v*1e6));u32(p+i*8+4,1e6);});}
  }
  if(format==='png'){
-  const image=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64'),chunk=Buffer.alloc(tiff.length+12);chunk.writeUInt32BE(tiff.length);chunk.write('eXIf',4);chunk.set(tiff,8);
+  const image=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=','base64'),chunk=Buffer.alloc(tiff.length+12);chunk.writeUInt32BE(tiff.length);chunk.write('eXIf',4);chunk.set(tiff,8);
   let crc=0xffffffff;for(const byte of chunk.subarray(4,-4)){crc^=byte;for(let bit=0;bit<8;bit++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}chunk.writeUInt32BE((crc^0xffffffff)>>>0,chunk.length-4);
   return Buffer.concat([image.subarray(0,33),chunk,image.subarray(33)]);
  }

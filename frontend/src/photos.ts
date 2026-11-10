@@ -48,7 +48,8 @@ export async function pickPhotos(fullAccess: boolean, source: 'system' | 'origin
     let copy:File|undefined;
     try {
       const uri = new URL(file.uri);
-      const assetId = uri.hostname === 'com.android.providers.media.documents' ? decodeURIComponent(uri.pathname).match(/\/document\/image:(\d+)$/)?.[1] ?? null : null;
+      const documentId=decodeURIComponent(uri.pathname).match(/\/document\/([^/]+)$/)?.[1]??'';
+      const assetId=uri.hostname==='com.android.providers.media.documents'?documentId.match(/^image:(\d+)$/)?.[1]??null:uri.hostname==='com.android.providers.downloads.documents'?documentId.match(/^msf:(\d+)$/)?.[1]??null:null;
       const info = assetId ? await MediaLibrary.getAssetInfoAsync(assetId).catch(() => null) : null;
       copy = new File(Paths.cache, `${randomUUID()}.${file.mimeType === 'image/png' ? 'png' : 'jpg'}`);
       await copyAsync({from:file.uri,to:copy.uri});
