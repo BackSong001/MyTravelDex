@@ -4,7 +4,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as MediaLibrary from 'expo-media-library';
 import * as Manipulator from 'expo-image-manipulator';
 import {File,Paths} from 'expo-file-system';
-import {readExif,validCoordinates} from './domain';
+import {readExif,validCoordinates,RecordValidationError} from './domain';
+import {parse} from 'exifr';
 
 export async function photoPermission() {
   if (Platform.OS === 'web') return true;
@@ -37,42 +38,62 @@ export async function pickPhotos(fullAccess: boolean, source: 'system' | 'origin
   // 원본 URI에서 미디어 ID와 EXIF를 확보한 뒤 앱 캐시로 복사한다.
   const result = await DocumentPicker.getDocumentAsync({type:['image/jpeg','image/png'],multiple:true,copyToCacheDirectory:false});
   if (result.canceled) return {canceled:true as const,assets:null};
-  const cached: File[] = [];
-  try {
-    if (result.assets.length > 20) throw new Error('사진은 20장까지 선택할 수 있습니다.');
-    const {randomUUID} = await import('expo-crypto');
-    // File.copy는 Android content:// URI를 지원하지 않아 스트림 복사를 사용한다.
-    const {copyAsync} = await import('expo-file-system/legacy');
-    const assets: ImagePicker.ImagePickerAsset[] = [];
-    for (const file of result.assets) {
+  if (result.assets.length > 20) throw new Error('사진은 20장까지 선택할 수 있습니다.');
+  const {randomUUID} = await import('expo-crypto');
+  // File.copy는 Android content:// URI를 지원하지 않아 스트림 복사를 사용한다.
+  const {copyAsync} = await import('expo-file-system/legacy');
+  const assets: ImagePicker.ImagePickerAsset[] = [];
+  let rejectedCount=0,firstError:unknown;
+  for (const file of result.assets) {
+    let copy:File|undefined;
+    try {
       const uri = new URL(file.uri);
       const assetId = uri.hostname === 'com.android.providers.media.documents' ? decodeURIComponent(uri.pathname).match(/\/document\/image:(\d+)$/)?.[1] ?? null : null;
       const info = assetId ? await MediaLibrary.getAssetInfoAsync(assetId).catch(() => null) : null;
-      const copy = new File(Paths.cache, `${randomUUID()}.${file.mimeType === 'image/png' ? 'png' : 'jpg'}`);
-      cached.push(copy);
+      copy = new File(Paths.cache, `${randomUUID()}.${file.mimeType === 'image/png' ? 'png' : 'jpg'}`);
       await copyAsync({from:file.uri,to:copy.uri});
       const fileSize = copy.size;
       if (!copy.exists || !Number.isSafeInteger(fileSize) || fileSize <= 0) throw new Error('사진 파일을 읽지 못했습니다. 다른 사진을 선택해 주세요.');
+      if(fileSize>MAX_PHOTO_BYTES)throw new RecordValidationError('photos','사진은 20 MiB 이하여야 합니다.');
       const dimensions = await Image.getSize(copy.uri);
       assets.push({uri:copy.uri,assetId,fileName:file.name,fileSize,mimeType:file.mimeType,type:'image',exif:info?.exif ?? null,...dimensions});
+    } catch(error) {
+      rejectedCount++;firstError??=error;
+      if(copy)cleanupPickedPhotos([copy]);
     }
-    return {canceled:false as const,assets};
-  } catch (error) {
-    cleanupPickedPhotos(cached);
-    throw error;
   }
+  if(!assets.length)throw firstError??new Error('사진 파일을 읽지 못했습니다. 다른 사진을 선택해 주세요.');
+  return {canceled:false as const,assets,rejectedCount};
 }
 
+const MAX_PHOTO_BYTES=20*1024*1024;
+async function selectedFileMetadata(asset:ImagePicker.ImagePickerAsset){
+  try{
+    let file: {size:number;arrayBuffer:()=>Promise<ArrayBuffer>};
+    if(Platform.OS==='web'){
+      if(asset.file)file=asset.file;
+      else if(asset.uri.startsWith('blob:')||asset.uri.startsWith('data:image/')){
+        if(asset.uri.length>MAX_PHOTO_BYTES*1.4)throw new RecordValidationError('photos','사진은 20 MiB 이하여야 합니다.');
+        file=await (await fetch(asset.uri)).blob();
+      }else return readExif({});
+    }else file=new File(asset.uri);
+    if(!Number.isSafeInteger(file.size)||file.size<=0)return readExif({});
+    if(file.size>MAX_PHOTO_BYTES)throw new RecordValidationError('photos','사진은 20 MiB 이하여야 합니다.');
+    const bytes=await file.arrayBuffer();
+    if(bytes.byteLength>MAX_PHOTO_BYTES)throw new RecordValidationError('photos','사진은 20 MiB 이하여야 합니다.');
+    // EXIF 달력 날짜를 Date로 바꾸지 않고 필요한 작은 값만 반환한다.
+    return readExif(await parse(new Uint8Array(bytes),{reviveValues:false,xmp:false,icc:false,iptc:false,jfif:false,ihdr:false,pick:['DateTimeOriginal','OffsetTimeOriginal','GPSLatitude','GPSLatitudeRef','GPSLongitude','GPSLongitudeRef']}) as Record<string,unknown>??{});
+  }catch(error){if(error instanceof RecordValidationError)throw error;return readExif({});}
+}
 export async function photoMetadata(asset: ImagePicker.ImagePickerAsset) {
-  let metadata = readExif(asset.exif ?? {});
-  if (Platform.OS !== 'web' && asset.assetId) {
-    try {
-      const info = await MediaLibrary.getAssetInfoAsync(asset.assetId);
-      metadata = readExif({...info.exif, ...asset.exif});
-      if (info.location && validCoordinates(info.location.latitude,info.location.longitude)) metadata = {...metadata, latitude: info.location.latitude, longitude: info.location.longitude};
-    } catch { /* 선택 사진의 메타데이터 접근이 제한되면 직접 입력한다. */ }
+  const bytes=await selectedFileMetadata(asset),sdk=readExif(asset.exif??{});
+  let library=readExif({}),location:{latitude:number;longitude:number}|undefined;
+  if(Platform.OS!=='web'&&asset.assetId){
+    try{const info=await MediaLibrary.getAssetInfoAsync(asset.assetId);library=readExif({...info.exif});if(info.location&&validCoordinates(info.location.latitude,info.location.longitude))location=info.location;}catch{ /* 선택한 파일/SDK 정보는 접근 거부와 별개로 유지한다. */ }
   }
-  return metadata;
+  const date=[bytes,sdk,library].find(value=>value.captured_date)??sdk;
+  const gps=[location,bytes,sdk,library].find(value=>value&&value.latitude!=null&&value.longitude!=null&&validCoordinates(value.latitude,value.longitude));
+  return {captured_date:date.captured_date,captured_at:date.captured_at,latitude:gps?.latitude??null,longitude:gps?.longitude??null};
 }
 
 async function imageBytes(uri: string) {

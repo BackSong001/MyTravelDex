@@ -575,3 +575,8 @@ TC-WEB-MAP-LAYOUT-001을 따른다. 설치된 MapLibre CSS는 기존 prepare-map
 ## 웹 홈 지도 전체 맞춤 (2026-11-09)
 
 TC-WEB-MAP-OVERVIEW-001을 따른다. Home의 web&&mapHome에만 지도 폭min(720px,가용높이*.9)/가운데 배치를 적용하고 상단 앱 이름·설정·테마도 같은 계산폭을 공유한다. 명시 homeOverview는 fullScreen 작성 지도와 구분하며 Native는 소비하지 않는다. 홈 전체 맞춤은 KOREA_BOUNDS/높이별여백·조작버튼영역을 사용하고 fill강제maxBounds는 홈에서 해제한다. 현재home/자동overview일 때만 resize-fit하며 원래사용자event/zoom버튼은auto를끄고 전체버튼이재개한다. 작성 전환은렌더에서auto를끄고 최신ref를읽어auto-fit을유입하지않으며기존PAN_BOUNDS/상세·보정경로를유지한다. 지도재생성/데이터effect/사진CSS정책은변경하지않는다. 실제모든label동시노출/직접drag·pinch수용/Android수용으로확대하지않는다.
+
+
+## 2026-11-10 사용자13항목 개편
+
+PRODUCT_UPDATE_20261110_SPEC의phase/확정범위와t14게이트를따른다. GPS를우선하고실File/Native수신·실HTTP·대역/웹을구분한다. 사진자동좌표는첫유효쌍,날짜min-max이며수동edited/계정세대/원본보존을지킨다. 작성drag는접기이고입력폐기가아니다. 이름설정은프로필공개동의가아니며ID필수공개는인증exact검색·친구요청만허용하고이름/사진공개동의를유지한다. 여행지뽑기는사용자가대상을확정했고스타일은이번디자인만이다. 모든제품변경은명세후진행,기존원본자산/관계/RLS/UUID재시도보존,main커밋/푸시하되외부package/lock/untracked변경은제외한다. 원격schema변경은별도승인전실행하지않고저자원빌드/후60초휴식을유지한다.

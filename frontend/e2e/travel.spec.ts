@@ -53,13 +53,13 @@ test('TC-UI-008 손상된 이미지와 지원하지 않는 형식 거부',async(
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
  for(const file of [{name:'broken.jpg',mimeType:'image/jpeg',buffer:Buffer.from('invalid image')},{name:'unsupported.gif',mimeType:'image/gif',buffer:jpeg}]){
   const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'사진 선택',exact:true}).click();await(await chooser).setFiles(file);
-  await expect(page.getByRole('alert')).toContainText(file.mimeType==='image/jpeg'?'손상':'JPEG 또는 PNG');
+  await expect(page.getByRole('alert')).toContainText('선택한 사진을 읽을 수 없습니다. JPEG·PNG');await expect(page.getByText('0 / 20장 선택',{exact:true})).toBeVisible();expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
  }
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
 });
 test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
  await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveCount(0);
- await expect(page.getByText('발길이 닿은 곳,',{exact:false})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'나만의 여행도감',exact:true})).toBeVisible();
  await page.screenshot({path:'test-results/journal-login.png',fullPage:true});
  await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();
  await expect(page.getByRole('tab',{name:'홈',exact:true})).toBeVisible();
@@ -80,10 +80,10 @@ test('UI-JOURNAL-003 저장한 사진의 대표 썸네일을 도감에서 조회
  await page.screenshot({path:'test-results/journal-album.png',fullPage:true});
  await page.getByRole('button',{name:/^제주 여행(?:,|$)/}).click();await page.getByRole('button',{name:'여행 관리',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();
 });
-test('UI-JOURNAL-004 OAuth 취소 후 다시 로그인',async({page})=>{
+test('UI-JOURNAL-004 기존 로그인 상태의 OAuth 취소와 앱 복귀',async({page})=>{
  await page.goto('/auth/callback?error=access_denied');await expect(page.getByRole('alert')).toContainText('취소');
- await page.getByRole('button',{name:'로그인 화면으로',exact:true}).click();
- await expect(page.getByRole('tab',{name:'My',exact:true})).toBeVisible();
+ await expect(page.getByText('기존 로그인은 유지됩니다',{exact:true})).toBeVisible();await page.getByRole('button',{name:'앱으로 돌아가기',exact:true}).click();
+ await expect(page.getByRole('tab',{name:'My',exact:true})).toBeVisible();const owner=await page.evaluate(()=>{const key=Object.keys(localStorage).find(key=>/^sb-.*-auth-token$/.test(key));return key?JSON.parse(localStorage.getItem(key)!).user?.id:null;});expect(owner).toBe(userId);
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
 });
 test('UI-MAP-001 홈은 전체 지도이며 사진 추가 진입은 하단 + 하나',async({page})=>{

@@ -12,15 +12,23 @@ export function readExif(exif: Record<string, unknown>) {
   const offset = typeof exif.OffsetTimeOriginal === 'string' ? exif.OffsetTimeOriginal : '';
   const instant = `${date}T${raw.slice(11, 19)}${offset}`;
   const captured_at = validDate(date) && /^[+-]\d{2}:\d{2}$/.test(offset) && !Number.isNaN(Date.parse(instant)) ? new Date(instant).toISOString() : null;
-  const latitude = typeof exif.GPSLatitude === 'number' && exif.GPSLatitudeRef !== '' ? (exif.GPSLatitudeRef === 'S' ? -Math.abs(exif.GPSLatitude) : exif.GPSLatitude) : null;
-  const longitude = typeof exif.GPSLongitude === 'number' && exif.GPSLongitudeRef !== '' ? (exif.GPSLongitudeRef === 'W' ? -Math.abs(exif.GPSLongitude) : exif.GPSLongitude) : null;
-  return { captured_date: validDate(date) ? date : null, captured_at,
-    latitude: latitude !== null && validCoordinates(latitude,0) ? latitude : null,
-    longitude: longitude !== null && validCoordinates(0,longitude) ? longitude : null };
+  const nested=exif.GPS ?? exif.GPSInfo ?? exif['{GPS}'];
+  const gps=nested&&typeof nested==='object'?nested as Record<string,unknown>:exif;
+  function coordinate(value:unknown,ref:unknown){
+    if(ref==='')return null;
+    let result=typeof value==='number'?value:null;
+    if(Array.isArray(value)&&value.length===3&&value.every(n=>typeof n==='number'&&Number.isFinite(n))&&value[1]>=0&&value[1]<60&&value[2]>=0&&value[2]<60)result=(Math.abs(value[0])+value[1]/60+value[2]/3600)*(value[0]<0?-1:1);
+    return result===null?null:ref==='S'||ref==='W'?-Math.abs(result):result;
+  }
+  const lat=coordinate(gps.GPSLatitude??gps.Latitude??gps.latitude,gps.GPSLatitudeRef??gps.LatitudeRef);
+  const lng=coordinate(gps.GPSLongitude??gps.Longitude??gps.longitude,gps.GPSLongitudeRef??gps.LongitudeRef);
+  const valid=lat!==null&&lng!==null&&validCoordinates(lat,lng);
+  return {captured_date:validDate(date)?date:null,captured_at,latitude:valid?lat:null,longitude:valid?lng:null};
 }
 export function suggestRecord(photos: PhotoInput[]) {
   const dates = photos.map(p => p.captured_date).filter((s): s is string => !!s && validDate(s)).sort();
-  return { start_date: dates[0] ?? '', end_date: dates.at(-1) ?? '', latitude: photos[0]?.latitude ?? null, longitude: photos[0]?.longitude ?? null };
+  const gps=photos.find(p=>typeof p.latitude==='number'&&typeof p.longitude==='number'&&validCoordinates(p.latitude,p.longitude));
+  return { start_date: dates[0] ?? '', end_date: dates.at(-1) ?? '', latitude: gps?.latitude ?? null, longitude: gps?.longitude ?? null };
 }
 export class RecordValidationError extends Error {
   constructor(public field: 'photos' | 'start_date' | 'end_date' | 'location', message: string) {super(message);}

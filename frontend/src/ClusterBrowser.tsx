@@ -3,6 +3,7 @@ import React from 'react';
 import Text from './FontText';
 import {Image, ScrollView, StyleSheet, View} from 'react-native';
 import Pressable from './Feedback';
+import Avatar from './Avatar';
 import {markerDescription, type TravelMapProps} from './provinces';
 
 type Props = Pick<TravelMapProps, 'records' | 'covers' | 'authors' | 'onSelect'> & {
@@ -17,7 +18,7 @@ export default function ClusterBrowser({records, covers = {}, authors = {}, onSe
       {records.map(record => <Pressable key={record.id} accessibilityRole="button" accessibilityLabel={`사진으로 보기 · ${markerDescription(record,authors,correction)}`} onPress={() => onSelect?.(record)} style={s.card}>
         {covers[record.id] ? <Image source={{uri:covers[record.id]}} style={s.photo} accessibilityLabel="군집 대표사진"/> : <View style={[s.photo,s.placeholder]}><Text style={s.text}>{correction ? '위치' : '여행'}</Text></View>}
         <Text numberOfLines={2} style={s.cardTitle}>{record.title || record.locations?.place_name || '나의 여행'}</Text>
-        {!correction && <Text style={s.caption}>{record.start_date} ~ {record.end_date}</Text>}
+        {!correction && <><View style={{flexDirection:'row',alignItems:'center',gap:6}}><Avatar url={authors[record.owner_id]?.avatar_url} size={24}/><Text style={s.caption}>{`작성자 · ${authors[record.owner_id]?.display_name||'여행자'}`}</Text></View><Text style={s.caption}>{record.start_date} ~ {record.end_date}</Text></>}
       </Pressable>)}
     </ScrollView>
     <Text style={s.listHeading}>빠른 목록</Text>

@@ -4,6 +4,7 @@ const user={id:'00000000-0000-4000-8000-000000000031',email:'oauth-fixture@examp
 const token=[{alg:'HS256',typ:'JWT'},{sub:user.id,role:'authenticated',aud:'authenticated',exp:Math.floor(Date.now()/1000)+3600},{fixture:true}].map(value=>Buffer.from(JSON.stringify(value)).toString('base64url')).join('.');
 test.beforeEach(async({page})=>{
  await page.route('**/rest/v1/**',route=>route.fulfill({json:[],headers:{'Content-Range':'*/0','Access-Control-Expose-Headers':'Content-Range'}}));
+ await page.route('**/rest/v1/rpc/profile_setup_status',route=>route.fulfill({json:{profile_setup_complete:true}}));
  await page.route('**/auth/v1/settings',route=>route.fulfill({json:{external:{google:true}}}));
  await page.route('**/auth/v1/user',route=>route.fulfill({json:user}));
 });

@@ -1478,3 +1478,33 @@ unslop by Damir Sokolovsky (@heydamir), CC BY 4.0 — https://github.com/heydami
 결과: 원격 main af32bfe와 최신 feature/figma-assets-implementation dfd5283을 fetch로 확인했다. 기존 미커밋 package.json/package-lock.json·untracked를 보존하고 별도 임시 worktree에서37개 후속커밋을충돌없이 --no-ff 병합했다. 기록추가전 staged tree가최신 feature tree와같음을확인했다. scripts/export-web.mjs/vercel.json이병합결과에포함되고 Node production export계약2통과58.1ms/diffcheck0을확인했다. 제품소스추가수정·전체회귀/새build·DB/원격설정·기기실행없음. 기존 latest UI/정적export 검사와 이번병합검사를합산하지않는다. 병합커밋은origin/main에푸시하며최종해시/푸시결과는Git이력과완료전달에서확인한다. Vercel자동배포실제성공은별도확인대상이다.
 
 변경 파일: 기존 feature의승인된누적변경전체를 main에병합, 추가기록 docs/prompts.md. 기존작업폴더와feature브랜치포인터는유지한다.
+
+## 2026-11-10 18:26 KST — 사진·작성·프로필·여행 도구 13항목
+
+사용자 프롬프트 원문:
+
+> 아래의 문제점의 요구사항 범위를 t14와 리뷰하여 넓게 잡고, 명세서를 작성하고 구현해줘.
+> 커밋 푸쉬는 메인으로 진행해줘.
+> 1. 기능: 웹앱, 안드로이드에서 사진을 선택했을 때, 위치정보가 있음에도 자동으로 입력되지않음. 자동으로 입력되게 수정(우선순위 높음)
+> 2. 에러: 웹앱에서 + 버튼을 눌러서 여행기록을 추가할려고 하면 맵이 넓어지는 버그 발견
+> 3. 기능: +로 여행기록을 추가할때, 라디오버튼으로 "비공개" "공개" 동그란 버튼으로 선택하게하기. 기존 디자인형식에 맞춰서
+> 4. 기능: +로 열린 여행추가창. 드래그로 아래로 내려서 닫을 수 있게 설정.
+> 5. 디자인: 작대기 3개 설정은 맨 왼쪽 상단에 배치 (설정 아이콘 타이틀이름(여행가봥))
+> 6. 로그인: 처음 로그인 시 이름과 프로필 설정하게 하기
+> 7. 디자인: 여행기록에 아이콘을 밑에 두는게 아닌 사진 안쪽에 작게 배치
+> 8. 기능: 안드로이드나 웹앱에서 겹쳐진 여행기록을 꾹누르면 작성자가 표시되기
+> 9. 디자인&기능: 설정>여행자 뽑기에 뽑기 기계 디자인 배치. 실제 뽑기를 누르면 여행지 랜덤 추천
+> 10. 디자인: 뱃지 보관함에 뱃지를 보관할 수 있는 선반만 디자인 배치
+> 11. 디자인: 스타일 여행 디자인 확인 후 디자인만 구현
+> 12. 유저 ID는 필수 공개
+> 13. 디자인: 겹쳐진 여행기록 디자인과 단일 여행기록 디자인이 다름. 겹쳐진 여행기록 디자인처럼 통일
+
+추가 확정 답변 원문: `로그인 사용자에게 정확한 ID 검색·친구 요청만 항상 허용 (추천)`
+
+중간 결과: PRODUCT_UPDATE_20261110_SPEC 및 canonical 계약을 t14와 단계별 검토하고 A~D/ID 지정 정적 승인을 받았다. 실제 선택 bytes EXIF/날짜와 첫 유효 GPS, 작성 지도 폭·공개 radio·접기·header, 최초 프로필 원자 완료/인증 exact ID, 마커 작성자·길게누르기, 실제17지역 뽑기/선반/스타일 디자인을 구현했다. 백엔드 전체161통과+외부1skip, 각 집중 웹/대역·types·production export를 확인했고 전체 웹은 실행 중이다. 원격 dry-run의3개 migration은 미적용이며 실제 Android/Google 신규 설정·원격 수용과 분리한다. t9d 읽기 구조 검토도 요청했다. 완료/최종 커밋·푸시/전체 결과는 후속 이력에 확정한다.
+
+변경 파일: `docs/PRODUCT_UPDATE_20261110_SPEC.md`, canonical6·`docs/DISAN.md`·`docs/SETTINGS_DISCOVERY_SPEC.md`·`AGENTS.md`, `docs/prompts.md`, `frontend/package.json`·`frontend/package-lock.json`, `frontend/app/index.tsx`, `frontend/src/{photos,domain,ComposerSheet,Social,TravelDiscovery,AppSettings,BadgeCabinet,TravelMap,TravelMap.web,NativeRecordMarker,Journal,ClusterBrowser,RecordPreview}.tsx/ts`, 신규 profile_setup/contact_id migration, 관련 backend 단위/Local HTTP·fixture 및 frontend e2e 검사. 루트 package/lock·storyboard/tsconfig는 제외.
+
+### 2026-11-10 18:38 KST 체크포인트
+
+t14 A~D/ID 지정 정적 승인과 t9d 구조 검토를 받았다. t9d의 Native 재진입 취소 경계를 보강해 집중5 통과했고 불필요한 import2개만 정리했다. 전체 웹 1차156/4/2skip의 실패는3곳 옛기대값 및 신규status fixture누락을 보강한 대상4 통과로 분리한다. 새전체/Android/원격 수용을 완료로 기록하지 않는다. main 체크포인트에 구현·명세·검사를 저장하며 기존루트package/lock·untracked와 자동갱신PNG는 제외한다.

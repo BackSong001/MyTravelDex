@@ -52,7 +52,7 @@ test('TC-FRIEND-004: rejection, cancellation and network failure preserve search
   await page.getByRole('button',{name:'친구 요청',exact:true}).first().click();
   await page.getByRole('button',{name:'요청 취소',exact:true}).first().click();
   await expect.poll(()=>admin(`/rest/v1/friend_requests?requester_id=eq.${accounts[0].id}`)).toEqual([]);
-  await page.route('**/rest/v1/friend_requests',route=>route.request().method()==='POST'?route.abort():route.continue());
+  await page.route(/\/rest\/v1\/(friend_requests|rpc\/request_friend_by_id)$/,route=>route.request().method()==='POST'?route.abort():route.continue());
   await page.getByRole('button',{name:'친구 요청',exact:true}).first().click();
   await expect(page.getByRole('alert')).toContainText('연결을 확인');
   await expect(page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true})).toHaveValue(accounts[1].code.toLowerCase());
@@ -235,7 +235,7 @@ test('TC-FIGMA-FRIENDS-002: capped relationship pages retain final rows and opte
 test('TC-FIGMA-FRIENDS-001: a delayed search cannot replace newer results after inner tab changes',async({page})=>{
  await friends(page,0);await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();
  let release!:()=>void,reached!:()=>void;const gate=new Promise<void>(resolve=>release=resolve),arrival=new Promise<void>(resolve=>reached=resolve);
- await page.route('**/rest/v1/rpc/lookup_user_id',async route=>{
+ await page.route('**/rest/v1/rpc/lookup_contact_id',async route=>{
   if(route.request().postDataJSON().user_id!==accounts[1].code)return route.continue();
   const response=await route.fetch();reached();await gate;await route.fulfill({response});
  });

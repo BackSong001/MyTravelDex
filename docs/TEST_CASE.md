@@ -113,7 +113,7 @@ TC-MAPLIBRE-010 ↔ FR-UI-016: native/web 공통산/풀SVG의 모든 path fill=n
 
 ## 사진 자동입력·위치 검색바 계획 (2026-11-08)
 
-TC-PHOTO-LOCATION-001 ↔ FR-PHOTO-LOCATION-001: 기존 metadata/날짜 min-max/첫사진GPS/null·권한제한을 재검증한다. 실제 Home+사진선택 경계 대역으로 자동 기간/좌표와 수동편집 보존을 확인하며 대역 결과를 실기기 EXIF 수신으로 계산하지 않는다.
+TC-PHOTO-LOCATION-001 ↔ FR-PHOTO-LOCATION-001: metadata/날짜 min-max/선택 순서상 첫 유효 GPS/null·권한제한을 재검증한다. 실제 Home+사진선택 경계 대역으로 자동 기간/좌표와 수동편집 보존을 확인하며 대역 결과를 실기기 EXIF 수신으로 계산하지 않는다.
 TC-PHOTO-LOCATION-002 ↔ FR-PHOTO-LOCATION-002: GPS없는 실제 Local UI에서 빈 검색바→키보드/클릭으로 별도 검색창→장소/핀확정·취소/오류 시 날짜·사진/위치 유지. 기존 위치선택 버튼 없음과 확정 전 위치필수 검증을 확인한다.
 TC-PHOTO-LOCATION-003 ↔ FR-PHOTO-LOCATION-003: GPS 즉시표시→역조회 장소/주소 표시, 서버가 다른 좌표/source를 반환해도 원EXIF좌표/source 유지. 조회 실패·새사진·수동확정·작성취소/초안/계정전환 후 지연응답 무시. Android는 mytrveldex AVD명을 확인하고 최신APK 설치해 실제 검색바/별도창과 metadata수신/누락 증거를 구분한다.
 
@@ -541,7 +541,7 @@ Red에서는 아래 DB·RLS·RPC·Storage 계약을 먼저 실패시킨다. Gree
 | TC-TRAVEL-005 | FR-PHOTO-004 | 날짜 전체 null | 수동 기간 필수, 입력 최종값 저장 |
 | TC-TRAVEL-006 | FR-TRAVEL-001 | 역전 기간·제목 100/101자·내용 5000/5001자 | 경계 이내 허용·초과 거부 |
 | TC-TRAVEL-007 | FR-TRAVEL-007 | 표시 첫 사진 A·두 번째 B, 업로드 완료 순서 역전 | 최초 대표 위치 A, 수동 보정 우선 |
-| TC-TRAVEL-008 | FR-TRAVEL-007 | 표시 첫 사진 GPS 없음·두 번째만 GPS | 자동 대체 금지, 수동 위치 없으면 완료 차단 |
+| TC-TRAVEL-008 | FR-TRAVEL-007 | 표시 첫 사진 GPS 없음·두 번째만 GPS | 두 번째 사진의 유효 GPS 제안, 모든 GPS 누락 시 수동 위치 없으면 완료 차단 |
 | TC-TRAVEL-009 | FR-PHOTO-005 | 대표 미지정·교체·대표사진 삭제 | 완료 시 정확히 하나, 기본 첫 사진, 삭제 시 남은 첫 사진 |
 | TC-TRAVEL-010 | FR-PHOTO-001 | 마지막 사진 삭제·사진 20/21장 | 마지막 삭제 거부, 최대 20장 강제 |
 | TC-TRAVEL-011 | FR-TRAVEL-008 | 동시 완료/사진 삭제·동시 대표 교체·동시 사진 추가 | 동일 부모 잠금, complete 사진≥1·대표=1·사진≤20 유지 |
@@ -1044,3 +1044,28 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 - 추가 상단 요청은 t185에서 header/map 좌우200px 차이 Red를 확인했다. Home의 homeMapWidth 계산 한 곳을 web&&mapHome header와map wrapper가 공유하고 기존padding/flex-wrap/compact/48px·다른화면은 유지한다. t14/t9d 지정 읽기 승인, actual8083 t186 단일4통과11.1초다.
 - 최종 header 포함 production export t187 exit0. 빌드후60초 이상휴식 뒤 t188은 단일6통과11.6초(실export 지도/크기/전체/헤더/확대복귀4+callback/자산MIME·바이트2)다. 1920x1080/1440x900/390x844/320x568/844x390의 최종폭/높이/bounds/header좌우/설정·테마 버튼 안쪽을 같은poll에서 확인했다. 사진52/아바타24 및 CSSzoom0.8/1.25/1은 유지하며 브라우저 실제Ctrl 확대와 구분한다.
 - 최종 frontend TypeScript exit0/diffcheck exit0. 실제 no-dev/production guest의 합성 기록/1px 합성PNG·기존곰 자산만 사용했다. /tmp 캡처를 직접 확인했으며 흰색 합성사진은 실제풍경 품질 증거가 아니다. 새Git이미지/계정화면은 없고 자동 verification PNG2개는 원복했다. 자체8084서버 종료/actual8083 유지, 에뮬레이터·새APK·실기기·실배포·원격설정/DB쓰기·전체 backend/전체웹 재실행은 하지 않았다. 기존 루트Expo58 package/lock/tsconfig 및 untracked는 보존·커밋 제외한다. 이전 실행을 최종 전체Green으로 합산하지 않는다.
+
+
+## 2026-11-10 사진 자동입력·작성·프로필·여행 도구 개편
+
+사용자13항목의현행확정/답변대기·요구사항/TC·실행범위는 [PRODUCT_UPDATE_20261110_SPEC](PRODUCT_UPDATE_20261110_SPEC.md)을 따른다. 사진선택순서의첫유효GPS/웹실File추출/Android원본보완·수동입력보존을우선한다. 작성시지도폭/드래그접기·공개radio/헤더·온보딩·단일군집작성자·여행지랜덤/선반·스타일디자인을단계별검증한다. ID필수공개는로그인exact검색·친구요청만허용하고이름/avatar동의·목록/추천/anon·private/초안/서명URL보호를유지한다. 새서버항목은Local검증과원격별도승인/앱우선롤백으로분리하고main푸시·실배포수용은동일하지않다.
+
+## 2026-11-10 사용자13항목 통합 개편 — 실행 중
+
+현행 계약은 PRODUCT_UPDATE_20261110_SPEC을 따른다. 사진 대표위치는 이번 사용자 요청으로 표시 순서상 첫 유효 GPS로 변경했다. 원본 날짜/offset과 GPS 후보 완전쌍·실제 크기/순차 추출·실패 파일만 제외하는 계약을 검사한다. Web File/원본 캐시 대역과 실제 Android 수신을 구분한다.
+
+- Photo: t18c의 metadata2건 행동 Red 이후 t18g의 parser/client/picker 단위33 통과. t18f의 1건은 DMS 변환 부동소수의 정확동등 전제로 실패한 검사이며 좌표를 제품에서 반올림하지 않고 허용 오차로 정정했다. 실제 Web File JPEG/PNG 선택→첫 유효 GPS/기간 min-max→Local Storage/metadata/finalize 저장 원좌표 및 수동 edited 보존2 통과. 원본 picker 두 번째 파일의 copy/decode 실패를 파일별로 격리하는 추가 Red2→Green19, metadata 묶음33 통과는 중복 실행으로 합산하지 않는다.
+- Composer/header: 공유 지도 폭과 canvas identity, 비공개 기본/공개 radio 실제 저장, 설정→아이콘→앱이름, handle 접기/재개 후 제목·사진 보존을 검사했다. 수평/위/짧은 아래 drag가 click으로 접히던 Red를 보강했고 집중2 통과13초다. Native 실터치 수용은 아니다.
+- Profile: Local status/원자 완료 RPC2 및 기존 사진HTTP44=46 통과9.96초. 비공개 탭/개행 이름 허용 Red를 regexp trim으로 보강했다. 완료 대기 Modal 차단·최초 저장/비공개 기본·reload 비반복·signout503 안내/입력 보존2 통과9.5초이며 실제 token refresh/Google 신규계정 완료를 이 검사로 주장하지 않는다. 기존 회귀 계정은 완료 fixture, 최초 설정 검사는 새 Auth 계정을 직접 생성한다.
+- ID: 사용자 확정은 인증 exact ID 검색·친구 요청만 항상 허용이다. 새 최소 projection/RPC2와 기존 친구5=7 통과12.42초. private exact에서 공개 metadata503 보완실패에도 요청 가능, 새 RPC404에서도 기존 공개 목록 POST는 정상/비공개 exact는 업데이트 필요인 UI2 통과. 기존 친구 검사 실패2건은 옛 endpoint 대역이 새 exact 요청을 지연/실패시키지 못했던 검사 경계이며 새 exact RPC로 연결 후 대상2 통과11.6초다. 최종 전체 결과와 따로 기록한다.
+- 도구/마커: 여행지 실17시도 후보·320px 스타일 UI와 기존 설정/뱃지 늦은 성공/UUID/계정 회귀7 통과26.1초. 방문제외 중 집계 미확정 차단/복구, 30테마 실제 버튼 대비, 스타일 pane 왕복/owner 초기화의 컴포넌트 웹3 통과28.2초다. harness의 Native 경로 선택/누락 SafeAreaProvider 실패는 제품 Red로 세지 않는다. 사진 안쪽 avatar와 군집 길게누르기 작성자 분리·기존 투영/군집3 통과11.2초, Native 렌더/핸들러 경계5 통과는 실제 MapLibre SDK pan/pinch·터치 전달/접근성 수용이 아니다.
+- 전체 backend: `taskset -c 0,1 nice -n 10 npx vitest run --maxWorkers=1` exit0, **28파일/161통과+외부1skip(162),47.66초**. 외부skip은 실제 Google 동의/취소/Android 복귀다. 로그 `/tmp/mytraveldex-update13-backend.log`. TypeScript와 diff-check exit0. production export는 최초 공개 환경 미전달 `Invalid URL` 종료를 성공으로 세지 않고, 공개 URL/key만 프로세스로 주입한 재실행 exit0으로 dist를 생성했다. 이후60초 이상 휴식했다.
+- 전체 웹은 현재 단일 worker/CPU2코어로 실행 중이며 완료 전 수치를 성공으로 기록하지 않는다. 원격 dry-run만 실행했고 app 환경과 linked target 일치를 확인했다. 적용 후보는 `20261109040000_badge_cabinets.sql`, `20261110100000_profile_setup.sql`, `20261110110000_contact_id.sql`의3개다. 원격 schema/실배포·새 APK/실기기 검증 완료로 확대하지 않는다.
+
+실사진·사용자계정·원격 데이터를 QA fixture로 사용하지 않았다. 합성 JPEG/PNG·Local 전용 계정과 해당 owner의 파일/기록만 정리한다. 새로운 Git 검증 PNG 대신 tmp 캡처를 사용하고 테스트 자동 갱신한 기존 verification 이미지는 최종 커밋 전에 복원한다. 별도 루트 package/lock·untracked 사용자 파일은 작업 범위에서 제외한다.
+
+### 18:38 KST 통합 1차 종료·기대값 보강
+
+전체 웹 1차는 **156통과/4실패/정적artifact2skip(162),14.9분**이다. 실패는 travel의 all-invalid 새공통안내/이전main Welcome heading/기존로그인 OAuth취소 복귀버튼의 옛 기대값3건과, web-oauth SDK fixture가 새 status RPC에도[]를 반환해 정상 Gate에 차단된1건이다. 제품 gate/권한을 완화하지 않고 0/20선택·owner기록0/guest탐색·SDK동일owner 유지까지 보존한 기대값 및 완료fixture bool응답으로 보강했다. t14가 보정 방향을 읽기 확인했고 대상 **4통과17.4초**다. 이 결과를 새전체162 Green으로 합산하지 않는다.
+
+t9d는 추가 구조 재설계가 필요 없다고 읽기 검토했고, Native Pressability 재진입에서 onPressIn이 moved 취소를 풀던 경계만 보강했다. 해당 핸들러의 이동9→재진입→long/release 억제 및 취소 후 비포인터 접근성 활성 회귀는 Red1/4→**Native5통과0.839초**다. 실제 새 touch에서만 초기화하고 비포인터 onPress는 허용한다. 미사용 import2개만 제거했다. 이 Native 좁은 수정은 웹 bundle 경로에 포함되지 않으며 Android SDK 실제 전달 수용과 구분한다. 전체 웹 재실행은 production artifact 환경을 명시해2skip도 별도로 검사할 예정이다.

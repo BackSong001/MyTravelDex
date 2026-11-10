@@ -47,7 +47,7 @@ test('TC-SESSION-001: an old detail response cannot reopen private content after
 });
 
 test('TC-SESSION-001: old save refresh cannot navigate a new owner away from a fresh composer',async({page})=>{
- await draft(page);await page.getByRole('button',{name:'나만 보기',exact:true}).click();
+ await draft(page);await page.getByRole('radio',{name:'공개',exact:true}).click();
  let finalized=false,held=false,release!:()=>void,reached!:()=>void;const gate=new Promise<void>(r=>release=r),arrival=new Promise<void>(r=>reached=r);
  await page.route('**/rest/v1/rpc/finalize_travel_record',async route=>{const response=await route.fetch();finalized=true;await route.fulfill({response});});
  await page.route('**/rest/v1/travel_records?**',async route=>{const u=new URL(route.request().url());if(!finalized||held||route.request().method()!=='GET'||u.searchParams.get('owner_id')!==`eq.${users[0].id}`)return route.continue();held=true;const response=await route.fetch();reached();await gate;await route.fulfill({response});});

@@ -277,3 +277,8 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 
 
 웹 홈 지도 전체 맞춤 TC-WEB-MAP-OVERVIEW-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 상단 앱 이름/설정/테마와 폭·중앙축을 공유하는 지도 viewport 및 기존 국내 전체 경계 맞춤·자동 전체/사용자 탐색 수명을 분리하고 Native/작성·상세·보정/데이터·권한은 유지한다.
+
+
+## 2026-11-10 사진 자동입력·작성·프로필·여행 도구 개편
+
+사용자13항목의현행확정/답변대기·요구사항/TC·실행범위는 [PRODUCT_UPDATE_20261110_SPEC](PRODUCT_UPDATE_20261110_SPEC.md)을 따른다. 사진선택순서의첫유효GPS/웹실File추출/Android원본보완·수동입력보존을우선한다. 작성시지도폭/드래그접기·공개radio/헤더·온보딩·단일군집작성자·여행지랜덤/선반·스타일디자인을단계별검증한다. ID필수공개는로그인exact검색·친구요청만허용하고이름/avatar동의·목록/추천/anon·private/초안/서명URL보호를유지한다. 새서버항목은Local검증과원격별도승인/앱우선롤백으로분리하고main푸시·실배포수용은동일하지않다.

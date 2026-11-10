@@ -373,8 +373,8 @@ test('TC-TRAVEL-006: date and text limits are enforced',async()=>{
 test('TC-TRAVEL-007: first selected position wins regardless of upload completion',()=>{
   expect(suggestRecord([{latitude:33,longitude:126},{latitude:37,longitude:127}])).toMatchObject({latitude:33,longitude:126});
 });
-test('TC-TRAVEL-008: later GPS never replaces missing first position',()=>{
-  expect(suggestRecord([{}, {latitude:37,longitude:127}]).latitude).toBeNull();
+test('TC-TRAVEL-008: first valid GPS is used when the first selected photo has none',()=>{
+  expect(suggestRecord([{}, {latitude:37,longitude:127}])).toMatchObject({latitude:37,longitude:127});
   expect(()=>validateRecord({start_date:'2026-01-10',end_date:'2026-01-10',latitude:NaN,longitude:NaN},1)).toThrow();
 });
 test('TC-TRAVEL-009: cover can change and deleting it chooses remaining photo',async()=>{

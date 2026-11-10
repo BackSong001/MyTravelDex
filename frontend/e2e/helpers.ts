@@ -3,7 +3,10 @@ import {execFileSync} from 'node:child_process';
 export const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
 if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');
 export const headers={apikey:status.SERVICE_ROLE_KEY,Authorization:`Bearer ${status.SERVICE_ROLE_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'};
-export async function admin(path:string,method='GET',body?:unknown){const r=await fetch(`${status.API_URL}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw new Error(`Local fixture request failed (${r.status})`);const t=await r.text();return t?JSON.parse(t):null;}
+export async function admin(path:string,method='GET',body?:unknown){const r=await fetch(`${status.API_URL}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw new Error(`Local fixture request failed (${r.status})`);const t=await r.text();const result=t?JSON.parse(t):null;
+ // 기존 흐름의 테스트 계정은 설정을 마친 fixture다. 최초 설정 검사는 직접 새 Auth 계정을 생성한다.
+ if(path==='/auth/v1/admin/users'&&method==='POST'&&result?.id)await admin(`/rest/v1/profiles?id=eq.${result.id}`,'PATCH',{profile_setup_complete:true});
+ return result;}
 export const jpeg=Buffer.from('/9j/4AAQSkZJRgABAgAAAQABAAD//gAQTGF2YzYwLjMxLjEwMgD/2wBDAAgEBAQEBAUFBQUFBQYGBgYGBgYGBgYGBgYHBwcICAgHBwcGBgcHCAgICAkJCQgICAgJCQoKCgwMCwsODg4RERT/xABLAAEBAAAAAAAAAAAAAAAAAAAABwEBAAAAAAAAAAAAAAAAAAAAABABAAAAAAAAAAAAAAAAAAAAABEBAAAAAAAAAAAAAAAAAAAAAP/AABEIAAIAAgMBIgACEQADEQD/2gAMAwEAAhEDEQA/AL+AD//Z','base64');
 
 // shortcut: UI 전용 장소 대역이며 실제 Edge/Geoapify 경계 계약은 backend geocode-vnext 테스트에서 검증한다.

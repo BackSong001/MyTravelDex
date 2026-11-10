@@ -315,3 +315,10 @@ test('TC-WEB-MAP-OVERVIEW-001: a composer map retains its original bounds and ne
  await page.locator('#root').evaluate(node=>{node.style.width='600px';});await expect.poll(()=>page.locator('canvas.maplibregl-canvas').evaluate(node=>node.clientWidth)).toBe(600);
  expect(await page.evaluate(()=>(window as any).fitRequests.length)).toBe(count);expect(initial.zoom).toBeGreaterThan(5);
 });
+
+test('TC-MAP-MARKER-001/002: the author stays inside a single photo and long press shows each cluster author',async({page})=>{
+ await ready(page);const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=';
+ await page.evaluate(({records,image})=>(window as any).renderMap({records,covers:{first:image},authors:{first:{display_name:'첫 작성자'}}}),{records:[record('first')],image});
+ const single=page.getByRole('button',{name:/^첫 작성자 · first/});await expect(single).toBeVisible();const photo=(await single.locator('img[alt="대표사진"]').boundingBox())!,avatar=(await single.locator('img[alt=""]').boundingBox())!;expect(avatar.x).toBeGreaterThanOrEqual(photo.x);expect(avatar.y).toBeGreaterThanOrEqual(photo.y);expect(avatar.x+avatar.width).toBeLessThanOrEqual(photo.x+photo.width);expect(avatar.y+avatar.height).toBeLessThanOrEqual(photo.y+photo.height);
+ await page.evaluate(records=>(window as any).renderMap({records,authors:{first:{display_name:'첫 작성자'},second:{display_name:'둘째 작성자'}}}),[record('first'),record('second')]);const group=page.getByRole('button',{name:'여행 2개 모아 보기',exact:true});await expect(group).toBeVisible();const box=(await group.boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await expect(page.getByTestId('cluster-browser')).toBeVisible();await page.mouse.up();await expect(page.getByText('작성자 · 첫 작성자',{exact:true})).toBeVisible();await expect(page.getByText('작성자 · 둘째 작성자',{exact:true})).toBeVisible();expect(await page.evaluate(()=>(window as any).events)).toEqual([]);
+});

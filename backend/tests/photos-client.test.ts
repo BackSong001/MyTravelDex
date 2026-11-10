@@ -1,8 +1,8 @@
 import {beforeEach,expect,test,vi} from 'vitest';
-const {manipulate,read,permission,info,pick,size,library,copy,uuid}=vi.hoisted(()=>({manipulate:vi.fn(),read:vi.fn(),permission:vi.fn(),info:vi.fn(),pick:vi.fn(),size:vi.fn(),library:vi.fn(),copy:vi.fn(),uuid:vi.fn()}));
+const {manipulate,read,permission,info,pick,size,library,copy,uuid,platform,fileState}=vi.hoisted(()=>({platform:{OS:'android'},fileState:{size:100},manipulate:vi.fn(),read:vi.fn(),permission:vi.fn(),info:vi.fn(),pick:vi.fn(),size:vi.fn(),library:vi.fn(),copy:vi.fn(),uuid:vi.fn()}));
 vi.mock('../../frontend/node_modules/expo-crypto',()=>({randomUUID:uuid}));
 vi.mock('../../frontend/node_modules/expo-file-system/legacy',()=>({copyAsync:copy}));
-vi.mock('../../frontend/node_modules/react-native',()=>({Platform:{OS:'android'},Image:{getSize:size}}));
+vi.mock('../../frontend/node_modules/react-native',()=>({Platform:platform,Image:{getSize:size}}));
 vi.mock('../../frontend/node_modules/expo-image-picker',()=>({launchImageLibraryAsync:library}));
 vi.mock('../../frontend/node_modules/expo-document-picker',()=>({getDocumentAsync:pick}));
 vi.mock('../../frontend/node_modules/expo-media-library',()=>({requestPermissionsAsync:permission,getAssetInfoAsync:info}));
@@ -12,12 +12,12 @@ vi.mock('../../frontend/node_modules/expo-file-system',()=>({
  File:class {
   uri:string;
   constructor(first:string|{uri:string},...parts:string[]){this.uri=typeof first==='string'?first:first.uri;for(const part of parts)this.uri=this.uri.replace(/\/$/,'')+'/'+part;}
-  exists=true;size=100;arrayBuffer=read;
+  exists=true;get size(){return fileState.size;}arrayBuffer=read;
  },
 }));
 import {compressPhoto,photoMetadata,photoPermission,pickPhotos} from '../../frontend/src/photos';
 const asset={uri:'file:///selected.jpg',width:4000,height:3000,assetId:'123'};
-beforeEach(()=>{vi.resetAllMocks();uuid.mockReturnValue('selected-photo');});
+beforeEach(()=>{vi.resetAllMocks();platform.OS='android';fileState.size=100;uuid.mockReturnValue('selected-photo');});
 test('explicit Android original selection caches bytes and keeps media ID; limited access uses system picker',async()=>{
  pick.mockResolvedValue({canceled:false,assets:[{uri:'content://com.android.providers.media.documents/document/image%3A36',name:'selected.jpg',size:100,mimeType:'image/jpeg'}]});size.mockResolvedValue({width:2400,height:1600});
  info.mockResolvedValue({width:2400,height:1600});
@@ -69,4 +69,22 @@ test('TC-PHOTO-GPS-001: invalid EXIF and library GPS are missing while valid met
  }
  info.mockResolvedValue({location:{latitude:0,longitude:0}});expect(await photoMetadata({...asset,exif})).toMatchObject({latitude:0,longitude:0});
  info.mockResolvedValue({location:{latitude:37.56,longitude:126.98}});expect(await photoMetadata({...asset,exif:{GPSLatitude:91,GPSLongitude:181}})).toMatchObject({latitude:37.56,longitude:126.98});
+});
+
+test('TC-PHOTO-METADATA-002: missing native SDK GPS is recovered from the selected file bytes',async()=>{
+ const {metadataPhoto}=await import('./fixtures/photo-exif');const bytes=metadataPhoto({latitude:-33.5,longitude:-126.25});read.mockResolvedValue(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
+ expect(await photoMetadata({...asset,assetId:null,exif:{DateTimeOriginal:'2026:11:04 10:00:00'}})).toMatchObject({captured_date:'2026-11-03',captured_at:'2026-11-02T15:15:00.000Z',latitude:-33.5,longitude:-126.25});
+});
+
+test('TC-PHOTO-METADATA-002: real file size gates reading and buffers cannot bypass the limit',async()=>{
+ const tooLarge={size:20971521,arrayBuffer:vi.fn()};
+ platform.OS='web';await expect(photoMetadata({...asset,assetId:null,file:tooLarge as any})).rejects.toThrow('20 MiB');expect(tooLarge.arrayBuffer).not.toHaveBeenCalled();
+ platform.OS='android';fileState.size=20971521;await expect(photoMetadata({...asset,assetId:null})).rejects.toThrow('20 MiB');expect(read).not.toHaveBeenCalled();fileState.size=100;
+ read.mockResolvedValue(new ArrayBuffer(20971521));await expect(photoMetadata({...asset,assetId:null})).rejects.toThrow('20 MiB');
+});
+
+test('TC-PHOTO-METADATA-002: a Web File supplies capture metadata; candidates never join partial GPS',async()=>{
+ const {metadataPhoto}=await import('./fixtures/photo-exif');const bytes=metadataPhoto({latitude:0,longitude:0});platform.OS='web';const file=new Blob([bytes]);
+ expect(await photoMetadata({...asset,assetId:null,file:file as any})).toMatchObject({captured_date:'2026-11-03',latitude:0,longitude:0});
+ platform.OS='android';info.mockResolvedValue({exif:{GPSLongitude:127}});read.mockRejectedValue(new Error('Unavailable'));expect(await photoMetadata({...asset,exif:{GPSLatitude:37}})).toMatchObject({latitude:null,longitude:null});
 });

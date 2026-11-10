@@ -35,7 +35,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
   useEffect(() => {
     if (error || !host.current) return;
     let instance: LibreMap | undefined, disposed = false;
-    const markers: Marker[] = [];
+    const markers: Marker[] = [],markerCleanups:(()=>void)[]=[];
     const fail = () => {if (!disposed) setError(true);};
     const timeout = window.setTimeout(fail, 15000);
     const select = (id: string) => {
@@ -65,16 +65,23 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
         activeMap.setFilter('province-selected',['==',['get','shapeISO'],selected.current??'']);
         activeMap.setPaintProperty('province-fill','fill-opacity',['case',['in',['get','shapeISO'],['literal',ownIds]],1,.87]);
       };
-      const pin = (position: [number, number], content: HTMLElement, label: string, action: () => void, layer: number, offset?: [number, number]) => {
+      const pin = (position: [number, number], content: HTMLElement, label: string, action: () => void, layer: number, offset?: [number, number],longPress=false) => {
         const element = document.createElement('button'); element.type = 'button'; element.appendChild(content);
         element.setAttribute('aria-label', label);
         Object.assign(element.style, {border:'0', padding:'3px', background:'transparent', cursor:'pointer', zIndex:String(layer)});
-        element.onclick = event => {event.stopPropagation(); action();};
+        let timer:number|undefined,longPressed=false,dragged=false,start:[number,number]=[0,0];
+        const cancel=()=>{window.clearTimeout(timer);timer=undefined;};
+        if(layer===2){
+          element.onpointerdown=event=>{cancel();longPressed=false;dragged=false;start=[event.clientX,event.clientY];if(longPress)timer=window.setTimeout(()=>{longPressed=true;action();},500);};
+          element.onpointermove=event=>{if(Math.hypot(event.clientX-start[0],event.clientY-start[1])>8){dragged=true;cancel();}};
+          element.onpointerup=cancel;element.onpointercancel=()=>{dragged=true;cancel();};element.onpointerleave=cancel;element.oncontextmenu=event=>event.preventDefault();markerCleanups.push(cancel);
+        }
+        element.onclick = event => {event.stopPropagation();cancel();if(event.detail===0||(!longPressed&&!dragged))action();};
         markers.push(new Marker({element, anchor:layer === 1 ? 'center' : 'bottom', offset}).setLngLat(position).addTo(activeMap));
       };
       redraw.current = () => {
         const c=paletteRef.current;
-        markers.splice(0).forEach(marker => marker.remove());
+        markerCleanups.splice(0).forEach(clean=>clean());markers.splice(0).forEach(marker => marker.remove());
         const {records, covers, authors, ownRecords, landmarks, onCoordinate} = current.current;
         const ownGroups = groupProvinceRecords(ownRecords ?? []), zoom = activeMap.getZoom();
         if(!onCoordinate&&!activeMap.isMoving())visibleOceanOrnaments(zoom).forEach(ornament=>{
@@ -117,13 +124,13 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
             Object.assign(image.style, {width:'52px', height:'52px', objectFit:'cover', position:'relative',zIndex:'1',borderRadius:'12px', border:`3px solid ${c.map.locationPinBorder}`}); content.appendChild(image);
           } else content.appendChild(dot());
           const author = authors[record.owner_id], badge = document.createElement('div');
-          Object.assign(badge.style, {display:'flex', alignItems:'center', maxWidth:'100%', borderRadius:'10px', background:c.surface, padding:'3px', gap:'3px', color:c.textPrimary, fontSize:'12px',position:'relative',zIndex:'1'});
+          Object.assign(badge.style, {display:'flex', alignItems:'center', maxWidth:'100%', borderRadius:'10px', background:c.surface, padding:'3px', gap:'3px', color:c.textPrimary, fontSize:'12px',position:onCoordinate?'relative':'absolute',bottom:onCoordinate?'auto':'3px',right:onCoordinate?'auto':'10px',zIndex:'2'});
           if (grouped.length === 1 && !onCoordinate) {
             const avatar = document.createElement('img'); avatar.src = author?.avatar_url || travelerAvatar; avatar.alt = ''; avatar.draggable = false;
             avatar.onerror = () => {avatar.onerror=null;avatar.src=travelerAvatar;};
             Object.assign(avatar.style, {width:'24px', height:'24px', borderRadius:'50%', objectFit:'cover'}); badge.appendChild(avatar);
           } else {
-            const name = document.createElement('span'); name.textContent = onCoordinate ? (grouped.length > 1 ? `${grouped.length}곳` : record.title || record.locations?.place_name || '선택한 위치') : `${grouped.length}개 여행`;
+            const name = document.createElement('span'); name.textContent = onCoordinate ? (grouped.length > 1 ? `${grouped.length}곳` : record.title || record.locations?.place_name || '선택한 위치') : `${grouped.length}`;
             Object.assign(name.style, {overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis'}); badge.appendChild(name);
           }
           content.appendChild(badge);
@@ -131,7 +138,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
             grouped.length > 1 ? `${onCoordinate?'장소':'여행'} ${grouped.length}${onCoordinate?'곳':'개'} 모아 보기` : markerDescription(record, authors, !!onCoordinate), () => {
               if (grouped.length > 1) {clearSelection.current(); setCluster(grouped.map(record => record.id)); setSelectedId(null);}
               else {setCluster([]); current.current.onSelect?.(record);}
-            }, 2);
+            }, 2,undefined,grouped.length>1);
         });
       };
       activeMap.on('load', () => {window.clearTimeout(timeout); restyle.current(); redraw.current();});
@@ -139,7 +146,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       activeMap.on('idle',()=>restyle.current());
       activeMap.on('error', fail);
       activeMap.on('webglcontextlost', fail);
-      activeMap.on('movestart',event=>{if(event.originalEvent)overview.current=false;markers.forEach(marker=>{const node=marker.getElement();if(node.dataset.mapOrnament)node.style.visibility='hidden';});});
+      activeMap.on('movestart',event=>{if(event.originalEvent){overview.current=false;markerCleanups.forEach(clean=>clean());}markers.forEach(marker=>{const node=marker.getElement();if(node.dataset.mapOrnament)node.style.visibility='hidden';});});
       activeMap.on('moveend', () => redraw.current());
       activeMap.on('click', event => {
         if (current.current.onCoordinate) current.current.onCoordinate(event.lngLat.lat, event.lngLat.lng);
@@ -149,7 +156,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
       const observer = new ResizeObserver(() => {activeMap.resize();if(overview.current&&current.current.homeOverview)fitCountry.current();}); observer.observe(host.current);
       return () => {
         disposed = true; window.clearTimeout(timeout); observer.disconnect();
-        markers.forEach(marker => marker.remove()); activeMap.remove(); map.current = null;
+        markerCleanups.forEach(clean=>clean());markers.forEach(marker => marker.remove()); activeMap.remove(); map.current = null;
         redraw.current = () => {}; restyle.current = () => {}; fitCountry.current=()=>{};
       };
     } catch {

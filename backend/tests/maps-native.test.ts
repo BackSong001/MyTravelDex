@@ -1,15 +1,16 @@
 import {afterEach, expect, test, vi} from 'vitest';
 import React from '../../frontend/node_modules/react';
 import {renderToStaticMarkup} from '../../frontend/node_modules/react-dom/server';
-const {maps,pins,layers}=vi.hoisted(()=>({maps:[] as any[],pins:[] as any[],layers:[] as any[]}));
-vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Platform:{OS:'android'},useWindowDimensions:()=>({width:390,height:844,fontScale:1}),View:'section',Text:({numberOfLines,...p}:any)=>createElement('span',p),Image:({source,onLoad,onError,onLoadEnd,...p}:any)=>createElement('img',{...p,src:source?.uri}),Pressable:({accessibilityLabel,accessibilityRole,onPress,style,...p}:any)=>createElement('button',{...p,'aria-label':accessibilityLabel}),ScrollView:'div',StyleSheet:{create:(s:any)=>s}};});
+const {maps,pins,layers,buttons}=vi.hoisted(()=>({maps:[] as any[],pins:[] as any[],layers:[] as any[],buttons:[] as any[]}));
+vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Platform:{OS:'android'},useWindowDimensions:()=>({width:390,height:844,fontScale:1}),View:'section',Text:({numberOfLines,...p}:any)=>createElement('span',p),Image:({source,onLoad,onError,onLoadEnd,...p}:any)=>createElement('img',{...p,src:source?.uri}),Pressable:(props:any)=>{buttons.push(props);const {accessibilityLabel,accessibilityRole,onPress,style,...p}=props;return createElement('button',{...p,'aria-label':accessibilityLabel});},ScrollView:'div',StyleSheet:{create:(s:any)=>s}};});
 vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circle:'circle',G:'g',Path:'path',Text:'text'}));
 vi.mock('../../frontend/node_modules/@maplibre/maplibre-react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Map:(p:any)=>{maps.push(p);return createElement('native-map',null,p.children);},Camera:()=>null,Layer:(p:any)=>{layers.push(p);return null;},Marker:(p:any)=>{pins.push(p);return createElement('native-marker',{title:p.accessibilityLabel},p.children);}};});
 vi.mock('../../frontend/src/Feedback',async()=>({default:(await import('../../frontend/node_modules/react-native')).Pressable}));
 vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{defaultAvatar:{uri:'fixture://default-bear'},ocean:Object.fromEntries(['wave','cloud','plane','boat'].map(kind=>[kind,{uri:'fixture://'+kind}]))}}));
 import TravelMap from '../../frontend/src/TravelMap';
+import NativeRecordMarker from '../../frontend/src/NativeRecordMarker';
 import {provinceFeatures} from '../../frontend/src/provinces';
-afterEach(()=>{maps.length=0;pins.length=0;layers.length=0;});
+afterEach(()=>{maps.length=0;pins.length=0;layers.length=0;buttons.length=0;});
 
 test('MapLibre mounts without Google configuration and style retains all rings and holes',()=>{
  const markup=renderToStaticMarkup(React.createElement(TravelMap,{records:[],fullScreen:true}));
@@ -43,4 +44,13 @@ test('TC-MAPLIBRE-011: native maps keep ocean ornaments without mountain or gras
   if(onCoordinate)expect(ornaments).toHaveLength(0);else expect(ornaments.length).toBeGreaterThan(0);
   expect(ornaments.some(p=>/mountain|grass/.test(p.id))).toBe(false);
  }
+});
+
+test('TC-MAP-MARKER-002: native marker cancels a moved hold and suppresses the release after a long press',()=>{
+ const onOpen=vi.fn(),record={id:'first',owner_id:'me',status:'complete',locations:{latitude:37,longitude:127}},group=[record,{...record,id:'second'}];
+ renderToStaticMarkup(React.createElement(NativeRecordMarker,{record,group,covers:{},authors:{},correction:false,onOpen}));
+ const button=buttons.find(p=>p.onLongPress);expect(button.delayLongPress).toBe(500);const touch=(x:number,y:number)=>({nativeEvent:{pageX:x,pageY:y}}),event={nativeEvent:{identifier:1},stopPropagation:vi.fn()};
+ button.onPressIn?.();button.onTouchStart(touch(0,0));button.onTouchMove(touch(9,0));button.onPressIn?.();button.onLongPress();button.onPress(event);expect(onOpen).not.toHaveBeenCalled();
+ button.onPressIn?.();button.onTouchStart(touch(0,0));button.onLongPress();button.onPress(event);expect(onOpen).toHaveBeenCalledTimes(1);
+ button.onTouchCancel();button.onPress({nativeEvent:{},stopPropagation:vi.fn()});expect(onOpen).toHaveBeenCalledTimes(2);
 });

@@ -126,12 +126,12 @@ test('cloud metadata stays missing and picker EXIF survives denied library acces
   expect(await photos.photoMetadata({...asset,assetId:'36',exif:{DateTimeOriginal:'2026:11:01 12:00:00',GPSLatitude:37,GPSLongitude:127}})).toMatchObject({captured_date:'2026-11-01',latitude:37,longitude:127});
 });
 
-test('cleanup failures do not hide processing errors or stop other cache deletions',async()=>{
+test('a failed document cache cleanup does not discard an earlier valid photo',async()=>{
   const assets=[{uri:'file:///app/cache/first.jpg',name:'first.jpg'},{uri:'file:///app/cache/second.jpg',name:'second.jpg'}];
   document.mockResolvedValue({canceled:false,assets});size.mockResolvedValueOnce({width:2,height:3}).mockRejectedValueOnce(new Error('Cannot decode image'));
   remove.mockImplementationOnce(()=>{throw new Error('Cache busy');});
-  await expect(photos.pickPhotos(true,'original')).rejects.toThrow('Cannot decode image');
-  expect(remove).toHaveBeenCalledTimes(2);
+  const result=await photos.pickPhotos(true,'original');expect(result.assets).toHaveLength(1);expect(result).toMatchObject({rejectedCount:1});
+  expect(remove.mock.calls).toEqual([['file:///app/cache/photo-2.jpg']]);
 });
 
 test.each([0,-1,NaN,Infinity,1.5])('invalid actual cached size %s prevents processing and releases cache',async actualSize=>{
@@ -141,11 +141,11 @@ test.each([0,-1,NaN,Infinity,1.5])('invalid actual cached size %s prevents proce
   expect(size).not.toHaveBeenCalled();expect(remove.mock.calls).toEqual([['file:///app/cache/photo-1.jpg']]);
 });
 
-test('partial copy failure removes all created cache files and starts no later copies',async()=>{
+test('partial copy failure preserves successful files and continues with the next original',async()=>{
   const assets=Array.from({length:3},(_,i)=>({uri:`content://cloud/${i}`,name:`${i}.jpg`}));
   document.mockResolvedValue({canceled:false,assets});
   copy.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('Copy interrupted'));
-  await expect(photos.pickPhotos(true,'original')).rejects.toThrow('Copy interrupted');
-  expect(copy).toHaveBeenCalledTimes(2);
-  expect(remove.mock.calls).toEqual([['file:///app/cache/photo-1.jpg'],['file:///app/cache/photo-2.jpg']]);
+  const result=await photos.pickPhotos(true,'original');expect(result.assets?.map(asset=>asset.uri)).toEqual(['file:///app/cache/photo-1.jpg','file:///app/cache/photo-3.jpg']);expect(result).toMatchObject({rejectedCount:1});
+  expect(copy).toHaveBeenCalledTimes(3);
+  expect(remove.mock.calls).toEqual([['file:///app/cache/photo-2.jpg']]);
 });

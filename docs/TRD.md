@@ -38,7 +38,7 @@ FR-FRIEND-006: 기존 최소 projection 전용 reader 역할에 friend_code SELE
 
 ## 사진 GPS 주소 보완과 위치 검색바 (2026-11-08)
 
-FR-PHOTO-LOCATION-001~003은 기존 choose→photoMetadata→suggestRecord와 서버 geocode-location 좌표 역조회 계약을 재사용한다. 날짜 min/max/첫사진GPS·edited refs/초안 재시도·사진 압축/Storage 정책은 유지한다. 위치 진입부는 입력창처럼 보이는 focus 가능한 button이며 클릭/키보드로 별도 Modal 검색 탭을 연다(읽기전용 TextInput의 포커스 복귀 재오픈/불필요한 키보드를 피한다). 검색어 입력/장소 확정은 기존 LocationPicker가 소유한다.
+FR-PHOTO-LOCATION-001~003은 기존 choose→photoMetadata→suggestRecord와 서버 geocode-location 좌표 역조회 계약을 재사용한다. 날짜 min/max/선택 순서상 첫 유효 GPS·edited refs/초안 재시도·사진 압축/Storage 정책은 유지한다. 위치 진입부는 입력창처럼 보이는 focus 가능한 button이며 클릭/키보드로 별도 Modal 검색 탭을 연다(읽기전용 TextInput의 포커스 복귀 재오픈/불필요한 키보드를 피한다). 검색어 입력/장소 확정은 기존 LocationPicker가 소유한다.
 
 유효 EXIF 좌표를 즉시 placeInfo(source=exif,원 latitude/longitude)와 검색바에 표시한다. Home의 주소 보완 effect는 좌표·source·사진 선택·계정/작성 상태를 따라 취소하고 현재 자동 위치와 일치할 때만 응답의 장소/주소를 반영한다. 수동 편집 플래그는 즉시 검사하며 서버 반환 좌표/source보다 원사진 좌표/exif를 우선한다. 취소/오류는 기본 촬영위치와 좌표를 유지하고 저장을 주소 응답에 종속시키지 않는다. 응답 자체가 유효하지 않으면 적용하지 않는다. 공개 대표 위치와 사진 EXIF 정밀좌표의 기존 구분은 유지한다.
 
@@ -148,7 +148,7 @@ DISAN·FR-UI-001~011·FR-PROFILE-001·FR-SOCIAL-001·FR-STAMP-001을 구현했�
 - 실제 프로젝트용 Android는 Expo Go 대신 `mytraveldex` scheme과 MapLibre 플러그인을 포함한 자체 APK를 설치한다. `npm --prefix frontend run android:configured`는 루트 .env의 공개 값만 사용해 release variant 테스트 APK를 빌드·설치한다. 로컬 테스트 환경과 비밀값은 변경하지 않는다. 이 APK는 개발용 서명이며 스토어 제출 빌드가 아니다.
 - 실제 환경의 웹 실행은 기본 --no-dev로 고정해 SDK 54 개발용 virtual env가 frontend/.env.local을 우선 적용하는 문제를 피한다. Android APK도 production JS를 내장해 Metro와 독립적으로 실행한다.
 - 기본 시스템 사진 선택에는 전체 라이브러리 권한을 선요청하지 않는다. 선택적 원본 경로에서만 사진·메타데이터 권한을 요청한다. 사진 위치 접근은 실시간 GPS 권한과 구분한다. 기간 입력·장소 검색/핀 보정을 제공하며 숫자 좌표 입력을 노출하지 않는다. 유효 EXIF의 촬영 위치는 외부 장소 조회 없이 유지한다. 앱에 카메라·마이크 권한을 추가하지 않는다.
-- Expo ImagePicker와 MediaLibrary로 선택 사진의 EXIF/위치를 읽는다. DateTimeOriginal을 우선하고 유효한 촬영 날짜의 최소/최대를 기간으로, 표시 첫 사진의 유효 GPS를 대표 위치로 제안한다. 첫 사진에 GPS가 없으면 다음 사진으로 자동 대체하지 않는다. Android가 이미 부호를 적용한 GPS를 다시 반전하지 않는다.
+- Expo ImagePicker와 MediaLibrary로 선택 사진의 EXIF/위치를 읽는다. DateTimeOriginal을 우선하고 유효한 촬영 날짜의 최소/최대를 기간으로, 표시 순서상 첫 유효 GPS를 대표 위치로 제안한다. 모든 사진에 유효 GPS가 없으면 수동 위치를 요구한다. Android가 이미 부호를 적용한 GPS를 다시 반전하지 않는다.
 - 별도 원본 파일 선택에서 Android 전체 사진 접근을 허용하면 Expo DocumentPicker의 `ACTION_OPEN_DOCUMENT`로 MediaStore 문서 ID를 얻고 MediaLibrary로 허용된 원본 GPS를 조회한다. 기본 Photo Picker/클라우드 URI는 asset ID가 없고 GPS를 0·빈 방향값으로 마스킹할 수 있다. 제한 접근에서는 ImagePicker를 사용하고 마스킹된 GPS는 `null`로 처리한다. 실제 0도 좌표와 구분한다. Android의 GET_CONTENT 자동 Photo Picker 전환 때문에 ImagePicker의 legacy 옵션만으로는 보장하지 않는다.
 - 원본 대신 압축본만 보존한다는 사용자 결정에 따라 새 업로드는 JPEG 보관본(긴 변 2048px·최대 5 MiB, 초기 quality 0.8)과 JPEG 썸네일(512px·512 KiB)만 저장한다. 원본 파일은 업로드하지 않는다. 압축 전에 추출한 메타데이터를 DB에 저장하고 이미지 파일에서는 EXIF를 제거한다. 원본을 서버에서 복원할 수 없음을 UI에 안내한다.
 - `original_path`, `original.jpg`, variant `original`은 기존 API 호환 이름을 유지하되 새 클라이언트에서는 압축 보관본을 의미한다. width/height/file_size_bytes는 압축된 실제 파일 기준이다. 기존 서버의 JPEG/PNG·20 MiB 제한과 기존 저장 데이터는 유지한다.
@@ -301,7 +301,7 @@ React Native / Expo
 - `start_date <= end_date` check constraint를 적용한다.
 - `captured_date`의 최소·최대를 기간 초깃값으로 제안한다. 수동 확정 기간을 우선하고 사진 편집 시 자동 덮어쓰지 않는다. 오프셋 없는 EXIF는 날짜만 보존하고 `captured_at`은 null로 둔다.
 - 유효한 사진 촬영일이 모두 없으면 사용자가 `start_date`와 `end_date`를 직접 입력한다.
-- 대표 `location_id`는 첫 번째 업로드 사진의 위치를 우선 사용한다. 첫 사진 위치가 없으면 수동 위치 입력 전까지 기록을 완료하지 않는다.
+- 대표 `location_id`는 선택 순서상 첫 유효 GPS를 우선 사용한다. 모든 사진에 유효 GPS가 없으면 수동 위치 입력 전까지 기록을 완료하지 않는다.
 - `photos.is_cover = true`에 대해 `travel_record_id`별 부분 unique index를 생성해 대표사진을 최대 한 장으로 제한한다.
 - 대표사진을 선택하지 않으면 첫 번째 업로드 사진을 대표사진으로 지정한다.
 - `travel_records(owner_id, start_date, end_date)`를 생성해 사용자별 기간 필터를 지원한다.
@@ -428,7 +428,7 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 2. Android/iOS에서 EXIF를 읽고 웹에서는 업로드 가능한 `File`을 확보한다.
 3. 촬영일·GPS가 있으면 초깃값으로 표시한다.
 4. 사진들의 촬영일 중 최소·최대 날짜를 여행 기간 초깃값으로 적용한다.
-5. 첫 번째 사진의 위치를 대표 위치 초깃값으로 적용한다.
+5. 선택 순서상 첫 유효 GPS를 대표 위치 초깃값으로 적용한다.
 6. 사용자가 값을 수정하거나 지도에서 위치를 선택한다.
 7. 기간·위치를 확정한 뒤 draft 기록을 생성한다. Expo 클라이언트가 EXIF 메타데이터를 먼저 읽고 EXIF를 제거한 압축 JPEG 보관본과 썸네일을 생성한다.
 8. 압축 보관본과 썸네일만 Storage에 업로드하고 사진 메타데이터를 저장한다. original_path와 original.jpg는 호환성 이름이며 새 데이터의 원본 파일을 의미하지 않는다. width·height·file_size_bytes는 실제 압축 보관본 기준이다.
@@ -439,7 +439,7 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 - EXIF GPS가 없으면 실패가 아니라 `null`로 처리한다.
 - iOS·메신저·편집 앱에서 GPS가 제거될 수 있음을 고려한다.
 - 최종 여행 위치는 수동 입력값을 우선한다.
-- 첫 번째 사진에 위치가 있으면 대표 위치의 기본값으로 사용한다. 다른 사진 위치는 사진별 EXIF 정보로만 보존한다.
+- 선택 순서상 첫 유효 GPS를 대표 위치 기본값으로 사용하고 각 사진의 EXIF 정보도 보존한다.
 - MVP 사진 압축과 썸네일 생성은 Expo 클라이언트에서 수행한다.
 - Edge Function의 서버 측 압축·검증은 클라이언트 우회 방지나 고급 이미지 처리가 필요할 때만 도입한다.
 - 원본 EXIF 파일을 별도 보존하지 않고 촬영일·촬영 시각·GPS 등 필요한 필드만 소유자 전용 DB에 저장한다.
@@ -521,8 +521,8 @@ PostgREST 자동 생성 API를 기본으로 사용한다.
 - 여러 사진의 captured_date 최소·최대를 기간 초깃값으로 제안하고 수동 최종값을 저장하는지 확인
 - 촬영일이 없는 사진만 있을 때 수동 시작일·종료일을 허용
 - 일부 사진에만 촬영일이 있을 때 유효한 날짜만 집계
-- 첫 번째 사진 위치가 대표 `location_id`로 적용되는지 확인
-- 첫 번째 사진 위치가 없을 때 자동으로 다른 사진 위치를 사용하지 않고 수동 위치를 요구
+- 선택 순서상 첫 유효 GPS가 대표 `location_id`로 적용되는지 확인
+- 모든 사진에 유효 GPS가 없을 때 수동 위치를 요구
 - 위도·경도 범위 및 `start_date <= end_date` 검증
 - 완료 시 대표사진 미지정이면 표시 순서 첫 사진이 `is_cover = true`가 되는지 확인
 - 한 여행 기록에 대표사진이 두 개 이상 저장되지 않는지 확인
@@ -839,3 +839,8 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 
 
 웹 홈 지도 전체 맞춤 TC-WEB-MAP-OVERVIEW-001은 [WEB_LOGIN_DESIGN_SPEC](WEB_LOGIN_DESIGN_SPEC.md) 최신 절을 따른다. 상단 앱 이름/설정/테마와 폭·중앙축을 공유하는 지도 viewport 및 기존 국내 전체 경계 맞춤·자동 전체/사용자 탐색 수명을 분리하고 Native/작성·상세·보정/데이터·권한은 유지한다.
+
+
+## 2026-11-10 사진 자동입력·작성·프로필·여행 도구 개편
+
+사용자13항목의현행확정/답변대기·요구사항/TC·실행범위는 [PRODUCT_UPDATE_20261110_SPEC](PRODUCT_UPDATE_20261110_SPEC.md)을 따른다. 사진선택순서의첫유효GPS/웹실File추출/Android원본보완·수동입력보존을우선한다. 작성시지도폭/드래그접기·공개radio/헤더·온보딩·단일군집작성자·여행지랜덤/선반·스타일디자인을단계별검증한다. ID필수공개는로그인exact검색·친구요청만허용하고이름/avatar동의·목록/추천/anon·private/초안/서명URL보호를유지한다. 새서버항목은Local검증과원격별도승인/앱우선롤백으로분리하고main푸시·실배포수용은동일하지않다.

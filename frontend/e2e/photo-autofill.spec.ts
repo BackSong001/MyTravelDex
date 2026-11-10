@@ -18,7 +18,7 @@ test.beforeAll(async()=>{
   '../src/auth':`const session=window.photoLocalSession??{user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},getSession:async()=>({data:{session}})}};export const googleLogin=()=>{};`,
   '../src/runtime':`import {TravelApi} from '${root}/frontend/src/api.ts';const config=window.photoLocalApi;export const api=config?Object.assign(new TravelApi(config.url,config.key),{token:config.token}):{list:async()=>[],following:async()=>[],request:async(path,method,body)=>{if(path==='/functions/v1/geocode-location'){const r=await fetch('/geocode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('EXTERNAL_SERVICE_ERROR');return r.json();}return [];}};`,
   '../src/MyTrips':`export default ()=>null;`,
-  '../src/Social':`export const ProfileEditor=()=>null,Friends=()=>null,isUserId=()=>false;`,
+  '../src/Social':`export const ProfileSetupGate=()=>null;export const ProfileEditor=()=>null,Friends=()=>null,isUserId=()=>false;`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({});`,
   '@react-native-async-storage/async-storage':`export default {getItem:async()=>null,setItem:async()=>{},removeItem:async()=>{}};`,
   'expo-crypto':`let id=0;export const randomUUID=()=>window.photoLocalUUIDs?.shift()??String(++id);`,

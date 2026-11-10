@@ -4,13 +4,13 @@ import TravelerAvatar from './Avatar';
 import {JournalIcon} from './Journal';
 import React, {useEffect, useRef, useState} from 'react';
 import Text from './FontText';
-import {ActivityIndicator, Image,  Share, StyleSheet, Switch, TextInput, View} from 'react-native';
+import {ActivityIndicator, Image, Modal, ScrollView, Share, StyleSheet, Switch, TextInput, View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {ApiError} from './api';
 import {api} from './runtime';
 
 type Props = {session: any; onChanged?: () => void};
-type Author = {id: string; display_name: string | null; avatar_url: string | null; user_code?: string};
+type Author = {id: string; display_name: string | null; avatar_url: string | null; user_code?: string;contact_code?:string};
 type Follow = {followee_id: string; created_at: string};
 type Connection = {requester_id: string; recipient_id: string; status: 'pending' | 'accepted'; created_at: string};
 const authorFields = 'id,display_name,avatar_url,user_code';
@@ -68,6 +68,7 @@ async function changeFollow(owner: string, target: string, remove: boolean) {
 }
 
 function message(error: unknown) {
+  if(error instanceof ApiError&&error.status===404&&error.serverCode==='PGRST202')return '서버 업데이트가 필요해요. 잠시 후 다시 확인해 주세요.';
   return error instanceof Error ? error.message : '요청을 처리하지 못했습니다. 다시 시도해 주세요.';
 }
 
@@ -86,7 +87,7 @@ function Notice({children, error = false}: {children: string; error?: boolean}) 
 
 function Avatar({url,size=44}: {url: string | null;size?:number}) {return <TravelerAvatar url={url} size={size}/>;}
 
-type ProfileProps=Props & {onSummaryReady:()=>void;visits:number|null;visitsFailed:boolean;onStamps:()=>void;onFollowing:()=>void;showStamps:boolean;children?:React.ReactNode};
+type ProfileProps=Props & {onSummaryReady?:()=>void;visits?:number|null;visitsFailed?:boolean;onStamps?:()=>void;onFollowing?:()=>void;showStamps?:boolean;children?:React.ReactNode;firstSetup?:boolean};
 
 export function ProfileEditor(props: ProfileProps) {
  const s=useThemeStyles(makeStyles);
@@ -94,10 +95,10 @@ export function ProfileEditor(props: ProfileProps) {
     : <View style={s.sheet}><Text accessibilityRole="header" style={s.title}>나의 프로필</Text><Notice>로그인하면 닉네임과 공개 프로필을 설정할 수 있어요. My에서 로그인해 주세요.</Notice></View>;
 }
 
-function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowing,showStamps,children,onSummaryReady}: ProfileProps) {
+function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps=()=>{},onFollowing=()=>{},showStamps=false,children,onSummaryReady,firstSetup=false}: ProfileProps) {
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
-  const [editing,setEditing]=useState(false);
+  const [editing,setEditing]=useState(firstSetup);
   const [snapshot,setSnapshot]=useState<{name:string;avatar:string|null;enabled:boolean}|null>(null);
   const owner = session.user.id as string;
   const identity = useUserId(owner);
@@ -140,16 +141,15 @@ function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowin
     try {displayName = nickname(name);} catch (error) {setError(message(error)); return;}
     savingRef.current = true; setSaving(true);
     try {
-      const rows = await api.request(path('profiles', {id: `eq.${owner}`, select: 'display_name,avatar_url,public_profile_enabled'}), 'PATCH', {
-        display_name: displayName, avatar_url: avatar, public_profile_enabled: enabled,
-      });
+      const values={display_name:displayName,avatar_url:avatar,public_profile_enabled:enabled};
+      const rows = firstSetup?[await api.rpc('complete_profile_setup',values)]:await api.request(path('profiles',{id:`eq.${owner}`,select:'display_name,avatar_url,public_profile_enabled'}),'PATCH',values);
       if (!rows.length) throw new Error('프로필이 저장되지 않았습니다. 다시 시도해 주세요.');
       if (!active.current) return;
       setName(rows[0].display_name ?? displayName);
       setAvatar(rows[0].avatar_url ?? null);
       setEnabled(rows[0].public_profile_enabled === true);
       setSnapshot({name:rows[0].display_name??displayName,avatar:rows[0].avatar_url??null,enabled:rows[0].public_profile_enabled===true});
-      setEditing(false);setSuccess('프로필을 저장했어요.');
+      if(!firstSetup)setEditing(false);setSuccess('프로필을 저장했어요.');
       onChanged?.();
     } catch (error) {if (active.current) setError(message(error));}
     finally {savingRef.current = false; if (active.current) setSaving(false);}
@@ -180,7 +180,7 @@ function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowin
     {children}
   </View>;
   return <View style={s.sheet}>
-    <Text accessibilityRole="header" style={s.title}>나의 프로필</Text>
+    <Text accessibilityRole="header" style={s.title}>{firstSetup?'여행을 시작할 프로필':'나의 프로필'}</Text>
     <Text style={s.label}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.identifier}>{identity.code || '불러오는 중…'}</Text>
     {!!identity.error && <><Notice error>{identity.error}</Notice><Button label="유저 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
     <Text style={s.hint}>여행 이야기에 함께 표시할 이름과 사진을 골라요.</Text>
@@ -200,9 +200,23 @@ function ProfileForm({session, onChanged,visits,visitsFailed,onStamps,onFollowin
     {!!error && <Notice error>{error}</Notice>}
     {!!success && <Notice>{success}</Notice>}
     {!loaded && !loading && <Button label="프로필 다시 불러오기" onPress={() => setAttempt(value => value + 1)} secondary/>}
-    <Button label={saving ? '저장 중…' : '프로필 저장'} onPress={() => void save()} disabled={disabled}/>
-    <Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);setEnabled(snapshot.enabled);}setError('');setSuccess('');setEditing(false);}} secondary/>
+    <Button label={saving ? '저장 중…' : firstSetup?'프로필 저장하고 시작':'프로필 저장'} onPress={() => void save()} disabled={disabled}/>
+    {!firstSetup&&<Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);setEnabled(snapshot.enabled);}setError('');setSuccess('');setEditing(false);}} secondary/>}
   </View>;
+}
+
+export function ProfileSetupGate({session,onLogout}:{session:any;onLogout:()=>Promise<void>}) {
+ const c=useThemeColors(),[complete,setComplete]=useState<boolean|null>(null),[checking,setChecking]=useState(true),[error,setError]=useState(''),[attempt,setAttempt]=useState(0),[unsupported,setUnsupported]=useState(false),[loggingOut,setLoggingOut]=useState(false),[logoutError,setLogoutError]=useState('');
+ const active=useRef(true),logoutBusy=useRef(false);
+ useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
+ useEffect(()=>{let current=true;setChecking(true);setError('');setUnsupported(false);void api.rpc('profile_setup_status',{}).then(result=>{if(current){if(typeof result.profile_setup_complete!=='boolean')throw new Error('Invalid profile setup status');setComplete(result.profile_setup_complete);}}).catch(reason=>{if(!current)return;if(reason instanceof ApiError&&reason.status===404){setUnsupported(true);setError('첫 프로필 설정은 서버 업데이트 후 사용할 수 있어요. My에서 프로필을 설정할 수 있어요.');}else setError('프로필 설정 상태를 확인하지 못했어요. 다시 시도해 주세요.');}).finally(()=>{if(current)setChecking(false);});return()=>{current=false;};},[session.user.id,attempt]);
+ async function logout(){if(logoutBusy.current)return;logoutBusy.current=true;setLoggingOut(true);setLogoutError('');try{await onLogout();}catch{if(active.current)setLogoutError('로그아웃하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}finally{logoutBusy.current=false;if(active.current)setLoggingOut(false);}}
+ if(unsupported)return <Text accessibilityLiveRegion="polite" style={{color:c.muted,padding:8}}>{error}</Text>;
+ return <Modal visible={checking||complete===false||!!error} animationType="none" onRequestClose={()=>{}}><ScrollView contentContainerStyle={{flexGrow:1,justifyContent:'center',padding:20,backgroundColor:c.paper}} keyboardShouldPersistTaps="handled"><View style={{width:'100%',maxWidth:640,alignSelf:'center'}}>
+  {checking?<ActivityIndicator accessibilityLabel="프로필 설정 확인 중"/>:complete===false?<ProfileForm session={session} firstSetup onChanged={()=>setComplete(true)}/>:<><Notice error>{error}</Notice><Button label="프로필 설정 다시 확인" onPress={()=>setAttempt(value=>value+1)}/></>}
+  {checking&&<Text style={{color:c.muted}}>프로필 설정 확인 중</Text>}
+  {!!logoutError&&<Notice error>{logoutError}</Notice>}<Button label={loggingOut?'로그아웃 중…':'로그아웃'} disabled={loggingOut} onPress={()=>void logout()} secondary/>
+ </View></ScrollView></Modal>;
 }
 
 type FriendsProps = Props & {onMap?: (ownerId: string) => void; inviteCode?: string; onInviteHandled?: () => void};
@@ -280,9 +294,14 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     setSearching(true); setSearchError('');
     try {
       const term = value.trim();
-      const rows: Author[] = isUserId(term) && !uuid.test(term)
-        ? await api.rpc('lookup_user_id', {user_id: term.toUpperCase()})
-        : await api.request(searchPath(value, page));
+      let rows: Author[];
+      if(owner&&isUserId(term)&&!uuid.test(term)){
+        const contacts=await api.rpc('lookup_contact_id',{user_id:term.toUpperCase()});
+        if(!active.current||request!==searchRequest.current)return;
+        let publicRows:Author[]=[];
+        if(contacts.length)try{publicRows=await api.request(path('user_directory',{select:authorFields,id:`eq.${contacts[0].id}`}));}catch{/* 공개 정보 보완 실패도 정확 ID 연락처를 버리지 않는다. */}
+        rows=contacts.map((contact:{id:string;user_code:string})=>({id:contact.id,user_code:contact.user_code,contact_code:contact.user_code,display_name:publicRows.find(row=>row.id===contact.id)?.display_name??null,avatar_url:publicRows.find(row=>row.id===contact.id)?.avatar_url??null}));
+      }else rows=isUserId(term)&&!uuid.test(term)?await api.rpc('lookup_user_id',{user_id:term.toUpperCase()}):await api.request(searchPath(value,page));
       if (!active.current || request !== searchRequest.current) return;
       setResults(rows); setSearched(true); setLastQuery(value); setOffset(page); setMore(rows.length === 20);
     } catch (error) {if (active.current && request === searchRequest.current) setSearchError(message(error));}
@@ -300,7 +319,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
       setFollows(previous => remove ? previous.filter(row => row.followee_id !== target)
         : previous.some(row => row.followee_id === target) ? previous : [{followee_id: target, created_at: new Date().toISOString()}, ...previous]);
       const profile = results.find(row => row.id === target);
-      if (profile) setAuthors(previous => ({...previous, [target]: profile}));
+      if (profile) setAuthors(previous => ({...previous,[target]:{id:profile.id,user_code:profile.user_code,display_name:profile.display_name,avatar_url:profile.avatar_url}}));
       setSuccess(remove ? '팔로우를 해제했어요.' : '팔로우했어요. 친구의 공개 여행을 만나보세요.');
       onChanged?.();
     } catch (error) {if (active.current) setActionError(message(error));}
@@ -311,20 +330,20 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     return connections.find(row => row.requester_id === target || row.recipient_id === target);
   }
 
-  async function connect(target: string, action: 'request' | 'accept' | 'remove') {
+  async function connect(target: string, action: 'request' | 'accept' | 'remove',contactCode?:string) {
     if (!owner || !loaded || busyRef.current || !uuid.test(target) || owner === target) return;
     busyRef.current = true; setBusy(target); setActionError(''); setSuccess(''); listRequest.current++; setLoading(false);
     try {
       const existing = connection(target);
       const pair = existing ? {requester_id: existing.requester_id, recipient_id: existing.recipient_id} : {requester_id: owner, recipient_id: target};
       const filter = path('friend_requests', {requester_id: `eq.${pair.requester_id}`, recipient_id: `eq.${pair.recipient_id}`});
-      const rows: Connection[] = await (action === 'request' ? api.request('/rest/v1/friend_requests', 'POST', pair)
+      const rows: Connection[] = await (action === 'request' ? contactCode?[await api.rpc('request_friend_by_id',{user_id:contactCode})]:api.request('/rest/v1/friend_requests', 'POST', pair)
         : action === 'accept' ? api.request(filter, 'PATCH', {status: 'accepted'}) : api.request(filter, 'DELETE'));
       if (!rows.length) throw new Error('친구 요청이 변경되었어요. 목록을 새로고침한 뒤 다시 확인해 주세요.');
       if (!active.current) return;
       setConnections(previous => [...previous.filter(row => row.requester_id !== target && row.recipient_id !== target), ...(action === 'remove' ? [] : rows)]);
       const profile = results.find(row => row.id === target);
-      if (profile) setAuthors(previous => ({...previous, [target]: profile}));
+      if (profile) setAuthors(previous => ({...previous,[target]:{id:profile.id,user_code:profile.user_code,display_name:profile.display_name,avatar_url:profile.avatar_url}}));
       setSuccess(action === 'request' ? '친구 요청을 보냈어요.' : action === 'accept' ? '친구가 되었어요. 공개된 여행을 함께 볼 수 있어요.' : '친구 관계 또는 요청을 삭제했어요. 기존 팔로우는 유지돼요.');
       if (action !== 'remove' && isUserId(inviteCode) && lastQuery.trim().toUpperCase() === inviteCode.toUpperCase() && results.some(row => row.id === target)) onInviteHandled?.();
       onChanged?.();
@@ -335,10 +354,10 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     } finally {busyRef.current = false; if (active.current) setBusy(null);}
   }
 
-  function connectionControls(id: string) {
+  function connectionControls(id: string,contactCode?:string) {
     if (id === owner) return null;
     const current = connection(id), disabled = !owner || !loaded || loading || busy !== null;
-    if (!current) return <Button compact label={owner ? '친구 요청' : '로그인 후 친구 요청'} disabled={disabled} onPress={() => void connect(id, 'request')}/>;
+    if (!current) return <Button compact label={owner ? '친구 요청' : '로그인 후 친구 요청'} disabled={disabled} onPress={() => void connect(id, 'request',contactCode)}/>;
     if (current.status === 'accepted') return <><Text style={s.friendHint}>친구</Text><Button compact label="친구 삭제" disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/></>;
     return current.requester_id === owner ? <Button compact label="요청 취소" disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/>
       : <><Button compact label="친구 수락" disabled={disabled} onPress={() => void connect(id, 'accept')}/><Button compact label="친구 거절" disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/></>;
@@ -352,7 +371,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     return <View key={id} testID={`friend-person-${id}`} style={s.person}>
       {canMap?<Pressable accessibilityRole="button" accessibilityLabel={`${mapLabel} · ${name} · ${code}`} disabled={loading||busy!==null} onPress={()=>onMap?.(id)} style={({pressed})=>[s.identity,pressed&&{backgroundColor:c.warm}]}>{identity}</Pressable>:<View style={s.identity}>{identity}</View>}
       <View style={s.friendActions}>
-        {relationActions&&connectionControls(id)}
+        {relationActions&&connectionControls(id,profile?.contact_code)}
         {id===owner?<Text style={s.friendHint}>내 프로필</Text>:<Button compact label={busy===id?'처리 중…':followed?'팔로우 해제':owner?'팔로우':'로그인 후 팔로우'} disabled={!owner||!loaded||loading||busy!==null} onPress={()=>void toggle(id,followed)} secondary={followed}/>}
       </View>
     </View>;

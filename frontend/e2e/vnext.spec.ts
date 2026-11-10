@@ -231,7 +231,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
    if(isPublic){await friend.getByRole('button',{name:'공개로 변경',exact:true}).click();await expect(friend.getByRole('button',{name:'비공개로 변경',exact:true})).toBeVisible();}
   }
   await draft(friend);await friend.getByLabel('여행 제목',{exact:true}).fill('친구 공개 초안');
-  await friend.getByRole('button',{name:'나만 보기',exact:true}).click();
+  await friend.getByRole('radio',{name:'공개',exact:true}).click();
   await friend.route('**/rest/v1/rpc/finalize_travel_record',route=>route.abort());
   await friend.getByRole('button',{name:'여행 저장',exact:true}).click();
   await expect(friend.getByRole('alert').filter({hasText:'연결'})).toBeVisible();
