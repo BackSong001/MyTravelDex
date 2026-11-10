@@ -1517,3 +1517,13 @@ main 21cc0ff 푸시 뒤 실제 Android에서 exifr 동적import/Hermes컴파일�
 ### 2026-11-10 19:25 KST 기본 선택 보강
 
 기존13항목 GPS 요구를 완료하기 위해 실제 Android 원본2장/날짜·좌표·접기보존·Local저장 성공 뒤 기본modern선택의GPS누락을 별도로 재현했다. 새권한 없이 기존photo전체권한만 조회해 Android GET_CONTENT 경로를 선택하는 계약을 t14와 승인하고 canonical을 동기화했다. 권한/경로Red6→관련39통과, t14/t9d 지정승인, 저자원APK1분48초 성공이며 기본경로 실수신/저장은 후속 검증한다. 변경파일: `frontend/src/photos.ts`, `frontend/app/index.tsx`, `backend/tests/photos-client.test.ts`, `backend/tests/photos-picker.test.ts`, `docs/PRODUCT_UPDATE_20261110_SPEC.md`, canonical6, `docs/prompts.md`.
+
+
+### 2026-11-10 19:54 KST 최종 검사·정리
+
+main a216cf3까지 구현을 푸시했다. 최종backend168+외부1skip/29파일, types0/production export0, 실제Android 기본·원본선택의GPS자동입력과Local저장/핸들접기/군집longpress를 확인했다. 전체웹161pass/키보드1fail(18.9분)은 성숙fixture의인증status응답true·Gate해제준비조건으로 보강한 대상3pass22.7초와 분리한다. t14 최종지정승인, t9d 구조검토완료이며 새전체162Green으로합산하지 않는다. Native QA 계정/기록/파일과Appium세션을정리하고에뮬레이터는유지했다. 원격3migration은승인대기며실Google/실기기/클라우드/iOS/스크린리더는미검증이다. 변경파일: `frontend/e2e/travel.spec.ts`, `docs/TEST_CASE.md`, `docs/PRODUCT_UPDATE_20261110_SPEC.md`, `docs/prompts.md`. 자동검증PNG12와 기존root package/lock·untracked는 커밋제외다.
+
+
+### 2026-11-10 19:57 KST APK 전달 준비
+
+실제서버용코드a216cf3 APK가1분52초성공했고target일치/apksigner0·빌드후60초이상휴식·Downloads복사/기존데이터보존설치Success를확인했다. `Downloads/MyTravelDex-a216cf3.apk`는자체테스트개발서명이며Play제출물이아니다. 원격3migration승인대기/실Google신규프로필·실기기미검증은유지한다. 변경파일: `docs/TEST_CASE.md`, `docs/prompts.md`; APK는Git밖Downloads에만보관한다.

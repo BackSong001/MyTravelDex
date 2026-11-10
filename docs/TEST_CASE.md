@@ -1100,3 +1100,18 @@ Downloads msf 보강 APK에서 원본 JPEG(no GPS)+PNG(GPS)를 실제 Android �
 1분48초 새 QA APK를 빌드 뒤60초 이상 쉬고 기존 앱데이터를 보존해 설치했다. 기존전체권한에서 기본 버튼이 실제 ACTION_GET_CONTENT를 호출하는 것을 확인했다. Android37의 시스템이 이를 PhotoPickerGetContentActivity로 처리해 UI가 비슷해도 원래 modern 계약과 같은 Intent로 간주하지 않는다. QA GPS사진 선택→날짜2026-11-10/사진GPS35.81510,127.15390 자동표시→제목 Native GPS 검증2 저장을 수행했고 Local조회에서 complete·source=exif 대표좌표와사진EXIF좌표 일치를 확인했다. 이전원본2장 기록도 complete와11/9~10·각GPS존재/없음 metadata를 유지했다.
 
 같은Native SDK 지도에 두QA기록이 군집2로 표시됐으며 700ms 길게누르기→두제목/작성자별목록이 열렸다. 비공개프로필의 작성자는 Auth이름이 아닌 여행자/기본avatar로 표시됐다. 닫은뒤 마커위240px드래그는 작성자목록을 열지 않았고 pinch조작후앱/지도는 유지됐다. 이는 한AVD의실제터치대표검사이며 모든SDK/기기/스크린리더/클라우드제공자/제한권한조합 수용은 아니다. 제한/거부/조회실패는 단위검사의modern복귀로 구분한다.
+
+
+### 13항목 최종 검증 정리 (2026-11-10 19:54 KST)
+
+- 제품 source는 main `21cc0ff`→`9849820`→`a216cf3`로 커밋·푸시했다. t14의 단계별 명세/제품 P2 보강 승인과 t9d의 구조/Native 제스처 취소·EXIF/기존권한 경로 지정 검토를 마쳤다. 추가 서비스/새 파서/갤러리 열거는 없다.
+- 최종 backend는 **29파일/168통과+외부1skip(50.79초)**이고 frontend TypeScript exit0, CPU2/worker1 production Web export exit0이다. `WEB_EXPORT_DIR=frontend/dist`를 지정한 전체 Web은 **161통과/1실패(18.9분)**다. 실제 export CSS/JS/worker/shared/PNG MIME·bytes/callback 및 지도/30테마·사진 실File·ID/온보딩/작성/소셜 회귀가 포함됐다.
+- 유일한 실패 TC-UI-007은 로그인 도중 신규 Gate가 포커스를 소유할 수 있는 성숙 fixture 준비조건을 분리했다. login 전 인증 POST profile_setup_status 성공응답을 등록해 body true/확인중 indicator0을 기다리고 add.focus→toBeFocused→Enter를 검사한다. Tab/실제 입력focus/ariaSnapshot/필수사진 오류·submit재활성 검사는 유지한다. **보정 후 대상 반복3통과(22.7초)**이며 t14 지정 diff 승인이다. 제품 Gate/키보드 코드는 바꾸지 않았다. 새 전체162 Green으로 합산하지 않으며 앞선 전체156/4/2skip·대상4 통과 이력도 보존한다.
+- Android는 Local QA release APK에서 원본2장(noGPS JPEG+GPS PNG)의 날짜minmax/첫유효GPS와 기본 GET_CONTENT 선택의 날짜/GPS 자동입력, Local complete 저장의 대표source=exif·사진EXIF좌표 일치를 확인했다. 실제 handle 아래drag 접기/재개에 사진·제목이 유지됐고 군집700ms 길게누르기에 각기록/작성자가 표시됐다. 비동의 이름/사진은 여행자/기본avatar로 유지됐고 marker drag는 목록을 열지 않았다. pinch 후 지도는 유지됐다. 단위/VM/SDK대역을 이 실제관측에 더해 성공수로 세지 않는다.
+- QA Local 계정1·여행2·연결사진3/파일6·위치와 기기 합성3파일을 정리하고 Appium 세션을 종료했다. 기존 앱데이터/실제사용자자료는 clear/delete하지 않았고 에뮬레이터는 켜두었다. 테스트가 덮은 기존 검증PNG12개는 원복해 원본자산 변경과 분리했다.
+- 원격은 검토된 badge_cabinets/profile_setup/contact_id의3개 migration dry-run까지만 수행했다. 사용자 적용승인 대기이며 production에 첫프로필/인증 exact ID/신규뱃지 서버지원이 적용됐다고 주장하지 않는다. 운영·실Google 신규계정·물리Android/iOS·Google Photos 클라우드·제한권한 실선택·스크린리더는 미검증이다.
+
+
+### 실제 서버용 APK 산출물 (19:57 KST)
+
+코드 a216cf3의 실제 .env 공개설정만 주입한 release APK가 CPU2/Gradle1/Java·Node1536MiB/Metro1로1분52초에성공했다. APK번들내URL/공개key가요청target과일치하고 apksigner verify exit0이다. 빌드후60초이상휴식후 `Downloads/MyTravelDex-a216cf3.apk`(162,082,264 bytes, SHA256 `3956a55c964ce102dc8cef76d3e61bc4e5a2fa378d44fa6757bc278c3c433056`)로복사하고 adb install -r Success로기존앱데이터를유지해설치했다. 이는기본개발서명자체테스트APK이며Play제출용AAB/서명OAuth수용이아니다. QA저장은Local APK에서만수행했고 실제서버에검증여행을쓰지않았다. 실제서버용APK의새Google동의/신규프로필·원격3migration적용을완료했다고기록하지않는다.

@@ -102,3 +102,10 @@ Native 실선택에서 Downloads의 MediaStore-backed 문서(msf:<숫자ID>)는 
 ### Android 기본 선택의 기존 권한 활용 (실패 재현 후 추가 게이트)
 
 실 APK의 modern PhotoPicker는 GPS가 있는 QA 파일에서도 원URI/MediaStore ID와 GPS를 제거해 날짜만 전달하는 것을 관측했다. 기본 버튼에서도 이미 부여된 전체 사진/위치 접근을 활용하려면 SDK가 문서/Downloads ID를 유지하는 선택 경로가 필요하다. Android에서 선택 전에는 getPermissionsAsync로 기존 권한만 확인한다(새 권한 요청 없음). 전체 접근이 이미 있으면 설치 Expo ImagePicker의 legacy=true GET_CONTENT 경로로 시스템/클라우드 제공자와 선택 ID를 유지하고, 미허용/제한 접근은 기존 modern PhotoPicker를 그대로 사용한다. broad 권한을 자동 요청하거나 선택하지 않은 갤러리를 열거하지 않는다. 원본 버튼만 기존 명시 requestPermissionsAsync 경로를 유지한다. GPS가 제거된 제한/클라우드 결과는 원본 선택/검색 안내를 제공하고 복원했다고 주장하지 않는다. Web 선택과 iOS는 변경하지 않는다. 기존 '전체권한과무관하게항상modern' 검사 계약은 이번 기본 GPS 요구로 이 범위에서 변경한다. 권한 조회 실패는 modern으로 안전하게 복귀하고 기존 입력을 보존한다.
+
+
+## 8. 구현 및 수용 경계 (2026-11-10 최종)
+
+13항목의 확정 범위 구현과 t14/t9d 지정 리뷰를 마쳤다. exifr는7.1.3을 채택했고 Web선택파일/Native모듈형entry/기존MediaLibrary를 photos.ts의 같은 정규화 경계로 연결했다. 실제 Android 기본/원본선택→날짜/GPS 자동입력→Local저장 및 작성접기/군집작성자 대표터치를 확인했다. backend168+외부1skip, types/export 성공, 전체Web161/1 및 성숙계정 준비조건 보정 후 키보드3통과는 TEST_CASE 최종 기록대로 구분한다. 새전체162 Green/실기기·클라우드·실Google 수용으로 확대하지 않는다.
+
+3개원격migration(badge_cabinets/profile_setup/contact_id)은 dry-run 뒤 승인대기다. 앱의 remote404 호환은 유지하며 신규 서버기능의 실제운영수용은 적용 뒤 별도다. 확정된 범위 밖 새추천알고리즘/추가 권한/배포 인프라나 반복개선은 시작하지 않았다.

@@ -4,7 +4,11 @@ import {randomUUID} from 'node:crypto';
 const email=`web-test-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;
 let userId='';
 test.beforeAll(async()=>{userId=(await admin('/auth/v1/admin/users','POST',{email,password,email_confirm:true})).id;});
-test.beforeEach(async({page})=>{await login(page,email,password);});
+test.beforeEach(async({page})=>{
+ const setup=page.waitForResponse(response=>response.request().method()==='POST'&&new URL(response.url()).pathname==='/rest/v1/rpc/profile_setup_status'&&!!response.request().headers()['authorization']&&response.ok());
+ await login(page,email,password);expect(await(await setup).json()).toEqual({profile_setup_complete:true});
+ await expect(page.getByLabel('프로필 설정 확인 중',{exact:true})).toHaveCount(0);
+});
 test.afterEach(async()=>{await cleanRecords(userId);});
 test.afterAll(async()=>{if(userId){await admin(`/rest/v1/profiles?id=eq.${userId}`,'DELETE');await admin(`/auth/v1/admin/users/${userId}`,'DELETE');}});
 test('TC-UI-001 로그인과 로그아웃',async({page})=>{await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();});
@@ -129,7 +133,7 @@ test('TC-UI-005 비로그인 사용자의 공개 상세 조회와 비공개 전�
  }finally{await context.close();}
 });
 test('TC-UI-007 키보드로 작성 진입·입력 포커스·저장 및 접근성 트리 확인',async({page})=>{
- const add=page.getByRole('button',{name:'기록 만들기',exact:true});await add.focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'사진 선택',exact:true})).toBeVisible();
+ const add=page.getByRole('button',{name:'기록 만들기',exact:true});await add.focus();await expect(add).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'사진 선택',exact:true})).toBeVisible();
  const title=page.getByLabel('여행 제목',{exact:true});await title.focus();await expect(title).toBeFocused();await page.keyboard.press('Tab');await expect(page.getByLabel('여행 내용',{exact:true})).toBeFocused();
  const snapshot=await page.locator('body').ariaSnapshot();expect(snapshot).toContain('textbox "여행 제목"');expect(snapshot).toContain('button "여행 저장"');
  const submit=page.getByRole('button',{name:'여행 저장',exact:true});await submit.focus();await page.keyboard.press('Enter');await expect(page.getByRole('alert')).toContainText('사진은 1~20장');await expect(submit).toBeEnabled();
