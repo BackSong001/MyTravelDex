@@ -1555,3 +1555,29 @@ t14 사전명세/SQL·rollback/UI 제품검토 및 P2 보강 재승인을 받고
 > 앱에 이미 업로드한 사진
 
 결과: 운영 데이터는 조회만 했으며, 전체 보관본10개에서 파일 내 GPS0개/DB GPS3개를 exifr·Pillow로 확인했다. 실제 Android Chrome의 File bytes10개 일치·자동GPS없음/위치없는저장차단·수동장소 Local 재등록의 요청/DB GPS null10개를 검증했다. EXIF 포함 합성 JPEG 대조는 자동입력·좌표 요청·DB저장 정상이며 압축 저장 파일에는GPS가없고DB에남음을 확인했다. OS사진선택기/휴대폰갤러리원본 검증과 구분하고 임시Local자료/사진복사본을정리했다. 제품코드/스키마/기존운영자료는변경하지않았다. 변경파일: `docs/TEST_CASE.md`, `docs/prompts.md`.
+
+### 2026-11-11 18:36 KST — 지정 사진 폴더 GPS 확인 후 조건부 테스트
+
+사용자 프롬프트 원문:
+
+> /home/jh-mac/Pictures/Pictures_data
+> 여기에 데이터 사진을 넣었는데, 위치정보가 있어? 위치정보가 있다면 자동으로 위치정보가 들어가는지 테스트해주고 없다면 테스트 하지마
+
+결과: JPEG6개를 exifr와 Pillow GPS IFD로 읽기 전용 확인했다. GPS 태그는 있지만 모든 위·경도 DMS 성분이0/0이고 방향도 비어 있어 유효GPS는0/6이며 촬영일은6/6에 있다. 요청한 조건에 따라 앱 자동입력/재등록/업로드 테스트는 실행하지 않았다. 원본/제품코드/DB/권한 변경은 없다. 변경파일: `docs/TEST_CASE.md`, `docs/prompts.md`.
+
+### 2026-11-11 18:50 KST — USB로 옮긴 원본 GPS 재확인
+
+사용자 프롬프트 원문:
+
+> /home/jh-mac/Pictures/Pictures_data USB로 옮겼어. 위치데이터가 보이는지 봐줘
+
+결과: 현재25장 모두 유효GPS/촬영일이 있고 이전6개와 같은파일명도 이번USB사본에서는정상이다. 앞선조건부자동입력검사에 따라 Chromium 모바일viewport에서10/10/5로검사했고 원본bytes25개일치·3묶음대표GPS/날짜범위자동입력·25개사진좌표요청/LocalDB저장일치를확인했다. 에뮬레이터가없어새로띄우지않았고 실제Android/OS선택기/실기기 검증과구분한다. 임시자료정리/원본25개불변을확인했으며 제품코드와운영DB변경은없다. 변경파일: `docs/TEST_CASE.md`, `docs/prompts.md`.
+
+
+## 2026-11-11 19:15 KST 웹 기본 원본 파일 선택
+
+- 프롬프트 원문: 그럼 구글포토로는 사진경로를 못가져오나? 그러면 무조건 원본 파일로 선택으로 설정해줘
+- 결과: Web의 기본 사진 선택을 설치 DocumentPicker의 일반 파일 선택으로 고정했다. 기존 File bytes/EXIF 자동입력·기간·수동입력·계정세대·Native 경로를 유지하고 MIME/signature·크기·파일별 격리 및 object URL 정리를 연결했다. t14 명세/제품 및 t9d 정적 승인. unit44/types0, Web 관련36 및 최종focused3 통과. 실제 폰 OS 선택기·Google 포토 GPS 보존은 미검증이며 파일경로/GPS복원을 보장하지 않는다. 배포 빌드/최종 결과는 TEST_CASE 최신절을 따른다.
+- 변경 파일: `docs/WEB_ORIGINAL_PICKER_SPEC.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `AGENTS.md`, `frontend/src/photos.ts`, `frontend/app/index.tsx`, `backend/tests/photos-picker.test.ts`, `frontend/e2e/photo-metadata.spec.ts`, `docs/prompts.md`.
+
+- 최종 검증 보충: production export 성공 및 해당 static artifact2pass(5.0초). 관련 unit44/웹36+최종focused3/types0와 별도 기록하며 전체검사·실폰·실배포 성공으로 합산하지 않는다.

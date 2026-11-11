@@ -1185,3 +1185,36 @@ Downloads msf 보강 APK에서 원본 JPEG(no GPS)+PNG(GPS)를 실제 Android �
 - Chrome File chooser를 자동화에서 가로채 File을 전달한 검사다. **Android OS 사진 선택기의 GPS 제거/원본 갤러리 선택·실기기 수용을 검증한 것은 아니다.** 새 개인 사진을 촬영하거나 기존 운영 기록을 수정·삭제하지 않았고, 기존 개인 사진/좌표/계정·Storage 경로는 로그·커밋에 넣지 않았다.
 - 초기 진단 스크립트는 위치 검증 뒤 자동으로 열린 LocationPicker를 다시 열려다 중단됐고, 다음 실행은 저장소의 일반 jeonju.jpg에 GPS가 있다고 가정한 양성 대조 준비 오류로 중단됐다. 이 둘은 제품 Red가 아니다. 준비조건을 맞춘 최종 실행은 실제 보관본 10개와 EXIF 포함 대조 JPEG의 재등록·요청·Local 저장 확인을 모두 통과했다. 모든 실행의 임시 Local 업로드/기록/계정은 정리했다.
 - 진단용 실제 사진 복사본은 검증 후 삭제한다. 제품의 압축 보관본과 DB 메타데이터 분리 구조를 확인한 결과이며, 보관본 파일만 재선택해서 DB GPS를 복원하는 기능은 이번에 추가하지 않았다.
+
+## 2026-11-11 18:36 KST — Pictures_data 원본 폴더 GPS 사전 검사
+
+사용자가 `/home/jh-mac/Pictures/Pictures_data`의 사진에 위치가 있으면 자동입력을 검사하고, 없으면 검사하지 말라고 지정했다. 폴더의 JPEG 6개를 읽기 전용으로 확인했다.
+
+- exifr 전체 메타데이터 검사에서 6개 모두 GPS 태그는 존재하지만 유한한 위·경도 좌표로 변환되지 않았다. 촬영일 정보는 6개 모두 있었다.
+- Pillow의 GPS IFD를 독립적으로 확인하니 모든 사진에서 위도/경도의 도·분·초 3성분이 각각 **분자0/분모0**, 방향 N/S/E/W도 없었다. 유효한 0도 좌표가 아니라 계산 불가능한 빈 GPS 필드다.
+- 사용자 조건에 따라 **앱 자동입력·재등록·업로드·저장 테스트는 실행하지 않았다.** 파일만으로 GPS가 언제/어디에서 비워졌는지는 확정하지 않는다. 원본 이미지·제품 코드·DB·권한은 변경하지 않았다.
+
+## 2026-11-11 18:50 KST — USB 복사 Pictures_data GPS 확인·자동입력
+
+사용자가 같은 폴더에 USB로 다시 옮긴 사진을 확인해 달라고 했고, 앞선 ‘GPS가 있으면 자동입력 검사’ 조건이 충족되어 후속 검증을 수행했다.
+
+- 현재 JPEG **25개 모두** exifr에서 유효한 위·경도/촬영일을 읽었고, Pillow GPS IFD의 DMS와 N/S/E/W도 모두 유효했다. 이전 공유 경로 사본 6개와 같은 이름의 파일은 bytes가 달라졌으며, 이번 USB 사본에서는 6개 모두 좌표가 정상이다. 이전의 빈 GPS 판정과 이번 정상 원본 판정을 혼동하지 않는다. 공유·Drive 업로드·다운로드 중 정확히 어느 단계가 GPS를 비웠는지는 이 비교만으로 확정하지 않는다.
+- 현재 Android 에뮬레이터가 연결되지 않아 새로 기동하지 않았고, 저자원 Chromium의 모바일 viewport390×844에서 앱을 검증했다. 파일25개는 선택제한20장을 지키도록10/10/5로 나눴다. 모든 input File의 SHA-256이 원본25개와 일치했다.
+- **3묶음 모두** 첫 사진 GPS의 대표 위치 자동입력과 촬영일min/max 자동입력이 일치했다. **25/25** 사진의 요청 EXIF 좌표와 Local DB 저장 좌표가 파일 GPS와 일치했다. locations는 source=exif와 각 묶음 첫 사진 좌표를 유지했다. 주소 보완은 외부 전송 대신 대역으로 두었으며 실제 주소 변환 품질은 수용하지 않는다.
+- 임시 Local 계정/기록3개/업로드와 Storage사진을 정리했다. 원본25개의 사후 SHA-256이 사전 값과 일치하며 제품 코드·운영 DB는 변경하지 않았다. 실제 개인 좌표/사진/계정/Storage 경로는 결과 로그나 커밋에 넣지 않는다.
+- 모바일 viewport 브라우저 검사이며 **실제 Android Chrome·OS 사진 선택기의 위치정보 제거 여부·실휴대폰 검증은 아니다.** File chooser를 가로채 동일 File bytes로 파싱·입력·저장을 검사했다. 초기 Android 연결 시도는 adb 대상 없음/CDP 연결 거부로 중단 후 Local 임시계정을 정리했으며, 제품 실패로 계산하지 않는다.
+
+
+## 2026-11-11 웹 기본 원본 파일 선택
+
+FR-PHOTO-WEB-FILE-001 / TC-PHOTO-WEB-FILE-001은 [명세](WEB_ORIGINAL_PICKER_SPEC.md)를 따른다. Web 사진 선택만 일반 파일 선택으로 전환하며 JPEG/PNG·20장·실제20MiB·파일별 격리/기존 작성·수동입력·계정세대를 보존한다. Native/API/DB/권한·환경은 변경하지 않는다. 실제 파일경로/제공자 GPS 보존/Android OS 선택기 강제는 보장하지 않는다.
+
+- 웹 원본선택 사전 Red: picker unit 20pass/3fail(Web 분기 부재), 실제 no-dev 파일입력 accept=,image/*로 * / * 기대 실패1을 확인했다. 최초 ElementHandle에 Locator matcher를 호출한 검사오류는 제품 Red에서 제외하고 getAttribute 검사로 보정했다.
+
+- 구현 중 RNWeb getSize callback-only를 await하는 호환오류로 Web3fail. Native는 유지하고 Web만 callback Promise로 수정했다. 수정 후 picker/client/parser unit44pass 및 Web photo-metadata3pass(14.3초): 실제 */*·multiple, File JPEG/PNG GPS·기간/Local 저장, manual edited, 혼합실패·전부실패·21장·cancel 기존선택보존. t14 제품 지정 정적 승인. 실제 폰 선택기/Google 포토 GPS 보존은 미검증이다.
+
+- t9d 지정 정적 승인: 추가 구조/필수수정 없음. 실행은 t12 결과로 구분. Native 기존 선택경로를 포함한 관련 unit44pass, frontend tsc exit0, 실제 Local no-dev travel/photo-order36pass(2.7분). 전체 Web 전체Green으로 확대하지 않는다.
+
+- 최종 focused3pass(15.3초)는 실패·취소·21장 뒤 기존 File/object URL을 보존한 채 실제 Local 저장/사진1개 확인까지 포함한다. 전 단계3pass(14.3초)와 별도로 기록한다.
+
+- 최종 production export exit0(2026-11-11T10:16:18Z), 빌드 후60초 이상 대기 뒤 해당 artifact static2pass(5.0초): callback/JS/CSS/worker/shared/PNG 실제bytes·MIME/누락404·production callback UI. 배포사이트/실휴대폰 chooser/Google 포토 GPS 수용은 아니다. 제품 변경은 Web picker와 안내뿐이며 원격/Native/기존 원본사진은 변경하지 않았다.

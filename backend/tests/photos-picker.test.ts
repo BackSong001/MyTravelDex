@@ -26,7 +26,7 @@ beforeEach(()=>{
   vi.resetAllMocks();platform.OS='android';
   library.mockResolvedValue({canceled:true,assets:null});
   document.mockResolvedValue({canceled:true,assets:null});
-  size.mockResolvedValue({width:2400,height:1600});exists.mockReturnValue(true);
+  size.mockImplementation((_uri:string,success?: (width:number,height:number)=>void)=>{success?.(2400,1600);return Promise.resolve({width:2400,height:1600});});exists.mockReturnValue(true);
   bytes.mockReturnValue(123);let id=0;uuid.mockImplementation(()=>`photo-${++id}`);
 });
 
@@ -38,12 +38,11 @@ test.each([true,false])('Android system picker uses existing full access without
   expect(document).not.toHaveBeenCalled();expect(info).not.toHaveBeenCalled();
 });
 
-test('explicit system, limited original and non-Android original use ImagePicker',async()=>{
+test('Android system, limited original and iOS original use ImagePicker',async()=>{
   await photos.pickPhotos(true,'system');await photos.pickPhotos(false,'original');
   platform.OS='ios';await photos.pickPhotos(true,'original');
-  platform.OS='web';await photos.pickPhotos(true,'original');
-  expect(library).toHaveBeenCalledTimes(4);expect(document).not.toHaveBeenCalled();
-  for(const index of [1,2,3])expect(library.mock.calls[index][0]).not.toHaveProperty('legacy');
+  expect(library).toHaveBeenCalledTimes(3);expect(document).not.toHaveBeenCalled();
+  for(const index of [1,2])expect(library.mock.calls[index][0]).not.toHaveProperty('legacy');
 });
 
 test('original documents are cached and keep supplied file metadata without invented EXIF',async()=>{
@@ -155,4 +154,36 @@ test('TC-PHOTO-METADATA-004: Downloads msf document identity reuses selected Med
  document.mockResolvedValue({canceled:false,assets:[{uri:'content://com.android.providers.downloads.documents/document/msf%3A111',name:'selected.png',mimeType:'image/png'}]});info.mockResolvedValue({location:{latitude:35.8151,longitude:127.1539},exif:{DateTimeOriginal:'2026:11:10 12:00:00'}});
  const picked=await photos.pickPhotos(true,'original');expect(picked.assets?.[0].assetId).toBe('111');expect(await photos.photoMetadata(picked.assets![0])).toMatchObject({latitude:35.8151,longitude:127.1539});expect(info).toHaveBeenCalledWith('111');
  info.mockClear();document.mockResolvedValue({canceled:false,assets:[{uri:'content://com.android.providers.downloads.documents/document/111',name:'legacy.jpg'}]});const legacy=await photos.pickPhotos(true,'original');expect(legacy.assets?.[0].assetId).toBeNull();expect(info).not.toHaveBeenCalled();
+});
+
+
+test('Web always uses a generic file chooser and keeps the original File',async()=>{
+ platform.OS='web';const file={size:123,arrayBuffer:vi.fn(),slice:()=>({arrayBuffer:async()=>Uint8Array.from([255,216,255]).buffer})},asset={uri:'blob:original',name:'original.jpg',mimeType:'image/jpeg',size:999,file};
+ document.mockResolvedValue({canceled:false,assets:[asset]});
+ for(const source of ['system','original'] as const){
+  const result=await photos.pickPhotos(false,source);
+  expect(result.assets?.[0]).toMatchObject({uri:asset.uri,file,fileName:'original.jpg',fileSize:123,width:2400,height:1600});
+  expect(result.assets?.[0].file).toBe(file);
+ }
+ expect(document).toHaveBeenCalledWith({type:'*/*',multiple:true,base64:false});expect(library).not.toHaveBeenCalled();expect(info).not.toHaveBeenCalled();
+});
+test('Web isolates invalid or unreadable files and revokes only their object URLs',async()=>{
+ platform.OS='web';const revoke=vi.spyOn(URL,'revokeObjectURL').mockImplementation(()=>{});
+ const asset=(uri:string,mimeType='image/jpeg',length=123)=>({uri,name:'photo.jpg',mimeType,file:{size:length,slice:()=>({arrayBuffer:async()=>Uint8Array.from([255,216,255]).buffer})}});
+ document.mockResolvedValue({canceled:false,assets:[asset('blob:ok'),asset('blob:text','text/plain'),asset('blob:large','image/jpeg',20971521),asset('blob:broken')]});
+ size.mockImplementationOnce((_uri,success)=>{success(2,3);}).mockImplementationOnce((_uri,_success,failure)=>{failure(new Error('decode'));});
+ try{const result=await photos.pickPhotos(false);expect(result.assets).toHaveLength(1);expect(result.rejectedCount).toBe(3);expect(size).toHaveBeenCalledTimes(2);expect(revoke.mock.calls.map(call=>call[0])).toEqual(['blob:text','blob:large','blob:broken']);}finally{revoke.mockRestore();}
+});
+test('Web cancellation, all invalid, and 21 files never produce a replacement selection',async()=>{
+ platform.OS='web';expect(await photos.pickPhotos(false)).toMatchObject({canceled:true});
+ document.mockResolvedValueOnce({canceled:false,assets:[{uri:'blob:bad',mimeType:'text/plain',file:{size:5}}]});
+ await expect(photos.pickPhotos(false)).rejects.toThrow();
+ const revoke=vi.spyOn(URL,'revokeObjectURL').mockImplementation(()=>{});
+ document.mockResolvedValueOnce({canceled:false,assets:Array.from({length:21},(_,i)=>({uri:`blob:${i}`}))});
+ try{await expect(photos.pickPhotos(false)).rejects.toThrow('20');expect(revoke).toHaveBeenCalledTimes(21);expect(size).not.toHaveBeenCalled();}finally{revoke.mockRestore();}
+});
+
+test.each(['','image/png'])('Web rejects missing or mismatched MIME (%s) without image decoding',async mimeType=>{
+ platform.OS='web';document.mockResolvedValue({canceled:false,assets:[{uri:'blob:wrong',mimeType,file:{size:3,slice:()=>({arrayBuffer:async()=>Uint8Array.from([255,216,255]).buffer})}}]});
+ await expect(photos.pickPhotos(false)).rejects.toThrow('JPEG·PNG');expect(size).not.toHaveBeenCalled();
 });

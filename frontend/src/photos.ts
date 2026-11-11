@@ -21,7 +21,10 @@ export async function photoPermission(request = true) {
 }
 
 export function cleanupPickedPhotos(assets: readonly {uri:string}[]) {
-  if (Platform.OS === 'web') return;
+  if (Platform.OS === 'web') {
+    for(const asset of assets)if(asset.uri.startsWith('blob:'))URL.revokeObjectURL(asset.uri);
+    return;
+  }
   const cache = new URL(Paths.cache.uri).href.replace(/\/?$/, '/');
   for (const asset of assets) {
     try {
@@ -34,6 +37,27 @@ export function cleanupPickedPhotos(assets: readonly {uri:string}[]) {
 }
 
 export async function pickPhotos(fullAccess: boolean, source: 'system' | 'original' = 'system') {
+  if(Platform.OS==='web'){
+    const result=await DocumentPicker.getDocumentAsync({type:'*/*',multiple:true,base64:false});
+    if(result.canceled)return {canceled:true as const,assets:null};
+    if(result.assets.length>20){cleanupPickedPhotos(result.assets);throw new RecordValidationError('photos','사진은 20장까지 선택할 수 있습니다.');}
+    const assets:ImagePicker.ImagePickerAsset[]= [];let rejectedCount=0;
+    for(const document of result.assets){
+      try{
+        const file=document.file;
+        if(!file||!['image/jpeg','image/png'].includes(document.mimeType??'')||!Number.isSafeInteger(file.size)||file.size<=0||file.size>MAX_PHOTO_BYTES)throw new Error('Invalid photo');
+        const signature=new Uint8Array(await file.slice(0,8).arrayBuffer());
+        const jpeg=signature[0]===255&&signature[1]===216&&signature[2]===255;
+        const png=[137,80,78,71,13,10,26,10].every((byte,index)=>signature[index]===byte);
+        if(document.mimeType==='image/jpeg'?!jpeg:!png)throw new Error('Invalid photo format');
+        const dimensions=await new Promise<{width:number;height:number}>((resolve,reject)=>Image.getSize(document.uri,(width,height)=>resolve({width,height}),reject));
+        if(!dimensions.width||!dimensions.height||dimensions.width*dimensions.height>40000000)throw new Error('Invalid photo dimensions');
+        assets.push({uri:document.uri,file,fileName:document.name,fileSize:file.size,mimeType:document.mimeType,type:'image',...dimensions});
+      }catch{rejectedCount++;cleanupPickedPhotos([document]);}
+    }
+    if(!assets.length)throw new RecordValidationError('photos','선택한 사진을 읽을 수 없습니다. JPEG·PNG, 20 MiB·40메가픽셀 이하 사진을 선택해 주세요.');
+    return {canceled:false as const,assets,rejectedCount};
+  }
   if (source !== 'original' || Platform.OS !== 'android' || !fullAccess) {
     const result = await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true,...(Platform.OS==='android'&&fullAccess?{legacy:true}:{})});
     if (!result.canceled && result.assets.length > 20) {
