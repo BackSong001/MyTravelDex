@@ -2,7 +2,7 @@ export type PhotoInput = { captured_date?: string | null; latitude?: number | nu
 export function validCoordinates(latitude: number, longitude: number) {
   return Number.isFinite(latitude) && Math.abs(latitude) <= 90 && Number.isFinite(longitude) && Math.abs(longitude) <= 180;
 }
-function validDate(value: string) {
+export function validDate(value: string) {
   const parsed = new Date(value);
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
 }

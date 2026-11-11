@@ -1,7 +1,7 @@
 import {useThemeColors,useThemeStyles,type ThemeColors} from '../src/ThemeContext';
 import React, {useEffect, useState} from 'react';
 import Text from '../src/FontText';
-import {StyleSheet, View} from 'react-native';
+import {Platform,StyleSheet, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SplashScreen, Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
@@ -9,13 +9,14 @@ import {Backpack} from '../src/Journal';
 import {api} from '../src/runtime';
 import {contrastRatio} from '../src/themes';
 import {ThemeProvider} from '../src/ThemeProvider';
+import useAppViewport from '../src/useAppViewport';
 import {MotionProvider} from '../src/Feedback';
 
 void SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function Layout(){return <ThemeProvider><ThemedLayout/></ThemeProvider>;}
 function ThemedLayout() {
- const c=useThemeColors();
+ const c=useThemeColors(),viewport=useAppViewport();
  const s=useThemeStyles(makeStyles);
   const [localReady, setLocalReady] = useState(false);
   const [laidOut, setLaidOut] = useState(false);
@@ -32,7 +33,7 @@ function ThemedLayout() {
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync().catch(() => {});
   }, [ready]);
-  return <MotionProvider><View style={s.root} onLayout={() => setLaidOut(true)}>
+  return <MotionProvider><View testID="viewport-frame" style={[s.root,Platform.OS==='web'&&{position:'absolute',top:viewport.top??0,left:viewport.left??0,width:viewport.width,maxWidth:'100%',height:viewport.height}]} onLayout={() => setLaidOut(true)}>
     <StatusBar style={contrastRatio('#FFFFFF',c.paper)>contrastRatio('#000000',c.paper)?'light':'dark'}/>
     <View style={s.root} accessibilityElementsHidden={!ready} importantForAccessibility={ready ? 'auto' : 'no-hide-descendants'}>
       <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>

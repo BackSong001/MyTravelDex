@@ -5,7 +5,7 @@ const users:{id:string;email:string;password:string}[]=[];
 test.beforeAll(async()=>{for(let index=0;index<2;index++){
  const email=`my-summary-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;
  const user=await admin('/auth/v1/admin/users','POST',{email,password,email_confirm:true});users.push({id:user.id,email,password});
- await admin(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:`요약 여행자 ${index}`,public_profile_enabled:false});
+ await admin(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:`요약 여행자 ${index}`,public_profile_enabled:true});
 }});
 test.afterAll(async()=>{for(const user of users){await cleanRecords(user.id);await admin(`/auth/v1/admin/users/${user.id}`,'DELETE');}});
 

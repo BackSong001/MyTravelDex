@@ -3,10 +3,11 @@ import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import React from 'react';
 import Text from './FontText';
-import {Image, Platform, StyleSheet, View, useWindowDimensions} from 'react-native';
+import {Image, Platform, StyleSheet, Switch, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
 import Avatar from './Avatar';
+import useAppViewport from './useAppViewport';
 
 export function Backpack({size = 42}: {size?: number}) {
  const uiAssets=useThemeAssets();
@@ -40,30 +41,35 @@ export function Author({author,size=28}: {author?: PublicAuthor | null;size?:num
   return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url} size={size}/></View>;
 }
 
-export function Collection({records, covers, onOpen, authors = {}, emptySearch=false, disabled=false, loading=false, failed=false, children,profile=false,total=records.length,onCoverError}: {
-  records: any[]; covers: Record<string, string>;
-  onOpen: (record: any) => void; emptySearch?: boolean; disabled?:boolean; loading?:boolean; failed?:boolean; profile?:boolean; total?:number; onCoverError?:(id:string,url:string)=>void; authors?: Record<string, PublicAuthor | null>; children?: React.ReactNode;
-}) {
- const s=useThemeStyles(makeStyles);
-  const {height}=useWindowDimensions();
-  const countLabel=loading?'불러오는 중':failed?'확인 필요':profile?`전체 ${total}개 중 최근 ${records.length}개`:`${records.length}개`;
-  return <>
-    <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={[s.title,profile&&s.profileTitle]}>{profile?'나의 여행':'여행도감'}</Text><Text testID={profile?'profile-trip-count':undefined} accessibilityLabel={profile?`나의 여행 기록 · ${countLabel}`:loading?'여행 기록 불러오는 중':undefined} style={[s.subtitle,profile&&s.profileSubtitle]}>{countLabel}</Text></View>
-    {children}
-    {!loading&&!failed&&!records.length && <View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
-    <View style={s.list}>{records.map(record => {
-      const author = authors[record.owner_id];
-      const title = record.title || '제목 없는 여행';
-      const place = record.locations?.place_name || record.locations?.region_name || '지도에 남긴 여행';
-      const visibility=record.status==='draft'?'작성 중':record.visibility==='private'?'나만 보기':'공개 여행';
-      return <Pressable key={record.id} disabled={disabled} accessibilityRole="button" accessibilityLabel={`${title}, ${profile?'내 여행':author?.display_name?.trim() || '여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={() => onOpen(record)} style={({pressed}) => [s.listRow,profile&&s.profileRow, pressed && s.cardPressed]}>
-        <View style={{position:'relative'}}>{covers[record.id] ? <Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri: covers[record.id]}} onError={onCoverError?()=>onCoverError(record.id,covers[record.id]):undefined} style={[s.listPhoto,profile&&s.profilePhoto]}/> : <View style={[s.photoPlaceholder,s.listPhoto,profile&&s.profilePhoto]}><JournalIcon name="album" size={30}/></View>}{!profile&&<View style={{position:'absolute',bottom:3,right:3}}><Author author={author} size={20}/></View>}</View>
-        <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={s.placeStatus}><Text numberOfLines={2} style={[s.cardPlace,{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
-        {!profile&&<View style={s.rowTrailing}><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>}
-      </Pressable>;
-    })}</View>
-    {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>{profile?`최근 ${records.length}개를 표시해요. 전체 ${total}개는 내 여행 보기에서 확인해요.`:`불러온 ${records.length}개의 여행 기록`}</Text>}
-  </>;
+export function Collection({records,covers,onOpen,authors={},emptySearch=false,disabled=false,loading=false,failed=false,children,profile=false,total=records.length,onCoverError,groupBy,owner,onVisibilityChange,visibilityBusy,visibilityErrors={}}:{
+ records:any[];covers:Record<string,string>;onOpen:(record:any)=>void;emptySearch?:boolean;disabled?:boolean;loading?:boolean;failed?:boolean;profile?:boolean;total?:number;onCoverError?:(id:string,url:string)=>void;authors?:Record<string,PublicAuthor|null>;children?:React.ReactNode;
+ groupBy?:(record:any)=>string;owner?:string;onVisibilityChange?:(record:any,target:'private'|'public')=>void;visibilityBusy?:ReadonlySet<string>;visibilityErrors?:Record<string,{target:'private'|'public';message:string}>;
+}){
+ const c=useThemeColors(),s=useThemeStyles(makeStyles),{height}=useWindowDimensions();
+ const countLabel=loading?'불러오는 중':failed?'확인 필요':profile?`전체 ${total}개 중 최근 ${records.length}개`:`${records.length}개`;
+ return <>
+  <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={[s.title,profile&&s.profileTitle]}>{profile?'나의 여행':'여행도감'}</Text><Text testID={profile?'profile-trip-count':undefined} accessibilityLabel={profile?`나의 여행 기록 · ${countLabel}`:loading?'여행 기록 불러오는 중':undefined} style={[s.subtitle,profile&&s.profileSubtitle]}>{countLabel}</Text></View>
+  {children}
+  {!loading&&!failed&&!records.length&&<View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
+  <View style={s.list}>{records.map((record,index)=>{
+   const author=authors[record.owner_id],title=record.title||'제목 없는 여행',place=record.locations?.place_name||record.locations?.region_name||'지도에 남긴 여행';
+   const recordLabel=`${title}, ${record.start_date} ~ ${record.end_date}, ${place}, ${index+1}번째 기록`;
+   const visibility=record.status==='draft'?'작성 중':record.visibility==='private'?'나만 보기':'공개 여행';
+   const canChange=!profile&&!!owner&&owner===record.owner_id&&record.status==='complete'&&!!onVisibilityChange,pending=visibilityBusy?.has(record.id),failure=visibilityErrors[record.id];
+   const content=<>
+    <View style={{position:'relative'}}>{covers[record.id]?<Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri:covers[record.id]}} onError={onCoverError?()=>onCoverError(record.id,covers[record.id]):undefined} style={[s.listPhoto,profile&&s.profilePhoto]}/>:<View style={[s.photoPlaceholder,s.listPhoto,profile&&s.profilePhoto]}><JournalIcon name="album" size={30}/></View>}{!profile&&<View style={{position:'absolute',bottom:3,right:3}}><Author author={author} size={20}/></View>}</View>
+    <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={[s.placeStatus,canChange&&{flexDirection:'column'}]}><Text numberOfLines={2} style={[s.cardPlace,canChange?{minWidth:0}:{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
+    {!profile&&<View style={s.rowTrailing}><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>}
+   </>;
+   const row=<Pressable disabled={disabled||pending} accessibilityRole="button" accessibilityLabel={`${title}, ${profile?'내 여행':author?.display_name?.trim()||'여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={()=>onOpen(record)} style={({pressed})=>[profile?[s.listRow,s.profileRow]:s.rowContent,pressed&&s.cardPressed]}>{content}</Pressable>;
+   return <React.Fragment key={record.id}>
+    {!profile&&groupBy&&(index===0||groupBy(records[index-1])!==groupBy(record))&&<Text accessibilityRole="header" style={s.regionHeading}>{groupBy(record)}</Text>}
+    {profile?row:<View style={s.listRow}>{row}{canChange&&<View style={{alignItems:'center',width:52}}><Switch accessibilityLabel={`${recordLabel} 공개`} accessibilityState={{busy:!!pending}} value={record.visibility==='public'} disabled={disabled||pending} onValueChange={value=>onVisibilityChange?.(record,value?'public':'private')} thumbColor={record.visibility==='public'?c.onPrimary:c.ink} trackColor={{false:c.warm,true:c.coral}} style={{minWidth:50,minHeight:50}}/><Text style={{fontSize:11,color:c.ink}}>{pending?'저장 중':record.visibility==='public'?'공개':'비공개'}</Text></View>}</View>}
+    {canChange&&failure&&<View style={{padding:16,gap:8,backgroundColor:c.errorSurface}}><Text accessibilityRole="alert" style={{color:c.error}}>{failure.message}</Text><Pressable accessibilityRole="button" accessibilityLabel={`${recordLabel} 공개 범위 다시 시도`} disabled={disabled||pending} onPress={()=>onVisibilityChange?.(record,failure.target)} style={{padding:12}}><Text style={{color:c.ink}}>다시 시도</Text></Pressable></View>}
+   </React.Fragment>;
+  })}</View>
+  {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>{profile?`최근 ${records.length}개를 표시해요. 전체 ${total}개는 내 여행 보기에서 확인해요.`:`불러온 ${records.length}개의 여행 기록`}</Text>}
+ </>;
 }
 
 const tabs = [
@@ -74,7 +80,7 @@ export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
   const insets = useSafeAreaInsets();
-  const compact = useWindowDimensions().height < 500;
+  const compact = useAppViewport().height < 500;
   return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
     {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={[s.fab,compact&&{width:50,height:50}]}><JournalIcon name="plus" size={compact?32:54}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
       {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={32}/></View>}
@@ -99,6 +105,8 @@ const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   cardPressed: {backgroundColor:c.warm},
   listPhoto: {width:64,height:64,borderRadius:10,flexShrink:0},
   photoPlaceholder: {backgroundColor:c.warm,alignItems:'center',justifyContent:'center'},
+  rowContent:{flex:1,minWidth:0,flexDirection:'row',alignItems:'center',gap:12},
+  regionHeading:{fontSize:17,fontWeight:'700',color:c.ink,paddingHorizontal:16,paddingTop:20,paddingBottom:10,backgroundColor:c.paper},
   rowBody: {flex:1,minWidth:0,gap:3},
   rowTrailing: {width:20,alignItems:'center',flexShrink:0},
   cardTitle: {fontSize:15,lineHeight:22,fontWeight:'700',color:c.ink},

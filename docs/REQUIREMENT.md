@@ -156,7 +156,7 @@ MyTravelDex는 사진과 위치정보를 기반으로 사용자의 여행 기록
 | FR-UI-009 | 스플래시를 제공한다. | Must | 백팩·앱명, 리소스/로컬 세션 준비 후 종료하며 네트워크·고정 지연을 기다리지 않는다. |
 | FR-UI-010 | 화면 크기·글꼴·접근성·가벼운 반응을 지원한다. | Must | 320dp~태블릿, 글꼴 1.0/1.3/2.0, 키보드/안전 영역, 텍스트 대비 4.5:1·필수 비텍스트 3:1, 감소 설정을 검증한다. 기능 실행은 애니메이션을 기다리지 않는다. |
 | FR-UI-011 | 17개 시·도를 색상으로 구분하고 축척별 명칭을 표시한다. | Must | 지역 ID별 안정된 색, 선택/방문 비색상 신호, 축소 시 서울·부산·제주/선택 지역, 확대 시 선택 지역과 검증된 랜드마크 명칭을 표시한다. 경계 출처 한계를 고지한다. |
-| FR-PROFILE-001 | 공개용 닉네임·기본/Google 아바타를 설정한다. | Must | 명시적 공개 확인·최소 필드 projection·소유자 수정·기본 표시와 개인정보 우회 차단을 검증한다. |
+| FR-PROFILE-001 | 공개용 닉네임·기본/Google 아바타를 설정한다. | Must | FR-PROFILE-002에 따라 전체 프로필을 최소 필드로 공개한다. 소유자 수정·명시 아바타·기본 표시·여행 private 및 개인정보 우회 차단을 검증한다. |
 | FR-SOCIAL-001 | 사용자를 일방 팔로우·해제한다. | Must | 공개 프로필 검색·본인 관계 관리·유일한 사용자 쌍·자기 팔로우/타인 변경 차단, 완료 공개 기록만 조회한다. |
 | FR-STAMP-001 | 본인 방문 시·도 스탬프를 자동 계산한다. | Must | 본인 complete만 집계하고 마지막 기록 삭제·위치 변경 시 재계산한다. 친구·draft·해외는 국내 스탬프에서 제외한다. |
 
@@ -419,3 +419,10 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 ### Android 기본 사진 선택의 기존 권한 활용 (2026-11-10)
 
 PRODUCT_UPDATE_20261110_SPEC의 추가 게이트를 따른다. Android 기본 선택은 getPermissionsAsync(false,['photo'])만 조회하며 granted && accessPrivileges==='all'인 경우에만 기존 ImagePicker legacy GET_CONTENT를 사용한다. 제한/거부/조회 실패는 modern 선택을 유지한다. 기본 버튼의 새 권한 요청·갤러리 열거는 없고, 원본 버튼만 기존 명시 권한 요청을 유지한다. Web/iOS는 변경하지 않는다. 취소·20장·세션세대·수동 입력 보존과 공급자가 제거한 GPS의 원본/검색 복구 안내를 유지한다. all/limited/denied/reject·권한 요청0회와 실제 Native 수신/저장을 별도로 검증한다.
+
+
+## 2026-11-11 웹 작성·전체공개 프로필·지역 도감 계약
+
+[WEB_PROFILE_JOURNAL_20261111_SPEC](WEB_PROFILE_JOURNAL_20261111_SPEC.md)가 기존프로필opt-in/도감기본정렬을명시대체한다. FR-MY-CREDITS-001/TC-MY-CREDITS-001(My하단전체출처·지도필수표시보존), FR-WEB-KEYBOARD-001/TC-WEB-KEYBOARD-001(Web보이는viewport/키보드·입력보존), FR-PROFILE-002/TC-PROFILE-002(전프로필·ID최소공개/본인기본RLS·여행private별개), FR-JOURNAL-002/TC-JOURNAL-002(본인complete행Switch/PATCH성공과refresh실패분리), FR-CALENDAR-001/TC-CALENDAR-001(Web표준date/Native OS8.4.4·수동입력/순수달력날짜), FR-JOURNAL-003/TC-JOURNAL-003(지역가나다그룹/그룹내start_desc/id·기존4정렬/검색/복귀)로연결한다.
+
+공개정책은 기존3/4필드view·readerRLS/ID를 재사용하고 모든flag true/CHECKtrue·새Auth이름기본여행자/첫설정false를 같은migration에 둔다. 기존flag/이름은 client접근불가backup에보존하며 invalid비어있지않은이름/avatar는preflight전체중단한다. Auth이메일/실명/사진자동공개와타인기본profiles/private/draft/정밀EXIF노출은없다. 구버전false쓰기는원자실패하며앱만롤백해복원된다고주장하지않는다. 명시보정SQL로원flag·안전한신규false를복원하고이후수정이름/사진·ID/sequence를보존한다. Local만적용/원격별도승인과공개후즉시회수불가를명시한다. 구현·테스트수용상태는TEST_CASE최신이력에별도로기록한다.

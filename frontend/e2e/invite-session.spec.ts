@@ -8,6 +8,7 @@ test.beforeAll(async()=>{
  const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};
  // 실제 Home 상태를 실행하고 네이티브 UI·라우터·외부 로그인 경계만 대체한다.
  const stubs:Record<string,string>={
+  '../src/MapAttribution':`export const ProfileMapCredits=()=>null;`,
   '../src/Feedback':`export {Pressable as default} from 'react-native';`,
   'react-native':`import React from '${react}';
    const container=tag=>React.forwardRef(({children,onPress,accessibilityLabel},ref)=>React.createElement(tag,{ref,onClick:onPress,'aria-label':accessibilityLabel},children));
@@ -34,7 +35,7 @@ test.beforeAll(async()=>{
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
     if(args.path==='../src/FontText')return {path:path.resolve('frontend/src/FontText.tsx'),namespace:'file'};
-    if(['../src/journalRecords','../src/domain','../src/recordCovers','../src/ThemeContext'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
+    if(['../src/useAppViewport','../src/journalRecords','../src/domain','../src/recordCovers','../src/ThemeContext'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};
     if(args.importer.endsWith('/frontend/app/index.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
    });

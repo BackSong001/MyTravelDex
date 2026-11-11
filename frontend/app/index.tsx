@@ -1,3 +1,6 @@
+import useAppViewport from '../src/useAppViewport';
+import DateField from '../src/DateField';
+import {ProfileMapCredits} from '../src/MapAttribution';
 import AppSettings from '../src/AppSettings';
 import ThemePicker from '../src/ThemePicker';
 import {useThemeColors,useThemeStyles,type ThemeColors} from '../src/ThemeContext';
@@ -7,7 +10,7 @@ import StampCatalog from '../src/StampCatalog';
 import Pressable from '../src/Feedback';
 import React,{useEffect,useState,useRef,useMemo} from 'react';
 import Text from '../src/FontText';
-import {View,TextInput,ScrollView,Image,StyleSheet,ActivityIndicator,Platform,Linking,AppState,AccessibilityInfo,findNodeHandle,useWindowDimensions} from 'react-native';
+import {View,TextInput,ScrollView,Image,StyleSheet,ActivityIndicator,Platform,Linking,AppState,AccessibilityInfo,findNodeHandle} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,7 +29,7 @@ import {ProfileEditor,ProfileSetupGate,Friends,isUserId} from '../src/Social';
 import {groupProvinceRecords,provinceLabels} from '../src/provinces';
 import {googleLogin,auth} from '../src/auth';
 import {Author, Backpack, Collection, JournalNav, JournalIcon, Welcome, JournalTab} from '../src/Journal';
-import {journalRecords, journalOrders, type JournalOrder} from '../src/journalRecords';
+import {journalRecords, journalRegion, journalOrders, type JournalOrder} from '../src/journalRecords';
 
 class ListLoadError extends Error {}
 
@@ -43,17 +46,19 @@ export default function Home(){
  const scroll=useRef<ScrollView>(null),listRequest=useRef(0),navigationVersion=useRef(0),albumScroll=useRef(0),accountScroll=useRef(0),pendingAccountScroll=useRef<number|null>(null),detailOrigin=useRef<{screen:'album'|'account';offset:number}>({screen:'album',offset:0});
  const latestLoad=useRef<()=>Promise<void>>(async()=>{}),busyRef=useRef(false),authOwner=useRef<string|null>(null),sessionEpoch=useRef(0),operationVersion=useRef(0);
  const edited=useRef({start:false,end:false,location:false});
- const fieldRefs=useRef<Record<string,TextInput|null>>({}),fieldPositions=useRef<Record<string,number>>({}),photoButton=useRef<View>(null);
+ const fieldRefs=useRef<Record<string,TextInput|HTMLInputElement|null>>({}),fieldPositions=useRef<Record<string,number>>({}),photoButton=useRef<View>(null);
  const [invalidField,setInvalidField]=useState(''),[replacement,setReplacement]=useState<any>(null);
  const detailRequests=useRef(new Map<any,Promise<void>>());
  const [screen,setScreen]=useState('login'),[session,setSession]=useState<any>(null),[rows,setRows]=useState<any[]>([]),[selected,setSelected]=useState<any>(null);
  const [composer,setComposer]=useState(false),[discard,setDiscard]=useState(false),[saved,setSaved]=useState(''),[loading,setLoading]=useState(false),[listError,setListError]=useState('');
- const [journalOrder,setJournalOrder]=useState<JournalOrder>('start_desc'),[journalQuery,setJournalQuery]=useState('');
+ const [journalOrder,setJournalOrder]=useState<JournalOrder>('region_asc'),[journalQuery,setJournalQuery]=useState('');
  const [authors,setAuthors]=useState<Record<string,any>>({}),[ownRows,setOwnRows]=useState<any[]>([]),[placeInfo,setPlaceInfo]=useState<any>(null),[preview,setPreview]=useState<any>(null);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false),[scope,setScope]=useState('combined'),[start,setStart]=useState(''),[end,setEnd]=useState(''),[friendOwner,setFriendOwner]=useState(''),[provinceFilter,setProvinceFilter]=useState('');
  const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[title,setTitle]=useState(''),[content,setContent]=useState(''),[latitude,setLatitude]=useState(''),[longitude,setLongitude]=useState(''),[photos,setPhotos]=useState<Selected[]>([]),[visibility,setVisibility]=useState('private');
  const [urls,setUrls]=useState<Record<string,string>>({}),[pending,setPending]=useState<{id:string;location:string;existing:number}|null>(null),[drafts,setDrafts]=useState(false);
  const [tab,setTab]=useState<JournalTab>('home'),[covers,setCovers]=useState<Record<string,string>>({});
+ const visibilityBusyRef=useRef(new Set<string>()),scopeRef=useRef(scope);scopeRef.current=scope;
+ const [visibilityBusy,setVisibilityBusy]=useState<ReadonlySet<string>>(new Set()),[visibilityErrors,setVisibilityErrors]=useState<Record<string,{target:'private'|'public';message:string}>>({});
  useEffect(()=>{if(inviteCode){setTab('friends');setScreen('list');}},[inviteCode,session?.user?.id]);
  const screenRef=useRef(screen);screenRef.current=screen;
  const selectedRef=useRef(selected);selectedRef.current=selected;
@@ -78,7 +83,7 @@ export default function Home(){
  const [mapHeight,setMapHeight]=useState(0),[attributionHeight,setAttributionHeight]=useState(0);
  const homeMapWidth=Math.min(720,(mapHeight||600)*.9);
  const [scopeOpen,setScopeOpen]=useState(false),[manage,setManage]=useState(false),[filtersOpen,setFiltersOpen]=useState(false);
- const {fontScale,height,width}=useWindowDimensions();
+ const {fontScale,height,width}=useAppViewport();
  const compact=height<500;
  const [ownLoaded,setOwnLoaded]=useState(false),[myStamps,setMyStamps]=useState(false);
  const ownGroups=useMemo(()=>groupProvinceRecords(ownRows),[ownRows]);
@@ -91,6 +96,8 @@ export default function Home(){
  useEffect(()=>{if(!saved)return;const timer=setTimeout(()=>setSaved(''),4000);return()=>clearTimeout(timer);},[saved]);
  const field=(label:string,value:string,onChange:(s:string)=>void,extra:any={})=><View style={s.field} onLayout={event=>{fieldPositions.current[label]=event.nativeEvent.layout.y;}}><Text style={s.label}>{label}</Text><TextInput ref={node=>{fieldRefs.current[label]=node;}} accessibilityLabel={label} accessibilityHint={invalidField===label?error:undefined} accessibilityState={{disabled:busy}} aria-invalid={invalidField===label} editable={!busy} style={[s.input,invalidField===label&&s.invalidInput]} value={value} onChangeText={next=>{if(invalidField===label){setInvalidField('');setError('');}onChange(next);}} placeholderTextColor={c.muted} {...extra}/>{invalidField===label&&<Text style={s.fieldError}>{error}</Text>}</View>;
 
+ const dateField=(label:string,value:string,onChange:(s:string)=>void)=><DateField label={label} value={value} onChange={next=>{if(invalidField===label){setInvalidField('');setError('');}onChange(next);}} disabled={busy} error={invalidField===label?error:undefined} inputRef={node=>{fieldRefs.current[label]=node;}} onLayout={event=>{fieldPositions.current[label]=event.nativeEvent.layout.y;}}/>;
+
  const button=(label:string,onPress:()=>void,secondary=false)=><Pressable key={label} ref={label==='사진 선택'?photoButton:undefined} onLayout={event=>{if(label==='사진 선택')fieldPositions.current[label]=event.nativeEvent.layout.y;}} accessibilityRole="button" accessibilityLabel={label} disabled={busy} onPress={onPress} style={({pressed})=>[s.button,secondary&&s.secondary,pressed&&{backgroundColor:secondary?c.secondaryPressed:c.primaryPressed},busy&&{opacity:.6}]}><Text style={[s.buttonText,secondary&&{color:c.ink}]}>{label}</Text></Pressable>;
  function focusInvalid(label:string,message:string){
   const version=navigationVersion.current;setInvalidField(label);
@@ -99,7 +106,7 @@ export default function Home(){
    scroll.current?.scrollTo({y:Math.max(0,(fieldPositions.current[label]??0)-16),animated:false});
    if(label==='장소 검색'){setLocationOpen(true);return;}
    const target=label==='사진 선택'?photoButton.current:fieldRefs.current[label];target?.focus();
-   if(Platform.OS!=='web'){const node=findNodeHandle(target);if(node)AccessibilityInfo.setAccessibilityFocus(node);AccessibilityInfo.announceForAccessibility(message);}
+   if(Platform.OS!=='web'){const node=findNodeHandle(target as TextInput|View);if(node)AccessibilityInfo.setAccessibilityFocus(node);AccessibilityInfo.announceForAccessibility(message);}
   });
  }
  async function perform(action:()=>Promise<void>){
@@ -139,7 +146,7 @@ export default function Home(){
   const owner=next?.user?.id??null,changed=owner!==authOwner.current;
   authOwner.current=owner;api.token=next?.access_token??null;setSession(next);
   if(!changed)return;
-  albumScroll.current=0;sessionEpoch.current++;operationVersion.current++;busyRef.current=false;setBusy(false);
+  albumScroll.current=0;sessionEpoch.current++;operationVersion.current++;busyRef.current=false;setBusy(false);visibilityBusyRef.current.clear();setVisibilityBusy(new Set());setVisibilityErrors({});
   // 이전 사용자의 진행 중 응답은 개인 상태를 다시 채울 수 없다.
   navigationVersion.current++;listRequest.current++;selectedRef.current=null;screenRef.current=next?'list':'login';
   setSelected(null);setUrls({});setPreview(null);setRows([]);setOwnRows([]);setOwnLoaded(false);setMyStamps(false);accountScroll.current=0;pendingAccountScroll.current=null;detailOrigin.current={screen:'album',offset:0};setCovers({});setAuthors({});
@@ -156,6 +163,22 @@ export default function Home(){
  },[]);
  useEffect(()=>{void load().catch(()=>{});},[session,scope,drafts,friendOwner,provinceFilter]);
  useEffect(()=>{const refresh=()=>{const epoch=sessionEpoch.current,version=navigationVersion.current,record=selectedRef.current;void latestLoad.current().catch(()=>{});void refreshDetailUrls().catch(e=>{if(epoch===sessionEpoch.current&&version===navigationVersion.current&&record===selectedRef.current&&screenRef.current==='detail')setError(e.message);});};const timer=setInterval(refresh,240000);const subscription=AppState.addEventListener('change',state=>{if(state==='active')refresh();});return()=>{clearInterval(timer);subscription.remove();};},[session,scope,drafts,friendOwner,provinceFilter]);
+ async function changeJournalVisibility(record:any,target:'private'|'public'){
+  const owner=session?.user?.id,epoch=sessionEpoch.current,id=record.id;
+  if(!owner||record.owner_id!==owner||record.status!=='complete'||busyRef.current||visibilityBusyRef.current.has(id))return;
+  visibilityBusyRef.current.add(id);setVisibilityBusy(new Set(visibilityBusyRef.current));setVisibilityErrors(previous=>{const next={...previous};delete next[id];return next;});setSaved('');
+  try{
+   const updated=await api.update(id,{visibility:target});if(epoch!==sessionEpoch.current)return;
+   if(updated.id!==id||updated.owner_id!==owner||updated.status!=='complete'||updated.visibility!==target)throw new Error('공개 범위 저장 결과를 확인하지 못했어요.');
+   setRows(previous=>previous.flatMap(row=>row.id!==id?[row]:target==='private'&&scopeRef.current==='public'?[]:[{...row,...updated}]));
+   setOwnRows(previous=>previous.map(row=>row.id===id?{...row,...updated}:row));
+   setSelected((previous:any)=>previous?.id===id?{...previous,...updated}:previous);setSaved('여행 공개 범위를 저장했어요.');
+   const refresh=latestLoad.current(),request=listRequest.current;
+   try{await refresh;}catch{if(epoch===sessionEpoch.current&&request===listRequest.current)setSaved('공개 범위는 저장했어요. 목록만 다시 불러와 주세요.');}
+  }catch(reason){if(epoch===sessionEpoch.current)setVisibilityErrors(previous=>({...previous,[id]:{target,message:`${reason instanceof Error?reason.message:'연결을 확인해 주세요.'} 공개 범위를 확인하지 못했어요. 같은 설정으로 다시 시도해 주세요.`}}));}
+  finally{if(epoch===sessionEpoch.current){visibilityBusyRef.current.delete(id);setVisibilityBusy(new Set(visibilityBusyRef.current));}}
+ }
+
  async function login(){
   const epoch=sessionEpoch.current;
   const result=await api.request('/auth/v1/token?grant_type=password','POST',{email,password});
@@ -264,9 +287,9 @@ export default function Home(){
 
  {screen==='list'&&tab==='album'&&<>
 
-  <Collection loading={loading} failed={!!listError} disabled={busy||loading} emptySearch={!!journalQuery.trim()} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} authors={authors} onOpen={r=>perform(()=>open(r))}>
+  <Collection loading={loading} failed={!!listError} disabled={busy||loading} emptySearch={!!journalQuery.trim()} records={journalRecords(rows,journalOrder,journalQuery)} groupBy={journalOrder.startsWith('region')?journalRegion:undefined} covers={covers} authors={authors} owner={session?.user?.id} onVisibilityChange={(record,target)=>{void changeJournalVisibility(record,target);}} visibilityBusy={visibilityBusy} visibilityErrors={visibilityErrors} onOpen={r=>{if(!visibilityBusyRef.current.has(r.id))void perform(()=>open(r));}}>
    {!!listError&&<View><Text style={s.description}>{rows.length?'이전 목록을 표시하고 있어요.':'목록을 불러오지 못했어요.'}</Text>{button('목록 다시 불러오기',()=>perform(()=>load()),true)}</View>}
-   <View style={s.filterBar}><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:8,alignItems:'center'}}>{['combined','mine','following','public'].filter(x=>session||x==='public').map(x=><View key={x}>{button(({combined:'함께 보기',mine:'내 여행',following:'친구 여행',public:'공개 여행'} as any)[x],()=>{setFriendOwner('');setScope(x);},scope!==x)}</View>)}</ScrollView><Pressable accessibilityRole="button" accessibilityLabel="필터" accessibilityState={{expanded:filtersOpen}} aria-expanded={filtersOpen} aria-controls={filtersOpen?'album-filters':undefined} onPress={()=>setFiltersOpen(!filtersOpen)} style={({pressed})=>[s.filterToggle,(filtersOpen||journalOrder!=='start_desc'||provinceFilter)&&{backgroundColor:c.warm},pressed&&{backgroundColor:c.rose}]}><Text style={{color:c.ink,fontWeight:'600'}}>필터 {filtersOpen?'⌃':'⌄'}</Text></Pressable></View>
+   <View style={s.filterBar}><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:8,alignItems:'center'}}>{['combined','mine','following','public'].filter(x=>session||x==='public').map(x=><View key={x}>{button(({combined:'함께 보기',mine:'내 여행',following:'친구 여행',public:'공개 여행'} as any)[x],()=>{setFriendOwner('');setScope(x);},scope!==x)}</View>)}</ScrollView><Pressable accessibilityRole="button" accessibilityLabel="필터" accessibilityState={{expanded:filtersOpen}} aria-expanded={filtersOpen} aria-controls={filtersOpen?'album-filters':undefined} onPress={()=>setFiltersOpen(!filtersOpen)} style={({pressed})=>[s.filterToggle,(filtersOpen||journalOrder!=='region_asc'||provinceFilter)&&{backgroundColor:c.warm},pressed&&{backgroundColor:c.rose}]}><Text style={{color:c.ink,fontWeight:'600'}}>필터 {filtersOpen?'⌃':'⌄'}</Text></Pressable></View>
    <View style={{flexDirection:'row',alignItems:'center',gap:8}}><View style={{flex:1,minWidth:0}}>{field('여행 검색',journalQuery,setJournalQuery,{placeholder:'제목, 한줄평, 지역 또는 장소 검색',returnKeyType:'search'})}</View>{!!journalQuery&&<Pressable accessibilityRole="button" accessibilityLabel="검색어 지우기" onPress={()=>setJournalQuery('')} style={[s.filterToggle,{marginTop:18}]}><Text style={[s.buttonText,{color:c.ink}]}>×</Text></Pressable>}</View>
    <Text style={s.description}>현재 범위에서 불러온 여행을 검색해요.</Text>
    {filtersOpen&&<View nativeID="album-filters" accessibilityLabel="여행도감 정렬" style={s.filterPanel}>
@@ -277,7 +300,7 @@ export default function Home(){
   </Collection>
  </>}
  {screen==='login'&&<Welcome><Text style={[s.description,{marginBottom:8}]}>Google 계정으로 사진과 여행 기록을 보관해요</Text>{button('Google 로그인',()=>perform(async()=>{const epoch=sessionEpoch.current;await googleLogin(()=>epoch===sessionEpoch.current);} ))}{process.env.EXPO_PUBLIC_APP_ENV==='local'&&<><Text style={s.description}>로컬 테스트 계정으로 로그인</Text>{field('이메일',email,setEmail,{autoCapitalize:'none',keyboardType:'email-address'})}{field('비밀번호',password,setPassword,{secureTextEntry:true})}{button('테스트 계정 로그인',()=>perform(login))}</>}{button('공개 여행 둘러보기',()=>{setScope('public');setTab('home');setScreen('list');},true)}</Welcome>}
- {screen==='create'&&<><View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{button('잠시 접기',()=>setScreen('list'),true)}{button('작성 취소',()=>setDiscard(true),true)}</View>{discard&&<View accessibilityRole="alert"><Text style={{color:c.ink}}>작성 중인 입력을 버릴까요? 서버에 등록된 초안은 임시저장 복구에서 이어갈 수 있습니다.</Text>{button('입력 버리기',()=>{setComposer(false);setPending(null);setPhotos([]);setDiscard(false);setScreen('list');},true)}{button('계속 작성',()=>setDiscard(false),true)}</View>}<Text style={s.sectionTitle}>사진과 여행 정보</Text><Text style={s.description}>선택한 사진의 촬영일·위치를 여행 기간과 대표 위치에 적용합니다. 원본 대신 압축 사진과 썸네일만 저장합니다.</Text>{button('사진 선택',()=>perform(()=>choose()))}{Platform.OS==='android'&&button('원본 파일 선택',()=>perform(()=>choose('original')),true)}{Platform.OS==='android'&&<Text style={s.description}>Google 포토를 클라우드 제공자로 설정하면 사진 선택에서 이용할 수 있어요. 가져오는 동안 잠시 기다려 주세요.</Text>}{invalidField==='사진 선택'&&<Text style={s.fieldError}>{error}</Text>}{!!photoNotice&&<><Text style={s.description}>{photoNotice}</Text>{Platform.OS!=='web'&&button('사진 권한 설정',()=>{void Linking.openSettings();},true)}</>}<Text style={s.description}>{photos.length} / 20장 선택</Text><ScrollView horizontal>{photos.map(p=><Image key={p.id} source={{uri:p.asset.uri}} style={s.preview}/>)}</ScrollView>{field('여행 제목',title,setTitle,{maxLength:100})}{field('여행 내용',content,setContent,{multiline:true,maxLength:5000})}{field('여행 시작일',start,value=>{edited.current.start=true;setStart(value);},{placeholder:'YYYY-MM-DD'})}{field('여행 종료일',end,value=>{edited.current.end=true;setEnd(value);},{placeholder:'YYYY-MM-DD'})}<View style={{marginVertical:12}}><Text style={s.sectionTitle}>위치</Text><Pressable accessibilityRole="button" accessibilityLabel="여행 위치 검색" accessibilityHint="별도 창에서 장소명이나 주소를 검색하고 지도에서 위치를 확인합니다" disabled={busy} onPress={()=>setLocationOpen(true)} style={[s.input,{minHeight:56,padding:14,gap:6},invalidField==='장소 검색'&&s.invalidInput]}>
+ {screen==='create'&&<><View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{button('잠시 접기',()=>setScreen('list'),true)}{button('작성 취소',()=>setDiscard(true),true)}</View>{discard&&<View accessibilityRole="alert"><Text style={{color:c.ink}}>작성 중인 입력을 버릴까요? 서버에 등록된 초안은 임시저장 복구에서 이어갈 수 있습니다.</Text>{button('입력 버리기',()=>{setComposer(false);setPending(null);setPhotos([]);setDiscard(false);setScreen('list');},true)}{button('계속 작성',()=>setDiscard(false),true)}</View>}<Text style={s.sectionTitle}>사진과 여행 정보</Text><Text style={s.description}>선택한 사진의 촬영일·위치를 여행 기간과 대표 위치에 적용합니다. 원본 대신 압축 사진과 썸네일만 저장합니다.</Text>{button('사진 선택',()=>perform(()=>choose()))}{Platform.OS==='android'&&button('원본 파일 선택',()=>perform(()=>choose('original')),true)}{Platform.OS==='android'&&<Text style={s.description}>Google 포토를 클라우드 제공자로 설정하면 사진 선택에서 이용할 수 있어요. 가져오는 동안 잠시 기다려 주세요.</Text>}{invalidField==='사진 선택'&&<Text style={s.fieldError}>{error}</Text>}{!!photoNotice&&<><Text style={s.description}>{photoNotice}</Text>{Platform.OS!=='web'&&button('사진 권한 설정',()=>{void Linking.openSettings();},true)}</>}<Text style={s.description}>{photos.length} / 20장 선택</Text><ScrollView horizontal>{photos.map(p=><Image key={p.id} source={{uri:p.asset.uri}} style={s.preview}/>)}</ScrollView>{field('여행 제목',title,setTitle,{maxLength:100})}{field('여행 내용',content,setContent,{multiline:true,maxLength:5000})}{dateField('여행 시작일',start,value=>{edited.current.start=true;setStart(value);})}{dateField('여행 종료일',end,value=>{edited.current.end=true;setEnd(value);})}<View style={{marginVertical:12}}><Text style={s.sectionTitle}>위치</Text><Pressable accessibilityRole="button" accessibilityLabel="여행 위치 검색" accessibilityHint="별도 창에서 장소명이나 주소를 검색하고 지도에서 위치를 확인합니다" disabled={busy} onPress={()=>setLocationOpen(true)} style={[s.input,{minHeight:56,padding:14,gap:6},invalidField==='장소 검색'&&s.invalidInput]}>
  <Text accessibilityLabel={placeInfo?'선택한 장소':undefined} style={{color:placeInfo?c.ink:c.muted,fontSize:16}}>{placeInfo?[placeInfo.place_name||'지도에서 선택한 위치',placeInfo.address||[placeInfo.region_name,placeInfo.city_name].filter(Boolean).join(' ')].filter(Boolean).join(' · '):'장소명 또는 주소 검색'}</Text>
  {placeInfo?.source==='exif'&&latitude&&longitude&&<Text style={{color:c.muted,fontSize:12}}>사진 GPS · {Number(latitude).toFixed(5)}, {Number(longitude).toFixed(5)}</Text>}
  </Pressable></View><View accessibilityRole="radiogroup" accessibilityLabel="여행 공개 범위" style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{(['private','public'] as const).map(value=><Pressable key={value} accessibilityRole="radio" accessibilityLabel={value==='private'?'비공개':'공개'} accessibilityState={{checked:visibility===value,disabled:busy}} aria-checked={visibility===value} disabled={busy} onPress={()=>setVisibility(value)} style={{flexDirection:'row',alignItems:'center',gap:10,padding:12,minHeight:48}}><View style={{width:22,height:22,borderRadius:11,borderWidth:2,borderColor:visibility===value?c.ink:c.muted,alignItems:'center',justifyContent:'center'}}>{visibility===value&&<View style={{width:10,height:10,borderRadius:5,backgroundColor:c.ink}}/>}</View><Text style={{color:c.ink,fontSize:16}}>{value==='private'?'비공개':'공개'}</Text></Pressable>)}</View>{visibility==='public'&&<Text style={s.description}>대표 위치와 썸네일이 공개됩니다. 이미 받은 파일은 회수할 수 없습니다.</Text>}{button('여행 저장',()=>perform(save))}{button('목록으로',()=>{setTab('album');setScreen('list');},true)}</>}
@@ -289,7 +312,7 @@ export default function Home(){
  {screen==='detail'&&selected?.status==='draft'&&selected.owner_id===session?.user?.id&&button('이 초안 이어서 작성',()=>recoverDraft(selected),true)}
  {screen==='create'&&!!pending?.existing&&<Text style={s.description}>이미 등록된 사진 {pending.existing}장과 선택한 사진을 함께 저장합니다.</Text>}
  {screen==='list'&&tab==='friends'&&<Friends session={session} inviteCode={inviteCode} onInviteHandled={dismissInvite} onChanged={()=>{void perform(()=>load());}} onMap={(owner:string)=>{setFriendOwner(owner);setScope('following');navigate('home');}}/>}
- {screen==='account'&&<><ProfileEditor onSummaryReady={restoreAccountScroll} session={session} visitsFailed={!!listError} visits={ownLoaded&&!loading&&!listError?Object.keys(ownGroups).length:null} showStamps={myStamps} onStamps={()=>{setMyStamps(true);scroll.current?.scrollTo({y:0,animated:false});}} onFollowing={()=>navigate('friends')} onChanged={()=>{void perform(()=>load());}}>{myStamps?<StampCatalog failed={!!listError} groups={ownGroups} confirmed={ownLoaded&&!loading&&!listError} onBack={()=>{setMyStamps(false);scroll.current?.scrollTo({y:0,animated:false});}}/>:<MyTrips key={session.user.id} owner={session.user.id} records={ownRows} covers={covers} loaded={ownLoaded} loading={loading} failed={!!listError} disabled={busy} onOpen={record=>{void perform(()=>open(record,navigationVersion.current,'account'));}}/>}</ProfileEditor>{!myStamps&&button('내 여행 보기',()=>{setFriendOwner('');setDrafts(false);setProvinceFilter('');setJournalQuery('');albumScroll.current=0;setScope('mine');navigate('album');},true)}{button('로그아웃',()=>perform(async()=>{const result=await auth.auth.signOut();if(result.error)throw result.error;}))}</>}
+ {screen==='account'&&<><ProfileEditor onSummaryReady={restoreAccountScroll} session={session} visitsFailed={!!listError} visits={ownLoaded&&!loading&&!listError?Object.keys(ownGroups).length:null} showStamps={myStamps} onStamps={()=>{setMyStamps(true);scroll.current?.scrollTo({y:0,animated:false});}} onFollowing={()=>navigate('friends')} onChanged={()=>{void perform(()=>load());}}>{myStamps?<StampCatalog failed={!!listError} groups={ownGroups} confirmed={ownLoaded&&!loading&&!listError} onBack={()=>{setMyStamps(false);scroll.current?.scrollTo({y:0,animated:false});}}/>:<MyTrips key={session.user.id} owner={session.user.id} records={ownRows} covers={covers} loaded={ownLoaded} loading={loading} failed={!!listError} disabled={busy} onOpen={record=>{void perform(()=>open(record,navigationVersion.current,'account'));}}/>}</ProfileEditor>{!myStamps&&button('내 여행 보기',()=>{setFriendOwner('');setDrafts(false);setProvinceFilter('');setJournalQuery('');albumScroll.current=0;setScope('mine');navigate('album');},true)}{button('로그아웃',()=>perform(async()=>{const result=await auth.auth.signOut();if(result.error)throw result.error;}))}<ProfileMapCredits/></>}
  {!!listError&&!(screen==='list'&&tab==='album')&&<View accessibilityRole="alert" style={s.error}><Text style={{color:c.error}}>{listError}</Text>{button('목록 다시 불러오기',()=>perform(()=>load()),true)}</View>}
  {!!saved&&<Pressable accessibilityRole="button" accessibilityLabel="완료 안내 닫기" onPress={()=>setSaved('')}><Text accessibilityRole="alert" style={s.description}>{saved}</Text></Pressable>}{(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" color={c.sea} style={{margin:20}}/>}{!!error&&<View accessibilityRole="alert" style={s.error}><Text style={{color:c.error}}>{error}</Text><Text style={s.description}>입력은 유지됩니다. 확인 후 다시 시도해 주세요.</Text></View>}
  </>;}

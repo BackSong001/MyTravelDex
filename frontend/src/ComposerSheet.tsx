@@ -18,7 +18,7 @@ export default function ComposerSheet({children,onFold,disabled=false}:{children
   onPanResponderTerminate:()=>reset(),
  })).current;
  useEffect(()=>{offset.stopAnimation();if(reduced)offset.setValue(0);else{offset.setValue(24);Animated.timing(offset,{toValue:0,duration:220,useNativeDriver:true}).start();}return()=>offset.stopAnimation();},[offset,reduced]);
- return <KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':'height'} style={s.host} pointerEvents="box-none">
+ return <KeyboardAvoidingView enabled={Platform.OS!=='web'} behavior={Platform.OS==='ios'?'padding':'height'} style={s.host} pointerEvents="box-none">
   <Animated.View accessibilityLabel="여행 작성 패널" style={[s.sheet,{maxHeight:'92%',transform:[{translateY:offset}]}]}>
    <View {...pan.panHandlers} style={Platform.OS==='web'?{touchAction:'none'} as any:undefined}><Pressable accessibilityRole="button" accessibilityLabel="아래로 끌어 여행 작성 접기" accessibilityHint="아래로 끌거나 눌러 입력을 보존하고 접습니다" disabled={disabled} onPressIn={()=>{moved.current=false;}} onPress={()=>{if(!moved.current)onFold();}} style={s.grip}><View style={s.handle}/><Text style={s.title}>여행 한 장 담기</Text></Pressable></View>{children}
   </Animated.View>

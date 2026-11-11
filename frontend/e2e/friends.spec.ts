@@ -146,20 +146,20 @@ test('TC-FRIEND-008: My shows mixed user identity and legacy UUID invites still 
  await expect(page.getByTestId(`friend-person-${accounts[1].id}`).first()).toContainText(accounts[1].code);
 });
 
-test('TC-FRIEND-009: directory pages reach every matching public traveler and hide opted-out users',async({page})=>{
+test('TC-FRIEND-009: directory pages reach every matching public traveler including every account under the public-profile policy',async({page})=>{
  const ids:string[]=[],prefix=`목록${randomUUID().slice(0,8)}`;
  try{
   for(let index=0;index<22;index++){
    const user=await admin('/auth/v1/admin/users','POST',{email:`directory-${randomUUID()}@example.test`,password:`${randomUUID()}Aa1!`,email_confirm:true});ids.push(user.id);
-   await admin(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:`${prefix}${String(index).padStart(2,'0')}`,public_profile_enabled:index<21});
+   await admin(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:`${prefix}${String(index).padStart(2,'0')}`,public_profile_enabled:true});
   }
   await friends(page,0);await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();const section=page.getByLabel('전체 여행자 목록',{exact:true});
   await expect(section.getByTestId(`friend-person-${accounts[1].id}`)).toBeVisible();
   await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill(prefix);await page.getByRole('button',{name:'여행자 검색',exact:true}).click();
   await expect(section.getByTestId(/^friend-person-/)).toHaveCount(20);
   await section.getByRole('button',{name:'다음 여행자',exact:true}).click();
-  await expect(section.getByTestId(/^friend-person-/)).toHaveCount(1);await expect(section.getByTestId(`friend-person-${ids[20]}`)).toBeVisible();
-  await expect(section.getByTestId(`friend-person-${ids[21]}`)).toHaveCount(0);
+  await expect(section.getByTestId(/^friend-person-/)).toHaveCount(2);await expect(section.getByTestId(`friend-person-${ids[20]}`)).toBeVisible();
+  await expect(section.getByTestId(`friend-person-${ids[21]}`)).toBeVisible();
   await page.getByRole('tab',{name:/^팔로잉/}).click();await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();await expect(page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true})).toHaveValue(prefix);await expect(section.getByTestId(`friend-person-${ids[20]}`)).toBeVisible();
   await section.getByRole('button',{name:'이전 여행자',exact:true}).click();await expect(section.getByTestId(/^friend-person-/)).toHaveCount(20);
  }finally{for(const id of ids)await admin(`/auth/v1/admin/users/${id}`,'DELETE');}
@@ -203,7 +203,7 @@ test('TC-FIGMA-FRIENDS-001: inner tabs preserve search independently from main n
  await page.setViewportSize({width:390,height:844});await page.screenshot({path:'docs/design/verification/figma-friends-search-20261109.png'});
 });
 
-test('TC-FIGMA-FRIENDS-002: capped relationship pages retain final rows and opted-out unfollow controls',async({page})=>{
+test('TC-FIGMA-FRIENDS-002: capped relationship pages retain final rows and public identity unfollow controls',async({page})=>{
  const targets=[accounts[1].id],extra:string[]=[];
  try{
   for(let index=0;index<3;index++){
@@ -213,7 +213,7 @@ test('TC-FIGMA-FRIENDS-002: capped relationship pages retain final rows and opte
   await admin(`/rest/v1/follows?follower_id=eq.${accounts[0].id}`,'DELETE');
   for(const id of targets)await admin('/rest/v1/follows','POST',{follower_id:accounts[0].id,followee_id:id});
   for(const [index,id] of targets.entries())await admin('/rest/v1/friend_requests','POST',index<2?{requester_id:accounts[0].id,recipient_id:id}:{requester_id:id,recipient_id:accounts[0].id});
-  await admin(`/rest/v1/profiles?id=eq.${targets[3]}`,'PATCH',{public_profile_enabled:false});
+
   await page.route('**/rest/v1/**',route=>{
    const url=new URL(route.request().url()),table=url.pathname.split('/').pop();
    if(route.request().method()==='GET'&&(table==='follows'||table==='friend_requests'||(table==='user_directory'&&url.searchParams.has('id')))){url.searchParams.set('limit','2');return route.continue({url:url.toString()});}
@@ -223,7 +223,7 @@ test('TC-FIGMA-FRIENDS-002: capped relationship pages retain final rows and opte
   await expect(following.getByTestId(/^friend-person-/)).toHaveCount(4);await expect(relations.getByTestId(/^friend-person-/)).toHaveCount(4);
   await expect(page.getByRole('tablist',{name:'친구 메뉴',exact:true}).getByRole('tab',{name:'팔로잉 4',exact:true})).toBeVisible();
   for(const id of targets){await expect(following.getByTestId(`friend-person-${id}`)).toHaveCount(1);await expect(relations.getByTestId(`friend-person-${id}`)).toHaveCount(1);}
-  const hidden=following.getByTestId(`friend-person-${targets[3]}`);await expect(hidden).toContainText('유저 ID 비공개');await expect(hidden).toContainText('공개 프로필을 사용하지 않는 여행자');
+  const hidden=following.getByTestId(`friend-person-${targets[3]}`);await expect(hidden).toContainText('페이지 여행자 2');await expect(hidden).not.toContainText('유저 ID 비공개');
   await hidden.getByRole('button',{name:'팔로우 해제',exact:true}).click();await expect(hidden).toHaveCount(0);
   await expect.poll(()=>admin(`/rest/v1/follows?follower_id=eq.${accounts[0].id}&followee_id=eq.${targets[3]}`)).toEqual([]);
   await expect(relations.getByTestId(`friend-person-${targets[3]}`).getByRole('button',{name:'친구 수락',exact:true})).toBeEnabled();

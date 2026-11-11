@@ -848,3 +848,10 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 Native EXIF parser의 exifr7.1.3 기본배포본은 Node용 동적 import가 Hermes에 남아 Android컴파일이 실패했다. legacy UMD 후보는 PNG bytes 검사 실패로 폐기했다. Metro android/ios만 같은 설치본 core/JPEG/PNG/TIFF·EXIF/GPS사전만 정적으로 연결하고 Node전용 util/import만 browser의 undefined 반환으로 대체한다. 선택 Uint8Array만 파싱하며 Web 기본진입점/파싱·원좌표·날짜·권한 계약은 유지한다. 실제 배포본별 bytes/날짜 검사와 APK 빌드를 별도로 확인한다(사용자13항목 SPEC의 Native호환 보강 절).
 
 Android 기본 선택의 Native실증 보강: 이미 전체사진/위치권한이 있으면 권한조회만 한 뒤 Expo ImagePicker legacy GET_CONTENT로 원선택 ID를 유지한다. 새broad권한요청은 원본 버튼에서만 수행하고 제한/미허용/조회실패는 modernPhotoPicker를 유지한다. Web/iOS·UUID/수동입력/계정세대·클라우드 GPS없음 안내는 보존한다. 구체 게이트는 사용자13항목 SPEC의 기본선택 절을 따른다.
+
+
+## 2026-11-11 웹 작성·전체공개 프로필·지역 도감 계약
+
+[WEB_PROFILE_JOURNAL_20261111_SPEC](WEB_PROFILE_JOURNAL_20261111_SPEC.md)가 기존프로필opt-in/도감기본정렬을명시대체한다. FR-MY-CREDITS-001/TC-MY-CREDITS-001(My하단전체출처·지도필수표시보존), FR-WEB-KEYBOARD-001/TC-WEB-KEYBOARD-001(Web보이는viewport/키보드·입력보존), FR-PROFILE-002/TC-PROFILE-002(전프로필·ID최소공개/본인기본RLS·여행private별개), FR-JOURNAL-002/TC-JOURNAL-002(본인complete행Switch/PATCH성공과refresh실패분리), FR-CALENDAR-001/TC-CALENDAR-001(Web표준date/Native OS8.4.4·수동입력/순수달력날짜), FR-JOURNAL-003/TC-JOURNAL-003(지역가나다그룹/그룹내start_desc/id·기존4정렬/검색/복귀)로연결한다.
+
+공개정책은 기존3/4필드view·readerRLS/ID를 재사용하고 모든flag true/CHECKtrue·새Auth이름기본여행자/첫설정false를 같은migration에 둔다. 기존flag/이름은 client접근불가backup에보존하며 invalid비어있지않은이름/avatar는preflight전체중단한다. Auth이메일/실명/사진자동공개와타인기본profiles/private/draft/정밀EXIF노출은없다. 구버전false쓰기는원자실패하며앱만롤백해복원된다고주장하지않는다. 명시보정SQL로원flag·안전한신규false를복원하고이후수정이름/사진·ID/sequence를보존한다. Local만적용/원격별도승인과공개후즉시회수불가를명시한다. 구현·테스트수용상태는TEST_CASE최신이력에별도로기록한다.

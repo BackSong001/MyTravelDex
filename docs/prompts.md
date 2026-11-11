@@ -1527,3 +1527,19 @@ main a216cf3까지 구현을 푸시했다. 최종backend168+외부1skip/29파일
 ### 2026-11-10 19:57 KST APK 전달 준비
 
 실제서버용코드a216cf3 APK가1분52초성공했고target일치/apksigner0·빌드후60초이상휴식·Downloads복사/기존데이터보존설치Success를확인했다. `Downloads/MyTravelDex-a216cf3.apk`는자체테스트개발서명이며Play제출물이아니다. 원격3migration승인대기/실Google신규프로필·실기기미검증은유지한다. 변경파일: `docs/TEST_CASE.md`, `docs/prompts.md`; APK는Git밖Downloads에만보관한다.
+
+
+### 2026-11-11 10:56 KST — 웹 작성·프로필·도감 6항목
+
+사용자 프롬프트 원문:
+
+> 아래의 요구사항 구현 계획을 t14에게 리뷰받고, 명세 작성한다음에 테스트하고 구현해줘.
+>
+> 1. 지도 저작권 주소 My 프로필 설정 맨 밑에 표시하기 (KOSTAT 2018 · southkorea-maps · 단순화 경계 \ Powered by Geoapify · © OpenStreetMap contributors \ Powered by Geoapify | © OpenAddresses contributors)
+> 2. 웹앱으로 폰으로 접속했을때, + 버튼을 누르고 내용을 입력하면, 키보드 때문에 UI가 뭉게지는 현상 발견됨
+> 3. 프로필 공개 / 비공개 설정을 없애고, 현재 모든 프로필 공개로 설정하고, 유저 ID도 공개로 설정.
+> 4. 여행도감에서 슬라이드 버튼으로 공개 비공개 설정할 수 있게 설정
+> 5. 여행 시작일 종료일 수동으로 선택할때를 대비해서 켈린더 표시 설정.
+> 6. 여행도감 디폴트 설정으로 지역 (가나다 순)으로 묶여서 보여주고, 날짜 내림차순으로 설정.
+
+t14 사전명세/SQL·rollback/UI 제품검토 및 P2 보강 재승인을 받고 여섯 항목을 구현했다. Local 공개정책·롤백/기존권한, 그룹/행Switch·표준Web/Native OS달력, My출처링크, Web visualViewport 소유권을 연결했다. t9d 달력 연속활성 P2는 기존 opened 한줄과 회귀로 수정·읽기재승인받았다. 백엔드178pass/1skip·새Web8pass+리뷰2pass·OS달력대역4pass·실Chrome OS키보드 결과는 TEST_CASE의 단계기록과 구분한다. 최종 backend179pass/외부1skip·Web전체170pass/정적전용2skip와 별도export6pass·frontend타입exit0, Native실제OS달력/공개Switch 및 최종Chrome OS키보드/저장도달·접기보존을 검증했다. 초기실패/중단/집중검사와 최종전체는 TEST_CASE에 분리해 보존했다. Native QA자료는 정리하고 기존APK/키보드를복원했으며 에뮬레이터는 켜두었다. 실기기/iOS/실배포는 미검증이다. 원격은dry-run4개 확인만하고 공개정책을적용하지않았다. 변경파일: `AGENTS.md`, `backend/supabase/migrations/20261111010000_public_profiles.sql`, `backend/tests/calendar-native.test.ts`, `backend/tests/contact-id.test.ts`, `backend/tests/friend-codes.test.ts`, `backend/tests/friends.test.ts`, `backend/tests/journal.test.ts`, `backend/tests/onboarding.test.ts`, `backend/tests/profile-public.test.ts`, `backend/tests/vnext.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/PRODUCT_UPDATE_20261110_SPEC.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/WEB_PROFILE_JOURNAL_20261111_SPEC.md`, `docs/prompts.md`, `docs/rollback/20261111_public_profiles.sql`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/e2e/contact-id.spec.ts`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/invite-session.spec.ts`, `frontend/e2e/journal.spec.ts`, `frontend/e2e/onboarding.spec.ts`, `frontend/e2e/profile.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/e2e/web-profile-journal.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/ComposerSheet.tsx`, `frontend/src/DateField.tsx`, `frontend/src/DateField.web.tsx`, `frontend/src/Journal.tsx`, `frontend/src/MapAttribution.tsx`, `frontend/src/Social.tsx`, `frontend/src/domain.ts`, `frontend/src/journalRecords.ts`, `frontend/src/useAppViewport.ts`, `frontend/src/useAppViewport.web.ts`. 기존root package/lock·untracked는 보존한다.

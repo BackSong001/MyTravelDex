@@ -4,7 +4,7 @@ import TravelerAvatar from './Avatar';
 import {JournalIcon} from './Journal';
 import React, {useEffect, useRef, useState} from 'react';
 import Text from './FontText';
-import {ActivityIndicator, Image, Modal, ScrollView, Share, StyleSheet, Switch, TextInput, View} from 'react-native';
+import {ActivityIndicator, Image, Modal, ScrollView, Share, StyleSheet, TextInput, View} from 'react-native';
 import * as Linking from 'expo-linking';
 import {ApiError} from './api';
 import {api} from './runtime';
@@ -105,7 +105,6 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
   const googleAvatar = typeof session.user.user_metadata?.avatar_url === 'string' ? session.user.user_metadata.avatar_url : null;
   const [name, setName] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
-  const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -123,10 +122,10 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
       if (!current) return;
       if (!rows.length) throw new Error('프로필을 찾을 수 없습니다. 다시 로그인해 주세요.');
       setName(rows[0].display_name ?? '');
-      // 공개 동의 전 기존 Google 사진을 자동 선택하지 않는다.
-      setAvatar(rows[0].public_profile_enabled === true ? rows[0].avatar_url ?? null : null);
-      setEnabled(rows[0].public_profile_enabled === true);
-      setSnapshot({name:rows[0].display_name??'',avatar:rows[0].public_profile_enabled===true?rows[0].avatar_url??null:null,enabled:rows[0].public_profile_enabled===true});
+      // 저장된 선택만 보존하며 Auth 메타데이터의 사진을 자동 선택하지 않는다.
+      const storedAvatar=typeof rows[0].avatar_url==='string'&&/^https:\/\/(lh[0-9]+\.googleusercontent\.com|[a-z0-9-]+\.ggpht\.com)\/[^\s\\]+$/.test(rows[0].avatar_url)?rows[0].avatar_url:null;
+      setAvatar(storedAvatar);
+      setSnapshot({name:rows[0].display_name??'',avatar:storedAvatar,enabled:rows[0].public_profile_enabled===true});
       setLoaded(true);
     }).catch(error => {if (current) setError(message(error));}).finally(() => {if (current) setLoading(false);});
     return () => {current = false; active.current = false;};
@@ -141,13 +140,12 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
     try {displayName = nickname(name);} catch (error) {setError(message(error)); return;}
     savingRef.current = true; setSaving(true);
     try {
-      const values={display_name:displayName,avatar_url:avatar,public_profile_enabled:enabled};
+      const values={display_name:displayName,avatar_url:avatar,public_profile_enabled:true};
       const rows = firstSetup?[await api.rpc('complete_profile_setup',values)]:await api.request(path('profiles',{id:`eq.${owner}`,select:'display_name,avatar_url,public_profile_enabled'}),'PATCH',values);
       if (!rows.length) throw new Error('프로필이 저장되지 않았습니다. 다시 시도해 주세요.');
       if (!active.current) return;
       setName(rows[0].display_name ?? displayName);
       setAvatar(rows[0].avatar_url ?? null);
-      setEnabled(rows[0].public_profile_enabled === true);
       setSnapshot({name:rows[0].display_name??displayName,avatar:rows[0].avatar_url??null,enabled:rows[0].public_profile_enabled===true});
       if(!firstSetup)setEditing(false);setSuccess('프로필을 저장했어요.');
       onChanged?.();
@@ -172,7 +170,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
       </View></View>
       <Text style={s.profileSmall}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.profileIdentifier}>{identity.code||'불러오는 중…'}</Text>
       {!!identity.error&&<><Notice error>{identity.error}</Notice><Button label="유저 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
-      <View style={s.profileHeading}><Button compact label="내 팔로잉 보기" onPress={onFollowing} secondary/><Text style={s.profileSmall}>{snapshot?snapshot.enabled?'프로필 공개':'프로필 비공개':'공개 상태 확인 중'}</Text></View>
+      <View style={s.profileHeading}><Button compact label="내 팔로잉 보기" onPress={onFollowing} secondary/><Text style={s.profileSmall}>{snapshot?snapshot.enabled?'프로필 공개':'프로필 저장 후 공개':'공개 상태 확인 중'}</Text></View>
       <Text style={s.profileSmall}>프로필과 여행 기록 공개 범위는 별개예요.</Text>
       {!!error&&<Notice error>{error}</Notice>}{!!success&&<Notice>{success}</Notice>}
       {!loaded&&!loading&&<Button label="프로필 다시 불러오기" onPress={()=>setAttempt(value=>value+1)} secondary/>}
@@ -194,14 +192,13 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
       <Pressable accessibilityRole="radio" accessibilityState={{checked: avatar === null, disabled}} disabled={disabled} onPress={() => {setAvatar(null); setSuccess('');}} style={[s.choice, avatar === null && s.selected]}><Text style={s.choiceText}>기본 아바타</Text></Pressable>
       {googleAvatar && <Pressable accessibilityRole="radio" accessibilityState={{checked: avatar === googleAvatar, disabled}} disabled={disabled} onPress={() => {setAvatar(googleAvatar); setSuccess('');}} style={[s.choice, avatar === googleAvatar && s.selected]}><Text style={s.choiceText}>Google 사진 사용</Text></Pressable>}
     </View>
-    <Text style={s.hint}>공개하면 닉네임과 선택한 사진을 누구나 보고 검색할 수 있어요. Google 사진은 직접 선택한 경우에만 사용해요.</Text>
-    <View style={s.toggle}><Text style={[s.label, s.flex]}>프로필 공개</Text><Switch accessibilityLabel="프로필 공개" style={s.switch} value={enabled} disabled={disabled} onValueChange={value => {setEnabled(value); setSuccess('');}} trackColor={{false: c.line, true: c.sea}}/></View>
-    <Text style={s.hint}>프로필을 숨겨도 여행 기록의 공개 범위와 기존 팔로잉은 유지돼요.</Text>
+    <Text style={s.hint}>닉네임·선택한 사진·유저 ID는 공개 정보예요.</Text>
+    <Text style={s.hint}>Google 사진은 직접 선택한 경우에만 사용하고, 여행 기록의 공개 범위는 기록별로 설정해요.</Text>
     {!!error && <Notice error>{error}</Notice>}
     {!!success && <Notice>{success}</Notice>}
     {!loaded && !loading && <Button label="프로필 다시 불러오기" onPress={() => setAttempt(value => value + 1)} secondary/>}
     <Button label={saving ? '저장 중…' : firstSetup?'프로필 저장하고 시작':'프로필 저장'} onPress={() => void save()} disabled={disabled}/>
-    {!firstSetup&&<Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);setEnabled(snapshot.enabled);}setError('');setSuccess('');setEditing(false);}} secondary/>}
+    {!firstSetup&&<Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);}setError('');setSuccess('');setEditing(false);}} secondary/>}
   </View>;
 }
 

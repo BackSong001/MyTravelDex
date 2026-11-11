@@ -12,7 +12,7 @@ beforeAll(async()=>{
   const user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true,user_metadata:{user_code:'Z9ZZZZ',friend_code:'999999'}});
   const api=new TravelApi(s.API_URL,s.ANON_KEY);const item={id:user.id,code:'',api};people.push(item);await api.login(email,password);
   const [profile]=await api.request(`/rest/v1/profiles?id=eq.${user.id}&select=user_code`);item.code=profile.user_code;
-  await api.request(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:'동명이인',public_profile_enabled:index!==23});
+  await api.request(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:'동명이인',public_profile_enabled:true});
  }));
 });
 afterAll(async()=>{for(const p of people)await admin.request(`/auth/v1/admin/users/${p.id}`,'DELETE');});
@@ -25,14 +25,14 @@ test('TC-FRIEND-008: concurrent accounts receive immutable mixed six-character d
  await expect(admin.request(`/rest/v1/profiles?id=eq.${p.id}`,'PATCH',{user_code:'Z9ZZZZ'})).rejects.toMatchObject({status:403});
  expect(await people[1].api.request(`/rest/v1/profiles?id=eq.${p.id}`)).toEqual([]);
 });
-test('TC-FRIEND-008/009: complete directory pages expose only opted-in profiles and codes; legacy projection unchanged',async()=>{
+test('TC-FRIEND-008/009: complete directory pages expose all public minimal profiles and codes; legacy projection unchanged',async()=>{
  const ids=people.map(p=>p.id).sort();const filter=`id=in.(${ids.join(',')})&order=id.asc&limit=20`;
  const first=await guest.request(`/rest/v1/user_directory?${filter}`),second=await guest.request(`/rest/v1/user_directory?${filter}&offset=20`);
- expect(first).toHaveLength(20);expect(second).toHaveLength(3);expect(new Set([...first,...second].map((p:any)=>p.id)).size).toBe(23);
+ expect(first).toHaveLength(20);expect(second).toHaveLength(4);expect(new Set([...first,...second].map((p:any)=>p.id)).size).toBe(24);
  for(const p of [...first,...second])expect(Object.keys(p).sort()).toEqual(['avatar_url','display_name','id','user_code']);
  const p=people[0];expect(await p.api.request(`/rest/v1/user_directory?user_code=eq.${p.code}`)).toMatchObject([{id:p.id,user_code:p.code}]);
  expect(Object.keys((await guest.request(`/rest/v1/public_profiles?id=eq.${p.id}`))[0]).sort()).toEqual(['avatar_url','display_name','id']);
- await p.api.request(`/rest/v1/profiles?id=eq.${p.id}`,'PATCH',{public_profile_enabled:false});expect(await guest.request(`/rest/v1/user_directory?user_code=eq.${p.code}`)).toEqual([]);
+ await expect(p.api.request(`/rest/v1/profiles?id=eq.${p.id}`,'PATCH',{public_profile_enabled:false})).rejects.toMatchObject({status:400});expect(await guest.request(`/rest/v1/user_directory?user_code=eq.${p.code}`)).toHaveLength(1);
 });
 
 
@@ -58,7 +58,7 @@ test('TC-USER-ID-001: old numeric alias resolves only public profiles and curren
   expect(profile.user_code).toMatch(/^[A-Z][0-9][A-Z0-9]{4}$/);
   expect(await guest.rpc('lookup_user_id',{user_id:'999999'})).toEqual([{id:user.id,display_name:'이전 사용자',avatar_url:null,user_code:profile.user_code}]);
   expect((await guest.request(`/rest/v1/friend_directory?id=eq.${user.id}`))[0].friend_code).toBe('999999');
-  await admin.request(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{public_profile_enabled:false});expect(await guest.rpc('lookup_user_id',{user_id:'999999'})).toEqual([]);
+  await expect(admin.request(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{public_profile_enabled:false})).rejects.toMatchObject({status:400});expect(await guest.rpc('lookup_user_id',{user_id:'999999'})).toHaveLength(1);
   for(const user_id of ['ABCDEF','%','12345',"' OR 1=1",''])expect(await guest.rpc('lookup_user_id',{user_id})).toEqual([]);
  }finally{await admin.request(`/auth/v1/admin/users/${user.id}`,'DELETE');}
 });

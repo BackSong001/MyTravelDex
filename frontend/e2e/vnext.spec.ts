@@ -180,19 +180,18 @@ for(const width of [320,1024]){
  });
 }
 
-test('TC-VNEXT-UI-005 공개 프로필 기본 비공개·명시적 동의·작성자·사진 실패 대체',async({page})=>{
+test('TC-VNEXT-UI-005 프로필 항상 공개·명시적 사진선택·작성자·사진 실패 대체',async({page})=>{
  const user=accounts[0];
  await page.route('https://lh3.googleusercontent.com/**',route=>route.abort());
  await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'프로필 수정',exact:true}).click();
  const toggle=page.getByRole('switch',{name:'프로필 공개',exact:true});
- await expect(toggle).not.toBeChecked();
- expect(await admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual([]);
+ await expect(toggle).toHaveCount(0);
+ const previousProfile=await admin(`/rest/v1/public_profiles?id=eq.${user.id}`);expect(previousProfile).toHaveLength(1);
  await page.getByLabel('닉네임',{exact:true}).fill('   ');
  await page.getByRole('button',{name:'프로필 저장',exact:true}).click();
  await expect(page.getByRole('alert').filter({hasText:'닉네임은'})).toBeVisible();
- expect(await admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual([]);
+ expect(await admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual(previousProfile);
  await page.getByLabel('닉네임',{exact:true}).fill('  도감 여행자  ');
- await toggle.check();
  const response=page.waitForResponse(r=>r.url().includes('/rest/v1/profiles?')&&r.request().method()==='PATCH');
  await page.getByRole('button',{name:'프로필 저장',exact:true}).click();
  expect((await response).ok()).toBe(true);
@@ -207,11 +206,11 @@ test('TC-VNEXT-UI-005 공개 프로필 기본 비공개·명시적 동의·작�
  const author=page.getByLabel('작성자 도감 여행자',{exact:true});await expect(author).toBeVisible();
  const fallback=author.locator('img');await expect(fallback).toHaveCount(1);await expect(fallback).toHaveAttribute('src',/avatar-bear-v1/);await expect.poll(()=>fallback.evaluate(image=>image instanceof HTMLImageElement&&image.complete&&image.naturalWidth>0)).toBe(true);
  await expect(page.getByText(user.email,{exact:true})).toHaveCount(0);
- await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'프로필 수정',exact:true}).click();await toggle.uncheck();
+ await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'프로필 수정',exact:true}).click();await page.getByRole('radio',{name:'기본 아바타',exact:true}).click();
  await page.getByRole('button',{name:'프로필 저장',exact:true}).click();
- await expect.poll(()=>admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual([]);
+ await expect.poll(()=>admin(`/rest/v1/public_profiles?id=eq.${user.id}`)).toEqual([{id:user.id,display_name:'도감 여행자',avatar_url:null}]);
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();
- await expect(page.getByLabel('작성자 여행자',{exact:true})).toBeVisible();
+ await expect(page.getByLabel('작성자 도감 여행자',{exact:true})).toBeVisible();
  expect((await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}`))[0]).toMatchObject({status:'complete',visibility:'private'});
 });
 
@@ -223,7 +222,6 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await login(friend,peer.email,peer.password);
   await friend.getByRole('tab',{name:'My',exact:true}).click();await friend.getByRole('button',{name:'프로필 수정',exact:true}).click();
   await friend.getByLabel('닉네임',{exact:true}).fill('친구 도감 여행자');
-  await friend.getByRole('switch',{name:'프로필 공개',exact:true}).check();
   await friend.getByRole('button',{name:'프로필 저장',exact:true}).click();
   await expect(friend.getByText('프로필을 저장했어요.',{exact:true})).toBeVisible();
   for(const [title,isPublic] of [['친구 공개 여행',true],['친구 비공개 여행',false]] as const){

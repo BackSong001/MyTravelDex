@@ -15,7 +15,7 @@ test('TC-JOURNAL-001: four sort choices and partial search keep map stamps indep
  const titles=async()=>cards.evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')!.split(',')[0]));
  await expect.poll(titles).toEqual(['최근 바다','중간 숲','오래된 한강']);
  await page.getByRole('button',{name:'필터',exact:true}).click();
- await expect(page.getByRole('radio',{name:'시작일 내림차순',exact:true})).toBeChecked();
+ await expect(page.getByRole('radio',{name:'지역 오름차순',exact:true})).toBeChecked();
  await page.getByRole('radio',{name:'시작일 오름차순',exact:true}).click();await expect.poll(titles).toEqual(['오래된 한강','중간 숲','최근 바다']);
  for(const name of ['지역 오름차순','지역 내림차순']){await page.getByRole('radio',{name,exact:true}).click();await expect(page.getByRole('radio',{name,exact:true})).toBeChecked();await expect(cards).toHaveCount(3);}
  await page.getByLabel('여행 검색',{exact:true}).fill('  한강  ');await expect(cards).toHaveCount(1);await expect.poll(titles).toEqual(['오래된 한강']);

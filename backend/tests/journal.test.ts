@@ -5,9 +5,9 @@ const rows=[
  {id:'a',title:'부산',content:'바다',start_date:'2026-01-02',locations:{region_name:'부산',place_name:'해운대'}},
  {id:'c',title:'Tokyo',content:'Coffee',start_date:'2025-12-31',locations:{region_name:'도쿄',place_name:'Shibuya'}},
 ];
-test('TC-JOURNAL-001: four stable orders default to newest start and preserve original',()=>{
+test('TC-JOURNAL-001: four explicit stable orders and the region default preserve original',()=>{
  const before=JSON.stringify(rows),ids=(order?:any)=>journalRecords(rows,order).map(r=>r.id);
- expect(ids()).toEqual(['a','b','c']);expect(ids('start_asc')).toEqual(['c','a','b']);
+ expect(ids()).toEqual(['c','a','b']);expect(ids('start_desc')).toEqual(['a','b','c']);expect(ids('start_asc')).toEqual(['c','a','b']);
  expect(ids('region_asc')).toEqual(['c','a','b']);expect(ids('region_desc')).toEqual(['b','a','c']);
  expect(JSON.stringify(rows)).toBe(before);
 });
@@ -15,4 +15,17 @@ test('TC-JOURNAL-001: search covers Korean place/content, trim, case and empty r
  for(const term of ['서울','여의도','한강'])expect(journalRecords(rows,'start_desc',term).map(r=>r.id)).toEqual(['b']);
  for(const term of ['  COFFEE  ','shibuya','Tokyo'])expect(journalRecords(rows,'start_desc',term).map(r=>r.id)).toEqual(['c']);
  expect(journalRecords(rows,'start_desc','없는지역')).toEqual([]);expect(journalRecords(rows,'start_desc','  ')).toHaveLength(3);
+});
+
+test('TC-JOURNAL-003: default groups the same province across places and sorts dates descending inside it',()=>{
+ const records=[
+  {id:'seoul-old',start_date:'2025-01-01',locations:{latitude:37.5665,longitude:126.978,region_name:'서울특별시',place_name:'광화문'}},
+  {id:'busan',start_date:'2024-01-01',locations:{latitude:35.1796,longitude:129.0756,region_name:'부산광역시',place_name:'부산'}},
+  {id:'seoul-b',start_date:'2026-02-03',locations:{latitude:37.5665,longitude:126.978,region_name:'서울',place_name:'을지로'}},
+  {id:'seoul-a',start_date:'2026-02-03',locations:{latitude:37.5665,longitude:126.978,place_name:'한강'}},
+ ];
+ expect(journalRecords(records).map(r=>r.id)).toEqual(['busan','seoul-a','seoul-b','seoul-old']);
+ expect(journalRecords(records,'start_desc').map(r=>r.id)).toEqual(['seoul-a','seoul-b','seoul-old','busan']);
+ expect(journalRecords(records,'region_desc').map(r=>r.id)).toEqual(['seoul-a','seoul-b','seoul-old','busan']);
+ expect(journalRecords(records,undefined,'한강').map(r=>r.id)).toEqual(['seoul-a']);
 });

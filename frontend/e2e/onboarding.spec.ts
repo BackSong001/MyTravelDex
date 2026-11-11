@@ -4,11 +4,11 @@ import {admin,headers,status} from './helpers';
 const password=`${randomUUID()}Aa1!`;let user:{id:string;email:string};
 test.beforeEach(async()=>{const email=`first-profile-${randomUUID()}@example.test`,response=await fetch(`${status.API_URL}/auth/v1/admin/users`,{method:'POST',headers,body:JSON.stringify({email,password,email_confirm:true})});expect(response.ok).toBe(true);user=await response.json();});
 test.afterEach(async()=>{if(user)await admin(`/auth/v1/admin/users/${user.id}`,'DELETE');});
-test('TC-ONBOARD-003: first login requires explicit profile setup; reload preserves completion without public consent',async({page})=>{
+test('TC-ONBOARD-003: first login requires explicit profile setup; reload preserves completion with a public profile and explicit avatar choice',async({page})=>{
  await page.goto('/');await page.getByLabel('이메일',{exact:true}).fill(user.email);await page.getByLabel('비밀번호',{exact:true}).fill(password);await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();
- await expect(page.getByRole('heading',{name:'여행을 시작할 프로필',exact:true})).toBeVisible();await page.getByRole('button',{name:'프로필 저장하고 시작',exact:true}).click();await expect(page.getByRole('alert')).toContainText('1~30');
+ await expect(page.getByRole('heading',{name:'여행을 시작할 프로필',exact:true})).toBeVisible();await expect(page.getByLabel('닉네임',{exact:true})).toHaveValue('여행자');await page.getByLabel('닉네임',{exact:true}).fill('   ');await page.getByRole('button',{name:'프로필 저장하고 시작',exact:true}).click();await expect(page.getByRole('alert')).toContainText('1~30');
  await page.getByLabel('닉네임',{exact:true}).fill('처음 여행자');await page.getByRole('button',{name:'프로필 저장하고 시작',exact:true}).click();await expect(page.getByRole('heading',{name:'여행을 시작할 프로필',exact:true})).toHaveCount(0);
- const profile=(await admin(`/rest/v1/profiles?id=eq.${user.id}`))[0];expect(profile).toMatchObject({display_name:'처음 여행자',avatar_url:null,public_profile_enabled:false,profile_setup_complete:true});
+ const profile=(await admin(`/rest/v1/profiles?id=eq.${user.id}`))[0];expect(profile).toMatchObject({display_name:'처음 여행자',avatar_url:null,public_profile_enabled:true,profile_setup_complete:true});
  await page.reload();await expect(page.getByRole('tab',{name:'My',exact:true})).toBeVisible();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-name')).toHaveText('처음 여행자');await expect(page.getByRole('heading',{name:'여행을 시작할 프로필',exact:true})).toHaveCount(0);
 });
 

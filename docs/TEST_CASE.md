@@ -1115,3 +1115,62 @@ Downloads msf 보강 APK에서 원본 JPEG(no GPS)+PNG(GPS)를 실제 Android �
 ### 실제 서버용 APK 산출물 (19:57 KST)
 
 코드 a216cf3의 실제 .env 공개설정만 주입한 release APK가 CPU2/Gradle1/Java·Node1536MiB/Metro1로1분52초에성공했다. APK번들내URL/공개key가요청target과일치하고 apksigner verify exit0이다. 빌드후60초이상휴식후 `Downloads/MyTravelDex-a216cf3.apk`(162,082,264 bytes, SHA256 `3956a55c964ce102dc8cef76d3e61bc4e5a2fa378d44fa6757bc278c3c433056`)로복사하고 adb install -r Success로기존앱데이터를유지해설치했다. 이는기본개발서명자체테스트APK이며Play제출용AAB/서명OAuth수용이아니다. QA저장은Local APK에서만수행했고 실제서버에검증여행을쓰지않았다. 실제서버용APK의새Google동의/신규프로필·원격3migration적용을완료했다고기록하지않는다.
+
+
+## 2026-11-11 웹 작성·전체공개 프로필·지역 도감 계약
+
+[WEB_PROFILE_JOURNAL_20261111_SPEC](WEB_PROFILE_JOURNAL_20261111_SPEC.md)가 기존프로필opt-in/도감기본정렬을명시대체한다. FR-MY-CREDITS-001/TC-MY-CREDITS-001(My하단전체출처·지도필수표시보존), FR-WEB-KEYBOARD-001/TC-WEB-KEYBOARD-001(Web보이는viewport/키보드·입력보존), FR-PROFILE-002/TC-PROFILE-002(전프로필·ID최소공개/본인기본RLS·여행private별개), FR-JOURNAL-002/TC-JOURNAL-002(본인complete행Switch/PATCH성공과refresh실패분리), FR-CALENDAR-001/TC-CALENDAR-001(Web표준date/Native OS8.4.4·수동입력/순수달력날짜), FR-JOURNAL-003/TC-JOURNAL-003(지역가나다그룹/그룹내start_desc/id·기존4정렬/검색/복귀)로연결한다.
+
+공개정책은 기존3/4필드view·readerRLS/ID를 재사용하고 모든flag true/CHECKtrue·새Auth이름기본여행자/첫설정false를 같은migration에 둔다. 기존flag/이름은 client접근불가backup에보존하며 invalid비어있지않은이름/avatar는preflight전체중단한다. Auth이메일/실명/사진자동공개와타인기본profiles/private/draft/정밀EXIF노출은없다. 구버전false쓰기는원자실패하며앱만롤백해복원된다고주장하지않는다. 명시보정SQL로원flag·안전한신규false를복원하고이후수정이름/사진·ID/sequence를보존한다. Local만적용/원격별도승인과공개후즉시회수불가를명시한다. 구현·테스트수용상태는TEST_CASE최신이력에별도로기록한다.
+
+### 2026-11-11 11:50 KST — 공개정책·도감·달력·키보드 단계 검증(진행 중)
+
+- 공개정책 실제 Local Red 2fail→초기5pass→timestamp 롤백 결함 보강 후6pass(2.43초). 최종 보강은 별도 두 psql TX에서 migration전 시작한 editor의 같은이름 UPDATE가 table lock 뒤에 커밋되는 경합을 재현하며 updated_at<migrated_at에도 edited_after_migration=true/편집이름 보존을 확인한다. t14 SQL/rollback 읽기 승인을 받았고 원격은 적용하지 않았다.
+- backend 전체의 최초18fail에는 Edge Functions 미기동에 따른 사진7건 환경실패와 이전 opt-in 정책 fixture가 섞여 있었다. Functions 복구 및 명시 정책변경 fixture를 구분해 수정했다. 최신 전체는31파일 **178pass/외부1skip(48.32초)**다. skip은 실제 외부 제공자 수용을 의미하지 않는다.
+- 그룹순수함수3pass, Native OS 달력 대역3pass는 각각 실제 단말달력과 구분한다. frontend TypeScript는 frontend 작업경로에서 exit0이다. 루트의 별도 tsconfig로 실행한 오류는 프로젝트 frontend 타입검사 성공에 합산하지 않는다.
+- 새 실제 Web 검사 초기5fail→5pass, switch owner2pass 후 전체해당파일 **8pass(37.8초)**. owncomplete 행switch/PATCH503·성공후refresh503/응답유실동일목표재시도/public행제거/늦은owner응답·guest/타인control없음, 기본시도그룹·수동4정렬, My링크·공개선택제거, HTML date/수동기간/사진후보존 및 합성visualViewport 열기닫기/offset/scale·입력/저장도달을 검사한다. 초기키보드Red는 앱shell높이가 가시영역보다 큰 실패이며, 수정후 중간실패는 잘못된 '내용' selector를 실제 '여행 내용'으로 고친 검증전제 보정이다.
+- 별도 Android mytrveldex의 Chrome 실제 OS키보드에서 수정전 visible434/shell810/panelbottom743을 확인했다. 수정후 Appium 실제터치로 키보드를 열어 visible434.7/shell434.7/navbottom434.7을 확인했다. 내용입력·내부스크롤 뒤 저장버튼top288.3/bottom338.3이 visible498.8/navtop431.3 안에 있고 제목/내용이 보존됐다. 이 실행은 합성viewport와 별도이며 iOS Safari/실기기/핀치실제제스처의 수용 증거는 아니다. CDP page screenshot은 캡처과정에서 viewport에 영향을 줄 수 있어 실제키보드 캡처는 adb screencap으로 분리했다.
+- 최신 Native OS달력 포함 APK 빌드/단말수용·기존전체Web·최종정적export·제품리뷰는 아직 진행 중이며 완료 전에 성공으로 합산하지 않는다. 이전 13항목의161pass/1fail와 대상3pass 이력은 그대로 유지한다.
+
+### 2026-11-11 11:58 KST — 지정 제품 리뷰 보강과 실행 분리
+
+- t14 UI P2 두건(stored avatar/중복제목 접근성이름)은 old-server false+저장GoogleURL의 취소·이름만PATCH avatar보존/true 및 duplicate-title Switch·retry의 서로다른이름/해당id PATCH를 추가해 **2Red→2pass14.2초**로 보강·정적 재승인받았다. 현재목록순번까지 label에 포함해 날짜/장소가 같은 경우도 구별한다. UUID전체를 사용자 문구에 노출하지 않는다.
+- t9d 읽기에서 Android OS달력 연속활성이 generation을 바꿔 설치SDK의 기존fragment 첫 callback을 무시하는 P2를 지적했다. 실제 설치 DatePickerModule의 기존fragment update/return을 확인했고 재진입 focused **1fail/기존3pass→4pass270ms**다. opened ref를 generation 증가 전에 검사하는 한줄 보강이며 새로운 달력상태/서비스를 추가하지 않았다.
+- 첫 Native OS모듈 포함 Local QA APK는7분56초/450task 중103실행으로 빌드성공했으나 마지막 P2 UI/달력재진입 보강 전 소스다. 60초 이상 휴식 후 최종 보강을 포함한 incremental 빌드를 별도 실행 중이다. 이것을 최신 Native 동작 수용으로 합산하지 않는다.
+- 기존 전체Web 172개 실행은 빌드와 순차검증/휴식을 지키기 위해 **15pass/1interrupted/156미실행(3.0분)**으로 중단했다. 제품실패나 전체Green이 아니다. 종료뒤 신규가입 테스트는 DB기본이름 '여행자'를 실제 확인한 뒤 공백입력을명시해 기존이름검증을 유지하도록 준비조건을 맞췄다. 새 전체는 별도 결과로 기록한다.
+- 원격 `db push --dry-run` exit0은 적용대기 badge_cabinets/profile_setup/contact_id/public_profiles 4개 확인이다. 실제push/공개정책전환은 하지 않았고 별도승인대기다.
+
+- t9d가 Android opened 재진입 보강을 읽기 재승인했고 추가 필수 결함/새추상화 필요성 없음으로 이번 검토를 종료했다. 최신 보강 포함 Local QA APK incremental은 **1분15초/450task 중30실행**, 2026-11-11 11:59:05 KST 빌드성공이다. 첫7분56초 빌드와 구분하며 두빌드 각각60초휴식 뒤 후속검사를 진행한다.
+
+### 2026-11-11 12:12 KST — 최신 APK 실제 Native 대표 수용
+
+- 최종 Local QA APK를 adb install -r로 설치해 기존 앱 데이터를 초기화하지 않고 mytrveldex에서 시작·Local 테스트 로그인했다. 자동입력 중 한글 IME 문자변환/Google Password Manager overlay를 테스트준비 문제로 분리하고 계정·비밀번호를 기록하지 않았다.
+- 실제 OS달력은 start 수동2024-02-29→헤더2024/Thu Feb29 확인→28선택/CANCEL 뒤29유지→재개/28/OK 뒤2024-02-28 반영을 확인했다. end 수동2024-03-01→OS헤더Fri Mar1→2/OK 뒤2024-03-02 반영도 확인했다. 실제 '잠시 접기'→'기록 만들기'→기간두값 유지가 Native XML에서 확인됐다. 앱이 Native foreground인지 별도로 확인했으며, 키보드가 열리지 않은 setValue 뒤 시스템뒤로로 앱을 떠난 자동화 시도는 성공 수용에 포함하지 않는다.
+- 본인complete 검증기록1개/2x2 실제Storage사진으로 Native 도감 Switch를 표시하고 RN Native Switch의 private→public→private를 실제터치했다. 각변경후 Local DB visibility를 별도HTTP로 확인했다. 지역heading/기록식별label은 같은 Native 목록에 유지됐다. 검증계정·기록·파일은 이후 정리하며 실제사용자 자료를 변경하지 않는다.
+- Native 달력/기록switch 대표수용이며 실기기/iOS/Safari·Native스크린리더·Native전체회귀·실Google·원격공개정책 적용까지 완료한 것은 아니다. 원본사진/클라우드 GPS 신규검증도 이 작업 결과에 추가하지 않는다.
+
+### 2026-11-11 12:21 KST — 전체 Web 실패5/수정후 대상5
+
+- 첫 완료 전체는 **165pass/5fail/2skip(14.5분)**이다. 중간tail만으로 실패가2개뿐이라고 판단하지 않으며 최종집계를 그대로 보존한다. 작성자이름 기대2개와 실제 Web root 축소창 프레임3개를 구별한다.
+- 작성자2건은 제가 기대값을 넓게 치환해 신규 성숙계정 기본이름 '여행자'에 '도감 여행자'를 기다린 오류다. beforeEach/afterEach가 계정을 새로 만들고 정리하며, 같은case card label은 이미 여행자였다. :168 한assert만 복원했고 별도 프로필편집case의 도감 여행자/선택사진/항상공개/기본곰·이메일미노출 및 bounds/48px/overflow/nav/필터/재진입을 유지했다. t14가 이 범위를 읽기 승인했다.
+- 실제 root3건은 setViewportSize320 직후 rAF의 새width가 반영되기 전 이전390pixel width가 부모를 넘어서는 문제였다. Web root의 maxWidth100%를 CSS 즉시상한으로 추가해 해결했으며 기존 즉시 bounds/scrollWidth/48px 검사를 poll/느슨한허용으로 바꾸지 않았다. visualViewport/offset/scale/rAF/cleanup·Native root는 유지된다. t14가 제품 한줄을 읽기승인했다.
+- 보강후 같은 figma-assets/profile/profile-stamps/두viewport 기대값 대상은 **5pass25.3초**다. 이를 새 전체172Green으로 합산하지 않는다. 새export와 최종전체는 후속실행한다. 앞선 실제Chrome 키보드 수치는 이최종Web상한 보강 전 실행으로 표시하며 최신artifact의재검증으로 자동승격하지 않는다. Native APK 달력/switch 수용 뒤 보강은 Web조건부CSS뿐이므로 Native동작 변경은 없다.
+
+### 2026-11-11 12:27 KST — 최종 소스 고정 게이트
+
+- Web root 즉시상한을 포함한 최신 production export는12:23:23 KST 성공,60초휴식 뒤 해당 artifact를 대상으로 무주입 map-layout4 + static-web2가 **6pass13.5초**다. 실제 HTML/CSS/JS/PNG/worker/shared MIME·바이트/누락asset404·callback 복귀/production비밀번호UI부재 및 지도52/24CSSpx/독립anchor/resize·전체맞춤/헤더/탐색보존을 검사했다. Vercel 실배포·실Google 완료 증거는 아니다.
+- 같은 최종 소스 frontend TypeScript exit0. backend는1worker/파일순차로 **31파일179pass/외부1skip(45.69초)**이다. Native달력연속활성의 추가1case를 포함한 새 전체 결과이며 앞선178pass와 구별한다.
+- 최종전체Web은 이 소스를 고정해 다시 실행하며 완료전 Green으로 합산하지 않는다. 이전완료165pass/5fail/2skip와 보강대상5pass를 보존한다. 별도 재시작중 초기log경로충돌로 중단된7pass/1interrupted/164미실행도 최종전체 증거에 합산하지 않는다.
+- Native QA는 검증완료후로그아웃·Local계정/기록/장소/Storage파일정리·기존APK install-r복원/키보드원언어복구를 수행했고 에뮬레이터는 종료하지 않았다. 변경없는원본자산/별도root package/lock·tsconfig/storyboard를 보존한다.
+
+### 2026-11-11 12:35 KST — 최종 Web root 실제 OS키보드 재검증
+
+최종 maxWidth100%를 포함한 Local no-dev Web 소스를 별도 새 Local 계정으로 Android Chrome에서 다시 열었다. 실제 OS키보드가 열린 상태에서 layout810/visual497.90/root497.90/navbottom497.90, 저장button top287.51/bottom337.51<navtop430.38, document가로overflow0을 독립 계측했다. 제목·내용 입력→키보드닫기→접기/재진입 값유지→UI로그아웃→해당Auth계정삭제/QA탭닫기를 실제 수행했다. OS 화면은 viewport를 바꾸는 CDP 캡처 대신 adb screencap으로 확인했다. 브라우저 계정표시가 포함될 수 있는 임시 캡처는 공유/커밋하지 않고 정리하며 치수·행동 검증 로그만 보존한다. 합성visualViewport와 별개이며 iOS Safari/실기기/실제핀치 수용으로 확대하지 않는다. 해당 실행은 최종 Web 소스의 검사이고 production export 검사6과는 별도 증거다.
+
+### 2026-11-11 12:43 KST — 최종 완료 결과
+
+- 동일 최종 소스의 새 전체Web은 **170pass/2skip, 실패0(14.6분)**으로 완료했다. 2skip은 WEB_EXPORT_DIR이 없는 일반런의 static-web 전용2개이며 같은 최신 production export 별도게이트6pass13.5초에 포함돼 실제 실행했다. 기존165pass/5fail/2skip와 대상5pass를 지우거나 합산하지 않는다.
+- 최종backend **31파일179pass/외부1skip45.69초**, frontend타입exit0, productionexport성공/별도artifact6pass, Native달력/공개Switch 대표수용, 최신Web실제Chrome OS키보드/저장도달·접기보존을 위의 증거범위대로 구분한다. 전체172개가 한런에서 모두실행됐다고 쓰지 않는다.
+- t14 명세/SQL·rollback/제품P2 및root상한 지정정적승인, t9d 달력재진입 보강정적승인을 받았다. 리뷰어는 독립테스트/원격적용을 수행한 것이 아니다.
+- 새DatePicker8.4.4는 Native새빌드가 필요하다. 이번생성APK는 Local QA전용/개발서명이며 실제프로젝트 배포용APK로 제공하지 않는다. 단말검증뒤 기존 실제프로젝트APK를 데이터초기화없이 복원했고 에뮬레이터는 켜두었다. 실기기/iOS/Safari·Native스크린리더·원격Google/실Vercel배포 수용은 이번완료에 포함하지 않는다.
+- 현재.env와CLI연결프로젝트가 일치함을 확인했고 dry-run은4개(badge_cabinets/profile_setup/contact_id/public_profiles)를 표시했다. 현재작업의 원격공개정책은 아직 적용하지 않았다. 운영전환은 AGENTS/SPEC의 별도승인 경계와 검토된롤백SQL을 따른다. 기존root package/lock·untracked원본은 커밋에서 제외한다.

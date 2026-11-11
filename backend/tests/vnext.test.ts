@@ -52,11 +52,11 @@ afterAll(async () => {
   for (const user of users) expect((await call(`/auth/v1/admin/users/${user.id}`, service, 'DELETE')).status).toBe(200);
 });
 
-test('TC-VNEXT-BE-001: opt-in, validation, safe projection and original profile RLS over Local HTTP', async () => {
+test('TC-VNEXT-BE-001: public defaults, validation, safe projection and original profile RLS over Local HTTP', async () => {
   const own = await rest(`profiles?id=eq.${users[1].id}`, users[1].token);
   expect(own.status).toBe(200);
-  expect(own.data[0].public_profile_enabled).toBe(false);
-  expect((await rest(`public_profiles?id=eq.${users[1].id}`, null)).data).toEqual([]);
+  expect(own.data[0].public_profile_enabled).toBe(true);
+  expect((await rest(`public_profiles?id=eq.${users[1].id}`, null)).data).toHaveLength(1);
   for (const display_name of [null, '', '   ', '\t\n', 'a'.repeat(31)]) {
     const invalid = await profile(1, {display_name, public_profile_enabled: true});
     expect(invalid.status).toBe(400);
@@ -87,7 +87,7 @@ test('TC-VNEXT-BE-001: opt-in, validation, safe projection and original profile 
   expect((await rest(`public_profiles?id=eq.${users[1].id}`, null)).data).toHaveLength(1);
 });
 
-test('TC-VNEXT-BE-002: follows enforce owner-only relations, opt-in targets, uniqueness and no UPDATE', async () => {
+test('TC-VNEXT-BE-002: follows enforce owner-only relations, public targets, uniqueness and no UPDATE', async () => {
   for (const i of [1, 2]) expect((await profile(i, {display_name: '여행자', public_profile_enabled: true})).status).toBe(200);
   expect((await rest('follows', users[0].token, 'POST', pair())).status).toBe(201);
   const duplicate = await rest('follows', users[0].token, 'POST', pair());
@@ -100,13 +100,13 @@ test('TC-VNEXT-BE-002: follows enforce owner-only relations, opt-in targets, uni
   denied(await rest('follows', null, 'POST', pair()));
   denied(await rest('follows', users[0].token, 'POST', pair(1, 2)));
   expect((await rest('follows', users[1].token, 'POST', pair(1, 1))).data.code).toBe('23514');
-  denied(await rest('follows', users[1].token, 'POST', pair(1, 0)));
+  expect((await rest('follows', users[1].token, 'POST', pair(1, 0))).status).toBe(201);expect((await rest(`follows?follower_id=eq.${users[1].id}&followee_id=eq.${users[0].id}`,users[1].token,'DELETE')).data).toHaveLength(1);
   denied(await rest(`follows?follower_id=eq.${users[0].id}`, users[0].token, 'PATCH', {followee_id: users[2].id}));
   expect((await rest(`follows?follower_id=eq.${users[0].id}`, users[1].token, 'DELETE')).data).toEqual([]);
-  expect((await profile(1, {public_profile_enabled: false})).status).toBe(200);
-  expect((await rest(`public_profiles?id=eq.${users[1].id}`, null)).data).toEqual([]);
+  expect((await profile(1, {public_profile_enabled: false})).status).toBe(400);
+  expect((await rest(`public_profiles?id=eq.${users[1].id}`, null)).data).toHaveLength(1);
   expect((await rest('follows', users[0].token)).data).toHaveLength(1);
-  denied(await rest('follows', users[2].token, 'POST', pair(2, 1)));
+  expect((await rest('follows', users[2].token, 'POST', pair(2, 1))).status).toBe(201);expect((await rest(`follows?follower_id=eq.${users[2].id}&followee_id=eq.${users[1].id}`,users[2].token,'DELETE')).data).toHaveLength(1);
   expect((await rest(`follows?followee_id=eq.${users[1].id}`, users[0].token, 'DELETE')).data).toHaveLength(1);
   expect((await rest(`follows?followee_id=eq.${users[1].id}`, users[0].token, 'DELETE')).data).toEqual([]);
 });
@@ -184,7 +184,7 @@ test('TC-VNEXT-BE-003: invoker feed fixes public/complete/own following filters 
   const signed = await call('/functions/v1/photo-url', users[0].token, 'POST', {photo_id: visible.photoId, variant: 'thumbnail'});
   expect(signed.status).toBe(200);
   expect((await fetch(await api.photoUrl(visible.photoId!))).status).toBe(200);
-  expect((await profile(1, {public_profile_enabled: false})).status).toBe(200);
+  expect((await profile(1, {public_profile_enabled: false})).status).toBe(400);
   expect((await rest('following_travel_records', users[0].token)).data.map((r: any) => r.id)).toEqual([visible.id]);
   expect((await rest(`follows?followee_id=eq.${users[1].id}`, users[0].token, 'DELETE')).status).toBe(200);
   expect((await rest('following_travel_records', users[0].token)).data).toEqual([]);
@@ -217,8 +217,8 @@ test('TC-VNEXT-HTTP-001: TravelApi profile/search/follow callers preserve safe f
   expect(await api.request(pairPath)).toHaveLength(1);
   expect(await api.request(pairPath, 'DELETE')).toHaveLength(1);
   expect(await api.request(pairPath, 'DELETE')).toEqual([]);
-  await api.request(ownPath, 'PATCH', {public_profile_enabled: false});
-  expect(await anonymousApi.request(`/rest/v1/public_profiles?id=eq.${users[0].id}`)).toEqual([]);
+  await expect(api.request(ownPath, 'PATCH', {public_profile_enabled: false})).rejects.toMatchObject({status:400});
+  expect(await anonymousApi.request(`/rest/v1/public_profiles?id=eq.${users[0].id}`)).toEqual([{id:users[0].id,display_name:name,avatar_url:null}]);
 });
 
 

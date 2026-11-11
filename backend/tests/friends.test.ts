@@ -42,7 +42,7 @@ test('TC-FRIEND-001: requests are private, pending and unique for an unordered p
  for(const action of [()=>send(),()=>send(1,0)])await expect(action()).rejects.toMatchObject({status:409,serverCode:'23505'});
  await expect(send(0,0)).rejects.toMatchObject({status:400,serverCode:'23514'});
  await expect(users[0].api.request('/rest/v1/friend_requests','POST',pair(2,1))).rejects.toMatchObject({status:403});
- await expect(send(0,3)).rejects.toMatchObject({status:403});
+ expect((await send(0,3))[0]).toMatchObject({status:'pending'});await users[0].api.request(requestPath(0,3),'DELETE');
  await expect(users[2].api.request('/rest/v1/friend_requests','POST',{...pair(2,1),status:'accepted'})).rejects.toMatchObject({status:403});
  expect(await users[0].api.request(`/rest/v1/profiles?id=eq.${users[1].id}`)).toEqual([]);
  expect(Object.keys((await guest.request(`/rest/v1/public_profiles?id=eq.${users[1].id}`))[0]).sort()).toEqual(['avatar_url','display_name','id']);
@@ -75,7 +75,7 @@ test('TC-FRIEND-003: accepted friends add only public complete records to the ex
  expect((await users[0].api.following()).map((r:any)=>r.id)).toEqual([visible]);
  expect(await users[2].api.following()).toEqual([]);
  expect(await users[0].api.request(`/rest/v1/photos?owner_id=eq.${users[1].id}`)).toEqual([]);
- await users[1].api.request(`/rest/v1/profiles?id=eq.${users[1].id}`,'PATCH',{public_profile_enabled:false});
+ await expect(users[1].api.request(`/rest/v1/profiles?id=eq.${users[1].id}`,'PATCH',{public_profile_enabled:false})).rejects.toMatchObject({status:400});
  expect((await users[0].api.following()).map((r:any)=>r.id)).toEqual([visible]);
 });
 
@@ -99,11 +99,11 @@ test('TC-FRIEND-006: authenticated recommendations cap 50 public minimal profile
   const email=`recommend-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;
   const user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});
   const api=new TravelApi(base,localAnon);await api.login(email,password);users.push({id:user.id,api});
-  await api.request(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:'같은 추천 이름',public_profile_enabled:index!==55});
+  await api.request(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:'같은 추천 이름',public_profile_enabled:true});
  }
  await users[0].api.request('/rest/v1/follows','POST',{follower_id:users[0].id,followee_id:users[2].id});
  await send(4,0);await send(0,5);await accept(0,5);
- const excluded=[0,1,2,4,5,59].map(index=>users[index].id);
+ const excluded=[0,1,2,4,5].map(index=>users[index].id);
  for(let i=0;i<2;i++){
   const rows=await users[0].api.rpc('friend_recommendations',{});
   expect(rows).toHaveLength(50);expect(new Set(rows.map((p:any)=>p.id)).size).toBe(50);
