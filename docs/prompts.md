@@ -1543,3 +1543,15 @@ main a216cf3까지 구현을 푸시했다. 최종backend168+외부1skip/29파일
 > 6. 여행도감 디폴트 설정으로 지역 (가나다 순)으로 묶여서 보여주고, 날짜 내림차순으로 설정.
 
 t14 사전명세/SQL·rollback/UI 제품검토 및 P2 보강 재승인을 받고 여섯 항목을 구현했다. Local 공개정책·롤백/기존권한, 그룹/행Switch·표준Web/Native OS달력, My출처링크, Web visualViewport 소유권을 연결했다. t9d 달력 연속활성 P2는 기존 opened 한줄과 회귀로 수정·읽기재승인받았다. 백엔드178pass/1skip·새Web8pass+리뷰2pass·OS달력대역4pass·실Chrome OS키보드 결과는 TEST_CASE의 단계기록과 구분한다. 최종 backend179pass/외부1skip·Web전체170pass/정적전용2skip와 별도export6pass·frontend타입exit0, Native실제OS달력/공개Switch 및 최종Chrome OS키보드/저장도달·접기보존을 검증했다. 초기실패/중단/집중검사와 최종전체는 TEST_CASE에 분리해 보존했다. Native QA자료는 정리하고 기존APK/키보드를복원했으며 에뮬레이터는 켜두었다. 실기기/iOS/실배포는 미검증이다. 원격은dry-run4개 확인만하고 공개정책을적용하지않았다. 변경파일: `AGENTS.md`, `backend/supabase/migrations/20261111010000_public_profiles.sql`, `backend/tests/calendar-native.test.ts`, `backend/tests/contact-id.test.ts`, `backend/tests/friend-codes.test.ts`, `backend/tests/friends.test.ts`, `backend/tests/journal.test.ts`, `backend/tests/onboarding.test.ts`, `backend/tests/profile-public.test.ts`, `backend/tests/vnext.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/PRODUCT_UPDATE_20261110_SPEC.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/WEB_PROFILE_JOURNAL_20261111_SPEC.md`, `docs/prompts.md`, `docs/rollback/20261111_public_profiles.sql`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/e2e/contact-id.spec.ts`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/invite-session.spec.ts`, `frontend/e2e/journal.spec.ts`, `frontend/e2e/onboarding.spec.ts`, `frontend/e2e/profile.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/e2e/web-profile-journal.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/ComposerSheet.tsx`, `frontend/src/DateField.tsx`, `frontend/src/DateField.web.tsx`, `frontend/src/Journal.tsx`, `frontend/src/MapAttribution.tsx`, `frontend/src/Social.tsx`, `frontend/src/domain.ts`, `frontend/src/journalRecords.ts`, `frontend/src/useAppViewport.ts`, `frontend/src/useAppViewport.web.ts`. 기존root package/lock·untracked는 보존한다.
+
+### 2026-11-11 18:23 KST — 이미 업로드한 사진 GPS 재등록 검증
+
+사용자 프롬프트 원문:
+
+> 현재 등록된 파일은 전부 GPS 정보가 남아있는걸로 알고있어. 해당 파일을 다시 등록하면서 GPS 정보를 자동으로 파싱해서 전달하는지 테스트해줘
+
+대상 확인 답변 원문:
+
+> 앱에 이미 업로드한 사진
+
+결과: 운영 데이터는 조회만 했으며, 전체 보관본10개에서 파일 내 GPS0개/DB GPS3개를 exifr·Pillow로 확인했다. 실제 Android Chrome의 File bytes10개 일치·자동GPS없음/위치없는저장차단·수동장소 Local 재등록의 요청/DB GPS null10개를 검증했다. EXIF 포함 합성 JPEG 대조는 자동입력·좌표 요청·DB저장 정상이며 압축 저장 파일에는GPS가없고DB에남음을 확인했다. OS사진선택기/휴대폰갤러리원본 검증과 구분하고 임시Local자료/사진복사본을정리했다. 제품코드/스키마/기존운영자료는변경하지않았다. 변경파일: `docs/TEST_CASE.md`, `docs/prompts.md`.

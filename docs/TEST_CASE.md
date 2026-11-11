@@ -1174,3 +1174,14 @@ Downloads msf 보강 APK에서 원본 JPEG(no GPS)+PNG(GPS)를 실제 Android �
 - t14 명세/SQL·rollback/제품P2 및root상한 지정정적승인, t9d 달력재진입 보강정적승인을 받았다. 리뷰어는 독립테스트/원격적용을 수행한 것이 아니다.
 - 새DatePicker8.4.4는 Native새빌드가 필요하다. 이번생성APK는 Local QA전용/개발서명이며 실제프로젝트 배포용APK로 제공하지 않는다. 단말검증뒤 기존 실제프로젝트APK를 데이터초기화없이 복원했고 에뮬레이터는 켜두었다. 실기기/iOS/Safari·Native스크린리더·원격Google/실Vercel배포 수용은 이번완료에 포함하지 않는다.
 - 현재.env와CLI연결프로젝트가 일치함을 확인했고 dry-run은4개(badge_cabinets/profile_setup/contact_id/public_profiles)를 표시했다. 현재작업의 원격공개정책은 아직 적용하지 않았다. 운영전환은 AGENTS/SPEC의 별도승인 경계와 검토된롤백SQL을 따른다. 기존root package/lock·untracked원본은 커밋에서 제외한다.
+
+## 2026-11-11 18:23 KST — 업로드 보관본 GPS 재등록 진단
+
+사용자가 확인 대상을 휴대폰 갤러리 원본이 아닌 ‘앱에 이미 업로드한 사진’으로 지정했다. 배포 페이지/JS를 읽어 현재 설정된 backend와 일치하고 파일 bytes/EXIF GPS 파싱 코드가 배포본에도 있음을 확인했다. 운영 데이터에는 조회만 수행했고 재등록 저장은 임시 Local 계정에서 검증했다. 제품 코드·스키마·기존 기록은 변경하지 않았다.
+
+- 운영 사진 조회는 전체 count=10/수신10으로 누락이 없었다. original_path의 보관본 10개를 그대로 받아 exifr 및 Pillow GPS IFD를 교차 검사했다. 파일 내부 GPS는 **0/10**, 촬영일 EXIF도 **0/10**이었다. 한 파일에는 ExifOffset/ExifVersion만 있었고 GPS IFD/XMP는 없었다. DB 사진 EXIF GPS는 **3/10**에 따로 존재했다. 보관본은 업로드 전 갤러리 원본과 구분한다.
+- 실제 Android Chrome에 보관본 10개를 재선택시켰고, input File의 SHA-256이 내려받은 보관본과 **10/10 일치**했다. GPS 자동입력·자동 역주소 요청은 없었다. 위치 없이 저장은 요청 생성 전에 차단됐으며, 명시적 수동 장소를 선택한 뒤 저장한 Local 기록의 사진 요청·DB EXIF GPS는 모두 **null 10/10**이었다.
+- GPSEXIF가 포함된 기존 metadataPhoto 합성 JPEG를 양성 대조로 사용했다. 같은 Chrome에서 GPS 자동입력, locations의 source=exif/좌표, photos의 EXIF 좌표 전달과 DB 저장이 파일 파싱 값과 일치했다. 이 대조 사진도 compressPhoto를 거쳐 저장한 JPEG 파일 자체에는 GPS가 없고 DB에는 GPS가 남았다. 따라서 파싱 미구현/사이트 현재위치 권한 문제로 이 보관본 재등록 결과를 설명하지 않는다.
+- Chrome File chooser를 자동화에서 가로채 File을 전달한 검사다. **Android OS 사진 선택기의 GPS 제거/원본 갤러리 선택·실기기 수용을 검증한 것은 아니다.** 새 개인 사진을 촬영하거나 기존 운영 기록을 수정·삭제하지 않았고, 기존 개인 사진/좌표/계정·Storage 경로는 로그·커밋에 넣지 않았다.
+- 초기 진단 스크립트는 위치 검증 뒤 자동으로 열린 LocationPicker를 다시 열려다 중단됐고, 다음 실행은 저장소의 일반 jeonju.jpg에 GPS가 있다고 가정한 양성 대조 준비 오류로 중단됐다. 이 둘은 제품 Red가 아니다. 준비조건을 맞춘 최종 실행은 실제 보관본 10개와 EXIF 포함 대조 JPEG의 재등록·요청·Local 저장 확인을 모두 통과했다. 모든 실행의 임시 Local 업로드/기록/계정은 정리했다.
+- 진단용 실제 사진 복사본은 검증 후 삭제한다. 제품의 압축 보관본과 DB 메타데이터 분리 구조를 확인한 결과이며, 보관본 파일만 재선택해서 DB GPS를 복원하는 기능은 이번에 추가하지 않았다.
