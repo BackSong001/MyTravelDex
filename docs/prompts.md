@@ -1665,3 +1665,10 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 > /feedback 안드로이드 에뮬레이터에 사진업로드가 가능하다면 /home/jh-mac/Pictures/Pictures_data 경로의 파일을 사용하고, 구글포토는 가장 첫번째나 두번째 사진에 위치정보가 있을테니 그걸 사용해줘.
 
 결과: fix/android-photo-gps 별도 브랜치에서 t14만 리뷰받아 진행했다. 실제 Android Chrome의 네 선택기 비교/원본·클라우드 File 메타데이터 비교 페이지와 회귀를 추가하고, 압축 전 기존 파서를 재사용했다. Web */*는 원본GPS를 유지해 불필요한 type변경을 하지 않았다. Native 기존photo권한·세대보호를 보강했으나 실제클라우드GPS누락이 남아 지원OS의 위치metadata요청을 기존SDK Intent에 연결했다. 미리컴파일된SDK가패치를무시한후보를제외하고 해당모듈만source build로 설정했다. SDK버전/권한manifest/서버/원격/main은바꾸지않았다. 최종Native에서원본GPS/기간저장과Google포토위치동의후첫사진GPS저장에성공했고둘째GPS없음/동의거절수동복구를구분했다. 실제Chrome원본자동저장성공/클라우드GPS누락수동저장성공을확인했다. 관련unit45/Home7/LocalWeb4/Node5/types0/export0/artifact2 및 후보실패는TEST_CASE에별도로기록했다. t14최종승인,Local기록5/사진6정리와원본불변확인. 실휴대폰/구OS/iOS/외부검색품질은미검증이다. 변경파일은 사진 전용 명세/canonical6, frontend photos/Home/app.config/package 및 Nativeplugin, 관련unit/Web비교·권한회귀, QA비교스크립트, README/README.local과 본 기록이다. 루트 package/lock 등 기존변경은 제외한다.
+
+
+## 2026-11-12 14:52 KST 실제 서버 연결 APK 재빌드
+
+프롬프트 원문: 새 APK가 만들어졌어? 안만들어졌다면 만들어줘
+
+결과: fix/android-photo-gps의 fdbafdb 제품코드로 기존 android:configured를 실행해 실제 .env Supabase 연결 테스트 APK를 빌드·에뮬레이터 설치했다. Auth/Google Provider와 기본테이블 HTTP 연결 확인, prebuild/assembleRelease 성공(Gradle1분23초/487tasks), APK 서명검증 및 실제backend URL·DEX 위치metadata요청 포함 확인. Downloads/MyTravelDex-photo-gps-fdbafdb.apk로 복사했다(162301972bytes). 기본 개발서명이며 Play배포/실휴대폰Google로그인·GPS 재수용은 별도다. 제품코드/main/원격설정은 변경하지 않았다. 변경파일: docs/prompts.md, docs/TEST_CASE.md.

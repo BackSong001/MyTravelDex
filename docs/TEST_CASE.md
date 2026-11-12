@@ -1253,3 +1253,8 @@ Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 
 - 최종 t14 buildFromSource 구현/명세·제품 정적 승인: 필수수정 없음. reviewer의 독립실행이 아니라 t12의 실행증거로 구분한다. Node plugin3+export2=5pass, frontend types exit0, production export exit0(2026-11-12T04:34:09.762Z) 후60초이상대기, 실제artifact static2pass(5.3초). 전체suite/실Vercel배포/실휴대폰수용으로합산하지않는다. frontend 의존성버전과lock root목록일치도확인했다.
 - Local 검증기록5개/사진6개와 검증계정·Storage·기기복사본을정리했고PC원본사진SHA256불변을확인했다. 운영원격은변경하지않았다. Native/Chrome 검증로그인도종료했다.
 - 시험 종료 후 기존설치APK를데이터초기화없이재설치했고에뮬레이터는유지했다. 이번Local검증용APK를운영프로젝트용새APK로표현하지않는다. 검증용Web/비교/함수서버만종료하고기존Supabase는유지했다.
+
+### 2026-11-12 실제 서버 연결 APK 전달
+
+- 사용자 재빌드 요청에 따라 사진GPS브랜치 fdbafdb에서 android:configured 실행. 실제.env의 Auth/GoogleProvider 활성·기본테이블HTTP200 확인 후prebuild/assembleRelease 성공(Gradle1분23초/487tasks). 에뮬레이터설치성공, APK162301972bytes, apksigner verify exit0, 실제설정URL/DEX 위치요청필드포함을값노출없이검증했다.
+- 전달파일: /home/jh-mac/Downloads/MyTravelDex-photo-gps-fdbafdb.apk. SHA256: 4d9e33d2c8be76599f22f2c1d948792cf0962e1dd07003510fa96ebd82199ae6. 이전LocalQA APK와별개이며개발서명테스트APK다. 운영Google로그인/실휴대폰사진/GPS·Play제출수용은이번빌드성공으로대체하지않는다. main/원격설정/기존외부변경은유지했다.
