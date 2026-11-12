@@ -16,8 +16,13 @@ export async function photoPermission(request = true) {
     } catch { return false; }
   }
   if (Platform.OS === 'web') return true;
-  const permission = await MediaLibrary.requestPermissionsAsync(false, ['photo']);
-  return permission.granted && permission.accessPrivileges !== 'limited';
+  try {
+    const permission = await MediaLibrary.requestPermissionsAsync(false, ['photo']);
+    return permission.granted && (Platform.OS==='android'?permission.accessPrivileges==='all':permission.accessPrivileges!=='limited');
+  } catch(error) {
+    if(Platform.OS==='android')return false;
+    throw error;
+  }
 }
 
 export function cleanupPickedPhotos(assets: readonly {uri:string}[]) {

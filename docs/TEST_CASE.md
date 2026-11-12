@@ -1218,3 +1218,38 @@ FR-PHOTO-WEB-FILE-001 / TC-PHOTO-WEB-FILE-001은 [명세](WEB_ORIGINAL_PICKER_SP
 - 최종 focused3pass(15.3초)는 실패·취소·21장 뒤 기존 File/object URL을 보존한 채 실제 Local 저장/사진1개 확인까지 포함한다. 전 단계3pass(14.3초)와 별도로 기록한다.
 
 - 최종 production export exit0(2026-11-11T10:16:18Z), 빌드 후60초 이상 대기 뒤 해당 artifact static2pass(5.0초): callback/JS/CSS/worker/shared/PNG 실제bytes·MIME/누락404·production callback UI. 배포사이트/실휴대폰 chooser/Google 포토 GPS 수용은 아니다. 제품 변경은 Web picker와 안내뿐이며 원격/Native/기존 원본사진은 변경하지 않았다.
+
+
+## 2026-11-12 Android 사진 GPS 선택 보존
+
+FR-PHOTO-GPS-PICKER-001 / TC-PHOTO-GPS-PICKER-001은 [명세](ANDROID_PHOTO_GPS_SPEC.md)를 따른다. 별도 사진전용 브랜치/t14 리뷰만 사용하며 Web 일반파일·Native 기존 SDK 원본/권한 경로를 비교·보강한다. 압축전 실제metadata·수동검색/edited·세대/UUID·JPEG/PNG 검증을 유지한다. 실제 Android Chrome OS picker/앱/Google 포토/파일 및 대역 결과를 분리하고 제거된 GPS 복원을 주장하지 않는다. main/원격/서버·타기능은 변경하지 않는다.
+
+Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 플랫폼 요청 절을 따른다. 지원OS+EXIF 요청일 때만 기존 ImagePicker Intent에 플랫폼 위치metadata 요청을 연결하며 구OS/원본/Web/iOS·사용자동의·수동복구를 유지한다. Expo prebuild의 제한된 멱등patch/소스불일치빌드중단 및 실제Native 수용을 분리한다. SDK업그레이드/새NativeModule/서버변경은 없다.
+
+### 2026-11-12 사진 선택 GPS 비교 — 중간 증거
+
+- `fix/android-photo-gps`에서 사진 위치만 작업하며 t14 명세/최소JS/플랫폼Intent 지정 정적 승인을 받았다. t9d는 사용자 지시로 제외했다. main/원격 자료는 변경하지 않는다.
+- 코드 추적: Home.choose의 photoMetadata가 먼저 실행되고 save의 compressPhoto는 이후다. 기존 capture calendar/UTC offset·수동edited·epoch·원본·RLS/UUID를 유지한다.
+- 설치 Chrome149/Android37.2의 실제 OS PhotoPicker에서 Google포토 첫째/둘째 사진은 촬영일이 있으나 GPS가 없었다. 둘째는 image/* 수신304500바이트/혼합 아닌 필터없음 파일제공자304322바이트, 첫째는 image/*2319249바이트/필터없음1033532바이트로 수신파일이 다르다. Google 포토 화면의 위치표시를 EXIF가 있다는 증거로 간주하지 않는다. Google포토 최초 legacy선택의 File미수신 시도는 후속 정상File수신/메타데이터판정과 분리한다.
+- 사용자 지정 원본 두 장에서 GPS/촬영일을 사전 확인하고 별도Downloads검증폴더에 복사했다. Chrome의 현재*/*와 accept없음으로 같은 첫 원본을 실제 OS선택한 결과 bytes size1476165/MIME image/jpeg·SHA256/날짜/GPS 모두 같았다. 혼합MIME와accept없음/current*/*는DocumentsUI를열었고 image/*는PhotoPicker를열었다. Web type=[]로 바꾸면 개선된다는 근거가 없어 기존*/*를 유지한다. Chrome의 카메라 권한 요청은 거절했으며 사진 카메라 기능을 추가하지 않는다.
+- 최초 original 기본 후보 APK에서 원본1장의 GPS/기간 자동입력→실제Local저장→locations.source=exif 및 대표/사진GPS가 원본과 일치했다. 이 DocumentPicker는 ACTION_OPEN_DOCUMENT여서 이번 기기에서 Google포토항목이 없어 후보를 폐기했다. 원본 기능 성공을 최종system 경로 수용으로 합산하지 않는다.
+- 최종JS system 기본+기존photo/ACCESS_MEDIA_LOCATION 권한요청(all확인)으로도 GET_CONTENT가PhotoPickerGetContentActivity로intercept돼 클라우드2장GPS가 없었다. 플랫폼 요청extra 보강의 근거이며 앱 클라우드 성공은 아직 아니다.
+- 권한요청 예외 Red1/15pass→관련unit45pass. 실제 Home대역은 Android권한 요청true/대기중계정전환뒤picker0회를 포함해 Red1→7pass(3.2분); 이는 Native OS권한UI 수용과 구분한다. 실제Local Web의 File/GPS/기간/저장·edited·실패/취소·비교페이지4pass(58.3초), frontend types exit0.
+- ImagePicker Intent 보강 Node검사2Red→2pass, 실제설치원본/패치변조·다른버전거부/멱등을 확인했다. 분리한 임시 프로젝트의 clean prebuild 및 반복clean prebuild 성공, 실제프로젝트보존prebuild 성공. SDK 소스문자열검사를 Kotlin컴파일이나사용자동의 성공으로 확대하지 않으며 최신플랫폼APK는 후속 검증이다.
+
+- 첫플랫폼패치후보 APK는prebuilt Expo publication 때문에SDK compile task와위치요청문자열이없어패치수용증거에서제외했다. 설치공식buildFromSource를expo-image-picker 한모듈만지정하고등록검사Red1→Node3pass, 실제 :expo-image-picker:compileReleaseKotlin 실행을포함한새APK는2분7초/487tasks로빌드성공했다(2026-11-12T04:05:25Z). 후속기기동의/수신검사는별도다.
+
+- source-build최종APK 내부DEX에위치요청필드문자열포함을확인(이전prebuilt후보false→최종true). 실제AndroidPhotoPicker에Include location info? 동의UI가나타나위치포함을허용했다. 동일Google포토첫2사진중첫사진은GPS자동입력/실제Local저장에성공했고둘째사진은GPS없음/두사진촬영일있음으로구분했다. 대표위치는첫유효사진EXIF와일치하며photos2개/complete/source=exif를확인했다.
+- 재선택에서Location included 버튼을Location not included로전환한뒤첫사진을고르면GPS는없지만사진1장과두날짜가유지되고수동위치검색창의장소명/주소입력도열렸다. Android사진위치권한을한차례revoke한후정상권한요청에서재허용됐음을확인했으며위치공유거절수용은PhotoPicker의명시UI선택으로검증했다. 단순권한revoke를거절수용으로계산하지않는다.
+
+### 2026-11-12 최종 기기 수용
+
+- Source-build 최종 APK의 별도 원본 버튼으로 지정폴더 두번째사진을 다시 골라 GPS/촬영일자동입력과complete저장을확인했다. 대표/사진EXIF GPS·source=exif·여행시작/끝/촬영일이그원본과일치했다. 최초후보의첫원본성공과최종두번째원본회귀는별도다.
+- 실제 Android Chrome149의 localhost:8082 앱에서도 OS 파일선택기로 첫원본을골라 GPS·기간자동입력→Localcomplete저장→대표/사진GPS·날짜일치를확인했다. 일반 PC viewport나File chooser 주입을이실제OS수용으로바꿔계산하지않는다.
+- 같은실제Chrome앱의현재*/*→Google포토첫사진선택은사진1장/촬영일은들어오지만대표위치는비어있었다. 사용자가수동장소검색/후보상세/명시확정을거쳐저장하면대표위치는그공개검증좌표/source=geoapify이고사진GPS는null/촬영일은유지됐다. 위치검색제공자는로컬대역이므로외부Geoapify주소품질까지수용하지않는다.
+- 첫Chrome수동창열기시도는Target crashed로중단돼완료에합산하지않았다. 검증용Native앱을백그라운드종료하고자신의비교탭을닫은후새검증탭에서재선택/수동창/저장이성공했다. 메모리원인을확정하거나제품파서오류로계산하지않는다. Android NFC서비스의반복종료로그는GPS수신성공증거와무관하다.
+- Native·Chrome 운영계정/운영기록·사진원본은변경하지않았으며, Local검증계정과검증복사본만사용했다. 실제Google포토화면의메타데이터동의/거부와실수신/저장까지검사했지만 실휴대폰·구버전OS·iOS의실행수용은아니다. 지원API없는OS는코드상기존경로유지이며실기기증거와구분한다.
+
+- 최종 t14 buildFromSource 구현/명세·제품 정적 승인: 필수수정 없음. reviewer의 독립실행이 아니라 t12의 실행증거로 구분한다. Node plugin3+export2=5pass, frontend types exit0, production export exit0(2026-11-12T04:34:09.762Z) 후60초이상대기, 실제artifact static2pass(5.3초). 전체suite/실Vercel배포/실휴대폰수용으로합산하지않는다. frontend 의존성버전과lock root목록일치도확인했다.
+- Local 검증기록5개/사진6개와 검증계정·Storage·기기복사본을정리했고PC원본사진SHA256불변을확인했다. 운영원격은변경하지않았다. Native/Chrome 검증로그인도종료했다.
+- 시험 종료 후 기존설치APK를데이터초기화없이재설치했고에뮬레이터는유지했다. 이번Local검증용APK를운영프로젝트용새APK로표현하지않는다. 검증용Web/비교/함수서버만종료하고기존Supabase는유지했다.

@@ -245,7 +245,7 @@ npm --prefix frontend ci
 npm --prefix frontend run android:configured
 ```
 
-Android Studio에서 Emulator를 먼저 실행한다. 위 명령은 루트 `.env`의 공개 클라이언트 값만 사용해 자체 테스트 APK를 빌드·설치한다. Expo Go나 Metro 없이 실행되며 `frontend/.env.local`의 로컬 Supabase 설정은 덮어쓰지 않는다. 첫 실행에서 Google 로그인 후 하단 `+` → 시스템 사진 선택(전체 권한 선요청 없음) → 자동 제안된 기간·위치 확인 → 저장 순서로 테스트한다. 사진의 EXIF가 없거나 권한이 제한되면 기간을 입력하고 장소 검색·핀으로 위치를 보정한다. 앱 변경 후에는 같은 명령으로 다시 빌드한다.
+Android Studio에서 Emulator를 먼저 실행한다. 위 명령은 루트 `.env`의 공개 클라이언트 값만 사용해 자체 테스트 APK를 빌드·설치한다. Expo Go나 Metro 없이 실행되며 `frontend/.env.local`의 로컬 Supabase 설정은 덮어쓰지 않는다. 첫 실행에서 Google 로그인 후 하단 `+` → 시스템 사진 선택(기존 사진·위치 메타데이터 권한 및 지원 OS의 위치 공유 동의) → 자동 제안된 기간·위치 확인 → 저장 순서로 테스트한다. 사진의 EXIF가 없거나 권한이 제한되면 기간을 입력하고 장소 검색·핀으로 위치를 보정한다. 앱 변경 후에는 같은 명령으로 다시 빌드한다.
 
 APK는 `frontend/android/app/build/outputs/apk/release/app-release.apk`에 생성된다. `release` variant에 JS를 포함하지만 기본 개발 서명으로 만드는 테스트 앱이며 Play Store 배포용 서명·검증과 구분한다. 네이티브 생성 폴더는 Git에서 제외한다. 실제 Google 계정의 동의·복귀와 실기기 EXIF 검증은 별도 수용 항목이다.
 

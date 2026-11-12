@@ -860,3 +860,10 @@ Android 기본 선택의 Native실증 보강: 이미 전체사진/위치권한�
 ## 2026-11-11 웹 기본 원본 파일 선택
 
 FR-PHOTO-WEB-FILE-001 / TC-PHOTO-WEB-FILE-001은 [명세](WEB_ORIGINAL_PICKER_SPEC.md)를 따른다. Web 사진 선택만 일반 파일 선택으로 전환하며 JPEG/PNG·20장·실제20MiB·파일별 격리/기존 작성·수동입력·계정세대를 보존한다. Native/API/DB/권한·환경은 변경하지 않는다. 실제 파일경로/제공자 GPS 보존/Android OS 선택기 강제는 보장하지 않는다.
+
+
+## 2026-11-12 Android 사진 GPS 선택 보존
+
+FR-PHOTO-GPS-PICKER-001 / TC-PHOTO-GPS-PICKER-001은 [명세](ANDROID_PHOTO_GPS_SPEC.md)를 따른다. 별도 사진전용 브랜치/t14 리뷰만 사용하며 Web 일반파일·Native 기존 SDK 원본/권한 경로를 비교·보강한다. 압축전 실제metadata·수동검색/edited·세대/UUID·JPEG/PNG 검증을 유지한다. 실제 Android Chrome OS picker/앱/Google 포토/파일 및 대역 결과를 분리하고 제거된 GPS 복원을 주장하지 않는다. main/원격/서버·타기능은 변경하지 않는다.
+
+Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 플랫폼 요청 절을 따른다. 지원OS+EXIF 요청일 때만 기존 ImagePicker Intent에 플랫폼 위치metadata 요청을 연결하며 구OS/원본/Web/iOS·사용자동의·수동복구를 유지한다. Expo prebuild의 제한된 멱등patch/소스불일치빌드중단 및 실제Native 수용을 분리한다. SDK업그레이드/새NativeModule/서버변경은 없다.

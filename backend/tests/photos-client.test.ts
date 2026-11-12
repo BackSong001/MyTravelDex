@@ -97,3 +97,10 @@ test('TC-PHOTO-METADATA-002: a Web File supplies capture metadata; candidates ne
  queryPermission.mockClear();for(const os of ['web','ios']){platform.OS=os;expect(await photoPermission(false)).toBe(false);}
  expect(queryPermission).not.toHaveBeenCalled();expect(permission).not.toHaveBeenCalled();
  });
+
+ test('Android original permission denial and request failure still allow the picker fallback',async()=>{
+  permission.mockResolvedValueOnce({granted:false,accessPrivileges:'none'});expect(await photoPermission(true)).toBe(false);
+  permission.mockResolvedValueOnce({granted:true,accessPrivileges:'limited'});expect(await photoPermission(true)).toBe(false);
+  permission.mockRejectedValueOnce(new Error('Request unavailable'));expect(await photoPermission(true)).toBe(false);
+  expect(permission).toHaveBeenCalledWith(false,['photo']);expect(info).not.toHaveBeenCalled();
+ });

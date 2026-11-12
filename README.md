@@ -4,7 +4,7 @@
 
 Android MapLibre Native 11.5.1 / Web GL JS 6.16.0과 로컬 KOSTAT 2018 경계를 사용한다. 배경 타일 없이 브랜드 팔레트·선택 지역만의 테두리·실제 좌표 마커를 유지한다. 검색·상세·역지오코딩은 인증된 서버 Geoapify이며 Google OAuth는 유지한다. Google 유래 위치는 상세의 `위치 다시 확인`으로 소유자가 보정하기 전 지도에서 제외한다.
 
-Android 기본 시스템 사진 선택에는 전체 권한을 선요청하지 않는다. Google 포토는 기기 클라우드 제공자 설정에 따른다. 원본 파일 경로에서만 선택적으로 권한을 요청하고 MediaStore ID 확보 후 캐시로 복사한다. 웹 직접 Photos OAuth는 추가하지 않는다.
+Android 기본 시스템 사진 선택 시 기존 사진·위치 메타데이터 권한을 요청하며, 거절·제한·요청 실패에도 사진 선택을 유지한다. 지원 OS에서는 PhotoPicker의 위치 공유 동의를 요청하지만 제공자가 GPS를 반환하지 않을 수 있다. 별도 원본 파일 선택과 웹 일반 파일 선택을 유지하며 웹 직접 Photos OAuth는 추가하지 않는다. 새 Native APK가 필요하고 실제 수용 범위는 [사진 GPS 명세](docs/ANDROID_PHOTO_GPS_SPEC.md)를 따른다.
 
 원격 migration·함수는 아직 미적용이다. 키 추가 후 한국어 5개 검색 HTTP 200은 확인했으나 전주한옥마을은 주차장/안내소 결과여서 정확한 마을 랜드마크로 표시하지 않는다. 검색 결과는 공급자 이름·주소 그대로 선택하며 랜드마크는 공백을 제거한 이름이 정확히 일치할 때만 표시한다. Android 클라우드 전용 사진 저장 수용은 별도다. 상세 계약은 [TRD](docs/TRD.md)·[API_SPEC](docs/API_SPEC.md), 실행 증거는 [TEST_CASE](docs/TEST_CASE.md)를 따른다.
 

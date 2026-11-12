@@ -14,7 +14,7 @@ test.beforeAll(async()=>{
  const root=path.resolve('.');
  // 실제 Home/LocationPicker를 실행한다. GPS 저장은 사진 수신·Auth·지도 경계만 대체하고 Local API를 사용한다.
  const stubs:Record<string,string>={
-  '../src/photos':`import {photoMetadata,compressPhoto} from '${root}/frontend/src/photos.ts';export {photoMetadata,compressPhoto};export const pickPhotos=async()=>{const request=(window.pickCalls??0)+1;window.pickCalls=request;if(window.holdPicker)await new Promise(resolve=>window.releasePicker=resolve);window.lastFinishedPick=request;return {canceled:false,assets:window.pickedAssets};};export const photoPermission=async()=>false,cleanupPickedPhotos=()=>{};`,
+  '../src/photos':`import {photoMetadata,compressPhoto} from '${root}/frontend/src/photos.ts';export {photoMetadata,compressPhoto};export const pickPhotos=async()=>{const request=(window.pickCalls??0)+1;window.pickCalls=request;if(window.holdPicker)await new Promise(resolve=>window.releasePicker=resolve);window.lastFinishedPick=request;return {canceled:false,assets:window.pickedAssets};};export const photoPermission=async request=>{(window.permissionRequests??=[]).push(request);if(window.holdPermission)await new Promise(resolve=>window.releasePermission=resolve);return false;},cleanupPickedPhotos=()=>{};`,
   '../src/auth':`const session=window.photoLocalSession??{user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},getSession:async()=>({data:{session}})}};export const googleLogin=()=>{};`,
   '../src/runtime':`import {TravelApi} from '${root}/frontend/src/api.ts';const config=window.photoLocalApi;export const api=config?Object.assign(new TravelApi(config.url,config.key),{token:config.token}):{list:async()=>[],following:async()=>[],request:async(path,method,body)=>{if(path==='/functions/v1/geocode-location'){const r=await fetch('/geocode',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('EXTERNAL_SERVICE_ERROR');return r.json();}return [];}};`,
   '../src/MyTrips':`export default ()=>null;`,
@@ -27,7 +27,7 @@ test.beforeAll(async()=>{
   'map-boundary':`import React from '${root}/frontend/node_modules/react/index.js';import {View,Text} from 'react-native';export default function Map({focus}){return <View testID="map-focus"><Text>{JSON.stringify(focus??null)}</Text></View>;}`,
  };
  const result=await build({loader:{'.css':'empty'},bundle:true,write:false,format:'iife',platform:'browser',resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},define:{global:'globalThis','process.env.NODE_ENV':'"test"','process.env.EXPO_OS':'"web"','process.env.APP_MANIFEST':'undefined','process.env.EXPO_PUBLIC_APP_ENV':'"local"','__DEV__':'false'},
-  stdin:{resolveDir:root,loader:'tsx',contents:`import React from './frontend/node_modules/react/index.js';import {createRoot} from './frontend/node_modules/react-dom/client.js';import Home from './frontend/app/index.tsx';createRoot(document.getElementById('root')).render(<Home/>);`},
+  stdin:{resolveDir:root,loader:'tsx',contents:`import React from './frontend/node_modules/react/index.js';import {createRoot} from './frontend/node_modules/react-dom/client.js';import Home from './frontend/app/index.tsx';import {Platform} from 'react-native';const os=Platform.OS;Object.defineProperty(Platform,'OS',{get:()=>window.photoPlatform??os});createRoot(document.getElementById('root')).render(<Home/>);`},
   plugins:[nativeImageAssets,{name:'photo-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path==='./runtime'&&args.importer.includes('/frontend/src/'))return {path:'../src/runtime',namespace:'boundary'};
@@ -123,3 +123,12 @@ test('TC-PHOTO-GPS-001: a photo with invalid GPS saves through Local HTTP after 
  const photos=await admin(`/rest/v1/photos?travel_record_id=eq.${records[0].id}`);expect(photos).toHaveLength(1);expect(photos[0]).toMatchObject({exif_latitude:null,exif_longitude:null,captured_date:'2026-11-03'});
  const image=page.getByRole('img',{name:'여행 사진',exact:true});await expect.poll(()=>image.evaluate(node=>node instanceof HTMLImageElement&&node.complete&&node.naturalWidth===2)).toBe(true);
 });
+
+ test('TC-PHOTO-GPS-PICKER-001: Android requests original metadata access and obsolete permission never opens another owner picker',async({page})=>{
+  await page.evaluate(()=>{Object.assign(window,{photoPlatform:'android',holdPermission:true});});
+  await page.getByRole('button',{name:'사진 선택',exact:true}).click();await page.waitForFunction(()=>!!(window as any).releasePermission);
+  expect(await page.evaluate(()=>(window as any).permissionRequests)).toEqual([true]);expect(await page.evaluate(()=>(window as any).pickCalls??0)).toBe(0);
+  await page.evaluate(()=>{(window as any).authEvent('SIGNED_IN',{user:{id:'22222222-2222-4222-8222-222222222222'},access_token:'permission-fixture'});(window as any).releasePermission();});
+  await expect(page.getByLabel('처리 중',{exact:true})).toHaveCount(0);await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
+  expect(await page.evaluate(()=>(window as any).pickCalls??0)).toBe(0);await expect(page.getByText('0 / 20장 선택',{exact:true})).toBeVisible();
+ });

@@ -1581,3 +1581,87 @@ t14 사전명세/SQL·rollback/UI 제품검토 및 P2 보강 재승인을 받고
 - 변경 파일: `docs/WEB_ORIGINAL_PICKER_SPEC.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `AGENTS.md`, `frontend/src/photos.ts`, `frontend/app/index.tsx`, `backend/tests/photos-picker.test.ts`, `frontend/e2e/photo-metadata.spec.ts`, `docs/prompts.md`.
 
 - 최종 검증 보충: production export 성공 및 해당 static artifact2pass(5.0초). 관련 unit44/웹36+최종focused3/types0와 별도 기록하며 전체검사·실폰·실배포 성공으로 합산하지 않는다.
+
+## 2026-11-12 12:11 KST Android Chrome·앱 사진 GPS 보존
+
+사용자 프롬프트 원문:
+
+````text
+# Android Chrome 사진 업로드 시 EXIF GPS 누락 문제
+
+## 1\. 현재 문제
+
+웹앱(MyTravelDex)에서 사진 업로드 시 EXIF 데이터를 읽어 촬영 시간과 GPS 위치를 자동 입력하는 기능을 구현 중이다.
+
+동일한 사진인데 업로드 경로에 따라 GPS 추출 결과가 다르다.
+
+- **PC Chrome (USB로 원본 사진 복사):** 시간 및 GPS 정상 추출
+- **Android Chrome (Google 포토에서 선택):** 시간 정상, GPS 누락
+- **카카오톡 인앱 브라우저:** 시간 및 GPS 정상 추출
+
+## 2\. 추정 원인
+
+Android Chrome의 Photo Picker가 사진을 웹앱에 전달하는 과정에서 개인정보 보호를 위해 EXIF GPS 데이터를 제거하는 것으로 추정된다.
+
+따라서 기존 EXIF 추출 코드보다 **사진 선택 방식의 차이**가 핵심 원인일 가능성이 높다.
+
+## 3\. 조사된 해결 방법
+
+### A. 웹앱 파일 선택기 변경 (우선 테스트)
+
+기존 코드:
+
+``` html
+<input type="file" accept="image/*" />
+```
+
+변경 후보:
+
+``` html
+<input type="file" accept="image/jpeg,image/png,image/heic,text/plain" />
+```
+
+또는 `accept` 속성을 제거한다.
+
+일부 Android Chrome 환경에서 일반 파일 탐색기를 사용하도록 유도하면 GPS가 유지된다는 사례가 있다. 단, 모든 기기에서 보장되지는 않는다.
+
+### B. Android 신규 API
+
+2026년 Android Photo Picker에 위치 메타데이터 접근 요청 API가 추가되었다.
+
+- `setLocationMetadataAccessRequested(true)`
+- 네이티브 Android 앱에서 사용 가능
+- 일반 Chrome 웹앱의 JavaScript에서는 직접 호출 불가
+
+## 4\. Codex 작업 요청
+
+1. 현재 사진 업로드 및 EXIF 추출 코드 분석
+2. 이미지 압축·변환 전에 GPS를 추출하는지 확인
+3. `accept` 속성 변경에 따른 Android Chrome 파일 선택 방식 비교
+4. 동일한 사진으로 시간·GPS·파일 크기·MIME 타입 비교 테스트 구현
+5. GPS가 존재하는 파일은 기존 방식으로 자동 입력 유지
+6. GPS 누락 시 기존 수동 위치 검색 기능 유지
+7. 기존 정상 작동 기능에 영향을 주지 않도록 수정
+
+**목표:** 네이티브 앱 변경 없이 Android Chrome 웹앱에서 사진의 GPS 정보를 최대한 보존하여 자동 추출할 수 있도록 개선한다.
+
+## 5\. 참고 자료
+
+- Stack Overflow: https://stackoverflow.com/questions/70865878/picking-photo-from-web-in-android-no-longer-includes-exif-gps-location
+- Chromium 이슈: https://issuetracker.google.com/issues/428397711
+- PhotoPrism 관련 이슈: https://github.com/photoprism/photoprism/issues/5687
+- Android Photo Picker API: https://developer.android.com/reference/android/provider/MediaStore
+
+**주의:** Android에서 제거된 GPS는 JavaScript로 복구할 수 없다. 우선 파일 선택 과정에서 GPS가 유지되는 경로를 찾는 데 집중한다.
+
+해당 요구사항대로 따로 브랜치를 만들어 사진 위치 기능만 코드 수정 및 구현해줘.
+안드로이드 에뮬레이터에서 앱에서 위치정보를 받는 것과 크롬 웹앱에서 받는 것 둘다 가능해야하지만, 안된다면 앱에서는 무조건 가능해야해.
+구글포토, 실제 파일 둘다 테스트해보고 진행해줘.
+t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 리뷰를 받으면서 구현해줘
+````
+
+추가 프롬프트 원문:
+
+> /feedback 안드로이드 에뮬레이터에 사진업로드가 가능하다면 /home/jh-mac/Pictures/Pictures_data 경로의 파일을 사용하고, 구글포토는 가장 첫번째나 두번째 사진에 위치정보가 있을테니 그걸 사용해줘.
+
+결과: fix/android-photo-gps 별도 브랜치에서 t14만 리뷰받아 진행했다. 실제 Android Chrome의 네 선택기 비교/원본·클라우드 File 메타데이터 비교 페이지와 회귀를 추가하고, 압축 전 기존 파서를 재사용했다. Web */*는 원본GPS를 유지해 불필요한 type변경을 하지 않았다. Native 기존photo권한·세대보호를 보강했으나 실제클라우드GPS누락이 남아 지원OS의 위치metadata요청을 기존SDK Intent에 연결했다. 미리컴파일된SDK가패치를무시한후보를제외하고 해당모듈만source build로 설정했다. SDK버전/권한manifest/서버/원격/main은바꾸지않았다. 최종Native에서원본GPS/기간저장과Google포토위치동의후첫사진GPS저장에성공했고둘째GPS없음/동의거절수동복구를구분했다. 실제Chrome원본자동저장성공/클라우드GPS누락수동저장성공을확인했다. 관련unit45/Home7/LocalWeb4/Node5/types0/export0/artifact2 및 후보실패는TEST_CASE에별도로기록했다. t14최종승인,Local기록5/사진6정리와원본불변확인. 실휴대폰/구OS/iOS/외부검색품질은미검증이다. 변경파일은 사진 전용 명세/canonical6, frontend photos/Home/app.config/package 및 Nativeplugin, 관련unit/Web비교·권한회귀, QA비교스크립트, README/README.local과 본 기록이다. 루트 package/lock 등 기존변경은 제외한다.
