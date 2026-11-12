@@ -1,31 +1,9 @@
-import palette from './design/colors.json';
-
-// 원본 팔레트는 보존하고 승인된 밝은 테마와 접근성 의미 토큰을 확장한다.
-export const colors = {
-  ...palette.colors,
-  paper: '#EFFAFF',
-  sheet: palette.colors.surface,
-  warm: '#E9F8F1',
-  ink: palette.colors.textPrimary,
-  muted: '#5D6971',
-  coral: palette.colors.primary,
-  rose: palette.colors.primaryLight,
-  sea: '#2E7C7A',
-  line: '#D3E9EE',
-  onPrimary: '#30241E',
-  secondaryPressed: palette.colors.primaryPressed,
-  error: '#973C37',
-  errorSurface: '#FFF0ED',
-  avatarSurface: '#D7F0FF',
-  focus: '#2E7C7A',
-  map: {...palette.colors.map, shadow: '#568BA6', stampBorder: '#BB935E', mapLabel: '#5D6971', mapLabelHalo: 'transparent'},
-  profile: {paper:'#F3F6FB',sheet:'#FFFFFF',ink:'#172D4A',accent:'#254DC4',tint:'#E8EFFB',line:'#CAD6EA',muted:'#53657E'},
-  navigation: {
-    ...palette.colors.navigation,
-    background: '#E5F6FF',
-    activeIcon: '#286F71',
-    activeLabel: '#286F71',
-    inactiveIcon: '#5D6971',
-    inactiveLabel: '#5D6971',
-  },
+// 화이트·아쿠아 단일 디자인. 사용자 데이터와 원본 자산은 색상 토큰과 분리한다.
+export const colors={
+ background:'#FFFFFF',surface:'#FFFFFF',surfaceWarm:'#F0F7F7',primary:'#126D70',primaryPressed:'#0D5558',primaryLight:'#E4F3F2',textPrimary:'#19393C',textSecondary:'#50686B',textOnPrimary:'#FFFFFF',border:'#D9E5E5',shadow:'transparent',
+ paper:'#FFFFFF',sheet:'#FFFFFF',warm:'#F0F7F7',ink:'#19393C',muted:'#50686B',coral:'#126D70',rose:'#E4F3F2',sea:'#126D70',line:'#D9E5E5',onPrimary:'#FFFFFF',secondaryPressed:'#DFECEB',error:'#A32E37',errorSurface:'#FFF0F1',avatarSurface:'#E4F3F2',focus:'#126D70',
+ map:{ocean:'#D7EFF1',oceanHighlight:'#EBF7F8',landDefault:'#E4E8E9',regionBorder:'#FFFFFF',regionBorderSelected:'#287F82',regionSelectedOverlay:'#287F8233',regionPastels:['#B9DDCF','#C7DDF0','#DCD5ED','#F0DBB9','#BDE1DE'],visitedRegionBorder:'#126D70',unvisitedRegionOpacity:1,visitedRegionOpacity:1,locationPin:'#126D70',locationPinBorder:'#FFFFFF',locationPinCenter:'#FFFFFF',mapLabel:'#19393C',mapLabelHalo:'transparent',waterDecoration:'#FFFFFF',shadow:'#FFFFFF',stampBorder:'#126D70'},
+ profile:{paper:'#FFFFFF',sheet:'#FFFFFF',ink:'#19393C',accent:'#126D70',tint:'#E4F3F2',line:'#D9E5E5',muted:'#50686B'},
+ navigation:{background:'#FFFFFF',activeIcon:'#126D70',activeLabel:'#126D70',inactiveIcon:'#50686B',inactiveLabel:'#50686B',border:'#D9E5E5'},
+ addButton:{background:'#126D70',pressed:'#0D5558',icon:'#FFFFFF',ring:'#FFFFFF',shadow:'transparent'},recordCard:{background:'#FFFFFF',title:'#19393C',description:'#50686B',border:'#D9E5E5'},
 };

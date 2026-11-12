@@ -2,7 +2,7 @@
 
 ## 지도 전환·사진 선택 현황 (2026-11-06)
 
-Android MapLibre Native 11.5.1 / Web GL JS 6.16.0과 로컬 KOSTAT 2018 경계를 사용한다. 배경 타일 없이 브랜드 팔레트·선택 지역만의 테두리·실제 좌표 마커를 유지한다. 검색·상세·역지오코딩은 인증된 서버 Geoapify이며 Google OAuth는 유지한다. Google 유래 위치는 상세의 `위치 다시 확인`으로 소유자가 보정하기 전 지도에서 제외한다.
+React SVG / react-native-svg + d3-geo로 같은 2026-04-01 실제 경계를 렌더링한다. 17개 시도 → 255개 시군구 탐색과 본인 완료 기록의 방문색을 제공하며 사진·작성자는 지역 목록에서 확인한다. 검색·상세·역지오코딩은 인증된 서버 Geoapify이며 Google OAuth는 유지한다. Google 유래 위치는 상세의 `위치 다시 확인`으로 소유자가 보정하기 전 지도에서 제외한다.
 
 Android 기본 시스템 사진 선택에는 전체 권한을 선요청하지 않는다. Google 포토는 기기 클라우드 제공자 설정에 따른다. 원본 파일 경로에서만 선택적으로 권한을 요청하고 MediaStore ID 확보 후 캐시로 복사한다. 웹 직접 Photos OAuth는 추가하지 않는다.
 
@@ -31,7 +31,7 @@ MVP 공개 정책은 다음과 같다.
 - **Frontend**: React Native, Expo, TypeScript, Expo Router
 - **Backend**: Supabase Auth, Supabase PostgreSQL, Supabase Storage, PostgREST
 - **Authentication**: Google OAuth via Supabase Auth
-- **Map**: MapLibre Native 11.5.1 / GL JS 6.16.0 + Geoapify
+- **Map**: React SVG / react-native-svg + d3-geo · Geoapify 검색
 - **Backend tests**: Vitest, Supabase Local Development
 - **Web tests**: Playwright, Expo Web
 - **Android tests**: Android Studio Emulator and real Android devices
@@ -66,7 +66,7 @@ MVP에서는 Expo 앱이 업로드 전에 선택 사진의 EXIF를 먼저 읽고
 
 Google 계정의 비밀번호를 직접 다루지 않고 Supabase Auth가 세션을 관리하도록 하기 위해 선택한다. 로그인 이후 애플리케이션은 Supabase 사용자 ID를 기준으로 프로필과 여행 기록을 연결한다.
 
-### MapLibre·Geoapify
+### SVG·Geoapify
 
 지도는 로컬 시·도 GeoJSON 스타일이며 배경 타일을 사용하지 않는다. 인증된 서버 Geoapify로 검색·상세·주소를 보완한다. GEOAPIFY_API_KEY는 Supabase 서버 Secret이며 기존 Google 지도 변수는 deprecated 호환 항목이다. Google OAuth는 유지한다.
 

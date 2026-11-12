@@ -1679,3 +1679,22 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 프롬프트 원문: 확인했어. 앱에서 정삭 작동하네. 이제 해당 브랜치를 메인에 푸쉬해줘
 
 결과: 사용자가 앱 정상작동을 확인했다고 전달했다(독립 재검증과 구분). 최신 origin/main은 cf7d30c이며 fix/android-photo-gps의 조상으로 확인돼 사진GPS 수정/실제설정APK 빌드기록을 fast-forward로 main에 반영한다. 제품변경 추가/중복빌드·테스트/원격DB변경은 없고 기존 root package/lock 및 미추적파일은 제외한다. 변경파일: docs/prompts.md.
+
+
+## 2026-11-12 18:30 KST — SVG 지도 전환 계속 진행 (진행 중)
+
+사용자 프롬프트 원문:
+> Implement the plan.
+
+후속 사용자 프롬프트 원문:
+> 이어서 진행해줘
+
+현재 결과: `refactor/svg-map-redesign`에서 승인된 SVG·단일 UI 계약을 구현 중이다. 2026-04-01 실제17시도/255시군구를 채택하고 t14 지적 핀치·시군구필터·홈복귀 3건을 보강해 정적 승인을 받았다. 원자료/MapLibre·30테마 runtime cleanup도 지정 정적 승인을 받았다. backend172pass1skip/types0/설정Node0, Android QA x86_64 assembleRelease4분41초 성공이며 실제 Native·최종 Web/정적artifact 수용은 아직 진행 전이다. main/원격DB/운영배포는 변경하지 않았다.
+
+변경 파일: `docs/SVG_MAP_REDESIGN_SPEC.md`, canonical6, README/README.local/.env.example, `frontend/src/regions.ts`, `SvgTravelMap.tsx`, `data/maps/`, TravelMap 진입점, provinces/StampCatalog/MapAttribution/theme/ThemeContext/Journal, Home/Layout/LocationPicker, frontend package·lock/config/public HTML, 지도·팔레트/설정 테스트, `scripts/build-map-data.py`, `docs/prompts.md`. 이전 MapLibre/30테마/군집 전용 런타임과 검사는 명세에 따라 제거/대체했다. 외부 root package/lock·storyboard·tsconfig 변경은 제외한다. 최종 실행 결과는 뒤에 추가한다.
+
+### 2026-11-12 19:04 KST SVG 전환 최종 결과
+
+앞선 사용자 원문 “Implement the plan.” / “이어서 진행해줘” 작업의 최종 결과: 실제2026-04-01 경계17시도/255시군구의공통SVG·지역탐색·기록기반방문/필터/복귀·화이트아쿠아단일UI를구현했다. MapLibre/30테마/사진핀군집런타임을승인범위에서제거했고Geoapify/Auth/사진/DB/기존안전경계는유지했다. t14리뷰의핀치/시군구/복귀·상세읽기지연응답문제를보강해지정정적승인받았다. 최종상세focused15pass,productionexport/artifact4pass,Native최종QA빌드/실제탐색·기존저장보존을확인했다. 이전backend172pass1skip/HTTP·Web보존33pass와실제Native수동위치·사진저장도분리기록했다. 전체Web새Green/실휴대폰/iOS/운영배포수용은주장하지않는다. QA데이터/기기복사본·임시서버정리,기존APK복구. 경계원문으로인한주JS19.58MB/gzip7.36MB비용은남는다.
+
+변경파일은위18:30절과동일범위이며추가상세읽기수명은frontend/app/index.tsx,frontend/e2e/design.spec.ts,docs/SVG_MAP_REDESIGN_SPEC.md,docs/TRD.md,docs/TEST_CASE.md에반영했다. 이번작업파일만refactor/svg-map-redesign에커밋/푸시하며main·원격DB/배포와기존root package/lock·storyboard·tsconfig는포함하지않는다.

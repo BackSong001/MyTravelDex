@@ -350,3 +350,8 @@ FR-PHOTO-WEB-FILE-001 / TC-PHOTO-WEB-FILE-001은 [명세](WEB_ORIGINAL_PICKER_SP
 FR-PHOTO-GPS-PICKER-001 / TC-PHOTO-GPS-PICKER-001은 [명세](ANDROID_PHOTO_GPS_SPEC.md)를 따른다. 별도 사진전용 브랜치/t14 리뷰만 사용하며 Web 일반파일·Native 기존 SDK 원본/권한 경로를 비교·보강한다. 압축전 실제metadata·수동검색/edited·세대/UUID·JPEG/PNG 검증을 유지한다. 실제 Android Chrome OS picker/앱/Google 포토/파일 및 대역 결과를 분리하고 제거된 GPS 복원을 주장하지 않는다. main/원격/서버·타기능은 변경하지 않는다.
 
 Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 플랫폼 요청 절을 따른다. 지원OS+EXIF 요청일 때만 기존 ImagePicker Intent에 플랫폼 위치metadata 요청을 연결하며 구OS/원본/Web/iOS·사용자동의·수동복구를 유지한다. Expo prebuild의 제한된 멱등patch/소스불일치빌드중단 및 실제Native 수용을 분리한다. SDK업그레이드/새NativeModule/서버변경은 없다.
+
+
+## 2026-11-12 SVG 지도·단일 디자인 전환
+
+FR-SVG-MAP-001 / TC-SVG-MAP-001은 [승인계획 명세](SVG_MAP_REDESIGN_SPEC.md)를 따른다. Web/Android 전체SVG교체·지역중심지도·기록기반방문·2026-04-01 실제17시도·255시군구경계·전체화이트아쿠아단일UI가 이전MapLibre/30테마/원팔레트보존의 런타임계약을 대체한다. 원본자료/사용자데이터·Geoapify·Auth·사진·상태보호는 유지한다. DB/API 변경없음. 데이터확보·t14리뷰·단계별실행수용 전에는 구현완료로 간주하지 않는다.

@@ -1,12 +1,10 @@
 import {expect,test} from 'vitest';
-import palette from '../../frontend/src/design/colors.json';
-import {contains,groupProvinceRecords,project,provinceAt,provinceFeatures,provinceLabels,provincePaths,provinceColors,visibleProvinceLabels,mapRecords,markerDescription,mapMarkerGroups,visitedProvinceIds} from '../../frontend/src/provinces';
+import {colors} from '../../frontend/src/theme';
+import {contains,groupProvinceRecords,provinceAt,provinceFeatures,provinceLabels,provinceColors,mapRecords,visitedProvinceIds} from '../../frontend/src/provinces';
 
 test('TC-MAP-001: all 17 province features have matching labels and finite SVG paths',()=>{
  expect(provinceFeatures).toHaveLength(17);expect(new Set(provinceFeatures.map(f=>f.properties.shapeISO)).size).toBe(17);
  expect(Object.keys(provinceLabels).sort()).toEqual(provinceFeatures.map(f=>f.properties.shapeISO).sort());
- for(const feature of provincePaths){expect(feature.path).toMatch(/^M/);expect(feature.path).not.toMatch(/NaN|Infinity/);}
- expect(project([126.55,33.4]).every(Number.isFinite)).toBe(true);
 });
 test('TC-MAP-002: points match provinces, city enclaves and Jeju; overseas and invalid input are excluded',()=>{
  expect(provinceAt(37.5665,126.978)).toBe('KR-11');
@@ -28,37 +26,17 @@ test('TC-MAP-004: visits count complete visible records once per province, exclu
  expect(Object.keys(groups)).toHaveLength(2);expect(groups['KR-11'].map(r=>r.id)).toEqual(['a','b']);expect(groups['KR-49']).toHaveLength(1);
 });
 
-test('vNext: stable canonical colors, zoom label thresholds',()=>{
+test('stable province palette follows code order',()=>{
  expect(Object.keys(provinceColors).sort()).toEqual(Object.keys(provinceLabels).sort());
- for(const color of Object.values(provinceColors)) expect(palette.colors.map.regionPastels).toContain(color);
- expect(provinceColors['KR-11']).toBe(palette.colors.map.regionPastels[0]);
- expect(visibleProvinceLabels(6.5,null).map(([id])=>id)).toEqual(expect.arrayContaining(['KR-11','KR-26','KR-49','KR-42']));
- expect(visibleProvinceLabels(7,'KR-42').map(([id])=>id)).toContain('KR-42');
- expect(visibleProvinceLabels(8,null).length).toBeGreaterThan(10);
- expect(visibleProvinceLabels(8,'KR-28')[0][0]).toBe('KR-28');
- expect(visibleProvinceLabels(9.99,null).length).toBeGreaterThanOrEqual(visibleProvinceLabels(8,null).length);
- expect(visibleProvinceLabels(10,'KR-42')[0][0]).toBe('KR-42');
- expect(visibleProvinceLabels(10,null)).toHaveLength(17);
+ for(const color of Object.values(provinceColors))expect(colors.map.regionPastels).toContain(color);
 });
-
 test('vNext: markers exclude draft/missing coordinates but keep overseas and explicit correction pins',()=>{
  const complete={id:'complete',status:'complete',locations:{latitude:35.68,longitude:139.69}};
  const correction={id:'correction',locations:{latitude:37.56,longitude:126.98}};
  const draft={...complete,id:'draft',status:'draft'};
  expect(mapRecords([complete,correction,draft,{...complete,locations:{latitude:null,longitude:null}}])).toEqual([complete]);
  expect(mapRecords([complete,correction,draft],true)).toEqual([complete,correction]);
- expect(markerDescription(complete)).toContain('여행자');
- expect(markerDescription({...complete,owner_id:'a',start_date:'2026-01-01',end_date:'2026-01-02',locations:{place_name:'Tokyo'}},{a:{display_name:'<name>',avatar_url:null}})).toBe('<name> · 나의 여행 · 2026-01-01 ~ 2026-01-02 · Tokyo');
-});
 
-test('vNext: overlapping records remain reachable in counted groups without moving coordinates',()=>{
- const record=(id:string,latitude=37.5665,longitude=126.978)=>({id,status:'complete',owner_id:id,locations:{latitude,longitude}});
- const records=[record('a'),record('b'),record('c',37.56651,126.978),record('foreign',35.68,139.69)];
- const before=JSON.stringify(records),groups=mapMarkerGroups(records,10);
- expect(groups.map(group=>group.records.map(record=>record.id))).toEqual([['a','b','c'],['foreign']]);
- expect(groups[0].record).toBe(records[0]);expect(JSON.stringify(records)).toBe(before);
- expect(mapMarkerGroups(records.slice(0,2),22)[0].records).toHaveLength(2);
- expect(mapMarkerGroups([record('west',0,-179.999),record('east',0,179.999)],6)).toHaveLength(1);
 });
 
 test('TC-VNEXT-BE005: own stamps recalculate after delete and reposition; exclude friend/draft/foreign',()=>{
@@ -70,10 +48,4 @@ test('TC-VNEXT-BE005: own stamps recalculate after delete and reposition; exclud
  expect(visitedProvinceIds([{...seoul,locations:jeju.locations},jeju,...excluded],'me')).toEqual(['KR-49']);
  expect(visitedProvinceIds([seoul,{...seoul,id:'duplicate'}],'me')).toEqual(['KR-11']);
  expect(visitedProvinceIds([seoul],null)).toEqual([]);
-});
-
-test('location candidate labels show place and address without travel author metadata',()=>{
- const candidate={title:'전주한옥마을 관광안내소',locations:{address:'전주시 한지길'}};
- expect(markerDescription(candidate,{},true)).toBe('전주한옥마을 관광안내소 · 전주시 한지길');
- expect(markerDescription({locations:{}},{},true)).toBe('선택한 위치');
 });

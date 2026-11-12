@@ -1,4 +1,3 @@
-import ThemePicker from './ThemePicker';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import React, {type ReactNode, useEffect, useRef, useState} from 'react';
 import Text from './FontText';
@@ -119,7 +118,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
   return <Modal visible presentationStyle="fullScreen" animationType="slide" onRequestClose={close}>
     <SafeAreaView testID="location-picker" style={s.safe}>
       <View style={s.header}>
-        <Text accessibilityRole="header" style={s.heading}>위치 선택</Text><ThemePicker/>
+        <Text accessibilityRole="header" style={s.heading}>위치 선택</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="닫기" onPress={close} style={s.button}><Text style={s.text}>닫기</Text></Pressable>
       </View>
       <KeyboardAvoidingView style={s.main} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>

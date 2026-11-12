@@ -18,7 +18,7 @@ test('TC-DESIGN-003 gallery paging and management preserve cover/delete operatio
  await draft(page,2);await save(page);await page.getByRole('button',{name:'관리 닫기',exact:true}).click();
  await expect(page.getByLabel('제목 수정',{exact:true})).toHaveCount(0);
  const gallery=page.getByTestId('photo-gallery');await expect(gallery.getByText('1 / 2',{exact:true})).toBeVisible();
- const next=gallery.getByRole('button',{name:'다음 사진',exact:true}),target=(await next.boundingBox())!;
+ const next=gallery.getByRole('button',{name:'다음 사진',exact:true});await next.scrollIntoViewIfNeeded();await expect(next).toBeInViewport();const target=(await next.boundingBox())!;
  await page.mouse.move(target.x+target.width/2,target.y+target.height/2);await page.mouse.down();
  try{
   await expect.poll(()=>next.evaluate(node=>new DOMMatrix(getComputedStyle(node).transform).a)).toBeLessThan(.98);
@@ -39,23 +39,30 @@ test('TC-DESIGN-005 adaptive screens and reduced motion keep navigation usable',
  }
  await page.screenshot({path:'test-results/pastel-responsive.png',fullPage:true});
 });
-test('TC-DESIGN-003 closed preview response cannot overwrite reopened gallery',async({page})=>{
+test('TC-DESIGN-003 an obsolete region detail response cannot overwrite a reopened gallery',async({page})=>{
  await draft(page,2);await save(page);
  const [record]=await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}`);
+ await page.evaluate(id=>{
+  const json=Response.prototype.json;
+  Response.prototype.json=function(){const result=json.call(this);if(this.status===403&&this.url.includes(`/photos?travel_record_id=eq.${id}`))return result.finally(()=>{setTimeout(()=>{(window as any).oldDetailSettled=true;},0);});return result;};
+ },record.id);
  let release!:()=>void,reached!:()=>void;const gate=new Promise<void>(r=>release=r),arrival=new Promise<void>(r=>reached=r);let held=false;
  await page.route('**/rest/v1/photos?**',async route=>{
   if(new URL(route.request().url()).searchParams.get('travel_record_id')!==`eq.${record.id}`||held)return route.continue();
-  held=true;reached();await gate;await route.fulfill({status:403,json:{message:'Old preview denied'}});
+  held=true;reached();await gate;await route.fulfill({status:403,json:{message:'Old detail denied'}});
  });
  await page.getByRole('tab',{name:'홈',exact:true}).click();
- await page.getByRole('button',{name:/여행자 · 제주 여행/}).click();
+ await page.getByRole('button',{name:'제주특별자치도 · 1개',exact:true}).click();
+ await page.getByRole('button',{name:'제주시 · 1개',exact:true}).click();
  try{
-  await arrival;await page.getByRole('button',{name:'미리보기 닫기',exact:true}).click();
-  await page.getByRole('button',{name:/여행자 · 제주 여행/}).click();
-  const preview=page.getByTestId('record-preview');await expect(preview.getByText('1 / 2',{exact:true})).toBeVisible();
-  await preview.getByRole('button',{name:'다음 사진',exact:true}).click();await expect(preview.getByText('2 / 2',{exact:true})).toBeVisible();
-  release();await expect(preview.getByText('Old preview denied',{exact:false})).toHaveCount(0);
-  await expect(preview.getByText('2 / 2',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'제주 여행 상세 보기',exact:true}).click();await arrival;
+  await page.getByRole('tab',{name:'홈',exact:true}).click();
+  await page.getByRole('button',{name:'제주 여행 상세 보기',exact:true}).click();
+  const gallery=page.getByTestId('photo-gallery');await expect(gallery.getByText('1 / 2',{exact:true})).toBeVisible();
+  await gallery.getByRole('button',{name:'다음 사진',exact:true}).click();await expect(gallery.getByText('2 / 2',{exact:true})).toBeVisible();
+  const late=page.waitForResponse(r=>r.status()===403&&r.url().includes(`/photos?travel_record_id=eq.${record.id}`));release();await(await late).finished();await expect.poll(()=>page.evaluate(()=>(window as any).oldDetailSettled)).toBe(true);
+  await expect(page.getByText('Old detail denied',{exact:false})).toHaveCount(0);
+  await expect(gallery.getByText('2 / 2',{exact:true})).toBeVisible();
   await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true})).toBeInViewport();
  }finally{release();}
 });
@@ -81,7 +88,7 @@ test('TC-DESIGN-006/007 filter feedback, keyboard focus and reduced motion prese
  await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true})).toBeInViewport();
 });
 
-test('TC-DESIGN-007 real photos adapt from phone to desktop and preview remains bounded',async({page})=>{
+test('TC-DESIGN-007 real photos adapt from phone to desktop in regional lists and details',async({page})=>{
  const photo=await readFile('frontend/e2e/fixtures/jeonju.jpg');
  for(const title of ['느리게 걸었던 하루','다시 보고 싶은 풍경']){
   await draft(page,2);
@@ -99,27 +106,38 @@ test('TC-DESIGN-007 real photos adapt from phone to desktop and preview remains 
   await page.setViewportSize({width,height:844});await page.mouse.move(0,0);
   await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true})).toBeInViewport();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
-  await page.screenshot({path:`docs/design/verification/interactive-album-${width}-20261108.png`});
+  await page.screenshot({path:`/tmp/mytraveldex-svg-20261112/interactive-album-${width}-20261108.png`});
  }
  await page.getByRole('tab',{name:'홈',exact:true}).click();
- await page.getByRole('button',{name:'여행 2개 모아 보기',exact:true}).click();
- await page.getByRole('button',{name:/^여행자 · 느리게 걸었던 하루/}).click();
- const preview=page.getByTestId('record-preview');await expect(preview.getByText('1 / 2',{exact:true})).toBeVisible();
- expect((await preview.boundingBox())!.width).toBeLessThanOrEqual(420);
- const credits=page.getByTestId('map-attribution');
+ await page.getByRole('button',{name:'제주특별자치도 · 2개',exact:true}).click();
+ await page.getByRole('button',{name:'제주시 · 2개',exact:true}).click();
+ const row=page.getByRole('button',{name:'느리게 걸었던 하루 상세 보기',exact:true});
  for(const width of [390,768,1280]){
-  await page.setViewportSize({width,height:844});
-  await expect.poll(async()=>{const panel=(await preview.boundingBox())!,source=(await credits.boundingBox())!;return source.y-panel.y-panel.height;}).toBeGreaterThanOrEqual(8);
+  await page.setViewportSize({width,height:844});await row.scrollIntoViewIfNeeded();await expect(row).toBeInViewport();
+  const image=row.getByRole('img',{name:'대표사진',exact:true});await expect.poll(()=>image.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
+  expect((await image.boundingBox())!.width).toBeCloseTo(52,0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  }
+ await row.click();const gallery=page.getByTestId('photo-gallery');await expect(gallery.getByText('1 / 2',{exact:true})).toBeVisible();
+ const credits=page.getByTestId('map-attribution');await credits.scrollIntoViewIfNeeded();await expect(credits).toBeInViewport();
  await credits.evaluate(node=>{Array.from(node.children).forEach(child=>{(child as HTMLElement).style.fontSize='18px';});});
- await page.setViewportSize({width:390,height:844});
- await expect.poll(async()=>{const panel=(await preview.boundingBox())!,source=(await credits.boundingBox())!;return source.y-panel.y-panel.height;}).toBeGreaterThanOrEqual(8);
- await credits.evaluate(node=>{Array.from(node.children).forEach(child=>{(child as HTMLElement).style.fontSize='';});});
- await page.setViewportSize({width:1280,height:844});
- await page.screenshot({path:'docs/design/verification/interactive-map-preview-20261108.png'});
- await page.getByRole('button',{name:'미리보기 닫기',exact:true}).click();
- await page.setViewportSize({width:390,height:844});
+ await page.setViewportSize({width:390,height:844});await credits.scrollIntoViewIfNeeded();await expect(credits).toBeInViewport();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ await page.getByRole('button',{name:'목록으로',exact:true}).click();
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
  await expect(page.getByLabel('여행 작성 패널',{exact:true})).toBeVisible();
- await page.screenshot({path:'docs/design/verification/interactive-composer-20261108.png'});
+ await page.screenshot({path:'/tmp/mytraveldex-svg-20261112/interactive-composer-20261108.png'});
+});
+
+test('TC-SVG-MAP-001 navigation never releases a pending mutation to open another detail',async({page})=>{
+ await draft(page);await save(page);const [record]=await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}`);
+ let release!:()=>void,reached!:()=>void;const gate=new Promise<void>(r=>release=r),arrival=new Promise<void>(r=>reached=r);let writes=0,reads=0;
+ await page.route('**/rest/v1/travel_records?**',async route=>{const req=route.request(),url=new URL(req.url());if(url.searchParams.get('id')!==`eq.${record.id}`)return route.continue();if(req.method()==='PATCH'){writes++;reached();await gate;}else if(req.method()==='GET')reads++;await route.continue();});
+ await page.getByLabel('제목 수정',{exact:true}).fill('저장 중인 여행');await page.getByRole('button',{name:'수정 저장',exact:true}).click();
+ try{
+  await arrival;await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:'제주특별자치도 · 1개',exact:true}).click();await page.getByRole('button',{name:'제주시 · 1개',exact:true}).click();
+  await page.getByRole('button',{name:'제주 여행 상세 보기',exact:true}).click();expect(reads).toBe(0);expect(writes).toBe(1);await expect(page.getByTestId('photo-gallery')).toHaveCount(0);
+  release();await expect(page.getByLabel('처리 중',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'저장 중인 여행 상세 보기',exact:true})).toBeVisible();expect(reads).toBe(0);expect(writes).toBe(1);
+  expect((await admin(`/rest/v1/travel_records?id=eq.${record.id}`))[0].title).toBe('저장 중인 여행');
+ }finally{release();}
 });

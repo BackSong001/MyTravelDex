@@ -68,10 +68,10 @@ test('위치 후보는 지도에서 비교하고 취소하면 기존 부모 위�
  let picker=await openPicker(page);
  await search(page);
  await expect(picker.getByRole('button',{name:`${place.name} ${place.address}`,exact:true})).toBeVisible();
- const map=picker.getByTestId('travel-map');
- const pin=map.getByRole('button',{name:new RegExp(place.name)});
+ const map=picker.getByTestId('svg-travel-map');
+ const pin=map.getByTestId(`map-location-${place.id}`);
  await expect(pin).toBeInViewport();
- await expect(map.getByRole('button',{name:/서울 후보/})).toBeAttached();
+ await expect(map.getByTestId(`map-location-${other.id}`)).toBeAttached();
  await expect(picker.getByRole('button',{name:'이 위치로 선택',exact:true})).toBeDisabled();
  await pin.click();
  await expect(picker.getByLabel('선택한 위치',{exact:true})).toContainText(place.address);
@@ -87,7 +87,7 @@ test('위치 후보는 지도에서 비교하고 취소하면 기존 부모 위�
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}`)).toEqual([]);
 });
 
-test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하고 실제 사진을 홈 지도에 표시한다',async({page})=>{
+test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하고 실제 사진을 홈 지역목록에 표시한다',async({page})=>{
  const chooser=page.waitForEvent('filechooser');
  await page.getByRole('button',{name:'사진 선택',exact:true}).click();
  await(await chooser).setFiles(path.resolve('frontend/e2e/fixtures/jeonju.jpg'));
@@ -104,7 +104,7 @@ test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하�
  await search(page);
  await picker.getByRole('button',{name:`${place.name} ${place.address}`,exact:true}).click();
  await expect(picker.getByLabel('선택한 위치',{exact:true})).toContainText(place.address);
- await expect(picker.getByTestId('travel-map').getByRole('button',{name:new RegExp(place.name)})).toBeInViewport();
+ await expect(picker.getByTestId('map-location-selection')).toBeInViewport();
  await picker.getByRole('button',{name:'이 위치로 선택',exact:true}).click();
  await expect(picker).toHaveCount(0);
  await expect(page.getByLabel('선택한 장소',{exact:true})).toContainText(place.name);
@@ -118,7 +118,11 @@ test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하�
  expect(photos[0].is_cover).toBe(true);
  expect(photos[0].width).toBeGreaterThan(2);
  await page.getByRole('tab',{name:'홈',exact:true}).click();
- const marker=page.getByTestId('travel-map').getByRole('button',{name:/ocean-ui-test/});
+ await expect(page.getByTestId('map-region-52')).not.toHaveAttribute('fill','#E4E8E9');
+ await page.reload();await expect(page.getByTestId('map-region-52')).not.toHaveAttribute('fill','#E4E8E9');
+ await page.getByRole('button',{name:'전북특별자치도 · 1개',exact:true}).click();
+ await page.getByRole('button',{name:'전주시완산구 · 1개',exact:true}).click();
+ const marker=page.getByRole('button',{name:'ocean-ui-test 상세 보기',exact:true});
  await expect(marker).toBeInViewport();
  const image=marker.getByRole('img',{name:'대표사진',exact:true});
  await expect.poll(()=>image.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>2)).toBe(true);
@@ -139,7 +143,6 @@ test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하�
  await marker.click();
  await expect(page.getByText('ocean-ui-test',{exact:true})).toBeVisible();
  await expect(page.getByText(place.name,{exact:true})).toBeVisible();
- await page.getByRole('button',{name:'여행 자세히 보기',exact:true}).click();
  await page.getByRole('button',{name:'여행 관리',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toHaveValue('ocean-ui-test');
  await expect(page.getByRole('img',{name:'여행 사진',exact:true})).toBeVisible();
 });
@@ -204,10 +207,10 @@ test('서로 가까운 검색 결과도 확정 후보는 묶지 않고 선택한
  const picker=await openPicker(page);await search(page);
  await picker.getByRole('button',{name:`${place.name} ${place.address}`,exact:true}).click();
  await expect(picker.getByLabel('선택한 위치',{exact:true})).toContainText(place.address);
- const map=picker.getByTestId('travel-map');
- await expect(map.getByRole('button',{name:new RegExp(place.name)})).toBeInViewport();
+ const map=picker.getByTestId('svg-travel-map');
+ await expect(map.getByTestId('map-location-selection')).toBeInViewport();
  await expect(map.getByRole('button',{name:/모아 보기/})).toHaveCount(0);
- await expect(map.getByRole('button',{name:/서울 후보/})).toHaveCount(0);
+ await expect(map.getByTestId(`map-location-${other.id}`)).toHaveCount(0);
 });
 
 

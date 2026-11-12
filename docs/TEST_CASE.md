@@ -1258,3 +1258,37 @@ Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 
 
 - 사용자 재빌드 요청에 따라 사진GPS브랜치 fdbafdb에서 android:configured 실행. 실제.env의 Auth/GoogleProvider 활성·기본테이블HTTP200 확인 후prebuild/assembleRelease 성공(Gradle1분23초/487tasks). 에뮬레이터설치성공, APK162301972bytes, apksigner verify exit0, 실제설정URL/DEX 위치요청필드포함을값노출없이검증했다.
 - 전달파일: /home/jh-mac/Downloads/MyTravelDex-photo-gps-fdbafdb.apk. SHA256: 4d9e33d2c8be76599f22f2c1d948792cf0962e1dd07003510fa96ebd82199ae6. 이전LocalQA APK와별개이며개발서명테스트APK다. 운영Google로그인/실휴대폰사진/GPS·Play제출수용은이번빌드성공으로대체하지않는다. main/원격설정/기존외부변경은유지했다.
+
+
+## 2026-11-12 SVG 지도·단일 디자인 전환
+
+FR-SVG-MAP-001 / TC-SVG-MAP-001은 [승인계획 명세](SVG_MAP_REDESIGN_SPEC.md)를 따른다. Web/Android 전체SVG교체·지역중심지도·기록기반방문·2026-04-01 실제17시도·255시군구경계·전체화이트아쿠아단일UI가 이전MapLibre/30테마/원팔레트보존의 런타임계약을 대체한다. 원본자료/사용자데이터·Geoapify·Auth·사진·상태보호는 유지한다. DB/API 변경없음. 데이터확보·t14리뷰·단계별실행수용 전에는 구현완료로 간주하지 않는다.
+
+
+### 2026-11-12 SVG 전환 중간 실행 (아직 전체 수용 아님)
+- 지정 t14 P1 핀치/시군구 전달, P2 홈 복귀 보강 정적 승인. Chromium 실제 touch 1→2 확대/축소→1 이동은 보정 callback0으로 통과. 지도/실앱 5pass 뒤 중구 기대 code를 11020으로 잘못 쓴 1fail은 실제 원자료11140으로 정정, 복귀·스크롤/owner회귀1pass(8.0초)를 별도 기록한다.
+- 자료/투영·Native SSR·단일팔레트 대비·기존 지역집계15pass. 최초 전체 backend는 준비중 네트워크 hook2fail + 폐기된 project를 참조한 stamp검사1fail /165pass/7skip. stamp를 실제SVG 17개/모든 ring/viewport검사로 이관한 단일worker 전체는 **30파일172pass/1skip,51.36초**. 외부 skip은 실행성공에 합산하지 않는다.
+- TypeScript exit0, production환경/export설정·Native plugin등록 Node검사 exit0. 새 Android/source build·artifact·실제 터치/저장·전체 UI는 이후 완료 결과로 별도 기록한다. 기존 MapLibre/30테마 Green은 현 SVG 수용으로 합산하지 않는다.
+
+### SVG 후속 실제 수용 (2026-11-12, t12 실행)
+- 서버가 종료된 상태에서 시작한 첫 Web run은 연결 실패로 중단했으며 제품 Red로 계산하지 않는다. 서버/Local functions 재기동 뒤 SVG/작성/도구/위치 focused는 17pass/1fail(3.5분): 저장·재조회·실사진은 통과했으나 종료된 미리보기의 장소명/중간 버튼 기대가 남았다. 장소명은 직접 상세에 보존하고 중간 클릭만 제거했다.
+- 후속 location-picker/onboarding/photo-metadata/refactor/settings/web-profile-journal: **33pass, 5.2분**. 실제 Local 사진·위치 저장, reload 방문색, 늦은응답/계정전환, EXIF·수동입력, 프로필·뱃지·공개범위·키보드 대역을 포함한다. 전체 Web Green과 구분한다.
+- Android 첫 SVG QA x86_64/Local APK: assembleRelease 성공4분41초(430tasks), generated autolinking에 MapLibre 없음. 빌드 후60초 이상 휴식. 기존 실제 APK는 저장소 밖에 복구본 보관. 전국/제주/도서 표시·서울→중구·핀치 확대·스탬프 윤곽을 실제 에뮬레이터에서 확인했다. 탐색 후 PSS261891KiB(약256MiB); activity cold1574ms는 JS 준비시간과 다르다.
+- Native 위치보정: 실제 pinch/pan 후 좌표요청0, 단일tap은 역투영 요청 발생. 화면bounds/density와 d3 기대투영의 오차 약7.1e-7dp. 로컬 주소 응답 대역을 사용했고 외부 Geoapify 품질 증거가 아니다. 실제 DocumentPicker 테스트JPEG→수동 날짜→확정한 위치→Local Storage/완료저장: 기록1/사진1/private/complete/원좌표와 날짜일치. 실휴대폰/iOS 수용은 아니다. 이 APK는 잔여 로그인 자동검색 cleanup 전이므로 최종 APK 재빌드와 구분한다.
+- Native 자동화의 첫 adb 텍스트 입력은 일부문자 누락으로 로그인 실패했고 Appium 입력으로 보정했다. raw W3C 다중터치 명령은 드라이버가 거절하여 제품실패로 세지 않는다. 표준 pinch와pan은 실행했다. 1→2→1 전환 자체는 Chromium touch 회귀와 코드 리뷰 증거다.
+- design/travel 중간 run은 종료한 사진핀/군집/preview selector 및 화면 밖 버튼 mouse-down 전제로 실패/중단했다. 실제 사진·갤러리·지연응답 검사를 지역행→직접상세 흐름으로 옮겼고, pointer-down 전 화면내 준비조건을 추가한다. 기존 .98 scale/48px/키보드/페이지 기준은 유지하며 후속 결과는 별도 기록한다.
+
+- 상세 읽기 보류→홈→같은 지역행 재진입→새 갤러리2/2→옛403 body를 앱이 소비한 뒤 다음task까지 관찰→2/2/오류없음. 별도 mutation 보류 중 navigate/행클릭은 새 상세 GET·중복 mutation을 시작하지 않는다. 초기 교착 Red와 보강후 결과를 분리한다.
+
+- design/travel 수정전 실행 **37pass/1fail(4.1분)**: 실제 상세읽기 busy가 취소되지 않아 홈 재진입이 막히는 제품경계였다. t14 P1/P2 후 상세읽기 소유권만 취소하도록 수정했고 mutation busy는 유지했다. 테스트도403 body 실제소비/다음task 완료 후 결과를 판정한다. 새 focused와 전체38/39 성공으로 합산하지 않는다.
+
+- 상세읽기 보강 후 design/refactor/svg-app focused **15pass(2.3분)**, TypeScript exit0. 실제 body 소비/다음task 뒤 옛403격리, pending PATCH 중 상세GET0/PATCH1·실제DB저장, 계정세대·초안보존·지역복귀를 확인했다. t14 지정 P1/P2 정적재검토 승인과 실행증거를 구분한다.
+
+- 최종 cleanup/상세읽기 보강 포함 Native QA APK: assembleRelease **2분22초/430tasks 성공**, 빌드후60초휴식, 설치성공. 실제 재시작 후 저장된 방문색/전국SVG·핀치확대·지역행상세의실사진/장소/기간·목록으로홈복귀 확인. Local기록1/사진1/private complete/좌표와기간 일치 재확인, 현재앱PID의 AndroidRuntime/ReactNativeJS error0. 상세탐색 PSS280643KiB(약274MiB). activity cold728ms는JS준비시간이아니며실휴대폰성능보장이아니다. 기존5곳자동검색은최종시작요청에없다.
+
+### SVG 최종 산출물·종료 (2026-11-12)
+- production export exit0 후60초휴식. 실제export 대상 svg-app2/static-web2 **4pass(8.5초)**: 17시도/선택시군구·320/390/가로844/1440·국내전체경계/키보드버튼·지역도감필터/상세복귀, callback전용fallback·실제JS/PNG MIME/bytes·누락asset404·production비밀번호UI부재. 실Vercel배포/운영OAuth재검증은 아니다.
+- 주JS19,579,238bytes/gzip7,362,827bytes. 원본정밀경계를단순화하지않은용량비용을명시하며모바일저속망/저사양성능을보장하지않는다. Native PSS/Activity시작과브라우저focused시간은측정한환경의관측이며JS완전준비/모든기기기준이아니다.
+- 최종15pass·artifact4pass와이전backend172pass1skip/보존33pass·travel37pass1fail은각실행증거로남긴다. 전체Websuite를최종전체Green으로합산하지않는다. t14는지정코드정적승인이고실행은t12수행이다.
+- LocalQA로그아웃·기록1/사진1/관련Storage·위치/계정/기기fixture만정리했다. 원래설치APK를데이터초기화없이복구하고에뮬레이터는유지한다. 자신이실행한Web/함수/프록시만종료·ADB54321직결복구. 원격DB/배포/실사용데이터변경없음.
+- 실휴대폰/iOS, Native손가락1→2→1정확전환·스크린리더, 외부Geoapify검색품질 및production배포는별도미검증이다. Native실제pinch/pan/수동보정/사진저장과Web CDP전환은각각기록한범위로수용한다.

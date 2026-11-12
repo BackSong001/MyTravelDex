@@ -8,14 +8,12 @@ import {StatusBar} from 'expo-status-bar';
 import {Backpack} from '../src/Journal';
 import {api} from '../src/runtime';
 import {contrastRatio} from '../src/themes';
-import {ThemeProvider} from '../src/ThemeProvider';
 import useAppViewport from '../src/useAppViewport';
 import {MotionProvider} from '../src/Feedback';
 
 void SplashScreen.preventAutoHideAsync().catch(() => {});
 
-export default function Layout(){return <ThemeProvider><ThemedLayout/></ThemeProvider>;}
-function ThemedLayout() {
+export default function Layout() {
  const c=useThemeColors(),viewport=useAppViewport();
  const s=useThemeStyles(makeStyles);
   const [localReady, setLocalReady] = useState(false);

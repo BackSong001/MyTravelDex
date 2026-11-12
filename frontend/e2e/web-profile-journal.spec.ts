@@ -25,7 +25,7 @@ test('TC-PROFILE-002/MY-CREDITS-001: profile has no private switch and My ends w
  await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'프로필 수정',exact:true}).click();
  await expect(page.getByRole('switch',{name:'프로필 공개',exact:true})).toHaveCount(0);await expect(page.getByText('닉네임·선택한 사진·유저 ID는 공개 정보예요.',{exact:true})).toBeVisible();
  await page.getByLabel('닉네임',{exact:true}).fill('새 공개 이름');await page.getByRole('button',{name:'프로필 저장',exact:true}).click();await expect(page.getByTestId('profile-name')).toHaveText('새 공개 이름');
- const footer=page.getByTestId('profile-map-credits');await footer.scrollIntoViewIfNeeded();await expect(footer.getByRole('link',{name:'KOSTAT 2018 · southkorea-maps · 단순화 경계',exact:true})).toHaveAttribute('href','https://github.com/southkorea/southkorea-maps');
+ const footer=page.getByTestId('profile-map-credits');await footer.scrollIntoViewIfNeeded();await expect(footer.getByRole('link',{name:'SGIS · vuski/admdongkor · CC BY 4.0 · 2026-04-01',exact:true})).toHaveAttribute('href','https://github.com/vuski/admdongkor');
  await expect(footer.getByRole('link',{name:'© OpenStreetMap contributors',exact:true})).toHaveAttribute('href','https://www.openstreetmap.org/copyright');await expect(footer.getByRole('link',{name:'© OpenAddresses contributors',exact:true})).toHaveAttribute('href','https://openaddresses.io/');
  expect((await admin(`/rest/v1/profiles?id=eq.${user.id}`))[0].public_profile_enabled).toBe(true);
 });

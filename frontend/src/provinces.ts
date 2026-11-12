@@ -1,11 +1,11 @@
-import data from './data/korea-provinces.json';
-import {colors as palette} from './design/colors.json';
+import {regions,regionAt,legacyCodes,containsRegion} from './regions';
+import {colors as palette} from './theme';
 import {validCoordinates} from './domain';
 
 type Position = number[];
 type Geometry = {type: 'Polygon'; coordinates: Position[][]} | {type: 'MultiPolygon'; coordinates: Position[][][]};
 type Feature = {properties: {shapeISO: string; shapeName: string}; geometry: Geometry};
-export const provinceFeatures = data.features as Feature[];
+export const provinceFeatures = regions.map(f=>({...f,properties:{shapeISO:legacyCodes[f.properties.code],shapeName:f.properties.name}})) as Feature[];
 export const provinceLabels: Record<string, {name: string; point: Position; offset?: Position}> = {
   'KR-11': {name: '서울', point: [126.98,37.56], offset: [-7,-21]},
   'KR-28': {name: '인천', point: [126.7,37.45], offset: [-40,0]},
@@ -30,38 +30,14 @@ export function polygons(geometry: Geometry): Position[][][] {
   return geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
 }
 
-function insideRing([x,y]: Position, ring: Position[]) {
-  let inside = false;
-  for (let i=0,j=ring.length-1;i<ring.length;j=i++) {
-    const [xi,yi]=ring[i], [xj,yj]=ring[j];
-    if (Math.abs((x-xi)*(yj-yi)-(y-yi)*(xj-xi))<1e-10 && x>=Math.min(xi,xj) && x<=Math.max(xi,xj) && y>=Math.min(yi,yj) && y<=Math.max(yi,yj)) return true;
-    if ((yi>y)!==(yj>y) && x<(xj-xi)*(y-yi)/(yj-yi)+xi) inside=!inside;
-  }
-  return inside;
-}
-
 export function contains(geometry: Geometry, point: Position) {
-  return polygons(geometry).some(rings => insideRing(point,rings[0]) && !rings.slice(1).some(hole=>insideRing(point,hole)));
+  return containsRegion(geometry,point);
 }
 
 export function provinceAt(latitude: number, longitude: number) {
   if (!validCoordinates(latitude,longitude)) return undefined;
-  return provinceFeatures.find(feature=>contains(feature.geometry,[longitude,latitude]))?.properties.shapeISO;
+  const district=regionAt(latitude,longitude);return district?legacyCodes[district.properties.parentCode!]:undefined;
 }
-
-export const mercator = ([longitude,latitude]: Position) => [longitude*Math.PI/180,-Math.log(Math.tan(Math.PI/4+latitude*Math.PI/360))];
-const coordinates = provinceFeatures.flatMap(feature=>polygons(feature.geometry).flat(2)).map(mercator);
-const minX=Math.min(...coordinates.map(p=>p[0])), maxX=Math.max(...coordinates.map(p=>p[0]));
-const minY=Math.min(...coordinates.map(p=>p[1])), maxY=Math.max(...coordinates.map(p=>p[1]));
-const scale=Math.min(390/(maxX-minX),530/(maxY-minY));
-export function project(position: Position) {
-  const [x,y]=mercator(position);
-  return [220+(x-(minX+maxX)/2)*scale,315+(y-(minY+maxY)/2)*scale];
-}
-export const provincePaths = provinceFeatures.map(feature=>({
-  id: feature.properties.shapeISO,
-  path: polygons(feature.geometry).map(rings=>rings.map(ring=>ring.map((position,index)=>`${index?'L':'M'}${project(position).map(n=>n.toFixed(1)).join(',')}`).join('')+'Z').join('')).join(''),
-}));
 
 export function groupProvinceRecords(records: any[]) {
   const grouped: Record<string, any[]> = {};
@@ -78,55 +54,32 @@ export function provincePalette(regions: string[]): Record<string,string> {
  return Object.fromEntries(Object.keys(provinceLabels).sort().map((id,index)=>[id,regions[index%regions.length]]));
 }
 export const provinceColors = provincePalette(palette.map.regionPastels);
-export function provinceLabelSize(zoom: number, fontScale = 1) {return (11 + Math.max(0, Math.min(4, zoom - 5))) * fontScale;}
-export function visibleProvinceLabels(zoom: number, selected: string | null, fontScale = 1) {
-  const candidates = Object.entries(provinceLabels).filter(([id]) => id === selected || (zoom < 7 ? ['KR-11','KR-42','KR-44','KR-45','KR-47','KR-48','KR-26','KR-49'].includes(id) : true));
-  candidates.sort(([a], [b]) => Number(b === selected) - Number(a === selected));
-  const placed: {x:number; y:number; width:number}[] = [];
-  return candidates.filter(([, label]) => {
-    const [x,y] = mercator(label.point).map(n => n * 256 * 2 ** zoom / (2 * Math.PI)), width = label.name.length * provinceLabelSize(zoom,fontScale) + 12;
-    if (placed.some(point => Math.abs(point.x-x) < (point.width+width)/2 && Math.abs(point.y-y) < provinceLabelSize(zoom,fontScale)+12)) return false;
-    placed.push({x,y,width}); return true;
-  });
-}
+export type MapNavigation = {
+  province: string|null;
+  selected: string|null;
+  camera: {center:[number,number];scale:number}|null;
+  regionOffset: number;
+  recordOffset: number;
+};
 export type TravelMapProps = {
-  homeOverview?: boolean;
+  navigation?: {current:MapNavigation|null};
+  navigationOwner?: string|null;
   records: any[];
   focus?: {latitude:number;longitude:number};
-  landmarks?: {id:string;name:string;latitude:number;longitude:number}[];
   covers?: Record<string, string>;
   authors?: Record<string, {display_name: string | null; avatar_url: string | null}>;
   onSelect?: (record: any) => void;
-  onRegion?: (id: string, name: string) => void;
+  onRegion?: (id: string, name: string, district?:string) => void;
   ownRecords?: any[];
   onCoordinate?: (latitude: number, longitude: number) => void;
   expanded?: boolean;
   fullScreen?: boolean;
-  onAttributionLayout?: (height: number) => void;
 };
 export function mapRecords(records: any[], correction = false) {
   return records.filter(record => record.locations?.source !== 'google' && (record.status === 'complete' || (correction && record.status == null)) &&
     record.locations?.latitude != null && record.locations?.longitude != null &&
     validCoordinates(Number(record.locations.latitude), Number(record.locations.longitude)));
 }
-export function markerDescription(record: any, authors: TravelMapProps['authors'] = {}, correction = false) {
-  if(correction)return [record.title || record.locations?.place_name || '선택한 위치',record.locations?.address].filter(Boolean).join(' · ');
-  return [authors[record.owner_id]?.display_name || '여행자', record.title || '나의 여행',
-    [record.start_date, record.end_date].filter(Boolean).join(' ~ '), record.locations?.place_name || record.locations?.name].filter(Boolean).join(' · ');
-}
-
-export function mapMarkerGroups(records: any[], zoom: number, correction = false) {
-  const groups: {record: any; records: any[]; x: number; y: number}[] = [];
-  const size = 256 * 2 ** zoom;
-  for (const record of mapRecords(records, correction)) {
-    const [x, y] = mercator([Number(record.locations.longitude), Math.max(-85, Math.min(85, Number(record.locations.latitude)))]).map(n => n * size / (2 * Math.PI));
-    const group = groups.find(group => Math.min(Math.abs(group.x - x), size - Math.abs(group.x - x)) < 68 && Math.abs(group.y - y) < 82);
-    if (group) group.records.push(record);
-    else groups.push({record, records: [record], x, y});
-  }
-  return groups;
-}
-
 export function visitedProvinceIds(records: any[], ownerId: string | null | undefined): string[] {
   return ownerId ? Object.keys(groupProvinceRecords(records.filter(record => record.owner_id === ownerId))).sort() : [];
 }

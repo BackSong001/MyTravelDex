@@ -7,8 +7,8 @@ test.beforeEach(async({page})=>{await login(page,email,password);});
 test.afterEach(async()=>{await cleanRecords(owner);});
 test.afterAll(async()=>{if(owner)await admin(`/auth/v1/admin/users/${owner}`,'DELETE');});
 test('TC-COMPOSER-001/002: creation keeps the home map frame and round visibility radios persist the actual choice',async({page})=>{
- await page.setViewportSize({width:1440,height:900});const map=page.getByTestId('travel-map');await expect(map).toBeVisible();const before=await map.boundingBox();await page.evaluate(()=>{(window as any).composerCanvas=document.querySelector('canvas.maplibregl-canvas');});
- await draft(page);await expect.poll(async()=>Math.abs((await map.boundingBox())!.width-before!.width)).toBeLessThan(1);expect(await page.evaluate(()=>(window as any).composerCanvas===document.querySelector('canvas.maplibregl-canvas'))).toBe(true);
+ await page.setViewportSize({width:1440,height:900});const map=page.getByTestId('svg-travel-map');await expect(map).toBeVisible();const before=await map.boundingBox();await page.evaluate(()=>{(window as any).composerCanvas=document.querySelector('[data-testid=svg-map-canvas] svg');});
+ await draft(page);await expect.poll(async()=>Math.abs((await map.boundingBox())!.width-before!.width)).toBeLessThan(1);expect(await page.evaluate(()=>(window as any).composerCanvas===document.querySelector('[data-testid=svg-map-canvas] svg'))).toBe(true);
  await expect(page.getByRole('radio',{name:'비공개',exact:true})).toBeChecked();await page.getByRole('radio',{name:'공개',exact:true}).click();await expect(page.getByRole('radio',{name:'공개',exact:true})).toBeChecked();
  await page.getByRole('button',{name:'여행 저장',exact:true}).click();await expect(page.getByRole('button',{name:'여행 관리',exact:true})).toBeVisible();const records=await admin(`/rest/v1/travel_records?owner_id=eq.${owner}`);expect(records).toHaveLength(1);expect(records[0].visibility).toBe('public');
 });

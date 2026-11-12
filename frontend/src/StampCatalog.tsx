@@ -4,16 +4,11 @@ import Text from './FontText';
 import {ActivityIndicator,Image,Linking,StyleSheet,View} from 'react-native';
 import Svg,{Path} from 'react-native-svg';
 import Pressable from './Feedback';
-import {polygons,project,provinceFeatures,provinceLabels} from './provinces';
+import {provinceLabels} from './provinces';
+import {regions,legacyCodes,renderFeature,fitProjection} from './regions';
+import {geoPath} from 'd3-geo';
 import {uiAssets} from './uiAssets';
-// Native의 큰 원점 viewBox/그룹 이동에 의존하지 않도록 동일 윤곽을 로컬 슬롯에 정규화한다.
-const outlines=provinceFeatures.map(feature=>{
- const rings=polygons(feature.geometry).map(polygon=>polygon.map(ring=>ring.map(project)));
- const points=rings.flat(2),xs=points.map(p=>p[0]),ys=points.map(p=>p[1]),left=Math.min(...xs),top=Math.min(...ys),width=Math.max(...xs)-left,height=Math.max(...ys)-top;
- const scale=Math.min(147/width,78/height),dx=(163-width*scale)/2,dy=(94-height*scale)/2;
- const path=rings.map(polygon=>polygon.map(ring=>ring.map(([x,y],index)=>`${index?'L':'M'}${((x-left)*scale+dx).toFixed(3)},${((y-top)*scale+dy).toFixed(3)}`).join('')+'Z').join('')).join('');
- return {id:feature.properties.shapeISO,path};
-});
+const outlines=regions.map(feature=>({id:legacyCodes[feature.properties.code],path:geoPath(fitProjection([feature],163,94)).digits(2)(renderFeature(feature))??''}));
 export default function StampCatalog({groups,confirmed,failed,onBack}:{groups:Record<string,any[]>;confirmed:boolean;failed:boolean;onBack:()=>void}){
  const themeColors=useThemeColors();
  const c=themeColors.profile;
@@ -36,7 +31,7 @@ export default function StampCatalog({groups,confirmed,failed,onBack}:{groups:Re
     <View style={s.region}>{visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?'확인 전':visited?`${name}\n내 방문`:'새 여행을\n기다려요'}</Text></View>}<Text style={s.small}>{!confirmed?'확인 전':visited?'✓ 내 여행 스탬프':'미획득'}</Text></View>
    </View>;
   })}
-  <Pressable accessibilityRole="link" accessibilityLabel="스탬프 지리 데이터 출처" onPress={()=>void Linking.openURL('https://github.com/southkorea/southkorea-maps')} style={s.back}><Text style={s.small}>KOSTAT 2018 · southkorea-maps</Text></Pressable>
+  <Pressable accessibilityRole="link" accessibilityLabel="스탬프 지리 데이터 출처" onPress={()=>void Linking.openURL('https://github.com/vuski/admdongkor')} style={s.back}><Text style={s.small}>SGIS · vuski/admdongkor · CC BY 4.0 · 2026-04-01</Text></Pressable>
  </View>;
 }
 const makeStyles=(c: ThemeColors['profile'])=>StyleSheet.create({page:{backgroundColor:c.paper},heading:{flexDirection:'row',alignItems:'center',gap:12,backgroundColor:c.sheet},back:{padding:12},title:{fontSize:18,lineHeight:27,fontWeight:'700',color:c.ink,flexShrink:1},link:{fontSize:14,lineHeight:21,color:c.accent},scope:{padding:20,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12,backgroundColor:c.sheet},small:{fontSize:11,lineHeight:17,color:c.muted,flexShrink:1},tabs:{flexDirection:'row',backgroundColor:c.tint},tab:{flex:1,padding:12,alignItems:'center',justifyContent:'center'},selected:{backgroundColor:c.accent},tabText:{fontSize:12,lineHeight:18,color:c.accent,fontWeight:'700'},row:{padding:20,paddingVertical:14,flexDirection:'row',gap:24,alignItems:'center',backgroundColor:c.sheet,borderBottomWidth:1,borderColor:c.line},region:{flex:1,minWidth:0,alignItems:'center',gap:5},regionName:{fontSize:16,lineHeight:24,color:c.ink,fontWeight:'700'},art:{width:108,height:108,maxWidth:'100%'},placeholder:{width:96,minHeight:96,maxWidth:'100%',padding:12,borderWidth:1,borderStyle:'dashed',borderColor:c.line,backgroundColor:c.paper,alignItems:'center',justifyContent:'center'},empty:{padding:20,color:c.muted,fontSize:14,lineHeight:22}});
