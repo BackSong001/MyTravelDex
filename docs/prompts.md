@@ -1672,3 +1672,10 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 프롬프트 원문: 새 APK가 만들어졌어? 안만들어졌다면 만들어줘
 
 결과: fix/android-photo-gps의 fdbafdb 제품코드로 기존 android:configured를 실행해 실제 .env Supabase 연결 테스트 APK를 빌드·에뮬레이터 설치했다. Auth/Google Provider와 기본테이블 HTTP 연결 확인, prebuild/assembleRelease 성공(Gradle1분23초/487tasks), APK 서명검증 및 실제backend URL·DEX 위치metadata요청 포함 확인. Downloads/MyTravelDex-photo-gps-fdbafdb.apk로 복사했다(162301972bytes). 기본 개발서명이며 Play배포/실휴대폰Google로그인·GPS 재수용은 별도다. 제품코드/main/원격설정은 변경하지 않았다. 변경파일: docs/prompts.md, docs/TEST_CASE.md.
+
+
+## 2026-11-12 17:24 KST 사진 GPS 브랜치 main 반영
+
+프롬프트 원문: 확인했어. 앱에서 정삭 작동하네. 이제 해당 브랜치를 메인에 푸쉬해줘
+
+결과: 사용자가 앱 정상작동을 확인했다고 전달했다(독립 재검증과 구분). 최신 origin/main은 cf7d30c이며 fix/android-photo-gps의 조상으로 확인돼 사진GPS 수정/실제설정APK 빌드기록을 fast-forward로 main에 반영한다. 제품변경 추가/중복빌드·테스트/원격DB변경은 없고 기존 root package/lock 및 미추적파일은 제외한다. 변경파일: docs/prompts.md.
