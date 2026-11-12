@@ -1292,3 +1292,15 @@ FR-SVG-MAP-001 / TC-SVG-MAP-001은 [승인계획 명세](SVG_MAP_REDESIGN_SPEC.m
 - 최종15pass·artifact4pass와이전backend172pass1skip/보존33pass·travel37pass1fail은각실행증거로남긴다. 전체Websuite를최종전체Green으로합산하지않는다. t14는지정코드정적승인이고실행은t12수행이다.
 - LocalQA로그아웃·기록1/사진1/관련Storage·위치/계정/기기fixture만정리했다. 원래설치APK를데이터초기화없이복구하고에뮬레이터는유지한다. 자신이실행한Web/함수/프록시만종료·ADB54321직결복구. 원격DB/배포/실사용데이터변경없음.
 - 실휴대폰/iOS, Native손가락1→2→1정확전환·스크린리더, 외부Geoapify검색품질 및production배포는별도미검증이다. Native실제pinch/pan/수동보정/사진저장과Web CDP전환은각각기록한범위로수용한다.
+
+
+## 2026-11-12 SVG 지역명 표시
+
+FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](SVG_MAP_LABELS_SPEC.md)를 따른다. 실제 GeoJSON 한글이름을 공통 SVG text로 전국17시도/선택시도의모든시군구에표시한다. 내부기준점/작은지역우선충돌조정·긴이름줄바꿈·화면글자크기/투영유지·필요한가는연결선으로가독성을보강한다. 지도클릭/방문색/좌표·API/DB/권한은변경하지않는다.
+
+### SVG 지역명 실행 결과 (2026-11-12, t12)
+- 초기Web라벨0개로Red. 실제272개geometry내부anchor·largest island/hole/울릉·전체이름/범위·화면밖비강제배치와Native SSR/기존투영7pass(1.96초), frontend types exit0.
+- 공통SVG Web5pass(43.6초): 전국320/390/1440 전체17명, 모든시도의실제시군구전체명/개수·bbox겹침0, 제주글자위좌표클릭/확대, 기존방문색·키보드·보정·핀치1→2→1·복귀. Native SSR은라벨17노드존재검사이며실제Android글자/halo/터치수용은아니다.
+- t14 P2의좁은시군구검사를보강:320x568 서울25/경기도전체의각라벨viewport/10px이상/전체명·bbox겹침0 및스크린샷확인. 중간1fail은320→1440직후낡은레이아웃좌표의제주클릭이었다. SVG viewBox/host크기일치후기존좌표클릭을유지한최종라벨1pass(18.6초). 원래5pass와별도실행이다.
+- 실제 no-dev localhost8083 앱 svg-app2pass(8.9초): 전국17/서울25실SVG text소비,320/390/844가로/1440반응형·도감필터/상세복귀. 공개데이터는테스트대역으로실계정쓰기없음. actual앱스크린샷도확인했다. 낮은화면에서나라지도면적이작아지므로연결선/여백배치가늘어나며모든크기에서글자전체가자기경계안에있다는보장은하지않는다. 화면상충돌과geometry기준점내부검사는별개다.
+- t14명세/제품/검사P2보강정적승인. Native실기기/새APK·production export/실배포는이번라벨작업에서실행하지않았으며이전SVG검증을새라벨수용으로합산하지않는다. DB/API/의존성/원본경계·사용자데이터변경없음. 실행중인8083웹은유지한다.

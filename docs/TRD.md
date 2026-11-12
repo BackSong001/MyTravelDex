@@ -875,3 +875,8 @@ FR-SVG-MAP-001 / TC-SVG-MAP-001은 [승인계획 명세](SVG_MAP_REDESIGN_SPEC.m
 
 ### SVG 상세 읽기 재진입 경계
 지역/도감/My의 상세 조회는 navigation 세대와 읽기 operation 소유권으로 종료한다. 홈 이동·새 작성·새 상세 읽기에서 이전 상세 읽기만 무효화하고 새 읽기를 허용한다. 이전 성공/실패/finally는 새 화면·오류·busy를 변경하지 않는다. 저장/삭제/사진선택의 mutation busy는 이 취소 대상이 아니며, mutation 진행 중 새 상세 요청은 세대 변경 전 거절한다. 실제 요청을 취소하지 못해도 이전 요청의 후속 요청/UI 적용을 중단한다. save/mutateSelected 내부 상세 재조회는 mutation 소유권을 유지한다.
+
+
+## 2026-11-12 SVG 지역명 표시
+
+FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](SVG_MAP_LABELS_SPEC.md)를 따른다. 실제 GeoJSON 한글이름을 공통 SVG text로 전국17시도/선택시도의모든시군구에표시한다. 내부기준점/작은지역우선충돌조정·긴이름줄바꿈·화면글자크기/투영유지·필요한가는연결선으로가독성을보강한다. 지도클릭/방문색/좌표·API/DB/권한은변경하지않는다.

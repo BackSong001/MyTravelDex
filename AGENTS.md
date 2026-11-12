@@ -609,3 +609,8 @@ Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 
 ## 2026-11-12 SVG 지도·단일 디자인 전환
 
 FR-SVG-MAP-001 / TC-SVG-MAP-001은 [승인계획 명세](docs/SVG_MAP_REDESIGN_SPEC.md)를 따른다. Web/Android 전체SVG교체·지역중심지도·기록기반방문·2026-04-01 실제17시도·255시군구경계·전체화이트아쿠아단일UI가 이전MapLibre/30테마/원팔레트보존의 런타임계약을 대체한다. 원본자료/사용자데이터·Geoapify·Auth·사진·상태보호는 유지한다. DB/API 변경없음. 데이터확보·t14리뷰·단계별실행수용 전에는 구현완료로 간주하지 않는다.
+
+
+## 2026-11-12 SVG 지역명 표시
+
+FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](docs/SVG_MAP_LABELS_SPEC.md)를 따른다. 실제 GeoJSON 한글이름을 공통 SVG text로 전국17시도/선택시도의모든시군구에표시한다. 내부기준점/작은지역우선충돌조정·긴이름줄바꿈·화면글자크기/투영유지·필요한가는연결선으로가독성을보강한다. 지도클릭/방문색/좌표·API/DB/권한은변경하지않는다.

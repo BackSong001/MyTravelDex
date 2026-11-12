@@ -1698,3 +1698,55 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 앞선 사용자 원문 “Implement the plan.” / “이어서 진행해줘” 작업의 최종 결과: 실제2026-04-01 경계17시도/255시군구의공통SVG·지역탐색·기록기반방문/필터/복귀·화이트아쿠아단일UI를구현했다. MapLibre/30테마/사진핀군집런타임을승인범위에서제거했고Geoapify/Auth/사진/DB/기존안전경계는유지했다. t14리뷰의핀치/시군구/복귀·상세읽기지연응답문제를보강해지정정적승인받았다. 최종상세focused15pass,productionexport/artifact4pass,Native최종QA빌드/실제탐색·기존저장보존을확인했다. 이전backend172pass1skip/HTTP·Web보존33pass와실제Native수동위치·사진저장도분리기록했다. 전체Web새Green/실휴대폰/iOS/운영배포수용은주장하지않는다. QA데이터/기기복사본·임시서버정리,기존APK복구. 경계원문으로인한주JS19.58MB/gzip7.36MB비용은남는다.
 
 변경파일은위18:30절과동일범위이며추가상세읽기수명은frontend/app/index.tsx,frontend/e2e/design.spec.ts,docs/SVG_MAP_REDESIGN_SPEC.md,docs/TRD.md,docs/TEST_CASE.md에반영했다. 이번작업파일만refactor/svg-map-redesign에커밋/푸시하며main·원격DB/배포와기존root package/lock·storyboard·tsconfig는포함하지않는다.
+
+## 2026-11-12 20:25 KST SVG 행정구역 지역명
+
+사용자 프롬프트 원문:
+
+글쓰기 - 현재 '여행가봥'의 대한민국 지도에 각 행정구역의 지역명을 표시해 줘.
+
+1. 표시할 지역명
+
+- 전국 지도 화면: 17개 시·도 이름 표시
+- 시·도 상세 화면: 해당 지역에 속한 모든 시·군·구 이름 표시
+- 지역명은 한글로 표시
+- 지도 경계와 지역명이 서로 어울리도록 배치
+
+2. 디자인
+
+- 기존 여행가봥의 모던 미니멀 디자인 유지
+- 지역명은 지도 색상과 잘 구분되는 차분한 색상 사용
+- 글꼴은 가독성 좋은 산세리프 계열 사용
+- 지역의 크기에 따라 글자 크기를 적절하게 조절
+- 지도와 지역명이 겹쳐서 복잡해 보이지 않도록 처리
+- 방문한 지역의 색상 표시와 지역명이 서로 잘 어울리도록 구성
+
+3. 위치 및 반응형 처리
+
+- 각 지역의 지리적 중심에 가깝게 지역명 배치
+- 지역명의 위치가 행정구역 경계 밖으로 벗어나지 않도록 최대한 조정
+- 작은 지역은 글자 크기를 줄이거나 적절한 위치로 이동
+- 지도 확대 및 축소 시에도 지역명이 자연스럽게 유지되도록 구현
+- 모바일과 PC 화면 모두에서 읽기 편하도록 처리
+
+4. 구현 방식
+
+- 현재 사용 중인 React + SVG + GeoJSON + d3-geo 구조를 유지
+- GeoJSON의 지역명 속성을 활용
+- SVG의 text 요소를 사용해 지역명 표시
+- 지역명 위치는 d3-geo의 지리 좌표 변환을 활용
+- 기존 지도 클릭 이벤트와 방문 지역 표시 기능은 그대로 유지
+- 지역명을 추가하기 위해 기존 지도 구조를 불필요하게 변경하지 말 것
+
+5. 예외 처리
+
+- 서울, 부산 등 면적이 작은 지역도 이름이 잘 보이도록 처리
+- 울릉도, 제주도 등 섬 지역의 위치도 고려
+- 지역명이 겹치는 경우 위치나 크기를 조정
+- 실제 GeoJSON에 존재하지 않는 지역명은 임의로 생성하지 말 것
+
+먼저 현재 GeoJSON의 지역명 속성과 지도 렌더링 구조를 확인한 다음 구현해 줘. 구현 후 전국 지도와 시·도 상세 지도 모두에서 지역명이 올바르게 표시되는지 확인해 줘.
+
+결과: GeoJSON name/code/parentCode와기존Mercator를재사용해전국17/각시도소속전체이름을SVG text/tspan으로표시했다. 내부anchor·largest polygon/섬/hole보정·전체이름줄바꿈·10~14px·halo/연결선·충돌배치를작은공통helper로추가하고기존클릭/방문색/제스처/데이터를유지했다. t14명세/제품/320시군구검사보강정적승인. 단위/SSR7pass/types0,Web5pass와보강후라벨1pass,actual앱2pass를각각기록했다. 현재8083웹유지. 낮은지도높이의연결선증가,Native실기기/새APK/실배포미검증을명시한다.
+
+변경파일: frontend/src/mapLabels.ts,SvgTravelMap.tsx,backend/tests/map-labels.test.ts,maps-native.test.ts,frontend/e2e/svg-map.spec.ts,svg-app.spec.ts,docs/SVG_MAP_LABELS_SPEC.md,canonical6,docs/prompts.md. 기존root package/lock/storyboard/tsconfig는제외하며refactor/svg-map-redesign에이번변경만커밋/푸시한다.

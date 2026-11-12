@@ -1,6 +1,6 @@
 import React,{useMemo,useRef,useState,useEffect} from 'react';
 import {View,ScrollView,Image,PanResponder,Platform,useWindowDimensions} from 'react-native';
-import Svg,{Path,G,Circle} from 'react-native-svg';
+import Svg,{Path,G,Circle,Line,Text as SvgText,TSpan} from 'react-native-svg';
 import {geoMercator,geoPath,type GeoProjection} from 'd3-geo';
 import Text from './FontText';
 import Pressable from './Feedback';
@@ -9,6 +9,7 @@ import {districts,regions,regionAt,renderFeature,fitProjection,legacyCodes} from
 import {mapRecords,type TravelMapProps,type MapNavigation} from './provinces';
 import Avatar from './Avatar';
 import MapAttribution from './MapAttribution';
+import {layoutMapLabels} from './mapLabels';
 
 type Point=[number,number];
 type Touch={identifier:string|number;pageX:number;pageY:number};
@@ -30,6 +31,7 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  const correction=focus??(onCoordinate||!fullScreen?entries[0]?.locations:undefined),lat=correction?.latitude,lng=correction?.longitude;
  const base=useMemo(()=>fitProjection(features,size.width,size.height),[features,size]);
  const p=useMemo(()=>camera?geoMercator().center(camera.center).scale(camera.scale).translate([size.width/2,size.height/2]):base,[base,camera,size]);
+ const labels=useMemo(()=>layoutMapLabels(features,p,size.width,size.height),[features,p,size]);
  const paths=useMemo(()=>{const path=geoPath(base).digits(1);return features.map(f=>({f,d:path(renderFeature(f))??''}));},[base,features]);
  // 공통 Mercator 변환으로 제스처마다 경계 경로를 다시 생성하지 않는다.
  const ratio=p.scale()/base.scale(),origin=p([0,0])!,baseOrigin=base([0,0])!,tx=origin[0]-baseOrigin[0]*ratio,ty=origin[1]-baseOrigin[1]*ratio;
@@ -84,7 +86,10 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
   {!wide&&heading}
   <View style={{flex:1,minHeight:0,flexDirection:wide?'row':'column'}}>
    <View ref={host} testID="svg-map-canvas" {...responder.panHandlers} onLayout={e=>{const {width,height}=e.nativeEvent.layout;if(width&&height)setSize({width,height});host.current?.measureInWindow((x,y)=>{position.current={x,y};});}} onTouchStart={()=>host.current?.measureInWindow((x,y)=>{position.current={x,y};})} {...(Platform.OS==='web'?{onPointerDown:(e:any)=>{const r=e.currentTarget.getBoundingClientRect();position.current={x:r.left+window.scrollX,y:r.top+window.scrollY};},onWheel:(e:any)=>zoom(e.deltaY>0?.8:1.25),onPointerMove:(e:any)=>{if(e.buttons)return;const r=e.currentTarget.getBoundingClientRect(),coord=p.invert!([e.clientX-r.left,e.clientY-r.top]);const f=coord&&regionAt(coord[1],coord[0]);setHover(f?(province?f.properties.code:f.properties.parentCode):null);},onPointerLeave:()=>setHover(null)} as any:{})} style={{flex:1,minHeight:120,height:fullScreen?undefined:260,backgroundColor:c.map.ocean,...(Platform.OS==='web'?{touchAction:'none'} as any:{})}}>
-    <Svg width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`} accessible={false}><G transform={`translate(${tx},${ty}) scale(${ratio})`}>{paths.map(({f,d})=>{const code=f.properties.code,visited=province?own.has(code):districts.some(child=>child.properties.parentCode===code&&own.has(child.properties.code));return <Path key={code} testID={`map-region-${code}`} d={d} fill={selected===code||hover===code?c.map.regionBorderSelected:visited?c.map.regionPastels[Number(code)%c.map.regionPastels.length]:c.map.landDefault} stroke="#FFFFFF" strokeWidth={1/ratio} fillRule="evenodd"/>;})}</G>{onCoordinate||!fullScreen?<>{entries.map(record=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)]);return point?<Circle key={record.id} testID={`map-location-${record.id}`} cx={point[0]} cy={point[1]} r={6} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/>:null;})}{lat!=null&&lng!=null&&!entries.some(r=>Number(r.locations.latitude)===Number(lat)&&Number(r.locations.longitude)===Number(lng))&&p([Number(lng),Number(lat)])&&<Circle cx={p([Number(lng),Number(lat)])![0]} cy={p([Number(lng),Number(lat)])![1]} r={9} fill={c.primary} stroke="#FFFFFF" strokeWidth={3}/>}</>:null}</Svg>
+    <Svg width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`} accessible={false}><G transform={`translate(${tx},${ty}) scale(${ratio})`}>{paths.map(({f,d})=>{const code=f.properties.code,visited=province?own.has(code):districts.some(child=>child.properties.parentCode===code&&own.has(child.properties.code));return <Path key={code} testID={`map-region-${code}`} d={d} fill={selected===code||hover===code?c.map.regionBorderSelected:visited?c.map.regionPastels[Number(code)%c.map.regionPastels.length]:c.map.landDefault} stroke="#FFFFFF" strokeWidth={1/ratio} fillRule="evenodd"/>;})}</G><G pointerEvents="none" accessible={false}>{labels.map(label=><G key={label.code}>
+     {Math.hypot(label.x-label.anchor[0],label.y-label.anchor[1])>label.fontSize&&<Line x1={label.anchor[0]} y1={label.anchor[1]} x2={label.x} y2={label.y} stroke={c.muted} strokeWidth={.7} opacity={.5}/>}
+     {[true,false].map(halo=><SvgText key={String(halo)} testID={halo?undefined:`map-label-${label.code}`} x={label.x} y={label.y-(label.lines.length-1)*(label.fontSize+2)/2+label.fontSize*.35} fontSize={label.fontSize} fontFamily="sans-serif" fontWeight="500" textAnchor="middle" fill={halo?'#FFFFFF':c.map.mapLabel} stroke={halo?'#FFFFFF':'none'} strokeWidth={halo?3:0} strokeLinejoin="round">{label.lines.map((line,i)=><TSpan key={i} x={label.x} dy={i?label.fontSize+2:0}>{line}</TSpan>)}</SvgText>)}
+    </G>)}</G>{onCoordinate||!fullScreen?<>{entries.map(record=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)]);return point?<Circle key={record.id} testID={`map-location-${record.id}`} cx={point[0]} cy={point[1]} r={6} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/>:null;})}{lat!=null&&lng!=null&&!entries.some(r=>Number(r.locations.latitude)===Number(lat)&&Number(r.locations.longitude)===Number(lng))&&p([Number(lng),Number(lat)])&&<Circle cx={p([Number(lng),Number(lat)])![0]} cy={p([Number(lng),Number(lat)])![1]} r={9} fill={c.primary} stroke="#FFFFFF" strokeWidth={3}/>}</>:null}</Svg>
    </View>
    <View style={{width:wide?240:undefined,maxHeight:wide?undefined:'45%',flexShrink:1,minHeight:0}}>
     {wide&&heading}

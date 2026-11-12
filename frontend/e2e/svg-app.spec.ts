@@ -4,7 +4,7 @@ const record={id,owner_id:owner,status:'complete',visibility:'public',title:'서
 const second={...record,id:'00000000-0000-4000-8000-000000000043',title:'강남 산책',locations:{...record.locations,latitude:37.4979,longitude:127.0276}};
 test.beforeEach(async({page})=>{
  await page.route('**/rest/v1/**',route=>{const name=new URL(route.request().url()).pathname;const rows=name.endsWith('/travel_records')?(new URL(route.request().url()).searchParams.get('id')==='eq.'+id?[record]:[record,second]):name.endsWith('/public_profiles')?[{id:owner,display_name:'여행자',avatar_url:null}]:[];return route.fulfill({json:rows,headers:{'Content-Range':`*/${rows.length}`,'Access-Control-Expose-Headers':'Content-Range'}});});
- await page.goto('/');await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();await expect(page.getByTestId('svg-travel-map')).toBeVisible();
+ await page.goto('/');await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();await expect(page.getByTestId('svg-travel-map')).toBeVisible();await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(17);
 });
 test('TC-SVG-MAP-001 actual app country, regional records, resize and no old theme control',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
@@ -18,6 +18,8 @@ test('TC-SVG-MAP-001 actual app country, regional records, resize and no old the
  }
  await page.getByRole('button',{name:'서울특별시 · 2개',exact:true}).click();
  await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(25);
+ await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(25);
+ await expect(page.getByTestId('map-label-11140')).toHaveText('중구');
  await page.getByRole('button',{name:'중구 · 1개',exact:true}).click();
  await expect(page.getByRole('button',{name:'서울 산책 상세 보기'})).toBeVisible();
  await expect(page.getByRole('button',{name:'테마',exact:true})).toHaveCount(0);expect(errors).toEqual([]);
