@@ -1763,3 +1763,16 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: t14 명세/제품 정적 리뷰를 거쳐 원본 경계에서 생성한2048² 고정PNG(376394bytes)를 공통SVG 배경에 연결했다. 정확한육지차폐·이미지실패단색·기존카메라/클릭/라벨을유지한다. 128path 및luminance mask 후보는Native성능실패로폐기했다. 최종단위/SSR8pass·types0·Web7pass·actual앱2pass·productionartifact4pass, Android빌드/전국·부산·서울/핀치시각·오류0을확인했다. Native연속이동은배경없는대조에서도큰지연이재현되며최종배경에서도남아전체성능미수용으로기록했다. 실휴대폰/iOS/원격배포는미검증. 기존설치APK/임시대조소스를복원하고8083웹/에뮬레이터를유지한다.
 
 변경파일: frontend/src/OceanBackground.tsx,SvgTravelMap.tsx,theme.ts,uiAssets.ts,data/maps/korea-ocean.json,README.md; frontend/assets/maps/ocean-depth.png; scripts/build-ocean.py; backend/tests/ocean.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts,static-web.spec.ts; docs/SVG_OCEAN_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig는제외하고refactor/svg-map-redesign에이번변경만커밋/푸시한다.
+
+
+## 2026-11-12 22:12 KST — 전국 지도 약칭
+
+사용자 프롬프트 원문:
+
+> 진행해줘
+
+승인 대상: 전국 SVG 17개 시·도만 코드별 명시 약칭으로 표시하고 시·군·구/상단/목록의 정식 이름과 원본·DB·지도 동작을 유지하는 계획.
+
+결과: mapLabels의17매핑과표시문자열선택만보강해약칭기준폭/충돌배치를적용했다. t14명세/제품정적승인, Red1fail/2pass→관련단위/SSR9pass·types0·Web7pass·실제앱대역2pass. 바다배경과같은refactor/svg-map-redesign브랜치에커밋/푸시한다. 새APK/production export/실기기/실배포는수행하지않았으며기존Native이동성능제한을유지한다.
+
+변경파일: frontend/src/mapLabels.ts; backend/tests/map-labels.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts; docs/SVG_MAP_LABELS_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig변경은제외한다.

@@ -613,7 +613,7 @@ FR-SVG-MAP-001 / TC-SVG-MAP-001은 [승인계획 명세](docs/SVG_MAP_REDESIGN_S
 
 ## 2026-11-12 SVG 지역명 표시
 
-FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](docs/SVG_MAP_LABELS_SPEC.md)를 따른다. 실제 GeoJSON 한글이름을 공통 SVG text로 전국17시도/선택시도의모든시군구에표시한다. 내부기준점/작은지역우선충돌조정·긴이름줄바꿈·화면글자크기/투영유지·필요한가는연결선으로가독성을보강한다. 지도클릭/방문색/좌표·API/DB/권한은변경하지않는다.
+FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](docs/SVG_MAP_LABELS_SPEC.md)를 따른다. 공통 SVG text의 전국17시도는 코드별 명시약칭으로, 선택시도의모든시군구는 실제 GeoJSON 원문으로 표시한다. 내부기준점/작은지역우선충돌조정·긴이름줄바꿈·화면글자크기/투영유지·필요한가는연결선으로가독성을보강한다. 지도클릭/방문색/좌표·API/DB/권한은변경하지않는다.
 
 
 ## 2026-11-12 SVG 바다 배경
@@ -623,3 +623,7 @@ FR-SVG-OCEAN-001 / TC-SVG-OCEAN-001은 [바다 배경 명세](docs/SVG_OCEAN_SPE
 
 
 - 고정자산 376,394bytes/디코딩계산16MiB, 깊은줌의 장식색상만 보간한다. 이미지 실패시 먼바다단색을 유지한다. 128path/luminance mask 후보의 성능실패와 최종 Native 기존이동지연은 TEST_CASE에 분리하며, 모바일 전체성능 수용 완료로 표시하지 않는다. TC-SVG-OCEAN-002는 실제 픽셀·hole·다중instance·decode실패를 확인한다.
+
+## 2026-11-12 전국 지도 약칭
+
+FR-SVG-MAP-LABEL-002 / TC-SVG-MAP-LABEL-002는 [지역명 명세](docs/SVG_MAP_LABELS_SPEC.md)의17개코드매핑을따른다. 전국SVG라벨의표시문자열과그문자열기준배치만변경한다. 시군구·상단/목록·접근성이름·원본GeoJSON·DB/행정코드·클릭/방문/전환·바다배경은유지하며새API/의존성은없다. 단위/SSR·웹반응형회귀와실Android수용은구분한다.

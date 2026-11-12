@@ -1296,7 +1296,7 @@ FR-SVG-MAP-001 / TC-SVG-MAP-001은 [승인계획 명세](SVG_MAP_REDESIGN_SPEC.m
 
 ## 2026-11-12 SVG 지역명 표시
 
-FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](SVG_MAP_LABELS_SPEC.md)를 따른다. 실제 GeoJSON 한글이름을 공통 SVG text로 전국17시도/선택시도의모든시군구에표시한다. 내부기준점/작은지역우선충돌조정·긴이름줄바꿈·화면글자크기/투영유지·필요한가는연결선으로가독성을보강한다. 지도클릭/방문색/좌표·API/DB/권한은변경하지않는다.
+FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](SVG_MAP_LABELS_SPEC.md)를 따른다. 공통 SVG text의 전국17시도는 코드별 명시약칭으로, 선택시도의모든시군구는 실제 GeoJSON 원문으로 표시한다. 내부기준점/작은지역우선충돌조정·긴이름줄바꿈·화면글자크기/투영유지·필요한가는연결선으로가독성을보강한다. 지도클릭/방문색/좌표·API/DB/권한은변경하지않는다.
 
 ### SVG 지역명 실행 결과 (2026-11-12, t12)
 - 초기Web라벨0개로Red. 실제272개geometry내부anchor·largest island/hole/울릉·전체이름/범위·화면밖비강제배치와Native SSR/기존투영7pass(1.96초), frontend types exit0.
@@ -1335,3 +1335,16 @@ FR-SVG-OCEAN-001 / TC-SVG-OCEAN-001은 [바다 배경 명세](SVG_OCEAN_SPEC.md)
 
 - 최종production export exit0: entry19.6MB(기존실경계 포함), 고정PNG376394bytes가원본과일치. 빌드후60초휴식뒤실산출물4pass(10.7초): PNG/JS MIME·바이트/누락404·콜백복귀 및 실제앱320/390/844/1440·2048² PNG decode·17/25지역명/도감·상세복귀. 실제Vercel배포/OAuth동의완료검증으로확대하지않는다.
 - 최종상태: 바다배경구현/시각·기능·빌드검증완료, Native연속이동성능은미수용. 실휴대폰/iOS/실배포는미검증. 사용자APK복원/임시대조소스복원/원본GeoJSONhash불변, 앱·DB·사진데이터초기화없음. 현재8083웹과에뮬레이터는유지한다.
+
+## 2026-11-12 전국 지도 약칭
+
+FR-SVG-MAP-LABEL-002 / TC-SVG-MAP-LABEL-002는 [지역명 명세](SVG_MAP_LABELS_SPEC.md)의17개코드매핑을따른다. 전국SVG라벨의표시문자열과그문자열기준배치만변경한다. 시군구·상단/목록·접근성이름·원본GeoJSON·DB/행정코드·클릭/방문/전환·바다배경은유지하며새API/의존성은없다. 단위/SSR·웹반응형회귀와실Android수용은구분한다.
+
+### 전국 약칭 실행 결과 — TC-SVG-MAP-LABEL-002
+
+- t14 명세/제품 지정 정적 승인. 테스트 실행은 t12이며 독립 실행 승인과 구분한다.
+- Red: 기존 원문 '인천광역시'가 약칭 '인천' 기대와 달라1fail/2pass. 제품 변경은 mapLabels.ts의 province code17매핑+nameLines 입력1곳이다.
+- Green: 관련 단위/Native SSR/경계/바다4files9pass(1.95초),frontend tsc exit0. 17개약칭 정확일치·255시군구 원문·unknown/level guard·원본properties 불변 및Native SVG실제서울/충북·지역목록정식명칭을 확인했다.
+- Web 공통SVG7pass(1.1분): 전국320/390/1440의17약칭·bbox겹침0/가시성·10~14px, 전체시도상세원문/320서울25·경기전체·제주라벨위클릭·줌/핀치/방문색/복귀/바다배경픽셀을 유지한다. 320px스크린샷에서육지·바다/약칭배치를직접확인했다.
+- 실제 configured no-dev8083 + 공개REST대역2pass(10.1초):320/390/844/1440 및17/25라벨·서울/충북약칭·도감지역필터/상세복귀·바다PNG실decode 확인. 실제계정/DB쓰기없음.
+- 원본GeoJSON/DB/행정코드/상단·목록명칭/바다자산·제스처는변경없음. 이번에는새APK/production export·실휴대폰/iOS/실배포를수행하지않았다. 이전바다작업의빌드/Native시각결과를새약칭실기기수용으로합산하지않으며기존Native이동성능제한도유지한다.

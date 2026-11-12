@@ -10,7 +10,7 @@ const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,stat
 test('TC-SVG-MAP-001 Native SVG renders country with white boundaries and separate own visits',()=>{
  const mine=record('me',37.5665,126.978),friend=record('friend',33.4996,126.5312);
  const html=renderToStaticMarkup(React.createElement(TravelMap,{fullScreen:true,records:[mine,friend],ownRecords:[mine]}));
- expect(html.match(/<path[^>]*testID="map-region-/g)).toHaveLength(17);expect(html.match(/testID="map-label-/g)).toHaveLength(17);expect(html).toContain('stroke="#FFFFFF"');expect(html).toContain('testID="svg-ocean"');expect(html).not.toContain('testID="ocean-land-');expect(html).toContain('testID="ocean-texture"');expect(html).toContain('서울특별시 · 1개');expect(html).toContain('제주특별자치도 · 1개');
+ expect(html.match(/<path[^>]*testID="map-region-/g)).toHaveLength(17);expect(html.match(/testID="map-label-/g)).toHaveLength(17);expect(html).toContain('stroke="#FFFFFF"');expect(html).toContain('testID="svg-ocean"');expect(html).not.toContain('testID="ocean-land-');expect(html).toContain('testID="ocean-texture"');expect(html.match(/testID="map-label-11"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('서울');expect(html.match(/testID="map-label-43"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('충북');expect(html).toContain('서울특별시 · 1개');expect(html).toContain('제주특별자치도 · 1개');
  expect(html).toMatch(/testID="map-region-50"[^>]*fill="#E4E8E9"/);expect(html).not.toMatch(/testID="map-region-11"[^>]*fill="#E4E8E9"/);
  expect(html).not.toMatch(/native-map|maplibre|NaN|Infinity/);
 });

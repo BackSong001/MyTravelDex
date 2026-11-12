@@ -46,7 +46,7 @@ test('TC-SVG-OCEAN-001 coastline background remains behind unchanged land and la
  await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(25);
  await page.screenshot({path:'/tmp/ocean-seoul.png'});
 });
-test('TC-SVG-MAP-LABEL-001 full Korean country and district labels remain readable without blocking map selection',async({page})=>{
+test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readable without blocking map selection',async({page})=>{
  const sido=JSON.parse(readFileSync('frontend/src/data/maps/korea-sido.json','utf8')).features;
  const districts=JSON.parse(readFileSync('frontend/src/data/maps/korea-sigungu.json','utf8')).features;
  const labels=page.locator('text[data-testid^="map-label-"]');
@@ -54,7 +54,7 @@ test('TC-SVG-MAP-LABEL-001 full Korean country and district labels remain readab
  const overlap=()=>labels.evaluateAll(nodes=>{const boxes=nodes.map(n=>n.getBoundingClientRect());let pairs=0;for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){const a=boxes[i],b=boxes[j];if(Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1)pairs++;}return pairs;});
  for(const [width,height] of [[320,568],[390,844],[1440,900]]){
   await page.setViewportSize({width,height});await page.locator('#root').evaluate((n,h)=>{(n as HTMLElement).style.height=`${h-24}px`;},height);
-  await expect(labels).toHaveCount(17);await expect.poll(names).toEqual(sido.map((f:any)=>f.properties.name).sort());
+  await expect(labels).toHaveCount(17);await expect.poll(names).toEqual(['서울','부산','대구','인천','광주','대전','울산','세종','경기','강원','충북','충남','전북','전남','경북','경남','제주'].sort());
   await expect.poll(overlap).toBe(0);
   for(const label of await labels.all()){await expect(label).toBeInViewport();const font=await label.evaluate(n=>parseFloat(getComputedStyle(n).fontSize));expect(font).toBeGreaterThanOrEqual(10);expect(font).toBeLessThanOrEqual(14);}
   await page.screenshot({path:`/tmp/map-label-country-${width}.png`});
