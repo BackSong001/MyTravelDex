@@ -1750,3 +1750,16 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: GeoJSON name/code/parentCode와기존Mercator를재사용해전국17/각시도소속전체이름을SVG text/tspan으로표시했다. 내부anchor·largest polygon/섬/hole보정·전체이름줄바꿈·10~14px·halo/연결선·충돌배치를작은공통helper로추가하고기존클릭/방문색/제스처/데이터를유지했다. t14명세/제품/320시군구검사보강정적승인. 단위/SSR7pass/types0,Web5pass와보강후라벨1pass,actual앱2pass를각각기록했다. 현재8083웹유지. 낮은지도높이의연결선증가,Native실기기/새APK/실배포미검증을명시한다.
 
 변경파일: frontend/src/mapLabels.ts,SvgTravelMap.tsx,backend/tests/map-labels.test.ts,maps-native.test.ts,frontend/e2e/svg-map.spec.ts,svg-app.spec.ts,docs/SVG_MAP_LABELS_SPEC.md,canonical6,docs/prompts.md. 기존root package/lock/storyboard/tsconfig는제외하며refactor/svg-map-redesign에이번변경만커밋/푸시한다.
+
+
+## 2026-11-12 22:03 KST — 바다 배경 구현
+
+사용자 프롬프트 원문:
+
+> 진행해줘
+
+직전 승인 대상: 대한민국 지도 바다 배경에 해안 형태를 따르는 5색 그라데이션을 추가하고 기존 지역명·육지/방문색·입력·DB/API를 보존하는 계획.
+
+결과: t14 명세/제품 정적 리뷰를 거쳐 원본 경계에서 생성한2048² 고정PNG(376394bytes)를 공통SVG 배경에 연결했다. 정확한육지차폐·이미지실패단색·기존카메라/클릭/라벨을유지한다. 128path 및luminance mask 후보는Native성능실패로폐기했다. 최종단위/SSR8pass·types0·Web7pass·actual앱2pass·productionartifact4pass, Android빌드/전국·부산·서울/핀치시각·오류0을확인했다. Native연속이동은배경없는대조에서도큰지연이재현되며최종배경에서도남아전체성능미수용으로기록했다. 실휴대폰/iOS/원격배포는미검증. 기존설치APK/임시대조소스를복원하고8083웹/에뮬레이터를유지한다.
+
+변경파일: frontend/src/OceanBackground.tsx,SvgTravelMap.tsx,theme.ts,uiAssets.ts,data/maps/korea-ocean.json,README.md; frontend/assets/maps/ocean-depth.png; scripts/build-ocean.py; backend/tests/ocean.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts,static-web.spec.ts; docs/SVG_OCEAN_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig는제외하고refactor/svg-map-redesign에이번변경만커밋/푸시한다.

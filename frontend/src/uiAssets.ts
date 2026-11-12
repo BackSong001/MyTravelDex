@@ -1,5 +1,6 @@
 // Figma 개별 원본과 SHA256은 assets/ui/manifest.json에서 추적한다.
 export const uiAssets = {
+ oceanDepth: require('../assets/maps/ocean-depth.png'),
  backpack: require('../assets/ui/backpack-v1.png'),
  defaultAvatar: require('../assets/ui/avatar-bear-v1.png'),
  stamps: {

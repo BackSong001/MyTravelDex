@@ -1304,3 +1304,34 @@ FR-SVG-MAP-LABEL-001 / TC-SVG-MAP-LABEL-001은 [지역명 명세](SVG_MAP_LABELS
 - t14 P2의좁은시군구검사를보강:320x568 서울25/경기도전체의각라벨viewport/10px이상/전체명·bbox겹침0 및스크린샷확인. 중간1fail은320→1440직후낡은레이아웃좌표의제주클릭이었다. SVG viewBox/host크기일치후기존좌표클릭을유지한최종라벨1pass(18.6초). 원래5pass와별도실행이다.
 - 실제 no-dev localhost8083 앱 svg-app2pass(8.9초): 전국17/서울25실SVG text소비,320/390/844가로/1440반응형·도감필터/상세복귀. 공개데이터는테스트대역으로실계정쓰기없음. actual앱스크린샷도확인했다. 낮은화면에서나라지도면적이작아지므로연결선/여백배치가늘어나며모든크기에서글자전체가자기경계안에있다는보장은하지않는다. 화면상충돌과geometry기준점내부검사는별개다.
 - t14명세/제품/검사P2보강정적승인. Native실기기/새APK·production export/실배포는이번라벨작업에서실행하지않았으며이전SVG검증을새라벨수용으로합산하지않는다. DB/API/의존성/원본경계·사용자데이터변경없음. 실행중인8083웹은유지한다.
+
+
+## 2026-11-12 SVG 바다 배경
+
+FR-SVG-OCEAN-001 / TC-SVG-OCEAN-001은 [바다 배경 명세](SVG_OCEAN_SPEC.md)를 따른다. 기존 GeoJSON 국내육지 윤곽에서 사전 생성한 2048² PNG 한 장을 SVG Image로 배치한다. 전국은 기존17육지가, 상세는 원본전체육지의 불투명host색 벡터차폐가 바다색을 가린다. SVG Mask/실시간색상path는 사용하지 않는다. palette5색/현재투영·카메라/원본육지·방문색/지역명·입력·DB/API는보존한다. 실제수심이아닌디자인이며원본자료를변경하지않는다. Web/Native실행·자산/메모리비용·실배포미검증은별도기록한다.
+
+### 2026-11-12 바다 배경 실행 이력 (FR/TC-SVG-OCEAN-001·002)
+
+- t14 명세 및 제품 지정 정적 승인. 직접 실행 수치는 t12이며 독립 실행 승인과 구분한다.
+- 최초 배경 없음 Web Red 1fail. 최초 단위/SSR 6pass/1fail은 path 총개수에 새 마스크/색상층을 포함한 검사 전제이며 실제 map-region path만 17개로 좁힌 후 4files/8pass(2.25초), frontend tsc exit0.
+- 초기 큰 buffer 일괄 생성은 약4.6GB에서 종료했다. 순차 생성으로 대체하여128층 자산2,429,451bytes/gzip723,934bytes, 약4.5초/최대RSS102724KiB. 원본17GeoJSON hash 불변. 64층은 Web에서 띠가 보여 미채택했고128층 화면은 훨씬 부드러운 연결을 확인했다. 모든디스플레이에서 띠0을 보증하지 않는다.
+- 첫 Web 전체4pass/3fail: 새 픽셀 fixture의 scale-only 변경이 투영중심을 옮김1건, 기존 첫SVG g가 새 배경층이 된 transform selector2건. 투영중심고정/실제map-region 부모검사로 수정했고 기존 오차·scale·복귀 기대를 완화하지 않았다. 중간 testhelper 닫는괄호 누락은 실행전 파싱오류로 구분한다.
+- 보강 Web7pass(1.2분): 실제스크린샷 픽셀 본토/제주/울릉land제외·실제자료내부ring바다·해안→먼바다색순서·복수mask, 전국/부산/서울, 기존전체이름/320서울·경기/클릭·방문색·보정/1→2→1핀치/지역상태복귀. 줌 시 마스크 d불변/transform변경 확인.
+- actual configured no-dev8083 + 공개REST대역2pass(12.4초):320/390/844/1440 화면·17/25이름·지역도감/상세복귀·콘솔오류없음. background path는viewport밖까지연장되므로 기존육지fit오차<1은 실제map-region만 검사한다. 실제계정/DB쓰기는없다.
+- Android/production 산출물 수용은 아래 후속 실행 결과와 구분한다. 실수심/외국해안/국경정확성을 보증하지 않으며, 원격배포·실휴대폰·iOS는 별도 미검증이다.
+
+
+- 128SVGpath Native 후보: 저자원release APK build2분10초/430tasks 성공, 60초휴식 후 Local guest 실제전국/부산/핀치·라벨/마스크표시 및현재PID AndroidRuntime/ReactNativeJS error없음. PSS307663KiB. 전환포함61frames/jank21.31%/P50 17ms/P90 300ms, 안정전국에서각1초pan2회는11frames/jank100%/P50 450ms/P90 500ms로성능실패. 시각성공을성능수용으로합산하지않고해당후보폐기.
+- 후속은같은128색상층만개발도구Pillow10.2.0로2048² PNG에사전래스터화했다. PNG376394bytes/gzip367090bytes, RGBA계산16MiB, 생성3.65초/최대RSS158196KiB. 고정Mercator extent/asset hash는korea-ocean.json에기록한다. 기존원본17개mask/육지/라벨은벡터그대로. t14방향/제품정적승인.
+- 래스터 단위 첫실행은PNG를Node require로직접읽는SSR fixture설정오류(3files6pass/1file loadfail). 기존uiAssets소유층에등록하고동일mock을확장해4files8pass(2.16초),frontend tsc exit0. Web7pass(1.2분)와추가decode실패후실제먼바다픽셀검사1pass(9.2초)는별도실행이다.
+
+
+- PNG+luminance mask 후보 Native APK build3분39초 성공/60초휴식. 전국PNG표시정상이나 같은1초pan2회13frames/100%jank/P50 350ms/P90 400ms, PSS307014KiB로여전히성능실패. 이 후보도최종채택하지않았다.
+- 설치react-native-svg의mask합성은luminance/alpha와2회landdraw를사용한다. 최종구현은같은정확한원본17개를host색으로덮는벡터차폐이며Mask/ID를삭제했다. 전국/보정은이미그리는17육지가차폐하므로중복없고,상세만원본전체차폐를추가한다. t14지정제품정적승인. 단위/SSR8pass(2.17초)/types0, actual8083대역앱2pass(10.3초). 최종Native및artifact결과는별도기록한다.
+
+- 최종벡터차폐 Web7pass(1.1분), Native release build2분17초/430tasks 성공, 60초휴식후 실제전국/부산/서울 및핀치·이름/색상·내륙비해안보존확인. 현재PID AndroidRuntime/ReactNativeJS 오류0. 최종QA APK는/tmp/mytraveldex-ocean-native/final-candidate.apk이며Local설정/개발서명으로실배포APK와다르다.
+- Native 성능을전면수용하지않는다. 동일최신코드에서OceanBackground만null인대조APK를별도빌드(2분12초)하고원본소스를finally복원했다. 각APK동일에뮬레이터/전국각1초pan2회: 대조16frames/P50 250ms/P90 300ms/PSS264674KiB, 최종15frames/P50 250ms/P90 350ms/PSS272449KiB(약7.6MiB차이). 둘다jank100%. 부산각1초pan2회는대조20frames/P50 150/P90 300ms, 최종19frames/P50 200/P90 250ms; 같은1.5pinch는대조3frames/P50 150ms,최종2frames/P50 200ms. 작은단발표본이므로동등성/무회귀/60fps를보장하지않는다. 기존지도에서도큰지연이재현되며이번배경후에도남는다. 지역명/제스처를바꾸는범위확장은하지않았다.
+- 대조APK는미채택. 최종배경APK를재설치해부산/핀치/서울화면을확인했고기존사용자설치APK로복원한다. 앱데이터/DB초기화·실계정쓰기없음. emulator/실제8083웹은유지한다.
+
+- 최종production export exit0: entry19.6MB(기존실경계 포함), 고정PNG376394bytes가원본과일치. 빌드후60초휴식뒤실산출물4pass(10.7초): PNG/JS MIME·바이트/누락404·콜백복귀 및 실제앱320/390/844/1440·2048² PNG decode·17/25지역명/도감·상세복귀. 실제Vercel배포/OAuth동의완료검증으로확대하지않는다.
+- 최종상태: 바다배경구현/시각·기능·빌드검증완료, Native연속이동성능은미수용. 실휴대폰/iOS/실배포는미검증. 사용자APK복원/임시대조소스복원/원본GeoJSONhash불변, 앱·DB·사진데이터초기화없음. 현재8083웹과에뮬레이터는유지한다.
