@@ -1776,3 +1776,26 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: mapLabels의17매핑과표시문자열선택만보강해약칭기준폭/충돌배치를적용했다. t14명세/제품정적승인, Red1fail/2pass→관련단위/SSR9pass·types0·Web7pass·실제앱대역2pass. 바다배경과같은refactor/svg-map-redesign브랜치에커밋/푸시한다. 새APK/production export/실기기/실배포는수행하지않았으며기존Native이동성능제한을유지한다.
 
 변경파일: frontend/src/mapLabels.ts; backend/tests/map-labels.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts; docs/SVG_MAP_LABELS_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig변경은제외한다.
+
+
+## 2026-11-13 사진 중심 연속 지도 구현
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+
+결과: jhyun에서 승인된 PHOTO_MAP_EXPLORATION_SPEC에 따라 내 여행 기본/선택 친구 한 명 조회, 동일 SVG 카메라의 지역 확대, 대표사진·군집·요약 시트와 복귀 상태, 동작 줄이기/press/시작 화면, 좁고 짧은 보조 패널 스크롤을 연결했다. t14 정적 지적을 보강했으며 제품 범위 밖 환경변수/루트 의존성 변경은 보존했다. Web15·관련 단위/LocalHTTP/NativeSSR16·types 통과와 최종 Local QA APK의 실제 사진/군집/요약/상세·복귀/drag/pinch 관측을 각각 기록한다. production export 및 정적산출물3 통과. 320px 경기 확대의 실제 라벨 겹침7쌍은 기존 최소화면 예외로 기록하고, Native warm 이동 지연/높은 PSS는 남아 성능 미수용이며 실휴대폰/iOS/원격배포·전체E2E 성공을 주장하지 않는다. QA자료 정리 및 사용자 APK 복원 완료, 커밋/푸시는 하지 않았다. 기존 SVG 회귀의 최종 결과는 TEST_CASE 최신 기록을 따른다.
+
+변경 파일: AGENTS.md, docs/PHOTO_MAP_EXPLORATION_SPEC.md, docs/SVG_MAP_LABELS_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, docs/prompts.md; frontend/app/index.tsx, frontend/app/_layout.tsx; frontend/src/api.ts, Social.tsx, SvgTravelMap.tsx, PhotoSummarySheet.tsx, photoMap.ts, mapLabels.ts, provinces.ts, Feedback.tsx; frontend/e2e/photo-map.spec.ts, photo-scope.spec.ts, svg-app.spec.ts, svg-map.spec.ts, static-web.spec.ts; backend/tests/photo-map.test.ts, maps-native.test.ts, friends.test.ts. 기존 .env.example·루트 package/lock·스토리보드/tsconfig 변경은 이번 구현 변경 목록에서 제외한다.
+
+## 2026-11-13 19:41 KST — 지도 중심 홈 개편
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+>
+> /feedback 커밋 푸쉬도 해줘
+
+결과: 승인된 차분한 해안 지도, 홈 전용 고정 글자/최소배율/탐색bounds, 전국사진→시도fit→요약, 원형 친구 선택을 기존 조회/시트에 연결했다. t14 사전·제품 P2 보강 승인. 관련 Web/단위/types와 중간실패는 TEST_CASE에 분리했다. Local QA APK에서 실제사진3기록의 두단계선택/요약/상세복귀/drag를 확인했고 실제서버연결 x86_64 APK 설치·Local자료정리를 마쳤으며 에뮬레이터는 유지했다. production export 및 해당artifact static3pass. Native warm 지도이동 지연/높은PSS는 남아 성능 미수용이며 전체E2E·실휴대폰/iOS·실배포는 미검증이다. 관련 변경을 jhyun 커밋·푸시 대상으로 확정하며 별도 .env.example·root package/lock·storyboard·tsconfig 변경은 포함하지 않는다.
+
+변경 파일: frontend/app/index.tsx, frontend/src/SvgTravelMap.tsx,Social.tsx,mapLabels.ts,provinces.ts,theme.ts, frontend/assets/maps/ocean-depth.png, frontend/src/data/maps/korea-ocean.json, scripts/build-ocean.py, backend/tests/map-labels.test.ts,maps-native.test.ts, frontend/e2e/photo-map.spec.ts,photo-scope.spec.ts,svg-app.spec.ts,svg-map.spec.ts,static-web.spec.ts, docs/MAP_FIRST_HOME_SPEC.md,SVG_OCEAN_SPEC.md 및 canonical6. 이전 미커밋 사진지도 코드·검사·명세는 의존 구현으로 함께 포함한다.

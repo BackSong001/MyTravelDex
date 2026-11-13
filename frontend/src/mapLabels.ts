@@ -38,11 +38,11 @@ for(let x=-16;x<=16;x++)for(let y=-16;y<=16;y++)offsets.push([x*6,y*6]);
 offsets.sort((a,b)=>a[0]**2+a[1]**2-b[0]**2-b[1]**2||a[1]-b[1]||a[0]-b[0]);
 type Box={x:number;y:number;width:number;height:number};
 const overlap=(a:Box,b:Box)=>Math.max(0,(a.width+b.width)/2+3-Math.abs(a.x-b.x))*Math.max(0,(a.height+b.height)/2+3-Math.abs(a.y-b.y));
-export function layoutMapLabels(features:Region[],projection:GeoProjection,width:number,height:number){
- const placed:Box[]=[];
+export function layoutMapLabels(features:Region[],projection:GeoProjection,width:number,height:number,obstacles:Box[]=[],fixedFontSize?:number){
+ const placed:Box[]=[...obstacles];
  return features.map(feature=>{
   const {point,area}=regionLabelAnchor(feature),anchor=projection(point)!;
-  const fontSize=Math.round(Math.max(10,Math.min(14,Math.sqrt(area)*projection.scale()/Math.cos(point[1]*Math.PI/180)/10)));
+  const fontSize=fixedFontSize??Math.round(Math.max(10,Math.min(14,Math.sqrt(area)*projection.scale()/Math.cos(point[1]*Math.PI/180)/10)));
   const lines=nameLines(feature.properties.level==='province'?(provinceLabelNames[feature.properties.code]??feature.properties.name):feature.properties.name);
   return {code:feature.properties.code,name:feature.properties.name,anchor,area,lines,fontSize,width:Math.max(...lines.map(l=>l.length))*fontSize+4,height:lines.length*(fontSize+2)+4};
  }).sort((a,b)=>a.area-b.area||a.code.localeCompare(b.code)).map(label=>{

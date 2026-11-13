@@ -35,7 +35,7 @@ for i in range(128):
     layers.append((progress, display))
     previous = distance
 layers.reverse()
-palette = ['#BDEFE5', '#91DDD9', '#70BFD9', '#438DBD', '#245783']
+palette = ['#DCE9E7', '#C7DCDE', '#ADC9D1', '#8EAFBF', '#7294AA']
 x0, y0, x1, y1 = band.bounds
 x0, y0, x1, y1 = x0 - 2, y0 - 2, x1 + 2, y1 + 2
 width, height = x1 - x0, y1 - y0

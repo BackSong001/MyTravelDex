@@ -55,6 +55,9 @@ export function provincePalette(regions: string[]): Record<string,string> {
 }
 export const provinceColors = provincePalette(palette.map.regionPastels);
 export type MapNavigation = {
+  summaryIds?:string[];
+  summaryExpanded?:boolean;
+  summaryOffset?:number;
   province: string|null;
   selected: string|null;
   camera: {center:[number,number];scale:number}|null;
@@ -62,6 +65,7 @@ export type MapNavigation = {
   recordOffset: number;
 };
 export type TravelMapProps = {
+  homeMap?: boolean;
   navigation?: {current:MapNavigation|null};
   navigationOwner?: string|null;
   records: any[];

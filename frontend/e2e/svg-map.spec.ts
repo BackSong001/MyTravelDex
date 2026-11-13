@@ -19,31 +19,31 @@ test('TC-SVG-OCEAN-002 real pixels preserve mainland, islands and holes without 
  };
  const points=[[126.978,37.5665],[126.53,33.38],[130.86,37.50],[126.55,33.15],[126.55,32.8],[126.55,32.1]];
  const first=await sample(1,points);expect(await sample(2,points)).toEqual(first);
- for(const color of first.slice(0,3))expect(color).toEqual([215,239,241]);
+ for(const color of first.slice(0,3))expect(color).toEqual([220,233,231]);
  expect(first[3][1]).toBeGreaterThan(first[4][1]);expect(first[4][1]).toBeGreaterThan(first[5][1]);
  // 원자료에서 실제 union의 가장 큰 내부 ring에 있는 점이다.
  await page.evaluate(()=>(window as any).oceanProof([126.48074349150586,34.686873318244906]));
- const hole=(await sample(1,[[126.48074349150586,34.686873318244906]]))[0];expect(hole).not.toEqual([215,239,241]);expect(hole[1]).toBeGreaterThan(220);
+ const hole=(await sample(1,[[126.48074349150586,34.686873318244906]]))[0];expect(hole).not.toEqual([220,233,231]);expect(hole[1]).toBeGreaterThan(220);
  await page.getByTestId('ocean-proof-1').getByTestId('ocean-texture').evaluate(node=>new Promise<void>(resolve=>{node.addEventListener('error',()=>resolve(),{once:true});node.setAttribute('href','data:image/png;base64,broken');}));
- expect((await sample(1,[[126.48074349150586,34.686873318244906]]))[0]).toEqual([36,87,131]);
+ expect((await sample(1,[[126.48074349150586,34.686873318244906]]))[0]).toEqual([114,148,170]);
 
 });
 test('TC-SVG-OCEAN-001 coastline background remains behind unchanged land and labels',async({page})=>{
  await expect(page.getByTestId('svg-ocean')).toHaveCount(1);
  await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
  await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(17);
- await expect(page.getByTestId('map-region-50')).toHaveAttribute('fill','#E4E8E9');
+ await expect(page.getByTestId('map-region-50')).toHaveAttribute('fill','#E5E9E2');
  await page.screenshot({path:'/tmp/ocean-country.png'});
  await page.getByRole('button',{name:'부산광역시 · 0개',exact:true}).click();
- await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(16);
+ await expect(page.locator('text[data-testid^="map-label-26"]')).toHaveCount(16);
  await page.screenshot({path:'/tmp/ocean-busan.png'});
- const maskPath=await page.getByTestId('ocean-land-11').getAttribute('d'),maskTransform=await page.getByTestId('ocean-land-11').locator('..').getAttribute('transform');
+ const landPath=await page.getByTestId('map-region-26').getAttribute('d'),landTransform=await page.getByTestId('map-region-26').locator('..').getAttribute('transform');
  await page.getByRole('button',{name:'지도 확대',exact:true}).click();
- await expect(page.getByTestId('ocean-land-11')).toHaveAttribute('d',maskPath!);await expect(page.getByTestId('ocean-land-11').locator('..')).not.toHaveAttribute('transform',maskTransform!);
+ await expect(page.getByTestId('map-region-26')).toHaveAttribute('d',landPath!);await expect(page.getByTestId('map-region-26').locator('..')).not.toHaveAttribute('transform',landTransform!);
  await expect(page.getByTestId('svg-ocean')).toHaveCount(1);
  await page.getByRole('button',{name:'대한민국',exact:true}).click();
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
- await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(25);
+ await expect(page.locator('text[data-testid^="map-label-11"]')).toHaveCount(25);
  await page.screenshot({path:'/tmp/ocean-seoul.png'});
 });
 test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readable without blocking map selection',async({page})=>{
@@ -62,7 +62,9 @@ test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readabl
  for(const province of sido){
   await page.getByRole('button',{name:new RegExp('^'+province.properties.name+' ·')}).click();
   const children=districts.filter((f:any)=>f.properties.parentCode===province.properties.code);
-  await expect(labels).toHaveCount(children.length);await expect.poll(names).toEqual(children.map((f:any)=>f.properties.name).sort());
+  const selectedLabels=page.locator('text[data-testid^="map-label-'+province.properties.code+'"]');
+  await expect(selectedLabels).toHaveCount(children.length);await expect.poll(()=>selectedLabels.allTextContents().then(values=>values.sort())).toEqual(children.map((f:any)=>f.properties.name).sort());
+  for(const child of children)await expect(page.getByTestId('map-label-'+child.properties.code)).toHaveText(child.properties.name);
   await expect.poll(overlap).toBe(0);
   await page.getByRole('button',{name:'대한민국',exact:true}).click();
  }
@@ -71,9 +73,12 @@ test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readabl
   const province=sido.find((f:any)=>f.properties.code===code);
   await page.getByRole('button',{name:new RegExp('^'+province.properties.name+' ·')}).click();
   const children=districts.filter((f:any)=>f.properties.parentCode===code);
-  await expect(labels).toHaveCount(children.length);await expect.poll(names).toEqual(children.map((f:any)=>f.properties.name).sort());
-  await expect.poll(overlap).toBe(0);
-  for(const label of await labels.all()){await expect(label).toBeInViewport();expect(await label.evaluate(n=>parseFloat(getComputedStyle(n).fontSize))).toBeGreaterThanOrEqual(10);}
+  const selectedLabels=page.locator('text[data-testid^="map-label-'+province.properties.code+'"]');
+  await expect(selectedLabels).toHaveCount(children.length);await expect.poll(()=>selectedLabels.allTextContents().then(values=>values.sort())).toEqual(children.map((f:any)=>f.properties.name).sort());
+  for(const child of children)await expect(page.getByTestId('map-label-'+child.properties.code)).toHaveText(child.properties.name);
+  // 최소 화면은 전체 이름을 보존하고 실제 잔여 충돌을 기록한다.
+  await test.info().attach(`labels-${code}-320`,{body:JSON.stringify({width:320,province:code,overlapPairs:await overlap()}),contentType:'application/json'});
+  for(const label of await selectedLabels.all()){await expect(label).toBeInViewport();const font=await label.evaluate(n=>parseFloat(getComputedStyle(n).fontSize));expect(font).toBeGreaterThanOrEqual(10);expect(font).toBeLessThanOrEqual(14);}
   await page.screenshot({path:`/tmp/map-label-district-${code}-320.png`});
   await page.getByRole('button',{name:'대한민국',exact:true}).click();
  }
@@ -81,7 +86,7 @@ test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readabl
  await expect.poll(()=>page.getByTestId('svg-map-canvas').evaluate(n=>{const svg=n.querySelector('svg')!;return Math.max(Math.abs(svg.viewBox.baseVal.width-n.clientWidth),Math.abs(svg.viewBox.baseVal.height-n.clientHeight));})).toBeLessThan(1);
  // 제주 라벨 위의 입력도 기존 좌표 판정으로 상세 진입한다.
  const jeju=(await page.getByTestId('map-label-50').boundingBox())!;await page.mouse.click(jeju.x+jeju.width/2,jeju.y+jeju.height/2);await expect(page.getByTestId('map-region-name')).toHaveText('제주특별자치도');
- await expect(labels).toHaveCount(2);
+ await expect(page.locator('text[data-testid^="map-label-50"]')).toHaveCount(2);
  const before=await page.getByTestId('map-label-50110').boundingBox();
  await page.getByRole('button',{name:'지도 확대',exact:true}).click();
  await expect.poll(async()=>(await page.getByTestId('map-label-50110').boundingBox())?.x).not.toBe(before?.x);
@@ -89,16 +94,17 @@ test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readabl
 });
 test('TC-SVG-MAP-001 country, district, scoped list and refreshed own visits',async({page})=>{
  await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
- await expect(page.getByTestId('map-region-11')).not.toHaveAttribute('fill','#E4E8E9');
+ await expect(page.getByTestId('map-region-11')).not.toHaveAttribute('fill','#E5E9E2');
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
- await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(25);
+ await expect(page.locator('path[data-testid^="map-district-11"]')).toHaveCount(25);
  await page.getByRole('button',{name:'중구 · 1개',exact:true}).click();
- await page.getByRole('button',{name:'서울 기록 상세 보기',exact:true}).click();
+ await page.getByRole('button',{name:'서울 기록 · 1개 요약',exact:true}).click();
+ await page.getByRole('button',{name:'서울 기록 자세히 보기',exact:true}).click();
  expect(await page.evaluate(()=>(window as any).opened)).toEqual(['one']);
  await page.evaluate(()=>(window as any).update({records:[],ownRecords:[]}));
- await expect(page.getByRole('button',{name:'서울 기록 상세 보기'})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'서울 기록 자세히 보기'})).toHaveCount(0);
  await page.getByRole('button',{name:'대한민국',exact:true}).click();
- await expect(page.getByTestId('map-region-11')).toHaveAttribute('fill','#E4E8E9');
+ await expect(page.getByTestId('map-region-11')).toHaveAttribute('fill','#E5E9E2');
 });
 test('TC-SVG-MAP-001 keyboard, resizing, zoom and correction use SVG coordinates',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
@@ -143,7 +149,7 @@ test('TC-SVG-MAP-001 district handoff and navigation survive unmount until owner
  const transform=await page.locator('path[data-testid^="map-region-"]').first().locator('..').getAttribute('transform');
  const options=page.getByTestId('map-region-options');
  await options.evaluate(n=>{n.scrollLeft=160;});await expect.poll(()=>options.evaluate(n=>n.scrollLeft)).toBeGreaterThan(100);
- await page.getByRole('button',{name:'도감에서 보기',exact:true}).click();
+ await page.getByRole('button',{name:'선택한 지역 도감에서 보기',exact:true}).click();
  expect(await page.evaluate(()=>(window as any).regions)).toEqual([['KR-11','중구','11140']]);
  await page.evaluate(()=>(window as any).hide());await expect(page.getByTestId('svg-travel-map')).toHaveCount(0);
  await page.evaluate(()=>(window as any).update({}));

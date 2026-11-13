@@ -216,12 +216,12 @@ export function ProfileSetupGate({session,onLogout}:{session:any;onLogout:()=>Pr
  </View></ScrollView></Modal>;
 }
 
-type FriendsProps = Props & {onMap?: (ownerId: string) => void; inviteCode?: string; onInviteHandled?: () => void};
+type FriendsProps = Props & {mapOnly?:boolean; selectedOwner?:string;onMap?: (ownerId: string, name?:string) => void; inviteCode?: string; onInviteHandled?: () => void};
 export function Friends(props: FriendsProps) {
   return <FriendsList key={props.session?.user?.id ?? 'guest'} {...props}/>;
 }
 
-function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: FriendsProps) {
+function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,mapOnly=false,selectedOwner}: FriendsProps) {
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
   const owner = session?.user?.id as string | undefined;
@@ -278,12 +278,12 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
   useEffect(() => {
     active.current = true;
     void loadFollows();
-    if (!isUserId(inviteCode)) void search('');
+    if (!mapOnly&&!isUserId(inviteCode)) void search('');
     return () => {active.current = false; searchRequest.current++; listRequest.current++;};
-  }, [owner]);
+  }, [owner,mapOnly]);
 
   useEffect(() => {
-    if (isUserId(inviteCode)) {setPane('search');setQuery(inviteCode); void search(inviteCode);}
+    if (!mapOnly&&isUserId(inviteCode)) {setPane('search');setQuery(inviteCode); void search(inviteCode);}
   }, [inviteCode]);
 
   async function search(value: string, page = 0) {
@@ -366,7 +366,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     const mapLabel=current?.status==='accepted'?'친구 지도 보기':'지도 보기';
     const identity=<>{profile?<Avatar url={profile.avatar_url} size={48}/>:<View style={s.anonymousAvatar}><JournalIcon name="account" size={32}/></View>}<View style={s.flex}><Text numberOfLines={2} style={s.friendName}>{name}</Text><Text selectable style={s.friendIdentifier}>{code}</Text>{!profile&&<Text style={s.friendHint}>공개 프로필을 사용하지 않는 여행자</Text>}{canMap&&<Text style={s.mapLink}>공개 여행 지도 ›</Text>}</View></>;
     return <View key={id} testID={`friend-person-${id}`} style={s.person}>
-      {canMap?<Pressable accessibilityRole="button" accessibilityLabel={`${mapLabel} · ${name} · ${code}`} disabled={loading||busy!==null} onPress={()=>onMap?.(id)} style={({pressed})=>[s.identity,pressed&&{backgroundColor:c.warm}]}>{identity}</Pressable>:<View style={s.identity}>{identity}</View>}
+      {canMap?<Pressable accessibilityRole="button" accessibilityLabel={`${mapLabel} · ${name} · ${code}`} disabled={loading||busy!==null} onPress={()=>onMap?.(id,name)} style={({pressed})=>[s.identity,pressed&&{backgroundColor:c.warm}]}>{identity}</Pressable>:<View style={s.identity}>{identity}</View>}
       <View style={s.friendActions}>
         {relationActions&&connectionControls(id,profile?.contact_code)}
         {id===owner?<Text style={s.friendHint}>내 프로필</Text>:<Button compact label={busy===id?'처리 중…':followed?'팔로우 해제':owner?'팔로우':'로그인 후 팔로우'} disabled={!owner||!loaded||loading||busy!==null} onPress={()=>void toggle(id,followed)} secondary={followed}/>}
@@ -374,6 +374,14 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     </View>;
   }
 
+  if(mapOnly){
+    const ids=[...new Set([...follows.map(f=>f.followee_id),...connections.filter(r=>r.status==='accepted').map(r=>r.requester_id===owner?r.recipient_id:r.requester_id)])];
+    return <View style={{gap:12}}>
+      {(loading||!loaded&&!listError)&&<ActivityIndicator accessibilityLabel="친구 목록 불러오는 중" color={c.sea}/>}
+      {!!listError&&<><Notice error>{listError}</Notice><Button label="친구 목록 다시 불러오기" onPress={()=>void loadFollows()} disabled={loading} secondary/></>}
+      {loaded&&!loading&&!listError&&<><View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{ids.map(id=><Pressable key={id} accessibilityRole="button" accessibilityLabel={`${authors[id]?.display_name||'여행자'} 지도 선택 · ${authors[id]?.user_code||id}`} accessibilityState={{selected:selectedOwner===id}} onPress={()=>onMap?.(id,authors[id]?.display_name||'여행자')} style={{width:80,alignItems:'center',gap:6,padding:4}}><View style={{borderRadius:28,padding:3,borderWidth:2,borderColor:selectedOwner===id?c.primary:'transparent'}}><Avatar url={authors[id]?.avatar_url} size={48}/></View><Text numberOfLines={2} style={{textAlign:'center',color:c.ink,fontSize:13}}>{authors[id]?.display_name||'여행자'}</Text></Pressable>)}</View>{!ids.length&&<Notice>친구나 팔로우한 여행자가 없어요. 친구 탭에서 추가해 주세요.</Notice>}<Button label="친구 목록 새로고침" onPress={()=>void loadFollows()} secondary/></>}
+    </View>;
+  }
   return <View style={s.container}>
     <View style={s.friendHeading}><Text accessibilityRole="header" style={s.friendTitle}>친구</Text>{owner&&<View><Text style={s.friendHint}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.friendIdentifier}>{identity.code||(identity.error?'확인 필요':'불러오는 중…')}</Text></View>}</View>
     <View accessibilityRole="tablist" accessibilityLabel="친구 메뉴" style={s.friendTabs}>

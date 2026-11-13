@@ -37,13 +37,13 @@ export default function Layout() {
       <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>
     </View>
     {!ready && <View style={s.splash} accessible accessibilityLabel="여행가봥 시작 중" accessibilityRole="progressbar">
-      <Backpack size={112}/><Text style={s.brand}>여행가봥</Text>
+      <Backpack size={96}/><Text style={s.brand}>여행가봥</Text><Text style={{color:c.muted,marginTop:12}}>사진으로 남기는 나의 여행</Text>
     </View>}
   </View></MotionProvider>;
 }
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   root: {flex: 1, backgroundColor: c.paper},
-  splash: {...StyleSheet.absoluteFillObject, backgroundColor: c.paper, justifyContent: 'center', alignItems: 'center', padding: 24},
+  splash: {...StyleSheet.absoluteFillObject, backgroundColor: c.map.ocean, justifyContent: 'center', alignItems: 'center', padding: 24},
   brand: {fontSize: 32, fontWeight: '800', color: c.ink, marginTop: 20, textAlign: 'center'},
 });

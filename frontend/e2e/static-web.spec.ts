@@ -31,3 +31,14 @@ test('TC-WEB-EXPORT-001: production callback loads, removes rejected query and e
  await page.goto(origin+'/auth/callback?error=access_denied&error_description=fixture-private-error');await expect(page.getByRole('alert')).toContainText('취소');await page.getByRole('button',{name:'로그인 화면으로',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();expect(new URL(page.url()).search).toBe('');await expect(page.getByRole('button',{name:'테스트 계정 로그인',exact:true})).toHaveCount(0);await expect(page.getByLabel('비밀번호',{exact:true})).toHaveCount(0);
  await expect(page.getByLabel('처리 중',{exact:true})).toHaveCount(0);await page.setViewportSize({width:1440,height:900});await page.screenshot({path:'/tmp/mytraveldex-web-review/production-login-desktop.png'});await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/mytraveldex-web-review/production-login-mobile.png'});
 });
+
+
+test('TC-PHOTO-MAP-001: exported guest map shows country and zoom without requesting public records',async({page})=>{
+ const feed:string[]=[],errors:string[]=[];page.on('request',r=>{if(/\/rest\/v1\/(travel_records|following_travel_records)/.test(r.url()))feed.push(r.url());});page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(origin);await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();
+ await expect(page.getByTestId('map-label-11')).toHaveText('서울');
+ await page.setViewportSize({width:320,height:568});await expect(page.getByTestId('svg-map-canvas')).toBeVisible();
+ await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await page.getByRole('button',{name:'서울특별시 · 0개',exact:true}).click();await expect(page.getByTestId('map-district-11680')).toBeVisible();
+ await page.getByRole('button',{name:'대한민국',exact:true}).click();await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');
+ expect(feed).toEqual([]);expect(errors).toEqual([]);
+});

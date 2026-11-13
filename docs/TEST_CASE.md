@@ -1348,3 +1348,47 @@ FR-SVG-MAP-LABEL-002 / TC-SVG-MAP-LABEL-002는 [지역명 명세](SVG_MAP_LABELS
 - Web 공통SVG7pass(1.1분): 전국320/390/1440의17약칭·bbox겹침0/가시성·10~14px, 전체시도상세원문/320서울25·경기전체·제주라벨위클릭·줌/핀치/방문색/복귀/바다배경픽셀을 유지한다. 320px스크린샷에서육지·바다/약칭배치를직접확인했다.
 - 실제 configured no-dev8083 + 공개REST대역2pass(10.1초):320/390/844/1440 및17/25라벨·서울/충북약칭·도감지역필터/상세복귀·바다PNG실decode 확인. 실제계정/DB쓰기없음.
 - 원본GeoJSON/DB/행정코드/상단·목록명칭/바다자산·제스처는변경없음. 이번에는새APK/production export·실휴대폰/iOS/실배포를수행하지않았다. 이전바다작업의빌드/Native시각결과를새약칭실기기수용으로합산하지않으며기존Native이동성능제한도유지한다.
+
+
+## 2026-11-13 사진 중심 연속 지도
+
+FR-PHOTO-MAP-001 / TC-PHOTO-MAP-001은 `docs/PHOTO_MAP_EXPLORATION_SPEC.md`를 따른다. 내여행 기본/선택 친구·팔로우 한 명/공개탐색 UI 제거(서버권한 유지), 등록일 대표사진·기록수·단일카메라 연속확대·사진군집·요약시트·동작줄이기를 기존 SVG/사진/권한 경계에 연결한다. 이전 시도별 화면교체와 사진핀 종료 계약은 이 범위에서 대체한다. jhyun/t14 리뷰, 단위·Web·Android 실제수용을 구분하고 원격배포하지 않는다.
+
+### 사진 지도 실행 이력 — 2026-11-13 (진행/최종 결과 분리)
+
+- t14 명세 및 제품 경계 정적 승인: 같은 대상 재선택, 최신 ID payload, count/own 방문색, 요약 복귀 snapshot, geometry bounds culling, 동일좌표 fit, 동작 줄이기, 해외·미배정 필터, 유효 viewport(각 변32px 제외) 85/65% 임계, press/그림자, wide/narrow 보조 스크롤. 리뷰는 읽기만이며 아래 실행은 t12다.
+- 새 단위 파일의 초기 module-not-found는 환경/미구현 오류로 행동 Red로 세지 않는다. 초기에 요약 버튼 role 누락, sheet drag 실패, 조건부 구목록으로 인한 canvas/base 변경, 상세 임계 미진입을 각각 관찰하고 보강했다. 기존 focused2/4/6 실행을 최종 전체 수치로 합산하지 않는다.
+- 짧은 지도 회귀 첫 구성(root280)은 실제 canvas258px여서 준비조건 실패(8pass/1fail). root200 구성은 보조 목록 높이가0에 가까워 버튼 접근 timeout(10pass/1fail). host maxHeight180의 독립 임계 검사1pass(12.8초)와 wide 전체 보조 스크롤 제품 보강을 분리했다. 후속 실제 root200 접근 검사를 유지한다.
+- press/MotionProvider/짧은 wide 보강 후 공통SVG·scope13pass(2.1분). 설치 SDK 모션 provider, actual photo hit/drag, reduced 변경, CDP1→2→1, 같은 mine/friend 재진입 및 owner 서버조건을 검사했다. 실제 GeoJSON/공통 컴포넌트와 Local Auth·대역 기록을 사용하며 Android 증거가 아니다.
+- 최초 새 export는 빌드 성공이지만 static2pass/1fail: 320px 보조 영역 수축으로 지역 버튼에 출처/줌 도구가 겹쳐 실제 클릭이 차단됐다. narrow 외부 세로 ScrollView와 사진56/지역64 자연 높이로 수정했다. 새 artifact 재검증 전 성공으로 합산하지 않는다.
+- svg-app 성숙계정 준비에서 잘못 만든 boolean status 대역이 오류 Modal을 띄워2fail. 별도 추적 재실행은 동시에 다른 Playwright가 같은 출력폴더를 사용해 trace 저장 ENOENT도 발생했으므로 독립 증거로 쓰지 않는다. 실제 Local status RPC를 통과시키고 Gate 확인중/재시도 부재를 기다리도록 수정했다. 제품 Gate·강제 클릭·허용오차를 완화하지 않았다.
+- 최신 제품 기준 Web **15pass(2.4분)**: photo-map11 + photo-scope2 + 실제앱 svg-app2. 320/390/844/1440, 동일 GeoJSON 카메라/보정좌표, 핀치, count/미방문색, 삭제 payload, 요약 확대·재마운트 복귀, 국내선택 전후 other handoff, 실제<=213 canvas와 짧은 wide 스크롤, press/reduced/Escape, mine/friend 재선택, 시군구 도감필터/상세·홈복귀. 실제앱 fixture는 Local Auth/profile RPC와 대역 기록을 분리한다.
+- 최신 관련 단위/Local 관계 HTTP/Native SSR **5files16pass(11.10초)** 및 frontend types exit0, diff check 통과. SSR은 Native 화면 렌더/제스처 수용이 아니다. 전체 E2E를 새 전체Green으로 선언하지 않는다.
+- Android 첫후보 build2분28초는 빌드 중 후속변경으로 최종artifact에서 제외. 후속후보 build2분21초/430tasks 성공, 휴식 후 설치하고 Local 임시계정/실제 Storage JPEG3건의 전국 대표사진·등록일 정렬/3건요약·확대·개별상세/갤러리와 홈복귀 시 요약확대를 확인했다. narrow 최종 보강 이전 후보 증거다. 테스트 입력은 ADB 한글 IME 변환 때문에 실패하여 UiAutomator2 실제 입력으로 보정했고 앱 인증 실패와 구분한다.
+- Native 비교 기준은 기존 PNG+벡터 SVG APK의 같은 에뮬레이터 전국지도/각1초 pan2회:12frames/jank100%/P50 350ms/P90 1150ms/PSS445577KiB. 이는 단발 환경 관측이며 이전 날짜의 성능 측정과 합산하지 않는다. 최종 APK 성능·실휴대폰/iOS·원격배포는 후속 결과 전 미수용이다.
+- 최종 narrow APK build **2분22초/430tasks(15실행)** 성공 후 휴식/설치. 같은 Local 임시3기록/실제Storage사진에서 전국 대표3·요약확대·개별상세→홈 확대요약 복원·안정된 핸들 아래drag닫기·서울fit의1건/동일좌표2건 군집·pinch를 관찰했다. 재시작 후 stale Appium을 새 noReset 세션으로 재연결한 것은 앱데이터 reset이 아니다. 최종 Native에서 선택친구 실제계정 왕복/짧은 가로 화면은 별도 미검증이다.
+- Native 성능은 표본을 분리한다. 기존 baseline12frames/jank100%/P50 350ms/P90 1150ms/PSS445577KiB, 최신 cold guest18frames/jank16.67%/P50 16ms/P90 250ms/P95 350ms/PSS312876KiB, 여러 화면을 거친 뒤 로그아웃한 warm37frames/jank56.76%/P50 150ms/P90 250ms/PSS879804KiB. 같은 에뮬레이터/전국/1초pan2회지만 표본의 로그인·온도·사진 이력이 완전히 동일하다고 보장하지 않으므로 일반 개선율/무회귀·메모리누수를 단정하지 않는다. **Native 연속 이동 성능은 계속 미수용**이다.
+- 최종 APK 시험 후 QA계정/여행/위치/Storage만 정리하고 사용자 원래APK를 데이터초기화 없이 복원했다. 원격DB/배포/사용자자료 변경은 없다. APK `/tmp/photo-map-native/accepted-candidate.apk`는 Local QA 연결 시험본이며 production 배포본이 아니다.
+- 최신 production export exit0(2026-11-13T09:36:53Z). 산출물 수용 검사는 별도다. 기존 svg-map 회귀의 화면교체·구목록·조건부차폐 기대는 t14 방향검토 후 연속지도/실제자녀ID·이름/사진요약/고정도감 연결로 보정하며 제품은 추가변경하지 않는다.
+- 최신 실제 export(entry-423cd07f7c83e67108f10fb6b916a8ab.js)의 static3은 HTML/JS/PNG MIME·바이트/누락404·production callback·비로그인320px지도/공개feed요청0으로 통과했다. 실제Vercel/OAuth완료와 구분한다.
+- 기존 SVG 회귀+static 실행은 **9pass/1fail(1.6분)**이다. 선택서울25의 정확code/name은 통과했지만 기존 모든라벨 가시성이 화면밖 인접경기41430까지 강제해 실패했다. 선택자녀 가시성으로 보정한 대상1 실행은 **1fail(22.6초)**:320 경기fit에서 실제 화면내bbox7쌍 겹침을 검출했다. 진단 재실행도 같은 실패를 보존하며 해결로 합산하지 않는다.
+- 단발 계측은 실제320x250.8 canvas/10px 글자/겹침 위치를 확인했으나 배치 최적성·공간상 불가피성을 증명하지 않는다. t14의 기존 최소화면 예외 승인에 따라 320 서울0/경기7은 bbox attachment로 남기고, 선택자녀별code/name·전체개수/가시성/10~14px·전국3viewport와desktop각시도겹침0·제주 실제클릭/줌은 유지한다. 이전 명세의320겹침0은 사진지도전환전 이력으로 한정했다. 최소화면 예외 검사의 후속 통과를 겹침 해소로 표현하지 않는다.
+- 최종 지역명 대상 **1pass(21.2초)**: 최소화면 예외의 실제 충돌 attachment와 나머지 정확이름/가시성/입력 계약 통과. 앞선9pass/1fail을 새전체10Green으로 합산하지 않는다. 이전 Web15/단위HTTP·SSR16 및 이 별도 회귀들만 실행했으며 전체E2E는 실행하지 않았다. 최종 diff check/types exit0. Native 성능·320경기 잔여겹침·실휴대폰/iOS·선택친구 Native 실제계정왕복·원격배포는 제한/미검증으로 남긴다.
+
+
+## 2026-11-13 지도 중심 홈
+FR-MAP-HOME-002 / TC-MAP-HOME-002는 docs/MAP_FIRST_HOME_SPEC.md를 따른다. 홈 도구축소/차분한해안색/방문색제거/기본12×fontScale(배치도동일)/홈전용탐색bounds124~132·32~40/최소전국fit/전국사진우선확대/원형친구선택을 적용한다. 기존 scope권한·집계·작성/보정은 유지하며 DB/API변경없음. jhyun 관련변경만 검증후커밋·푸시한다.
+
+
+### TC-MAP-HOME-002 실행 이력
+- 사전 t14 P2: 12×fontScale/홈 탐색bounds124~132·32~40 명확화 후 승인. 제품 P2: 전역버튼 .975복원·homeMap 전환 layout effect로 fly종료 후 승인.
+- Red 홈 도구 제거 전 map-region-options1로 실패. 구현 후 기존 photo-map11pass/홈1fail은 Web SVG font가 HTML attribute 대신 CSS인 전제 차이였으며 실제CSS12px 검사로 보정했다. 홈두단계/모드전환·해외보정 focused2pass(22.5초).
+- 관련 단위4파일10pass 및 Native fontScale2/홈 무방문색 SSR 추가3pass. frontend tsc exit0. 잘못된 루트 tsc 실행의 Deno/외부root설정 오류는 frontend 검증과 구분한다.
+- 실제 no-dev 앱/친구/기존SVG 회귀는 10개통과 후 process143 종료되어 전체11Green으로 기록하지 않는다. 미완료 snapshot/ownerreset 대상1은 별도pass. 실제 Local 인증·친구/나 동일대상·서버owner조건·지역도감/상세복귀·320/390/844/1440·해안 실픽셀/섬/hole을 확인했다.
+- 추가 viewport/wheel/pan은 RNWeb 기본margin0 전제 보정과 역투영40.00000000000001(약1e-14) 비교에1e-9 부동소수 허용을 적용한 후1pass(12.3초). 실제 화면/배율 조건은 유지했다. 한계 없는 카메라를 허용하는 변경이 아니다.
+- 최신 PNG351,422bytes/2048²/계산상RGBA16MiB, 원본GeoJSON hash불변. 실제기기 총PSS/이동성능 개선을 의미하지 않는다.
+- 최종 Local QA APK build2분27초/430tasks20실행 성공. mytrveldex 에뮬레이터의 임시계정/실제Storage3기록으로 전국사진→서울fit(요약없음)→동일좌표2건요약→실제상세→홈요약복원→핸들drag닫기를 관찰했다. 친구 Modal의 나/빈관계 안내·pan/pinch도 확인했다. 실제 친구계정 Native 왕복은 미검증이다. 초기 ADB 한글IME/화면 전환·stale 좌표 시도는 성공 수에 합산하지 않고 최신 화면/명시session에서 다시 확인했다.
+- 최신 warm Native 표본(여러 화면/요약 후)은27frames/jank100%/P50 550ms/P90 650ms/PSS1,073,644KiB/swapPSS19,684KiB다. 이전 baseline/cold와 조건이 같지 않으므로 일반 개선율·회귀율·메모리누수 원인을 단정하지 않는다. **Native 지도 이동 성능은 미수용**이며 기능 확인과 분리한다.
+- 실제 서버 연결 x86_64 APK build1분33초/430tasks15실행 성공. `/tmp/map-first-home/mytraveldex-jhyun.apk`를 사용자 데이터 초기화 없이 설치하고 설치본SHA256 일치/프로세스 실행을 확인했다. 휴대폰용 universal/Play 제출본은 아니다. Local QA자료만 정리(cleaned=true), functions 종료, 에뮬레이터는 사용자 확인용으로 유지했다. 실제서버의 로그인/CRUD를 이번 QA 성공으로 계산하지 않는다.
+- 최종 production export exit0(2026-11-13T10:53:36Z), entry-8020cd762eae9198eedd3c3a9c1d4005.js. 해당 산출물 static **3pass(7.9초)**: HTML/JS/PNG 실바이트·MIME/누락404, callback취소·비밀번호UI없음,320px guest지역찾기/확대/전국복귀·공개feed요청0·pageerror0. 실제Vercel 배포/OAuth완료는 별도다. 전체E2E·실휴대폰/iOS·Native 성능 수용은 선언하지 않는다.
+- 최종 frontend `tsc --noEmit` exit0. 검증 결과는 위 실행별 범위로만 기록한다.

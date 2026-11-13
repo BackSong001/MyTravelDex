@@ -34,3 +34,12 @@ test('TC-SVG-MAP-LABEL-002 only the seventeen province labels use explicit short
  for(const feature of [unknown,district])expect(layoutMapLabels([feature],fitProjection([feature],320,400),320,400)[0].lines.join('')).toBe(feature.properties.name);
  expect(JSON.stringify([...regions,...districts].map(f=>f.properties))).toBe(source);
 });
+
+
+test('TC-MAP-HOME-002 home font uses the user scale in both text and collision boxes, independently of geographic zoom',()=>{
+ const p=fitProjection(regions,320,600);
+ for(const zoom of [1,4])for(const scale of [1,2]){
+  const labels=layoutMapLabels(regions,p.scale(p.scale()*zoom),320,600,[],12*scale);
+  for(const label of labels){expect(label.fontSize).toBe(12*scale);expect(label.width).toBe(Math.max(...label.lines.map(l=>l.length))*12*scale+4);expect(label.height).toBe(label.lines.length*(12*scale+2)+4);}
+ }
+});
