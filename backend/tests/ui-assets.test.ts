@@ -11,6 +11,8 @@ test('TC-FIGMA-ASSET-001: thirteen preserved PNGs match Figma and retired ocean 
   const bytes=readFileSync(root+asset.file);expect(bytes.length).toBe(asset.bytes);expect(bytes.subarray(0,8).toString('hex')).toBe('89504e470d0a1a0a');
   expect(bytes.readUInt32BE(16)).toBeGreaterThan(0);expect(bytes.readUInt32BE(20)).toBeGreaterThan(0);
   expect(createHash('sha256').update(bytes).digest('hex')).toBe(asset.sha256);
-  expect(bytes.equals(readFileSync(asset.source))).toBe(true);if(asset.file.startsWith('ocean-'))expect(source).not.toContain(asset.file);else expect(source).toContain(asset.file);
+  expect(bytes.equals(readFileSync(asset.source))).toBe(true);
+  const retired=asset.file.startsWith('ocean-')||asset.file.endsWith('-stamp-v1.png');
+  if(retired)expect(source).not.toContain(asset.file);else expect(source).toContain(asset.file);
  }
 });

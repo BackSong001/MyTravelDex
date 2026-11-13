@@ -20,11 +20,11 @@ test.beforeAll(async()=>{
  }
 });
 test.afterAll(async()=>{if(user){if(unregistered.size)await admin('/storage/v1/object/travel-photos','DELETE',{prefixes:[...unregistered]});await cleanRecords(user.id);await admin(`/auth/v1/admin/users/${user.id}`,'DELETE');}});
-test('TC-FIGMA-STAMP-001: own private/public complete regions deduplicate, exclude drafts/overseas and decode the matching Figma symbols',async({page})=>{
+test('TC-FIGMA-STAMP-001: own private/public complete regions deduplicate, exclude drafts/overseas and decode the matching stamp images',async({page})=>{
  await login(page,user.email,user.password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 17');
  await page.getByRole('button',{name:/^여행 스탬프 보기 ·/}).click();await page.getByRole('tab',{name:'모은 스탬프 2',exact:true}).click();
  await expect(page.getByTestId('region-stamp')).toHaveCount(2);await expect(page.getByTestId('stamp-total')).toHaveAccessibleName('스탬프 방문 지역 수 · 2 / 17');await expect(page.getByLabel('서울, 방문 완료',{exact:true})).toBeVisible();await expect(page.getByLabel('부산, 방문 완료',{exact:true})).toBeVisible();
- for(const file of ['busan-seagull-stamp-v1','seoul-ginkgo-stamp-v1']){
+ for(const file of ['busan-summer-stamp','seoul-gyeongbokgung-stamp']){
   const image=page.locator(`img[src*="${file}"]`);await expect(image).toHaveCount(1);await expect.poll(()=>image.evaluate(node=>node instanceof HTMLImageElement&&node.complete&&node.naturalWidth>0)).toBe(true);
   const box=(await image.boundingBox())!;expect(box.width).toBeCloseTo(108,0);expect(box.height).toBeCloseTo(108,0);
  }

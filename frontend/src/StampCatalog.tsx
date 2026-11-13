@@ -5,7 +5,7 @@ import {ActivityIndicator,Image,Linking,StyleSheet,View} from 'react-native';
 import Svg,{Path} from 'react-native-svg';
 import Pressable from './Feedback';
 import {provinceLabels} from './provinces';
-import {regions,legacyCodes,renderFeature,fitProjection} from './regions';
+import {regions,legacyCodes,renderFeature,fitProjection,regionAt} from './regions';
 import {geoPath} from 'd3-geo';
 import {uiAssets} from './uiAssets';
 const outlines=regions.map(feature=>({id:legacyCodes[feature.properties.code],path:geoPath(fitProjection([feature],163,94)).digits(2)(renderFeature(feature))??''}));
@@ -26,9 +26,13 @@ export default function StampCatalog({groups,confirmed,failed,onBack}:{groups:Re
   {confirmed&&collected&&!count&&<Text style={s.empty}>아직 모은 스탬프가 없어요.</Text>}
   {entries.map(region=>{
    const visited=confirmed&&!!groups[region.id],name=provinceLabels[region.id].name,source=uiAssets.stamps[region.id as keyof typeof uiAssets.stamps];
+   const districtCodes=visited&&region.id==='KR-48'
+    ? new Set(groups[region.id].map(({locations})=>regionAt(Number(locations.latitude),Number(locations.longitude))?.properties.code))
+    : new Set();
+   const districtStamps=Object.entries(uiAssets.districtStamps).filter(([code])=>districtCodes.has(code));
    return <View key={region.id} testID="region-stamp" accessibilityLabel={`${name}, ${!confirmed?'확인 전':visited?'방문 완료':'미획득'}`} style={s.row}>
     <View style={s.region}><Svg width="100%" height={94} viewBox="0 0 163 94" preserveAspectRatio="xMidYMid meet" accessible={false}><Path d={region.path} fill={c.tint} stroke={c.accent} strokeWidth={1} fillRule="evenodd"/></Svg><Text style={s.regionName}>{name}</Text></View>
-    <View style={s.region}>{visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?'확인 전':visited?`${name}\n내 방문`:'새 여행을\n기다려요'}</Text></View>}<Text style={s.small}>{!confirmed?'확인 전':visited?'✓ 내 여행 스탬프':'미획득'}</Text></View>
+    <View style={s.region}>{districtStamps.length>0?districtStamps.map(([code,stamp])=><Image key={code} source={stamp.source} accessibilityLabel={`${stamp.name} 여행 스탬프`} resizeMode="contain" style={s.art}/>):visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?'확인 전':visited?`${name}\n내 방문`:'새 여행을\n기다려요'}</Text></View>}<Text style={s.small}>{!confirmed?'확인 전':visited?'✓ 내 여행 스탬프':'미획득'}</Text></View>
    </View>;
   })}
   <Pressable accessibilityRole="link" accessibilityLabel="스탬프 지리 데이터 출처" onPress={()=>void Linking.openURL('https://github.com/vuski/admdongkor')} style={s.back}><Text style={s.small}>SGIS · vuski/admdongkor · CC BY 4.0 · 2026-04-01</Text></Pressable>

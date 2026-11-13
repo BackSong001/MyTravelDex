@@ -4,8 +4,18 @@ export const uiAssets = {
  backpack: require('../assets/ui/backpack-v1.png'),
  defaultAvatar: require('../assets/ui/avatar-bear-v1.png'),
  stamps: {
-  'KR-26': require('../assets/ui/busan-seagull-stamp-v1.png'),
-  'KR-11': require('../assets/ui/seoul-ginkgo-stamp-v1.png'),
+  'KR-11': require('../assets/ui/seoul-gyeongbokgung-stamp.png'),
+  'KR-26': require('../assets/ui/busan-summer-stamp.png'),
+  'KR-27': require('../assets/ui/daegu-stamp.png'),
+  'KR-30': require('../assets/ui/daejeon-stamp.png'),
+  'KR-31': require('../assets/ui/ulsan-whale-stamp.png'),
+  'KR-45': require('../assets/ui/jeonju-bibimbap-stamp.png'),
+  'KR-49': require('../assets/ui/jeju-stamp.png'),
+ },
+ districtStamps: {
+  '48170': {name: '진주', source: require('../assets/ui/jinju-otter-stamp.png')},
+  '48220': {name: '통영', source: require('../assets/ui/tongyeong-oyster-stamp.png')},
+  '48310': {name: '거제', source: require('../assets/ui/geoje-pebble-stamp.png')},
  },
  navigation: {
   home: require('../assets/ui/nav-home-v1.png'),
