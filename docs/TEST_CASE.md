@@ -1392,3 +1392,20 @@ FR-MAP-HOME-002 / TC-MAP-HOME-002는 docs/MAP_FIRST_HOME_SPEC.md를 따른다. �
 - 실제 서버 연결 x86_64 APK build1분33초/430tasks15실행 성공. `/tmp/map-first-home/mytraveldex-jhyun.apk`를 사용자 데이터 초기화 없이 설치하고 설치본SHA256 일치/프로세스 실행을 확인했다. 휴대폰용 universal/Play 제출본은 아니다. Local QA자료만 정리(cleaned=true), functions 종료, 에뮬레이터는 사용자 확인용으로 유지했다. 실제서버의 로그인/CRUD를 이번 QA 성공으로 계산하지 않는다.
 - 최종 production export exit0(2026-11-13T10:53:36Z), entry-8020cd762eae9198eedd3c3a9c1d4005.js. 해당 산출물 static **3pass(7.9초)**: HTML/JS/PNG 실바이트·MIME/누락404, callback취소·비밀번호UI없음,320px guest지역찾기/확대/전국복귀·공개feed요청0·pageerror0. 실제Vercel 배포/OAuth완료는 별도다. 전체E2E·실휴대폰/iOS·Native 성능 수용은 선언하지 않는다.
 - 최종 frontend `tsc --noEmit` exit0. 검증 결과는 위 실행별 범위로만 기록한다.
+
+
+## 2026-11-13 홈 선택 범위와 복귀 도구
+FR-MAP-HOME-003 / TC-MAP-HOME-003은 docs/MAP_FIRST_HOME_SPEC.md의 최신 절을 따른다. 홈 선택시도만 정확한파란테두리/18%색으로 강조하고 +/−/홈 한글자표시(48px입력),지역찾기버튼제거·지도키보드/스크린리더목록대안을 연결한다. 홈/대한민국은선택·요약·진행중이동을해제하고현재전국fit으로복귀한다. 비홈·기존데이터·권한/API/DB는유지하며Web/Native실행증거를구분한다.
+
+### TC-MAP-HOME-003 실행 이력
+- t14 사전 P2는 지도에 남고 다른Modal없을때만focus복귀로 한정해 보강했다. 제품 P1 Web 접근성 합성click(detail0) 연결을 추가했고 Native activate/실pointer경로를 분리했다. 정적 승인과 실제실행을 구분한다.
+- Red1fail: 기존 지역찾기버튼1개가 남아 실패. 최초focused2pass/2fail은 실제pointer 선택실패와 공통Feedback 최소50px를48px정확값으로검사한 전제였다. 버튼은공통50px를유지하고 최소48~50 범위를검사한다. mousedown focus가원인이라는추정과preventDefault후보는 폐기했다.
+- 실제계측: Web rolebutton이기존div를button으로교체해 host높이678/viewBox337을남겼다. Web roleapplication/tabIndex로같은div를유지하고Nativebutton을분리했다. 임의offset/강제key변경없음. 보강후홈사진/모드/resize/접근성4pass,새TC1fail은이동된서울label좌표가인천geometry에닿은기대오류였다. 실제부산WGS84좌표를기존fitProjection으로투영한pointer검사로바꾸며제품좌표는그대로유지했다.
+- Native공통SSR4pass 및 frontend types exit0. 실제Android글자/파랑/터치·스크린리더의독립수용을뜻하지않는다. 관련19개Web/최신export/Native는각후속완료결과로구분한다.
+- 최종관련Web **19pass(3.2분)**: 사진지도17+실제no-dev앱2. 정확province파랑path/district뒤·라벨앞·사진선택보존,홈/대한민국선택해제·전국transform복구,부산실좌표click,합성click/키보드목록·summaryfocus,fly중reset450ms·DOMidentity/host-viewBox오차1px미만 및기존도감/상세·보정/pinch를확인했다. 전체E2E성공은아니다.
+- RNWeb의accessibilityHint는DOM전달되지않아Web label의Enter/Space안내와aria-keyshortcuts를명시했다. 해당최종DOM/focus집중검사 **1pass(10.8초)**. 실제스크린리더앱/Native접근성수용과분리한다.
+- 최초actual x86_64 APK build1분28초/430tasks15실행 성공. 설치후기존보유사진→부산fit의파란경계/18%영역·지역명/사진과홈복귀를관찰했다. 자료생성/수정/삭제·로그아웃은하지않았다. 이후overlay문자미표시를관측해이전actualAPK로동일부산선택을비교했고기존대한민국/친구문자도사라짐을확인했다. 원인/누수/전체Native수용을단정하지않는다.
+- 새버튼helper의alignItems:center 후보는원래stretch로복원하고Text.textAlign:center로표시정렬만한정했다. Web해당선택/reset/접근성 **2pass(19.9초)**. 최종APK재검증과이전후보를구분한다.
+- textAlign보강candidate도이동후도구문자미표시가남아해결로계산하지않았다. 홈overlay두wrapper zIndex1/친구zIndex2를명시하는표시순서보강은t14정적승인후적용했으며 해당Web **2pass(19.8초)**. 공통Feedback/좌표/API변경없음. 최종Nativeartifact실행으로효과를별도판정한다.
+- 최종zIndex artifact build1분30초/430tasks15실행 성공. 실제서버연결 x86_64 APK에서 보유사진→부산강조,홈→전국/강조제거,직접강원선택→강조,대한민국→전국/강조제거를관찰했다. Native도구글자미표시는선택화면에서여전히관측되어zIndex를해결증거로계산하지않는다(전국복귀후다시표시). 사용자자료/계정/원격DB변경없음,최신APK설치와에뮬레이터유지. 실제스크린리더/실휴대폰/iOS·기존Native성능과이표시제한은미수용이다.
+- 최신 production Web export exit0 (2026-11-13T11:34:34.582Z), entry-5631aef5bc07215f9d780c3e1e7331ef.js. 최종 artifact 검사 **3pass(8.9초)**: MIME/실제bytes·OAuth취소callback·320px guest 지도에서 키보드목록→서울파랑강조→홈/대한민국 각각초기화, 공개feed요청0/콘솔pageerror0. 최종frontend types exit0. Native표시제한과전체E2E/실배포미검증은유지한다.

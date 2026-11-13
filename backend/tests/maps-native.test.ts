@@ -26,5 +26,14 @@ test('TC-MAP-HOME-002 Native home keeps scaled labels, neutral visits and hides 
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[mine],ownRecords:[mine]}));
  expect(html).toMatch(/testID="map-region-11"[^>]*fill="#E5E9E2"/);
  expect(html).toMatch(/testID="map-label-11"[^>]*font-size="24"/);
- expect(html).toContain('지역 찾기');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
+ expect(html).toContain('지도 지역 및 사진 목록');expect(html).toContain('지도 홈');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
+});
+
+
+test('TC-MAP-HOME-003 Native home overlays the selected province below labels and preserves source paths',()=>{
+ const navigation={current:{province:'11',selected:null,camera:null,regionOffset:0,recordOffset:0}};
+ const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[],navigation}));
+ const overlay=html.match(/<path[^>]*testID="map-selection"[^>]*>/)?.[0];expect(overlay).toBeDefined();expect(overlay).toContain('fill="#3B82F6"');expect(overlay).toContain('fill-opacity="0.18"');expect(overlay).toContain('stroke="#2563EB"');
+ expect(overlay?.match(/ d="([^"]+)"/)?.[1]).toBe(html.match(/testID="map-region-11" d="([^"]+)"/)?.[1]);expect(html.indexOf('testID="map-selection"')).toBeLessThan(html.indexOf('testID="map-label-'));
+ const nonhome=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:false,fullScreen:true,records:[],navigation}));expect(nonhome).not.toContain('map-selection');
 });

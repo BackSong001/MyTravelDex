@@ -1799,3 +1799,14 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: 승인된 차분한 해안 지도, 홈 전용 고정 글자/최소배율/탐색bounds, 전국사진→시도fit→요약, 원형 친구 선택을 기존 조회/시트에 연결했다. t14 사전·제품 P2 보강 승인. 관련 Web/단위/types와 중간실패는 TEST_CASE에 분리했다. Local QA APK에서 실제사진3기록의 두단계선택/요약/상세복귀/drag를 확인했고 실제서버연결 x86_64 APK 설치·Local자료정리를 마쳤으며 에뮬레이터는 유지했다. production export 및 해당artifact static3pass. Native warm 지도이동 지연/높은PSS는 남아 성능 미수용이며 전체E2E·실휴대폰/iOS·실배포는 미검증이다. 관련 변경을 jhyun 커밋·푸시 대상으로 확정하며 별도 .env.example·root package/lock·storyboard·tsconfig 변경은 포함하지 않는다.
 
 변경 파일: frontend/app/index.tsx, frontend/src/SvgTravelMap.tsx,Social.tsx,mapLabels.ts,provinces.ts,theme.ts, frontend/assets/maps/ocean-depth.png, frontend/src/data/maps/korea-ocean.json, scripts/build-ocean.py, backend/tests/map-labels.test.ts,maps-native.test.ts, frontend/e2e/photo-map.spec.ts,photo-scope.spec.ts,svg-app.spec.ts,svg-map.spec.ts,static-web.spec.ts, docs/MAP_FIRST_HOME_SPEC.md,SVG_OCEAN_SPEC.md 및 canonical6. 이전 미커밋 사진지도 코드·검사·명세는 의존 구현으로 함께 포함한다.
+
+
+## 2026-11-13 20:12 KST — 홈 선택 강조와 복귀 버튼
+
+사용자 프롬프트 원문:
+
+> 전국지도 스케일에서 사진이나 도나 특별시를 선택해서 이동하면, 파란테두리와 투명한 파란색으로 범위를 특정해줬으면 좋겠어. 그리고 그냥 지역찾기 버튼은 없애주고, + - 홈 버튼만 한글자 크기로 만들어주고, 홈을 누르면 전국지도 디폴트 스케일로 돌아오고, 선택 테두리와 색도 지워줘. 대한민국 버튼을 눌러도 마찬가지
+
+결과: 기존선택province의정확한SVGpath로파랑강조를홈에만추가하고,지역찾기버튼제거/+·−·홈한글자표시와공통country초기화를연결했다. 키보드/접근성목록대안·요약focus소유권과비홈/data를유지한다. t14리뷰및Web rolebutton후보실패를거쳐DOMidentity보존방식으로보강했다. 관련Web19pass·후속집중검사2pass, 최신export/static3pass·SSR4pass·최종types0을확인했다. 최신에뮬레이터APK에서사진/지역파랑강조와두전국복귀를확인했으나이동후도구글자미표시와기존Native성능제한은남아전체수용으로표시하지않는다. jhyun관련변경만커밋·푸시하며원격배포는하지않는다.
+
+변경파일: frontend/app/index.tsx,frontend/src/SvgTravelMap.tsx; backend/tests/maps-native.test.ts; frontend/e2e/photo-map.spec.ts,svg-app.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.

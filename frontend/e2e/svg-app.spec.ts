@@ -21,26 +21,26 @@ test('TC-SVG-MAP-001 actual app country, regional records, resize and no old the
   for(const name of ['지도 확대','지도 축소','대한민국','기록 만들기'])await expect(page.getByRole('button',{name,exact:true})).toBeInViewport();
   await page.screenshot({path:`/tmp/photo-map-native/web-${width}.png`});
  }
- await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await page.getByRole('button',{name:'서울특별시 · 2개',exact:true}).click();
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 2개',exact:true}).click();
  await expect(page.locator('path[data-testid^="map-district-11"]')).toHaveCount(25);
  await expect(page.locator('text[data-testid^="map-label-11"]')).toHaveCount(25);
  await expect(page.getByTestId('map-label-11140')).toHaveText('중구');
- await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await page.getByRole('button',{name:'중구 · 1개',exact:true}).click();
- await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await expect(page.getByRole('button',{name:'서울 산책 · 1개 요약',exact:true})).toBeVisible();
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'중구 · 1개',exact:true}).click();
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'서울 산책 · 1개 요약',exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'테마',exact:true})).toHaveCount(0);expect(errors).toEqual([]);
 });
 
 test('TC-SVG-MAP-001 Home district filters the journal and restores after detail',async({page})=>{
- await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await page.getByRole('button',{name:'서울특별시 · 2개',exact:true}).click();
- await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await page.getByRole('button',{name:'중구 · 1개',exact:true}).click();
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 2개',exact:true}).click();
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'중구 · 1개',exact:true}).click();
  await page.getByRole('button',{name:'지도 확대',exact:true}).click();
  const transform=await page.locator('path[data-testid^="map-region-"]').first().locator('..').getAttribute('transform');
- await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await page.getByRole('button',{name:'서울 산책 · 1개 요약',exact:true}).click();await page.getByRole('button',{name:'서울 산책 자세히 보기',exact:true}).click();
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울 산책 · 1개 요약',exact:true}).click();await page.getByRole('button',{name:'서울 산책 자세히 보기',exact:true}).click();
  await expect(page.getByText('서울 산책',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'목록으로',exact:true}).click();
  await expect(page.getByTestId('map-region-name')).toHaveText('중구');
  await expect(page.locator('path[data-testid^="map-region-"]').first().locator('..')).toHaveAttribute('transform',transform!);
- await page.getByRole('button',{name:'닫기',exact:true}).click();await page.getByRole('button',{name:'지역 찾기',exact:true}).click();await page.getByRole('button',{name:'선택한 지역 도감에서 보기',exact:true}).click();
+ await page.getByRole('button',{name:'닫기',exact:true}).click();await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'선택한 지역 도감에서 보기',exact:true}).click();
  await expect(page.getByRole('button',{name:/^서울 산책, 여행자,/})).toBeVisible();
  await expect(page.getByRole('button',{name:/^강남 산책, 여행자,/})).toHaveCount(0);
  await page.getByRole('tab',{name:'홈',exact:true}).click();
