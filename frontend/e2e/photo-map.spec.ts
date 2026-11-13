@@ -222,12 +222,52 @@ test('TC-MAP-HOME-003 assistive click opens only the list and summary keeps its 
 });
 
 
-test('TC-MAP-HOME-003 reset during flight preserves the canvas and clears all later camera updates',async({page})=>{
+test('TC-MAP-HOME-004 reset during flight preserves the canvas and animates back before clearing camera',async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});await expect(page.getByTestId('svg-map-canvas')).toBeVisible();
  await page.evaluate(()=>{(window as any).canvasBefore=document.querySelector('[data-testid="svg-map-canvas"]');(window as any).update({homeMap:true});});
  const canvas=page.getByTestId('svg-map-canvas');await expect(canvas).toHaveAttribute('role','application');expect(await canvas.evaluate(n=>n===(window as any).canvasBefore)).toBe(true);
  await expect.poll(()=>canvas.evaluate(n=>{const b=n.getBoundingClientRect(),v=n.querySelector('svg')!.viewBox.baseVal;return Math.max(Math.abs(b.width-v.width),Math.abs(b.height-v.height));})).toBeLessThan(1);
  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect(page.getByTestId('map-selection')).toHaveCount(0);
- const samples=await page.evaluate(()=>new Promise<boolean[]>(resolve=>{const values:boolean[]=[];const until=performance.now()+450;const frame=()=>{const v=(window as any).navigation.current;values.push(v.camera===null&&v.province===null&&v.selected===null);if(performance.now()<until)requestAnimationFrame(frame);else resolve(values);};requestAnimationFrame(frame);}));expect(samples.every(Boolean)).toBe(true);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();expect(await page.evaluate(()=>{const v=(window as any).navigation.current;return v.province===null&&v.selected===null;})).toBe(true);
+});
+
+
+test('TC-MAP-HOME-004 Gyeonggi uses city outlines at middle zoom and gray district labels at close zoom',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>(window as any).update({homeMap:true,records:[]}));
+ const canvas=page.getByTestId('svg-map-canvas');await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'경기도 · 0개',exact:true}).click();
+ await expect(page.getByTestId('map-label-41110')).toHaveText('수원시');await expect(page.getByTestId('map-district-41110')).toBeVisible();await expect(page.getByTestId('map-label-41111')).toHaveCount(0);await expect(page.getByTestId('map-district-41111')).toHaveCount(0);
+ await expect(page.getByTestId('map-label-41110')).toHaveAttribute('fill','#626B70');await page.screenshot({path:'/tmp/map-city-middle.png'});
+ await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'수원시장안구 · 0개',exact:true}).click();
+ await expect(page.getByTestId('map-district-41111')).toBeVisible();await expect(page.getByTestId('map-label-41111')).toHaveText('수원시장안구');await expect(page.getByTestId('map-district-41110')).toHaveCount(0);
+ expect(await page.evaluate(()=>(window as any).navigation.current.selected)).toBe('41111');await page.screenshot({path:'/tmp/map-city-close.png'});
+ await page.setViewportSize({width:390,height:844});await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'경기도 · 0개',exact:true}).click();await expect(page.getByTestId('map-label-41110')).toHaveText('수원시');await page.screenshot({path:'/tmp/map-city-mobile.png'});
+});
+
+test('TC-MAP-HOME-004 both country controls animate and interrupted return never resets a new camera',async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>(window as any).update({homeMap:true}));const canvas=page.getByTestId('svg-map-canvas');
+ for(const control of ['지도 홈','대한민국']){
+  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect(page.getByTestId('map-district-11680')).toBeVisible();
+  const samples=await page.evaluate(control=>new Promise<any[]>(resolve=>{const rows:any[]=[];const start=performance.now();(document.querySelector('[aria-label="'+control+'"]') as HTMLElement).click();const frame=()=>{const v=(window as any).navigation.current;rows.push({time:performance.now()-start,camera:v.camera,province:v.province});if(performance.now()-start<500)requestAnimationFrame(frame);else resolve(rows);};requestAnimationFrame(frame);}),control);
+  expect(samples.some(x=>x.time<300&&x.camera!==null)).toBe(true);expect(new Set(samples.filter(x=>x.camera).map(x=>x.camera.scale)).size).toBeGreaterThan(2);expect(samples.every(x=>x.province===null)).toBe(true);expect(samples.at(-1).camera).toBeNull();
+ }
+ await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect(page.getByTestId('map-district-11680')).toBeVisible();
+ const samples=await page.evaluate(()=>new Promise<string[]>(resolve=>{let interrupted=false;const rows:string[]=[];const start=performance.now();(document.querySelector('[aria-label="지도 홈"]') as HTMLElement).click();const frame=()=>{if(!interrupted&&performance.now()-start>100){(document.querySelector('[aria-label="지도 확대"]') as HTMLElement).click();interrupted=true;}else if(interrupted)rows.push(JSON.stringify((window as any).navigation.current.camera));if(performance.now()-start<600)requestAnimationFrame(frame);else resolve(rows);};requestAnimationFrame(frame);}));expect(new Set(samples).size).toBe(1);expect(samples[0]).not.toBe('null');
+});
+
+for(const target of ['서울 기록 · 1개 요약','해외·지역 미배정'])test('TC-MAP-HOME-004 modal selection cancels country completion: '+target,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>(window as any).update({homeMap:true}));const canvas=page.getByTestId('svg-map-canvas');
+ await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect(page.getByTestId('map-district-11680')).toBeVisible();
+ const result=await page.evaluate(target=>new Promise<{chosen:boolean;samples:string[]}>(resolve=>{
+  let phase=0,chosen=false;const begun=performance.now(),samples:string[]=[];
+  (document.querySelector('[aria-label="지도 홈"]') as HTMLElement).click();
+  const frame=()=>{
+   if(phase===0){document.querySelector('[data-testid="svg-map-canvas"]')!.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));phase=1;}
+   else if(phase===1){const button=document.querySelector('[aria-label="'+target+'"]') as HTMLElement|null;if(button){button.click();phase=2;chosen=true;}}
+   else samples.push(JSON.stringify((window as any).navigation.current.camera));
+   if(performance.now()-begun<500)requestAnimationFrame(frame);else resolve({chosen,samples});
+  };requestAnimationFrame(frame);
+ }),target);
+ expect(result.chosen).toBe(true);expect(result.samples.length).toBeGreaterThan(2);expect(new Set(result.samples).size).toBe(1);expect(result.samples[0]).not.toBe('null');
+ if(target.startsWith('서울'))await expect(page.getByTestId('photo-summary-list')).toBeVisible();else expect(await page.evaluate(()=>(window as any).navigation.current.selected)).toBe('other');
 });

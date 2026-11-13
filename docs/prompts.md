@@ -1810,3 +1810,16 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: 기존선택province의정확한SVGpath로파랑강조를홈에만추가하고,지역찾기버튼제거/+·−·홈한글자표시와공통country초기화를연결했다. 키보드/접근성목록대안·요약focus소유권과비홈/data를유지한다. t14리뷰및Web rolebutton후보실패를거쳐DOMidentity보존방식으로보강했다. 관련Web19pass·후속집중검사2pass, 최신export/static3pass·SSR4pass·최종types0을확인했다. 최신에뮬레이터APK에서사진/지역파랑강조와두전국복귀를확인했으나이동후도구글자미표시와기존Native성능제한은남아전체수용으로표시하지않는다. jhyun관련변경만커밋·푸시하며원격배포는하지않는다.
 
 변경파일: frontend/app/index.tsx,frontend/src/SvgTravelMap.tsx; backend/tests/maps-native.test.ts; frontend/e2e/photo-map.spec.ts,svg-app.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.
+
+
+## 2026-11-13 21:10 KST — 경기도 지도 간소화와 전국 복귀 모션
+
+사용자 프롬프트 원문:
+
+> /home/jh-mac/Pictures/스크린샷/스크린샷 2026-11-13 19-58-37.png
+> 경기도 쪽 지역을 확대하면 너무 구가 많이 나눠져있어서 가독성이 불편한데, 조금 러프하게 나눠줘. 그리고 지역이름은 약간 회색으로 표시해줘.
+> 추가로 홈 버튼이나 대한민국 버튼 눌러서 전국지도 스케일로 돌아갈때도 천천히 이동하는 효과를 줘.
+
+결과: 홈 경기도8시의기존구union표시를중간확대에적용하고깊은확대에는원래구를유지한다. SVG지역명을회색으로바꾸고두전국복귀도구는기존350ms fly/취소세대/완료camera=null을재사용한다. 원본행정코드·DB·기록/사진/권한·비홈흐름은보존한다. t14리뷰후제품/검사취소경계를보강했다. 단위·SSR9pass/관련Web19pass/보강후500ms회귀2pass/types0/최신export·static3pass를각실행으로확인했다. 새에뮬레이터APK에서시단위·구확대·회색·두전국복귀를관찰했으며기존버튼문자소실/Native성능제한은남아있다. jhyun관련변경만커밋·푸시하고원격배포/DB변경은하지않는다.
+
+변경파일: frontend/src/SvgTravelMap.tsx,regions.ts,theme.ts,data/maps/gyeonggi-cities.json,data/maps/README.md; scripts/build-map-cities.py; backend/tests/map-cities.test.ts; frontend/e2e/photo-map.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.

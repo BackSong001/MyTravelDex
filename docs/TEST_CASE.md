@@ -1409,3 +1409,20 @@ FR-MAP-HOME-003 / TC-MAP-HOME-003은 docs/MAP_FIRST_HOME_SPEC.md의 최신 절�
 - textAlign보강candidate도이동후도구문자미표시가남아해결로계산하지않았다. 홈overlay두wrapper zIndex1/친구zIndex2를명시하는표시순서보강은t14정적승인후적용했으며 해당Web **2pass(19.8초)**. 공통Feedback/좌표/API변경없음. 최종Nativeartifact실행으로효과를별도판정한다.
 - 최종zIndex artifact build1분30초/430tasks15실행 성공. 실제서버연결 x86_64 APK에서 보유사진→부산강조,홈→전국/강조제거,직접강원선택→강조,대한민국→전국/강조제거를관찰했다. Native도구글자미표시는선택화면에서여전히관측되어zIndex를해결증거로계산하지않는다(전국복귀후다시표시). 사용자자료/계정/원격DB변경없음,최신APK설치와에뮬레이터유지. 실제스크린리더/실휴대폰/iOS·기존Native성능과이표시제한은미수용이다.
 - 최신 production Web export exit0 (2026-11-13T11:34:34.582Z), entry-5631aef5bc07215f9d780c3e1e7331ef.js. 최종 artifact 검사 **3pass(8.9초)**: MIME/실제bytes·OAuth취소callback·320px guest 지도에서 키보드목록→서울파랑강조→홈/대한민국 각각초기화, 공개feed요청0/콘솔pageerror0. 최종frontend types exit0. Native표시제한과전체E2E/실배포미검증은유지한다.
+
+
+## 2026-11-13 경기도 표시 간소화와 전국 복귀 모션
+FR-MAP-HOME-004 / TC-MAP-HOME-004는 docs/MAP_FIRST_HOME_SPEC.md 최신 절을 따른다. 홈 경기도 중간확대8개시 union/31시군 표시·깊은확대 원래구 복원, 회색지도라벨,350ms전국복귀·완료camera=null/reduced즉시·중단보호를 적용한다. 원본행정코드/DB/API/권한/기록·비홈경계를 유지하고Web/Native수용은분리한다.
+
+### TC-MAP-HOME-004 실행 이력
+- 수정전 Red2fail: 중간확대 수원시 표시없음·전국복귀가 즉시camera=null이라 중간모션 없음. 환경오류가아닌제품행동실패다.
+- Shapely2.2.0으로원본hash고정8city union을생성했다(317240bytes). 원본구47/표시중간31·원본255판정/8city anchor·원문·hash불변 및기존라벨/Native공통SSR **9pass(5.75초)**. 런타임Native수용과구분한다.
+- 신규Web **3pass(35.1초)**: 경기시단위→구확대·회색·1440/390화면, 두전국복귀350ms의중간카메라/최종null, 복귀도중zoom후늦은초기화없음·기존canvas유지. 실제스크린샷에서시내부구선제거/라벨집계를확인했다. 전체회귀/Android는후속결과로분리한다.
+- 관련사진지도Web **19pass(3.3분)** 및frontend types exit0. 이후t14가country이동중finder사진요약/other선택의취소누락P2를발견했다. 이19pass를해당경계수용으로확대하지않고별도Red/보강회귀로기록한다.
+- t14 P2의finder사진/other선택 취소누락은각선택진입에기존stopAnimation을추가했다. 해당Red2fail→보강후 **2pass(21.8초)**: country도중키보드목록선택뒤40RAF camera고정/nonnull과요약·other선택보존. 앞선19pass와후속2pass를새전체21pass로합산하지않는다.
+- 추가검사의40RAF가120Hz에서350ms보다짧을수있다는t14검사의견을반영해performance.now기준500ms관찰로보강했다. 앞선2pass는40RAF후보증거로유지하고최종시간기반회귀와분리한다. 제품선택취소2곳은t14정적승인이다.
+- 최종Android x86_64 APK build **1분31초/430tasks15실행 exit0** (2026-11-13T12:16:08.613Z). 생성성공은실제표시/모션수용과분리한다.
+- 최신APK를기존mytrveldex에뮬레이터에데이터보존설치했다. 실제홈에서경기도선택→고양/수원/성남/용인등시단위경계·회색라벨,실좌표탭→용인시기흥구세부경계/원문,홈·대한민국전국복귀/강조제거를관찰했다. 화면녹화에복귀중간투영이보이며최종전국fit은별도스크린샷으로확인했다. 일정FPS/350ms실측성능을보증하지않는다. 이동후기존버튼문자미표시는잔존하고전국복귀후다시표시됐다. 기존기록/계정/원격DB변경없이최신APK전국화면과에뮬레이터를유지했다. 실휴대폰/iOS/실스크린리더·Native성능은미검증이다.
+- 최종시간기준500ms취소회귀 **2pass(22.2초)** 및frontend types exit0. 이전40RAF후보의통과와구분하며프레임레이트에의존하지않고country완료기한이후camera고정/nonnull·요약/other를확인했다.
+- 최신Web production export exit0 (2026-11-13T12:21:41.692Z), entry-13259bcbaba7a51ea037fe9c958adcb8.js 19.9MB. 배포전산출물생성증거이며실배포는하지않았다.
+- 최신artifact static **3pass(10.8초)**: MIME/bytes·callback 및320px guest의서울강조/두복귀도구·경기수원시union/회색·홈복귀후전국서울라벨복원·공개feed요청0/pageerror0. 전체E2E/실배포성공으로확대하지않는다.

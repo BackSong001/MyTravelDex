@@ -43,5 +43,6 @@ test('TC-PHOTO-MAP-001: exported guest map shows country and zoom without reques
   await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 0개',exact:true}).click();await expect(page.getByTestId('map-district-11680')).toBeVisible();await expect(page.getByTestId('map-selection')).toHaveAttribute('stroke','#2563EB');
   await page.getByRole('button',{name:reset,exact:true}).click();await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.getByTestId('map-selection')).toHaveCount(0);
  }
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'경기도 · 0개',exact:true}).click();await expect(page.getByTestId('map-label-41110')).toHaveText('수원시');await expect(page.getByTestId('map-label-41110')).toHaveAttribute('fill','#626B70');await expect(page.getByTestId('map-district-41111')).toHaveCount(0);await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.getByTestId('map-label-41110')).toHaveCount(0);await expect(page.getByTestId('map-label-11')).toHaveText('서울');
  expect(feed).toEqual([]);expect(errors).toEqual([]);
 });

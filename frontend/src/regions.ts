@@ -2,8 +2,12 @@ import {geoArea,geoMercator} from 'd3-geo';
 import type {Feature,Polygon,MultiPolygon} from 'geojson';
 import sido from './data/maps/korea-sido.json';
 import sigungu from './data/maps/korea-sigungu.json';
+import cityDisplay from './data/maps/gyeonggi-cities.json';
 export type Region=Feature<Polygon|MultiPolygon,{code:string;parentCode:string|null;name:string;level:string}>;
 export const regions=sido.features as Region[],districts=sigungu.features as Region[];
+// 표시 전용 union이며 regionAt의 판정 원본은 districts로 유지한다.
+export const displayCities=cityDisplay.features as (Region & {properties:Region['properties'] & {members:string[]}})[];
+export const cityByDistrict=new Map(displayCities.flatMap(f=>f.properties.members.map(code=>[code,f] as const)));
 export const REGION_DATE='2026-04-01';
 export const legacyCodes:Record<string,string>={'11':'KR-11','26':'KR-26','27':'KR-27','28':'KR-28','29':'KR-29','30':'KR-30','31':'KR-31','36':'KR-50','41':'KR-41','43':'KR-43','44':'KR-44','46':'KR-46','47':'KR-47','48':'KR-48','50':'KR-49','51':'KR-42','52':'KR-45'};
 function ringState([x,y]:number[],ring:number[][]){

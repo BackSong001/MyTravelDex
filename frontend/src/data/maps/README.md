@@ -14,3 +14,7 @@ https://github.com/vuski/admdongkor/tree/d5d5a821c8de6cc337d47eeca604d7af76271c9
 `korea-ocean.json`과 `frontend/assets/maps/ocean-depth.png`는 위 `korea-sido.json` SHA256 `76b47436a96ee9837fb22d792d4c98260133cae747a446207647304873375535`에서 생성한다. 원본geometry는수정하지않는다. 개발용Shapely==2.2.0/Pillow==10.2.0 환경에서 저장소루트의 `python scripts/build-ocean.py`로재생성한다. runtime의존성은없다.
 
 Mercator scale1000/translate0의128색상층을2048² PNG에구운고정asset이다. x/y/width/height/해상도/source·asset hash는JSON에고정한다. 가장자리및이미지밖은먼바다단색, 상세의정확한원본17육지차폐는별도SVG로유지하고전국은기존육지path가차폐한다. Native mask합성은성능실패로제거했다. 원자료출처/라이선스는이파생물에도적용한다. 실제수심·국제해안자료는아니다. 이전128SVGpath는Native pan성능실패로미채택했으며런타임계층은Image1개다. 깊은줌에서는장식색상만보간된다.
+
+## 경기도 표시용 시 경계
+
+`gyeonggi-cities.json`은 위 동일 기준일의 `korea-sigungu.json`에서 구가 있는 8개 시만 정확한 union으로 생성한다. 구 구성과 sourceHash는 자산에 고정한다. Shapely==2.2.0 환경에서 `python scripts/build-map-cities.py`로 재생성한다. 중간 확대의 표시 전용이며 원본 행정구역/위치판정/도감 필터는 변경하지 않는다. 내부 구 경계만 제거하고 단순화하지 않으며 위 출처/라이선스를 그대로 적용한다. 317,240bytes이며 런타임 union은 하지 않는다.
