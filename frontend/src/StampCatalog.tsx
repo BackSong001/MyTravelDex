@@ -33,9 +33,13 @@ export default function StampCatalog({groups,confirmed,failed,onBack,records=[]}
  const collectedCount=count+Number(visitedGoyang);
  function renderStamp(region:(typeof outlines)[number],visited:boolean){
    const {name}=region,source=uiAssets.stamps[region.id as keyof typeof uiAssets.stamps];
+   const districtCodes=visited&&region.id==='KR-48'
+    ? new Set(groups[region.id].map(({locations})=>recordRegion(locations)?.properties.code))
+    : new Set();
+   const districtStamps=Object.entries(uiAssets.districtStamps).filter(([code])=>districtCodes.has(code));
    return <View key={region.id} testID="region-stamp" accessibilityLabel={`${name}, ${!confirmed?'확인 전':visited?'방문 완료':'미획득'}`} style={s.row}>
     <View style={s.region}><Svg width="100%" height={94} viewBox="0 0 163 94" preserveAspectRatio="xMidYMid meet" accessible={false}><Path d={region.path} fill={c.tint} stroke={c.accent} strokeWidth={1} fillRule="evenodd"/></Svg><Text style={s.regionName}>{name}</Text></View>
-    <View style={s.region}>{visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?'확인 전':visited?`${name}\n내 방문`:'새 여행을\n기다려요'}</Text></View>}<Text style={s.small}>{!confirmed?'확인 전':visited?'✓ 내 여행 스탬프':'미획득'}</Text></View>
+    <View style={s.region}>{districtStamps.length>0?districtStamps.map(([code,stamp])=><Image key={code} source={stamp.source} accessibilityLabel={`${stamp.name} 여행 스탬프`} resizeMode="contain" style={s.art}/>):visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?'확인 전':visited?`${name}\n내 방문`:'새 여행을\n기다려요'}</Text></View>}<Text style={s.small}>{!confirmed?'확인 전':visited?'✓ 내 여행 스탬프':'미획득'}</Text></View>
    </View>;
  }
  return <View style={s.page}>
