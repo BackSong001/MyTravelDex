@@ -6,6 +6,9 @@ export const uiAssets = {
  stamps: {
   'KR-26': require('../assets/ui/busan-seagull-stamp-v1.png'),
   'KR-11': require('../assets/ui/seoul-ginkgo-stamp-v1.png'),
+  'KR-28': require('../assets/ui/incheon-seal-stamp-v1.png'),
+  'KR-50': require('../assets/ui/sejong-bells-stamp-v1.png'),
+  '41280': require('../assets/ui/goyang-cat-stamp-v1.png'),
  },
  navigation: {
   home: require('../assets/ui/nav-home-v1.png'),

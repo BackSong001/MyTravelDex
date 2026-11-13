@@ -5,10 +5,19 @@ import {ActivityIndicator,Image,Linking,StyleSheet,View} from 'react-native';
 import Svg,{Path} from 'react-native-svg';
 import Pressable from './Feedback';
 import {provinceLabels} from './provinces';
-import {regions,legacyCodes,renderFeature,fitProjection} from './regions';
+import {districts,regions,legacyCodes,regionAt,renderFeature,fitProjection} from './regions';
 import {geoPath} from 'd3-geo';
 import {uiAssets} from './uiAssets';
-const outlines=regions.map(feature=>({id:legacyCodes[feature.properties.code],path:geoPath(fitProjection([feature],163,94)).digits(2)(renderFeature(feature))??''}));
+const outlines=regions.map(feature=>{
+ const id=legacyCodes[feature.properties.code];
+ return {id,name:provinceLabels[id].name,path:geoPath(fitProjection([feature],163,94)).digits(2)(renderFeature(feature))??''};
+});
+const goyangDistricts=districts.filter(({properties})=>['41281','41285','41287'].includes(properties.code));
+const goyang={
+ id:'41280',
+ name:'고양시',
+ path:geoPath(fitProjection(goyangDistricts,163,94)).digits(2)({type:'FeatureCollection',features:goyangDistricts.map(renderFeature)})??'',
+};
 export default function StampCatalog({groups,confirmed,failed,onBack}:{groups:Record<string,any[]>;confirmed:boolean;failed:boolean;onBack:()=>void}){
  const themeColors=useThemeColors();
  const c=themeColors.profile;
@@ -16,21 +25,30 @@ export default function StampCatalog({groups,confirmed,failed,onBack}:{groups:Re
  const [collected,setCollected]=useState(false),count=Object.keys(groups).length;
  const countLabel=confirmed?`${count} / 17`:failed?'확인 필요':'확인 중';
  const entries=outlines.filter(region=>!collected||confirmed&&!!groups[region.id]);
- return <View style={s.page}>
-  <View style={s.heading}><Pressable accessibilityRole="button" accessibilityLabel="프로필로 돌아가기" onPress={onBack} style={s.back}><Text style={s.link}>‹ 프로필</Text></Pressable><Text accessibilityRole="header" style={s.title}>여행 스탬프</Text></View>
-  <View style={s.scope}><View><Text style={s.title}>대한민국</Text><Text style={s.small}>완료한 내 여행 기준</Text></View><Text testID="stamp-total" accessibilityLabel={`스탬프 방문 지역 수 · ${countLabel}`} style={s.link}>{countLabel}</Text></View>
-  <View accessibilityRole="tablist" accessibilityLabel="스탬프 범위" style={s.tabs}>
-   {[false,true].map(value=><Pressable key={String(value)} accessibilityRole="tab" accessibilityState={{selected:collected===value}} aria-selected={collected===value} onPress={()=>setCollected(value)} style={[s.tab,collected===value&&s.selected]}><Text style={[s.tabText,collected===value&&{color:c.sheet}]}>{value?`모은 스탬프${confirmed?` ${count}`:''}`:'모든 지역 17'}</Text></Pressable>)}
-  </View>
-  {!confirmed&&<View style={s.scope}>{!failed&&<ActivityIndicator accessibilityLabel="스탬프 확인 중"/>}<Text style={s.small}>방문 정보를 확인하고 있어요. 목록 오류가 있으면 다시 불러와 주세요.</Text></View>}
-  {confirmed&&collected&&!count&&<Text style={s.empty}>아직 모은 스탬프가 없어요.</Text>}
-  {entries.map(region=>{
-   const visited=confirmed&&!!groups[region.id],name=provinceLabels[region.id].name,source=uiAssets.stamps[region.id as keyof typeof uiAssets.stamps];
+ const visitedGoyang=confirmed&&(groups['KR-41']??[]).some(({locations})=>
+  !!regionAt(Number(locations.latitude),Number(locations.longitude),goyangDistricts),
+ );
+ const collectedCount=count+Number(visitedGoyang);
+ function renderStamp(region:(typeof outlines)[number],visited:boolean){
+   const {name}=region,source=uiAssets.stamps[region.id as keyof typeof uiAssets.stamps];
    return <View key={region.id} testID="region-stamp" accessibilityLabel={`${name}, ${!confirmed?'확인 전':visited?'방문 완료':'미획득'}`} style={s.row}>
     <View style={s.region}><Svg width="100%" height={94} viewBox="0 0 163 94" preserveAspectRatio="xMidYMid meet" accessible={false}><Path d={region.path} fill={c.tint} stroke={c.accent} strokeWidth={1} fillRule="evenodd"/></Svg><Text style={s.regionName}>{name}</Text></View>
     <View style={s.region}>{visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?'확인 전':visited?`${name}\n내 방문`:'새 여행을\n기다려요'}</Text></View>}<Text style={s.small}>{!confirmed?'확인 전':visited?'✓ 내 여행 스탬프':'미획득'}</Text></View>
    </View>;
-  })}
+ }
+ return <View style={s.page}>
+  <View style={s.heading}><Pressable accessibilityRole="button" accessibilityLabel="프로필로 돌아가기" onPress={onBack} style={s.back}><Text style={s.link}>‹ 프로필</Text></Pressable><Text accessibilityRole="header" style={s.title}>여행 스탬프</Text></View>
+  <View style={s.scope}><View><Text style={s.title}>대한민국</Text><Text style={s.small}>완료한 내 여행 기준</Text></View><Text testID="stamp-total" accessibilityLabel={`스탬프 방문 지역 수 · ${countLabel}`} style={s.link}>{countLabel}</Text></View>
+  <View accessibilityRole="tablist" accessibilityLabel="스탬프 범위" style={s.tabs}>
+   {[false,true].map(value=><Pressable key={String(value)} accessibilityRole="tab" accessibilityState={{selected:collected===value}} aria-selected={collected===value} onPress={()=>setCollected(value)} style={[s.tab,collected===value&&s.selected]}><Text style={[s.tabText,collected===value&&{color:c.sheet}]}>{value?`모은 스탬프${confirmed?` ${collectedCount}`:''}`:'모든 지역'}</Text></Pressable>)}
+  </View>
+  {!confirmed&&<View style={s.scope}>{!failed&&<ActivityIndicator accessibilityLabel="스탬프 확인 중"/>}<Text style={s.small}>방문 정보를 확인하고 있어요. 목록 오류가 있으면 다시 불러와 주세요.</Text></View>}
+  {confirmed&&collected&&!collectedCount&&<Text style={s.empty}>아직 모은 스탬프가 없어요.</Text>}
+  {entries.map(region=>renderStamp(region,confirmed&&!!groups[region.id]))}
+  {(!collected||visitedGoyang)&&<>
+   <View style={s.scope}><Text accessibilityRole="header" style={s.title}>시·군·구 스탬프</Text></View>
+   {renderStamp(goyang,visitedGoyang)}
+  </>}
   <Pressable accessibilityRole="link" accessibilityLabel="스탬프 지리 데이터 출처" onPress={()=>void Linking.openURL('https://github.com/vuski/admdongkor')} style={s.back}><Text style={s.small}>SGIS · vuski/admdongkor · CC BY 4.0 · 2026-04-01</Text></Pressable>
  </View>;
 }

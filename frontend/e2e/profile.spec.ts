@@ -31,8 +31,8 @@ test('TC-FIGMA-STAMP-001: unknown visits never appear as zero and all/collected 
   await login(page,users[1].email,users[1].password);await arrival;await page.getByRole('tab',{name:'My',exact:true}).click();
   await expect(page.getByTestId('profile-visits')).toContainText('확인 중');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 확인 중');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 확인 중');await expect(page.getByText('0 / 17',{exact:true})).toHaveCount(0);release();
   await expect(page.getByTestId('profile-visits')).toContainText('0 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 0 / 17');await page.getByRole('button',{name:/^여행 스탬프 보기 ·/}).click();
-  await expect(page.getByTestId('region-stamp')).toHaveCount(17);await expect(page.getByTestId('stamp-total')).toHaveAccessibleName('스탬프 방문 지역 수 · 0 / 17');await page.getByRole('tab',{name:'모은 스탬프 0',exact:true}).click();
+  await expect(page.getByTestId('region-stamp')).toHaveCount(18);await expect(page.getByLabel('고양시, 미획득',{exact:true})).toBeVisible();await expect(page.getByTestId('stamp-total')).toHaveAccessibleName('스탬프 방문 지역 수 · 0 / 17');await page.getByRole('tab',{name:'모은 스탬프 0',exact:true}).click();
   await expect(page.getByTestId('region-stamp')).toHaveCount(0);await expect(page.getByText('아직 모은 스탬프가 없어요.',{exact:true})).toBeVisible();
-  await page.getByRole('tab',{name:'모든 지역 17',exact:true}).click();await expect(page.getByTestId('region-stamp')).toHaveCount(17);
+  await page.getByRole('tab',{name:'모든 지역',exact:true}).click();await expect(page.getByTestId('region-stamp')).toHaveCount(18);
  }finally{release();}
 });

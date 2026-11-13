@@ -91,6 +91,24 @@
       "figmaNode": "41:126",
       "sha256": "be84c0618d34e3bf6e434f7e0d07e7790e73c70f68c4b205c8bd34df184a0d1e",
       "bytes": 2088460
+    },
+    {
+      "file": "incheon-seal-stamp-v1.png",
+      "source": "사용자 첨부: 인천 갈매기 장군 스탬프 (1).png",
+      "sha256": "21427c0b4abe00ab4de961bbf491b68a145129cb1c610f24042306c852c84f4a",
+      "bytes": 1962170
+    },
+    {
+      "file": "goyang-cat-stamp-v1.png",
+      "source": "사용자 첨부: 검은 무늬 고양이 여행 배지.png",
+      "sha256": "f9f7008173db57aa96fee8a3665f575292d4356af91d19c5cff56342631e1fd1",
+      "bytes": 1367588
+    },
+    {
+      "file": "sejong-bells-stamp-v1.png",
+      "source": "사용자 첨부: 세종 전통 종 스티커 일러스트.png",
+      "sha256": "e82e425c22f181c107030d9bc4edda57707ecd15ca1d559f8275f2eb06e2f410",
+      "bytes": 1944209
     }
   ]
 }
