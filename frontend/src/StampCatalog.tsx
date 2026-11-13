@@ -19,7 +19,7 @@ export default function StampCatalog({groups,confirmed,failed,onBack}:{groups:Re
  const c=themeColors.profile;
  const s=useThemeStyles(makeCatalogStyles);
  const [collected,setCollected]=useState(false),count=Object.keys(groups).length;
- const countLabel=confirmed?`${count} / 17`:failed?'확인 필요':'확인 중';
+ const countLabel=confirmed?`${count} / ${outlines.length}`:failed?'확인 필요':'확인 중';
  const entries=outlines.filter(region=>!collected||confirmed&&!!groups[region.id]);
  return <View style={s.page}>
   <View style={s.heading}><Pressable accessibilityRole="button" accessibilityLabel="프로필로 돌아가기" onPress={onBack} style={s.back}><Text style={s.link}>‹ 프로필</Text></Pressable><Text accessibilityRole="header" style={s.title}>여행 스탬프</Text></View>
@@ -36,7 +36,7 @@ export default function StampCatalog({groups,confirmed,failed,onBack}:{groups:Re
     <View style={s.region}>{visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?'확인 전':visited?`${name}\n내 방문`:'새 여행을\n기다려요'}</Text></View>}<Text style={s.small}>{!confirmed?'확인 전':visited?'✓ 내 여행 스탬프':'미획득'}</Text></View>
    </View>;
   })}
-  <Pressable accessibilityRole="link" accessibilityLabel="스탬프 지리 데이터 출처" onPress={()=>void Linking.openURL('https://github.com/southkorea/southkorea-maps')} style={s.back}><Text style={s.small}>KOSTAT 2018 · southkorea-maps</Text></Pressable>
+  <Pressable accessibilityRole="link" accessibilityLabel="스탬프 지리 데이터 출처" onPress={()=>void Linking.openURL('https://github.com/vuski/admdongkor')} style={s.back}><Text style={s.small}>SGIS · vuski/admdongkor · 2026-10-01 · CC BY 4.0</Text></Pressable>
  </View>;
 }
 const makeStyles=(c: ThemeColors['profile'])=>StyleSheet.create({page:{backgroundColor:c.paper},heading:{flexDirection:'row',alignItems:'center',gap:12,backgroundColor:c.sheet},back:{padding:12},title:{fontSize:18,lineHeight:27,fontWeight:'700',color:c.ink,flexShrink:1},link:{fontSize:14,lineHeight:21,color:c.accent},scope:{padding:20,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12,backgroundColor:c.sheet},small:{fontSize:11,lineHeight:17,color:c.muted,flexShrink:1},tabs:{flexDirection:'row',backgroundColor:c.tint},tab:{flex:1,padding:12,alignItems:'center',justifyContent:'center'},selected:{backgroundColor:c.accent},tabText:{fontSize:12,lineHeight:18,color:c.accent,fontWeight:'700'},row:{padding:20,paddingVertical:14,flexDirection:'row',gap:24,alignItems:'center',backgroundColor:c.sheet,borderBottomWidth:1,borderColor:c.line},region:{flex:1,minWidth:0,alignItems:'center',gap:5},regionName:{fontSize:16,lineHeight:24,color:c.ink,fontWeight:'700'},art:{width:108,height:108,maxWidth:'100%'},placeholder:{width:96,minHeight:96,maxWidth:'100%',padding:12,borderWidth:1,borderStyle:'dashed',borderColor:c.line,backgroundColor:c.paper,alignItems:'center',justifyContent:'center'},empty:{padding:20,color:c.muted,fontSize:14,lineHeight:22}});

@@ -61,7 +61,7 @@ afterAll(async () => {
 });
 
 async function invoke(body: unknown, authorization: string | null = `Bearer ${token}`) {
-  return realFetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', ...(authorization ? {Authorization: authorization} : {})}, body: JSON.stringify(body)});
+  return realFetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json', ...(authorization ? {Authorization: authorization} : {})}, body: JSON.stringify(body && typeof body==='object' && !Array.isArray(body) ? {provider:'geoapify',...body} : body)});
 }
 function geoapify(response: () => Response | Promise<Response>) {
   const mock = vi.fn(async (url: string | URL | Request, options?: RequestInit) => {

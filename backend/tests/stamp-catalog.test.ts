@@ -9,7 +9,7 @@ import StampCatalog from '../../frontend/src/StampCatalog';
 import {provincePaths,provinceFeatures,polygons,project} from '../../frontend/src/provinces';
 test('TC-FIGMA-STAMP-001: every original geographic ring keeps its shape inside the local viewport',()=>{
  const markup=renderToStaticMarkup(React.createElement(StampCatalog,{groups:{},confirmed:true,failed:false,onBack:()=>{}}));
- const regions=[...markup.matchAll(/<svg viewBox="([^"]+)"><path d="([^"]+)"/g)];expect(regions).toHaveLength(17);
+ const regions=[...markup.matchAll(/<svg viewBox="([^"]+)"><path d="([^"]+)"/g)];expect(regions).toHaveLength(16);
  regions.forEach((region,index)=>{
   const [left,top,width,height]=region[1].split(' ').map(Number),numbers=region[2].match(/-?\d+(?:\.\d+)?/g)!.map(Number);
   const original=polygons(provinceFeatures[index].geometry).flatMap(rings=>rings.flatMap(ring=>ring.map(project)));

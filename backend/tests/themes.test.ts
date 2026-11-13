@@ -7,7 +7,7 @@ test('TC-FIGMA-THEME-001: thirty complete palettes preserve the legacy default a
  expect(themes).toHaveLength(30);expect(new Set(themes.map(t=>t.id)).size).toBe(30);
  expect(getTheme('missing').id).toBe('classic');expect(getTheme('classic').colors.paper).toBe('#EFFAFF');expect(getTheme('classic').colors.avatarSurface).toBe('#D7F0FF');
  for(const theme of themes){
-  const c=theme.colors;expect(Object.keys(provincePalette(c.map.regionPastels))).toHaveLength(17);
+  const c=theme.colors;expect(Object.keys(provincePalette(c.map.regionPastels))).toHaveLength(16);
   if(theme.id==='classic')continue;
   for(const [ink,surface] of [[c.ink,c.paper],[c.ink,c.sheet],[c.muted,c.paper],[c.muted,c.sheet],[c.onPrimary,c.coral],[c.onPrimary,c.primaryPressed],[c.ink,c.secondaryPressed],[c.sea,c.paper],[c.profile.accent,c.profile.sheet],[c.error,c.errorSurface],[c.navigation.activeLabel,c.navigation.background]])expect(contrastRatio(ink,surface),`${theme.id}: ${ink}/${surface}`).toBeGreaterThanOrEqual(4.5);
  }

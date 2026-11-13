@@ -1,4 +1,4 @@
-import data from './data/korea-provinces.json';
+import {svgProvinces as data} from './svgGeography';
 import {colors as palette} from './design/colors.json';
 import {validCoordinates} from './domain';
 
@@ -16,8 +16,7 @@ export const provinceLabels: Record<string, {name: string; point: Position; offs
   'KR-50': {name: '세종', point: [127.28,36.56], offset: [0,-15]},
   'KR-30': {name: '대전', point: [127.38,36.35], offset: [0,14]},
   'KR-45': {name: '전북', point: [127.15,35.8]},
-  'KR-46': {name: '전남', point: [126.9,34.7]},
-  'KR-29': {name: '광주', point: [126.85,35.16], offset: [-35,-5]},
+  'KR-12': {name: '전남광주', point: [126.9,34.9]},
   'KR-47': {name: '경북', point: [128.75,36.5]},
   'KR-27': {name: '대구', point: [128.6,35.88]},
   'KR-48': {name: '경남', point: [128.1,35.35]},

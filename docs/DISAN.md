@@ -1,3 +1,7 @@
+## SVG 지도·카카오 위치 검색 전환 (2026-11-13)
+
+FR-SVG-MAP-001~002·FR-KAKAO-LOCATION-001 및 TC-SVG-MAP-001·TC-KAKAO-LOCATION-001은 [SVG_MAP_REFACTOR](SVG_MAP_REFACTOR.md)를 따른다. 이 계약이 이전 MapLibre/Geoapify 기본 렌더링·검색 계약보다 우선한다. DB·RLS는 유지하며 구현과 실제 수용 검증을 구분한다.
+
 # 여행가봥 UI/UX 재설계 초안
 
 ## 실제 Figma 자산 적용 (2026-11-09)
@@ -282,3 +286,7 @@ FR-UI-019 설정/TC-SETTINGS-001, TC-MAP-THEME-SHADOW-001, FR-FIGMA-012/TC-BADGE
 ## 2026-11-10 사진 자동입력·작성·프로필·여행 도구 개편
 
 사용자13항목의현행확정/답변대기·요구사항/TC·실행범위는 [PRODUCT_UPDATE_20261110_SPEC](PRODUCT_UPDATE_20261110_SPEC.md)을 따른다. 사진선택순서의첫유효GPS/웹실File추출/Android원본보완·수동입력보존을우선한다. 작성시지도폭/드래그접기·공개radio/헤더·온보딩·단일군집작성자·여행지랜덤/선반·스타일디자인을단계별검증한다. ID필수공개는로그인exact검색·친구요청만허용하고이름/avatar동의·목록/추천/anon·private/초안/서명URL보호를유지한다. 새서버항목은Local검증과원격별도승인/앱우선롤백으로분리하고main푸시·실배포수용은동일하지않다.
+
+## 지도 육지색 통일
+
+웹·Android·SVG 지도의 육지는 테마의 단일 색을 사용한다. 행정 경계와 방문·선택 테두리로 지역을 구분한다. 이 기준은 앞 절의 지역 ID별 고정 색 배정을 대체한다.

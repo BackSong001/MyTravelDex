@@ -1,3 +1,5 @@
+> 2026-11-13: 현재 지도는 React Native SVG + d3-geo, 기본 위치 검색은 서버 Kakao Local입니다. 최신 16개 시·도/256개 시·군·구와 검증 범위는 [SVG 지도 전환](SVG_MAP_REFACTOR.md)을 따릅니다. 아래 MapLibre·지구본·Geoapify 기본 경로는 이전 작업 기록입니다.
+
 # 🗺️ 지도 기반 개인 여행 기록·탐색 서비스 기획서
 
 ## 1. 서비스 개요

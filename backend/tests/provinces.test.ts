@@ -2,8 +2,8 @@ import {expect,test} from 'vitest';
 import palette from '../../frontend/src/design/colors.json';
 import {contains,groupProvinceRecords,project,provinceAt,provinceFeatures,provinceLabels,provincePaths,provinceColors,visibleProvinceLabels,mapRecords,markerDescription,mapMarkerGroups,visitedProvinceIds} from '../../frontend/src/provinces';
 
-test('TC-MAP-001: all 17 province features have matching labels and finite SVG paths',()=>{
- expect(provinceFeatures).toHaveLength(17);expect(new Set(provinceFeatures.map(f=>f.properties.shapeISO)).size).toBe(17);
+test('TC-MAP-001: all 16 province features have matching labels and finite SVG paths',()=>{
+ expect(provinceFeatures).toHaveLength(16);expect(new Set(provinceFeatures.map(f=>f.properties.shapeISO)).size).toBe(16);
  expect(Object.keys(provinceLabels).sort()).toEqual(provinceFeatures.map(f=>f.properties.shapeISO).sort());
  for(const feature of provincePaths){expect(feature.path).toMatch(/^M/);expect(feature.path).not.toMatch(/NaN|Infinity/);}
  expect(project([126.55,33.4]).every(Number.isFinite)).toBe(true);
@@ -12,7 +12,7 @@ test('TC-MAP-002: points match provinces, city enclaves and Jeju; overseas and i
  expect(provinceAt(37.5665,126.978)).toBe('KR-11');
  expect(provinceAt(33.4996,126.5312)).toBe('KR-49');
  expect(provinceAt(35.1796,129.0756)).toBe('KR-26');
- expect(provinceAt(35.1595,126.8526)).toBe('KR-29');
+ expect(provinceAt(35.1595,126.8526)).toBe('KR-12');
  expect(provinceAt(35.8714,128.6014)).toBe('KR-27');
  expect(provinceAt(35.6895,139.6917)).toBeUndefined();expect(provinceAt(NaN,127)).toBeUndefined();
 });
@@ -38,7 +38,7 @@ test('vNext: stable canonical colors, zoom label thresholds',()=>{
  expect(visibleProvinceLabels(8,'KR-28')[0][0]).toBe('KR-28');
  expect(visibleProvinceLabels(9.99,null).length).toBeGreaterThanOrEqual(visibleProvinceLabels(8,null).length);
  expect(visibleProvinceLabels(10,'KR-42')[0][0]).toBe('KR-42');
- expect(visibleProvinceLabels(10,null)).toHaveLength(17);
+ expect(visibleProvinceLabels(10,null)).toHaveLength(16);
 });
 
 test('vNext: markers exclude draft/missing coordinates but keep overseas and explicit correction pins',()=>{

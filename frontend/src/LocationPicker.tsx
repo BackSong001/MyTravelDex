@@ -56,7 +56,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
     try {
       const places = await api.request('/functions/v1/geocode-location', 'POST', {query: query.trim()});
       if (!current(request)) return;
-      if (!Array.isArray(places) || places.some(place => !validPlace(place) || place.provider !== 'geoapify' || typeof place.id !== 'string' || !place.id.trim())) throw new Error('EXTERNAL_SERVICE_ERROR');
+      if (!Array.isArray(places) || places.some(place => !validPlace(place) || !['kakao','geoapify'].includes(place.provider) || typeof place.id !== 'string' || !place.id.trim())) throw new Error('EXTERNAL_SERVICE_ERROR');
       setResults(places); setSearched(true);
     } catch (error) {
       if (current(request)) setMessage(`장소 검색에 실패했어요. ${error instanceof Error ? error.message : 'EXTERNAL_SERVICE_ERROR'}`);
@@ -67,7 +67,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
     const request = version.current;
     setBusy('장소 상세를 확인하고 있어요.');
     try {
-      const detail = await api.request('/functions/v1/geocode-location', 'POST', {provider: 'geoapify', place_id: place.id});
+      const detail = await api.request('/functions/v1/geocode-location', 'POST', {provider: place.provider, place_id: place.id, ...(place.provider==='kakao'?{search_query:query.trim()}:{})});
       if (!current(request)) return;
       if (!validPlace(detail)) throw new Error('EXTERNAL_SERVICE_ERROR');
       setCandidate(detail);

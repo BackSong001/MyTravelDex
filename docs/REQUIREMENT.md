@@ -1,3 +1,7 @@
+## SVG 지도·카카오 위치 검색 전환 (2026-11-13)
+
+FR-SVG-MAP-001~002·FR-KAKAO-LOCATION-001 및 TC-SVG-MAP-001·TC-KAKAO-LOCATION-001은 [SVG_MAP_REFACTOR](SVG_MAP_REFACTOR.md)를 따른다. 이 계약이 이전 MapLibre/Geoapify 기본 렌더링·검색 계약보다 우선한다. DB·RLS는 유지하며 구현과 실제 수용 검증을 구분한다.
+
 # MyTravelDex 요구사항 명세서
 
 ## Figma 실제 자산 구현 (2026-11-09)
@@ -155,7 +159,7 @@ MyTravelDex는 사진과 위치정보를 기반으로 사용자의 여행 기록
 | FR-UI-008 | 도감 필터를 상단 가로 한 줄로 제공한다. | Must | 지역·기간·조회 범위의 적용/해제를 유지하고 좁은 화면·큰 글꼴은 가로 스크롤한다. |
 | FR-UI-009 | 스플래시를 제공한다. | Must | 백팩·앱명, 리소스/로컬 세션 준비 후 종료하며 네트워크·고정 지연을 기다리지 않는다. |
 | FR-UI-010 | 화면 크기·글꼴·접근성·가벼운 반응을 지원한다. | Must | 320dp~태블릿, 글꼴 1.0/1.3/2.0, 키보드/안전 영역, 텍스트 대비 4.5:1·필수 비텍스트 3:1, 감소 설정을 검증한다. 기능 실행은 애니메이션을 기다리지 않는다. |
-| FR-UI-011 | 17개 시·도를 색상으로 구분하고 축척별 명칭을 표시한다. | Must | 지역 ID별 안정된 색, 선택/방문 비색상 신호, 축소 시 서울·부산·제주/선택 지역, 확대 시 선택 지역과 검증된 랜드마크 명칭을 표시한다. 경계 출처 한계를 고지한다. |
+| FR-UI-011 | 17개 시·도를 경계로 구분하고 축척별 명칭을 표시한다. | Must | 통일된 육지색, 방문과 선택을 구분하는 테두리, 축소 시 서울·부산·제주/선택 지역, 확대 시 선택 지역과 검증된 랜드마크 명칭을 표시한다. 경계 출처 한계를 고지한다. |
 | FR-PROFILE-001 | 공개용 닉네임·기본/Google 아바타를 설정한다. | Must | FR-PROFILE-002에 따라 전체 프로필을 최소 필드로 공개한다. 소유자 수정·명시 아바타·기본 표시·여행 private 및 개인정보 우회 차단을 검증한다. |
 | FR-SOCIAL-001 | 사용자를 일방 팔로우·해제한다. | Must | 공개 프로필 검색·본인 관계 관리·유일한 사용자 쌍·자기 팔로우/타인 변경 차단, 완료 공개 기록만 조회한다. |
 | FR-STAMP-001 | 본인 방문 시·도 스탬프를 자동 계산한다. | Must | 본인 complete만 집계하고 마지막 기록 삭제·위치 변경 시 재계산한다. 친구·draft·해외는 국내 스탬프에서 제외한다. |
@@ -438,3 +442,7 @@ FR-PHOTO-WEB-FILE-001 / TC-PHOTO-WEB-FILE-001은 [명세](WEB_ORIGINAL_PICKER_SP
 FR-PHOTO-GPS-PICKER-001 / TC-PHOTO-GPS-PICKER-001은 [명세](ANDROID_PHOTO_GPS_SPEC.md)를 따른다. 별도 사진전용 브랜치/t14 리뷰만 사용하며 Web 일반파일·Native 기존 SDK 원본/권한 경로를 비교·보강한다. 압축전 실제metadata·수동검색/edited·세대/UUID·JPEG/PNG 검증을 유지한다. 실제 Android Chrome OS picker/앱/Google 포토/파일 및 대역 결과를 분리하고 제거된 GPS 복원을 주장하지 않는다. main/원격/서버·타기능은 변경하지 않는다.
 
 Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 플랫폼 요청 절을 따른다. 지원OS+EXIF 요청일 때만 기존 ImagePicker Intent에 플랫폼 위치metadata 요청을 연결하며 구OS/원본/Web/iOS·사용자동의·수동복구를 유지한다. Expo prebuild의 제한된 멱등patch/소스불일치빌드중단 및 실제Native 수용을 분리한다. SDK업그레이드/새NativeModule/서버변경은 없다.
+
+## 무료 행정구역 지도
+
+FR-MAP-ATLAS-001과 TC-MAP-ATLAS-001의 데이터·홈 동작·플랫폼별 수용 범위는 [무료 행정구역 지도와 지구본](MAP_ATLAS.md)을 따른다. 기존 여행 기록 및 장소 검색 API 계약을 유지한다.

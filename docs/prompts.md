@@ -1679,3 +1679,248 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 프롬프트 원문: 확인했어. 앱에서 정삭 작동하네. 이제 해당 브랜치를 메인에 푸쉬해줘
 
 결과: 사용자가 앱 정상작동을 확인했다고 전달했다(독립 재검증과 구분). 최신 origin/main은 cf7d30c이며 fix/android-photo-gps의 조상으로 확인돼 사진GPS 수정/실제설정APK 빌드기록을 fast-forward로 main에 반영한다. 제품변경 추가/중복빌드·테스트/원격DB변경은 없고 기존 root package/lock 및 미추적파일은 제외한다. 변경파일: docs/prompts.md.
+
+## 2026-11-13 17:32 KST — SVG 지도·카카오 전환
+
+### 사용자 프롬프트 원문
+
+# 여행가봥 지도 시스템 리팩터링 요청
+
+현재 개발 중인 **여행가봥(MyTravelDex)** 프로젝트의 지도 시스템을 기존 지도 API 기반에서 **React + SVG + GeoJSON + d3-geo 기반 자체 지도 렌더링 방식**으로 변경해 줘.
+
+이번 작업은 단순히 새로운 지도를 추가하는 것이 아니라, 기존 프로젝트의 구조와 기능을 먼저 분석하고 **기존 기능을 최대한 유지하면서 지도 렌더링 시스템만 교체하는 것**이 목표야.
+
+## 1. 작업 전 기존 프로젝트 분석
+
+코드를 수정하기 전에 다음 사항을 확인해 줘.
+
+- 현재 사용 중인 지도 API 및 지도 컴포넌트 구조
+- 지도 확대·축소, 이동, 지역 클릭 이벤트
+- 여행 사진 썸네일 마커 및 마커 클러스터링
+- 여행 기록 상세 화면 연결
+- 친구 여행 기록 표시 기능
+- 방문 지역 색칠 및 여행도감 데이터 연결
+- Supabase 데이터 구조 및 좌표 저장 방식
+- 장소 검색 및 GPS 좌표 처리 방식
+- 기존 지도 디자인, 상태 관리 및 공통 컴포넌트
+
+기존 기능별로 재사용 가능한 부분과 수정이 필요한 부분을 구분하고, 기존 기능이 손상되지 않도록 구현해 줘.
+
+## 2. 새로운 지도 기술 구조
+
+다음 기술을 기본으로 사용해 줘.
+
+- React: 지도 UI 및 상태 관리
+- SVG: 행정구역과 지도 요소 렌더링
+- GeoJSON: 대한민국 행정구역 경계 데이터
+- d3-geo: 위도·경도에서 SVG 좌표로 변환
+- d3-zoom 또는 적절한 대체 기술: 확대·축소 및 지도 이동
+
+기존 프로젝트의 프레임워크와 빌드 환경을 우선 확인하고, 호환되는 방식으로 적용해 줘.
+
+기존 지도 API와 연결된 코드를 바로 삭제하지 말고 새 지도 시스템이 정상 작동하는 것을 확인한 후 교체해 줘.
+
+## 3. 대한민국 2단계 지도 구현
+
+### 1단계: 대한민국 전체 지도
+
+- 대한민국 17개 시·도 경계 표시
+- 방문 지역과 미방문 지역을 색상으로 구분
+- 각 시·도 이름을 한글로 표시
+- 특별시·광역시·특별자치시 등의 명칭은 생략하여 '서울', '부산', '대구'처럼 표시
+- 지역 클릭 시 해당 시·도 상세 지도로 이동
+- 기존 여행 사진 마커 표시 기능 유지
+
+### 2단계: 시·도 상세 지도
+
+- 선택한 시·도의 시·군·구 경계 표시
+- 시·군·구 이름을 한글로 표시
+- 기존 여행 기록과 방문 여부 연결
+- 지역별 여행 사진 마커 표시
+- 지도 이동 및 확대·축소 지원
+- 상위 대한민국 지도로 복귀하는 기능 제공
+
+행정구역 데이터는 신뢰할 수 있는 최신 GeoJSON 데이터를 사용하고, 기존 프로젝트의 행정구역 코드와 차이가 있다면 매핑 처리를 구현해 줘.
+
+## 4. 기존 여행 기능 유지
+
+다음 기능은 반드시 유지해 줘.
+
+1. 여행 사진 썸네일 기반 지도 마커
+2. 여러 마커가 겹칠 때 클러스터링 및 개수 표시
+3. 마커 클릭 시 기존 여행 상세 화면 연결
+4. 친구의 여행 사진 및 기록 표시
+5. 방문 지역에 따른 지도 색칠
+6. 여행도감 및 지역별 스탬프 연동
+7. 사용자 프로필 및 여행 기록 데이터 연결
+8. 여행 기록 추가·수정·삭제 시 지도 즉시 갱신
+
+기존 Supabase 데이터베이스 구조와 API 호출 방식을 최대한 유지해 줘.
+
+GPS 좌표는 기존 위도·경도 데이터를 사용하고, 지도 렌더링 시 d3-geo를 이용하여 SVG 좌표로 변환해 줘.
+
+위치 검색이나 주소 변환 기능에는 카카오맵 API를 가져오는 걸로 바꿔줘.
+
+
+
+## 5. 지도 디자인
+
+여행가봥의 기존 디자인 콘셉트를 유지해 줘.
+
+- 모던 미니멀 스타일
+- 밝은 파스텔 색상
+- 연한 파란색 바다 배경
+- 깔끔한 행정구역 경계선
+- 지역 이름의 가독성 확보
+- 방문한 지역이 자연스럽게 강조되는 색상 구성
+- 기존 colors.json 및 디자인 토큰이 있다면 우선 활용
+
+기존 지도와 신규 지도의 해안선이 중복 표시되지 않도록 **하나의 GeoJSON 기반 해안선만 사용**해 줘.
+
+지도에 불필요한 장식이나 과도한 애니메이션은 추가하지 말아 줘.
+
+## 6. 지도 확대·축소 및 사용자 경험
+
+- PC 마우스 드래그 및 휠 확대·축소 지원
+- 모바일 터치 이동 및 핀치 줌 지원
+- 지도 확대·축소 시 마커 위치 정확도 유지
+- 확대 수준에 따른 마커 겹침 처리
+- 지역 클릭 시 자연스러운 확대 애니메이션
+- 상위 지도 복귀 시 자연스러운 화면 전환
+- 화면 크기에 맞춰 지도 자동 배치
+- 기존 하단 내비게이션 유지
+
+향후 세계 지도와 지구본 화면으로 확장할 수 있도록 지도 렌더링 구조를 모듈화하되, 이번 작업에서는 대한민국 지도 구현에 집중해 줘.
+
+## 7. 코드 구조 및 성능
+
+- 지도 렌더링과 비즈니스 로직 분리
+- GeoJSON 데이터와 지도 UI 컴포넌트 분리
+- 좌표 변환 및 마커 계산 로직 모듈화
+- 불필요한 전체 지도 재렌더링 방지
+- 확대·축소 시 부드러운 동작 유지
+- 기존 컴포넌트 및 유틸리티 최대한 재사용
+- 불필요한 라이브러리 추가 금지
+- 기존 기능과 호환되는 인터페이스 유지
+
+필요하다면 지도 렌더러를 별도 컴포넌트로 분리하고, 기존 지도 컴포넌트의 외부 인터페이스를 유지하는 어댑터 구조를 사용해 줘.
+
+## 8. 구현 및 검증 순서
+
+다음 순서대로 진행해 줘.
+
+1. 기존 지도 시스템과 의존성 분석
+2. 기존 기능 및 데이터 흐름 정리
+3. 새 SVG 지도 렌더러 구현
+4. 대한민국 시·도 및 시·군·구 GeoJSON 연동
+5. 기존 여행 기록과 방문 지역 데이터 연결
+6. 사진 마커 및 클러스터링 기능 이전
+7. 지도 확대·축소, 클릭 및 상세 화면 연결
+8. 모바일 및 PC 반응형 동작 검증
+9. 기존 지도와 신규 지도의 기능 비교
+10. 검증 후 불필요한 기존 지도 렌더링 코드 정리
+
+## 9. 완료 조건
+
+다음 조건을 모두 만족해야 작업 완료로 판단해 줘.
+
+- 대한민국 전체 지도와 시·도 상세 지도가 정상 표시됨
+- 행정구역 경계와 지역명이 정상 표시됨
+- 여행 사진 마커가 정확한 위치에 표시됨
+- 마커 클러스터링이 정상 작동함
+- 기존 여행 상세 화면 및 친구 기록이 정상 연결됨
+- 방문 지역 색칠 및 스탬프 기능이 유지됨
+- 여행 기록 추가·수정·삭제 결과가 지도에 반영됨
+- 모바일 터치와 PC 마우스 조작이 정상 작동함
+- 기존 Supabase 데이터 손상이나 불필요한 스키마 변경이 없음
+- 기존 지도 API 렌더링 의존성이 제거됨
+- 기존 앱의 다른 화면 및 기능에 회귀 오류가 없음
+
+## 10. 작업 원칙
+
+**기존 기능 유지 > 지도 시스템 안정성 > 사용자 경험 > 디자인 개선**
+
+이 우선순위를 지켜 줘.
+
+기존 기능을 제거하거나 데이터 구조를 크게 변경해야 하는 상황이라면, 먼저 대체 방안을 검토해 줘.
+
+기존 코드를 충분히 분석한 뒤 실제 리팩터링까지 진행하고, 완료 후 다음 내용을 보고해 줘.
+
+- 기존 지도 시스템 분석 결과
+- 변경한 파일 및 주요 코드 구조
+- 유지한 기능과 변경한 기능
+- 실행한 테스트와 검증 결과
+- 남아 있는 문제 및 개선 사항
+
+분석 보고만 하고 종료하지 말고, 실제 코드 수정과 가능한 검증까지 진행해 줘.
+
+### 추가 응답 원문
+
+최신 경계 사용: 시·도 개수 변경 허용
+
+### 결과 요약
+
+React Native SVG+d3-geo 공통 지도, 2026-10-01 경계16/256와 코드 매핑, 기존 마커·도감·본인 스탬프 유지 및 Kakao 서버 검색 구현. DB/migration/원격 변경 없음. 타입·웹 빌드·대역/단위·브라우저 검증과 Supabase Local/Android/실제 Kakao 미검증을 구분한다. 최종 실행 결과와 변경 파일은 SVG_MAP_REFACTOR 및 아래 변경 목록에 기록한다.
+
+### 이번 작업 변경 파일
+
+- `.env.example`
+- `AGENTS.md`
+- `README.local.md`
+- `README.md`
+- `backend/supabase/functions/geocode-location/index.ts`
+- `backend/tests/geocode-vnext.test.ts`
+- `backend/tests/maplibre.test.ts`
+- `backend/tests/maps-native.test.ts`
+- `backend/tests/provinces.test.ts`
+- `backend/tests/stamp-catalog.test.ts`
+- `backend/tests/themes.test.ts`
+- `docs/API_SPEC.md`
+- `docs/DISAN.md`
+- `docs/PRD.md`
+- `docs/REQUIREMENT.md`
+- `docs/TEST_CASE.md`
+- `docs/TRD.md`
+- `docs/planning.md`
+- `docs/prompts.md`
+- `frontend/app.config.ts`
+- `frontend/e2e/composer-update.spec.ts`
+- `frontend/e2e/map-layout.spec.ts`
+- `frontend/e2e/maps.spec.ts`
+- `frontend/e2e/static-web.spec.ts`
+- `frontend/package-lock.json`
+- `frontend/package.json`
+- `frontend/public/index.html`
+- `frontend/src/LocationPicker.tsx`
+- `frontend/src/MapAttribution.tsx`
+- `frontend/src/NativeRecordMarker.tsx`
+- `frontend/src/ProvinceMap.tsx`
+- `frontend/src/Social.tsx`
+- `frontend/src/StampCatalog.tsx`
+- `frontend/src/TravelMap.tsx`
+- `frontend/src/TravelMap.web.tsx`
+- `frontend/src/data/README.md`
+- `frontend/src/mapStyle.ts`
+- `frontend/src/provinces.ts`
+- `playwright.config.ts`
+- `scripts/configured.test.mjs`
+- `scripts/prepare-maplibre.mjs`
+- `backend/supabase/functions/_shared/kakao.ts`
+- `backend/tests/atlas.test.ts`
+- `backend/tests/kakao-http.test.ts`
+- `backend/tests/kakao.test.ts`
+- `backend/tests/svg-map.test.ts`
+- `docs/MAP_ATLAS.md`
+- `docs/SVG_MAP_REFACTOR.md`
+- `frontend/src/MapGestureSurface.tsx`
+- `frontend/src/MapGestureSurface.web.tsx`
+- `frontend/src/SvgTravelMap.tsx`
+- `frontend/src/data/korea-svg-districts.json`
+- `frontend/src/data/korea-svg-provinces.json`
+- `frontend/src/svgGeography.ts`
+- `frontend/src/svgMapGeometry.ts`
+
+선행 변경 중 위 목록에서 제외한 기존 경계·세계·atlas 원본과 map-ocean 테스트는 수정하지 않고 보존했다. 최종 검증: 타입·웹 export·설정5개·Vitest95개+보강1개·웹6개 통과; Supabase Local/실제 Kakao/Android는 미검증. 커밋·푸시·원격 배포는 하지 않았다.
+
+| 2026-11-13 17:45 KST | 웹에서 볼 수 있게 해줘 | 기존 프로젝트 공개 설정으로 localhost:8083 Expo Web 실행, Auth/Google 및 조회 점검 HTTP 200, 웹 번들 성공 확인 후 기본 브라우저 열기. 서버는 실행 상태 유지. | 변경 파일: `docs/prompts.md` |
+| 2026-11-13 17:57 KST | 아 그럼 커밋 푸시 해줘 | SVG 지도·Kakao 전환과 참조하는 기존 경계/회귀 자료를 seongjin 브랜치의 커밋·origin 푸시 대상으로 정리. 앞선 테스트·미검증 범위 유지, 실제 환경파일·빌드 산출물 제외. | 변경 파일: `docs/prompts.md`; 커밋 범위는 이번 지도 작업 변경 파일 전체 |

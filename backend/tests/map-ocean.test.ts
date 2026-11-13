@@ -15,7 +15,10 @@ test('ocean uses canonical blue and a pale edge below the unchanged selected bor
  expect(coast).toMatchObject({type: 'line', source: 'provinces', paint: {'line-color': colors.map.oceanHighlight, 'line-width': 1.2}});
  expect(style.layers.indexOf(coast!)).toBeLessThan(style.layers.findIndex(layer => layer.id === 'province-selected'));
  expect(style.layers.find(layer => layer.id === 'province-selected')).toMatchObject({filter: ['==', ['get', 'shapeISO'], 'KR-11'], paint: {'line-color': colors.map.regionBorderSelected, 'line-width': 2.5}});
- expect(style.layers.find(layer => layer.id === 'province-fill')?.paint).toMatchObject({'fill-color': ['get', 'color']});
+ expect(style.layers.find(layer => layer.id === 'province-fill')?.paint).toMatchObject({'fill-color': colors.map.landDefault});
+ expect(style.layers.find(layer => layer.id === 'own-visits')).toMatchObject({
+   type:'line', filter:['in',['get','shapeISO'],['literal',['KR-11']]], paint:{'line-color':colors.map.visitedRegionBorder},
+ });
 });
 
 test('all three line ornament kinds have stable unique anchors outside every province, including home waters', async () => {

@@ -1,3 +1,4 @@
+import {provinceLabels} from './provinces';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import TravelerAvatar from './Avatar';
@@ -156,7 +157,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
   const disabled = loading || saving || !loaded;
   if(showStamps&&!editing)return <>{children}</>;
   const profileName=snapshot?.name||(loading?'불러오는 중…':error?'확인 필요':'여행자');
-  const visitLabel=visits===null?(visitsFailed?'확인 필요':'확인 중'):`${visits} / 17`;
+  const visitLabel=visits===null?(visitsFailed?'확인 필요':'확인 중'):`${visits} / ${Object.keys(provinceLabels).length}`;
   if(!editing)return <View style={s.profilePage}>
     <View style={s.profileCard}>
       <View style={s.profileHeading}><Text accessibilityRole="header" style={s.profileTitle}>나의 프로필</Text><Button compact label="프로필 수정" disabled={disabled} onPress={()=>{setError('');setSuccess('');setEditing(true);}} secondary/></View>

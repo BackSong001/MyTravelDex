@@ -1,3 +1,11 @@
+## 2026-11-13 SVG 지도·Kakao 실행 결과
+
+TC-SVG-MAP-001·TC-KAKAO-LOCATION-001: TypeScript/Expo Web export/설정5개, 비통합 Vitest95개 및 추가 주소검증1개, Playwright6개 통과. HTTP2개는 실제 loopback+클라이언트+Edge 핸들러이며 Auth/Kakao 대역이다. 사용자 선택에 따라 2026-10-01 기준16/256개로 전환하고 기존 지역ID·사진·도감·본인 집계를 연결했다. 최초 SVG 계약 및 잘못된 주소 fallback의 실제 Red→Green을 확인했다. Supabase Local/실제 Kakao/Android/전체 앱 수용은 미검증이다. 상세 명령·결과·실패 원인·검증 한계는 [최종 실행 기록](SVG_MAP_REFACTOR.md)을 따른다.
+
+## SVG 지도·카카오 위치 검색 전환 (2026-11-13)
+
+FR-SVG-MAP-001~002·FR-KAKAO-LOCATION-001 및 TC-SVG-MAP-001·TC-KAKAO-LOCATION-001은 [SVG_MAP_REFACTOR](SVG_MAP_REFACTOR.md)를 따른다. 이 계약이 이전 MapLibre/Geoapify 기본 렌더링·검색 계약보다 우선한다. DB·RLS는 유지하며 구현과 실제 수용 검증을 구분한다.
+
 # MyTravelDex 단계별 TDD 테스트 케이스
 
 ## Figma 17A 수용 계획 (2026-11-09)
@@ -1258,3 +1266,7 @@ Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 
 
 - 사용자 재빌드 요청에 따라 사진GPS브랜치 fdbafdb에서 android:configured 실행. 실제.env의 Auth/GoogleProvider 활성·기본테이블HTTP200 확인 후prebuild/assembleRelease 성공(Gradle1분23초/487tasks). 에뮬레이터설치성공, APK162301972bytes, apksigner verify exit0, 실제설정URL/DEX 위치요청필드포함을값노출없이검증했다.
 - 전달파일: /home/jh-mac/Downloads/MyTravelDex-photo-gps-fdbafdb.apk. SHA256: 4d9e33d2c8be76599f22f2c1d948792cf0962e1dd07003510fa96ebd82199ae6. 이전LocalQA APK와별개이며개발서명테스트APK다. 운영Google로그인/실휴대폰사진/GPS·Play제출수용은이번빌드성공으로대체하지않는다. main/원격설정/기존외부변경은유지했다.
+
+## 무료 행정구역 지도
+
+FR-MAP-ATLAS-001과 TC-MAP-ATLAS-001의 데이터·홈 동작·플랫폼별 수용 범위는 [무료 행정구역 지도와 지구본](MAP_ATLAS.md)을 따른다. 기존 여행 기록 및 장소 검색 API 계약을 유지한다.

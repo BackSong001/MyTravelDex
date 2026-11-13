@@ -3,21 +3,20 @@ import React, {useMemo, useState} from 'react';
 import Text from './FontText';
 import {Linking, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import Svg, {G, Path, Text as SvgText} from 'react-native-svg';
-import {groupProvinceRecords, project, provinceLabels, provincePaths, provinceColors,provincePalette} from './provinces';
+import {groupProvinceRecords, project, provinceLabels, provincePaths} from './provinces';
 
 export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,showHeading = true}: {records: any[];ownRecords?: any[];onOpen: (record:any)=>void;onRegion?: (id:string,name:string)=>void;showHeading?: boolean}) {
  const c=useThemeColors();
  const palette=c;
- const provinceColors=provincePalette(c.map.regionPastels);
  const s=useThemeStyles(makeStyles);
   const ownGroups=useMemo(()=>groupProvinceRecords(ownRecords),[ownRecords]);
   const groups=useMemo(()=>groupProvinceRecords(records),[records]);
   const [selected,setSelected]=useState<string|null>(null),[showRegions,setShowRegions]=useState(false);
   const region=selected?provinceLabels[selected]:null, trips=selected?groups[selected]??[]:[];
-  return <View testID="province-map" accessibilityLabel={!showHeading?`방문 지역 ${Object.keys(ownGroups).length} / 17`:undefined} style={s.container}>
-    <Svg width="100%" height="100%" viewBox="0 0 440 650" preserveAspectRatio="xMidYMid meet" accessibilityLabel="대한민국 17개 시도 지도">
+  return <View testID="province-map" accessibilityLabel={!showHeading?`방문 지역 ${Object.keys(ownGroups).length} / ${provincePaths.length}`:undefined} style={s.container}>
+    <Svg width="100%" height="100%" viewBox="0 0 440 650" preserveAspectRatio="xMidYMid meet" accessibilityLabel={`대한민국 ${provincePaths.length}개 시도 지도`}>
       {provincePaths.map((province)=><Path key={province.id} d={province.path} fillRule="evenodd"
-        fill={provinceColors[province.id]} fillOpacity={ownGroups[province.id]?.length?1:palette.map.unvisitedRegionOpacity}
+        fill={palette.map.landDefault}
         stroke={selected===province.id?palette.map.regionBorderSelected:ownGroups[province.id]?.length?palette.map.visitedRegionBorder:palette.map.regionBorder} strokeWidth={selected===province.id?2.5:ownGroups[province.id]?.length?1.8:.9} strokeLinejoin="round"
         onPress={()=>{setSelected(province.id);setShowRegions(false);}}/>) }
       {Object.entries(provinceLabels).map(([id,label])=>{
@@ -28,14 +27,14 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
       })}
     </Svg>
     {showHeading&&<View pointerEvents="box-none" style={s.top}>
-      <View style={s.heading}><Text style={s.title}>나의 여행지도</Text><Text style={s.description}>한 곳씩, 나만의 색으로 채워보세요</Text></View>
-      <View accessibilityLabel={`방문 지역 ${Object.keys(ownGroups).length} / 17`} style={s.stamp}><Text style={s.stampLabel}>방문한 지역</Text><Text style={s.count}>{Object.keys(ownGroups).length} / 17</Text></View>
+      <View style={s.heading}><Text style={s.title}>나의 여행지도</Text><Text style={s.description}>방문한 지역을 확인해 보세요</Text></View>
+      <View accessibilityLabel={`방문 지역 ${Object.keys(ownGroups).length} / ${provincePaths.length}`} style={s.stamp}><Text style={s.stampLabel}>방문한 지역</Text><Text style={s.count}>{Object.keys(ownGroups).length} / {provincePaths.length}</Text></View>
     </View>}
     <View style={s.bottom}>
       <View style={s.legend}><Text style={s.legendText}>● 방문 지역</Text><Pressable accessibilityRole="button" accessibilityLabel="지역 선택" onPress={()=>setShowRegions(!showRegions)} style={s.regionButton}><Text style={s.regionButtonText}>지역 선택 {showRegions?'⌃':'⌄'}</Text></Pressable></View>
       {showRegions&&<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.regions}>{Object.entries(provinceLabels).map(([id,label])=><Pressable key={id} accessibilityRole="button" accessibilityLabel={`${label.name} 지역 선택`} accessibilityState={{selected:selected===id}} onPress={()=>{setSelected(id);setShowRegions(false);}} style={s.regionChip}><Text style={s.regionChipText}>{label.name}</Text></Pressable>)}</ScrollView>}
       {region&&<View style={s.panel}><View style={s.panelHeading}><Text style={s.panelTitle}>{region.name} 여행 · {trips.length}개</Text><Pressable accessibilityRole="button" accessibilityLabel="지역 선택 닫기" onPress={()=>{setSelected(null);}} style={s.close}><Text style={{color:c.muted}}>닫기</Text></Pressable></View>{trips.length?<ScrollView style={{maxHeight:110}}>{trips.map(record=><Pressable key={record.id} accessibilityRole="button" accessibilityLabel={record.title||'제목 없는 여행'} onPress={()=>onOpen(record)} style={s.trip}><Text style={s.tripTitle}>{record.title||'제목 없는 여행'}</Text><Text style={s.description}>{record.start_date} ~ {record.end_date}</Text></Pressable>)}</ScrollView>:<Text style={s.description}>이 지역의 기록이 아직 없어요. 하단 +로 여행을 담아보세요.</Text>}{onRegion&&<Pressable accessibilityRole="button" onPress={()=>onRegion(selected!,region.name)} style={s.close}><Text style={{color:palette.map.regionBorderSelected}}>도감에서 보기</Text></Pressable>}</View>}
-      <Pressable accessibilityRole="link" accessibilityLabel="지도 데이터 출처" onPress={()=>Linking.openURL('https://github.com/southkorea/southkorea-maps')} style={s.attribution}><Text style={s.attributionText}>KOSTAT 2018 · southkorea-maps</Text></Pressable>
+      <Pressable accessibilityRole="link" accessibilityLabel="지도 데이터 출처" onPress={()=>Linking.openURL('https://github.com/vuski/admdongkor')} style={s.attribution}><Text style={s.attributionText}>SGIS · vuski/admdongkor · 2026-10-01 · CC BY 4.0</Text></Pressable>
     </View>
   </View>;
 }

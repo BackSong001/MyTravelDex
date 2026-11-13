@@ -8,8 +8,8 @@ test('MapLibre migration does not display unverified Google-sourced coordinates 
  expect(mapRecords([google,exif])).toEqual([exif]);expect(google.locations.source).toBe('google');
 });
 test('native map mounts without a Google Maps key and preserves real coordinate annotations',()=>{
- const source=readFileSync('frontend/src/TravelMap.tsx','utf8');
- expect(source).toContain('@maplibre/maplibre-react-native');
+ const source=readFileSync('frontend/src/SvgTravelMap.tsx','utf8');
+ expect(source).not.toContain('@maplibre/maplibre-react-native');
  expect(source).not.toContain('PROVIDER_GOOGLE');expect(source).not.toContain('GOOGLE_MAPS_ANDROID_API_KEY');
- expect(source).toContain('lngLat=');expect(source).toContain('지도 확대');expect(source).toContain('대한민국 전체 보기');
+ expect(source).toContain('projection.invert');expect(source).toContain('지도 확대');expect(source).toContain('대한민국 전체 보기');
 });
