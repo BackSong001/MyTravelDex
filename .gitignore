@@ -14,3 +14,5 @@ playwright-report/
 .vitest/
 backend/supabase/.temp/
 backend/supabase/.branches/
+
+frontend/public/vendor/maplibre/

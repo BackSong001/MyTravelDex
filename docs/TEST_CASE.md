@@ -1426,3 +1426,40 @@ FR-MAP-HOME-004 / TC-MAP-HOME-004는 docs/MAP_FIRST_HOME_SPEC.md 최신 절을 �
 - 최종시간기준500ms취소회귀 **2pass(22.2초)** 및frontend types exit0. 이전40RAF후보의통과와구분하며프레임레이트에의존하지않고country완료기한이후camera고정/nonnull·요약/other를확인했다.
 - 최신Web production export exit0 (2026-11-13T12:21:41.692Z), entry-13259bcbaba7a51ea037fe9c958adcb8.js 19.9MB. 배포전산출물생성증거이며실배포는하지않았다.
 - 최신artifact static **3pass(10.8초)**: MIME/bytes·callback 및320px guest의서울강조/두복귀도구·경기수원시union/회색·홈복귀후전국서울라벨복원·공개feed요청0/pageerror0. 전체E2E/실배포성공으로확대하지않는다.
+
+
+## 2026-11-16 홈 단순 사진지도
+FR-MAP-SIMPLE-001 / TC-MAP-SIMPLE-001은 docs/SIMPLE_PHOTO_MAP_SPEC.md의 사용자 승인 계획을 따른다. 홈만 MapLibre/실제Geoapify타일·단색바다·시도선·단계라벨/기록수마커로 대체하고 비홈SVG/원본geometry/DB/API/권한/사진·상태보호는 유지한다. 별도 공개지도키와 서버검색비밀키를 분리하며 t14/실Web/Native수용·무료quota·원격배포를 구분한다. 이전 홈 SVG 전용/바다그라데이션/시군구선 계약은 이 범위에서 대체된다. 제품 구현과 지정 Web·에뮬레이터 기능 확인을 마쳤다. 전체 E2E·실휴대폰·Native 성능 수용은 완료되지 않았으며 실행별 결과와 환경 차단은 TEST_CASE 최신 이력을 따른다.
+
+### TC-MAP-SIMPLE-001 중간 검증 (2026-11-16)
+- 환경 Red: 공개지도키 전달/지문/서버검색키 동일값 거부의 실패를 확인한 뒤 관련 Node 검사15통과. map plugin 재등록 이후 부분11통과는 별도 실행. 실제값은 출력/문서화하지 않았다.
+- 순수/Native SSR11통과(7.50초): 스타일 단계,512zoom↔scale,중간줌 시union명,라벨상한/사진회피,키없는SVG와Native실패callback. SSR은 실제Android 렌더가 아니다.
+- Web23개 실행22통과/1실패(4.6분). 실패는 깊은줌 화면밖 수원구를 찾던 준비조건이며 전국→경기도 복귀 후 실제구목록 선택으로 보정. 후속focused3통과(40.5초)는 새전체23Green으로 합산하지 않는다. 실제PBF200/도로·수계queryRenderedFeatures/tilesLoaded와 renderer.project↔사진SVG resize오차1px미만,403안내/contextloss camera·요약유지를 확인했다.
+- 단일기록의 전국anchor↔실좌표 전환에서 ID만 같으면 이동이 생략되는 Red1(8.6초) 후 모드signature 추가, 동일 RAF 중간좌표회귀1통과(11.7초). 새전체/Native모션수용은 별도다.
+- APK1m34초 빌드는 Native style문자열memo 이전후보이며 최종Native 수용으로 계산하지 않는다. 최신APK/실기기/성능/export는 아직 후속 검증 대상이다.
+
+- 전국 단일기록 모드전환1pass 후 count 회귀1pass(13.5초):3기록 집계→실좌표2+1·동일좌표2개요약·전국3복귀. 후속 Native에서 큰경남fit이 전국상한이하인 경우 두번째사진이fit만반복함을 발견했고 Web Red1로 재현. 선택시도만 좌표군집 예외 추가 후 단일전환/count/경남요약3통과(31.2초).
+- 실제 no-dev Web 배포 export/static3통과(10.0초)는 큰시도 예외 전 artifact다. 최종후속export는 별도로 기록한다.
+- Native 중간후보 비교(동일 mytrveldex API37.2/6CPU/8192MiB/hostGPU·같은기존계정8기록, 확대3→좌우pan6→홈): 설치기존 APK30frames/jank66.67%/p50 500ms/p90 950ms/PSS988534KiB, 새중간 APK164frames/jank46.95%/p50 32ms/p90 69ms/PSS352548KiB. 단발표본이며 사진/타일캐시·온도와별도GL프레임 비용은 통제하지 않아 일반개선율·전체성능수용으로 사용하지 않는다.
+- 기존앱첫종료는 emulator WebView package update로관측했으며 재진입후 같은계정/기록을유지했다. app data reset/로그아웃/원격데이터변경은하지않았다. Native최초camera의reactTag오류1관측→style준비후명령으로보강. 큰시도후보Gradle1m41성공/상위wrapper143과 준비보강후빌드1m39/exit0을구분한다. 실제최종동작은후속확인한다.
+
+
+### TC-MAP-SIMPLE-001 최종 지정 검증 (2026-11-16)
+- 최종 readiness/큰시도 예외 포함 소스의 frontend types exit0, 순수·Native SSR **11pass(8.40초)**. Native SSR은 기기 동작과 구분한다.
+- 최신 production export exit0, `entry-40132171e47a6a8ef77829f75da7410b.js`; 해당 artifact static **3pass(8.7초)**. MIME/실제bytes·OAuth callback·guest 지도와 공개feed 요청0을 확인했다. 앞선 PBF/렌더features 검사 및 focused3과 별도 실행이며 전체 E2E 성공으로 합산하지 않는다.
+- 준비 guard 포함 최종 x86_64 APK build **1분39초/exit0**를 mytrveldex(API37.2,6CPU,8192MiB,hostGPU)에 데이터 보존 설치했다. 기존 실제 계정8기록의 전국 집계(4/3/단일), 경남 선택 뒤 좌표군집3+단일, 3개 요약→개별 사진 상세→목록 복귀 시 같은 지역/요약, 핸들 아래drag닫기, 홈 전국복귀를 관찰했다. 확대 뒤 실제 도로·하천·녹지와 pinch 축척변화도 스크린샷으로 확인했다. 개인 사진/이름/원본 파일명은 저장소 기록에 포함하지 않았다.
+- 최신 앱 process에서 초기 진입·상세 재마운트 뒤 `reactTag`, `FATAL EXCEPTION`, `TypeError`, `ReferenceError`가 각각0이었다. 이전 후보의 최초camera 오류와 Gradle성공/래퍼143을 이 결과로 덮지 않는다. 실제스크린리더·실휴대폰·iOS·권한거절/새계정·선택친구 실제계정 왕복은 이번 Native 관측에 포함하지 않는다.
+- 최종 Native 동일 조작(전국→확대3→좌우pan6→홈) 표본: **165frames, jank49.09%(legacy74.55%), p50 32ms/p90 81ms/p95 101ms/p99 133ms, PSS1008007KiB**. 기존/중간/최종은 서로 다른 표본이며 캐시·온도·앱 사용 누적 및 별도GL 비용을 통제하지 않았다. 일반 개선율/무회귀/메모리누수 원인으로 해석하지 않으며 **Native 성능은 미수용**이다.
+- `svg-app.spec.ts`의 폐기된 홈SVG 기대를 현재 타일/선택/라벨상한 계약으로 정리했지만 실제 Local 앱2case 재실행은 환경 차단으로 미실행이다. MyTravelDex Local은 중지 상태였고 시작 시 다른 프로젝트 `dsu-notifier`가54321/54322를 점유했다. 다른 프로젝트를 중지하거나 해당DB에서 fixture를 만들지 않았으며, 이 상태를 제품 Red 또는 통과로 계산하지 않는다. 데이터 reset/원격DB변경/배포/커밋·푸시는 수행하지 않았다.
+
+- Native 깊은확대 뒤 pinch 스크린샷에서는 우하단 흰 도구 배경은 남고 일부 +/−/홈 글자가 보이지 않는 기존 표시 제한도 관측했다. 홈 동작/전국복귀 확인과 구분하며, 도구 글자의 모든 이동 상태 정상표시나 Native 전체 UI 수용을 주장하지 않는다.
+
+2026-11-16 추가: FR-MAP-SIMPLE-001/TC-MAP-SIMPLE-001의 홈 선택은 최소zoom10.1로 지형을 표시한다. 사진은 대표기록 원좌표 중심, 지역은 기존fit 중심이며 비홈/DB/API와 전국복귀는 유지한다. 상세계약은 SIMPLE_PHOTO_MAP_SPEC 마지막 절을 따른다.
+
+
+### TC-MAP-SIMPLE-001 선택 직후 지형 확대 (2026-11-16)
+- 기존큰도 선택의 낮은줌을 지역/사진 두경로 Red2로 확인했다. 홈만 최소zoom10.1+지역fit중심/사진대표원좌표를 적용하고 비홈fit/기존fly/country를 유지했다. t14 명세·제품 지정 정적 승인.
+- 최초 관련8개 실행7pass/1fail은 새zoom10.1 경기화면밖의 수원구를 찾던 기대였다. 실제가시 원본고양시덕양구41281 선택으로 보정했으며 시군구선0/각줌라벨상한·색/원본code검사는 유지했다.
+- 보강후 지정 **10pass(2.0분)**: 전국기록수/동일좌표/단일모션, 큰도요약, 사진·지역 첫선택최소줌/각중심/홈초기화, 비홈원래fit, 각첫선택의실PBF200·도로/수계렌더·resize투영,403/contextloss카메라·요약유지. 전체E2E가 아니며 Native는 별도이다.
+
+- 최종frontend types exit0, x86_64 APK **BUILD SUCCESSFUL 1분38초/469tasks15실행**. 기존에뮬레이터 데이터보존설치후 전국사진1회선택→대표원좌표쪽 실제도로/녹지/바다·거제시라벨/3기록군집, 홈복귀→강원도 실제영역1회선택→도로·수계·녹지 확대를 관찰했다. 강원중심화면은 지역명후보가없어 별도라벨0이며 상단선택명은유지했다. 최신process reactTag/FATAL EXCEPTION/TypeError/ReferenceError 각각0. 기존Native 일부도구글자미표시는잔존하고이번수정에서해결하지않았다. 성능재측정·실휴대폰/iOS·전체E2E·이후Webexport/실배포는미실행이며 앞선artifact결과와구분한다.

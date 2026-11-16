@@ -22,7 +22,7 @@ test('TC-WEB-EXPORT-001: callback serves actual index HTML while JS and PNG keep
  const js=(await readdir(path.join(root,'_expo/static/js/web'))).find(f=>f.startsWith('entry-'))!;
  const ocean=(await readdir(path.join(root,'assets/assets/maps'))).find(f=>f.startsWith('ocean-depth.'))!;
  const assets=await readdir(path.join(root,'assets/assets/ui')),png=assets.find(f=>f.startsWith('avatar-bear-v1.'))!;
- for(const [file,mime] of [[`_expo/static/js/web/${js}`,'application/javascript'],[`assets/assets/ui/${png}`,'image/png'],[`assets/assets/maps/${ocean}`,'image/png']]){
+ for(const [file,mime] of [['vendor/maplibre/maplibre-gl.css','text/css'],['vendor/maplibre/maplibre-gl-worker.mjs','application/javascript'],['vendor/maplibre/maplibre-gl-shared.mjs','application/javascript'],[`_expo/static/js/web/${js}`,'application/javascript'],[`assets/assets/ui/${png}`,'image/png'],[`assets/assets/maps/${ocean}`,'image/png']]){
   const response=await fetch(`${origin}/${file}`);expect(response.status,file).toBe(200);expect(response.headers.get('content-type')).toBe(mime);expect(Buffer.from(await response.arrayBuffer()).equals(await readFile(path.join(root,file)))).toBe(true);
  }
  for(const missing of ['/assets/missing.png','/vendor/missing.mjs','/_expo/missing.js'])expect((await fetch(origin+missing)).status).toBe(404);
@@ -36,13 +36,17 @@ test('TC-WEB-EXPORT-001: production callback loads, removes rejected query and e
 test('TC-PHOTO-MAP-001: exported guest map shows country and zoom without requesting public records',async({page})=>{
  const feed:string[]=[],errors:string[]=[];page.on('request',r=>{if(/\/rest\/v1\/(travel_records|following_travel_records)/.test(r.url()))feed.push(r.url());});page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin);await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();
- await expect(page.getByTestId('map-label-11')).toHaveText('서울');
+ await expect(page.getByTestId('tile-surface').locator('canvas')).toBeVisible();await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
  await page.setViewportSize({width:320,height:568});await expect(page.getByTestId('svg-map-canvas')).toBeVisible();
  await expect(page.getByRole('button',{name:'지역 찾기',exact:true})).toHaveCount(0);
  for(const reset of ['지도 홈','대한민국']){
-  await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 0개',exact:true}).click();await expect(page.getByTestId('map-district-11680')).toBeVisible();await expect(page.getByTestId('map-selection')).toHaveAttribute('stroke','#2563EB');
+  await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 0개',exact:true}).click();await expect(page.locator('[data-testid^="map-district-"]')).toHaveCount(0);await expect(page.getByTestId('map-selection')).toHaveAttribute('stroke','#2563EB');
   await page.getByRole('button',{name:reset,exact:true}).click();await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.getByTestId('map-selection')).toHaveCount(0);
  }
- await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'경기도 · 0개',exact:true}).click();await expect(page.getByTestId('map-label-41110')).toHaveText('수원시');await expect(page.getByTestId('map-label-41110')).toHaveAttribute('fill','#626B70');await expect(page.getByTestId('map-district-41111')).toHaveCount(0);await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.getByTestId('map-label-41110')).toHaveCount(0);await expect(page.getByTestId('map-label-11')).toHaveText('서울');
+ await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'경기도 · 0개',exact:true}).click();
+ await expect(page.getByTestId('map-selection')).toBeVisible();await expect(page.locator('[data-testid^="map-district-"]')).toHaveCount(0);
+ expect(await page.locator('[data-testid^="map-label-"]').count()).toBeLessThanOrEqual(8);
+ await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
+
  expect(feed).toEqual([]);expect(errors).toEqual([]);
 });

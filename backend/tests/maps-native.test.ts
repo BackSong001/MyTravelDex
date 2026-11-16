@@ -21,11 +21,11 @@ test('TC-SVG-MAP-001 Native correction keeps finite real pins but excludes uncon
 });
 
 
-test('TC-MAP-HOME-002 Native home keeps scaled labels, neutral visits and hides the region panel',()=>{
+test('TC-MAP-SIMPLE-001 Native nationwide hides labels while preserving the keyless SVG path',()=>{
  const mine=record('me',37.5665,126.978);
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[mine],ownRecords:[mine]}));
  expect(html).toMatch(/testID="map-region-11"[^>]*fill="#E5E9E2"/);
- expect(html).toMatch(/testID="map-label-11"[^>]*font-size="24"/);
+ expect(html).not.toContain('testID="map-label-');expect(html).toContain('testID="svg-ocean"');
  expect(html).toContain('지도 지역 및 사진 목록');expect(html).toContain('지도 홈');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
 });
 
@@ -34,6 +34,22 @@ test('TC-MAP-HOME-003 Native home overlays the selected province below labels an
  const navigation={current:{province:'11',selected:null,camera:null,regionOffset:0,recordOffset:0}};
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[],navigation}));
  const overlay=html.match(/<path[^>]*testID="map-selection"[^>]*>/)?.[0];expect(overlay).toBeDefined();expect(overlay).toContain('fill="#3B82F6"');expect(overlay).toContain('fill-opacity="0.18"');expect(overlay).toContain('stroke="#2563EB"');
- expect(overlay?.match(/ d="([^"]+)"/)?.[1]).toBe(html.match(/testID="map-region-11" d="([^"]+)"/)?.[1]);expect(html.indexOf('testID="map-selection"')).toBeLessThan(html.indexOf('testID="map-label-'));
+ expect(overlay?.match(/ d="([^"]+)"/)?.[1]).toBe(html.match(/testID="map-region-11" d="([^"]+)"/)?.[1]);expect(html).not.toContain('testID="map-label-');
  const nonhome=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:false,fullScreen:true,records:[],navigation}));expect(nonhome).not.toContain('map-selection');
+});
+
+test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fallback boundary',async()=>{
+ const {default:Module}=await import('node:module');
+ const load=(Module as any)._load;let nativeProps:any;
+ const spy=vi.spyOn(Module as any,'_load').mockImplementation(function(request:any,...args:any[]){
+  if(request==='@maplibre/maplibre-react-native')return {Map:(props:any)=>{nativeProps=props;return null;},Camera:()=>null};
+  return load.call(Module,request,...args);
+ });
+ try{
+  const {default:TileSurface}=await import('../../frontend/src/TileSurface');
+  const failure=vi.fn(),tileError=vi.fn();
+  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError}));
+  expect(typeof nativeProps.mapStyle).toBe('string');expect(JSON.parse(nativeProps.mapStyle)).toEqual({version:8,sources:{},layers:[]});
+  nativeProps.onDidFailLoadingMap();expect(failure).toHaveBeenCalledOnce();expect(tileError).not.toHaveBeenCalled();
+ }finally{spy.mockRestore();}
 });

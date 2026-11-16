@@ -4,14 +4,15 @@ import Text from './FontText';
 import {Linking,Platform,View} from 'react-native';
 const MAP_ATTRIBUTION='SGIS · vuski/admdongkor · CC BY 4.0 · 2026-04-01';
 
-export default function MapAttribution({records}:{records:any[]}){
+export default function MapAttribution({records,tiles=false}:{records:any[];tiles?:boolean}){
  const c=useThemeColors();
  const credits=[...new Set(records.filter(record=>record.locations?.source!=='google').map(record=>record.locations?.attribution).filter(Boolean))];
- const external=credits.length>0;
+ const external=tiles||credits.length>0;
  const additional=credits.filter(credit=>credit!=='Powered by Geoapify | © OpenStreetMap contributors');
  return <View testID="map-attribution" style={{padding:6,backgroundColor:c.paper}}>
   <Text style={{fontSize:9,color:c.ink}}>{MAP_ATTRIBUTION}</Text>
-  {external&&<><Text accessibilityRole="link" onPress={()=>{void Linking.openURL('https://www.geoapify.com/');}} style={{fontSize:9,color:c.sea}}>Powered by Geoapify · © OpenStreetMap contributors</Text>{additional.map(credit=><Text key={String(credit)} style={{fontSize:9,color:c.ink}}>{String(credit)}</Text>)}</>}
+  {tiles&&<Text accessibilityRole="link" onPress={()=>{void Linking.openURL('https://openmaptiles.org/');}} style={{fontSize:9,color:c.ink}}>© OpenMapTiles</Text>}
+  {external&&<><View style={{flexDirection:'row',flexWrap:'wrap'}}><Text accessibilityRole="link" onPress={()=>{void Linking.openURL('https://www.geoapify.com/');}} style={{fontSize:9,color:c.sea}}>Powered by Geoapify</Text><Text style={{fontSize:9,color:c.sea}}> · </Text><Text accessibilityRole="link" onPress={()=>{void Linking.openURL('https://www.openstreetmap.org/copyright');}} style={{fontSize:9,color:c.sea}}>© OpenStreetMap contributors</Text></View>{additional.map(credit=><Text key={String(credit)} style={{fontSize:9,color:c.ink}}>{String(credit)}</Text>)}</>}
  </View>;
 }
 

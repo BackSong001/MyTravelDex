@@ -1823,3 +1823,33 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: 홈 경기도8시의기존구union표시를중간확대에적용하고깊은확대에는원래구를유지한다. SVG지역명을회색으로바꾸고두전국복귀도구는기존350ms fly/취소세대/완료camera=null을재사용한다. 원본행정코드·DB·기록/사진/권한·비홈흐름은보존한다. t14리뷰후제품/검사취소경계를보강했다. 단위·SSR9pass/관련Web19pass/보강후500ms회귀2pass/types0/최신export·static3pass를각실행으로확인했다. 새에뮬레이터APK에서시단위·구확대·회색·두전국복귀를관찰했으며기존버튼문자소실/Native성능제한은남아있다. jhyun관련변경만커밋·푸시하고원격배포/DB변경은하지않는다.
 
 변경파일: frontend/src/SvgTravelMap.tsx,regions.ts,theme.ts,data/maps/gyeonggi-cities.json,data/maps/README.md; scripts/build-map-cities.py; backend/tests/map-cities.test.ts; frontend/e2e/photo-map.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.
+
+
+## 2026-11-16 16:06 KST — 단순 홈 사진지도 구현
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+
+환경 준비 답변 원문:
+
+> .env 에 EXPO_PUBLIC_GEOAPIFY_MAP_KEY로 추가함
+
+결과: 승인된 SIMPLE_PHOTO_MAP_SPEC에 따라 홈만 MapLibre/Geoapify 실제 벡터타일과 단색바다·시도선·단계별 소수라벨·기록수 사진군집으로 바꿨다. 기존 입력/카메라/요약 소유권, 비홈SVG·DB/RLS·사진/원좌표·계정세대를 유지하고 무키/렌더실패SVG대체·타일오류안내·공개키분리/지문·출처를 연결했다. t14 지정리뷰 후 Native실패/준비경계·중간줌도시·단일기록모션·큰시도2차선택을 보강했다. 지정Web실타일/오류/투영·후속3pass, 최종순수/SSR11pass/types0/export/static3pass와 최신에뮬레이터 실제사진/요약/상세복귀·도로/수계/pinch를 각각 확인했다. Native jank49.09%/PSS1008007KiB는 성능미수용이고 pinch 뒤 일부 도구글자 미표시도 관측했으며 Local앱2회귀는 타프로젝트포트점유로 미실행이다. 사용자데이터변경·원격배포·커밋/푸시 없이 최신APK와에뮬레이터를 유지한다.
+
+변경 파일: frontend/src/{SvgTravelMap,MapAttribution,TileSurface,TileSurface.web,TileSurface.types,TileBoundary,simpleMapStyle,simpleMapRegions,simpleMapLabels,tileCamera,usePhotoGroupMotion}; frontend/package.json·package-lock.json·app.config.ts·plugins/withBundleEnvironment.cjs·public/index.html; scripts/{configured.mjs,configured.test.mjs,export-web.test.mjs,bundle-environment.test.mjs,prepare-maplibre.mjs}; backend/tests/{simple-map.test.ts,maps-native.test.ts}; frontend/e2e/{simple-map,photo-map,svg-map,svg-app,static-web}.spec.ts; docs/{SIMPLE_PHOTO_MAP_SPEC,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md; AGENTS.md·README.local.md·.gitignore·.env.example의 지도키 placeholder 추가. 기존 .env.example 공개값 공유 변경·루트 package/lock·sample/스토리보드/tsconfig 변경은 이번 작업 범위에서 제외한다. 실제키·토큰·개인사진/이름은 기록하지 않았다.
+
+
+## 2026-11-16 16:23 KST — 선택 직후 지형 확대
+
+사용자 프롬프트 원문:
+
+> 사진이나 특별시/도 클릭해서 줌인되면 바로 바다/실제 지형 타일/소수 지역명이 보이게 해줘. 너무 줌인 레벨이 낮은 거 같아
+
+추가 프롬프트 원문:
+
+> /feedback 커밋 푸쉬도 해줘
+
+결과: 홈 선택의 최소줌10.1을 기존choose/fly에 적용하고, 전국사진은 대표기록 원좌표 중심·지역은 기존fit 화면중심으로 이동한다. 비홈·홈초기화·DB/API는 유지한다. 명세/제품은 t14 지정 정적 승인, 선택2case Red를 확인했다. 기존 경기검사의 화면밖 수원구는 새확대 화면안 원본고양구41281로 보정하며 제품조건은 완화하지 않았다. 최종 지정Web10pass(2.0분)/types0·APK1분38초 성공, 에뮬레이터에서 전국사진과 강원영역1회선택의 실제지형 확대를 확인했다. 후보없는 강원중심의 지도라벨0과 기존Native 일부도구문자미표시·성능미수용은 유지한다. 상세 실행/빌드 결과는 TEST_CASE 최신절을 따른다. 앞선 단순지도 관련 변경과 함께 현재 jaehyun/desgin에 커밋·푸시하며, 기존 공개환경공유/루트의존성/원본sample·스토리보드·tsconfig 변경은 제외한다.
+
+변경 파일: frontend/src/SvgTravelMap.tsx; frontend/e2e/photo-map.spec.ts,simple-map.spec.ts; docs/SIMPLE_PHOTO_MAP_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 커밋에는 앞선 단순지도 구현의 관련 의존성·설정·검사도 포함한다.

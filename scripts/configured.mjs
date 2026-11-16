@@ -22,11 +22,16 @@ export function publicConfiguration(source) {
   for (const name of ['EXPO_PUBLIC_SUPABASE_URL','EXPO_PUBLIC_SUPABASE_ANON_KEY']) {
     if (source[name]) output[name] = source[name];
   }
+  const mapKey = source.EXPO_PUBLIC_GEOAPIFY_MAP_KEY?.trim();
+  if (mapKey && mapKey === source.GEOAPIFY_API_KEY?.trim()) throw new Error('Use a separate public map key, not the search server key');
+  if (mapKey) output.EXPO_PUBLIC_GEOAPIFY_MAP_KEY = mapKey;
   return {...output, EXPO_PUBLIC_APP_ENV: 'development'};
 }
 
 async function main() {
-  const config = publicConfiguration(parseEnv(readFileSync(new URL('../.env', import.meta.url), 'utf8')));
+  const source = parseEnv(readFileSync(new URL('../.env', import.meta.url), 'utf8'));
+  if (process.env.EXPO_PUBLIC_GEOAPIFY_MAP_KEY !== undefined) source.EXPO_PUBLIC_GEOAPIFY_MAP_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_MAP_KEY;
+  const config = publicConfiguration(source);
   const headers = {apikey: config.EXPO_PUBLIC_SUPABASE_ANON_KEY};
   let ready = true;
   const settings = await fetch(new URL('/auth/v1/settings', config.EXPO_PUBLIC_SUPABASE_URL), {headers, signal: AbortSignal.timeout(10000)});
