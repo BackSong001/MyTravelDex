@@ -43,3 +43,11 @@ test('TC-MAP-HOME-002 home font uses the user scale in both text and collision b
   for(const label of labels){expect(label.fontSize).toBe(12*scale);expect(label.width).toBe(Math.max(...label.lines.map(l=>l.length))*12*scale+4);expect(label.height).toBe(label.lines.length*(12*scale+2)+4);}
  }
 });
+
+test('TC-MAP-READABILITY-002 selected province keeps its full name and actual font bounds',()=>{
+ const feature=regions.find(f=>f.properties.code==='48')!,p=fitProjection([feature],390,600);
+ const label=layoutMapLabels([feature],p,390,600,[],24,false)[0];
+ expect(label.lines.join('')).toBe('경상남도');expect(label.fontSize).toBe(24);
+ expect(label.width).toBe(4*24+4);
+ expect(layoutMapLabels([feature],p,390,600)[0].lines.join('')).toBe('경남');
+});

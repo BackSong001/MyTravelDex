@@ -29,3 +29,7 @@ MapNavigation에 island(선택섬ID)와선택fit scale만추가하고 기존came
 
 ## Native 작은섬 직접입력 보강
 실제 전국 울릉도 중심 tap은 실패하고63px위 tap이섬을선택했다. 설치RN Fabric DOM.measureInWindow는viewport offset을포함하고 TouchesHelper.pageX/Y는RootReactView기준인경계불일치를확인했다. Native만host.measure의pageX/pageY로같은root좌표를사용하고Web의기존rect/scroll측정은유지한다. 하드코딩offset·좌표허용오차/행정판정변경없이동일소유층의측정API만맞춘다. 실제섬중심/본토·사진·pan/보정입력의좌표계보존과기존비홈계약을검사한다.
+
+
+## 2026-11-17 선택 시도 이름 표시 보강
+FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.

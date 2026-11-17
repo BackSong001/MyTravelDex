@@ -31,7 +31,9 @@ for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 live terrain after one $
  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return !!r?.getStyle()?.sources?.openmaptiles&&r.isStyleLoaded()&&r.areTilesLoaded();}),{timeout:30000}).toBe(true);
  await page.screenshot({path:'/tmp/simple-map-seoul.png'});
  await expect(page.getByTestId('map-selection')).toBeVisible();
- await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
+ await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(1);
+ await expect(page.getByTestId('map-label-11')).toHaveText('서울특별시');
+ await expect(page.getByTestId('map-label-11')).toHaveAttribute('fill','#7D868B');
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
  expect(await page.evaluate(()=>(window as any).renderer.queryRenderedFeatures().filter((f:any)=>f.layer.type==='symbol').length)).toBe(0);
  expect(await page.locator('[data-testid^="map-label-"]').count()).toBeLessThanOrEqual(8);
@@ -134,13 +136,15 @@ test('TC-MAP-READABILITY-001 remote island photos and geometry share targets, sn
  await finder();await page.getByRole('button',{name:'경상북도 · 2개',exact:true}).click();
  await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.province)).toBe('47');
  expect(await page.evaluate(()=>(window as any).navigation.current.island)).toBeNull();
+ await expect(page.getByTestId('map-label-47')).toHaveText('경상북도');
  const island=await page.evaluate(()=>(window as any).islandAt(37.4845,130.9057));
  await finder();await page.getByRole('button',{name:island.name+' · 1개',exact:true}).click();
  await expect(page.getByTestId('map-region-name')).toHaveText(island.name);
+ await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
  await expect.poll(()=>page.evaluate(()=>{const a=(window as any).areaBounds(),b=document.querySelector('[data-testid=svg-map-canvas]')!.getBoundingClientRect();return Math.max(-a[0],a[2]-b.width,-a[1],a[3]-b.height);})).toBeLessThan(1);
  await finder();await page.getByRole('button',{name:'섬 기록 · 1개 요약',exact:true}).click();await expect(page.getByRole('button',{name:'섬 기록 자세히 보기',exact:true})).toBeVisible();
  const snapshot=await page.evaluate(()=>(window as any).navigation.current);await page.evaluate(()=>(window as any).hide());await expect(canvas).toHaveCount(0);await page.evaluate(()=>(window as any).update({}));await expect(page.getByRole('button',{name:'섬 기록 자세히 보기',exact:true})).toBeVisible();expect(await page.evaluate(()=>(window as any).navigation.current)).toEqual(snapshot);
- await page.keyboard.press('Escape');await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();expect(await page.evaluate(()=>(window as any).navigation.current.island)).toBeNull();
+ await page.getByRole('button',{name:'닫기',exact:true}).click();await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();expect(await page.evaluate(()=>(window as any).navigation.current.island)).toBeNull();
  const photo=await page.getByTestId('map-photo-ulleung').boundingBox();await page.mouse.click(photo!.x+photo!.width/2,photo!.y+photo!.height/2);await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.island)).toBe(island.code);await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();
  await page.evaluate(()=>(window as any).update({records:[]}));const point=await page.evaluate(()=>(window as any).renderer.project([130.9057,37.4845]));const b=await canvas.boundingBox();await page.mouse.click(b!.x+point.x,b!.y+point.y);await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.island)).toBe(island.code);

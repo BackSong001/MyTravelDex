@@ -1912,3 +1912,8 @@ Implement the plan.
 ### 변경 파일
 
 AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md의최신작업절, docs/API_SPEC.md, docs/TEST_CASE.md, docs/prompts.md의본이력, scripts/build-map-areas.py, frontend/src/homeMapAreas.ts, frontend/src/data/maps/home-map-areas.json, frontend/src/data/maps/label-land.json, frontend/src/data/maps/README.md, frontend/src/SvgTravelMap.tsx, frontend/src/provinces.ts, frontend/src/simpleMapStyle.ts, frontend/src/TileSurface.tsx, frontend/src/TileSurface.web.tsx, frontend/src/TileSurface.types.ts, frontend/src/usePhotoGroupMotion.ts, frontend/e2e/simple-map.spec.ts, backend/tests/map-readability.test.ts, backend/tests/openfreemap.test.ts, backend/tests/maps-native.test.ts. 기존.env.example/환경공유정책/루트package·lock/기타미추적파일은제외.
+
+## 2026-11-17 선택 시도명 구현
+- 요청 원문: 특별시/도 선택했을 때, 그 지역 이름은 보여줬으면 해. 예를 들어 경상남도 지역이나 그 지역 사진을 클릭하면 연한 회색글씨로 경상남도 이름은 보여주면 좋겠다
+- 결과: 홈 선택시도 정식명 하나를 연회색 SVG로 표시하고 전국/먼섬에서는 숨김. 기존 약칭/타일이름 공개조건 보존. unit/SSR10pass/types·export/APK 성공, Web2pass+기존Escape실패 후 실제닫기준비조건 대상1pass, Native 경북/경남 실제표시 확인. Escape 및 실폰/iOS/성능 수용은 별도.
+- 변경 파일: frontend/src/mapLabels.ts, frontend/src/SvgTravelMap.tsx, backend/tests/map-labels.test.ts, backend/tests/maps-native.test.ts, frontend/e2e/simple-map.spec.ts, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, AGENTS.md, docs/prompts.md.

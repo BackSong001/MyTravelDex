@@ -1518,3 +1518,11 @@ FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md�
 - 보강후 Web 해외보정/모드취소·resize/wheel/pan·비홈fit **3pass45.8초**, Native공통SSR/표시단위 **8pass6.46초**, types0·최종Webexport성공. Native 최종재빌드1분4초/install-r성공과후속실행결과는별도기록한다.
 - 최종 APK(Android17/mytrveldex/emulator-5554/x86_64)는 원래전국울릉도화면중심906,792에서 `울릉군 섬 지역 1`으로진입하고 섬fit/무라벨을관찰했다. 핀치1.5+pan뒤 실제울릉읍glyph·해안/지형표시를확인했다. 홈복귀후원래603,962 본토tap은경상북도(이전대구오선택해소)이며먼섬을포함하지않는본토fit/무라벨을확인했다. 부산사진첫fit→같은실제사진hit 요약(photo-summary-list 존재)→닫기·추가확대부산광역시glyph도최종artifact에서확인했다. 마지막process의AndroidRuntime/ReactNativeJS/MLRN error출력없음. 원격데이터/사진/계정은수정하지않았다.
 - Native 접근성섬목록·비홈수동보정실입력/회전후재측정·실휴대폰/iOS·전체E2E·정량frame/jank 무회귀는이번수용에포함하지않는다. 기존Native도구글자간헐소실과성능제한은남아있다. Web 대역/실타일과이Native관찰을각각기록하며전체플랫폼완료로확대하지않는다.
+
+
+## 2026-11-17 선택 시도 이름 표시 보강
+FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.
+
+### 선택 시도명 실행 결과 (2026-11-17)
+약칭→정식명 Red1 확인 후 unit/Native SSR10pass·types0. 실타일Web 지역/사진선택2pass, 섬case는 이름0/snapshot 후 Escape 미닫힘으로1fail; 실제닫기버튼+sheet0 준비조건 보정후 대상1pass(18.0초). 전체E2E 성공으로 합산하지 않는다. Escape 원인/키보드수용은 미확정이다.
+Web export 및 x86_64 release APK build 성공. 에뮬레이터 새APK에서 경상북도 영역선택/경상남도 사진선택의 정식회색이름·선택지형을 실제 확인했다. 실폰/iOS/전체접근성·기존 Native 성능/간헐도구글자 제한은 미검증/잔존이다.
