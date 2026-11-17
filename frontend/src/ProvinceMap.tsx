@@ -2,10 +2,10 @@ import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import React, {useMemo, useState} from 'react';
 import Text from './FontText';
 import {Linking, Pressable, ScrollView, StyleSheet, View} from 'react-native';
-import Svg, {G, Path, Text as SvgText} from 'react-native-svg';
+import Svg, {Circle, G, Path, Text as SvgText} from 'react-native-svg';
 import {groupProvinceRecords, project, provinceLabels, provincePaths, provinceColors,provincePalette} from './provinces';
 
-export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,showHeading = true}: {records: any[];ownRecords?: any[];onOpen: (record:any)=>void;onRegion?: (id:string,name:string)=>void;showHeading?: boolean}) {
+export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,showHeading = true,focus}: {records: any[];ownRecords?: any[];onOpen: (record:any)=>void;onRegion?: (id:string,name:string)=>void;showHeading?: boolean;focus?:{longitude:number;latitude:number;label?:string}}) {
  const c=useThemeColors();
  const palette=c;
  const provinceColors=provincePalette(c.map.regionPastels);
@@ -13,6 +13,7 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
   const ownGroups=useMemo(()=>groupProvinceRecords(ownRecords),[ownRecords]);
   const groups=useMemo(()=>groupProvinceRecords(records),[records]);
   const [selected,setSelected]=useState<string|null>(null),[showRegions,setShowRegions]=useState(false);
+  const target=focus?.label?project([focus.longitude,focus.latitude]):null;
   const region=selected?provinceLabels[selected]:null, trips=selected?groups[selected]??[]:[];
   return <View testID="province-map" accessibilityLabel={!showHeading?`방문 지역 ${Object.keys(ownGroups).length} / 17`:undefined} style={s.container}>
     <Svg width="100%" height="100%" viewBox="0 0 440 650" preserveAspectRatio="xMidYMid meet" accessibilityLabel="대한민국 17개 시도 지도">
@@ -26,6 +27,7 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
           <SvgText x={x+dx} y={y+dy} fill={c.map.mapLabel} fontSize="12" fontWeight={selected===id?'800':'500'} textAnchor="middle">{label.name}</SvgText>
         </G>;
       })}
+      {target&&<G><Circle cx={target[0]} cy={target[1]} r={5} fill={c.focus}/><SvgText x={target[0]} y={target[1]-8} textAnchor="middle" fill={c.ink} fontSize="14">{focus?.label}</SvgText></G>}
     </Svg>
     {showHeading&&<View pointerEvents="box-none" style={s.top}>
       <View style={s.heading}><Text style={s.title}>나의 여행지도</Text><Text style={s.description}>한 곳씩, 나만의 색으로 채워보세요</Text></View>

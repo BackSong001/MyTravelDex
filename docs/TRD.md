@@ -867,3 +867,8 @@ FR-PHOTO-WEB-FILE-001 / TC-PHOTO-WEB-FILE-001은 [명세](WEB_ORIGINAL_PICKER_SP
 FR-PHOTO-GPS-PICKER-001 / TC-PHOTO-GPS-PICKER-001은 [명세](ANDROID_PHOTO_GPS_SPEC.md)를 따른다. 별도 사진전용 브랜치/t14 리뷰만 사용하며 Web 일반파일·Native 기존 SDK 원본/권한 경로를 비교·보강한다. 압축전 실제metadata·수동검색/edited·세대/UUID·JPEG/PNG 검증을 유지한다. 실제 Android Chrome OS picker/앱/Google 포토/파일 및 대역 결과를 분리하고 제거된 GPS 복원을 주장하지 않는다. main/원격/서버·타기능은 변경하지 않는다.
 
 Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 플랫폼 요청 절을 따른다. 지원OS+EXIF 요청일 때만 기존 ImagePicker Intent에 플랫폼 위치metadata 요청을 연결하며 구OS/원본/Web/iOS·사용자동의·수동복구를 유지한다. Expo prebuild의 제한된 멱등patch/소스불일치빌드중단 및 실제Native 수용을 분리한다. SDK업그레이드/새NativeModule/서버변경은 없다.
+
+
+## 어디로 가봥? (2026-11-17)
+
+FR-DRAW-001 · KOSTAT 2018 시군구 코드 250개를 후보로 쓰고 본인 complete 대표 좌표를 같은 판정 함수로 경계와 대조한다. 수도권(서울·인천·경기), 강원권, 충청권(대전·세종·충북·충남), 전라권(광주·전북·전남), 경상권(부산·대구·울산·경북·경남), 제주권으로 구분한다. 스탬프는 기존 시도 집계를 읽는다. 결과를 먼저 결정하고 화면 이탈 시 타이머를 해제한다.

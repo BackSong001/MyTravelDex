@@ -350,3 +350,8 @@ FR-PHOTO-WEB-FILE-001 / TC-PHOTO-WEB-FILE-001은 [명세](WEB_ORIGINAL_PICKER_SP
 FR-PHOTO-GPS-PICKER-001 / TC-PHOTO-GPS-PICKER-001은 [명세](ANDROID_PHOTO_GPS_SPEC.md)를 따른다. 별도 사진전용 브랜치/t14 리뷰만 사용하며 Web 일반파일·Native 기존 SDK 원본/권한 경로를 비교·보강한다. 압축전 실제metadata·수동검색/edited·세대/UUID·JPEG/PNG 검증을 유지한다. 실제 Android Chrome OS picker/앱/Google 포토/파일 및 대역 결과를 분리하고 제거된 GPS 복원을 주장하지 않는다. main/원격/서버·타기능은 변경하지 않는다.
 
 Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 플랫폼 요청 절을 따른다. 지원OS+EXIF 요청일 때만 기존 ImagePicker Intent에 플랫폼 위치metadata 요청을 연결하며 구OS/원본/Web/iOS·사용자동의·수동복구를 유지한다. Expo prebuild의 제한된 멱등patch/소스불일치빌드중단 및 실제Native 수용을 분리한다. SDK업그레이드/새NativeModule/서버변경은 없다.
+
+
+## 어디로 가봥? (2026-11-17)
+
+FR-DRAW-001 · 기존 본인 완료 기록의 대표 좌표와 로컬 경계를 읽어 방문 여부를 계산한다. 추첨·지도 이동은 클라이언트 동작이며 서버 쓰기나 스탬프 지급을 발생시키지 않는다.

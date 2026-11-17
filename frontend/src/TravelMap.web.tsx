@@ -90,6 +90,12 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
           element.innerHTML=ornamentMarkup(ornament.kind,zoom);
           markers.push(new Marker({element,anchor:'center'}).setLngLat(ornament.coordinate).addTo(activeMap));
         });
+        const target=current.current.focus;
+        if(target?.label){
+          const element=document.createElement('span');element.textContent='◎ '+target.label;
+          Object.assign(element.style,{color:c.ink,background:c.warm,borderRadius:'8px',padding:'4px 8px',pointerEvents:'none'});
+          markers.push(new Marker({element}).setLngLat([target.longitude,target.latitude]).addTo(activeMap));
+        }
         visibleProvinceLabels(zoom, selected.current).forEach(([id, label]) => {
           const text = document.createElement('span'); text.textContent = label.name;
           Object.assign(text.style, {whiteSpace:'nowrap', color:c.map.mapLabel, background:'transparent', padding:'3px', fontSize:`${provinceLabelSize(zoom)}px`, fontWeight:selected.current === id ? '800' : '500'});
@@ -166,7 +172,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
   }, [attempt, error]);
   useEffect(()=>{const activeMap=map.current;if(!activeMap||onCoordinate||focus)return;activeMap.setMaxBounds(homeOverview?undefined:PAN_BOUNDS);if(homeOverview)fitCountry.current();},[homeOverview]);
   useEffect(() => {restyle.current();}, [ownRecords,c]);
-  useEffect(() => {redraw.current();}, [records, covers, authors, ownRecords, landmarks, !!onCoordinate,c]);
+  useEffect(() => {redraw.current();}, [records, covers, authors, ownRecords, landmarks, focus, !!onCoordinate,c]);
   useEffect(() => {
     const activeMap = map.current; if (!activeMap) return;
     if (fullScreen) activeMap.cooperativeGestures.disable(); else activeMap.cooperativeGestures.enable();
@@ -177,11 +183,11 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
   const correctionLng = correction ? Number(correction.locations.longitude) : undefined;
   useEffect(() => {
     if (correctionLat != null && correctionLng != null) {overview.current=false;map.current?.setMaxBounds(undefined);map.current?.jumpTo({center:[correctionLng, correctionLat], zoom:focus?8:onCoordinate?12:8});}
-  }, [correctionLat, correctionLng, attempt, error, !!onCoordinate, !!focus]);
+  }, [correctionLat, correctionLng, attempt, error, !!onCoordinate, focus?.label?focus:null, !!focus]);
   const trips = selectedId ? groupProvinceRecords(records)[selectedId] ?? [] : [];
   return <View onLayout={event=>setMapHeight(event.nativeEvent.layout.height)} style={[fullScreen ? {flex:1, width:'100%', height:'100%'} : {height:expanded ? 440 : 290, borderRadius:18}, {overflow:'hidden', backgroundColor:c.map.ocean}]}>
     {error ? <>
-      {!onCoordinate && <ProvinceMap showHeading={false} records={mapRecords(records)} ownRecords={ownRecords} onOpen={record => onSelect?.(record)} onRegion={onRegion}/>}
+      {!onCoordinate && <ProvinceMap focus={focus} showHeading={false} records={mapRecords(records)} ownRecords={ownRecords} onOpen={record => onSelect?.(record)} onRegion={onRegion}/>}
       <View style={onCoordinate ? {flex:1, justifyContent:'center', alignItems:'center', padding:16, backgroundColor:c.surface} : {position:'absolute', top:112, left:12, right:12, alignItems:'center', backgroundColor:c.surface, borderRadius:12}}>
         <Text style={{fontSize:12, color:c.muted, padding:6}}>{onCoordinate ? '지도 연결을 확인해 주세요. 장소 검색으로 대표 위치를 선택할 수 있어요.' : '지도 연결 실패 · 국내 경계 대체 보기 · 해외 위치·확대·위치 보정 미지원'}</Text>
         <Pressable accessibilityRole="button" onPress={() => {setError(false); setAttempt(value => value + 1);}} style={{padding:12}}><Text style={{color:c.sea}}>지도 다시 연결</Text></Pressable>

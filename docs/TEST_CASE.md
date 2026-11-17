@@ -1258,3 +1258,14 @@ Native 클라우드 실제실패 뒤의 보강은 ANDROID_PHOTO_GPS_SPEC Native 
 
 - 사용자 재빌드 요청에 따라 사진GPS브랜치 fdbafdb에서 android:configured 실행. 실제.env의 Auth/GoogleProvider 활성·기본테이블HTTP200 확인 후prebuild/assembleRelease 성공(Gradle1분23초/487tasks). 에뮬레이터설치성공, APK162301972bytes, apksigner verify exit0, 실제설정URL/DEX 위치요청필드포함을값노출없이검증했다.
 - 전달파일: /home/jh-mac/Downloads/MyTravelDex-photo-gps-fdbafdb.apk. SHA256: 4d9e33d2c8be76599f22f2c1d948792cf0962e1dd07003510fa96ebd82199ae6. 이전LocalQA APK와별개이며개발서명테스트APK다. 운영Google로그인/실휴대폰사진/GPS·Play제출수용은이번빌드성공으로대체하지않는다. main/원격설정/기존외부변경은유지했다.
+
+
+## 어디로 가봥? (2026-11-17)
+
+TC-DRAW-001 · 250개 코드의 고유성·균등 구간·권역 분할·좌표 방문 판정·감속 시간을 검증한다. 화면에서 결과·재추첨·미확인 상태·홈 지도 복귀를 확인한다.
+
+2026-11-17 실행 결과
+
+- TypeScript 통과. Vitest 대상 8개 파일 29건 통과. 전국 250개 코드마다 균등 구간과 경계 내부 표시점을 검사했다.
+- Playwright 추첨·설정 7건과 지도 회귀 14건 통과. 320px Expo Web에서 홈 진입, 제주권 재추첨, 결과와 홈 지도 표시 일치를 확인했다. 브라우저 컴포넌트 테스트에서 미방문 후보 소진, 시군구 미방문과 시도 스탬프 획득의 공존, 움직임 감소, 이탈·재진입, 최종 강조와 확대를 확인했다.
+- 로그인 사용자 방문 기록은 테스트 데이터로 검증했다. Docker CLI가 없어 Supabase Local 실제 HTTP 회귀를 실행하지 못했고 연결된 Android 기기가 없어 네이티브 화면·성능은 미검증이다.
