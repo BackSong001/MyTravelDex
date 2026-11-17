@@ -25,7 +25,7 @@ test('TC-SVG-MAP-001 Native correction keeps finite real pins but excludes uncon
 test('TC-MAP-SIMPLE-001 Native nationwide covers keyless Positron with the existing SVG',()=>{
  const mine=record('me',37.5665,126.978);
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[mine],ownRecords:[mine]}));
- expect(html).toMatch(/testID="map-region-11"[^>]*fill="#F5F5F2"/);
+ expect(html).toMatch(/testID="map-region-11"[^>]*fill="#F5F3ED"/);
  expect(html).not.toContain('testID="map-label-');expect(html).not.toContain('testID="svg-ocean"');expect(html).toContain('map-overview-cover');expect(html).toContain('data-native-tile');
  expect(html).toContain('지도 지역 및 사진 목록');expect(html).toContain('지도 홈');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
 });
@@ -43,7 +43,7 @@ test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fa
  const {default:Module}=await import('node:module');
  const load=(Module as any)._load;let nativeProps:any;
  const spy=vi.spyOn(Module as any,'_load').mockImplementation(function(request:any,...args:any[]){
-  if(request==='@maplibre/maplibre-react-native')return {Map:(props:any)=>{nativeProps=props;return null;},Camera:()=>null};
+  if(request==='@maplibre/maplibre-react-native')return {Map:(props:any)=>{nativeProps=props;return null;},Camera:()=>null,Layer:()=>null};
   return load.call(Module,request,...args);
  });
  try{

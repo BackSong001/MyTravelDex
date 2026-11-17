@@ -1885,3 +1885,30 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 
 결과: 홈을 OpenFreeMap Positron으로 전환하고 전국 SVG커버/명시전체fit/시도별사진/단일카메라 snapshot·줌 hysteresis 및 한국영토 밖 차폐를 연결했다. 검색Geoapify/비홈SVG/DB·원좌표는 보존했다. 고지 전문을 My에 번들 제공하고 obsolete지도키 전달을 제거했다. t14 지정 정적승인, unit15/Node10/types/export 통과. Web·이전회귀·후속focused와 Native 한정관측은 TEST_CASE 실행별 기록을 따르며 전체수용으로 합산하지 않는다. Native 도구글자/성능·실휴대폰 미수용. 커밋/푸시 대상은 지도 관련 변경이며 외부 루트의존성·공개환경공유 변경은 제외한다.
 변경 파일: frontend/src/{SvgTravelMap,simpleMapStyle,photoMap,provinces,MapAttribution} 및 data/maps 고정자료·고지, frontend/e2e/{simple-map,photo-map}.spec.ts, frontend/plugins/withBundleEnvironment.cjs, backend/tests 지도검사4개, scripts/build-map-exterior.py 및 환경전달/검사, docs/OPENFREEMAP_SPEC.md·SIMPLE_PHOTO_MAP_SPEC.md·canonical6·README.local.md·.env.example 지도설명·본 이력.
+
+
+## 2026-11-17 15:49 KST — 지도 가독성·먼섬 탐색 구현
+
+### 사용자 프롬프트 원문
+
+```text
+# 수정사항
+1. 현재 글씨가 지도에서 잘리는 현상이 있음. 확대영역에서 글자부분이 잘리거나 가독성 나쁜부분 수정
+2. 섬은 특별시/도에 포함은 하되, 따로 클릭해야 보여주는걸로. 특별시/도를 클릭했을 때, 섬까지 확대에서 보여주지않음.
+3. 시 군 구 나 대로 및 하천 지역 확대범위를 늘려서 전체적으로 보았을 때, 너무 글자가 많이 보이지않게 수정
+4. 공원, 산 하천 등등 파스텔 색깔을 넣어서 @sample/map_zoom_in_ui.jpg 처럼 수정 가능한지
+
+구현 후, 커밋 푸쉬
+```
+
+```text
+Implement the plan.
+```
+
+### 결과 요약
+
+홈 본토/먼섬 표시타깃·사진/geometry/목록 소속을 공통원본에서 분리하고, 선택후무라벨/사용자확대 이름단계·파스텔지형/국내이름필터를 구현했다. Native within Layer.filter 크래시와 기존root/window 터치측정혼용은 기존SDK/API 경계에서 보강했다. t14 정적검토, 관련단위19·Web10(보강전clock포함)/보강대상2·좌표회귀3·types/export·최종APK 실제울릉도/경북/부산·glyph/사진요약을 분리기록했다. 기존Native 도구글자/성능·실휴대폰/iOS/전체E2E는미수용이며 원격DB/실배포는하지않았다. 현재브랜치 관련변경만커밋/푸시한다.
+
+### 변경 파일
+
+AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md의최신작업절, docs/API_SPEC.md, docs/TEST_CASE.md, docs/prompts.md의본이력, scripts/build-map-areas.py, frontend/src/homeMapAreas.ts, frontend/src/data/maps/home-map-areas.json, frontend/src/data/maps/label-land.json, frontend/src/data/maps/README.md, frontend/src/SvgTravelMap.tsx, frontend/src/provinces.ts, frontend/src/simpleMapStyle.ts, frontend/src/TileSurface.tsx, frontend/src/TileSurface.web.tsx, frontend/src/TileSurface.types.ts, frontend/src/usePhotoGroupMotion.ts, frontend/e2e/simple-map.spec.ts, backend/tests/map-readability.test.ts, backend/tests/openfreemap.test.ts, backend/tests/maps-native.test.ts. 기존.env.example/환경공유정책/루트package·lock/기타미추적파일은제외.

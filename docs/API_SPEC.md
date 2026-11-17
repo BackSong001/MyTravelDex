@@ -412,3 +412,7 @@ FR-MAP-SIMPLE-001: 홈 키없음/렌더러실패 SVG도 단색하늘색/연한�
 
 ## 2026-11-17 OpenFreeMap 홈 지도 전환
 FR-MAP-OFM-001 / TC-MAP-OFM-001은 docs/OPENFREEMAP_SPEC.md를 따른다. 이전 Geoapify 홈타일/지도키·홈SVG라벨 계약을 대체하고 전국행정지도↔Positron 단계·시도전체fit/타지역사진먼저이동·국내외차폐를 Web→Android 순으로 검증한다. Geoapify 검색/비홈SVG/DB/API/RLS/기록원좌표는 유지한다. 구현·실타일·Native 수용은 실행결과로 구분한다.
+
+
+## 2026-11-17 홈 지도 가독성·섬 탐색
+FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md를 따른다. 이전 홈 전체시도fit은 본토+30km이내 연안섬fit/먼섬10km그룹 별도선택으로 대체한다. 원본행정경계·DB/좌표/비홈은보존한다. 선택직후무라벨→사용자확대11/13/14/16 이름단계, 파스텔실지형/국외지형차폐와국내글자분리, 사진대상분할/복귀를Web→Android로검증한다. t14검토·관련커밋/푸시와실배포/전체수용을구분한다.

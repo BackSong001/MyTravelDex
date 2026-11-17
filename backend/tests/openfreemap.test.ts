@@ -1,11 +1,12 @@
 import {expect,test} from 'vitest';
 import {simpleMapStyle,detailAfterZoom} from '../../frontend/src/simpleMapStyle';
 import {clusterPhotos} from '../../frontend/src/photoMap';
-test('TC-MAP-OFM-001 Positron is keyless, shared and masks foreign terrain above text',()=>{
+test('TC-MAP-OFM-001 Positron is keyless, shared and masks foreign terrain below domestic text',()=>{
  const s=simpleMapStyle();expect((s.sources.openmaptiles as any).url).toBe('https://tiles.openfreemap.org/planet');
  expect(JSON.stringify(s)).not.toMatch(/geoapify|apiKey=/);
  expect(s.layers.at(-1)?.id).toBe('province-boundaries');
- const outside=s.layers.findIndex(l=>l.id==='korea-exterior');expect(outside).toBeGreaterThan(s.layers.findLastIndex(l=>l.type==='symbol'));
+ const outside=s.layers.findIndex(l=>l.id==='korea-exterior');expect(outside).toBeLessThan(s.layers.findIndex(l=>l.type==='symbol'));
+ for(const l of s.layers.filter(l=>l.type==='symbol'))expect(JSON.stringify(l.filter)).toContain('within');
  expect(s.layers.some(l=>(l as any)['source-layer']==='boundary')).toBe(false);
  const labels=s.layers.filter(l=>l.type==='symbol');expect(labels.length).toBeGreaterThan(0);
  for(const l of labels)expect(JSON.stringify(l.layout)).toContain('name:ko');

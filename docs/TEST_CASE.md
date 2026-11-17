@@ -1499,3 +1499,22 @@ FR-MAP-OFM-001 / TC-MAP-OFM-001은 docs/OPENFREEMAP_SPEC.md를 따른다. 이전
 - 실제 configured localhost8083: guest 부산전체 선택에서 OpenFreeMap 타일HTTP200/실제도로·수계153개/zoom9.952959 관측. Web export dist 성공, JS에 고지본문/CartoDB/PaulNorman 및 OpenFreeMap 포함 확인. 외부서비스 캐시/네트워크에 따라 최초표시 지연은 가능하다.
 - Android: mytrveldex 기존AVD를 데이터reset 없이 실행, x86_64 assembleRelease 성공(1m18s,469tasks), install-r 및 실제 앱 실행. 전국 무라벨·행정커버, 경남 전체선택 파란경계와 실제 Positron 도로·수계·한글, 홈 복귀 전국커버를 확인했다. APK Hermes 번들에 두 원문 고지의 전문이 UTF-16LE로 포함된다. 빌드 이후 Web전용 aria-expanded 연결은 Native 동작 변경이 아니며 설치 APK에서 Native 고지펼침을 실증한 것은 아니다.
 - Native 간헐 도구글자 소실은 남아 있다. Native 실제사진계정 왕복/타지역사진·접근성/성능, 실휴대폰/iOS/전체E2E·Vercel배포는 미수용이다. Web통과를 이 범위에 확대하지 않는다. 기존성능 한계 원인/개선율을 새로 주장하지 않는다. 에뮬레이터/웹8083은 직접확인을 위해 유지한다.
+
+
+## 2026-11-17 홈 지도 가독성·섬 탐색
+FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md를 따른다. 이전 홈 전체시도fit은 본토+30km이내 연안섬fit/먼섬10km그룹 별도선택으로 대체한다. 원본행정경계·DB/좌표/비홈은보존한다. 선택직후무라벨→사용자확대11/13/14/16 이름단계, 파스텔실지형/국외지형차폐와국내글자분리, 사진대상분할/복귀를Web→Android로검증한다. t14검토·관련커밋/푸시와실배포/전체수용을구분한다.
+
+### TC-MAP-READABILITY-001 실행 이력 (2026-11-17)
+- 사전 명세/제품 t14 정적 검토와 실제 실행을 구분한다. 명시선택 라벨false·사용자확대/fit초과, 공통섬소속·30km직접/10km연결요소, 250m/100m 표시필터를 명시했다. 원본/DB/RLS/검색·비홈은 변경하지 않았다.
+- 초기 스타일 Red1fail→보강 후 관련 단위15pass, SSR 옛색상 기대1fail은 새팔레트로 보정했다. 최종 관련5파일 **19pass(5.85초)**에는 원본경계/hole/동률·섬타깃·250m필터 정상도시포함/외국제외·500KB예산을 포함한다. TypeScript0, generator `--check` 재생성 일치/원본불변·임계/유효성/외부누출0 통과.
+- 표시필터 25m/10m 후보1.85MB/style31.8MB는 미채택. 250m/100m asset453402bytes/style15013067문자로 감소했지만 Native 직렬화/평가 비용이 없어지는 것은 아니다. 경계250m·작은섬 이름 생략은 남는 절충이다.
+- Web 초기 섬1pass/라벨1fail 뒤 `isStyleLoaded` 토글 차단을 `getLayer` 준비 기준으로 수정했다. 후속 제주0 실패는 전체섬fit 중심 확대에서 도시후보가 화면밖, 다음 pan시작점은 header에 걸린 fixture 문제였다. 최종 canvas중앙 실제pan 후 focused1pass24.5초. 제품 이름을 생성하거나 조건을 약화하지 않았다.
+- 관련 Web **10pass(2.6분)**: 실제 PBF/지형, 사진·지역fit, 다른시도/섬 이동·동일대상요약, 섬geometry/목록/재마운트, country, 외국차폐, fallback/contextloss, 고지, 이름단계. 이 실행의 마지막clock은 install-only 후보였으므로 이동중 취소 수용증거로 쓰지 않는다.
+- t14 지적 후 고정시각install→pauseAt,48ms camera!=fit을 추가했다. 해당clock 및 이름2대상 **2pass(39.6초)**. pan취소450ms 뒤camera불변/재마운트false/완료false/확대true·축소false 유지. 새 전체10회 실행으로 합산하지 않는다. 이름 fixture만 records=[]로 시각관찰하고 별도 사진회귀는 유지한다. 실제서울특별시/부산광역시/제주시 글자와해안·파스텔은 symbol>0 자동검사와별도로스크린샷관찰했다.
+- Web production export 성공. 전체E2E·실휴대폰/iOS·제공자약관 전체 법적 검증은 수행하지 않았다.
+- Native 첫 configured 실행은 Expo device명에serial을넘겨설치단계진입전중단; prebuild완료 후 직접동일공개환경/x86_64 Gradle build1분17초성공/install-r성공. 실제실행은 MLRNLayer.filter Java변환의 within Feature→Polygon Null coordinates로 종료되어 **Native 실패**로 기록한다. symbol/filter를고정style JSON으로옮기고동일ID기존SDK Layer는visibility만전달하도록보강했으며 이첫APK를수용증거로사용하지않는다.
+- Native 두번째 APK build1분2초/install-r: 기존고정style parser+동일ID visibility Layer로 시작크래시소멸, 전국→부산사진fit 무라벨·타일/파스텔→사용자확대 실제 부산광역시glyph→대한민국초기화를 관찰했다. 여러이동후PSS544104KiB/RSS694868KiB 단발표본이며 baseline동등성/성능해소 증거가 아니다. 기존 도구글자 간헐소실은 계속 관측됐다.
+- 작은섬실입력에서 원래울릉도중심tap미선택/63px위tap섬선택을관측했다. RN Fabric `measureInWindow` viewport offset과 touch.pageXY root기준혼용을설치소스로확인, Native `measure` pageXY로측정소유층만보강했다. 임의offset/epsilon/행정·저장좌표는변경하지않았다. 이이전APK의offset tap은정상섬hit 수용증거가아니다.
+- 보강후 Web 해외보정/모드취소·resize/wheel/pan·비홈fit **3pass45.8초**, Native공통SSR/표시단위 **8pass6.46초**, types0·최종Webexport성공. Native 최종재빌드1분4초/install-r성공과후속실행결과는별도기록한다.
+- 최종 APK(Android17/mytrveldex/emulator-5554/x86_64)는 원래전국울릉도화면중심906,792에서 `울릉군 섬 지역 1`으로진입하고 섬fit/무라벨을관찰했다. 핀치1.5+pan뒤 실제울릉읍glyph·해안/지형표시를확인했다. 홈복귀후원래603,962 본토tap은경상북도(이전대구오선택해소)이며먼섬을포함하지않는본토fit/무라벨을확인했다. 부산사진첫fit→같은실제사진hit 요약(photo-summary-list 존재)→닫기·추가확대부산광역시glyph도최종artifact에서확인했다. 마지막process의AndroidRuntime/ReactNativeJS/MLRN error출력없음. 원격데이터/사진/계정은수정하지않았다.
+- Native 접근성섬목록·비홈수동보정실입력/회전후재측정·실휴대폰/iOS·전체E2E·정량frame/jank 무회귀는이번수용에포함하지않는다. 기존Native도구글자간헐소실과성능제한은남아있다. Web 대역/실타일과이Native관찰을각각기록하며전체플랫폼완료로확대하지않는다.

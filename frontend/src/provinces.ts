@@ -56,6 +56,9 @@ export function provincePalette(regions: string[]): Record<string,string> {
 export const provinceColors = provincePalette(palette.map.regionPastels);
 export type MapNavigation = {
   detail?: boolean;
+  island?:string|null;
+  fitScale?:number|null;
+  labelRevealed?:boolean;
   summaryIds?:string[];
   summaryExpanded?:boolean;
   summaryOffset?:number;

@@ -18,3 +18,9 @@ Mercator scale1000/translate0의128색상층을2048² PNG에구운고정asset이
 ## 경기도 표시용 시 경계
 
 `gyeonggi-cities.json`은 위 동일 기준일의 `korea-sigungu.json`에서 구가 있는 8개 시만 정확한 union으로 생성한다. 구 구성과 sourceHash는 자산에 고정한다. Shapely==2.2.0 환경에서 `python scripts/build-map-cities.py`로 재생성한다. 중간 확대의 표시 전용이며 원본 행정구역/위치판정/도감 필터는 변경하지 않는다. 내부 구 경계만 제거하고 단순화하지 않으며 위 출처/라이선스를 그대로 적용한다. 317,240bytes이며 런타임 union은 하지 않는다.
+
+## 홈 본토·먼섬 및 국내 이름 필터
+
+`home-map-areas.json`과 `label-land.json`은 같은 2026-04-01 시도 원본에서 생성한 표시용 파생물이며 위 출처·라이선스를 적용한다. Shapely==2.2.0/pyproj==3.7.2 환경에서 `python scripts/build-map-areas.py`로 생성하고 `--check`로 원본 hash·재생성 일치를 확인한다. EPSG5179의 최대polygon 직접거리30km 이내는 본토fit, 나머지는10km 연결요소로 묶어 원본polygon index만 보관한다. 표시ID는 DB/행정code가 아니다.
+
+이름 필터만 250m 내부buffer→100m단순화→원본교집합을 사용한다. 경계/작은섬의 이름은 생략될 수 있으며 원본 육지·사진·위치판정·섬 목록에는 이 축소geometry를 사용하지 않는다. 정확한 계약/검증은 `docs/MAP_READABILITY_SPEC.md`를 따른다.
