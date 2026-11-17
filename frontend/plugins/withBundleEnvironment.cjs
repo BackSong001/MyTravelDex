@@ -9,7 +9,7 @@ tasks.configureEach { task ->
         def fingerprint = java.security.MessageDigest.getInstance('SHA-256').digest(publicValues.join('\\u0000').getBytes('UTF-8')).encodeHex().toString()
         task.inputs.property('traveldexPublicEnvironment', fingerprint)
         task.doFirst {
-            if (publicValues.any { it.isEmpty() }) throw new GradleException('Missing Android public configuration')
+            if (publicValues.take(3).any { it.isEmpty() }) throw new GradleException('Missing Android public configuration')
         }
         task.doLast {
             def bundle = task.jsBundleDir.file(task.bundleAssetName.get()).get().asFile

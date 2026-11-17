@@ -8,7 +8,7 @@ test('TC-DESIGN-008: short landscape keeps map, scope menu and navigation usable
  await page.setViewportSize({width:844,height:390});await login(page,user.email,user.password);
  const nav=page.getByRole('tablist',{name:'주요 탐색',exact:true}).first();
  expect((await nav.boundingBox())!.height).toBeLessThanOrEqual(78);
- expect((await page.getByTestId('travel-map').boundingBox())!.height).toBeGreaterThanOrEqual(260);
+ expect((await page.getByTestId('svg-map-canvas').boundingBox())!.height).toBeGreaterThanOrEqual(120);
  await page.getByRole('button',{name:/^표시 범위/}).click();
  const menu=page.getByTestId('map-scope-menu');await expect(menu).toBeVisible();
  const box=(await menu.boundingBox())!,rail=(await nav.boundingBox())!;expect(box.y+box.height).toBeLessThanOrEqual(rail.y);

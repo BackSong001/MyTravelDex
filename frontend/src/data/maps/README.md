@@ -1,0 +1,26 @@
+# 대한민국 행정 경계
+
+기준일: 2026-04-01. 시도17/시군구255. 원자료: SGIS, 가공: vuski/admdongkor. 원자료 공공누리제1유형, 가공물 CC BY4.0.
+https://github.com/vuski/admdongkor/tree/d5d5a821c8de6cc337d47eeca604d7af76271c9b/ver20260401
+
+원본 SHA256: 90da81444f68b9a5b0bd5762f84bc6a8a9a702750c20223d52b1c5114cf7b0b1. WGS84/CRS84. 원자료sido/sgg코드로병합하며단순화하지않는다. 작은원자료겹침은보존하고판정시code오름차순을적용한다. 두단계에같은날짜만사용한다.
+
+재생성: Python venv에서 Shapely==2.1.2 설치 후 저장소루트에서 `python scripts/build-map-data.py <원본.geojson>`. 원본은위고정commit에서확보하며checksum불일치시중단한다.
+
+본 데이터는 통계청 통계지리정보서비스(SGIS, https://sgis.kostat.go.kr)에서 공공누리 제1유형으로 개방한 행정동 경계를 가공한 것이며(가공: vuski/admdongkor, https://github.com/vuski/admdongkor), CC BY 4.0으로 배포됩니다. 이 앱에서 시도·시군구로 병합했습니다.
+
+## 바다 배경 파생 자산
+
+`korea-ocean.json`과 `frontend/assets/maps/ocean-depth.png`는 위 `korea-sido.json` SHA256 `76b47436a96ee9837fb22d792d4c98260133cae747a446207647304873375535`에서 생성한다. 원본geometry는수정하지않는다. 개발용Shapely==2.2.0/Pillow==10.2.0 환경에서 저장소루트의 `python scripts/build-ocean.py`로재생성한다. runtime의존성은없다.
+
+Mercator scale1000/translate0의128색상층을2048² PNG에구운고정asset이다. x/y/width/height/해상도/source·asset hash는JSON에고정한다. 가장자리및이미지밖은먼바다단색, 상세의정확한원본17육지차폐는별도SVG로유지하고전국은기존육지path가차폐한다. Native mask합성은성능실패로제거했다. 원자료출처/라이선스는이파생물에도적용한다. 실제수심·국제해안자료는아니다. 이전128SVGpath는Native pan성능실패로미채택했으며런타임계층은Image1개다. 깊은줌에서는장식색상만보간된다.
+
+## 경기도 표시용 시 경계
+
+`gyeonggi-cities.json`은 위 동일 기준일의 `korea-sigungu.json`에서 구가 있는 8개 시만 정확한 union으로 생성한다. 구 구성과 sourceHash는 자산에 고정한다. Shapely==2.2.0 환경에서 `python scripts/build-map-cities.py`로 재생성한다. 중간 확대의 표시 전용이며 원본 행정구역/위치판정/도감 필터는 변경하지 않는다. 내부 구 경계만 제거하고 단순화하지 않으며 위 출처/라이선스를 그대로 적용한다. 317,240bytes이며 런타임 union은 하지 않는다.
+
+## 홈 본토·먼섬 및 국내 이름 필터
+
+`home-map-areas.json`과 `label-land.json`은 같은 2026-04-01 시도 원본에서 생성한 표시용 파생물이며 위 출처·라이선스를 적용한다. Shapely==2.2.0/pyproj==3.7.2 환경에서 `python scripts/build-map-areas.py`로 생성하고 `--check`로 원본 hash·재생성 일치를 확인한다. EPSG5179의 최대polygon 직접거리30km 이내는 본토fit, 나머지는10km 연결요소로 묶어 원본polygon index만 보관한다. 표시ID는 DB/행정code가 아니다.
+
+이름 필터만 250m 내부buffer→100m단순화→원본교집합을 사용한다. 경계/작은섬의 이름은 생략될 수 있으며 원본 육지·사진·위치판정·섬 목록에는 이 축소geometry를 사용하지 않는다. 정확한 계약/검증은 `docs/MAP_READABILITY_SPEC.md`를 따른다.
