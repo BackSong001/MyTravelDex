@@ -291,3 +291,7 @@ node --env-file=/secure/path/production.env scripts/android-bundle.mjs
 홈 타일 검증에는 별도 Geoapify 지도용 프로젝트의 공개 `EXPO_PUBLIC_GEOAPIFY_MAP_KEY`가 필요하다. 기존 서버 검색 `GEOAPIFY_API_KEY`를 복사하지 않는다. 저장소 밖 환경파일에서 이 변수만 프로세스로 로드하면 configured 웹/Android 실행에 전달한다. production export/AAB에서도 같은 공개변수를 사용한다. 키값을 명령행·로그·Git에 남기지 않는다.
 
 지도키가 없으면 기존 SVG 렌더링을 유지한다. 별도 지도키가 설정된 홈은 타일 배경을 사용하며 새 지도 최종 수용·운영 설정 변경·무료한도 확인은 아직 완료하지 않았다. 단계별 계약은 [명세](docs/SIMPLE_PHOTO_MAP_SPEC.md)를 따른다.
+
+
+### 2026-11-17 OpenFreeMap 홈 지도
+홈 타일은 API키 없는 OpenFreeMap Positron을 사용한다. 위 Geoapify 지도키 준비 절은 이전 구현 이력이며 현재는 필요 없다. Geoapify 장소 검색 서버 Secret은 유지한다. Web 실제 수신 검증 후 Android 자체APK로 별도 검증한다. 계약은 docs/OPENFREEMAP_SPEC.md 참조.

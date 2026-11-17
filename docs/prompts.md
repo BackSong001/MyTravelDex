@@ -1853,3 +1853,35 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: 홈 선택의 최소줌10.1을 기존choose/fly에 적용하고, 전국사진은 대표기록 원좌표 중심·지역은 기존fit 화면중심으로 이동한다. 비홈·홈초기화·DB/API는 유지한다. 명세/제품은 t14 지정 정적 승인, 선택2case Red를 확인했다. 기존 경기검사의 화면밖 수원구는 새확대 화면안 원본고양구41281로 보정하며 제품조건은 완화하지 않았다. 최종 지정Web10pass(2.0분)/types0·APK1분38초 성공, 에뮬레이터에서 전국사진과 강원영역1회선택의 실제지형 확대를 확인했다. 후보없는 강원중심의 지도라벨0과 기존Native 일부도구문자미표시·성능미수용은 유지한다. 상세 실행/빌드 결과는 TEST_CASE 최신절을 따른다. 앞선 단순지도 관련 변경과 함께 현재 jaehyun/desgin에 커밋·푸시하며, 기존 공개환경공유/루트의존성/원본sample·스토리보드·tsconfig 변경은 제외한다.
 
 변경 파일: frontend/src/SvgTravelMap.tsx; frontend/e2e/photo-map.spec.ts,simple-map.spec.ts; docs/SIMPLE_PHOTO_MAP_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 커밋에는 앞선 단순지도 구현의 관련 의존성·설정·검사도 포함한다.
+
+| 2026-11-16 18:06 KST | 현재 구성을 유지한채로 지도에 저작권표시를 최소화하는 방식으로 개선해줘 | Geoapify 구성 유지, 필수 출처 링크를 10px 줄바꿈 띠로 통합하고 My 라이선스 보완. 단위1pass/types0, 실기기 미검증. | 변경 파일: `frontend/src/MapAttribution.tsx`, `backend/tests/map-attribution.test.ts`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `AGENTS.md`, `docs/prompts.md` |
+
+## 2026-11-17 선택 시도 전체 맞춤
+사용자 요청: 사진 클릭했을 때, 부산에 있는 사진이라면 부산 전체를 보여주면서 그 줌인 영역에 타일이 표시되어한다는 의미였어.
+그리고 저작권 표시도 처음 로그인 화면에 짧게 표시하고, 지도에는 표시안하는 방향으로 해줘
+결과: 사진/시도 모두 전체fit으로 복원하고 기본지형 minzoom0. 로그인단독 출처는 제공자허용 미확인으로 미적용. 변경: SvgTravelMap.tsx, simpleMapStyle.ts, simple-map.test.ts, simple-map.spec.ts, photo-map.spec.ts, SIMPLE_PHOTO_MAP_SPEC 및 canonical6, 본 이력. Native/부산 실제기기 미검증.
+
+| 2026-11-17 13:13 KST | 웹은 적용이 안됬나? 웹 이랑 앱에 적용하고 웹사이트 켜줘 | 최신 configured 웹8083 실행/실부산 전체fit·타일 확인, x86_64 APK 빌드·에뮬레이터 업데이트 설치·실행. Vercel 미배포. | `docs/TEST_CASE.md`, `docs/prompts.md` |
+| 2026-11-17 13:13 KST | /feedback 웹 배경이나 타일이 하나도 안바뀌었는데 | 실제 localhost guest 부산 선택에서 전체경계/도로·녹지·수계 및 PBF200 확인, 스크린샷 전달. 기존 배포주소와 로컬을 구분. | `docs/TEST_CASE.md`, `docs/prompts.md` |
+
+| 2026-11-17 13:19 KST | 이렇게 보인다니까 | 첨부는 SVG fallback으로 식별. 홈 옛Ocean 제외·단색대체/키없음 및 renderer실패 안내·수동retry 보강. Web1/SSR5/types 통과·t14승인. 사용자브라우저 원인과 실제복구 미확정. | `frontend/src/SvgTravelMap.tsx`, `frontend/e2e/simple-map.spec.ts`, `backend/tests/maps-native.test.ts`, `docs/SIMPLE_PHOTO_MAP_SPEC.md`, canonical6, `docs/prompts.md` |
+
+
+## 2026-11-17 14:07 KST — OpenFreeMap 전국/상세 전환
+사용자 프롬프트 원문:
+> 웹과 안드로이드 어플에서 보이는 지도구성을 통일 해야하고, 우선적으로 웹에서 먼저 테스트하고 구현한 다음에 안드로이드에 적용시켜줘.
+> 현재 지도의 타일구성을 기존 전국 행정구역 지도는 그대로 유지하고, 일정 수준 이상 확대하면 OpenFreeMap의 Positron 지도로 전환하는 방식으로 하고싶어. 깔끔한 지도 형태로 MapLibre GL JS + OpenFreeMap 조합으로 구현 하고싶어
+> 추가 기능적인 요구사항은 아래의 내용을 구현해줘.
+> 1. 줌인을 안한 디폴트 상태에서는 특별시/도 구분선 외에는 타일이나 글자가 없음
+> 2. 사진을 클릭하면, 해당 지역이 전체적으로 보이는 줌인 스케일이어야하고, 타일이 보여야함.
+> 3. 지역을 줌인한 상태에서 다른 지역의 사진을 누르면 해당 지역으로 이동을 한다음에 사진을 보여줘야함.
+>
+> 다른 지도서비스(구글맵, 카카오맵, 네이버맵)의 줌인 레벨을 참고해서 적용시켜줘.
+> 현재는 대한민국만 표기할 거 야.
+>
+> Implement the plan.
+> /feedback 커밋 푸쉬도 해줘
+> 지금 조작하지 않음 — 검증 진행
+
+결과: 홈을 OpenFreeMap Positron으로 전환하고 전국 SVG커버/명시전체fit/시도별사진/단일카메라 snapshot·줌 hysteresis 및 한국영토 밖 차폐를 연결했다. 검색Geoapify/비홈SVG/DB·원좌표는 보존했다. 고지 전문을 My에 번들 제공하고 obsolete지도키 전달을 제거했다. t14 지정 정적승인, unit15/Node10/types/export 통과. Web·이전회귀·후속focused와 Native 한정관측은 TEST_CASE 실행별 기록을 따르며 전체수용으로 합산하지 않는다. Native 도구글자/성능·실휴대폰 미수용. 커밋/푸시 대상은 지도 관련 변경이며 외부 루트의존성·공개환경공유 변경은 제외한다.
+변경 파일: frontend/src/{SvgTravelMap,simpleMapStyle,photoMap,provinces,MapAttribution} 및 data/maps 고정자료·고지, frontend/e2e/{simple-map,photo-map}.spec.ts, frontend/plugins/withBundleEnvironment.cjs, backend/tests 지도검사4개, scripts/build-map-exterior.py 및 환경전달/검사, docs/OPENFREEMAP_SPEC.md·SIMPLE_PHOTO_MAP_SPEC.md·canonical6·README.local.md·.env.example 지도설명·본 이력.

@@ -28,12 +28,8 @@ test('native prebuild keeps package/scheme and registers the home tile renderer'
   assert.equal(publicEnv.GEOAPIFY_API_KEY,undefined);assert.equal(publicEnv.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,undefined);
 });
 
-test('map tiles use a separate public key, never the search server secret', () => {
- const source={EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',EXPO_PUBLIC_GEOAPIFY_MAP_KEY:'public-map-fixture',GEOAPIFY_API_KEY:'private-search-fixture'};
- assert.equal(publicConfiguration(source).EXPO_PUBLIC_GEOAPIFY_MAP_KEY,'public-map-fixture');
+test('OpenFreeMap needs no public map key and does not forward legacy or search credentials', () => {
+ const source={EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',EXPO_PUBLIC_GEOAPIFY_MAP_KEY:'old-map-fixture',GEOAPIFY_API_KEY:'private-search-fixture'};
+ assert.equal(publicConfiguration(source).EXPO_PUBLIC_GEOAPIFY_MAP_KEY,undefined);
  assert.equal(publicConfiguration(source).GEOAPIFY_API_KEY,undefined);
- assert.equal(publicConfiguration({...source,EXPO_PUBLIC_GEOAPIFY_MAP_KEY:undefined}).EXPO_PUBLIC_GEOAPIFY_MAP_KEY,undefined);
-});
-test('a known search secret cannot be supplied as the public map key',()=>{
- assert.throws(()=>publicConfiguration({EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',EXPO_PUBLIC_GEOAPIFY_MAP_KEY:'same-key',GEOAPIFY_API_KEY:'same-key'}),/separate/);
 });

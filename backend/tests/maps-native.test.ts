@@ -5,6 +5,7 @@ vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElemen
 vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circle:'circle',G:'g',Path:'path',Line:'line',Text:'text',TSpan:'tspan',Defs:'defs',Mask:'mask',Rect:'rect',Image:'image'}));
 vi.mock('../../frontend/src/Feedback',async()=>({useReducedMotion:()=>true,default:(await import('../../frontend/node_modules/react-native')).Pressable}));
 vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{oceanDepth:{uri:'fixture://ocean-depth'},defaultAvatar:{uri:'fixture://default-bear'}}}));
+vi.mock('../../frontend/src/TileSurface',()=>({default:()=>React.createElement('div',{'data-native-tile':true})}));
 import TravelMap from '../../frontend/src/TravelMap';
 const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,status:'complete',locations:{source:'exif',latitude,longitude}});
 test('TC-SVG-MAP-001 Native SVG renders country with white boundaries and separate own visits',()=>{
@@ -21,17 +22,17 @@ test('TC-SVG-MAP-001 Native correction keeps finite real pins but excludes uncon
 });
 
 
-test('TC-MAP-SIMPLE-001 Native nationwide hides labels while preserving the keyless SVG path',()=>{
+test('TC-MAP-SIMPLE-001 Native nationwide covers keyless Positron with the existing SVG',()=>{
  const mine=record('me',37.5665,126.978);
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[mine],ownRecords:[mine]}));
- expect(html).toMatch(/testID="map-region-11"[^>]*fill="#E5E9E2"/);
- expect(html).not.toContain('testID="map-label-');expect(html).toContain('testID="svg-ocean"');
+ expect(html).toMatch(/testID="map-region-11"[^>]*fill="#F5F5F2"/);
+ expect(html).not.toContain('testID="map-label-');expect(html).not.toContain('testID="svg-ocean"');expect(html).toContain('map-overview-cover');expect(html).toContain('data-native-tile');
  expect(html).toContain('지도 지역 및 사진 목록');expect(html).toContain('지도 홈');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
 });
 
 
 test('TC-MAP-HOME-003 Native home overlays the selected province below labels and preserves source paths',()=>{
- const navigation={current:{province:'11',selected:null,camera:null,regionOffset:0,recordOffset:0}};
+ const navigation={current:{province:'11',selected:null,camera:null,detail:false,regionOffset:0,recordOffset:0}};
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[],navigation}));
  const overlay=html.match(/<path[^>]*testID="map-selection"[^>]*>/)?.[0];expect(overlay).toBeDefined();expect(overlay).toContain('fill="#3B82F6"');expect(overlay).toContain('fill-opacity="0.18"');expect(overlay).toContain('stroke="#2563EB"');
  expect(overlay?.match(/ d="([^"]+)"/)?.[1]).toBe(html.match(/testID="map-region-11" d="([^"]+)"/)?.[1]);expect(html).not.toContain('testID="map-label-');
@@ -46,7 +47,7 @@ test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fa
   return load.call(Module,request,...args);
  });
  try{
-  const {default:TileSurface}=await import('../../frontend/src/TileSurface');
+  const {default:TileSurface}=await vi.importActual<typeof import('../../frontend/src/TileSurface')>('../../frontend/src/TileSurface');
   const failure=vi.fn(),tileError=vi.fn();
   renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError}));
   expect(typeof nativeProps.mapStyle).toBe('string');expect(JSON.parse(nativeProps.mapStyle)).toEqual({version:8,sources:{},layers:[]});

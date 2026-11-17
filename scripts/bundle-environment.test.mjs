@@ -12,7 +12,7 @@ test('bundle environment mod is idempotent, fingerprints public inputs and verif
  async function apply(contents){const config=plugin({name:'fixture',slug:'fixture'});return (await config.mods.android.appBuildGradle({...config,modResults:{contents,language:'groovy'},modRequest:{platform:'android'}})).modResults.contents;}
  const once=await apply('plugins {}\n'),twice=await apply(once);
  assert.equal(twice,once);
- for(const name of ['EXPO_PUBLIC_SUPABASE_URL','EXPO_PUBLIC_SUPABASE_ANON_KEY','EXPO_PUBLIC_APP_ENV','EXPO_PUBLIC_GEOAPIFY_MAP_KEY'])assert.ok(once.includes(name));
+ for(const name of ['EXPO_PUBLIC_SUPABASE_URL','EXPO_PUBLIC_SUPABASE_ANON_KEY','EXPO_PUBLIC_APP_ENV'])assert.ok(once.includes(name));
  assert.match(once,/inputs.property\('traveldexPublicEnvironment'/);
  assert.match(once,/publicValues.take\(3\).any/);assert.match(once,/SHA-256/);assert.match(once,/doLast/);assert.match(once,/jsBundleDir/);assert.match(once,/does not match/);
 });

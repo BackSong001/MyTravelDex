@@ -1,17 +1,11 @@
 import {describe,it,expect} from 'vitest';
 import {simpleMapStyle,overviewLimit,simpleMapColors} from '../../frontend/src/simpleMapStyle';
 describe('TC-MAP-SIMPLE-001 terrain contract',()=>{
- it('keeps an offline sea and 17 provinces without external requests',()=>{
-  const s=simpleMapStyle();expect(Object.keys(s.sources)).toEqual(['provinces']);
+ it('uses keyless OpenFreeMap terrain and explicit domestic cover',()=>{
+  const s=simpleMapStyle();expect((s.sources.openmaptiles as any).url).toBe('https://tiles.openfreemap.org/planet');
   expect((s.sources.provinces as any).data.features).toHaveLength(17);
-  expect(s.layers[0].paint).toEqual({'background-color':'#A9D7EE'});
- });
- it('shows only actual terrain layers at their declared zooms, never provider labels or district lines',()=>{
-  const s=simpleMapStyle('fixture');expect(s.layers.filter(l=>l.type==='symbol')).toHaveLength(0);
+  expect(s.layers.some(l=>l.id==='korea-exterior')).toBe(true);
   expect(s.layers.filter(l=>(l as any)['source-layer']==='boundary')).toHaveLength(0);
-  expect(s.layers.find(l=>l.id==='buildings')?.minzoom).toBe(16);
-  expect(s.layers.find(l=>l.id==='minor-roads')?.minzoom).toBe(13);
-  expect((s.sources.terrain as any).url).toContain('apiKey=fixture');
   expect(simpleMapColors.label).toBe('#687178');
  });
  it('keeps the nationwide fit free of labels at any screen aspect',()=>{

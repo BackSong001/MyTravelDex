@@ -3,7 +3,7 @@ const {withAppBuildGradle} = require('expo/config-plugins');
 const block = `// @generated begin traveldex-bundle-environment
 tasks.configureEach { task ->
     if (task.name.startsWith('createBundle') && task.name.endsWith('JsAndAssets')) {
-        def publicNames = ['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_ANON_KEY', 'EXPO_PUBLIC_APP_ENV', 'EXPO_PUBLIC_GEOAPIFY_MAP_KEY']
+        def publicNames = ['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_ANON_KEY', 'EXPO_PUBLIC_APP_ENV']
         def publicValues = publicNames.collect { System.getenv(it) ?: '' }
         // Metro의 환경 치환값은 기본 Gradle 입력에 포함되지 않는다.
         def fingerprint = java.security.MessageDigest.getInstance('SHA-256').digest(publicValues.join('\\u0000').getBytes('UTF-8')).encodeHex().toString()

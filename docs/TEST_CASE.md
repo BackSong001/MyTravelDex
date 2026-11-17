@@ -1463,3 +1463,39 @@ FR-MAP-SIMPLE-001 / TC-MAP-SIMPLE-001은 docs/SIMPLE_PHOTO_MAP_SPEC.md의 사용
 - 보강후 지정 **10pass(2.0분)**: 전국기록수/동일좌표/단일모션, 큰도요약, 사진·지역 첫선택최소줌/각중심/홈초기화, 비홈원래fit, 각첫선택의실PBF200·도로/수계렌더·resize투영,403/contextloss카메라·요약유지. 전체E2E가 아니며 Native는 별도이다.
 
 - 최종frontend types exit0, x86_64 APK **BUILD SUCCESSFUL 1분38초/469tasks15실행**. 기존에뮬레이터 데이터보존설치후 전국사진1회선택→대표원좌표쪽 실제도로/녹지/바다·거제시라벨/3기록군집, 홈복귀→강원도 실제영역1회선택→도로·수계·녹지 확대를 관찰했다. 강원중심화면은 지역명후보가없어 별도라벨0이며 상단선택명은유지했다. 최신process reactTag/FATAL EXCEPTION/TypeError/ReferenceError 각각0. 기존Native 일부도구글자미표시는잔존하고이번수정에서해결하지않았다. 성능재측정·실휴대폰/iOS·전체E2E·이후Webexport/실배포는미실행이며 앞선artifact결과와구분한다.
+
+
+## 2026-11-16 지도 출처 간소화 (FR-MAP-CREDITS-001 / TC-MAP-CREDITS-001)
+현재 Geoapify 검색·타일/MapLibre/SVG·DB/API는 유지한다. 지도에는 줄바꿈 가능한 10px 출처 띠로 SGIS·vuski 경계 출처 링크와 필요한 Powered by Geoapify·© OpenStreetMap contributors·© OpenMapTiles 링크를 표시한다. 원본 attribution 추가 문구는 삭제하지 않는다. My 하단에는 기준일2026-04-01/CC BY4.0·원자료·라이선스 링크와 제공자 출처를 유지·보완한다. 자동숨김/시작화면 대체/글자크기 추가축소는 적용하지 않는다. 정적 렌더에서 타일/검색/추가출처와 링크를 검증하며 실기기·법률검토 완료로 확대하지 않는다.
+
+검증: `npx vitest run backend/tests/map-attribution.test.ts` 1pass(타일/검색/로컬 분기·중복 표준문구·추가출처·실제href·My 상세라이선스), `npx tsc --noEmit -p frontend/tsconfig.json` exit0. 브라우저/실기기 시각·터치 및 별도 법률 검토는 미실행.
+
+
+## 2026-11-17 선택 시도 전체 맞춤 정정
+FR-MAP-SIMPLE-001은 사진/시도 선택 시 기존 fitProjection의 전체 시도 경계+16px 여백을 사용한다. 11월16일 최소zoom10.1/사진좌표 중심 강제 계약을 대체한다. 지형의 수계·녹지·주요도로는 minzoom0으로 제공자 데이터가 있는 배율부터 표시하고 세부도로13/건물16은 유지한다. 원좌표/군집/요약/350ms 모션은 유지한다. 로그인 화면에만 출처를 표시하는 요청은 Geoapify 제공자 허용이 확인되지 않아 미적용이며 현재 최소 출처를 유지한다.
+
+실행: simple-map 단위6pass, TypeScript exit0, 실제서울타일 Web2pass(25.9s), 경남전체fit/비홈 중간3pass(30.5s). 최종 라벨0/상한 보강2건은 별도 결과로 기록. Native 재빌드/실기기·부산 실제 선택은 미검증.
+최종 라벨0/상한 포함 경남 photo/province 2pass(19.9s).
+
+2026-11-17 실제 configured Web 8083 실행 확인: HTTP200/933 modules 번들. 실제 guest→지역목록→부산 선택에서 부산전체 파란경계와 도로/녹지/수계 렌더를 /tmp/map-busan-current.png로 확인, Geoapify data.json 및 z9 PBF3개 HTTP200. 별도 Chromium 관측이며 실배포(Vercel) 갱신은 미수행.
+
+최신 실제환경 APK: x86_64 assembleRelease BUILD SUCCESSFUL 5m,469 tasks. adb install -r 성공/2026-11-17 13:12:11 업데이트·MainActivity 실행 및 pid 확인. 기존 데이터 reset 없음. 첫 device serial을 Expo 이름으로 전달한 실패와 전체ABI 빌드 중단은 별도 이력. 실휴대폰용 ARM APK/전체Native회귀·성능은 미검증.
+
+
+## 2026-11-17 홈 타일 실패 표시 보강
+FR-MAP-SIMPLE-001: 홈 키없음/렌더러실패 SVG도 단색하늘색/연한시도선/기존육지를 표시하며 과거 OceanBackground는 비홈에만 유지한다. 렌더러 실패는 사용자에게 알리고 수동 재시도로 TileSurface만 재생성한다. camera/선택/요약/기록/owner는 유지한다. 키없음 안내와 실패 안내를 구분하고 비밀값/전체요청URL은 표시하지 않는다. 실제 사용자 브라우저의 실패원인은 별도 확인하며 대역 contextloss를 동일원인 증거로 해석하지 않는다.
+
+홈fallback 보강 검증: contextloss Red(svg-ocean expected0/actual1)→Web1pass19.2s, Native SSR5pass6.16s, types exit0, t14 지정정적승인. 사용자 실제주소localhost8083 확인. 사용자브라우저 원인/수동retry 실제타일 수신은 미확정. 직전APK에는 이번후속fallback보강 미포함.
+
+
+## 2026-11-17 OpenFreeMap 홈 지도 전환
+FR-MAP-OFM-001 / TC-MAP-OFM-001은 docs/OPENFREEMAP_SPEC.md를 따른다. 이전 Geoapify 홈타일/지도키·홈SVG라벨 계약을 대체하고 전국행정지도↔Positron 단계·시도전체fit/타지역사진먼저이동·국내외차폐를 Web→Android 순으로 검증한다. Geoapify 검색/비홈SVG/DB/API/RLS/기록원좌표는 유지한다. 구현·실타일·Native 수용은 실행결과로 구분한다.
+
+
+### OpenFreeMap 실행 결과 — 2026-11-17 14:07 KST
+- 순수/SSR: openfreemap·simple-map·maps-native·map-attribution 4파일15pass(11.70s). 환경/번들 Node10pass. 최종 TypeScript exit0. git diff --check의 유일 경고는 원문을 보존한 POSITRON_LICENSE.md의 Markdown hard-break 공백3곳이며 제품 공백오류는 없다.
+- 실제 OpenFreeMap Web: 초기3pass, 확장5pass1fail(렌더러 재마운트 준비조건) 후 해당차폐1pass. 최종7개는 실제타일/카메라/차폐6pass + 고지 aria-expanded1fail(2.3m). Web aria-expanded 연결 후 고지 펼침·전문·접기 대상 통과. PBF200/실제 도로·수계·한글symbol, 부산·경남·경기·제주 전체fit, 타시도사진→이동→같은시도요약, 상세snapshot·오래된ID제거, 저배율확대/축소, 쓰시마/북한 물색과 국내섬 픽셀을 검사했다.
+- 기존 photo-map27개: 24pass3fail(6.3m), 이전 폐기된 SVG육지/요약 기대와 입력pixel rounding 확인. 첫 보정focused4fail은 별도 유지. 다음focused5는4pass1fail(2.1m): 해외 실제 mouseup→역투영/두 Modal선택 clock취소/고지펼침 통과, 부산 숨은육지 locator만 잔존. 마지막 부산 포함 선택강조 대상1pass(19.4s). 전체27 재실행 성공으로 합산하지 않는다.
+- 실제 configured localhost8083: guest 부산전체 선택에서 OpenFreeMap 타일HTTP200/실제도로·수계153개/zoom9.952959 관측. Web export dist 성공, JS에 고지본문/CartoDB/PaulNorman 및 OpenFreeMap 포함 확인. 외부서비스 캐시/네트워크에 따라 최초표시 지연은 가능하다.
+- Android: mytrveldex 기존AVD를 데이터reset 없이 실행, x86_64 assembleRelease 성공(1m18s,469tasks), install-r 및 실제 앱 실행. 전국 무라벨·행정커버, 경남 전체선택 파란경계와 실제 Positron 도로·수계·한글, 홈 복귀 전국커버를 확인했다. APK Hermes 번들에 두 원문 고지의 전문이 UTF-16LE로 포함된다. 빌드 이후 Web전용 aria-expanded 연결은 Native 동작 변경이 아니며 설치 APK에서 Native 고지펼침을 실증한 것은 아니다.
+- Native 간헐 도구글자 소실은 남아 있다. Native 실제사진계정 왕복/타지역사진·접근성/성능, 실휴대폰/iOS/전체E2E·Vercel배포는 미수용이다. Web통과를 이 범위에 확대하지 않는다. 기존성능 한계 원인/개선율을 새로 주장하지 않는다. 에뮬레이터/웹8083은 직접확인을 위해 유지한다.
