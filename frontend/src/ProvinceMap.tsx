@@ -1,5 +1,5 @@
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Text from './FontText';
 import {Linking, Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import Svg, {Circle, G, Path, Text as SvgText} from 'react-native-svg';
@@ -13,6 +13,7 @@ export default function ProvinceMap({records,ownRecords = [],onOpen,onRegion,sho
   const ownGroups=useMemo(()=>groupProvinceRecords(ownRecords),[ownRecords]);
   const groups=useMemo(()=>groupProvinceRecords(records),[records]);
   const [selected,setSelected]=useState<string|null>(null),[showRegions,setShowRegions]=useState(false);
+  useEffect(()=>{if(focus?.label){setSelected(null);setShowRegions(false);}},[focus]);
   const target=focus?.label?project([focus.longitude,focus.latitude]):null;
   const region=selected?provinceLabels[selected]:null, trips=selected?groups[selected]??[]:[];
   return <View testID="province-map" accessibilityLabel={!showHeading?`방문 지역 ${Object.keys(ownGroups).length} / 17`:undefined} style={s.container}>

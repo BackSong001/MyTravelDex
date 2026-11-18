@@ -58,23 +58,34 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
   const [mode,setMode]=useState<DrawMode>('nation'),[area,setArea]=useState('수도권');
   const [active,setActive]=useState<District>(),[result,setResult]=useState<District>();
   const [running,setRunning]=useState(false);
+  const pendingWinner=useRef<District|undefined>(undefined);
   const timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),locked=useRef(false);
   const candidates=useMemo(()=>eligibleDistricts(mode,area,owner?visited:null),[mode,area,owner,visited]);
   useLayoutEffect(()=>{
-    setActive(undefined);setResult(undefined);setRunning(false);locked.current=false;
+    pendingWinner.current=undefined;setActive(undefined);setResult(undefined);setRunning(false);locked.current=false;
     return ()=>{clearTimeout(timer.current);locked.current=false;};
-  },[owner,candidates,reduced]);
+  },[owner,candidates]);
+  useLayoutEffect(()=>{
+    const winner=pendingWinner.current;
+    if(reduced&&winner){
+      clearTimeout(timer.current);
+      finish(winner);
+    }
+  },[reduced]);
+  function finish(winner:District){
+    pendingWinner.current=undefined;
+    setActive(winner);setResult(winner);setRunning(false);locked.current=false;
+  }
   function draw(){
     if(locked.current)return;
     const winner=pickDistrict(candidates);
     if(!winner)return;
-    locked.current=true;onDrawStart?.();setResult(undefined);
-    function finish(){setActive(winner);setResult(winner);setRunning(false);locked.current=false;}
-    if(reduced||candidates.length===1){finish();return;}
+    locked.current=true;pendingWinner.current=winner;onDrawStart?.();setResult(undefined);
+    if(reduced||candidates.length===1){finish(winner);return;}
     setRunning(true);
     let previous:District|undefined;
-    function step(index:number){
-      if(index===drawDelays.length){finish();return;}
+    const step=(index:number)=>{
+      if(index===drawDelays.length){finish(winner);return;}
       previous=pickDistrict(candidates.filter(d=>d!==previous));
       setActive(previous);
       timer.current=setTimeout(()=>step(index+1),drawDelays[index]);

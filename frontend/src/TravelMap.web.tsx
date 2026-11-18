@@ -170,7 +170,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
     }
     return () => {disposed = true;};
   }, [attempt, error]);
-  useEffect(()=>{const activeMap=map.current;if(!activeMap||onCoordinate||focus)return;activeMap.setMaxBounds(homeOverview?undefined:PAN_BOUNDS);if(homeOverview)fitCountry.current();},[homeOverview]);
+  useEffect(()=>{const activeMap=map.current;if(!activeMap||onCoordinate||focus)return;activeMap.setMaxBounds(homeOverview?undefined:PAN_BOUNDS);if(homeOverview)fitCountry.current();},[homeOverview,!!focus]);
   useEffect(() => {restyle.current();}, [ownRecords,c]);
   useEffect(() => {redraw.current();}, [records, covers, authors, ownRecords, landmarks, focus, !!onCoordinate,c]);
   useEffect(() => {
@@ -184,6 +184,7 @@ export default function TravelMap({records, covers = EMPTY_COVERS, authors = EMP
   useEffect(() => {
     if (correctionLat != null && correctionLng != null) {overview.current=false;map.current?.setMaxBounds(undefined);map.current?.jumpTo({center:[correctionLng, correctionLat], zoom:focus?8:onCoordinate?12:8});}
   }, [correctionLat, correctionLng, attempt, error, !!onCoordinate, focus?.label?focus:null, !!focus]);
+  useEffect(()=>{if(focus?.label){setSelectedId(null);setCluster([]);clearSelection.current();}},[focus]);
   const trips = selectedId ? groupProvinceRecords(records)[selectedId] ?? [] : [];
   return <View onLayout={event=>setMapHeight(event.nativeEvent.layout.height)} style={[fullScreen ? {flex:1, width:'100%', height:'100%'} : {height:expanded ? 440 : 290, borderRadius:18}, {overflow:'hidden', backgroundColor:c.map.ocean}]}>
     {error ? <>

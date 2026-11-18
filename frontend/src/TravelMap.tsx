@@ -30,6 +30,7 @@ export default function TravelMap({records,covers={},authors={},ownRecords=[],la
  const initial=useMemo<InitialViewState>(()=>longitude!=null&&latitude!=null?{center:[longitude,latitude],zoom:focus?8:onCoordinate?12:8}:{bounds:[HOME_BOUNDS[0][0],HOME_BOUNDS[0][1],HOME_BOUNDS[1][0],HOME_BOUNDS[1][1]],padding:{top:onCoordinate?16:100,right:16,bottom:onCoordinate?24:45,left:16}},[longitude,latitude,!!onCoordinate,!!focus]);
  useEffect(()=>{if(longitude!=null&&latitude!=null)camera.current?.jumpTo({center:[longitude,latitude],zoom:focus?8:onCoordinate?12:8});},[longitude,latitude,attempt,!!onCoordinate,!!focus,focus?.label?focus:null]);
  const overview=()=>camera.current?.fitBounds([KOREA_BOUNDS[0][0],KOREA_BOUNDS[0][1],KOREA_BOUNDS[1][0],KOREA_BOUNDS[1][1]],{padding:{top:90,right:24,bottom:80,left:24},duration:0});
+ useEffect(()=>{if(focus?.label){setSelected(null);setCluster([]);}},[focus]);
  const trips=selected?groupProvinceRecords(records)[selected]??[]:[];
  const control=(label:string,text:string,action:()=>void)=><Pressable accessibilityRole="button" accessibilityLabel={label} onPress={action} style={({pressed})=>({minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center',backgroundColor:pressed?c.warm:c.sheet,borderRadius:14})}><Text style={{fontSize:20,color:c.ink}}>{text}</Text></Pressable>;
  return <View onLayout={event=>setMapHeight(event.nativeEvent.layout.height)} style={[fullScreen?{flex:1,width:'100%',height:'100%'}:{height:expanded?440:290,borderRadius:18},{overflow:'hidden',backgroundColor:c.map.ocean}]}>

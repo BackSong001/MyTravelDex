@@ -60,3 +60,19 @@ test('TC-DRAW-001: a first district visit can share an earned province stamp and
  await expect(page.getByText('추첨 후보 · 250곳')).toBeVisible();
  await expect(page.getByRole('button',{name:'여행지 뽑기'})).toBeEnabled();
 });
+
+test('TC-DRAW-004: changing reduced motion preserves a completed result',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+ const result=await page.getByTestId('destination-result').innerText();
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await expect(page.getByTestId('destination-result')).toHaveText(result);
+});
+
+test('TC-DRAW-004: enabling reduced motion finishes the pending draw',async({page})=>{
+ await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+ await expect(page.getByRole('button',{name:'추첨 중…'})).toBeDisabled();
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await expect(page.getByTestId('destination-result')).toBeVisible({timeout:1000});
+ await expect(page.getByRole('button',{name:'다시 뽑기'})).toBeEnabled();
+});

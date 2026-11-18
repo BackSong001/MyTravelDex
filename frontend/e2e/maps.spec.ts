@@ -322,3 +322,22 @@ test('TC-MAP-MARKER-001/002: the author stays inside a single photo and long pre
  const single=page.getByRole('button',{name:/^첫 작성자 · first/});await expect(single).toBeVisible();const photo=(await single.locator('img[alt="대표사진"]').boundingBox())!,avatar=(await single.locator('img[alt=""]').boundingBox())!;expect(avatar.x).toBeGreaterThanOrEqual(photo.x);expect(avatar.y).toBeGreaterThanOrEqual(photo.y);expect(avatar.x+avatar.width).toBeLessThanOrEqual(photo.x+photo.width);expect(avatar.y+avatar.height).toBeLessThanOrEqual(photo.y+photo.height);
  await page.evaluate(records=>(window as any).renderMap({records,authors:{first:{display_name:'첫 작성자'},second:{display_name:'둘째 작성자'}}}),[record('first'),record('second')]);const group=page.getByRole('button',{name:'여행 2개 모아 보기',exact:true});await expect(group).toBeVisible();const box=(await group.boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await expect(page.getByTestId('cluster-browser')).toBeVisible();await page.mouse.up();await expect(page.getByText('작성자 · 첫 작성자',{exact:true})).toBeVisible();await expect(page.getByText('작성자 · 둘째 작성자',{exact:true})).toBeVisible();expect(await page.evaluate(()=>(window as any).events)).toEqual([]);
 });
+
+test('TC-DRAW-002: a destination closes the previous region panel',async({page})=>{
+ await ready(page);
+ await page.getByRole('button',{name:'서울 지역 선택',exact:true}).click();
+ await expect(page.getByRole('button',{name:'지도 선택 닫기'})).toBeVisible();
+ await page.evaluate(()=>(window as any).renderMap({homeOverview:true,focus:{latitude:33.4,longitude:126.55,label:'제주시'}}));
+ await expect(page.getByText('◎ 제주시',{exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'지도 선택 닫기'})).toHaveCount(0);
+});
+
+test('TC-DRAW-003: clearing a destination restores home overview fitting',async({page})=>{
+ await ready(page);
+ await page.evaluate(()=>(window as any).renderMap({homeOverview:true,focus:{latitude:33.4,longitude:126.55,label:'제주시'}}));
+ await expect.poll(()=>page.evaluate(()=>(window as any).mapSnapshots.at(-1).zoom)).toBe(8);
+ const count=await page.evaluate(()=>(window as any).fitRequests.length);
+ await page.evaluate(()=>(window as any).renderMap({focus:undefined}));
+ await expect.poll(()=>page.evaluate(()=>(window as any).fitRequests.length)).toBeGreaterThan(count);
+ await expect(page.getByText('◎ 제주시',{exact:true})).toHaveCount(0);
+});
