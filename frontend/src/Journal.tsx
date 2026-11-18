@@ -6,16 +6,24 @@ import {Image, Platform, StyleSheet, Switch, View, useWindowDimensions} from 're
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Path} from 'react-native-svg';
 import Avatar from './Avatar';
-import useAppViewport from './useAppViewport';
+
 
 export function Backpack({size = 42}: {size?: number}) {
  return <JournalIcon name="album" size={size}/>;
 }
 
-export function JournalIcon({name, color, size = 26}: {name: string; color?: string; size?: number}) {
+export function JournalIcon({name, color, solid=false, size = 26}: {name: string; color?: string; solid?:boolean; size?: number}) {
  const c=useThemeColors();
- const paths:Record<string,string>={feed:'M4 3h16v18H4ZM7 7h10M7 11h10M7 15h6',map:'M2 5l6-2 8 3 6-2v15l-6 2-8-3-6 2ZM8 3v15M16 6v15',write:'M3 5h9v16H3ZM5 2h9v7M10 15l9-9 3 3-9 9-4 1Z',home:'M3 11 12 3 21 11M5 10v11h5v-7h4v7h5V10',album:'M4 4h16v16H4ZM4 15l5-5 4 4 3-3 4 4M15 7h1',plus:'M12 5v14M5 12h14',friends:'M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM1 21v-3a7 7 0 0 1 14 0v3M17 4a4 4 0 0 1 0 8M18 15a5 5 0 0 1 5 5',account:'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM3 23v-2a9 9 0 0 1 18 0v2'};
- return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d={paths[name]??paths.album} fill="none" stroke={color??c.ink} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/></Svg>;
+ const paths:Record<string,string>={
+  heart:'M12 21S2 15 2 8.7a5.4 5.4 0 0 1 10-2.5 5.4 5.4 0 0 1 10 2.5C22 15 12 21 12 21Z',
+  comment:'M21 11.5a9 9 0 0 1-13.2 8L3 21l1.2-4.7A9 9 0 1 1 21 11.5Z',
+  share:'M2 9 22 3l-6 18-4.5-8.5L2 9Zm9.5 3.5L22 3',
+  bookmark:'M5 3h14v18l-7-5-7 5Z',search:'M16.5 16.5 22 22M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z',
+  bell:'M4 17h16l-2-3V9a6 6 0 0 0-12 0v5ZM10 20a2 2 0 0 0 4 0',
+  more:'M4 12h.5m7 0h.5m7 0h.5',back:'m14 5-7 7 7 7',next:'m10 5 7 7-7 7',close:'m6 6 12 12M18 6 6 18',
+  grid:'M3 3h7v7H3ZM14 3h7v7h-7ZM3 14h7v7H3ZM14 14h7v7h-7Z',
+  lock:'M5 10h14v11H5ZM8 10V7a4 4 0 0 1 8 0v3',feed:'M3 3h18v18H3ZM3 15h18M7 18h3',map:'M2 5l6-2 8 3 6-2v15l-6 2-8-3-6 2ZM8 3v15M16 6v15',write:'M3 5h9v16H3ZM5 2h9v7M10 15l9-9 3 3-9 9-4 1Z',home:'M3 11 12 3 21 11M5 10v11h5v-7h4v7h5V10',album:'M4 4h16v16H4ZM4 15l5-5 4 4 3-3 4 4M15 7h1',plus:'M12 5v14M5 12h14',friends:'M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM1 21v-3a7 7 0 0 1 14 0v3M17 4a4 4 0 0 1 0 8M18 15a5 5 0 0 1 5 5',account:'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM3 23v-2a9 9 0 0 1 18 0v2'};
+ return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d={paths[name]??paths.album} fill={solid?(color??c.ink):'none'} fillRule="evenodd" stroke={color??c.ink} strokeWidth={name==='more'?3.5:1.85} strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
 export function Welcome({children}:{children?:React.ReactNode}) {
@@ -46,14 +54,14 @@ export function Collection({records,covers,onOpen,authors={},emptySearch=false,d
   <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={[s.title,profile&&s.profileTitle]}>{profile?'나의 여행':'여행도감'}</Text><Text testID={profile?'profile-trip-count':undefined} accessibilityLabel={profile?`나의 여행 기록 · ${countLabel}`:loading?'여행 기록 불러오는 중':undefined} style={[s.subtitle,profile&&s.profileSubtitle]}>{countLabel}</Text></View>
   {children}
   {!loading&&!failed&&!records.length&&<View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
-  <View style={s.list}>{records.map((record,index)=>{
+  <View style={[s.list,profile&&{flexDirection:'row',flexWrap:'wrap',marginHorizontal:0}]}>{records.map((record,index)=>{
    const author=authors[record.owner_id],title=record.title||'제목 없는 여행',place=record.locations?.place_name||record.locations?.region_name||'지도에 남긴 여행';
    const recordLabel=`${title}, ${record.start_date} ~ ${record.end_date}, ${place}, ${index+1}번째 기록`;
    const visibility=record.status==='draft'?'작성 중':record.visibility==='private'?'나만 보기':'공개 여행';
    const canChange=!profile&&!!owner&&owner===record.owner_id&&record.status==='complete'&&!!onVisibilityChange,pending=visibilityBusy?.has(record.id),failure=visibilityErrors[record.id];
    const content=<>
     <View style={{position:'relative'}}>{covers[record.id]?<Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri:covers[record.id]}} onError={onCoverError?()=>onCoverError(record.id,covers[record.id]):undefined} style={[s.listPhoto,profile&&s.profilePhoto]}/>:<View style={[s.photoPlaceholder,s.listPhoto,profile&&s.profilePhoto]}><JournalIcon name="album" size={30}/></View>}{!profile&&<View style={{position:'absolute',bottom:3,right:3}}><Author author={author} size={20}/></View>}</View>
-    <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={[s.placeStatus,canChange&&{flexDirection:'column'}]}><Text numberOfLines={2} style={[s.cardPlace,canChange?{minWidth:0}:{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
+    <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={[s.placeStatus,(profile||canChange)&&{flexDirection:'column'}]}><Text numberOfLines={2} style={[s.cardPlace,profile?{minWidth:0}:canChange?{minWidth:0}:{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
     {!profile&&<View style={s.rowTrailing}><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>}
    </>;
    const row=<Pressable disabled={disabled||pending} accessibilityRole="button" accessibilityLabel={`${title}, ${profile?'내 여행':author?.display_name?.trim()||'여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={()=>onOpen(record)} style={({pressed})=>[profile?[s.listRow,s.profileRow]:s.rowContent,pressed&&s.cardPressed]}>{content}</Pressable>;
@@ -71,18 +79,19 @@ const tabs = [
   {id: 'home', label: '홈'}, {id: 'feed', label: '피드'},
   {id: 'map', label: '지도'}, {id: 'album', label: '도감'}, {id: 'account', label: 'My'},
 ] as const;
-export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab: JournalTab) => void; onCreate: () => void}) {
- const c=useThemeColors();
- const s=useThemeStyles(makeStyles);
-  const insets = useSafeAreaInsets();
-  const compact = useAppViewport().height < 500;
-  return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
-    {tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
-      {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={24}/></View>}
-      <Text style={[s.navText,tab===item.id&&s.navTextSelected]}>{item.label}</Text>
-      <View testID={tab===item.id?'nav-selection':undefined} style={[s.navIndicator,tab!==item.id&&{opacity:0}]}/>
-    </Pressable>)}
-  </View></View>;
+export function JournalNav({tab,onTab,rail=false}: {tab:JournalTab;onTab:(tab:JournalTab)=>void;onCreate:()=>void;rail?:boolean}){
+ const c=useThemeColors(),insets=useSafeAreaInsets();
+ return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={rail
+   ?{position:'absolute',top:0,bottom:0,left:0,width:184,paddingHorizontal:16,paddingTop:30,backgroundColor:c.paper,borderRightWidth:1,borderColor:c.line,gap:6}
+   :{flexDirection:'row',justifyContent:'space-evenly',paddingBottom:Math.max(4,insets.bottom),borderTopWidth:1,borderColor:c.line,backgroundColor:c.paper}}>
+   {rail&&<Text style={{fontSize:23,fontWeight:'800',letterSpacing:-1.2,marginBottom:28,marginLeft:12,color:c.ink}}>여행가봥</Text>}
+   {tabs.map(item=><Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)}
+    style={{flex:rail?undefined:1,minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,gap:14,borderRadius:10,backgroundColor:rail&&tab===item.id?c.warm:c.paper}}>
+     <JournalIcon name={item.id} size={24} color={tab===item.id?c.ink:c.muted} solid={tab===item.id&&(item.id==='home'||item.id==='account')}/>
+     {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===item.id?'700':'400'}}>{item.label}</Text>}
+     {tab===item.id&&<View testID="nav-selection" style={{position:'absolute',bottom:4,width:5,height:5,borderRadius:3,backgroundColor:rail?'transparent':c.ink}}/>}
+   </Pressable>)}
+ </View>;
 }
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
@@ -94,8 +103,8 @@ const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   list: {marginHorizontal:-16,marginTop:16,backgroundColor:c.sheet},
   profileTitle:{fontSize:15,lineHeight:22,letterSpacing:0,color:c.profile.ink,flexShrink:1},
   profileSubtitle:{flex:1,fontSize:12,lineHeight:18,marginTop:0,textAlign:'right',color:c.profile.muted},
-  profileRow:{paddingHorizontal:20,paddingVertical:16,gap:16,borderColor:c.profile.line},
-  profilePhoto:{width:94,height:102,borderRadius:3},
+  profileRow:{width:'33.33333%',paddingHorizontal:1,paddingVertical:1,gap:4,flexDirection:'column',alignItems:'stretch',borderBottomWidth:0},
+  profilePhoto:{width:'100%',height:undefined,aspectRatio:1,borderRadius:0},
   listRow: {flexDirection:'row',alignItems:'center',gap:12,paddingHorizontal:16,paddingVertical:12,minHeight:88,borderBottomWidth:1,borderColor:c.line,backgroundColor:c.sheet},
   cardPressed: {backgroundColor:c.warm},
   listPhoto: {width:64,height:64,borderRadius:10,flexShrink:0},
@@ -114,14 +123,6 @@ const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   avatar: {width: 26, height: 26, borderRadius: 13, backgroundColor: c.warm},
   avatarFallback: {alignItems: 'center', justifyContent: 'center', overflow: 'hidden'},
   authorName: {flex: 1, fontSize: 12, color: c.muted},
-  nav: {flexShrink: 0,alignItems:'center',paddingHorizontal:12,paddingTop:4,backgroundColor:c.paper},
-  navRail: {width:'100%',maxWidth:640,flexDirection:'row',alignItems:'stretch',padding:4,backgroundColor:c.sheet,borderTopWidth:1,borderColor:c.line},
-  navItem: {flex:1,minWidth:50,minHeight:66,paddingHorizontal:2,paddingVertical:4,alignItems:'center',justifyContent:'center',borderRadius:14},
-  navIconSlot: {width:50,height:40,alignItems:'center',justifyContent:'center',borderRadius:14},
-  navSelected: {backgroundColor:c.warm},
-  navText: {fontSize:11,lineHeight:16,marginTop:1,color:c.navigation.inactiveLabel,textAlign:'center',alignSelf:'stretch'},
-  navTextSelected: {color:c.navigation.activeLabel,fontWeight:'700'},
-  navIndicator: {height:3,width:16,borderRadius:2,marginTop:1,backgroundColor:c.navigation.activeLabel},
   createSlot: {flex: 1, minWidth: 48, alignItems: 'center', justifyContent: 'center'},
   fab: {backgroundColor:c.primary,width:54,height:54,alignItems:'center',justifyContent:'center',borderRadius:27},
 });

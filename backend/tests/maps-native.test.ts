@@ -8,12 +8,11 @@ vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{oceanDepth:{uri:'fixture:/
 vi.mock('../../frontend/src/TileSurface',()=>({default:()=>React.createElement('div',{'data-native-tile':true})}));
 import TravelMap from '../../frontend/src/TravelMap';
 const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,status:'complete',locations:{source:'exif',latitude,longitude}});
-test('TC-SVG-MAP-001 Native SVG renders country with white boundaries and separate own visits',()=>{
- const mine=record('me',37.5665,126.978),friend=record('friend',33.4996,126.5312);
- const html=renderToStaticMarkup(React.createElement(TravelMap,{fullScreen:true,records:[mine,friend],ownRecords:[mine]}));
- expect(html.match(/<path[^>]*testID="map-region-/g)).toHaveLength(17);expect(html.match(/testID="map-label-/g)).toHaveLength(17);expect(html).toContain('stroke="#FFFFFF"');expect(html).toContain('testID="svg-ocean"');expect(html).not.toContain('testID="ocean-land-');expect(html).toContain('testID="ocean-texture"');expect(html.match(/testID="map-label-11"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('서울');expect(html.match(/testID="map-label-43"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('충북');expect(html).toContain('서울특별시 · 1개');expect(html).toContain('제주특별자치도 · 1개');
- expect(html).toMatch(/testID="map-region-50"[^>]*fill="#E5E9E2"/);expect(html).not.toMatch(/testID="map-region-11"[^>]*fill="#E5E9E2"/);
- expect(html).not.toMatch(/native-map|maplibre|NaN|Infinity/);
+test('Native composer background uses the same overview and controls as the map tab',()=>{
+ const html=renderToStaticMarkup(React.createElement(TravelMap,{fullScreen:true,records:[record('me',37.5665,126.978)]}));
+ expect(html.match(/testID="map-region-\d+"/g)).toHaveLength(17);
+ expect(html).toContain('map-overview-cover');expect(html).toContain('지도 홈');expect(html).toContain('map-photo-me');
+ expect(html).not.toMatch(/svg-ocean|ocean-texture|map-region-options|파스텔 방문|지도 확대|NaN|Infinity/);
 });
 test('TC-SVG-MAP-001 Native correction keeps finite real pins but excludes unconfirmed Google positions',()=>{
  const pin={...record('selection',35.815,127.153),status:undefined},old={...pin,id:'google',locations:{...pin.locations,source:'google'}};
@@ -36,7 +35,7 @@ test('TC-MAP-HOME-003 Native home overlays the selected province below labels an
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[],navigation}));
  const overlay=html.match(/<path[^>]*testID="map-selection"[^>]*>/)?.[0];expect(overlay).toBeDefined();expect(overlay).toContain('fill="#3B82F6"');expect(overlay).toContain('fill-opacity="0.18"');expect(overlay).toContain('stroke="#2563EB"');
  expect(overlay?.match(/ d="([^"]+)"/)?.[1]).toBe(html.match(/testID="map-region-11" d="([^"]+)"/)?.[1]);expect(html.match(/testID="map-label-/g)).toHaveLength(1);expect(html.match(/testID="map-label-11"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('서울특별시');expect(html).toContain('fill="#7D868B"');
- const nonhome=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:false,fullScreen:true,records:[],navigation}));expect(nonhome).not.toContain('map-selection');
+ const nonhome=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:false,fullScreen:true,records:[],navigation}));expect(nonhome).toContain('map-selection');
 });
 
 test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fallback boundary',async()=>{

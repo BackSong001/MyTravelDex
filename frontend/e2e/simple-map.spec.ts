@@ -1,15 +1,13 @@
+import {openMapFixture} from './map-fixture';
 import {test,expect} from '@playwright/test';
 import {build} from 'esbuild';
-import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {nativeImageAssets} from './native-image-assets';
 let bundle='';
 test.beforeAll(async()=>{
  bundle=(await build({bundle:true,write:false,format:'iife',platform:'browser',plugins:[nativeImageAssets],define:{'process.env.NODE_ENV':'"test"','__DEV__':'false'},alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`import {Map as Renderer} from 'maplibre-gl';const fire=Renderer.prototype.fire;Renderer.prototype.fire=function(...args){window.renderer=this;return fire.apply(this,args);};import React from 'react';import {createRoot} from 'react-dom/client';import Map from './src/SvgTravelMap';import {ProfileMapCredits} from './src/MapAttribution';import {regions,fitProjection} from './src/regions';import {homeArea,homeAreaAt,homeIslands} from './src/homeMapAreas';import {MotionProvider} from './src/Feedback';const root=createRoot(document.getElementById('root'));window.credits=()=>root.render(<MotionProvider><ProfileMapCredits/></MotionProvider>);window.navigation={current:null};window.islands=homeIslands.map(f=>f.properties);window.islandAt=(lat,lng)=>homeAreaAt(lat,lng)?.properties;window.areaBounds=()=>{const n=window.navigation.current,f=homeArea(n.province,n.island),polys=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates,points=polys.flat(2).map(c=>window.renderer.project(c));return [Math.min(...points.map(p=>p.x)),Math.min(...points.map(p=>p.y)),Math.max(...points.map(p=>p.x)),Math.max(...points.map(p=>p.y))];};window.hide=()=>root.render(null);window.countryProjection=()=>{const h=document.querySelector('[data-testid=svg-map-canvas]').getBoundingClientRect();return fitProjection(regions,h.width,h.height);};let props={homeMap:true,fullScreen:true,records:[{id:'one',status:'complete',title:'서울 기록',created_at:'2026-01-01',locations:{source:'manual',latitude:37.5665,longitude:126.978}}]};window.update=n=>{props={...props,...n};root.render(<MotionProvider><Map {...props} navigation={window.navigation}/></MotionProvider>)};window.update({});`}})).outputFiles[0].text;
 });
-test.beforeEach(async({page})=>{
- await page.route('http://map.test/**',async route=>{const name=new URL(route.request().url()).pathname;if(name.startsWith('/vendor/')){await route.fulfill({body:readFileSync('frontend/public'+name),contentType:name.endsWith('.css')?'text/css':'text/javascript'});return;}await route.fulfill({contentType:'text/html',body:'<link rel="stylesheet" href="/vendor/maplibre/maplibre-gl.css"><div id="root" style="height:700px;display:flex;flex-direction:column"></div>'});});
- await page.goto('http://map.test');await page.addScriptTag({content:bundle});
+test.beforeEach(async({page})=>{await openMapFixture(page,bundle);
 });
 for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 live terrain after one ${photo?'photo':'province'} selection and country return`,async({page})=>{
  const responses:{path:string;status:number}[]=[];page.on('response',r=>{if(r.url().includes('tiles.openfreemap.org'))responses.push({path:new URL(r.url()).pathname,status:r.status()});});
@@ -187,4 +185,21 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
  await page.getByRole('button',{name:'지도 확대',exact:true}).click();expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await page.getByRole('button',{name:'지도 축소',exact:true}).click();expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
+});
+
+test('journal detail draws real Positron terrain under the saved coordinate',async({page})=>{
+ await page.evaluate(()=>(window as any).update({homeMap:false,fullScreen:false}));
+ const pin=page.getByTestId('map-location-one');
+ await expect(pin).toBeVisible();
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+ await expect.poll(()=>page.evaluate(()=>{
+  const map=(window as any).renderer;
+  return map?.isStyleLoaded() && map.areTilesLoaded()
+    && map.queryRenderedFeatures({layers:['water','waterway','highway_motorway_inner','highway_major_subtle']}).length>0;
+ }),{timeout:30000}).toBe(true);
+ const difference=await pin.evaluate(element=>{
+  const point=(window as any).renderer.project([126.978,37.5665]);
+  return Math.hypot(point.x-Number(element.getAttribute('cx')),point.y-Number(element.getAttribute('cy')));
+ });
+ expect(difference).toBeLessThan(1);
 });

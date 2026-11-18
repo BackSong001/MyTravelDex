@@ -654,7 +654,7 @@ MapLibre는 로컬 GeoJSON 스타일을 사용하므로 Google 지도 API 활성
 
 ## 15. 환경변수 계약
 
-`.env.example`에는 실제 비밀값이 아닌 placeholder만 기록한다.
+사용자가 공개 공유를 승인한 EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY(anon/publishable만), GOOGLE_OAUTH_CLIENT_ID_WEB, GOOGLE_OAUTH_CLIENT_ID_ANDROID는 .env.example에 실제 공개값을 기록할 수 있다. 그 외 키·비밀번호는 placeholder로 유지하며 실제 .env와 서버 비밀값은 커밋하지 않는다.
 
 ### 공개 클라이언트 값
 
@@ -937,8 +937,10 @@ FR-MAP-OFM-001 / TC-MAP-OFM-001은 docs/OPENFREEMAP_SPEC.md를 따른다. 이전
 ## 2026-11-17 홈 지도 가독성·섬 탐색
 FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md를 따른다. 이전 홈 전체시도fit은 본토+30km이내 연안섬fit/먼섬10km그룹 별도선택으로 대체한다. 원본행정경계·DB/좌표/비홈은보존한다. 선택직후무라벨→사용자확대11/13/14/16 이름단계, 파스텔실지형/국외지형차폐와국내글자분리, 사진대상분할/복귀를Web→Android로검증한다. t14검토·관련커밋/푸시와실배포/전체수용을구분한다.
 
+
 ## 2026-11-17 선택 시도 이름 표시 보강
 FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.
+
 
 ## 2026-11-17 사진 일기 SNS 개편
 FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭·모바일우선 SNS/개인퍼즐·차단우선/공개관계count와본인명단·512px공개사진 계약을 적용한다. 이전 홈지도는지도탭으로이관하며 원본기록/EXIF/초안/원좌표/기존ID를보존한다. 구현/실행/원격적용을구분하고현재전체수용미완료다.
@@ -976,3 +978,11 @@ Avatar업로드ID는쿼리upload_id(비밀아님)로전달가능하고본문은r
 ### SNS 클라이언트 수명 보강
 capability의 지원 상태는 같은 owner token refresh 중 유지하고 404/PGRST202만 legacy fallback한다. 일시 실패는 기존 입력을 유지한 재확인 안내다. owner 교체는 지원 확인/편집/업로드 재시도 상태를 폐기한다. 카드별 로컬 상태 수명과 서버 mutation 완료 invalidation을 분리하여 카드 unmount 후에도 같은 sessionEpoch이면 목록을 갱신한다. My 복귀는 이전 페이지 수를 최신 권한으로 재조회하고 프로필·목록 준비 뒤 기존 pendingAccountScroll을 적용하며 사용자의 직접 스크롤은 예약을 취소한다.
 프로필 지연 응답은 요청 시작 때의 edit 값 대신 응답 시점의 편집 ref로 입력 동기화 여부를 판단한다. 페이지 복귀 snapshot에는 본문/사진 URL 없이 조회 identity+읽었던 count+offset만 보관한다. revision 변경 시 본문은 새로 읽되 같은 owner/target의 count까지 조회하고, owner/target 전환은 복귀 정보도 폐기한다. 새 My/피드의 상세 진입 버튼은 기존 Home busy를 그대로 표시해 저장/복귀 조회 중 무반응 클릭을 만들지 않는다.
+
+## 사진 중심 소셜 UI
+
+사진의 서명 URL, 권한별 RPC, 사용자별 목록 복귀와 편집 수명은 기존 소유층을 쓴다. 화면 너비로 사진 페이지와 탐색 레이아웃을 결정한다.
+
+## 여행기록 지도 통합
+
+공통 TravelMap의 바탕·오버레이·타일 전환을 재사용한다. 지도 탭의 국내 카메라 제한은 작성·상세·보정의 해외 좌표에 적용하지 않는다.

@@ -161,7 +161,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
     <View style={s.profileCard}>
       <View style={s.profileHeading}><Text accessibilityRole="header" style={s.profileTitle}>나의 프로필</Text><Button compact label="프로필 수정" disabled={disabled} onPress={()=>{setError('');setSuccess('');setEditing(true);}} secondary/></View>
       {loading&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}
-      <View style={s.profileIdentity}><TravelerAvatar url={snapshot?.avatar} portrait/><View style={s.flex}>
+      <View style={s.profileIdentity}><TravelerAvatar url={snapshot?.avatar} size={76}/><View style={s.flex}>
         <Text testID="profile-name" accessibilityLabel={`내 프로필 이름 · ${profileName}`} style={s.profileName}>{profileName}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel={`여행 스탬프 보기 · ${visitLabel}`} onPress={onStamps} style={s.visitLink}>
           <View style={s.visitBadge}><Text testID="profile-visits" accessibilityLabel={`내 방문 지역 수 · ${visitLabel}`} style={s.visitNumber}>{visitLabel}</Text><Text style={s.profileSmall}>지역</Text></View>
@@ -420,16 +420,16 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   profilePage:{gap:16},
-  profileCard:{backgroundColor:c.profile.sheet,padding:20,gap:12},
+  profileCard:{backgroundColor:c.profile.sheet,paddingVertical:8,gap:10},
   profileHeading:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:12},
   profileTitle:{fontSize:20,lineHeight:28,fontWeight:'700',color:c.profile.ink,flexShrink:1},
   profileIdentity:{flexDirection:'row',alignItems:'center',gap:20},
-  profileName:{fontSize:30,lineHeight:42,fontWeight:'700',color:c.profile.ink},
+  profileName:{fontSize:19,lineHeight:26,fontWeight:'700',color:c.profile.ink},
   profileSmall:{fontSize:12,lineHeight:18,color:c.profile.muted,flexShrink:1},
   profileIdentifier:{fontSize:14,lineHeight:21,color:c.profile.ink},
   profileLink:{fontSize:11,lineHeight:17,color:c.profile.accent,flexShrink:1},
   visitLink:{flexDirection:'row',alignItems:'center',gap:8,paddingVertical:8},
-  visitBadge:{width:72,minHeight:64,borderWidth:1,borderStyle:'dashed',borderRadius:36,borderColor:c.profile.accent,backgroundColor:c.profile.tint,alignItems:'center',justifyContent:'center',padding:4},
+  visitBadge:{minWidth:60,minHeight:38,borderRadius:6,borderColor:c.profile.accent,backgroundColor:c.profile.tint,alignItems:'center',justifyContent:'center',padding:4},
   visitNumber:{fontSize:16,lineHeight:24,color:c.profile.accent,textAlign:'center'},
   compactButton: {paddingHorizontal:8,paddingVertical:8,borderRadius:10},
   compactButtonText: {fontSize:12,lineHeight:18},

@@ -41,3 +41,7 @@ imagegen 내장 도구로17개지역 소재의gouache샘플을생성하고 front
 
 ### 격리 Local 재실행
 원래54321 프로젝트와 원격은 변경하지 않는다. 루트에서 `node scripts/sns-local-setup.mjs`는 `/tmp/mytraveldex-sns-local`의 mytraveldex-sns-test(55321/55322)를 생성/기동하고 migration up만 실행한다(reset 없음). 이어서 `npx supabase functions serve --workdir /tmp/mytraveldex-sns-local`, `node scripts/sns-local-web.mjs`(8086), `npx vitest run --config vitest.sns.config.ts`, `npx playwright test --config playwright.sns.config.ts`를 사용한다. 기존 기본 Vitest에서 새 격리 인스턴스 전용 integration 두 파일을 제외하고 SNS config에 포함하므로 다른 프로젝트54321로 잘못 실행하지 않는다. 순수 SNS 단위 검사는 기본 config에도 포함된다. Metro 임시 캐시도 실제 프로젝트와 분리한다. 설정/키 원문은 출력하지 않는다.
+
+## 사진 중심 소셜 UI
+
+피드는 작성자·날짜, 좌우로 넘기는 4:5 사진, 반응과 한줄평 순이다. My는 프로필 옆 집계와 3열 그리드, 홈은 최근 사진과 실제 퍼즐 진척을 우선한다. 모바일 5개 탭과 데스크톱 탐색 레일은 같은 경로를 사용한다.

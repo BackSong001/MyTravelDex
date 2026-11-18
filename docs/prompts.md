@@ -1778,6 +1778,27 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 변경파일: frontend/src/mapLabels.ts; backend/tests/map-labels.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts; docs/SVG_MAP_LABELS_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig변경은제외한다.
 
 
+## 2026-11-13 16:39 KST — 팀원 공유용 공개 환경 설정
+
+사용자 프롬프트 원문:
+
+> 예시값 말고, 현재 깃허브 브랜치를 나눠서 협업중인데, .env 에 전체 값을 공유 할 순 없지만, github에 올려도되고, 공유되는 키가 있다면, .env.extemple 에 작성하고 팀원들에게 공유하고싶어.
+
+결과: .env.example에 실제 Supabase URL/공개 publishable 키와 Google Web/Android OAuth Client ID만 반영했다. 나머지 값은 기존 예시를 유지하고 공유 프로젝트 연결 주의사항과 공개값 예외 정책을 AGENTS/TRD에 동기화했다. 허용목록 4개 일치·나머지 설정 불변·서버 비밀값 미포함·기존 publicConfiguration 검증 통과. 실제 키 값은 이력에 기록하지 않았다. 원격 RLS/API 제한은 재검증하지 않았고 커밋/푸시는 수행하지 않았다.
+
+변경 파일: .env.example, AGENTS.md, docs/TRD.md, docs/prompts.md. 기존 package/lock 및 untracked 파일은 보존.
+
+
+## 2026-11-13 16:43 KST — main 공개 환경 파일 단독 반영
+
+사용자 프롬프트 원문:
+
+> 현재 협업중인 팀원들 브랜치에 해당 .env.extemple 내용만 병합 하게 하고싶어. main에 .env.extemple 내용만 업데이트 해주고, 각자 브랜치에 .env.extemple 내용을 쓸 수 있게 프롬프트를 짜줘. 추가로 해당 브랜치에서는 .env.extemple 을 쓰라고 명시해줘. 간단하게 프롬프트 작성
+
+결과: 별도 임시 worktree에서 origin/main 기준 .env.example만 커밋 dc5cb5d 후 main에 푸시하고 원격 HEAD 일치를 확인했다. 현재 브랜치와 기존 변경은 보존했다. 팀원용 프롬프트는 main 전체 병합 없이 파일만 가져오고 해당 브랜치의 공개 설정 기준으로 사용하며 기존 .env 비밀값 보존/커밋 제외를 명시한다.
+
+main 변경 파일: .env.example만. 로컬 이력: docs/prompts.md(이번 main 커밋에 포함하지 않음).
+
 ## 2026-11-13 사진 중심 연속 지도 구현
 
 사용자 프롬프트 원문:
@@ -1854,6 +1875,28 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 
 변경 파일: frontend/src/SvgTravelMap.tsx; frontend/e2e/photo-map.spec.ts,simple-map.spec.ts; docs/SIMPLE_PHOTO_MAP_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 커밋에는 앞선 단순지도 구현의 관련 의존성·설정·검사도 포함한다.
 
+
+## 2026-11-16 16:49 KST — 카카오 Local API 실제 연결 확인
+
+사용자 프롬프트 원문:
+
+> 카카오 API가 .env에 있는데, 정상 작동하는지 테스트 먼저 진행해줘
+
+결과: .env의 KAKAO_REST_API_KEY만 메모리에서 읽어 공식 dapi.kakao.com으로 장소검색(공개관광지)과 주소→좌표(공공기관) GET2회를 실행했다. 모두 HTTP403/NotAuthorizedError, OPEN_MAP_AND_LOCAL service 비활성 응답이었다. 주소조회 실패로 좌표→주소 왕복은 실행하지 않았다. Admin 키는 사용하지 않았고 실제키·토큰·응답의 개인정보는 기록하지 않았다. 공식 카카오맵 문서의 앱→카카오맵→사용설정ON 경로를 안내한다. 제품코드/기존Geoapify/DB/원격설정 변경·커밋/푸시는 하지 않았다.
+
+변경 파일: docs/prompts.md (실행 이력만 추가).
+
+
+## 2026-11-16 16:53 KST — 카카오 활성화 후 재검증
+
+사용자 프롬프트 원문:
+
+> 활성화 했어. 다시 테스트
+
+결과: KAKAO_REST_API_KEY로 공식 Local API GET3회를 재실행해 모두HTTP200/내용검증통과. 공개관광지 장소검색5결과에서 일치이름·유효좌표·장소ID 확인, 공공기관 주소검색1결과와 반환좌표의 역주소1결과에서 원래도로명/건물번호일치 확인. 이전403은별도이력으로보존한다. 키값/개인정보는출력하지않고Admin키미사용. 지도SDK/앱연동/실기기검증은아니며제품·DB·원격설정변경/커밋·푸시없음.
+
+변경 파일: docs/prompts.md (실행 이력만 추가).
+
 | 2026-11-16 18:06 KST | 현재 구성을 유지한채로 지도에 저작권표시를 최소화하는 방식으로 개선해줘 | Geoapify 구성 유지, 필수 출처 링크를 10px 줄바꿈 띠로 통합하고 My 라이선스 보완. 단위1pass/types0, 실기기 미검증. | 변경 파일: `frontend/src/MapAttribution.tsx`, `backend/tests/map-attribution.test.ts`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `AGENTS.md`, `docs/prompts.md` |
 
 ## 2026-11-17 선택 시도 전체 맞춤
@@ -1923,3 +1966,19 @@ AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, 
 - 사용자 프롬프트 원문: 그럼 모든 권한을 줄테니, 요구사항대로 완벽하게 구현해줘
 - 결과: 승인된 SNS 명세에 따라 서버 권한/차단·반응·댓글/알림·신고/제재·avatar lifecycle, 5탭 대시보드/피드/지도/도감 퍼즐/My를 구현했다. t14의 서버 경합·클라이언트 입력/복귀 지적을 보강했다. 격리 Local28pass, 최신 집중Web10pass, frontend 타입0, Web export/Android release build 성공 및 Android 지정흐름을 확인했다. 앞선 실패·포인터 미확정·Native 전체/성능 미수용·원격 미적용은 TEST_CASE에 분리했다.
 - 변경 파일: backend/supabase/migrations/20261117~20261118 SNS migration, backend/supabase/functions/{photo-url,profile-avatar,profile-avatar-url,cleanup-avatars,_shared/avatar.ts}, backend/supabase/config.toml, backend/tests SNS 검사, frontend/app/index.tsx, frontend/src/{SocialUI,SocialSpace,TravelDashboard,travelPuzzles,puzzleArtwork,Journal,SvgTravelMap,api}, frontend/assets/ui/puzzles, frontend/e2e/social-travel.spec.ts 및 fixture, scripts/{sns-local-setup,sns-local-web,social-moderation}.mjs, SNS 테스트 config, docs/{SOCIAL_TRAVEL_SPEC,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md, AGENTS.md.
+
+## 2026-11-18 12:37 KST
+
+> Implement the plan.
+
+흰 배경의 사진 중심 홈·피드·My와 모바일/데스크톱 탐색을 구현했다. Local SNS 웹 11개 시나리오, 단위 검사 5개, 타입 검사, 웹 export와 Android 빌드를 통과했고 에뮬레이터로 주요 화면을 확인했다.
+
+변경 파일은 `AGENTS.md`, `docs/SOCIAL_TRAVEL_SPEC.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/src/theme.ts`, `frontend/src/AppSettings.tsx`, `frontend/src/Journal.tsx`, `frontend/src/MapAttribution.tsx`, `frontend/src/Social.tsx`, `frontend/src/SocialSpace.tsx`, `frontend/src/SocialUI.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/e2e/social-travel.spec.ts`이다.
+
+## 2026-11-18 15:51 KST
+
+> 현재 이전에 작성했던 지도 디자인이랑 버튼등이 여행기록 추가나, 도감에서 여행기록 지역을 볼 때, 그대로 남아있는데, 해당 이전 디자인 지도를 삭제하고 최신 지도 모형으로 변경해줘
+
+작성·위치 선택·도감 상세에서 지도 탭과 같은 전국 경계, 상세 Positron 지도, 지도 도구를 사용하도록 통합했다. 모바일 웹에서 실제 기록과 위치 선택 흐름을 확인했다. 저장 핀과 실제 타일의 좌표 정렬, 해외 좌표 보정, 접근성 도구와 복귀를 각각 확인했다.
+
+변경 파일은 frontend/src/{SvgTravelMap.tsx,OceanBackground.tsx,uiAssets.ts}, frontend/e2e/{map-fixture.ts,photo-map.spec.ts,svg-map.spec.ts,simple-map.spec.ts,social-travel.spec.ts}, backend/tests/maps-native.test.ts, AGENTS.md와 docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md이다.

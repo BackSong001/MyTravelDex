@@ -446,3 +446,11 @@ profile-avatar는`?upload_id=<UUID>`로동일한업로드ID를받는다. raw본�
 ### Avatar 정리 경합 보강 (2026-11-18)
 `social_avatar_cleanup()`은 service 전용이다. 미참조 후보를 LIMIT 100 전에 선별하고 profile→asset 잠금 뒤 재검사한다. 퇴역 asset은 `retired_at`/`cleanup_queued=true`로 남으며 동일 UUID의 reserve는400(Edge 업로드409), verify와 연결은404로 거절한다. 정리 job ack는 tombstone을 삭제하지 않는다. 새 UUID 업로드/연결은 기존 경로를 사용한다. 활성 avatar는 후보에서 제외하며 계정삭제 cascade 외에 퇴역 metadata를 삭제하지 않는다.
 후속 `20261118050000_avatar_reclaim.sql`부터 ack된 tombstone도 `cleanup_requested_at NULLS FIRST, owner_id, id` 순으로 batch100 재수거한다. 활성 참조 제외/잠금 재검사는 유지하고 같은 경로를 반복 DELETE할 수 있다. 이는 늦은 POST 및 verify 전 Edge 중단 이후 잔존 객체를 후속 service cleanup 호출에서 회수하기 위한 경계이며 자동 스케줄러 배포를 의미하지 않는다.
+
+## 사진 중심 소셜 UI
+
+사진 중심 화면은 기존 공개 사진 projection, 서명 URL, 프로필 및 반응 RPC를 사용한다. 새 응답 필드는 필요하지 않다.
+
+## 여행기록 지도 통합
+
+지도 표현 통합은 기존 좌표·검색·기록 조회 API와 공개 권한을 유지한다.

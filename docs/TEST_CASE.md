@@ -1576,3 +1576,16 @@ Web export(`/tmp/sns-web-export`) 성공. 타입은 `tsc --noEmit -p frontend/ts
 Web 포인터 관리진입 미확정과 기존 Native 성능/도구 글자 제한은 남아 있다. 원격 migration/함수/서비스 scheduler·스토어 배포는 수행하지 않았다.
 추가 Native 지도 작성 아이콘→여행 제목 입력→잠시 접기→아이콘 재진입에서 같은 제목 유지도 확인했다. 테스트 후 기존 설치 APK를 데이터 reset 없이 복원하고, 생성한 Local2계정/3기록 및 해당 Storage 객체만 정리한다. 새 SNS QA APK는 build 출력에 보존한다.
 정리 결과: 기존 APK 재설치 Success, SNS fixture removed를 확인했다. SNS Local setup 스크립트도 기존 격리 DB에서 reset 없이 재실행 성공했다. 외부 root package/lock 및 공개환경 문서 선행 변경은 SNS 커밋에서 제외한다.
+
+## 사진 중심 소셜 UI
+
+TC-SOCIAL-PHOTO-UI-001. 모바일 홈·피드 첫 사진 위치, 피드 4:5와 실제 Storage 사진, 5탭·데스크톱 탐색, 프로필 사진·편집·상세 복귀를 확인한다.
+
+390×844 모바일 피드의 첫 사진 시작 위치는 변경 전 268px, 변경 후 109px였다. 실제 Local Storage 사진으로 4:5 비율과 320px에서 두 장 넘기기·저장 버튼, 데스크톱 레일, My 그리드와 출처·설정 접근을 확인했다. 최종 SNS Playwright 단독 실행 11/11. 빌드와 겹친 이전 실행은 10통과·공유 링크 갤러리 대기 시간 초과 1건이었다. 타입 검사와 테마·퍼즐·지도 출처 단위 검사 5개, Web export 및 Local Android release 빌드가 통과했다. Android 에뮬레이터의 분리 설치본으로 홈 사진·피드·My·출처 펼침과 계정 메뉴를 확인했다. 마지막 320px 도구 여백 조정은 Web과 빌드에서 검사했다. 실기기·운영 배포는 미검증이다.
+
+## 여행기록 지도 통합
+
+작성 배경의 전국 경계와 이전 범례·바다 장식 제거, 도감 상세의 Positron과 저장 핀, 보정의 후보 선택·해외 좌표 역투영을 확인한다.
+
+- 격리 Local 계정의 모바일 웹에서 작성 → 지도 위치 선택·확정 → 도감 기록 상세 → 저장 핀 확인·전국 복귀가 통과했다. 별도 WebGL 검사에서 OpenFreeMap 도로·수계가 실제로 렌더되고 서울 기록의 SVG 핀과 MapLibre 투영 간 오차가 1px 미만임을 확인했다.
+- 지도 조작·복귀 대상 Web 17개 및 시도 강조 Web 1개 통과. 초기 대역의 about:blank에서는 MapLibre worker 상대 경로가 실패한 검사 2개가 있었고, 공통 HTTP fixture에서 실제 번들 worker를 제공해 재검증했다. Android 공통 렌더·지도 계약 단위 11개 및 TypeScript 통과. 실기기 터치·성능은 미측정이다.

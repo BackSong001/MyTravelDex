@@ -170,7 +170,7 @@ adb logcat
 
 ## 환경변수
 
-- 환경변수 샘플은 `.env.example`에만 placeholder로 기록한다.
+- 사용자가 공개 공유를 승인한 EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY(anon/publishable만), GOOGLE_OAUTH_CLIENT_ID_WEB, GOOGLE_OAUTH_CLIENT_ID_ANDROID는 .env.example에 실제 공개값을 기록할 수 있다. 그 외 키·비밀번호는 placeholder로 유지하며 실제 .env와 서버 비밀값은 커밋하지 않는다.
 - 실제 `.env` 파일과 비밀키는 Git에 커밋하지 않는다.
 - `SUPABASE_SERVICE_ROLE_KEY`, Google OAuth Client Secret, GEOAPIFY_API_KEY 등 서버 Secret는 클라이언트 번들에 포함하지 않는다.
 - `EXPO_PUBLIC_*` 값은 공개될 수 있으므로 반드시 플랫폼·API 제한을 설정한다.
@@ -671,8 +671,18 @@ FR-MAP-OFM-001 / TC-MAP-OFM-001은 docs/OPENFREEMAP_SPEC.md를 따른다. 이전
 ## 2026-11-17 홈 지도 가독성·섬 탐색
 FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md를 따른다. 이전 홈 전체시도fit은 본토+30km이내 연안섬fit/먼섬10km그룹 별도선택으로 대체한다. 원본행정경계·DB/좌표/비홈은보존한다. 선택직후무라벨→사용자확대11/13/14/16 이름단계, 파스텔실지형/국외지형차폐와국내글자분리, 사진대상분할/복귀를Web→Android로검증한다. t14검토·관련커밋/푸시와실배포/전체수용을구분한다.
 
+
 ## 2026-11-17 선택 시도 이름 표시 보강
 FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.
 
+
 ## 2026-11-17 사진 일기 SNS 개편
 FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭·모바일우선 SNS/개인퍼즐·차단우선/공개관계count와본인명단·512px공개사진 계약을 적용한다. 이전 홈지도는지도탭으로이관하며 원본기록/EXIF/초안/원좌표/기존ID를보존한다. 구현/실행/원격적용을구분하고현재전체수용미완료다.
+
+## 사진 중심 소셜 UI
+
+소셜 화면의 최신 시각 기준은 흰 배경의 사진 중심 피드와 프로필 그리드다. 모바일 탐색은 접근성 이름을 가진 아이콘, 넓은 웹은 이름이 있는 탐색 레일을 사용한다.
+
+## 여행기록 지도 통합
+
+지도 탭·작성·도감 상세·위치 선택은 같은 지도 디자인을 사용한다. 위치 보정과 기록 상세에서는 원좌표를 유지한다.

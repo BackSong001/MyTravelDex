@@ -23,11 +23,13 @@ function SourceLink({label,url}:{label:string;url:string}){
  const c=useThemeColors();
  return <Text accessibilityRole="link" {...(Platform.OS==='web'?{href:url,hrefAttrs:{target:'_blank',rel:'noopener noreferrer'}}:{onPress:()=>{void Linking.openURL(url);}})} style={{display:'flex',alignSelf:'flex-start',minHeight:48,paddingVertical:12,fontSize:12,lineHeight:20,color:c.ink,textDecorationLine:'underline'}}>{label}</Text>;
 }
-export function ProfileMapCredits(){
+export function ProfileMapCredits({compact=false}:{compact?:boolean}={}){
+ const [expanded,setExpanded]=useState(false);
  const [showNotices,setShowNotices]=useState(false);
  const c=useThemeColors();
  return <View testID="profile-map-credits" style={{marginTop:24,paddingTop:16,borderTopWidth:1,borderColor:c.line,gap:4}}>
-  <Text accessibilityRole="header" style={{fontSize:14,fontWeight:'600',color:c.ink}}>지도·위치 정보 출처</Text>
+   {compact&&<Pressable accessibilityRole="button" accessibilityLabel="지도·위치 정보 출처" accessibilityState={{expanded}} aria-expanded={expanded} onPress={()=>setExpanded(v=>!v)} style={{justifyContent:'center'}}><Text style={{fontSize:13,color:c.muted}}>지도·위치 정보 출처　{expanded?'⌃':'⌄'}</Text></Pressable>}
+  {(!compact||expanded)&&<>{!compact&&<Text accessibilityRole="header" style={{fontSize:14,fontWeight:'600',color:c.ink}}>지도·위치 정보 출처</Text>}
   <Pressable accessibilityRole="button" accessibilityLabel="지도 오픈소스 고지" accessibilityState={{expanded:showNotices}} {...(Platform.OS==='web'?{'aria-expanded':showNotices}:{})} onPress={()=>setShowNotices(v=>!v)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>지도 오픈소스 고지 {showNotices?'접기':'보기'}</Text></Pressable>
   {showNotices&&<Text testID="map-license-notices" selectable style={{color:c.ink,fontSize:12,lineHeight:18}}>{notices.text}</Text>}
   <SourceLink label={MAP_ATTRIBUTION} url="https://github.com/vuski/admdongkor"/>
@@ -38,5 +40,6 @@ export function ProfileMapCredits(){
   <SourceLink label="© OpenMapTiles" url="https://openmaptiles.org/"/>
   <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> · </Text><SourceLink label="© OpenStreetMap contributors" url="https://www.openstreetmap.org/copyright"/></View>
   <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> | </Text><SourceLink label="© OpenAddresses contributors" url="https://openaddresses.io/"/></View>
+  </>}
  </View>;
 }
