@@ -1561,3 +1561,32 @@ TC-DRAW-005 홈 아이콘의 접근성 이름, 텍스트 미표시, 전용 화�
 - 아이콘을 지도 캔버스 아래 출처 옆으로 옮겨 48px 전용 공간을 확보했다. 작은 화면에서 버튼이 화면 안에 있고 대한민국·확대·축소·홈 조작과 겹치지 않으며 지도 내용 아래에 놓이는지 검증했다. 클릭 콜백도 통과했다.
 - 지도 하단 공간이 늘어난 만큼 캔버스 가용 높이가 줄어들고 기존 투영 맞춤이 새 크기에 반응한다. 실제 Android 화면·터치 검증은 남아 있다.
 - 최종 TypeScript 통과, Playwright 10건(실제 웹 진입 1건·SVG 지도 9건) 통과. git diff --check 통과.
+
+
+## 2026-11-18 여행지 추첨 단위 통합
+
+TC-DRAW-007 · 250개 원본의 누락/중복 없는 소속, 구 독립 후보 금지, 수원·창원·서울·부산 통합, 광역시 군 분리, 세종·제주, 후보별 동일 난수 구간, 권역 분할, 모든 하위 지역 방문 완료와 부분 방문 미완료를 검증한다. TC-DRAW-008 · 통합 path와 bounds, 결과 전체 이름 및 지도 전체 범위 맞춤을 검증하고 기존 추첨 상태·감속·스탬프 표시·지도 회귀를 실행한다.
+
+### 2026-11-18 실행 결과
+
+- 추첨 원본 250개를 167개 후보로 통합했다. 구 독립 후보 0개이며 모든 원본 코드가 정확히 한 후보에 속한다. 단위 테스트의 신규 그룹 계약이 구현 전 실패하고 구현 후 통과했다.
+- Vitest 대상 6개 파일(destination-draw, provinces, svg-regions, stamp-catalog, journal, photo-map)의 23개 테스트 통과. TypeScript `tsc --project frontend --noEmit` 및 `git diff --check` 통과.
+- Playwright discovery-state·svg-map·discovery-update의 고유 20개 케이스가 통과했다(최초 18개 통과 + 잘못된 테스트 selector를 수정한 bounds 케이스 1개 재실행 통과 + 실제 Expo 진입 1개 통과). 통합 서울·부산·수원·창원 및 기장군 강조 path, 방문 진행도, 기존 스탬프, 감소 모션, 모드 전환/취소, 홈 아이콘, 사진·지도 조작을 포함한다. 전체 bounds 맞춤은 320px/1200px에서 부산·수원·창원·인천을 확인했다.
+- 실제 Expo Web은 기존 설정의 8082 서버를 캐시 초기화 후 재시작하여 전체 이름·재추첨·홈 지도 복귀를 검증했다. 초기 서버가 이전 번들을 제공한 이름 불일치는 재시작 후 해소됐다.
+- Native maps-native 테스트는 `SyntaxError: Unexpected token 'typeof'`로 수집 단계에서 중단됐다. HEAD 지도 소스로도 같은 오류를 재현했으며 Native/Android 수용 성공으로 집계하지 않는다. 원격 DB 쓰기·migration·배포는 수행하지 않았다.
+- 예외: 원본은 KOSTAT 2018이다. 군위군은 경상북도 소속으로 유지하며 이후 행정구역 개편을 적용하지 않는다. 추첨의 2018 세부 방문 판정과 최신 여행도감 경계는 별도 유지한다. 강화군·옹진군·울주군도 기장군·달성군과 같이 독립 후보이며 상위 도시 완료 판정에서 제외된다.
+
+변경 파일:
+- 변환/추첨: `frontend/src/destinationUnits.ts`, `frontend/src/destinationDraw.ts`
+- 화면/지도 연결: `frontend/src/DestinationScreen.tsx`, `frontend/src/AppSettings.tsx`, `frontend/app/index.tsx`, `frontend/src/provinces.ts`, `frontend/src/SvgTravelMap.tsx`
+- 검증: `backend/tests/destination-draw.test.ts`, `frontend/e2e/discovery-state.spec.ts`, `frontend/e2e/discovery-update.spec.ts`, `frontend/e2e/svg-map.spec.ts`
+- 계약/기록: `AGENTS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`
+
+
+### 2026-11-18 PR #3 리뷰 보완
+
+TC-DRAW-009: 통합 목적지 이동 후 확대 및 홈 복귀하고 화면 폭을 바꿔도 사용자 camera/detail이 유지되는지 검증한다. TC-DRAW-010: 24/25 방문 도시 결과에 첫 여행 안내 대신 남은 지역 안내가 표시되는지 검증한다.
+
+리뷰 재현: TC-DRAW-009는 부산으로 이동해 확대한 뒤 창 폭을 390→500px로 변경했을 때 camera scale이 70877에서 62449로 덮어써져 실패했다. TC-DRAW-010은 서울 24/25 방문 상태에 부분 방문 안내가 없어 실패했다. 마지막 자동 맞춤 상태를 추적해 사용자 조작 이후 재맞춤을 막고, 기존 방문 개수로 부분 방문 안내를 분리했다. 후보 목록·당첨 확률·미방문 필터·스탬프 조건은 변경하지 않았다.
+
+검증 결과: 신규 회귀 2건의 Red를 확인한 뒤, 대상 Playwright 12개와 Vitest 6개 파일 23개 및 TypeScript 검사가 통과했다. `git diff --check` 통과. Android 실기기와 원격 배포는 이번 리뷰 범위에서 검증하지 않았다. API_SPEC·AGENTS·환경변수 계약은 변경 영향이 없어 유지한다.

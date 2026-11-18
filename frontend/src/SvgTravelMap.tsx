@@ -178,17 +178,28 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  }),[]);
  const destination=focus?.label?focus:null;
  const previousDestination=useRef(false);
+ const lastDestinationFit=useRef<{destination:typeof destination;view:MapNavigation}|null>(null);
  useEffect(()=>{
   const clearing=previousDestination.current&&!destination;previousDestination.current=!!destination;
+  if(!destination)lastDestinationFit.current=null;
   if(destination){
+   // 크기만 바뀐 경우 이미 사용자가 조작한 지도 상태를 덮어쓰지 않는다.
+   if(lastDestinationFit.current?.destination===destination&&lastDestinationFit.current.view!==live.current)return;
    stopAnimation();gesture.current=null;setPressedPhoto(null);setHover(null);setFinder(false);updateSummary([]);
-   change({...emptyNavigation(),detail:true,camera:{center:[destination.longitude,destination.latitude],scale:16000}});
+   let camera:MapNavigation['camera']={center:[destination.longitude,destination.latitude],scale:16000};
+   if(destination.bounds){
+    const [west,south,east,north]=destination.bounds;
+    const fitted=geoMercator().fitExtent([[24,24],[Math.max(25,size.width-24),Math.max(25,size.height-24)]],{type:'MultiPoint',coordinates:[[west,south],[east,north]]});
+    camera={center:fitted.invert!([size.width/2,size.height/2]) as [number,number],scale:fitted.scale()};
+   }
+   change({...emptyNavigation(),detail:true,camera});
+   lastDestinationFit.current={destination,view:live.current};
   }else if(clearing&&homeMap&&!onCoordinate){
    stopAnimation();updateSummary([]);change(emptyNavigation());
   }else if(lat!=null&&lng!=null&&Number.isFinite(Number(lat))&&Number.isFinite(Number(lng))){
    change({camera:{center:[Number(lng),Number(lat)],scale:onCoordinate?70000:16000}});
   }
- },[lat,lng,!!onCoordinate,destination,homeMap]);
+ },[lat,lng,!!onCoordinate,destination,homeMap,destination?.bounds?size.width:0,destination?.bounds?size.height:0]);
  const destinationPoint=destination?p([destination.longitude,destination.latitude]):null;
  const country=()=>{stopAnimation();gesture.current=null;setPressedPhoto(null);setHover(null);setFinder(false);setSummary([]);const start=live.current.camera;change({...emptyNavigation(),camera:homeMap?start:null});if(homeMap)fly(base,()=>change({camera:null}));regionList.current?.scrollTo({x:0,y:0,animated:false});};
  const zoom=(factor:number)=>{stopAnimation();const center=p.invert!([size.width/2,size.height/2])!;saveCamera(geoMercator().center(center).scale(Math.max(30,Math.min(homeMap?zoomToScale(18):2e7,p.scale()*factor))).translate([size.width/2,size.height/2]),true);};

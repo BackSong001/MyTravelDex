@@ -5,7 +5,7 @@ import Text from './FontText';
 import Pressable,{useReducedMotion} from './Feedback';
 import {useThemeColors} from './ThemeContext';
 import {provinceLabels,provincePalette} from './provinces';
-import {project,areas,districts,drawDelays,eligibleDistricts,pickDistrict,type District,type DrawMode} from './destinationDraw';
+import {isDestinationVisited,project,areas,districts,drawDelays,eligibleDestinations,pickDestination,type Destination,type DrawMode} from './destinationDraw';
 
 const silhouettes=Object.entries(provinceLabels).map(([id])=>({
   id,path:districts.filter(d=>d.province===id).map(d=>d.path).join(''),
@@ -21,7 +21,7 @@ const Land=memo(function Land(){
   return <>{silhouettes.map(p=><Path key={p.id} d={p.path} fill={palette[p.id]} stroke={c.sheet} vectorEffect="non-scaling-stroke" strokeWidth={0.55} fillRule="evenodd"/>)}</>;
 });
 
-function DrawMap({active,result,reduced}:{active?:District;result?:District;reduced:boolean}){
+function DrawMap({active,result,reduced}:{active?:Destination;result?:Destination;reduced:boolean}){
   const c=useThemeColors(),[progress,setProgress]=useState(0);
   useLayoutEffect(()=>{
     if(!result||reduced){setProgress(1);return;}
@@ -42,25 +42,25 @@ function DrawMap({active,result,reduced}:{active?:District;result?:District;redu
   const t=result&&!reduced?progress:1;
   const box=nationalFrame.map((n,i)=>n+(end[i]-n)*t);
   const point=active?project(active.point):null,stroke=box[3]*.005;
-  return <Svg width="100%" height="100%" viewBox={box.join(' ')} accessibilityLabel="대한민국 시·군·구 추첨 지도">
+  return <Svg width="100%" height="100%" viewBox={box.join(' ')} accessibilityLabel="대한민국 여행지 추첨 지도">
     <Land/>
     {active&&<>
       <Path d={active.path} fill="none" stroke={c.focus} strokeWidth={stroke*3} strokeOpacity={.23}/>
-      <Path testID="draw-highlight" accessibilityLabel={provinceLabels[active.province].name+' '+active.name} d={active.path} fill={c.warm} fillRule="evenodd" stroke={c.focus} strokeWidth={stroke}/>
+      <Path testID="draw-highlight" accessibilityLabel={active.label} d={active.path} fill={c.warm} fillRule="evenodd" stroke={c.focus} strokeWidth={stroke}/>
     </>}
     {point&&(!result||t<1)&&<Circle cx={point[0]} cy={point[1]} r={stroke*(result?2+t*9:3)} fill={c.warm} fillOpacity={.28} stroke={c.focus} strokeWidth={stroke*.6}/>}
   </Svg>;
 }
 
-type Props={owner?:string;visited:ReadonlySet<string>|null;stamps:readonly string[]|null;failed?:boolean;onRegion:(district:District)=>void;onAlbum?:(id:string)=>void;onDrawStart?:()=>void};
+type Props={owner?:string;visited:ReadonlySet<string>|null;stamps:readonly string[]|null;failed?:boolean;onRegion:(district:Destination)=>void;onAlbum?:(id:string)=>void;onDrawStart?:()=>void};
 export default function DestinationDraw({owner,visited,stamps,failed,onRegion,onAlbum,onDrawStart}:Props){
   const c=useThemeColors(),reduced=useReducedMotion(),{height}=useWindowDimensions();
   const [mode,setMode]=useState<DrawMode>('nation'),[area,setArea]=useState('수도권');
-  const [active,setActive]=useState<District>(),[result,setResult]=useState<District>();
+  const [active,setActive]=useState<Destination>(),[result,setResult]=useState<Destination>();
   const [running,setRunning]=useState(false);
-  const pendingWinner=useRef<District|undefined>(undefined);
+  const pendingWinner=useRef<Destination|undefined>(undefined);
   const timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),locked=useRef(false);
-  const candidates=useMemo(()=>eligibleDistricts(mode,area,owner?visited:null),[mode,area,owner,visited]);
+  const candidates=useMemo(()=>eligibleDestinations(mode,area,owner?visited:null),[mode,area,owner,visited]);
   useLayoutEffect(()=>{
     pendingWinner.current=undefined;setActive(undefined);setResult(undefined);setRunning(false);locked.current=false;
     return ()=>{clearTimeout(timer.current);locked.current=false;};
@@ -72,21 +72,21 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
       finish(winner);
     }
   },[reduced]);
-  function finish(winner:District){
+  function finish(winner:Destination){
     pendingWinner.current=undefined;
     setActive(winner);setResult(winner);setRunning(false);locked.current=false;
   }
   function draw(){
     if(locked.current)return;
-    const winner=pickDistrict(candidates);
+    const winner=pickDestination(candidates);
     if(!winner)return;
     locked.current=true;pendingWinner.current=winner;onDrawStart?.();setResult(undefined);
     if(reduced||candidates.length===1){finish(winner);return;}
     setRunning(true);
-    let previous:District|undefined;
+    let previous:Destination|undefined;
     const step=(index:number)=>{
       if(index===drawDelays.length){finish(winner);return;}
-      previous=pickDistrict(candidates.filter(d=>d!==previous));
+      previous=pickDestination(candidates.filter(d=>d!==previous));
       setActive(previous);
       timer.current=setTimeout(()=>step(index+1),drawDelays[index]);
     }
@@ -101,6 +101,7 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
   const drawButton=<Pressable accessibilityRole="button" accessibilityLabel={label} disabled={running||!candidates.length} onPress={draw} style={{backgroundColor:c.coral,padding:15,borderRadius:14}}>
       <Text style={{textAlign:'center',fontSize:18,color:c.onPrimary,fontWeight:'600'}}>{label}</Text></Pressable>;
   const stamp=result&&stamps?.includes(result.province);
+  const visitedCount=result&&visited?result.members.filter(m=>visited.has(m.id)).length:0;
   return <View style={{gap:12}}>
     <View style={{height:Math.max(184,Math.min(420,height*.43)),borderRadius:18,overflow:'hidden',backgroundColor:c.map.ocean}}>
       <DrawMap active={active} result={result} reduced={reduced}/>
@@ -108,8 +109,9 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
     <Text style={{color:c.muted,fontSize:12}}>통계청 2018 · southkorea-maps · 단순화 경계</Text>
     {result&&<View accessibilityLiveRegion="polite" style={{padding:16,borderRadius:16,gap:6,backgroundColor:c.sheet}}>
       <Text style={{color:c.muted}}>이번 여행지는</Text>
-      <Text testID="destination-result" accessibilityRole="header" style={{fontSize:26,color:c.ink,fontWeight:'700'}}>{provinceLabels[result.province].name} {result.name}</Text>
-      <Text style={{color:c.ink}}>{visited?(visited.has(result.id)?'방문 완료 · 다시 떠나볼까요?':'미방문 · 첫 여행을 떠나볼까요?'):'방문 여부 미확인'}</Text>
+      <Text testID="destination-result" accessibilityRole="header" style={{fontSize:26,color:c.ink,fontWeight:'700'}}>{result.label}</Text>
+      <Text style={{color:c.ink}}>{visited?(isDestinationVisited(result,visited)?'방문 완료 · 다시 떠나볼까요?':visitedCount?'일부 방문 · 아직 가보지 않은 지역을 만나보세요.':'미방문 · 첫 여행을 떠나볼까요?'):'방문 여부 미확인'}</Text>
+      {visited&&result.members.length>1&&<Text style={{color:c.muted}}>하위 지역 방문 · {visitedCount}/{result.members.length}</Text>}
       <Text style={{color:c.muted}}>{provinceLabels[result.province].name} 스탬프 · {stamps?(stamp?'획득':'미획득 · 여행을 기록하고 모아 보세요.'):'확인 전'}</Text>
       <View style={{flexDirection:'row',flexWrap:'wrap',gap:14}}><Pressable accessibilityRole="button" onPress={()=>onRegion(result)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>지도에서 보기</Text></Pressable>
       {onAlbum&&<Pressable accessibilityRole="button" onPress={()=>onAlbum(result.province)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>지역 도감 보기</Text></Pressable>}</View>

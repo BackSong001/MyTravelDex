@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {build} from 'esbuild';
-import {districts} from '../src/destinationDraw';
+import {districts,destinations} from '../src/destinationDraw';
 import path from 'node:path';
 import {nativeImageAssets} from './native-image-assets';
 let bundle='';
@@ -13,7 +13,7 @@ test.beforeEach(async({page})=>{await page.goto('about:blank');await page.setCon
 test('TC-DISCOVERY-002: selected visit exclusion blocks drawing during unknown data and survives recovery',async({page})=>{
  const exclude=page.getByRole('radio',{name:'미방문 지역',exact:true}),draw=page.getByRole('button',{name:'여행지 뽑기',exact:true});await exclude.click();await expect(exclude).toBeChecked();await draw.click();await expect(page.getByTestId('destination-result')).not.toHaveText('서울 종로구');
  await page.evaluate(()=>(window as any).updateDiscovery({visited:null}));await expect(exclude).toBeChecked();await expect(draw).toBeDisabled();await expect(page.getByTestId('destination-result')).toHaveCount(0);
- await page.evaluate(()=>(window as any).updateDiscovery({visited:['11010']}));await expect(exclude).toBeChecked();await expect(draw).toBeEnabled();await expect(page.getByText('추첨 후보 · 249곳',{exact:true})).toBeVisible();
+ await page.evaluate(()=>(window as any).updateDiscovery({visited:['11010']}));await expect(exclude).toBeChecked();await expect(draw).toBeEnabled();await expect(page.getByText(`추첨 후보 · ${destinations.length}곳`,{exact:true})).toBeVisible();
 });
 test('TC-DISCOVERY-003: the active draw button keep their actual text contrast',async({page})=>{
  const ratio=await page.getByRole('button',{name:'여행지 뽑기',exact:true}).evaluate(node=>{const text=node.querySelector('div')!,hex=(rgb:string)=>'#'+rgb.match(/\d+/g)!.slice(0,3).map(n=>Number(n).toString(16).padStart(2,'0')).join('');return (window as any).contrastRatio(hex(getComputedStyle(node).backgroundColor),hex(getComputedStyle(text).color));});expect(ratio).toBeGreaterThanOrEqual(4.5);
@@ -51,13 +51,15 @@ test('TC-DRAW-001: a first district visit can share an earned province stamp and
  await page.evaluate(visited=>(window as any).updateDiscovery({visited}),codes.filter(id=>id!=='11010'));
  await page.getByRole('radio',{name:'미방문 지역'}).click();
  await page.getByRole('button',{name:'여행지 뽑기'}).click();
- await expect(page.getByTestId('destination-result')).toHaveText('서울 종로구');
- await expect(page.getByText('미방문 · 첫 여행을 떠나볼까요?')).toBeVisible();
+ await expect(page.getByTestId('destination-result')).toHaveText('서울특별시');
+ await expect(page.getByText('하위 지역 방문 · 24/25')).toBeVisible();
+ await expect(page.getByText('일부 방문 · 아직 가보지 않은 지역을 만나보세요.')).toBeVisible();
+ await expect(page.getByTestId('draw-highlight')).toHaveAttribute('d',destinations.find(d=>d.label==='서울특별시')!.path);
  await expect(page.getByText('서울 스탬프 · 획득')).toBeVisible();
  await page.evaluate(visited=>(window as any).updateDiscovery({visited}),codes);
  await expect(page.getByRole('button',{name:'여행지 뽑기'})).toBeDisabled();
  await page.getByRole('radio',{name:'전국 랜덤'}).click();
- await expect(page.getByText('추첨 후보 · 250곳')).toBeVisible();
+ await expect(page.getByText(`추첨 후보 · ${destinations.length}곳`)).toBeVisible();
  await expect(page.getByRole('button',{name:'여행지 뽑기'})).toBeEnabled();
 });
 
@@ -75,4 +77,17 @@ test('TC-DRAW-004: enabling reduced motion finishes the pending draw',async({pag
  await page.emulateMedia({reducedMotion:'reduce'});
  await expect(page.getByTestId('destination-result')).toBeVisible({timeout:1000});
  await expect(page.getByRole('button',{name:'다시 뽑기'})).toBeEnabled();
+});
+
+test('TC-DRAW-008: each grouped city highlights exactly its members',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.getByRole('radio',{name:'미방문 지역'}).click();
+ for(const label of ['부산광역시','경기도 수원시','경상남도 창원시','부산광역시 기장군']){
+  const candidate=destinations.find(d=>d.label===label)!;
+  await page.evaluate(visited=>(window as any).updateDiscovery({visited}),districts.filter(d=>d.id!==candidate.members[0].id).map(d=>d.id));
+  await expect(page.getByText('추첨 후보 · 1곳')).toBeVisible();
+  await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+  await expect(page.getByTestId('destination-result')).toHaveText(label);
+  await expect(page.getByTestId('draw-highlight')).toHaveAttribute('d',candidate.path);
+ }
 });
