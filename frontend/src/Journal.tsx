@@ -4,9 +4,19 @@ import React from 'react';
 import Text from './FontText';
 import {Image, Platform, StyleSheet, Switch, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Path} from 'react-native-svg';
+import Svg, {Circle,Path,Rect} from 'react-native-svg';
 import Avatar from './Avatar';
 import useAppViewport from './useAppViewport';
+
+export function DestinationIcon(){
+ const c=useThemeColors();
+ return <Svg width={26} height={26} viewBox="0 0 28 28" accessible={false} aria-hidden>
+  <Path d="M15 21c-2 2.5-4 4-4 4S3 18 3 11a8 8 0 0 1 16 0" fill="none" stroke={c.ink} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
+  <Circle cx={11} cy={10} r={2.6} fill="none" stroke={c.ink} strokeWidth={1.6}/>
+  <Rect x={13} y={13} width={12} height={12} rx={3} fill={c.warm} stroke={c.ink} strokeWidth={1.6}/>
+  {[ [16.5,16.5],[21.5,16.5],[19,19],[16.5,21.5],[21.5,21.5] ].map(([cx,cy])=><Circle key={cx+','+cy} cx={cx} cy={cy} r={.8} fill={c.ink}/>)}
+ </Svg>;
+}
 
 export function Backpack({size = 42}: {size?: number}) {
  return <JournalIcon name="album" size={size}/>;

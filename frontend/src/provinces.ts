@@ -70,6 +70,7 @@ export type MapNavigation = {
 };
 export type TravelMapProps = {
   homeMap?: boolean;
+  onDraw?: ()=>void;
   navigation?: {current:MapNavigation|null};
   navigationOwner?: string|null;
   records: any[];

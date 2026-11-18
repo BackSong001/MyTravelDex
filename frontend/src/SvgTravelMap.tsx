@@ -3,6 +3,7 @@ import {View,Modal,ScrollView,PanResponder,Platform,useWindowDimensions,Accessib
 import Svg,{Path,G,Circle,Line,Rect,Image as SvgImage,Text as SvgText,TSpan} from 'react-native-svg';
 import {geoMercator,geoPath,type GeoProjection} from 'd3-geo';
 import Text from './FontText';
+import {DestinationIcon} from './Journal';
 import Pressable,{useReducedMotion} from './Feedback';
 import PhotoSummarySheet from './PhotoSummarySheet';
 import {clusterPhotos,latestRecords} from './photoMap';
@@ -23,7 +24,7 @@ type Point=[number,number];
 type Touch={identifier:string|number;pageX:number;pageY:number};
 type Gesture={base:GeoProjection;latest:GeoProjection;points:Point[];ids:string;moved:boolean};
 const emptyNavigation=():MapNavigation=>({province:null,selected:null,camera:null,detail:false,island:null,fitScale:null,labelRevealed:false,regionOffset:0,recordOffset:0});
-export default function TravelMap({records,ownRecords,covers={},authors={},onSelect,onRegion,onCoordinate,focus,fullScreen,navigation,navigationOwner,homeMap=false}:TravelMapProps){
+export default function TravelMap({records,ownRecords,covers={},authors={},onSelect,onRegion,onCoordinate,focus,onDraw,fullScreen,navigation,navigationOwner,homeMap=false}:TravelMapProps){
  const [tileFailed,setTileFailed]=useState(false),[tileError,setTileError]=useState(false);
  const tileEnabled=homeMap&&!tileFailed;
  const tileStyle=useMemo(()=>homeMap?simpleMapStyle():null,[homeMap]);
@@ -219,7 +220,7 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
    </View>
    {homeMap?<>
     <View pointerEvents="box-none" style={{position:'absolute',zIndex:1,top:10,left:10,right:66,flexDirection:'row',alignItems:'center',gap:8}}>{button('대한민국',country)}<Text testID="map-region-name" numberOfLines={2} style={{color:c.map.mapLabel,fontSize:13,flex:1}}>{activeName}</Text></View>
-    <View style={{position:'absolute',zIndex:1,right:10,bottom:10,gap:6}}>{button('지도 확대',()=>zoom(1.5),false,'+')}{button('지도 축소',()=>zoom(1/1.5),false,'−')}{button('지도 홈',country,false,'홈')}</View>
+    <View style={{position:'absolute',zIndex:1,right:10,bottom:10,gap:6}}>{onDraw&&<Pressable accessibilityRole="button" accessibilityLabel="여행지 랜덤 뽑기" onPress={onDraw} style={{width:48,height:48,borderRadius:16,alignItems:'center',justifyContent:'center',backgroundColor:c.warm,borderWidth:1,borderColor:c.line,marginBottom:6}}><DestinationIcon/></Pressable>}{button('지도 확대',()=>zoom(1.5),false,'+')}{button('지도 축소',()=>zoom(1/1.5),false,'−')}{button('지도 홈',country,false,'홈')}</View>
     <Modal visible={finder} transparent animationType="none" onRequestClose={()=>setFinder(false)}><View style={{flex:1,justifyContent:'flex-end',backgroundColor:'#102B3540'}}><Pressable accessibilityRole="button" accessibilityLabel="지역 찾기 닫기" onPress={()=>setFinder(false)} style={{flex:1}}/><View accessibilityViewIsModal style={{maxHeight:'75%',width:'100%',maxWidth:480,alignSelf:'center',backgroundColor:c.surface,padding:12,borderTopLeftRadius:20,borderTopRightRadius:20}}><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text accessibilityRole="header">지역 찾기</Text>{button('닫기',()=>setFinder(false))}</View><ScrollView keyboardShouldPersistTaps="handled">{panel}</ScrollView></View></View></Modal>
    </>:wide?<ScrollView ref={regionList} testID="map-region-options" style={{width:240,flexGrow:0,flexShrink:0}} scrollEventThrottle={16} onScroll={e=>remember({regionOffset:e.nativeEvent.contentOffset.y})} onContentSizeChange={restoreRegionScroll}>{panel}</ScrollView>:<ScrollView style={{maxHeight:'45%',flexShrink:1,minHeight:0}}>{panel}</ScrollView>}
   </View>
