@@ -1581,3 +1581,12 @@ TC-DRAW-007 · 250개 원본의 누락/중복 없는 소속, 구 독립 후보 �
 - 화면/지도 연결: `frontend/src/DestinationScreen.tsx`, `frontend/src/AppSettings.tsx`, `frontend/app/index.tsx`, `frontend/src/provinces.ts`, `frontend/src/SvgTravelMap.tsx`
 - 검증: `backend/tests/destination-draw.test.ts`, `frontend/e2e/discovery-state.spec.ts`, `frontend/e2e/discovery-update.spec.ts`, `frontend/e2e/svg-map.spec.ts`
 - 계약/기록: `AGENTS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`
+
+
+### 2026-11-18 PR #3 리뷰 보완
+
+TC-DRAW-009: 통합 목적지 이동 후 확대 및 홈 복귀하고 화면 폭을 바꿔도 사용자 camera/detail이 유지되는지 검증한다. TC-DRAW-010: 24/25 방문 도시 결과에 첫 여행 안내 대신 남은 지역 안내가 표시되는지 검증한다.
+
+리뷰 재현: TC-DRAW-009는 부산으로 이동해 확대한 뒤 창 폭을 390→500px로 변경했을 때 camera scale이 70877에서 62449로 덮어써져 실패했다. TC-DRAW-010은 서울 24/25 방문 상태에 부분 방문 안내가 없어 실패했다. 마지막 자동 맞춤 상태를 추적해 사용자 조작 이후 재맞춤을 막고, 기존 방문 개수로 부분 방문 안내를 분리했다. 후보 목록·당첨 확률·미방문 필터·스탬프 조건은 변경하지 않았다.
+
+검증 결과: 신규 회귀 2건의 Red를 확인한 뒤, 대상 Playwright 12개와 Vitest 6개 파일 23개 및 TypeScript 검사가 통과했다. `git diff --check` 통과. Android 실기기와 원격 배포는 이번 리뷰 범위에서 검증하지 않았다. API_SPEC·AGENTS·환경변수 계약은 변경 영향이 없어 유지한다.

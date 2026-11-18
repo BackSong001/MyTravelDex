@@ -178,9 +178,13 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  }),[]);
  const destination=focus?.label?focus:null;
  const previousDestination=useRef(false);
+ const lastDestinationFit=useRef<{destination:typeof destination;view:MapNavigation}|null>(null);
  useEffect(()=>{
   const clearing=previousDestination.current&&!destination;previousDestination.current=!!destination;
+  if(!destination)lastDestinationFit.current=null;
   if(destination){
+   // 크기만 바뀐 경우 이미 사용자가 조작한 지도 상태를 덮어쓰지 않는다.
+   if(lastDestinationFit.current?.destination===destination&&lastDestinationFit.current.view!==live.current)return;
    stopAnimation();gesture.current=null;setPressedPhoto(null);setHover(null);setFinder(false);updateSummary([]);
    let camera:MapNavigation['camera']={center:[destination.longitude,destination.latitude],scale:16000};
    if(destination.bounds){
@@ -189,6 +193,7 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
     camera={center:fitted.invert!([size.width/2,size.height/2]) as [number,number],scale:fitted.scale()};
    }
    change({...emptyNavigation(),detail:true,camera});
+   lastDestinationFit.current={destination,view:live.current};
   }else if(clearing&&homeMap&&!onCoordinate){
    stopAnimation();updateSummary([]);change(emptyNavigation());
   }else if(lat!=null&&lng!=null&&Number.isFinite(Number(lat))&&Number.isFinite(Number(lng))){

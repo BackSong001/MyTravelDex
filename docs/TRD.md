@@ -967,3 +967,8 @@ main의 공통 SvgTravelMap·최신 지역 데이터·단일 테마 구조에 �
 ## 2026-11-18 여행지 추첨 단위 통합
 
 FR-DRAW-002는 앞선 250개 독립 후보 계약을 대체한다. KOSTAT 2018 원본 250개 geometry/id를 유지하고 별도 변환 모듈에서 province와 상위 도시명으로 그룹화한다. 후보는 member ids, 연결한 SVG path, 합집합 bounds/frame을 보유한다. 추첨 전 그룹화를 완료하고 각 후보에 같은 난수 구간을 배정한다. 방문 판정은 기존 본인 complete 좌표의 하위 지역 집합에 every를 적용한다. 강조는 모든 member path를 동시에 표시하며 지도 handoff는 bounds를 화면에 맞춘다. 2018 행정경계 기준으로 최신 행정구역 개편을 소급 적용하지 않는다. 스탬프/DB/API는 변경하지 않는다.
+
+
+### 2026-11-18 PR #3 리뷰 보완
+
+목적지 focus와 마지막 자동 맞춤 navigation 상태를 기억한다. 같은 focus에서 크기만 바뀌었을 때 사용자가 navigation을 변경했다면 자동 맞춤을 생략한다. 새 목적지와 focus 해제 동작은 유지한다.

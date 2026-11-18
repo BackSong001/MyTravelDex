@@ -101,6 +101,7 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
   const drawButton=<Pressable accessibilityRole="button" accessibilityLabel={label} disabled={running||!candidates.length} onPress={draw} style={{backgroundColor:c.coral,padding:15,borderRadius:14}}>
       <Text style={{textAlign:'center',fontSize:18,color:c.onPrimary,fontWeight:'600'}}>{label}</Text></Pressable>;
   const stamp=result&&stamps?.includes(result.province);
+  const visitedCount=result&&visited?result.members.filter(m=>visited.has(m.id)).length:0;
   return <View style={{gap:12}}>
     <View style={{height:Math.max(184,Math.min(420,height*.43)),borderRadius:18,overflow:'hidden',backgroundColor:c.map.ocean}}>
       <DrawMap active={active} result={result} reduced={reduced}/>
@@ -109,8 +110,8 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
     {result&&<View accessibilityLiveRegion="polite" style={{padding:16,borderRadius:16,gap:6,backgroundColor:c.sheet}}>
       <Text style={{color:c.muted}}>이번 여행지는</Text>
       <Text testID="destination-result" accessibilityRole="header" style={{fontSize:26,color:c.ink,fontWeight:'700'}}>{result.label}</Text>
-      <Text style={{color:c.ink}}>{visited?(isDestinationVisited(result,visited)?'방문 완료 · 다시 떠나볼까요?':'미방문 · 첫 여행을 떠나볼까요?'):'방문 여부 미확인'}</Text>
-      {visited&&result.members.length>1&&<Text style={{color:c.muted}}>하위 지역 방문 · {result.members.filter(m=>visited.has(m.id)).length}/{result.members.length}</Text>}
+      <Text style={{color:c.ink}}>{visited?(isDestinationVisited(result,visited)?'방문 완료 · 다시 떠나볼까요?':visitedCount?'일부 방문 · 아직 가보지 않은 지역을 만나보세요.':'미방문 · 첫 여행을 떠나볼까요?'):'방문 여부 미확인'}</Text>
+      {visited&&result.members.length>1&&<Text style={{color:c.muted}}>하위 지역 방문 · {visitedCount}/{result.members.length}</Text>}
       <Text style={{color:c.muted}}>{provinceLabels[result.province].name} 스탬프 · {stamps?(stamp?'획득':'미획득 · 여행을 기록하고 모아 보세요.'):'확인 전'}</Text>
       <View style={{flexDirection:'row',flexWrap:'wrap',gap:14}}><Pressable accessibilityRole="button" onPress={()=>onRegion(result)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>지도에서 보기</Text></Pressable>
       {onAlbum&&<Pressable accessibilityRole="button" onPress={()=>onAlbum(result.province)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>지역 도감 보기</Text></Pressable>}</View>

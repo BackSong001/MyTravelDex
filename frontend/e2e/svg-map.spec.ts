@@ -211,3 +211,26 @@ test('TC-DRAW-008: destination handoff fits the entire grouped bounds at narrow 
   }
  }
 });
+
+test('TC-DRAW-009: resizing preserves manual zoom and home after destination handoff',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ const d=destinations.find(d=>d.label==='부산광역시')!;
+ await page.evaluate(d=>(window as any).update({homeMap:true,focus:{latitude:d.point[1],longitude:d.point[0],label:d.label,bounds:d.bounds}}),d);
+ await expect(page.getByTestId('map-destination')).toBeVisible();
+ await page.getByRole('button',{name:'지도 확대',exact:true}).click();
+ const zoomed=await page.evaluate(()=>(window as any).navigation.current.camera);
+ await page.setViewportSize({width:500,height:844});
+ await expect.poll(()=>page.getByTestId('svg-map-canvas').evaluate(n=>n.getBoundingClientRect().width)).toBeGreaterThan(400);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toEqual(zoomed);
+ await page.getByRole('button',{name:'지도 홈',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBe(null);
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.getByTestId('svg-map-canvas').evaluate(n=>n.getBoundingClientRect().width)).toBeLessThan(400);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.detail)).toBe(false);
+ const next=destinations.find(d=>d.label==='경기도 수원시')!;
+ await page.evaluate(d=>(window as any).update({focus:{latitude:d.point[1],longitude:d.point[0],label:d.label,bounds:d.bounds}}),next);
+ await expect(page.getByText('◎ 경기도 수원시',{exact:true})).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera?.scale)).toBeGreaterThan(0);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.detail)).toBe(true);
+});

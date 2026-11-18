@@ -53,8 +53,8 @@ test('TC-DRAW-001: a first district visit can share an earned province stamp and
  await page.getByRole('button',{name:'여행지 뽑기'}).click();
  await expect(page.getByTestId('destination-result')).toHaveText('서울특별시');
  await expect(page.getByText('하위 지역 방문 · 24/25')).toBeVisible();
+ await expect(page.getByText('일부 방문 · 아직 가보지 않은 지역을 만나보세요.')).toBeVisible();
  await expect(page.getByTestId('draw-highlight')).toHaveAttribute('d',destinations.find(d=>d.label==='서울특별시')!.path);
- await expect(page.getByText('미방문 · 첫 여행을 떠나볼까요?')).toBeVisible();
  await expect(page.getByText('서울 스탬프 · 획득')).toBeVisible();
  await page.evaluate(visited=>(window as any).updateDiscovery({visited}),codes);
  await expect(page.getByRole('button',{name:'여행지 뽑기'})).toBeDisabled();
