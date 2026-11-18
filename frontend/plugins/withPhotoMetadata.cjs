@@ -1,4 +1,4 @@
-const {withDangerousMod}=require('expo/config-plugins');
+const {withDangerousMod,withAndroidManifest}=require('expo/config-plugins');
 const {createHash}=require('node:crypto');
 const {readFileSync,writeFileSync}=require('node:fs');
 const path=require('node:path');
@@ -27,11 +27,22 @@ function patchContract(source,version){
  if(source!==original&&source!==patched)throw new Error('Unexpected patched ImageLibraryContract source');
  return patched;
 }
-module.exports=config=>withDangerousMod(config,['android',async result=>{
+module.exports=config=>{
+ config=withAndroidManifest(config,result=>{
+  // 이전 prebuild가 만든 카메라 제거 지시를 명시 권한 전환 시 해제한다.
+  if(config.android?.permissions?.includes('android.permission.CAMERA')){
+   for(const permission of result.modResults.manifest['uses-permission']??[]){
+    if(permission.$['android:name']==='android.permission.CAMERA'&&permission.$['tools:node']==='remove')delete permission.$['tools:node'];
+   }
+  }
+  return result;
+ });
+ return withDangerousMod(config,['android',async result=>{
  const pkg=require.resolve('expo-image-picker/package.json',{paths:[result.modRequest.projectRoot]});
  const file=path.join(path.dirname(pkg),'android/src/main/java/expo/modules/imagepicker/contracts/ImageLibraryContract.kt');
  const source=readFileSync(file,'utf8'),patched=patchContract(source,JSON.parse(readFileSync(pkg,'utf8')).version);
  if(patched!==source)writeFileSync(file,patched);
  return result;
 }]);
+};
 module.exports.patchContract=patchContract;

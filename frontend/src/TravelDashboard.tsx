@@ -1,3 +1,4 @@
+import TravelerSquirrel from './TravelerSquirrel';
 import React,{useEffect,useMemo,useState,useId} from 'react';
 import {ActivityIndicator,Image,ScrollView,View} from 'react-native';
 import Svg,{ClipPath,Defs,Image as SvgImage,Path,Rect} from 'react-native-svg';
@@ -19,10 +20,7 @@ export default function TravelDashboard(p:Props){
  const preview=earned.find(group=>group.pieces.some(piece=>piece.records.some(record=>record.id===recent?.id)))??earned[0];
  return <View style={{gap:22}}>
   {p.error?<Notice message={p.error}/>:!p.ready&&p.owner?<ActivityIndicator accessibilityLabel="내 여행 확인 중"/>:<>
-   {recent?<Pressable accessibilityRole="button" accessibilityLabel={`${recent.title||'최근 여행'} 열기`} onPress={()=>p.onOpen(recent)} style={{gap:12}}>
-    {p.covers[recent.id]?<Image testID="recent-travel-photo" source={{uri:p.covers[recent.id]}} style={{width:'100%',aspectRatio:1.5,borderRadius:8}} resizeMode="cover"/>:<View style={{width:'100%',aspectRatio:1.5,borderRadius:8,backgroundColor:'#F4F4F5',alignItems:'center',justifyContent:'center'}}><JournalIcon name="album" size={40}/></View>}
-    <View style={{gap:3}}><Text style={s.muted}>최근 여행 · {recent.start_date}</Text><Text style={[s.title,{fontSize:25,lineHeight:33}]}>{recent.title||'제목 없는 여행'}</Text>{!!recent.content&&<Text numberOfLines={2} style={s.text}>{recent.content}</Text>}</View>
-   </Pressable>:<View style={{paddingVertical:22,gap:12}}><JournalIcon name="album" size={32}/><Text style={s.title}>첫 여행을 남겨보세요</Text><Text style={s.muted}>사진을 고르면 날짜와 장소를 함께 기록할 수 있어요.</Text><Action label="첫 여행 남기기" primary onPress={p.onCreate}/></View>}
+   <TravelerSquirrel/>
    <View style={{borderTopWidth:1,borderBottomWidth:1,borderColor:'#E7E8EA',paddingVertical:16,flexDirection:'row'}}>
     {([['여행 기록',p.records.length,p.onJournal],['방문 시·도',earned.length,p.onMap],['퍼즐 조각',pieces,p.onPuzzle]] as const).map(([label,count,open])=><Pressable key={label} accessibilityRole="button" accessibilityLabel={label+' '+count} onPress={open} style={{flex:1,alignItems:'center',justifyContent:'center'}}><Text style={s.title}>{count}</Text><Text style={s.muted}>{label}</Text></Pressable>)}
    </View>

@@ -13,7 +13,7 @@ import StampCatalog from '../src/StampCatalog';
 import Pressable from '../src/Feedback';
 import React,{useEffect,useState,useRef,useMemo} from 'react';
 import Text from '../src/FontText';
-import {View,Modal,TextInput,ScrollView,Image,StyleSheet,ActivityIndicator,Platform,Linking,AppState,AccessibilityInfo,findNodeHandle} from 'react-native';
+import {View,Modal,TextInput,ScrollView,Image,StyleSheet,ActivityIndicator,Vibration,Platform,Linking,AppState,AccessibilityInfo,findNodeHandle} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,10 +24,12 @@ import {api} from '../src/runtime';
 import {ApiError} from '../src/api';
 import {suggestRecord,validateRecord,validCoordinates,RecordValidationError} from '../src/domain';
 import TravelMap from '../src/TravelMap';
-import ComposerSheet from '../src/ComposerSheet';
+import PhotoTray,{SlidePage} from '../src/PhotoTray';
+import {spansCalendarMonth} from '../src/studioDates';
 import PhotoGallery from '../src/PhotoGallery';
 import LocationPicker from '../src/LocationPicker';
 import {ProfileEditor,ProfileSetupGate,Friends,isUserId} from '../src/Social';
+import {photoCity} from '../src/photoCity';
 import {districts,regionAt} from '../src/regions';
 import {groupProvinceRecords,provinceLabels,type MapNavigation} from '../src/provinces';
 import {googleLogin,auth} from '../src/auth';
@@ -77,21 +79,35 @@ export default function Home(){
  function socialChanged(){if(socialEpoch!==sessionEpoch.current)return;setSocialRevision(x=>x+1);void latestLoad.current().catch(()=>{});}
  const socialProps={api:socialApi,disabled:busy,owner:session?.user?.id,revision:socialRevision,onChanged:socialChanged,onLogin:()=>setScreen('login'),onOpen:(r:any)=>readDetail(r,'feed')};
  function ownJournal(puzzle=false){setFriendOwner('');setScope('mine');setDrafts(false);setProvinceFilter('');setDistrictFilter('');setPuzzleOpen(puzzle);navigate('album');}
- const [photoNotice,setPhotoNotice]=useState('');
+ const [photoNotice,setPhotoNotice]=useState(''),[noticeVersion,setNoticeVersion]=useState(0);
  const [locationOpen,setLocationOpen]=useState(false);
+ const [step,setStep]=useState<'photos'|'info'>('photos'),[legacyDraft,setLegacyDraft]=useState(false);
+ const [dateConfirmed,setDateConfirmed]=useState(''),[cityOptions,setCityOptions]=useState<any[]>([]),[checkingCities,setCheckingCities]=useState(false);
+ const reverseCache=useRef(new Map<string,Promise<any>>());
+ const limit=legacyDraft?20:5,rangeKey=start+'/'+end;
+ const confirmDates=spansCalendarMonth(start,end)&&!edited.current.start&&!edited.current.end&&!pending&&dateConfirmed!==rangeKey;
  useEffect(()=>{
-  if(screen!=='create'||!composer||pending||!session||edited.current.location||placeInfo?.source!=='exif'||!latitude||!longitude)return;
-  const lat=Number(latitude),lng=Number(longitude);if(!validCoordinates(lat,lng))return;
+  setCityOptions([]);setCheckingCities(false);
+  if(screen!=='create'||step!=='info'||pending||!session||edited.current.location)return;
   let active=true;
-  void api.request('/functions/v1/geocode-location','POST',{latitude:lat,longitude:lng}).then(detail=>{
-   if(!active||edited.current.location||!detail||detail.latitude==null||detail.longitude==null||!validCoordinates(Number(detail.latitude),Number(detail.longitude)))return;
-   setPlaceInfo((previous:any)=>{
-    if(!active||edited.current.location||previous?.source!=='exif'||previous.latitude!==lat||previous.longitude!==lng)return previous;
-    return {...detail,latitude:lat,longitude:lng,source:'exif',place_name:detail.place_name||'사진의 촬영 위치'};
-   });
-  }).catch(()=>{/* 주소가 없어도 수신한 촬영 좌표와 입력은 유지한다. */});
+  const points=photos.filter(p=>p.latitude!=null&&p.longitude!=null);
+  if(!points.length)return;
+  setCheckingCities(true);
+  void Promise.all(points.map(async p=>{
+   const latitude=p.latitude!,longitude=p.longitude!,key=latitude+','+longitude;
+   let request=reverseCache.current.get(key);
+   if(!request){request=api.request('/functions/v1/geocode-location','POST',{latitude,longitude}).catch(()=>null);reverseCache.current.set(key,request!);}
+   const detail=await request;
+   const city=photoCity(latitude,longitude,detail);
+   return {...detail,id:p.id,uri:p.asset.uri,latitude,longitude,source:'exif',city,place_name:detail?.place_name||city?.split('/').at(-1)?.replace(/^\d+$/,'')||'사진의 촬영 위치'};
+  })).then(values=>{
+   if(!active||edited.current.location)return;
+   setPlaceInfo(values[0]);const cities=new Map(values.filter(v=>v.city).map(v=>[v.city,v]));
+   if(cities.size>1)setCityOptions(values.filter((v,i)=>values.findIndex(x=>x.latitude===v.latitude&&x.longitude===v.longitude)===i));
+  }).finally(()=>{if(active)setCheckingCities(false);});
   return()=>{active=false;};
- },[screen,composer,pending,session?.user?.id,latitude,longitude,placeInfo?.source,photos]);
+ },[screen,step,pending,session?.user.id,photos]);
+
 
  const homeMapWidth=1100;
  const [scopeOpen,setScopeOpen]=useState(false),[manage,setManage]=useState(false),[filtersOpen,setFiltersOpen]=useState(false);
@@ -99,7 +115,9 @@ export default function Home(){
  const compact=height<500;
  const [ownLoaded,setOwnLoaded]=useState(false),[myStamps,setMyStamps]=useState(false);
  const ownGroups=useMemo(()=>groupProvinceRecords(ownRows),[ownRows]);
- useEffect(()=>()=>cleanupPickedPhotos(photos.map(p=>p.asset)),[photos]);
+ const previousPhotos=useRef<Selected[]>([]);
+ useEffect(()=>{const kept=new Set(photos.map(p=>p.asset.uri));cleanupPickedPhotos(previousPhotos.current.filter(p=>!kept.has(p.asset.uri)).map(p=>p.asset));previousPhotos.current=photos;},[photos]);
+ useEffect(()=>()=>cleanupPickedPhotos(previousPhotos.current.map(p=>p.asset)),[]);
  useEffect(()=>{const y=screen==='account'?accountScroll.current:screen==='list'&&tab==='album'?albumScroll.current:tabScroll.current[tab]??0;const frame=requestAnimationFrame(()=>scroll.current?.scrollTo({y,animated:false}));return()=>cancelAnimationFrame(frame);},[screen,tab]);
  useEffect(()=>{albumScroll.current=0;if(screenRef.current==='list'&&tab==='album')scroll.current?.scrollTo({y:0,animated:false});},[journalQuery,journalOrder,scope,provinceFilter,districtFilter,friendOwner,drafts]);
  useEffect(()=>{if(!saved)return;const timer=setTimeout(()=>setSaved(''),4000);return()=>clearTimeout(timer);},[saved]);
@@ -238,14 +256,27 @@ export default function Home(){
   if(version===navigationVersion.current)returnFromDetail();await latestLoad.current();
  }
 
- async function choose(source:'system'|'original'='system'){
+ function overflowNotice(count:number){
+  setNoticeVersion(v=>v+1);
+  if(Platform.OS==='web'){if(typeof navigator.vibrate==='function')navigator.vibrate(25);}else Vibration.vibrate(25);
+  setPhotoNotice('최대 '+limit+'장까지 담을 수 있어요.'+(count?' '+count+'장은 추가하지 않았어요.':''));
+ }
+ function changePhotos(result:Selected[]){
+  setPhotos(result);setCityOptions([]);if(pending)return;
+  const suggestion=suggestRecord(result);if(!edited.current.start)setStart(suggestion.start_date);if(!edited.current.end)setEnd(suggestion.end_date);
+  if(!edited.current.location){const lat=suggestion.latitude,lng=suggestion.longitude;setLatitude(lat==null?'':String(lat));setLongitude(lng==null?'':String(lng));setPlaceInfo(lat==null?null:{source:'exif',latitude:lat,longitude:lng,place_name:'사진의 촬영 위치'});}
+ }
+ async function choose(source:'system'|'original'|'camera'='system'){
+  const room=limit-(pending?.existing??0)-photos.length;
+  setPhotoNotice('');
+  if(room<=0){overflowNotice(0);return;}
   const epoch=sessionEpoch.current;
-  const fullAccess=await photoPermission(source==='original'||Platform.OS==='android');
+  const fullAccess=source==='camera'?false:await photoPermission(source==='original'||Platform.OS==='android');
   if(epoch!==sessionEpoch.current)return;
-  const picked=await pickPhotos(fullAccess,source);if(picked.canceled)return;
+  const picked=await pickPhotos(fullAccess,source,room);if(picked.canceled)return;
   if(epoch!==sessionEpoch.current){cleanupPickedPhotos(picked.assets);return;}
   try{
-  if(picked.assets.length>20)throw new RecordValidationError('photos','사진은 20장까지 선택할 수 있습니다.');
+  if(legacyDraft&&picked.assets.length>20)throw new RecordValidationError('photos','사진은 20장까지 선택할 수 있습니다.');
   const result:Selected[]=[],rejected:ImagePickerAsset[]=[];
   for(const asset of picked.assets){
    try{
@@ -262,10 +293,13 @@ export default function Home(){
   if(pending){const existing=await api.request(`/rest/v1/photos?travel_record_id=eq.${pending.id}`);if(existing.length+result.length>20)throw new Error('등록된 사진을 포함해 20장까지 선택할 수 있습니다.');if(epoch!==sessionEpoch.current){cleanupPickedPhotos(picked.assets);return;}setPending({...pending,existing:existing.length});}
   const rejectedCount=rejected.length+('rejectedCount' in picked?Number(picked.rejectedCount):0);
   setPhotoNotice([rejectedCount?`${rejectedCount}장은 읽기·크기·형식을 확인해 주세요. 나머지 사진은 선택했어요.`:'',result.some(p=>!p.captured_date||p.latitude==null||p.longitude==null)?'클라우드·선택 사진에는 촬영일이나 GPS가 없을 수 있어요. 기간과 장소를 확인해 주세요.':''].filter(Boolean).join(' '));
-  setPhotos(result);if(!pending){const suggestion=suggestRecord(result);if(!edited.current.start)setStart(suggestion.start_date);if(!edited.current.end)setEnd(suggestion.end_date);if(!edited.current.location){const gps=suggestion.latitude!=null&&suggestion.longitude!=null&&validCoordinates(suggestion.latitude,suggestion.longitude);setLatitude(gps?String(suggestion.latitude):'');setLongitude(gps?String(suggestion.longitude):'');setPlaceInfo(gps?{source:'exif',latitude:suggestion.latitude,longitude:suggestion.longitude,place_name:'사진의 촬영 위치'}:null);}}
+  const extra=result.slice(room);const retained=new Set([...photos,...result.slice(0,room)].map(p=>p.asset.uri));cleanupPickedPhotos(extra.filter(p=>!retained.has(p.asset.uri)).map(p=>p.asset));
+  changePhotos([...photos,...result.slice(0,room)]);
+  const skipped=extra.length+Number(('overflow' in picked && picked.overflow)||0);if(skipped)overflowNotice(skipped);
+
   }catch(error){cleanupPickedPhotos(picked.assets);throw error;}
  }
- function startCreate(){cancelDetailRead();setScopeOpen(false);setLocationOpen(false);navigationVersion.current++;setReplacement(null);if(composer&&session){setScreen('create');return;}if(!session){setScreen('login');return;}setError('');setInvalidField('');edited.current={start:false,end:false,location:false};setPhotos([]);setPending(null);setTitle('');setContent('');setStart('');setEnd('');setLatitude('');setLongitude('');setVisibility('private');setPlaceInfo(null);setComposer(true);setScreen('create');}
+ function startCreate(){cancelDetailRead();setScopeOpen(false);setLocationOpen(false);navigationVersion.current++;setReplacement(null);if(composer&&session){setScreen('create');return;}if(!session){setScreen('login');return;}setError('');setInvalidField('');edited.current={start:false,end:false,location:false};setPhotos([]);setPending(null);setTitle('');setContent('');setStart('');setEnd('');setLatitude('');setLongitude('');setVisibility('public');setDateConfirmed('');setStep('photos');setPhotoNotice('');reverseCache.current.clear();setLegacyDraft(false);setPlaceInfo(null);setComposer(true);setScreen('create');}
  function restoreAccountScroll(){const y=pendingAccountScroll.current;if(y===null)return;pendingAccountScroll.current=null;accountScroll.current=y;scroll.current?.scrollTo({y,animated:false});}
  function cancelAccountRestore(){if(screenRef.current==='account')pendingAccountScroll.current=null;}
  function returnFromDetail(){navigationVersion.current++;if(detailOrigin.current.screen==='account'){accountScroll.current=detailOrigin.current.offset;pendingAccountScroll.current=detailOrigin.current.offset;setTab('account');setScreen('account');}else{tabScroll.current[detailOrigin.current.screen]=detailOrigin.current.offset;setTab(detailOrigin.current.screen);setScreen('list');}}
@@ -275,14 +309,15 @@ export default function Home(){
   ++listRequest.current;cancelDetailRead();mapNavigation.current=null;setRows([]);setCovers({});setAuthors({});setDrafts(false);setProvinceFilter('');setDistrictFilter('');setFriendName(name||'여행자');setFriendOwner(owner);setScope(nextScope);navigate('map');
  }
  function navigate(next:JournalTab){if(next==='feed'){setPuzzleOpen(false);} cancelDetailRead();pendingAccountScroll.current=null;if(next==='account')accountScroll.current=0;setScopeOpen(false);setLocationOpen(false);navigationVersion.current++;setReplacement(null);setInvalidField('');setError('');setSaved('');setTab(next);if(next==='account'){setScreen(session?'account':'login');return;}setScreen('list');}
- function applyPlace(place:any){edited.current.location=true;setLatitude(String(place.latitude));setLongitude(String(place.longitude));setPlaceInfo(place);setLocationOpen(false);}
+ function applyPlace(place:any){setCityOptions([]);setCheckingCities(false);edited.current.location=true;setLatitude(String(place.latitude));setLongitude(String(place.longitude));setPlaceInfo(place);setLocationOpen(false);}
  function recoverDraft(record:any,confirmed=false){
   if(composer&&pending?.id===record.id){setScreen('create');return;}
   if(composer&&!confirmed){setReplacement(record);requestAnimationFrame(()=>scroll.current?.scrollTo({y:0,animated:false}));return;}
-  navigationVersion.current++;edited.current={start:true,end:true,location:true};setReplacement(null);setInvalidField('');setError('');setPending({id:record.id,location:record.location_id,existing:record.photos.length});setPhotos([]);setTitle(record.title??'');setContent(record.content??'');setStart(record.start_date);setEnd(record.end_date);setLatitude(String(record.locations.latitude));setLongitude(String(record.locations.longitude));setVisibility(record.visibility);setPlaceInfo(record.locations);setComposer(true);setScreen('create');
+  navigationVersion.current++;edited.current={start:true,end:true,location:true};setReplacement(null);setStep('info');setLegacyDraft(true);setPhotoNotice('');setInvalidField('');setError('');setPending({id:record.id,location:record.location_id,existing:record.photos.length});setPhotos([]);setTitle(record.title??'');setContent(record.content??'');setStart(record.start_date);setEnd(record.end_date);setLatitude(String(record.locations.latitude));setLongitude(String(record.locations.longitude));setVisibility(record.visibility);setPlaceInfo(record.locations);setComposer(true);setScreen('create');
  }
  function locationValues(){return {owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:placeInfo?.source||'manual',place_name:placeInfo?.place_name||null,google_place_id:placeInfo?.google_place_id||null,provider_place_id:placeInfo?.provider_place_id||null,address:placeInfo?.address||null,attribution:placeInfo?.attribution||null,country_code:placeInfo?.country_code||null,country_name:placeInfo?.country_name||null,region_name:placeInfo?.region_name||null,city_name:placeInfo?.city_name||null};}
  async function save(){
+  if(confirmDates||checkingCities||cityOptions.length)throw new Error('여행 기간과 대표 위치를 확인해 주세요.');
   const epoch=sessionEpoch.current,version=navigationVersion.current;
   const inSession=async <T,>(action:()=>Promise<T>):Promise<T>=>{
    if(epoch!==sessionEpoch.current)throw new Error('Session changed');
@@ -341,10 +376,10 @@ export default function Home(){
   </Collection>
  </>}
  {screen==='login'&&<Welcome><Text style={[s.description,{marginBottom:8}]}>Google 계정으로 사진과 여행 기록을 보관해요</Text>{button('Google 로그인',()=>perform(async()=>{const epoch=sessionEpoch.current;await googleLogin(()=>epoch===sessionEpoch.current);} ))}{process.env.EXPO_PUBLIC_APP_ENV==='local'&&<><Text style={s.description}>로컬 테스트 계정으로 로그인</Text>{field('이메일',email,setEmail,{autoCapitalize:'none',keyboardType:'email-address'})}{field('비밀번호',password,setPassword,{secureTextEntry:true})}{button('테스트 계정 로그인',()=>perform(login))}</>}{button('대한민국 지도 둘러보기',()=>{setScope('mine');setTab('map');setScreen('list');},true)}</Welcome>}
- {screen==='create'&&<><View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{button('잠시 접기',()=>setScreen('list'),true)}{button('작성 취소',()=>setDiscard(true),true)}</View>{discard&&<View accessibilityRole="alert"><Text style={{color:c.ink}}>작성 중인 입력을 버릴까요? 서버에 등록된 초안은 임시저장 복구에서 이어갈 수 있습니다.</Text>{button('입력 버리기',()=>{setComposer(false);setPending(null);setPhotos([]);setDiscard(false);setScreen('list');},true)}{button('계속 작성',()=>setDiscard(false),true)}</View>}<Text style={s.sectionTitle}>사진과 여행 정보</Text><Text style={s.description}>선택한 사진의 촬영일·위치를 여행 기간과 대표 위치에 적용합니다. 원본 대신 압축 사진과 썸네일만 저장합니다.</Text>{button('사진 선택',()=>perform(()=>choose()))}{Platform.OS==='web'&&<Text style={s.description}>파일에서 JPEG·PNG 원본을 선택해 주세요. 파일에 포함된 촬영일·GPS를 읽으며, 제공자가 위치정보를 제거한 사진은 장소를 직접 선택해야 해요.</Text>}{Platform.OS==='android'&&button('원본 파일 선택',()=>perform(()=>choose('original')),true)}{Platform.OS==='android'&&<Text style={s.description}>Google 포토를 클라우드 제공자로 설정하면 사진 선택에서 이용할 수 있어요. 가져오는 동안 잠시 기다려 주세요.</Text>}{invalidField==='사진 선택'&&<Text style={s.fieldError}>{error}</Text>}{!!photoNotice&&<><Text style={s.description}>{photoNotice}</Text>{Platform.OS!=='web'&&button('사진 권한 설정',()=>{void Linking.openSettings();},true)}</>}<Text style={s.description}>{photos.length} / 20장 선택</Text><ScrollView horizontal>{photos.map(p=><Image key={p.id} source={{uri:p.asset.uri}} style={s.preview}/>)}</ScrollView>{field('여행 제목',title,setTitle,{maxLength:100})}{field('여행 내용',content,setContent,{multiline:true,maxLength:5000})}{dateField('여행 시작일',start,value=>{edited.current.start=true;setStart(value);})}{dateField('여행 종료일',end,value=>{edited.current.end=true;setEnd(value);})}<View style={{marginVertical:12}}><Text style={s.sectionTitle}>위치</Text><Pressable accessibilityRole="button" accessibilityLabel="여행 위치 검색" accessibilityHint="별도 창에서 장소명이나 주소를 검색하고 지도에서 위치를 확인합니다" disabled={busy} onPress={()=>setLocationOpen(true)} style={[s.input,{minHeight:56,padding:14,gap:6},invalidField==='장소 검색'&&s.invalidInput]}>
+ {screen==='create'&&<><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Pressable accessibilityRole="button" accessibilityLabel="잠시 접기" disabled={busy} onPress={()=>setScreen('list')} style={{alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:26}}>×</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="작성 취소" disabled={busy} onPress={()=>setDiscard(true)} style={{justifyContent:'center'}}><Text style={{color:c.muted}}>작성 취소</Text></Pressable></View>{discard&&<View accessibilityRole="alert"><Text style={{color:c.ink}}>작성 중인 입력을 버릴까요? 서버에 등록된 초안은 임시저장 복구에서 이어갈 수 있습니다.</Text>{button('입력 버리기',()=>{setComposer(false);setPending(null);setPhotos([]);setDiscard(false);setScreen('list');},true)}{button('계속 작성',()=>setDiscard(false),true)}</View>}{step==='photos'?<PhotoTray photos={photos} limit={limit} existing={pending?.existing??0} canContinue={!!(photos.length||pending?.existing)} disabled={busy} camera={()=>perform(()=>choose('camera'))} library={()=>perform(()=>choose())} onRemove={id=>changePhotos(photos.filter(p=>p.id!==id))} next={()=>setStep('info')} notice={photoNotice} noticeVersion={noticeVersion}/>:<SlidePage>{button('사진으로 돌아가기',()=>setStep('photos'),true)}{photos[0]&&<Image source={{uri:photos[0].asset.uri}} style={{width:84,height:84,borderRadius:8}}/>}<Text style={s.sectionTitle}>여행 정보</Text>{field('여행 이름',title,setTitle,{maxLength:100})}{field('여행 평',content,setContent,{multiline:true,maxLength:5000})}{dateField('여행 시작일',start,value=>{edited.current.start=true;setStart(value);})}{dateField('여행 종료일',end,value=>{edited.current.end=true;setEnd(value);})}{confirmDates&&<View accessibilityRole="alert"><Text>이 여행일자가 맞나요? {start} — {end}</Text>{button('수동 입력',()=>{edited.current.start=true;edited.current.end=true;setStart('');setEnd('');},true)}{button('적용',()=>setDateConfirmed(rangeKey))}</View>}{checkingCities&&<Text>사진 촬영 위치 확인 중…</Text>}{cityOptions.length>0&&<View><Text>여러 도시에서 찍은 사진이에요. 대표 위치를 선택하세요.</Text>{cityOptions.map(place=><Pressable key={place.id} accessibilityRole="button" disabled={busy} onPress={()=>applyPlace(place)} style={{flexDirection:'row',padding:8,gap:12,alignItems:'center'}}><Image source={{uri:place.uri}} style={{width:48,height:48}}/><Text style={{flex:1}}>{place.address||place.place_name}</Text></Pressable>)}</View>}<View style={{marginVertical:12}}><Text style={s.sectionTitle}>위치</Text><Pressable accessibilityRole="button" accessibilityLabel="여행 위치 검색" accessibilityHint="별도 창에서 장소명이나 주소를 검색하고 지도에서 위치를 확인합니다" disabled={busy} onPress={()=>setLocationOpen(true)} style={[s.input,{minHeight:56,padding:14,gap:6},invalidField==='장소 검색'&&s.invalidInput]}>
  <Text accessibilityLabel={placeInfo?'선택한 장소':undefined} style={{color:placeInfo?c.ink:c.muted,fontSize:16}}>{placeInfo?[placeInfo.place_name||'지도에서 선택한 위치',placeInfo.address||[placeInfo.region_name,placeInfo.city_name].filter(Boolean).join(' ')].filter(Boolean).join(' · '):'장소명 또는 주소 검색'}</Text>
  {placeInfo?.source==='exif'&&latitude&&longitude&&<Text style={{color:c.muted,fontSize:12}}>사진 GPS · {Number(latitude).toFixed(5)}, {Number(longitude).toFixed(5)}</Text>}
- </Pressable></View><View accessibilityRole="radiogroup" accessibilityLabel="여행 공개 범위" style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{(['private','public'] as const).map(value=><Pressable key={value} accessibilityRole="radio" accessibilityLabel={value==='private'?'비공개':'공개'} accessibilityState={{checked:visibility===value,disabled:busy}} aria-checked={visibility===value} disabled={busy} onPress={()=>setVisibility(value)} style={{flexDirection:'row',alignItems:'center',gap:10,padding:12,minHeight:48}}><View style={{width:22,height:22,borderRadius:11,borderWidth:2,borderColor:visibility===value?c.ink:c.muted,alignItems:'center',justifyContent:'center'}}>{visibility===value&&<View style={{width:10,height:10,borderRadius:5,backgroundColor:c.ink}}/>}</View><Text style={{color:c.ink,fontSize:16}}>{value==='private'?'비공개':'공개'}</Text></Pressable>)}</View>{visibility==='public'&&<Text style={s.description}>대표 위치와 썸네일이 공개됩니다. 이미 받은 파일은 회수할 수 없습니다.</Text>}{button('여행 저장',()=>perform(save))}{button('목록으로',()=>{setTab('album');setScreen('list');},true)}</>}
+ </Pressable></View><View accessibilityRole="radiogroup" accessibilityLabel="여행 공개 범위" style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{(['private','public'] as const).map(value=><Pressable key={value} accessibilityRole="radio" accessibilityLabel={value==='private'?'비공개':'공개'} accessibilityState={{checked:visibility===value,disabled:busy}} aria-checked={visibility===value} disabled={busy} onPress={()=>setVisibility(value)} style={{flexDirection:'row',alignItems:'center',gap:10,padding:12,minHeight:48}}><View style={{width:22,height:22,borderRadius:11,borderWidth:2,borderColor:visibility===value?c.ink:c.muted,alignItems:'center',justifyContent:'center'}}>{visibility===value&&<View style={{width:10,height:10,borderRadius:5,backgroundColor:c.ink}}/>}</View><Text style={{color:c.ink,fontSize:16}}>{value==='private'?'비공개':'공개'}</Text></Pressable>)}</View>{visibility==='public'&&<Text style={s.description}>대표 위치와 썸네일이 공개됩니다. 이미 받은 파일은 회수할 수 없습니다.</Text>}{button('여행 저장',()=>perform(save))}{button('목록으로',()=>{setTab('album');setScreen('list');},true)}</SlidePage>}</>}
  {screen==='detail'&&selected&&<><PhotoGallery key={selected.id} photos={selected.photos} urls={urls} onError={()=>{void refreshDetailUrls().catch(e=>setError(e.message));}}/><Text style={[s.sectionTitle,{fontSize:16}]}>{selected.title||'제목 없는 여행'}</Text><Text style={[s.description,{fontSize:12}]}>{selected.start_date} — {selected.end_date}</Text><Text style={s.description}>{selected.content}</Text>{selected.locations?.place_name&&<Text style={s.description}>{selected.locations.place_name}</Text>}<Author author={authors[selected.owner_id]}/><TravelMap records={[selected]} covers={covers} authors={authors} ownRecords={ownRows}/>{selected.locations?.source==='google'&&<View accessibilityRole="alert"><Text style={s.description}>기존 Google 위치는 새 지도에서 표시하려면 다시 확인해야 해요.</Text>{selected.owner_id===session?.user?.id&&button('위치 다시 확인',()=>recoverDraft(selected),true)}</View>}{selected.owner_id===session?.user?.id&&<>{button(manage?'관리 닫기':'여행 관리',()=>setManage(!manage),true)}{manage&&<>{selected.photos.map((p:any,i:number)=><View key={p.id} style={s.record}><Text style={s.place}>사진 {i+1}{p.is_cover?' · 대표사진':''}</Text><View style={s.actions}>{button('대표사진 지정',()=>perform(()=>mutateSelected(()=>api.rpc('set_cover_photo',{record_id:selected.id,photo_id:p.id}))),true)}{button('사진 삭제',()=>perform(()=>mutateSelected(()=>api.rpc('delete_photo',{record_id:selected.id,photo_id:p.id}))),true)}</View></View>)}{field('제목 수정',editTitle,setEditTitle,{maxLength:100})}{field('내용 수정',editContent,setEditContent,{multiline:true,maxLength:5000})}{button('수정 저장',()=>perform(()=>mutateSelected(()=>api.update(selected.id,{title:editTitle,content:editContent}))))}{button(selected.visibility==='private'?'공개로 변경':'비공개로 변경',()=>perform(()=>mutateSelected(()=>api.update(selected.id,{visibility:selected.visibility==='private'?'public':'private'}))),true)}{button('기록 삭제',()=>setScreen('confirm'),true)}</>}</>}{button('목록으로',()=>perform(async()=>{returnFromDetail();await load();}),true)}</>}
 
  {screen==='confirm'&&<><Text style={s.heading}>기록을 삭제할까요?</Text><Text style={s.description}>사진과 여행 기록을 삭제합니다. 이 작업은 되돌릴 수 없습니다.</Text>{button('삭제 확인',()=>perform(removeSelected))}{button('취소',()=>setScreen('detail'),true)}</>}
@@ -361,9 +396,9 @@ export default function Home(){
  {!!listError&&!(screen==='list'&&tab==='album')&&<View accessibilityRole="alert" style={s.error}><Text style={{color:c.error}}>{listError}</Text>{button('목록 다시 불러오기',()=>perform(()=>load()),true)}</View>}
  {!!saved&&<Pressable accessibilityRole="button" accessibilityLabel="완료 안내 닫기" onPress={()=>setSaved('')}><Text accessibilityRole="alert" style={s.description}>{saved}</Text></Pressable>}{(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" color={c.sea} style={{margin:20}}/>}{!!error&&<View accessibilityRole="alert" style={s.error}><Text style={{color:c.error}}>{error}</Text><Text style={s.description}>입력은 유지됩니다. 확인 후 다시 시도해 주세요.</Text></View>}
  </>;}
- const narrowPage=screen==='account'||screen==='list'&&(tab==='album'||tab==='friends');
+ const narrowPage=screen==='create'||screen==='account'||screen==='list'&&(tab==='album'||tab==='friends');
  const settingsEpoch=sessionEpoch.current;
- const showNav=['list','detail','account','create','confirm'].includes(screen);
+ const showNav=['list','detail','account','confirm'].includes(screen);
  const rail=Platform.OS==='web'&&width>=1024&&showNav;
  const feedScreen=screen==='list'&&tab==='feed';
  const socialMy=screen==='account'&&socialSupported===true&&!!session;
@@ -375,12 +410,12 @@ export default function Home(){
    {label:'로그아웃',run:()=>perform(async()=>{const result=await auth.auth.signOut();if(result.error)throw result.error;}),disabled:busy}
  ]:undefined} owner={session?.user.id} api={api} tab={tab} onTab={navigate} onCreate={startCreate} onLogin={()=>setScreen('login')} isCurrent={()=>sessionEpoch.current===settingsEpoch} visited={ownLoaded&&!loading&&!listError?Object.keys(ownGroups):null} onRegion={id=>{setDistrictFilter('');setProvinceFilter(id);navigate('album');}}/></View>;
  return <SafeAreaView testID="app-shell" edges={['top','left','right']} style={[s.safe,rail&&{paddingLeft:184}]}>
- {!mapHome&&!feedScreen&&!socialMy&&<View style={[s.top,{maxWidth:720,paddingVertical:0,minHeight:52,paddingHorizontal:16}]}><Text accessibilityRole="header" style={s.brand}>{sectionTitle}</Text>{tools}</View>}
- {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot}/>:(mapHome||screen==='create')?<View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}><TravelMap fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={journalRecords(rows,journalOrder,journalQuery)} ownRecords={ownLoaded&&!loading&&!listError?ownRows:undefined} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
+ {screen!=='create'&&!mapHome&&!feedScreen&&!socialMy&&<View style={[s.top,{maxWidth:720,paddingVertical:0,minHeight:52,paddingHorizontal:16}]}><Text accessibilityRole="header" style={s.brand}>{sectionTitle}</Text>{tools}</View>}
+ {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot}/>:mapHome?<View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}><TravelMap fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={journalRecords(rows,journalOrder,journalQuery)} ownRecords={ownLoaded&&!loading&&!listError?ownRows:undefined} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
  <Pressable accessibilityRole="button" accessibilityLabel="여행 기록 추가" onPress={startCreate} style={{position:'absolute',bottom:72,right:10,zIndex:2,width:48,height:48,borderRadius:24,backgroundColor:c.ink,alignItems:'center',justifyContent:'center'}}><JournalIcon name="write" size={24} color={c.paper}/></Pressable>
  <Pressable accessibilityRole="button" accessibilityLabel="친구" accessibilityState={{expanded:scopeOpen}} onPress={()=>session?setScopeOpen(true):setScreen('login')} style={{position:'absolute',zIndex:2,top:10,right:10,width:48,height:48,borderRadius:24,backgroundColor:c.surface,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:friendOwner?c.primary:c.line}}><Text style={{fontSize:13,color:c.ink}}>친구</Text></Pressable>
  <Modal visible={scopeOpen} transparent animationType="none" onRequestClose={()=>setScopeOpen(false)}><View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#102B3540',padding:16}}><View accessibilityViewIsModal style={{width:'100%',maxWidth:360,maxHeight:'80%',borderRadius:20,backgroundColor:c.surface,padding:16}}><View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}><Text accessibilityRole="header">누구의 여행을 볼까요?</Text>{button('닫기',()=>setScopeOpen(false),true)}</View><ScrollView keyboardShouldPersistTaps="handled"><Pressable accessibilityRole="button" accessibilityLabel="나의 지도 선택" accessibilityState={{selected:!friendOwner}} onPress={()=>selectMapOwner('')} style={{width:80,alignItems:'center',padding:4,gap:6}}><View style={{width:56,height:56,borderRadius:28,backgroundColor:c.warm,borderWidth:2,borderColor:friendOwner?'transparent':c.primary,alignItems:'center',justifyContent:'center'}}><Text>나</Text></View><Text style={{fontSize:13}}>내 여행</Text></Pressable>{session&&<Friends mapOnly selectedOwner={friendOwner} session={session} onMap={selectMapOwner}/>}</ScrollView></View></View></Modal>
- </>}{screen==='create'&&<ComposerSheet disabled={busy} onFold={()=>setScreen('list')}><ScrollView ref={scroll} contentContainerStyle={[s.page,compact&&{padding:12,paddingBottom:24}]} keyboardShouldPersistTaps="handled">{renderContent()}</ScrollView></ComposerSheet>}</View>:<ScrollView testID="content-scroll" ref={scroll} scrollEventThrottle={16} onTouchStart={cancelAccountRestore} onScrollBeginDrag={cancelAccountRestore} {...(Platform.OS==='web'?{onWheel:cancelAccountRestore,onKeyDown:cancelAccountRestore}:{})} onScroll={event=>{if(screen==='list')tabScroll.current[tab]=event.nativeEvent.contentOffset.y;if(screen==='list'&&tab==='album')albumScroll.current=event.nativeEvent.contentOffset.y;if(screen==='account'&&pendingAccountScroll.current===null)accountScroll.current=event.nativeEvent.contentOffset.y;}} contentContainerStyle={[s.page,screen==='list'&&tab==='home'&&{paddingTop:6,paddingHorizontal:14},compact&&{padding:12,paddingBottom:24},narrowPage&&{maxWidth:640,padding:16,paddingTop:12,paddingBottom:32}]} keyboardShouldPersistTaps="handled">
+ </>}</View>:<ScrollView testID="content-scroll" ref={scroll} scrollEventThrottle={16} onTouchStart={cancelAccountRestore} onScrollBeginDrag={cancelAccountRestore} {...(Platform.OS==='web'?{onWheel:cancelAccountRestore,onKeyDown:cancelAccountRestore}:{})} onScroll={event=>{if(screen==='list')tabScroll.current[tab]=event.nativeEvent.contentOffset.y;if(screen==='list'&&tab==='album')albumScroll.current=event.nativeEvent.contentOffset.y;if(screen==='account'&&pendingAccountScroll.current===null)accountScroll.current=event.nativeEvent.contentOffset.y;}} contentContainerStyle={[s.page,screen==='list'&&tab==='home'&&{paddingTop:6,paddingHorizontal:14},compact&&{padding:12,paddingBottom:24},narrowPage&&{maxWidth:640,padding:16,paddingTop:12,paddingBottom:32}]} keyboardShouldPersistTaps="handled">
 {renderContent()}
  </ScrollView>}{mapHome&&(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" style={{position:'absolute',top:90,alignSelf:'center'}}/>}{mapHome&&!!saved&&<View pointerEvents="none" style={[s.error,{position:'absolute',bottom:120,left:16,right:16}]}><Text accessibilityRole="alert" style={{color:c.ink}}>{saved}</Text></View>}{mapHome&&!!(error||listError)&&<View accessibilityRole="alert" style={[s.error,{position:'absolute',bottom:92,left:16,right:16}]}>
  {!!error&&<><Text style={{color:c.error}}>{error}</Text><Pressable accessibilityRole="button" onPress={()=>setError('')} style={{padding:12}}><Text style={{color:c.ink}}>안내 닫기</Text></Pressable></>}

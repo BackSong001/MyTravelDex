@@ -23,12 +23,17 @@ test.beforeEach(async({page})=>{page.on('pageerror',error=>console.log('Web runt
 test.afterEach(async()=>{for(const id of records)await admin.request('/rest/v1/travel_records?id=eq.'+id,'DELETE');if(files.length)await admin.request('/storage/v1/object/travel-photos','DELETE',{prefixes:files});for(const id of locations)await admin.request('/rest/v1/locations?id=eq.'+id,'DELETE');for(const u of [author,viewer])if(u)await admin.request('/auth/v1/admin/users/'+u.id,'DELETE');await admin.request('/functions/v1/cleanup-avatars','POST',{});});
 async function login(page:Page,user=viewer){await page.route('**/auth/v1/**',route=>new URL(route.request().url()).origin===status.API_URL?route.continue():route.abort());await page.goto('/');await page.getByLabel('이메일',{exact:true}).fill(user.email);await page.getByLabel('비밀번호',{exact:true}).fill(user.password);const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/v1/token');await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();const logged=await response;expect(new URL(logged.url()).origin).toBe(status.API_URL);expect(logged.status()).toBe(200);await expect(page.getByRole('button',{name:'새 여행 기록',exact:true})).toBeVisible();await expect(page.getByText('프로필 설정 확인 중',{exact:true})).toHaveCount(0);}
 async function feed(page:Page){await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+publicRecord.id)).toBeVisible();await expect.poll(()=>page.getByTestId('feed-record-'+publicRecord.id).locator('img').evaluateAll(images=>images.some(image=>image instanceof HTMLImageElement&&image.src.includes('/storage/')&&image.complete&&image.naturalWidth>0))).toBe(true);}
+async function startPhotoInfo(page:Page){
+ const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'사진 목록',exact:true}).click();
+ await(await chooser).setFiles('frontend/e2e/fixtures/social-thumbnail.jpg');
+ await page.getByRole('button',{name:'다음',exact:true}).click();
+}
 test('TC-SNS-001 five tabs, dashboard, private puzzle and map compose preserve the draft',async({page})=>{
  await login(page);for(const name of ['홈','피드','지도','도감','My'])await expect(page.getByRole('tab',{name,exact:true})).toBeVisible();
- await expect(page.getByText('나만의 서울',{exact:true})).toBeVisible();expect((await page.getByTestId('recent-travel-photo').boundingBox())!.y).toBeLessThanOrEqual(120);await page.screenshot({path:'/tmp/sns-dashboard-mobile.png'});await page.getByRole('button',{name:'퍼즐 보기',exact:true}).click();await expect(page.getByRole('heading',{name:'나의 여행 퍼즐'})).toBeVisible();await page.screenshot({path:'/tmp/sns-puzzle-mobile.png'});
+ await expect(page.getByTestId('travel-squirrel')).toBeVisible();await page.screenshot({path:'/tmp/sns-dashboard-mobile.png'});await page.getByRole('button',{name:'퍼즐 보기',exact:true}).click();await expect(page.getByRole('heading',{name:'나의 여행 퍼즐'})).toBeVisible();await page.screenshot({path:'/tmp/sns-puzzle-mobile.png'});
  await page.getByRole('button',{name:/서울특별시 중구, 획득|중구, 획득/}).click();await expect(page.getByRole('button',{name:/^나만의 서울,/})).toBeVisible();
  await page.getByRole('tab',{name:'지도',exact:true}).click();await expect(page.getByTestId('svg-map-canvas')).toBeVisible();await expect(page.getByRole('button',{name:'지도 확대',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'설정',exact:true})).toHaveCount(0);
- await page.getByRole('button',{name:'여행 기록 추가',exact:true}).click();await page.getByLabel('여행 제목',{exact:true}).fill('이어 쓰는 일기');await page.getByRole('button',{name:'잠시 접기',exact:true}).click();await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();await expect(page.getByLabel('여행 제목',{exact:true})).toHaveValue('이어 쓰는 일기');
+ await page.getByRole('button',{name:'여행 기록 추가',exact:true}).click();await startPhotoInfo(page);await page.getByLabel('여행 이름',{exact:true}).fill('이어 쓰는 일기');await page.getByRole('button',{name:'잠시 접기',exact:true}).click();await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();await expect(page.getByLabel('여행 이름',{exact:true})).toHaveValue('이어 쓰는 일기');
 });
 test('TC-SNS-002 live public feed, like/save, comments and reply survive refresh without private leaks',async({page})=>{
  await login(page);await feed(page);await expect(page.getByTestId('social-feed')).toHaveCount(1);const photo=page.getByTestId('feed-record-'+publicRecord.id).getByRole('button',{name:'함께 보는 서울 상세 보기',exact:true}).first();const frame=await photo.boundingBox();expect(frame!.y).toBeLessThanOrEqual(150);expect(frame!.height/frame!.width).toBeCloseTo(1.25,1);await page.screenshot({path:'/tmp/sns-feed-mobile.png'});await expect(page.getByText('비공개 서울',{exact:true})).toHaveCount(0);const card=page.getByTestId('feed-record-'+publicRecord.id);
@@ -50,7 +55,7 @@ test('TC-SNS-004 profile upload/name/bio are actually stored and cancelled edits
 });
 test('TC-SNS-001 mobile and desktop widths keep readable navigation and unsupported server preserves legacy flows',async({page})=>{
  await login(page);for(const width of [320,430,1280]){await page.setViewportSize({width,height:844});await expect(page.getByRole('tab',{name:'My',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);await page.screenshot({path:`/tmp/sns-dashboard-${width}.png`});}
- await page.route('**/rest/v1/rpc/social_capabilities',r=>r.fulfill({status:404,json:{code:'PGRST202',message:'not installed'}}));await page.reload();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'프로필 수정',exact:true})).toBeVisible();await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();await expect(page.getByLabel('여행 제목',{exact:true})).toBeVisible();
+ await page.route('**/rest/v1/rpc/social_capabilities',r=>r.fulfill({status:404,json:{code:'PGRST202',message:'not installed'}}));await page.reload();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'프로필 수정',exact:true})).toBeVisible();await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();await expect(page.getByRole('button',{name:'사진 목록',exact:true})).toBeVisible();
 });
 
 test('TC-SNS-002 shared public link opens the real record while a private link stays closed',async({page})=>{
@@ -135,10 +140,7 @@ test('TC-SOCIAL-PHOTO-UI-001 photo paging, My thumbnails and desktop navigation'
 test('composer, position picker and journal detail share the map tab presentation',async({page})=>{
  await login(page);
  await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();
- const composer=page.getByTestId('svg-travel-map');
- await expect(composer.getByTestId('map-overview-cover')).toBeAttached();
- await expect(composer.getByTestId('svg-ocean')).toHaveCount(0);
- await expect(composer.getByRole('button',{name:'지도 확대'})).toHaveCount(0);
+ await startPhotoInfo(page);
  await page.getByRole('button',{name:'여행 위치 검색'}).click();
  const picker=page.getByTestId('location-picker');
  await expect(picker.getByTestId('svg-ocean')).toHaveCount(0);
@@ -158,4 +160,31 @@ test('composer, position picker and journal detail share the map tab presentatio
  await expect(detail.getByTestId('svg-ocean')).toHaveCount(0);
  await detail.getByRole('button',{name:'지도 홈',exact:true}).click();
  await expect(detail.getByTestId('map-region-11')).toBeAttached();
+});
+
+test('studio appends five images, confirms date and city, then publishes to the public feed',async({page})=>{
+ const {metadataPhoto}=await import('../../backend/tests/fixtures/photo-exif');
+ await login(page);await page.getByTestId('travel-squirrel').click();await expect(page.getByText('반가워요, 여행자님!')).toBeVisible();
+ await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();
+ const add=async(n:number,second:boolean)=>{
+  const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'사진 목록',exact:true}).click();
+  await(await chooser).setFiles(Array.from({length:n},(_,i)=>({name:'trip'+i+'.jpg',mimeType:'image/jpeg',buffer:metadataPhoto(second?{date:'2026:12:04 10:00:00',latitude:37.5665,longitude:126.978}:{})})));
+ };
+ await add(3,false);await expect(page.getByText('3 / 5',{exact:true})).toBeVisible();
+ await add(4,true);await expect(page.getByText(/2장은 추가하지 않았어요/)).toBeVisible();
+ await page.getByRole('button',{name:'사진 2 빼기',exact:true}).click();await expect(page.getByText('4 / 5',{exact:true})).toBeVisible();
+ await page.route('**/functions/v1/geocode-location',r=>r.fulfill({json:{place_name:r.request().postDataJSON().latitude>37?'서울':'전주'}}));
+ await page.getByRole('button',{name:'다음',exact:true}).click();
+ await expect(page.getByRole('radio',{name:'공개',exact:true})).toHaveAttribute('aria-checked','true');
+ await page.getByRole('button',{name:'적용',exact:true}).click();
+ await page.getByRole('button',{name:'서울',exact:true}).click();
+ const title='스튜디오 '+randomUUID();await page.getByLabel('여행 이름',{exact:true}).fill(title);
+ const done=page.waitForResponse(r=>r.url().endsWith('/rpc/finalize_travel_record')&&r.ok());
+ await page.getByRole('button',{name:'여행 저장',exact:true}).click();await done;
+ const rows=await viewer.api.request('/rest/v1/travel_records?title=eq.'+encodeURIComponent(title)+'&select=*,locations(*)');
+ expect(rows).toHaveLength(1);const row=rows[0];records.push(row.id);locations.push(row.location_id);
+ const assets=await viewer.api.request('/rest/v1/photos?travel_record_id=eq.'+row.id);
+ files.push(...assets.flatMap((a:any)=>[a.original_path,a.thumbnail_path]));
+ expect(assets).toHaveLength(4);expect(row.visibility).toBe('public');expect(row.locations.latitude).toBeCloseTo(37.5665,4);
+ await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+row.id)).toBeVisible();
 });
