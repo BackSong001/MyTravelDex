@@ -16,7 +16,8 @@ export class TravelApi {
         body: body === undefined ? undefined : mime === 'application/json' ? JSON.stringify(body) : body as BodyInit,
       });
     } catch { throw new ApiError('NETWORK_ERROR', 0, '연결을 확인하고 다시 시도해 주세요.'); }
-    const data = await response.json();
+    const data = response.status === 204 ? null : await response.json().catch(() => ({error: response.ok ? 'Invalid server response' : 'Request failed'}));
+    if (response.ok && data?.error === 'Invalid server response') throw new ApiError('INCOMPLETE_RESPONSE',502,'서버 응답을 확인하지 못했습니다. 다시 시도해 주세요.');
     if (!response.ok) {
       const code = response.status === 401 || (path === '/auth/v1/user' && response.status === 403) ? 'UNAUTHENTICATED' : response.status === 403 ? 'FORBIDDEN' : response.status === 404 || ['P0002','PGRST116'].includes(data.code) ? 'NOT_FOUND' : data.error === 'EXTERNAL_SERVICE_ERROR' ? 'EXTERNAL_SERVICE_ERROR' : path.startsWith('/storage/') ? 'UPLOAD_FAILED' : response.status === 400 || String(data.code).startsWith('23') ? 'VALIDATION_ERROR' : 'INTERNAL_ERROR';
       const error=new ApiError(code, response.status, data.message || data.error || '요청을 처리하지 못했습니다.'); error.serverCode=data.code; throw error;

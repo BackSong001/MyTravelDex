@@ -1917,3 +1917,9 @@ AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, 
 - 요청 원문: 특별시/도 선택했을 때, 그 지역 이름은 보여줬으면 해. 예를 들어 경상남도 지역이나 그 지역 사진을 클릭하면 연한 회색글씨로 경상남도 이름은 보여주면 좋겠다
 - 결과: 홈 선택시도 정식명 하나를 연회색 SVG로 표시하고 전국/먼섬에서는 숨김. 기존 약칭/타일이름 공개조건 보존. unit/SSR10pass/types·export/APK 성공, Web2pass+기존Escape실패 후 실제닫기준비조건 대상1pass, Native 경북/경남 실제표시 확인. Escape 및 실폰/iOS/성능 수용은 별도.
 - 변경 파일: frontend/src/mapLabels.ts, frontend/src/SvgTravelMap.tsx, backend/tests/map-labels.test.ts, backend/tests/maps-native.test.ts, frontend/e2e/simple-map.spec.ts, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, AGENTS.md, docs/prompts.md.
+
+## 2026-11-18 10:57 KST — SNS 구현 및 수명 보강
+
+- 사용자 프롬프트 원문: 그럼 모든 권한을 줄테니, 요구사항대로 완벽하게 구현해줘
+- 결과: 승인된 SNS 명세에 따라 서버 권한/차단·반응·댓글/알림·신고/제재·avatar lifecycle, 5탭 대시보드/피드/지도/도감 퍼즐/My를 구현했다. t14의 서버 경합·클라이언트 입력/복귀 지적을 보강했다. 격리 Local28pass, 최신 집중Web10pass, frontend 타입0, Web export/Android release build 성공 및 Android 지정흐름을 확인했다. 앞선 실패·포인터 미확정·Native 전체/성능 미수용·원격 미적용은 TEST_CASE에 분리했다.
+- 변경 파일: backend/supabase/migrations/20261117~20261118 SNS migration, backend/supabase/functions/{photo-url,profile-avatar,profile-avatar-url,cleanup-avatars,_shared/avatar.ts}, backend/supabase/config.toml, backend/tests SNS 검사, frontend/app/index.tsx, frontend/src/{SocialUI,SocialSpace,TravelDashboard,travelPuzzles,puzzleArtwork,Journal,SvgTravelMap,api}, frontend/assets/ui/puzzles, frontend/e2e/social-travel.spec.ts 및 fixture, scripts/{sns-local-setup,sns-local-web,social-moderation}.mjs, SNS 테스트 config, docs/{SOCIAL_TRAVEL_SPEC,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md, AGENTS.md.

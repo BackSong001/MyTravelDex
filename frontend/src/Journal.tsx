@@ -14,7 +14,7 @@ export function Backpack({size = 42}: {size?: number}) {
 
 export function JournalIcon({name, color, size = 26}: {name: string; color?: string; size?: number}) {
  const c=useThemeColors();
- const paths:Record<string,string>={home:'M3 11 12 3 21 11M5 10v11h5v-7h4v7h5V10',album:'M4 4h16v16H4ZM4 15l5-5 4 4 3-3 4 4M15 7h1',plus:'M12 5v14M5 12h14',friends:'M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM1 21v-3a7 7 0 0 1 14 0v3M17 4a4 4 0 0 1 0 8M18 15a5 5 0 0 1 5 5',account:'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM3 23v-2a9 9 0 0 1 18 0v2'};
+ const paths:Record<string,string>={feed:'M4 3h16v18H4ZM7 7h10M7 11h10M7 15h6',map:'M2 5l6-2 8 3 6-2v15l-6 2-8-3-6 2ZM8 3v15M16 6v15',write:'M3 5h9v16H3ZM5 2h9v7M10 15l9-9 3 3-9 9-4 1Z',home:'M3 11 12 3 21 11M5 10v11h5v-7h4v7h5V10',album:'M4 4h16v16H4ZM4 15l5-5 4 4 3-3 4 4M15 7h1',plus:'M12 5v14M5 12h14',friends:'M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM1 21v-3a7 7 0 0 1 14 0v3M17 4a4 4 0 0 1 0 8M18 15a5 5 0 0 1 5 5',account:'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM3 23v-2a9 9 0 0 1 18 0v2'};
  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d={paths[name]??paths.album} fill="none" stroke={color??c.ink} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
@@ -26,7 +26,7 @@ export function Welcome({children}:{children?:React.ReactNode}) {
  </View>;
 }
 
-export type JournalTab = 'home' | 'album' | 'friends' | 'account';
+export type JournalTab = 'home' | 'feed' | 'map' | 'album' | 'friends' | 'account';
 
 // 공개 프로필 projection만 전달하며 Auth 메타데이터를 기본값으로 사용하지 않는다.
 export type PublicAuthor = {display_name?: string | null; avatar_url?: string | null};
@@ -68,8 +68,8 @@ export function Collection({records,covers,onOpen,authors={},emptySearch=false,d
 }
 
 const tabs = [
-  {id: 'home', label: '홈'}, {id: 'album', label: '여행도감'},
-  {id: 'plus', label: '기록 만들기'}, {id: 'friends', label: '친구'}, {id: 'account', label: 'My'},
+  {id: 'home', label: '홈'}, {id: 'feed', label: '피드'},
+  {id: 'map', label: '지도'}, {id: 'album', label: '도감'}, {id: 'account', label: 'My'},
 ] as const;
 export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab: JournalTab) => void; onCreate: () => void}) {
  const c=useThemeColors();
@@ -77,7 +77,7 @@ export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab
   const insets = useSafeAreaInsets();
   const compact = useAppViewport().height < 500;
   return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
-    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={[s.fab,compact&&{width:50,height:50}]}><JournalIcon name="plus" size={26} color={c.onPrimary}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
+    {tabs.map(item => <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
       {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={24}/></View>}
       <Text style={[s.navText,tab===item.id&&s.navTextSelected]}>{item.label}</Text>
       <View testID={tab===item.id?'nav-selection':undefined} style={[s.navIndicator,tab!==item.id&&{opacity:0}]}/>
@@ -115,7 +115,7 @@ const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   avatarFallback: {alignItems: 'center', justifyContent: 'center', overflow: 'hidden'},
   authorName: {flex: 1, fontSize: 12, color: c.muted},
   nav: {flexShrink: 0,alignItems:'center',paddingHorizontal:12,paddingTop:4,backgroundColor:c.paper},
-  navRail: {width:'100%',maxWidth:640,flexDirection:'row',alignItems:'stretch',padding:4,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,borderRadius:18,boxShadow:'0 4px 20px #286F7112'},
+  navRail: {width:'100%',maxWidth:640,flexDirection:'row',alignItems:'stretch',padding:4,backgroundColor:c.sheet,borderTopWidth:1,borderColor:c.line},
   navItem: {flex:1,minWidth:50,minHeight:66,paddingHorizontal:2,paddingVertical:4,alignItems:'center',justifyContent:'center',borderRadius:14},
   navIconSlot: {width:50,height:40,alignItems:'center',justifyContent:'center',borderRadius:14},
   navSelected: {backgroundColor:c.warm},

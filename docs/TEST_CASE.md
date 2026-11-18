@@ -1526,3 +1526,53 @@ FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사
 ### 선택 시도명 실행 결과 (2026-11-17)
 약칭→정식명 Red1 확인 후 unit/Native SSR10pass·types0. 실타일Web 지역/사진선택2pass, 섬case는 이름0/snapshot 후 Escape 미닫힘으로1fail; 실제닫기버튼+sheet0 준비조건 보정후 대상1pass(18.0초). 전체E2E 성공으로 합산하지 않는다. Escape 원인/키보드수용은 미확정이다.
 Web export 및 x86_64 release APK build 성공. 에뮬레이터 새APK에서 경상북도 영역선택/경상남도 사진선택의 정식회색이름·선택지형을 실제 확인했다. 실폰/iOS/전체접근성·기존 Native 성능/간헐도구글자 제한은 미검증/잔존이다.
+
+
+## 2026-11-17 사진 일기 SNS 개편
+FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭·모바일우선 SNS/개인퍼즐·차단우선/공개관계count와본인명단·512px공개사진 계약을 적용한다. 이전 홈지도는지도탭으로이관하며 원본기록/EXIF/초안/원좌표/기존ID를보존한다. 구현/실행/원격적용을구분하고현재전체수용미완료다.
+
+### TC-SNS-002/003 서버 1단계 Red→Green 수용
+실Local 새3계정/guest에서private·draft미노출, 최소projection,20개keyset/중간비공개/동률UUID/서버차단필터,좋아요·저장멱등/동시성·guest거절을검사한다.
+댓글최초UUID동일재시도/다른payload·수정후재시도,같은record1단부모·타인수정/작성자및기록주인삭제·부모tombstone/답글유지를검사한다.
+양방향차단→읽기/쓰기/exactID/관계/URL거절·차단해제과거반응재표시/관계미복원,차단과쓰기동시완료뒤남은관계/알림0을검사한다. private/삭제후알림/count/deeplink미노출·수신자외읽기/표쓰기거절을검사한다. 서버rate boundary는DB시각기준이며재시도/거절로남의counter를변경하지않는다.
+아직실행결과가아니다. 각SQL/HTTP/Web/Native를별도기록한다.
+
+### SNS core 초기 실행 이력 — 2026-11-17
+기본Local54321/54322는다른프로젝트가사용중이므로중단/초기화하지않았다. /tmp/mytraveldex-sns-local의mytraveldex-sns-test(55321/55322)에기존migration복사후별도Local을기동했다. 이포트충돌은기능Red가아니다.
+social-core 실제HTTP Red3(RPC없음)→첫SQL후RLS재귀/변수모호/PT404매핑실패→보강3pass→피드·알림·동시성6pass→사진URL/서버rate포함8pass(5.34초). 이는서버첫단계부분검증이고신고/avatar/전체서버·Web/Native수용아니다.
+첫RLS재귀는location restrictive정책의직접record하위조회가기존record→location검증을다시탐색해서발생했다. 현재viewer location판정을security definer함수로소유시켜해소했다. 신규미존재는실HTTP404의PT404를사용한다. 날짜키/이름/비밀/실제파일은로그에기록하지않는다.
+
+### SNS core photo-url 검사 실패 분류 보강 (2026-11-17)
+- 권한 RPC의 network throw / invalid JSON / non-boolean 응답은 503, 유효 false는 404, true만 Storage 서명으로 진행한다. 소유자 original은 해당 공개권한 RPC를 호출하지 않는다.
+- `photo-url-gate.test.ts`: 보강 전 3 failed / 4 passed (network·JSON 400, non-boolean 404); 보강 후 7 passed. 각 경로의 서명 호출 0/1 및 소유자 gate 0을 확인했다.
+- 격리 `mytraveldex-sns-test`에 전체 migration 새 재생성 성공 후 `social-core.test.ts` 실제 Local HTTP 8 passed (5.62초). 기존 프로젝트/원격 DB에는 적용하지 않았다.
+- 단위 대역·격리 HTTP 결과이며 동시성의 실제 대기/commit 증명, 신고·avatar 후속 단계와 Web/Android/원격 수용을 의미하지 않는다.
+
+### SNS 서버 2단계 예정 검증 — 2026-11-18
+TC-SNS-003: 신고UUID 동일/상이payload·중복·5일제한이아닌5회/일·service권한·숨김/복구/계정정지→feed/comments/count/URL/쓰기 반영·감사원자성. 실제두TX profile잠금 대기→block commit→쓰기실패와정리상태를검사한다.
+TC-SNS-004: public최소profile/count·명단본인전용·검색길이/literal·서버cursor·차단누락; avatar실bytes/MIME/픽셀/용량/동일UUID충돌·소유권·Googleidentity·연결실패이전사진·교체/24h청소·서명권한.
+TC-SNS-001/002: capability404가기존로그인/지도/작성/도감차단으로번지지않음, request세대/refresh오류와0분리. 이후mobileWeb→Android는별도gate다. 이절은실행결과가아니다.
+SNS 모바일UI검사는실Local신규계정/실Storage사진으로5탭·private/public피드·like/comment/reply/save/follow/block·알림·프로필파일·퍼즐/필터·기존작성/지도복귀를연결한다. 피드URL은기존512px/300초만사용하며실UI데이터실패와미지원서버안내를구분한다. 서버2단계최초HTTP10pass는avatar이전이고추가avatar첫실행Function not found는서버기동누락환경오류로기능Red와구분한다.
+
+### Avatar cleanup P1/P2 보강 — 2026-11-18
+`20261118040000_avatar_retirement.sql`은 퇴역 UUID/경로 tombstone을 보존하고 현재 참조 중인 asset을 LIMIT100 전에 제외한다. `avatar-cleanup-race.test.ts`는 실제 격리 Local RPC/Storage와 실제 cleanup handler를 연결하되 Storage DELETE만 두 worker의 gate에서 보류한다. 보류 중 reserve/verify/connect 거절, 첫 worker ack 뒤에도 reserve/connect 거절, 다른 신규 UUID의 연결 성공 및 두 번째 늦은 DELETE 뒤 파일 생존을 확인한다. 별도 rollback fixture의 old active 100개 뒤 unreferenced 1개도 실제 cleanup 후보로 반환된다.
+최신 보강 실행 2 passed (2.83초). 후속 worker 시작 순서 비의존 보정은 완료 순서를 Promise.race로 관찰한다. Edge 전체 Deno 네트워크를 두 worker로 직접 실행한 증거와 구분하며, 기존 단일 Deno 실파일 HTTP와 합산해 전체 수용으로 보고하지 않는다. 원격은 변경하지 않았다.
+
+### Avatar 늦은 POST 재수거 — 2026-11-18
+24h 이상 미참조 예약 재시도에서 Storage POST만 보류→실제 cleanup/ack→POST 성공→verify/연결 거부를 확인했다. 이전 queued-only에서는 다음 cleanup 뒤에도 Storage GET이200인 기능 Red1이었다. `20261118050000`의 tombstone 순환 재수거 후 같은 검사에서 파일 소멸/별도 활성 UUID 파일200을 확인했다. 세 회귀(중복 DELETE/100 active/늦은 POST) 최신3pass(3.06초), 별도 앞선 서버 묶음24pass(8.69초)는 해당 후속 migration 이전 실행이다. 원격·전체SNS·클라이언트 UI 수용과 구분한다.
+
+### Avatar cleanup 잠금순서 보강 — 2026-11-18
+역 owner 순 timestamp 후보 두 개로 관계 TX가 A profile을 보유한 상태에서 cleanup의 실제 pg_blocking_pids 대기를 관찰하고, 관계 TX가 A→B follow를 수행했다. 후보 순서대로 잠근 이전 SQL은 실제 deadlock detected/cleanup exit3으로 실패했다. 후보100개는 timestamp 순으로 고정하되 외부 처리 루프 owner_id,id 정렬 후 두 TX exit0/commit을 확인했다. 최신 avatar 회귀4pass(3.76초). t14 지정 정적 재검토 승인. 자동 정리 스케줄러 배포/운영비용·전체 SNS/Native 수용으로 확대하지 않는다.
+
+### SNS 클라이언트 입력·복귀 수명 보강 — 2026-11-18
+같은 owner의 SDK token refresh는 capability 지원 상태와 편집 컴포넌트를 유지한다. 404/PGRST202만 미지원 fallback이며 503은 Notice/재시도다. 지연 profile 응답은 응답 시점 editing ref로 초안 동기화를 판단한다. 병렬 카드 mutation의 서버 성공은 카드 unmount와 분리해 Home sessionEpoch가 같을 때 재조회한다. My snapshot은 본문/cursor 없이 RPC+args identity/count/offset만 보존하며 revision마다 기존 count 또는 서버 끝까지 최신 페이지를 읽은 후 스크롤을 복구한다. owner 교체는 폐기하고 사용자 직접 스크롤은 늦은 복원을 취소한다. t14 지정 정적 보강 승인.
+격리 서버 최종 묶음은 `vitest.sns.config.ts` 6 files/28 passed(15.58초). Web 집중10 최초 실행은9passed/1failed(2.6분): My40 검사가 상세의 '여행 관리' pointer click 뒤 입력이 나타나지 않아 복귀 검사 전에 중단됐다. 포인터 원인은 미확정이며 fixture 오류/제품 해결로 판정하지 않는다. 실제 focus→toBeFocused→Enter 관리 진입으로 분리한 My40 수정/2페이지 재조회/복귀·수동스크롤 취소 대상은1passed(31.5초). 이 결과는 포인터 정상 수용이 아니다. 새 전체 집중10 및 최신 Native 빌드는 별도 진행하며 합산하지 않는다.
+기본 테스트 config와 격리 SNS config를 분리했다. `vitest.sns.config.ts`/`playwright.sns.config.ts`는 55321/8086 전용이며 기존 Local/원격으로 자동 대체하지 않는다. Android·전체 기존 E2E·원격 migration/배포·정리 스케줄러 운영과 기존 Native 성능/도구 글자 제한은 별도 수용 대상이다.
+후속 동일 집중10 재실행은 **10 passed(1.8분)** 이다. 앞선9pass/1fail과 별도 실행이며 My는 키보드 관리 진입 경로다. 타입 검사 오류0, 최종 SNS Local APK assembleRelease **BUILD SUCCESSFUL(1분24초)**. 빌드 성공은 Android 기능 수용과 별개다.
+
+### SNS 최종 artifact와 Android 좁은 실행 — 2026-11-18
+Web export(`/tmp/sns-web-export`) 성공. 타입은 `tsc --noEmit -p frontend/tsconfig.json` 오류0으로 확인했다. 앞선 루트 cwd의 npm exec tsc는 별도 루트 tsconfig가 Deno 함수를 일반TS로 포함해 실패한 실행이며 제품 타입0 증거가 아니다.
+최신 x86_64 release APK/기존 mytrveldex 에뮬레이터, Local55321 신규2계정/실Storage3기록으로 로그인→5탭 대시보드/최근 실제사진, 공개피드 좋아요 상태변경·댓글 저장/본문, My 소개 저장, 지도 헤더/+/- 제거·작성 아이콘 존재, 도감 퍼즐 서울25경계/획득1조각의 실제 이미지를 관찰했다. 실제 OS 키보드를 열어 댓글 입력/전송 버튼의 노출을 확인했다. 이는 지정 emulator/fixture 실행이며 Native custom-avatar 파일 선택·SDK token refresh/40개 복귀·차단 동시성 UI·실폰/iOS/성능 전체 수용을 뜻하지 않는다. 지도 전환 직후 즉시 locator 조회가 준비 전에 실패한 시도는 후속 source 관찰과 구분한다.
+Web 포인터 관리진입 미확정과 기존 Native 성능/도구 글자 제한은 남아 있다. 원격 migration/함수/서비스 scheduler·스토어 배포는 수행하지 않았다.
+추가 Native 지도 작성 아이콘→여행 제목 입력→잠시 접기→아이콘 재진입에서 같은 제목 유지도 확인했다. 테스트 후 기존 설치 APK를 데이터 reset 없이 복원하고, 생성한 Local2계정/3기록 및 해당 Storage 객체만 정리한다. 새 SNS QA APK는 build 출력에 보존한다.
+정리 결과: 기존 APK 재설치 Success, SNS fixture removed를 확인했다. SNS Local setup 스크립트도 기존 격리 DB에서 reset 없이 재실행 성공했다. 외부 root package/lock 및 공개환경 문서 선행 변경은 SNS 커밋에서 제외한다.

@@ -420,3 +420,29 @@ FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md�
 
 ## 2026-11-17 선택 시도 이름 표시 보강
 FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.
+
+
+## 2026-11-17 사진 일기 SNS 개편
+FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭·모바일우선 SNS/개인퍼즐·차단우선/공개관계count와본인명단·512px공개사진 계약을 적용한다. 이전 홈지도는지도탭으로이관하며 원본기록/EXIF/초안/원좌표/기존ID를보존한다. 구현/실행/원격적용을구분하고현재전체수용미완료다.
+
+### SNS 1단계 RPC (POST /rest/v1/rpc/)
+- social_feed(mode='public'|'following',cursor_time timestamptz|null,cursor_id uuid|null): {items:[id,owner_id,title,content,start_date,end_date,created_at,author:{id,user_code,display_name,avatar_url},photo_count,cover_photo_id,like_count,comment_count,liked,saved],next_cursor:{created_at,id}|null,has_more}. 공개읽기허용,following인증필수. 소유자/비공개EXIF·Storage경로없음.
+- social_set_reaction(record_id uuid,kind='like'|'save',enabled bool): {enabled}. 인증필수,현재public complete권한; 설정상태동일재시도는중복과금/알림없음.
+- social_comments(record_id uuid,cursor_time timestamptz|null,cursor_id uuid|null): 서버가시댓글20개/next_cursor/has_more. parent_id/삭제tombstone/작성자최소정보만반환. 본문1000자.
+- social_create_comment(comment_id uuid,record_id uuid,body text,parent_id uuid|null): {id,record_id,parent_id,body,created_at,deleted}; UUID동일payload재시도멱등,다른payload거절.
+- social_edit_comment(comment_id uuid,body text): 본인만, {id,body}; 삭제된댓글수정거절.
+- social_delete_comment(comment_id uuid): 작성자또는기록주인, {deleted:true}; soft삭제본문null/답글유지.
+- social_set_block(target_id uuid,enabled bool): {blocked}. 인증본인만, 자기차단불가; 활성차단관계일방존재로양쪽제한.
+- social_notifications(cursor_time,cursor_id): 본인유효알림20개·next_cursor·has_more·unread_count. 조회시대상권한을재검사한다.
+- social_read_notifications(notification_ids uuid[]): 최대100개본인행만read_at설정, {read_count}.
+직접신규테이블쓰기/익명mutation/GET mutation은거부한다. 404미지원만새소셜화면을닫고기존Auth/기록작성은유지한다.
+
+## SNS 서버 2단계 API — 2026-11-18
+POST RPC: social_capabilities({})→{version:1}; social_profile({target_id}); social_people({kind:'following'|'followers'|'blocked',cursor_id:null|uuid}); social_search({query,cursor_id}); social_set_follow({target_id,enabled}); social_record_item({record_id}); social_saved({cursor_time,cursor_id}); social_profile_records({target_id,cursor_time,cursor_id}). 목록은20개/has_more/next_cursor, 사람cursor는UUID, 기록cursor는created_at/id다. 검색·관계·저장·신고는로그인필수, 공개프로필/공개기록은guest가능.
+POST social_report({report_id,target_kind:'record'|'comment'|'profile',target_id,reason})→{id,status}. service-only social_moderate({report_id,decision,action,note,operator})와감사조회는운영명령에서만사용. 오류는core계약을재사용하고UUIDpayload충돌22023/현재대상없음PT404/제한P0001이다.
+POST profile-avatar(raw image/jpeg|image/png, X-Upload-ID UUID, bearer)→{avatar_id}. GET이아닌POST profile-avatar-url({owner_id})→{signed_url,expires_at}. POST social_update_profile({display_name,bio,avatar_mode:'keep'|'none'|'google'|'upload',avatar_id:null|uuid})→현재social_profile. asset필드는원본경로를공개하지않는다. 서버검증/고아정리/동시성은TRD2단계계약을따른다.
+profile-avatar는`?upload_id=<UUID>`로동일한업로드ID를받는다. raw본문/서버5MiB·20MP검증/최종JPEG512px·512KiB는그대로다. 새로운서버전용cleanup-avatars는service bearer만받고삭제큐실패는남겨재시도한다.
+
+### Avatar 정리 경합 보강 (2026-11-18)
+`social_avatar_cleanup()`은 service 전용이다. 미참조 후보를 LIMIT 100 전에 선별하고 profile→asset 잠금 뒤 재검사한다. 퇴역 asset은 `retired_at`/`cleanup_queued=true`로 남으며 동일 UUID의 reserve는400(Edge 업로드409), verify와 연결은404로 거절한다. 정리 job ack는 tombstone을 삭제하지 않는다. 새 UUID 업로드/연결은 기존 경로를 사용한다. 활성 avatar는 후보에서 제외하며 계정삭제 cascade 외에 퇴역 metadata를 삭제하지 않는다.
+후속 `20261118050000_avatar_reclaim.sql`부터 ack된 tombstone도 `cleanup_requested_at NULLS FIRST, owner_id, id` 순으로 batch100 재수거한다. 활성 참조 제외/잠금 재검사는 유지하고 같은 경로를 반복 DELETE할 수 있다. 이는 늦은 POST 및 verify 전 Edge 중단 이후 잔존 객체를 후속 service cleanup 호출에서 회수하기 위한 경계이며 자동 스케줄러 배포를 의미하지 않는다.

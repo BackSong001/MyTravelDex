@@ -22,6 +22,18 @@ Deno.serve(async (req) => {
     if (!photo) return reply({ error: 'Not found' }, 404);
     const record = photo.travel_records;
     if (record.owner_id !== uid && !(variant === 'thumbnail' && record.status === 'complete' && record.visibility === 'public')) return reply({ error: 'Not found' }, 404);
+    if (record.owner_id !== uid) {
+      try {
+        const visible = await fetch(`${base}/rest/v1/rpc/social_record_visible`, {
+          method: 'POST', headers: {...headers, ...(authorization ? {Authorization: authorization} : {})},
+          body: JSON.stringify({target: record.id}),
+        });
+        if (!visible.ok) return reply({ error: 'Access check failed' }, 503);
+        const allowed = await visible.json();
+        if (typeof allowed !== 'boolean') return reply({ error: 'Access check failed' }, 503);
+        if (!allowed) return reply({ error: 'Not found' }, 404);
+      } catch { return reply({ error: 'Access check failed' }, 503); }
+    }
     const path = variant === 'original' ? photo.original_path : photo.thumbnail_path;
     const result = await fetch(`${base}/storage/v1/object/sign/travel-photos/${path}`, {
       method: 'POST', headers, body: JSON.stringify({ expiresIn: 300 }),

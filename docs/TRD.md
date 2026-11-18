@@ -939,3 +939,40 @@ FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md�
 
 ## 2026-11-17 선택 시도 이름 표시 보강
 FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.
+
+## 2026-11-17 사진 일기 SNS 개편
+FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭·모바일우선 SNS/개인퍼즐·차단우선/공개관계count와본인명단·512px공개사진 계약을 적용한다. 이전 홈지도는지도탭으로이관하며 원본기록/EXIF/초안/원좌표/기존ID를보존한다. 구현/실행/원격적용을구분하고현재전체수용미완료다.
+
+### SNS 서버 1단계 계약 (FR-SNS-002/003)
+신규 record_likes/saved_records의 PK=(record_id,actor_id), record_comments의 PK=client UUID, parent_id는 같은record의최상위댓글만허용한다. social_notifications는recipient전용이며actor/record/comment참조를보유하고본문복사없음. account_blocks PK=(blocker_id,blocked_id), social_rate_limits는서버전용집계다. 신규표는RLS+직접쓰기권한회수/RPC만변경한다.
+RPC 잠금순서는 참여profile UUID오름차순 FOR UPDATE → travel_record FOR UPDATE → 부모댓글 → 대상댓글/반응/알림이다. record소유자/댓글작성자는불변이다. 기존record삭제/공개변경은record잠금만소유하며profile잠금을역획득하지않는다. 요청UUID재사용은owner/record/parent/최초본문이모두같을때만기존행반환하고다르면22023으로거절한다. 수정후에도최초payload를서버비공개열에보존한다.
+legacy 관계 직접쓰기의행잠금은PostgreSQL이먼저획득할수있으므로40P01/40001은명시재시도오류이며성공으로표시하지않는다. 신규관계RPC는profile선잠금으로직렬화한다. 차단commit후동일쌍의새관계/알림이남지않게직접쓰기trigger도차단을재확인한다.
+read predicate는현재viewer/recordowner/actor의차단·계정활성·record complete/public을확인한다. 본인private기록CRUD와소셜읽기는분리한다. 신규social count는읽을수있는반응만집계하고private/draft에서조회되지않는다.
+cursor는{created_at:ISO8601,id:UUID}이며둘다null이거나둘다유효해야한다. 서버조건적용후 DESC tuple < cursor로21개를읽어20개와has_more/next_cursor를반환한다. 응답cursor는마지막반환행이며수정/비공개변경은등록시각을변경하지않는다.
+서버오류:42501인증/권한,PT404미존재또는현재접근불가,22023형식/UUID충돌,P0001요청제한,40001/40P01명시재시도. 실제서버영문오류를로그토큰없이사용자문구로매핑한다.
+댓글생성의전역UUID경합은profile잠금뒤/record잠금앞의UUID advisory xact lock을추가해직렬화한다. 최초payload비교는공백정규화된본문을기준으로한다. photo-url은새DB의social_record_visible을호출해요청자차단을검사하므로DB migration검증후함수를배포한다. 함수만구서버에선배포하지않으며검사실패는503이다.
+
+## SNS 서버 2단계 계약 — 2026-11-18
+- `social_reports(id,actor_id,target_kind,target_id,reason,status,created_at)`와 service 전용 `social_moderation_audit`는 RLS/직접 client 권한 없음. report UUID는 최초 payload 불변·동일 재시도 반환, pending 동일 대상 중복 거절, 500자/5일당이 아닌 **5회/일**. 대상은 현재 읽을 수 있는 record/comment/profile이며 자신 신고 불가.
+- `social_report(report_id,target_kind,target_id,reason)` → id/status. `social_moderate(report_id,decision,action,note,operator)`는 service_role만: decision resolved/dismissed, action none/hide_record/hide_comment/suspend/restore_record/restore_comment/restore_account. 대상종류와 일치 검증·근거1~500자·운영자1~100자. profile→record→comment/report 잠금, 감사행+상태변경 원자적. 정지는 모든 사회적 쓰기와 공개조회 차단, 자신의 기록 정리/로그아웃은 허용. 운영자가 실제 호출하기 전 원격 미적용.
+- `social_profile(target_id)` → id/user_code/display_name/avatar_url/bio/travel_count/follower_count/following_count/following. 타인 travel_count는 public complete만, 명단은 `social_people(kind,cursor_id)`의 본인 following/followers/blocked20개. blocked는 본인이 차단한 최소프로필만 반환. `social_search(query,cursor_id)`는 인증/1~100자/60분당, literal 부분검색/코드검색·UUID 오름차순20개, active/차단필터 후 페이지. 어떤 응답에도 Auth 정보 없음.
+- `social_record_item(record_id)`는 현재 공개권한과 반응을 재확인한 피드 projection. `social_saved(cursor_time,cursor_id)`는 본인 저장 중 현재 공개로 읽을 수 있는 기록만 같은 등록일 keyset. profile grid `social_profile_records(target_id,cursor_time,cursor_id)`는 본인 private complete 포함/타인 public complete만, 최소 기록 projection. 소셜댓글은 삭제 tombstone의 id/parent는 유지하되 권한 없는 부모 댓글 본문을 복원하지 않는다.
+- `social_set_follow(target_id,enabled)`는 profile 정렬잠금 후 기존 follows를 멱등 조작한다. 기존 직접 follows/친구 경로의 trigger도 유지한다.
+- 업로드 avatar는 기존 Google avatar_url과 별도 `avatar_asset_id`를 사용한다. `profile_avatar_assets(id,owner_id,object_path,sha256,created_at,retired_at)`/service-only cleanup queue. private `profile-avatars` bucket, client 직접 쓰기/읽기 금지. Edge `profile-avatar`가 bearer 검증 후 최대5MiB JPEG/PNG 실디코딩(20MP 사전차원검증),512px JPEG 재인코딩/메타제거·512KiB 검증 후 저장한다. UUID/hash 재시도 충돌은409. 연결은 검증완료 asset만 `social_update_profile(display_name,bio,avatar_mode,avatar_id)`에서 profile 잠금 후 원자적, Google은 auth.identities의 HTTPS 검증을 재사용. 실패/취소는 기존사진 유지; 교체asset/24h 미참조asset은 service-only 삭제큐로 정리한다. `profile-avatar-url`은 현재 viewer의 profile 읽기권한을 재검사해300초 URL을 발급한다. 기존 Google URL projection은 유지하고 신규 avatar_id를 SNS profile/author projection에만 추가한다. 파일은 로그인·공개사진과 같은 기존 URL 즉시 회수불가 제한을 따른다.
+- capability `social_capabilities()`의 version=1은 신고/프로필/피드 계약 준비를 표시하며 앱은404일 때 새 SNS 요청만 닫고 기존여행/지도/초안은 유지한다. 계정세대+사회적 revision 변경 시 요청/사진URL/Modal목록을 폐기하고 다시 조회한다.
+
+## SNS 클라이언트 연결 — 2026-11-18
+Home은 기존 작성·상세·Auth세대 소유를 유지한다. JournalTab에feed/map을추가하고friends는My의보조화면으로남긴다. 지도 `homeMap`은실제map탭에서만true이며지도snapshot을Home ref로유지한다. 상세origin은home/feed/map/album/account를구분하고탭별스크롤을복구한다. OAuth초대는기존friends화면으로진입한다.
+신규SNS컴포넌트는owner key와캡처한bearer의독립TravelApi를사용한다. 공개상태/차단/제재/관계/반응뒤revision변경시공유SNS snapshot·Modal본문/URL을폐기하고현재권한으로재조회한다. feed는FlatList20keyset/화면내카드사진만요청,프로필/알림/검색도20페이지+명시더보기. 404미지원은새SNS영역에만표시하고기존My편집/기록/지도/작성은작동한다. 저장성공후refresh실패는실패안내와재조회이며서버mutation을되돌리지않는다.
+Avatar업로드ID는쿼리upload_id(비밀아님)로전달가능하고본문은rawbytes다. DB예약은파일쓰기전등록·검증완료후만연결가능;실패예약은24h청소. 출력이미지서버처리에ImageScript1.3.0한개를Edge전용고정추가하며클라이언트의존성은추가하지않는다.
+
+### avatar 정리 경합 보강
+퇴역asset행은삭제하지않고retired_at/cleanup_queued=true의tombstone으로보존한다. 같은owner/UUID의경로는영구재사용불가이며reserve/verify/프로필연결모두거절한다. 계정삭제cascade만metadata를제거하며해당owner는Auth삭제되므로경로새연결이불가하다. 정리후job ack와asset tombstone수명은분리한다. cleanup 후보는현재프로필참조없음을LIMIT100전에적용하고profile→asset잠금뒤참조를다시검사한다. 미queued 전용 후보는 후속 재수거 절의 순환 후보로 대체한다. Storage DELETE실패/중복worker의늦은DELETE는불변퇴역경로에만작용한다. 기존활성avatar/이전GoogleURL/여행Storage는변경하지않는다.
+
+### 퇴역 avatar의 늦은 Storage 쓰기 재수거
+예약→Storage POST 사이에 정리가 완료될 수 있으므로 tombstone은 정리 job ack 후에도 재수거 후보로 남긴다. `cleanup_requested_at` 오름차순(NULL 우선)으로 미참조 asset 최대100개를 순환하고 profile→asset 잠금 후 재확인한다. 처음 퇴역하는 asset과 이미 퇴역한 경로 모두 같은 불변 경로 job을 재등록한다. 따라서 POST 후 verify 직전 Edge가 중단돼도 이후 cleanup 호출이 잔존 객체를 회수한다. 새 client 타이머/즉시 무조건 DELETE는 없으며 활성 참조는 재수거하지 않는다. 재수거는 service cleanup 호출 시 진행되고 상시 스케줄러 배포 완료를 의미하지 않는다. 비용은 batch당 최대100개 퇴역 경로의 반복 DELETE이며 계정 삭제 전 tombstone을 삭제하지 않는다.
+재수거 후보100개는 cleanup_requested_at 순으로 먼저 고정한 뒤, 실제 처리 루프는 owner_id,id 오름차순이다. 계정쌍 관계 쓰기와 동일한 profile 잠금 순서를 유지하며, 후보 공정성 정렬을 잠금 순서로 사용하지 않는다.
+
+### SNS 클라이언트 수명 보강
+capability의 지원 상태는 같은 owner token refresh 중 유지하고 404/PGRST202만 legacy fallback한다. 일시 실패는 기존 입력을 유지한 재확인 안내다. owner 교체는 지원 확인/편집/업로드 재시도 상태를 폐기한다. 카드별 로컬 상태 수명과 서버 mutation 완료 invalidation을 분리하여 카드 unmount 후에도 같은 sessionEpoch이면 목록을 갱신한다. My 복귀는 이전 페이지 수를 최신 권한으로 재조회하고 프로필·목록 준비 뒤 기존 pendingAccountScroll을 적용하며 사용자의 직접 스크롤은 예약을 취소한다.
+프로필 지연 응답은 요청 시작 때의 edit 값 대신 응답 시점의 편집 ref로 입력 동기화 여부를 판단한다. 페이지 복귀 snapshot에는 본문/사진 URL 없이 조회 identity+읽었던 count+offset만 보관한다. revision 변경 시 본문은 새로 읽되 같은 owner/target의 count까지 조회하고, owner/target 전환은 복귀 정보도 폐기한다. 새 My/피드의 상세 진입 버튼은 기존 Home busy를 그대로 표시해 저장/복귀 조회 중 무반응 클릭을 만들지 않는다.
