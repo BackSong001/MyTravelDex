@@ -1589,3 +1589,6 @@ TC-SOCIAL-PHOTO-UI-001. 모바일 홈·피드 첫 사진 위치, 피드 4:5와 �
 
 - 격리 Local 계정의 모바일 웹에서 작성 → 지도 위치 선택·확정 → 도감 기록 상세 → 저장 핀 확인·전국 복귀가 통과했다. 별도 WebGL 검사에서 OpenFreeMap 도로·수계가 실제로 렌더되고 서울 기록의 SVG 핀과 MapLibre 투영 간 오차가 1px 미만임을 확인했다.
 - 지도 조작·복귀 대상 Web 17개 및 시도 강조 Web 1개 통과. 초기 대역의 about:blank에서는 MapLibre worker 상대 경로가 실패한 검사 2개가 있었고, 공통 HTTP fixture에서 실제 번들 worker를 제공해 재검증했다. Android 공통 렌더·지도 계약 단위 11개 및 TypeScript 통과. 실기기 터치·성능은 미측정이다.
+
+## 사진 여행 스튜디오
+최신 작성·지도·홈 계약은 `docs/TRAVEL_STUDIO.md`, 검토 전용 기능·BM은 `docs/TRAVEL_ROADMAP.md`를 따른다. 서버 API·RLS·기존 기록 상한을 유지하고 신규 UI 5장, 월말 날짜 확인, 도시 선택, 세계지도와 국내 상세 전환을 검사한다.

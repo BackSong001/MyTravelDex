@@ -454,3 +454,6 @@ profile-avatar는`?upload_id=<UUID>`로동일한업로드ID를받는다. raw본�
 ## 여행기록 지도 통합
 
 지도 표현 통합은 기존 좌표·검색·기록 조회 API와 공개 권한을 유지한다.
+
+## 사진 여행 스튜디오
+최신 작성·지도·홈 계약은 `docs/TRAVEL_STUDIO.md`, 검토 전용 기능·BM은 `docs/TRAVEL_ROADMAP.md`를 따른다. 서버 API·RLS·기존 기록 상한을 유지하고 신규 UI 5장, 월말 날짜 확인, 도시 선택, 세계지도와 국내 상세 전환을 검사한다.
