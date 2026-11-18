@@ -2,7 +2,7 @@
 
 ## 지도 전환·사진 선택 현황 (2026-11-06)
 
-Android MapLibre Native 11.5.1 / Web GL JS 6.16.0과 로컬 KOSTAT 2018 경계를 사용한다. 배경 타일 없이 브랜드 팔레트·선택 지역만의 테두리·실제 좌표 마커를 유지한다. 검색·상세·역지오코딩은 인증된 서버 Geoapify이며 Google OAuth는 유지한다. Google 유래 위치는 상세의 `위치 다시 확인`으로 소유자가 보정하기 전 지도에서 제외한다.
+React SVG / react-native-svg + d3-geo로 같은 2026-04-01 실제 경계를 렌더링한다. 17개 시도 → 255개 시군구 탐색과 본인 완료 기록의 방문색을 제공하며 사진·작성자는 지역 목록에서 확인한다. 검색·상세·역지오코딩은 인증된 서버 Geoapify이며 Google OAuth는 유지한다. Google 유래 위치는 상세의 `위치 다시 확인`으로 소유자가 보정하기 전 지도에서 제외한다.
 
 Android 기본 시스템 사진 선택에는 전체 권한을 선요청하지 않는다. Google 포토는 기기 클라우드 제공자 설정에 따른다. 원본 파일 경로에서만 선택적으로 권한을 요청하고 MediaStore ID 확보 후 캐시로 복사한다. 웹 직접 Photos OAuth는 추가하지 않는다.
 
@@ -31,7 +31,7 @@ MVP 공개 정책은 다음과 같다.
 - **Frontend**: React Native, Expo, TypeScript, Expo Router
 - **Backend**: Supabase Auth, Supabase PostgreSQL, Supabase Storage, PostgREST
 - **Authentication**: Google OAuth via Supabase Auth
-- **Map**: MapLibre Native 11.5.1 / GL JS 6.16.0 + Geoapify
+- **Map**: React SVG / react-native-svg + d3-geo · Geoapify 검색
 - **Backend tests**: Vitest, Supabase Local Development
 - **Web tests**: Playwright, Expo Web
 - **Android tests**: Android Studio Emulator and real Android devices
@@ -66,7 +66,7 @@ MVP에서는 Expo 앱이 업로드 전에 선택 사진의 EXIF를 먼저 읽고
 
 Google 계정의 비밀번호를 직접 다루지 않고 Supabase Auth가 세션을 관리하도록 하기 위해 선택한다. 로그인 이후 애플리케이션은 Supabase 사용자 ID를 기준으로 프로필과 여행 기록을 연결한다.
 
-### MapLibre·Geoapify
+### SVG·Geoapify
 
 지도는 로컬 시·도 GeoJSON 스타일이며 배경 타일을 사용하지 않는다. 인증된 서버 Geoapify로 검색·상세·주소를 보완한다. GEOAPIFY_API_KEY는 Supabase 서버 Secret이며 기존 Google 지도 변수는 deprecated 호환 항목이다. Google OAuth는 유지한다.
 
@@ -285,3 +285,13 @@ node --env-file=/secure/path/production.env scripts/android-bundle.mjs
 친구추천은 로그인한 사용자에게 공개프로필 최대50명만 제공한다. 기존 UUID 친구 ID/중복닉네임/요청수락을 재사용한다. 도감은 검색과 지역·시작일 양방향 정렬(기본 시작일 내림차순)이며 날짜/지역 범위 입력을 대체한다. 지도 군집은 겹친 사진·가로썸네일/빠른목록, 지도는 측면·산/풀 장식을 추가했다. 로컬은 `npx supabase migration up --local --workdir backend`로 신규추천RPC를 적용하며 원격은 승인후 기존friend_requests→추천migration 순서다. 실제테스트·승인/미검증범위는 `docs/TEST_CASE.md`의 2026-11-08 작업7 결과를 따른다. 새 환경변수·외부서비스·의존성은 없다.
 
 사진 선택 후 metadata가 제공되면 기간/첫GPS가 자동 제안된다. 위치는 입력형 검색바에서 별도 검색창을 열어 확정하며 GPS가 있으면 좌표/주소를 보완한다. metadata가 없으면 추측해 채우지 않는다. 원본파일/시스템선택 경로와 실제 검증 범위는 TEST_CASE의 FR-PHOTO-LOCATION 절을 따른다. 새 환경변수/migration은 없다.
+
+## 단순 사진지도 타일 준비 (구현 진행 중)
+
+홈 타일 검증에는 별도 Geoapify 지도용 프로젝트의 공개 `EXPO_PUBLIC_GEOAPIFY_MAP_KEY`가 필요하다. 기존 서버 검색 `GEOAPIFY_API_KEY`를 복사하지 않는다. 저장소 밖 환경파일에서 이 변수만 프로세스로 로드하면 configured 웹/Android 실행에 전달한다. production export/AAB에서도 같은 공개변수를 사용한다. 키값을 명령행·로그·Git에 남기지 않는다.
+
+지도키가 없으면 기존 SVG 렌더링을 유지한다. 별도 지도키가 설정된 홈은 타일 배경을 사용하며 새 지도 최종 수용·운영 설정 변경·무료한도 확인은 아직 완료하지 않았다. 단계별 계약은 [명세](docs/SIMPLE_PHOTO_MAP_SPEC.md)를 따른다.
+
+
+### 2026-11-17 OpenFreeMap 홈 지도
+홈 타일은 API키 없는 OpenFreeMap Positron을 사용한다. 위 Geoapify 지도키 준비 절은 이전 구현 이력이며 현재는 필요 없다. Geoapify 장소 검색 서버 Secret은 유지한다. Web 실제 수신 검증 후 Android 자체APK로 별도 검증한다. 계약은 docs/OPENFREEMAP_SPEC.md 참조.

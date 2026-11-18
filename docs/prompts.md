@@ -1679,3 +1679,241 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 프롬프트 원문: 확인했어. 앱에서 정삭 작동하네. 이제 해당 브랜치를 메인에 푸쉬해줘
 
 결과: 사용자가 앱 정상작동을 확인했다고 전달했다(독립 재검증과 구분). 최신 origin/main은 cf7d30c이며 fix/android-photo-gps의 조상으로 확인돼 사진GPS 수정/실제설정APK 빌드기록을 fast-forward로 main에 반영한다. 제품변경 추가/중복빌드·테스트/원격DB변경은 없고 기존 root package/lock 및 미추적파일은 제외한다. 변경파일: docs/prompts.md.
+
+
+## 2026-11-12 18:30 KST — SVG 지도 전환 계속 진행 (진행 중)
+
+사용자 프롬프트 원문:
+> Implement the plan.
+
+후속 사용자 프롬프트 원문:
+> 이어서 진행해줘
+
+현재 결과: `refactor/svg-map-redesign`에서 승인된 SVG·단일 UI 계약을 구현 중이다. 2026-04-01 실제17시도/255시군구를 채택하고 t14 지적 핀치·시군구필터·홈복귀 3건을 보강해 정적 승인을 받았다. 원자료/MapLibre·30테마 runtime cleanup도 지정 정적 승인을 받았다. backend172pass1skip/types0/설정Node0, Android QA x86_64 assembleRelease4분41초 성공이며 실제 Native·최종 Web/정적artifact 수용은 아직 진행 전이다. main/원격DB/운영배포는 변경하지 않았다.
+
+변경 파일: `docs/SVG_MAP_REDESIGN_SPEC.md`, canonical6, README/README.local/.env.example, `frontend/src/regions.ts`, `SvgTravelMap.tsx`, `data/maps/`, TravelMap 진입점, provinces/StampCatalog/MapAttribution/theme/ThemeContext/Journal, Home/Layout/LocationPicker, frontend package·lock/config/public HTML, 지도·팔레트/설정 테스트, `scripts/build-map-data.py`, `docs/prompts.md`. 이전 MapLibre/30테마/군집 전용 런타임과 검사는 명세에 따라 제거/대체했다. 외부 root package/lock·storyboard·tsconfig 변경은 제외한다. 최종 실행 결과는 뒤에 추가한다.
+
+### 2026-11-12 19:04 KST SVG 전환 최종 결과
+
+앞선 사용자 원문 “Implement the plan.” / “이어서 진행해줘” 작업의 최종 결과: 실제2026-04-01 경계17시도/255시군구의공통SVG·지역탐색·기록기반방문/필터/복귀·화이트아쿠아단일UI를구현했다. MapLibre/30테마/사진핀군집런타임을승인범위에서제거했고Geoapify/Auth/사진/DB/기존안전경계는유지했다. t14리뷰의핀치/시군구/복귀·상세읽기지연응답문제를보강해지정정적승인받았다. 최종상세focused15pass,productionexport/artifact4pass,Native최종QA빌드/실제탐색·기존저장보존을확인했다. 이전backend172pass1skip/HTTP·Web보존33pass와실제Native수동위치·사진저장도분리기록했다. 전체Web새Green/실휴대폰/iOS/운영배포수용은주장하지않는다. QA데이터/기기복사본·임시서버정리,기존APK복구. 경계원문으로인한주JS19.58MB/gzip7.36MB비용은남는다.
+
+변경파일은위18:30절과동일범위이며추가상세읽기수명은frontend/app/index.tsx,frontend/e2e/design.spec.ts,docs/SVG_MAP_REDESIGN_SPEC.md,docs/TRD.md,docs/TEST_CASE.md에반영했다. 이번작업파일만refactor/svg-map-redesign에커밋/푸시하며main·원격DB/배포와기존root package/lock·storyboard·tsconfig는포함하지않는다.
+
+## 2026-11-12 20:25 KST SVG 행정구역 지역명
+
+사용자 프롬프트 원문:
+
+글쓰기 - 현재 '여행가봥'의 대한민국 지도에 각 행정구역의 지역명을 표시해 줘.
+
+1. 표시할 지역명
+
+- 전국 지도 화면: 17개 시·도 이름 표시
+- 시·도 상세 화면: 해당 지역에 속한 모든 시·군·구 이름 표시
+- 지역명은 한글로 표시
+- 지도 경계와 지역명이 서로 어울리도록 배치
+
+2. 디자인
+
+- 기존 여행가봥의 모던 미니멀 디자인 유지
+- 지역명은 지도 색상과 잘 구분되는 차분한 색상 사용
+- 글꼴은 가독성 좋은 산세리프 계열 사용
+- 지역의 크기에 따라 글자 크기를 적절하게 조절
+- 지도와 지역명이 겹쳐서 복잡해 보이지 않도록 처리
+- 방문한 지역의 색상 표시와 지역명이 서로 잘 어울리도록 구성
+
+3. 위치 및 반응형 처리
+
+- 각 지역의 지리적 중심에 가깝게 지역명 배치
+- 지역명의 위치가 행정구역 경계 밖으로 벗어나지 않도록 최대한 조정
+- 작은 지역은 글자 크기를 줄이거나 적절한 위치로 이동
+- 지도 확대 및 축소 시에도 지역명이 자연스럽게 유지되도록 구현
+- 모바일과 PC 화면 모두에서 읽기 편하도록 처리
+
+4. 구현 방식
+
+- 현재 사용 중인 React + SVG + GeoJSON + d3-geo 구조를 유지
+- GeoJSON의 지역명 속성을 활용
+- SVG의 text 요소를 사용해 지역명 표시
+- 지역명 위치는 d3-geo의 지리 좌표 변환을 활용
+- 기존 지도 클릭 이벤트와 방문 지역 표시 기능은 그대로 유지
+- 지역명을 추가하기 위해 기존 지도 구조를 불필요하게 변경하지 말 것
+
+5. 예외 처리
+
+- 서울, 부산 등 면적이 작은 지역도 이름이 잘 보이도록 처리
+- 울릉도, 제주도 등 섬 지역의 위치도 고려
+- 지역명이 겹치는 경우 위치나 크기를 조정
+- 실제 GeoJSON에 존재하지 않는 지역명은 임의로 생성하지 말 것
+
+먼저 현재 GeoJSON의 지역명 속성과 지도 렌더링 구조를 확인한 다음 구현해 줘. 구현 후 전국 지도와 시·도 상세 지도 모두에서 지역명이 올바르게 표시되는지 확인해 줘.
+
+결과: GeoJSON name/code/parentCode와기존Mercator를재사용해전국17/각시도소속전체이름을SVG text/tspan으로표시했다. 내부anchor·largest polygon/섬/hole보정·전체이름줄바꿈·10~14px·halo/연결선·충돌배치를작은공통helper로추가하고기존클릭/방문색/제스처/데이터를유지했다. t14명세/제품/320시군구검사보강정적승인. 단위/SSR7pass/types0,Web5pass와보강후라벨1pass,actual앱2pass를각각기록했다. 현재8083웹유지. 낮은지도높이의연결선증가,Native실기기/새APK/실배포미검증을명시한다.
+
+변경파일: frontend/src/mapLabels.ts,SvgTravelMap.tsx,backend/tests/map-labels.test.ts,maps-native.test.ts,frontend/e2e/svg-map.spec.ts,svg-app.spec.ts,docs/SVG_MAP_LABELS_SPEC.md,canonical6,docs/prompts.md. 기존root package/lock/storyboard/tsconfig는제외하며refactor/svg-map-redesign에이번변경만커밋/푸시한다.
+
+
+## 2026-11-12 22:03 KST — 바다 배경 구현
+
+사용자 프롬프트 원문:
+
+> 진행해줘
+
+직전 승인 대상: 대한민국 지도 바다 배경에 해안 형태를 따르는 5색 그라데이션을 추가하고 기존 지역명·육지/방문색·입력·DB/API를 보존하는 계획.
+
+결과: t14 명세/제품 정적 리뷰를 거쳐 원본 경계에서 생성한2048² 고정PNG(376394bytes)를 공통SVG 배경에 연결했다. 정확한육지차폐·이미지실패단색·기존카메라/클릭/라벨을유지한다. 128path 및luminance mask 후보는Native성능실패로폐기했다. 최종단위/SSR8pass·types0·Web7pass·actual앱2pass·productionartifact4pass, Android빌드/전국·부산·서울/핀치시각·오류0을확인했다. Native연속이동은배경없는대조에서도큰지연이재현되며최종배경에서도남아전체성능미수용으로기록했다. 실휴대폰/iOS/원격배포는미검증. 기존설치APK/임시대조소스를복원하고8083웹/에뮬레이터를유지한다.
+
+변경파일: frontend/src/OceanBackground.tsx,SvgTravelMap.tsx,theme.ts,uiAssets.ts,data/maps/korea-ocean.json,README.md; frontend/assets/maps/ocean-depth.png; scripts/build-ocean.py; backend/tests/ocean.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts,static-web.spec.ts; docs/SVG_OCEAN_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig는제외하고refactor/svg-map-redesign에이번변경만커밋/푸시한다.
+
+
+## 2026-11-12 22:12 KST — 전국 지도 약칭
+
+사용자 프롬프트 원문:
+
+> 진행해줘
+
+승인 대상: 전국 SVG 17개 시·도만 코드별 명시 약칭으로 표시하고 시·군·구/상단/목록의 정식 이름과 원본·DB·지도 동작을 유지하는 계획.
+
+결과: mapLabels의17매핑과표시문자열선택만보강해약칭기준폭/충돌배치를적용했다. t14명세/제품정적승인, Red1fail/2pass→관련단위/SSR9pass·types0·Web7pass·실제앱대역2pass. 바다배경과같은refactor/svg-map-redesign브랜치에커밋/푸시한다. 새APK/production export/실기기/실배포는수행하지않았으며기존Native이동성능제한을유지한다.
+
+변경파일: frontend/src/mapLabels.ts; backend/tests/map-labels.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts; docs/SVG_MAP_LABELS_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig변경은제외한다.
+
+
+## 2026-11-13 사진 중심 연속 지도 구현
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+
+결과: jhyun에서 승인된 PHOTO_MAP_EXPLORATION_SPEC에 따라 내 여행 기본/선택 친구 한 명 조회, 동일 SVG 카메라의 지역 확대, 대표사진·군집·요약 시트와 복귀 상태, 동작 줄이기/press/시작 화면, 좁고 짧은 보조 패널 스크롤을 연결했다. t14 정적 지적을 보강했으며 제품 범위 밖 환경변수/루트 의존성 변경은 보존했다. Web15·관련 단위/LocalHTTP/NativeSSR16·types 통과와 최종 Local QA APK의 실제 사진/군집/요약/상세·복귀/drag/pinch 관측을 각각 기록한다. production export 및 정적산출물3 통과. 320px 경기 확대의 실제 라벨 겹침7쌍은 기존 최소화면 예외로 기록하고, Native warm 이동 지연/높은 PSS는 남아 성능 미수용이며 실휴대폰/iOS/원격배포·전체E2E 성공을 주장하지 않는다. QA자료 정리 및 사용자 APK 복원 완료, 커밋/푸시는 하지 않았다. 기존 SVG 회귀의 최종 결과는 TEST_CASE 최신 기록을 따른다.
+
+변경 파일: AGENTS.md, docs/PHOTO_MAP_EXPLORATION_SPEC.md, docs/SVG_MAP_LABELS_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, docs/prompts.md; frontend/app/index.tsx, frontend/app/_layout.tsx; frontend/src/api.ts, Social.tsx, SvgTravelMap.tsx, PhotoSummarySheet.tsx, photoMap.ts, mapLabels.ts, provinces.ts, Feedback.tsx; frontend/e2e/photo-map.spec.ts, photo-scope.spec.ts, svg-app.spec.ts, svg-map.spec.ts, static-web.spec.ts; backend/tests/photo-map.test.ts, maps-native.test.ts, friends.test.ts. 기존 .env.example·루트 package/lock·스토리보드/tsconfig 변경은 이번 구현 변경 목록에서 제외한다.
+
+## 2026-11-13 19:41 KST — 지도 중심 홈 개편
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+>
+> /feedback 커밋 푸쉬도 해줘
+
+결과: 승인된 차분한 해안 지도, 홈 전용 고정 글자/최소배율/탐색bounds, 전국사진→시도fit→요약, 원형 친구 선택을 기존 조회/시트에 연결했다. t14 사전·제품 P2 보강 승인. 관련 Web/단위/types와 중간실패는 TEST_CASE에 분리했다. Local QA APK에서 실제사진3기록의 두단계선택/요약/상세복귀/drag를 확인했고 실제서버연결 x86_64 APK 설치·Local자료정리를 마쳤으며 에뮬레이터는 유지했다. production export 및 해당artifact static3pass. Native warm 지도이동 지연/높은PSS는 남아 성능 미수용이며 전체E2E·실휴대폰/iOS·실배포는 미검증이다. 관련 변경을 jhyun 커밋·푸시 대상으로 확정하며 별도 .env.example·root package/lock·storyboard·tsconfig 변경은 포함하지 않는다.
+
+변경 파일: frontend/app/index.tsx, frontend/src/SvgTravelMap.tsx,Social.tsx,mapLabels.ts,provinces.ts,theme.ts, frontend/assets/maps/ocean-depth.png, frontend/src/data/maps/korea-ocean.json, scripts/build-ocean.py, backend/tests/map-labels.test.ts,maps-native.test.ts, frontend/e2e/photo-map.spec.ts,photo-scope.spec.ts,svg-app.spec.ts,svg-map.spec.ts,static-web.spec.ts, docs/MAP_FIRST_HOME_SPEC.md,SVG_OCEAN_SPEC.md 및 canonical6. 이전 미커밋 사진지도 코드·검사·명세는 의존 구현으로 함께 포함한다.
+
+
+## 2026-11-13 20:12 KST — 홈 선택 강조와 복귀 버튼
+
+사용자 프롬프트 원문:
+
+> 전국지도 스케일에서 사진이나 도나 특별시를 선택해서 이동하면, 파란테두리와 투명한 파란색으로 범위를 특정해줬으면 좋겠어. 그리고 그냥 지역찾기 버튼은 없애주고, + - 홈 버튼만 한글자 크기로 만들어주고, 홈을 누르면 전국지도 디폴트 스케일로 돌아오고, 선택 테두리와 색도 지워줘. 대한민국 버튼을 눌러도 마찬가지
+
+결과: 기존선택province의정확한SVGpath로파랑강조를홈에만추가하고,지역찾기버튼제거/+·−·홈한글자표시와공통country초기화를연결했다. 키보드/접근성목록대안·요약focus소유권과비홈/data를유지한다. t14리뷰및Web rolebutton후보실패를거쳐DOMidentity보존방식으로보강했다. 관련Web19pass·후속집중검사2pass, 최신export/static3pass·SSR4pass·최종types0을확인했다. 최신에뮬레이터APK에서사진/지역파랑강조와두전국복귀를확인했으나이동후도구글자미표시와기존Native성능제한은남아전체수용으로표시하지않는다. jhyun관련변경만커밋·푸시하며원격배포는하지않는다.
+
+변경파일: frontend/app/index.tsx,frontend/src/SvgTravelMap.tsx; backend/tests/maps-native.test.ts; frontend/e2e/photo-map.spec.ts,svg-app.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.
+
+
+## 2026-11-13 21:10 KST — 경기도 지도 간소화와 전국 복귀 모션
+
+사용자 프롬프트 원문:
+
+> /home/jh-mac/Pictures/스크린샷/스크린샷 2026-11-13 19-58-37.png
+> 경기도 쪽 지역을 확대하면 너무 구가 많이 나눠져있어서 가독성이 불편한데, 조금 러프하게 나눠줘. 그리고 지역이름은 약간 회색으로 표시해줘.
+> 추가로 홈 버튼이나 대한민국 버튼 눌러서 전국지도 스케일로 돌아갈때도 천천히 이동하는 효과를 줘.
+
+결과: 홈 경기도8시의기존구union표시를중간확대에적용하고깊은확대에는원래구를유지한다. SVG지역명을회색으로바꾸고두전국복귀도구는기존350ms fly/취소세대/완료camera=null을재사용한다. 원본행정코드·DB·기록/사진/권한·비홈흐름은보존한다. t14리뷰후제품/검사취소경계를보강했다. 단위·SSR9pass/관련Web19pass/보강후500ms회귀2pass/types0/최신export·static3pass를각실행으로확인했다. 새에뮬레이터APK에서시단위·구확대·회색·두전국복귀를관찰했으며기존버튼문자소실/Native성능제한은남아있다. jhyun관련변경만커밋·푸시하고원격배포/DB변경은하지않는다.
+
+변경파일: frontend/src/SvgTravelMap.tsx,regions.ts,theme.ts,data/maps/gyeonggi-cities.json,data/maps/README.md; scripts/build-map-cities.py; backend/tests/map-cities.test.ts; frontend/e2e/photo-map.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.
+
+
+## 2026-11-16 16:06 KST — 단순 홈 사진지도 구현
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+
+환경 준비 답변 원문:
+
+> .env 에 EXPO_PUBLIC_GEOAPIFY_MAP_KEY로 추가함
+
+결과: 승인된 SIMPLE_PHOTO_MAP_SPEC에 따라 홈만 MapLibre/Geoapify 실제 벡터타일과 단색바다·시도선·단계별 소수라벨·기록수 사진군집으로 바꿨다. 기존 입력/카메라/요약 소유권, 비홈SVG·DB/RLS·사진/원좌표·계정세대를 유지하고 무키/렌더실패SVG대체·타일오류안내·공개키분리/지문·출처를 연결했다. t14 지정리뷰 후 Native실패/준비경계·중간줌도시·단일기록모션·큰시도2차선택을 보강했다. 지정Web실타일/오류/투영·후속3pass, 최종순수/SSR11pass/types0/export/static3pass와 최신에뮬레이터 실제사진/요약/상세복귀·도로/수계/pinch를 각각 확인했다. Native jank49.09%/PSS1008007KiB는 성능미수용이고 pinch 뒤 일부 도구글자 미표시도 관측했으며 Local앱2회귀는 타프로젝트포트점유로 미실행이다. 사용자데이터변경·원격배포·커밋/푸시 없이 최신APK와에뮬레이터를 유지한다.
+
+변경 파일: frontend/src/{SvgTravelMap,MapAttribution,TileSurface,TileSurface.web,TileSurface.types,TileBoundary,simpleMapStyle,simpleMapRegions,simpleMapLabels,tileCamera,usePhotoGroupMotion}; frontend/package.json·package-lock.json·app.config.ts·plugins/withBundleEnvironment.cjs·public/index.html; scripts/{configured.mjs,configured.test.mjs,export-web.test.mjs,bundle-environment.test.mjs,prepare-maplibre.mjs}; backend/tests/{simple-map.test.ts,maps-native.test.ts}; frontend/e2e/{simple-map,photo-map,svg-map,svg-app,static-web}.spec.ts; docs/{SIMPLE_PHOTO_MAP_SPEC,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md; AGENTS.md·README.local.md·.gitignore·.env.example의 지도키 placeholder 추가. 기존 .env.example 공개값 공유 변경·루트 package/lock·sample/스토리보드/tsconfig 변경은 이번 작업 범위에서 제외한다. 실제키·토큰·개인사진/이름은 기록하지 않았다.
+
+
+## 2026-11-16 16:23 KST — 선택 직후 지형 확대
+
+사용자 프롬프트 원문:
+
+> 사진이나 특별시/도 클릭해서 줌인되면 바로 바다/실제 지형 타일/소수 지역명이 보이게 해줘. 너무 줌인 레벨이 낮은 거 같아
+
+추가 프롬프트 원문:
+
+> /feedback 커밋 푸쉬도 해줘
+
+결과: 홈 선택의 최소줌10.1을 기존choose/fly에 적용하고, 전국사진은 대표기록 원좌표 중심·지역은 기존fit 화면중심으로 이동한다. 비홈·홈초기화·DB/API는 유지한다. 명세/제품은 t14 지정 정적 승인, 선택2case Red를 확인했다. 기존 경기검사의 화면밖 수원구는 새확대 화면안 원본고양구41281로 보정하며 제품조건은 완화하지 않았다. 최종 지정Web10pass(2.0분)/types0·APK1분38초 성공, 에뮬레이터에서 전국사진과 강원영역1회선택의 실제지형 확대를 확인했다. 후보없는 강원중심의 지도라벨0과 기존Native 일부도구문자미표시·성능미수용은 유지한다. 상세 실행/빌드 결과는 TEST_CASE 최신절을 따른다. 앞선 단순지도 관련 변경과 함께 현재 jaehyun/desgin에 커밋·푸시하며, 기존 공개환경공유/루트의존성/원본sample·스토리보드·tsconfig 변경은 제외한다.
+
+변경 파일: frontend/src/SvgTravelMap.tsx; frontend/e2e/photo-map.spec.ts,simple-map.spec.ts; docs/SIMPLE_PHOTO_MAP_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 커밋에는 앞선 단순지도 구현의 관련 의존성·설정·검사도 포함한다.
+
+| 2026-11-16 18:06 KST | 현재 구성을 유지한채로 지도에 저작권표시를 최소화하는 방식으로 개선해줘 | Geoapify 구성 유지, 필수 출처 링크를 10px 줄바꿈 띠로 통합하고 My 라이선스 보완. 단위1pass/types0, 실기기 미검증. | 변경 파일: `frontend/src/MapAttribution.tsx`, `backend/tests/map-attribution.test.ts`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `AGENTS.md`, `docs/prompts.md` |
+
+## 2026-11-17 선택 시도 전체 맞춤
+사용자 요청: 사진 클릭했을 때, 부산에 있는 사진이라면 부산 전체를 보여주면서 그 줌인 영역에 타일이 표시되어한다는 의미였어.
+그리고 저작권 표시도 처음 로그인 화면에 짧게 표시하고, 지도에는 표시안하는 방향으로 해줘
+결과: 사진/시도 모두 전체fit으로 복원하고 기본지형 minzoom0. 로그인단독 출처는 제공자허용 미확인으로 미적용. 변경: SvgTravelMap.tsx, simpleMapStyle.ts, simple-map.test.ts, simple-map.spec.ts, photo-map.spec.ts, SIMPLE_PHOTO_MAP_SPEC 및 canonical6, 본 이력. Native/부산 실제기기 미검증.
+
+| 2026-11-17 13:13 KST | 웹은 적용이 안됬나? 웹 이랑 앱에 적용하고 웹사이트 켜줘 | 최신 configured 웹8083 실행/실부산 전체fit·타일 확인, x86_64 APK 빌드·에뮬레이터 업데이트 설치·실행. Vercel 미배포. | `docs/TEST_CASE.md`, `docs/prompts.md` |
+| 2026-11-17 13:13 KST | /feedback 웹 배경이나 타일이 하나도 안바뀌었는데 | 실제 localhost guest 부산 선택에서 전체경계/도로·녹지·수계 및 PBF200 확인, 스크린샷 전달. 기존 배포주소와 로컬을 구분. | `docs/TEST_CASE.md`, `docs/prompts.md` |
+
+| 2026-11-17 13:19 KST | 이렇게 보인다니까 | 첨부는 SVG fallback으로 식별. 홈 옛Ocean 제외·단색대체/키없음 및 renderer실패 안내·수동retry 보강. Web1/SSR5/types 통과·t14승인. 사용자브라우저 원인과 실제복구 미확정. | `frontend/src/SvgTravelMap.tsx`, `frontend/e2e/simple-map.spec.ts`, `backend/tests/maps-native.test.ts`, `docs/SIMPLE_PHOTO_MAP_SPEC.md`, canonical6, `docs/prompts.md` |
+
+
+## 2026-11-17 14:07 KST — OpenFreeMap 전국/상세 전환
+사용자 프롬프트 원문:
+> 웹과 안드로이드 어플에서 보이는 지도구성을 통일 해야하고, 우선적으로 웹에서 먼저 테스트하고 구현한 다음에 안드로이드에 적용시켜줘.
+> 현재 지도의 타일구성을 기존 전국 행정구역 지도는 그대로 유지하고, 일정 수준 이상 확대하면 OpenFreeMap의 Positron 지도로 전환하는 방식으로 하고싶어. 깔끔한 지도 형태로 MapLibre GL JS + OpenFreeMap 조합으로 구현 하고싶어
+> 추가 기능적인 요구사항은 아래의 내용을 구현해줘.
+> 1. 줌인을 안한 디폴트 상태에서는 특별시/도 구분선 외에는 타일이나 글자가 없음
+> 2. 사진을 클릭하면, 해당 지역이 전체적으로 보이는 줌인 스케일이어야하고, 타일이 보여야함.
+> 3. 지역을 줌인한 상태에서 다른 지역의 사진을 누르면 해당 지역으로 이동을 한다음에 사진을 보여줘야함.
+>
+> 다른 지도서비스(구글맵, 카카오맵, 네이버맵)의 줌인 레벨을 참고해서 적용시켜줘.
+> 현재는 대한민국만 표기할 거 야.
+>
+> Implement the plan.
+> /feedback 커밋 푸쉬도 해줘
+> 지금 조작하지 않음 — 검증 진행
+
+결과: 홈을 OpenFreeMap Positron으로 전환하고 전국 SVG커버/명시전체fit/시도별사진/단일카메라 snapshot·줌 hysteresis 및 한국영토 밖 차폐를 연결했다. 검색Geoapify/비홈SVG/DB·원좌표는 보존했다. 고지 전문을 My에 번들 제공하고 obsolete지도키 전달을 제거했다. t14 지정 정적승인, unit15/Node10/types/export 통과. Web·이전회귀·후속focused와 Native 한정관측은 TEST_CASE 실행별 기록을 따르며 전체수용으로 합산하지 않는다. Native 도구글자/성능·실휴대폰 미수용. 커밋/푸시 대상은 지도 관련 변경이며 외부 루트의존성·공개환경공유 변경은 제외한다.
+변경 파일: frontend/src/{SvgTravelMap,simpleMapStyle,photoMap,provinces,MapAttribution} 및 data/maps 고정자료·고지, frontend/e2e/{simple-map,photo-map}.spec.ts, frontend/plugins/withBundleEnvironment.cjs, backend/tests 지도검사4개, scripts/build-map-exterior.py 및 환경전달/검사, docs/OPENFREEMAP_SPEC.md·SIMPLE_PHOTO_MAP_SPEC.md·canonical6·README.local.md·.env.example 지도설명·본 이력.
+
+
+## 2026-11-17 15:49 KST — 지도 가독성·먼섬 탐색 구현
+
+### 사용자 프롬프트 원문
+
+```text
+# 수정사항
+1. 현재 글씨가 지도에서 잘리는 현상이 있음. 확대영역에서 글자부분이 잘리거나 가독성 나쁜부분 수정
+2. 섬은 특별시/도에 포함은 하되, 따로 클릭해야 보여주는걸로. 특별시/도를 클릭했을 때, 섬까지 확대에서 보여주지않음.
+3. 시 군 구 나 대로 및 하천 지역 확대범위를 늘려서 전체적으로 보았을 때, 너무 글자가 많이 보이지않게 수정
+4. 공원, 산 하천 등등 파스텔 색깔을 넣어서 @sample/map_zoom_in_ui.jpg 처럼 수정 가능한지
+
+구현 후, 커밋 푸쉬
+```
+
+```text
+Implement the plan.
+```
+
+### 결과 요약
+
+홈 본토/먼섬 표시타깃·사진/geometry/목록 소속을 공통원본에서 분리하고, 선택후무라벨/사용자확대 이름단계·파스텔지형/국내이름필터를 구현했다. Native within Layer.filter 크래시와 기존root/window 터치측정혼용은 기존SDK/API 경계에서 보강했다. t14 정적검토, 관련단위19·Web10(보강전clock포함)/보강대상2·좌표회귀3·types/export·최종APK 실제울릉도/경북/부산·glyph/사진요약을 분리기록했다. 기존Native 도구글자/성능·실휴대폰/iOS/전체E2E는미수용이며 원격DB/실배포는하지않았다. 현재브랜치 관련변경만커밋/푸시한다.
+
+### 변경 파일
+
+AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md의최신작업절, docs/API_SPEC.md, docs/TEST_CASE.md, docs/prompts.md의본이력, scripts/build-map-areas.py, frontend/src/homeMapAreas.ts, frontend/src/data/maps/home-map-areas.json, frontend/src/data/maps/label-land.json, frontend/src/data/maps/README.md, frontend/src/SvgTravelMap.tsx, frontend/src/provinces.ts, frontend/src/simpleMapStyle.ts, frontend/src/TileSurface.tsx, frontend/src/TileSurface.web.tsx, frontend/src/TileSurface.types.ts, frontend/src/usePhotoGroupMotion.ts, frontend/e2e/simple-map.spec.ts, backend/tests/map-readability.test.ts, backend/tests/openfreemap.test.ts, backend/tests/maps-native.test.ts. 기존.env.example/환경공유정책/루트package·lock/기타미추적파일은제외.
+
+## 2026-11-17 선택 시도명 구현
+- 요청 원문: 특별시/도 선택했을 때, 그 지역 이름은 보여줬으면 해. 예를 들어 경상남도 지역이나 그 지역 사진을 클릭하면 연한 회색글씨로 경상남도 이름은 보여주면 좋겠다
+- 결과: 홈 선택시도 정식명 하나를 연회색 SVG로 표시하고 전국/먼섬에서는 숨김. 기존 약칭/타일이름 공개조건 보존. unit/SSR10pass/types·export/APK 성공, Web2pass+기존Escape실패 후 실제닫기준비조건 대상1pass, Native 경북/경남 실제표시 확인. Escape 및 실폰/iOS/성능 수용은 별도.
+- 변경 파일: frontend/src/mapLabels.ts, frontend/src/SvgTravelMap.tsx, backend/tests/map-labels.test.ts, backend/tests/maps-native.test.ts, frontend/e2e/simple-map.spec.ts, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, AGENTS.md, docs/prompts.md.

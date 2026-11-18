@@ -1,4 +1,3 @@
-import {useThemeAssets} from './themeAssets';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import React from 'react';
@@ -10,17 +9,13 @@ import Avatar from './Avatar';
 import useAppViewport from './useAppViewport';
 
 export function Backpack({size = 42}: {size?: number}) {
- const uiAssets=useThemeAssets();
-  return <Image source={uiAssets.backpack} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
+ return <JournalIcon name="album" size={size}/>;
 }
 
 export function JournalIcon({name, color, size = 26}: {name: string; color?: string; size?: number}) {
  const c=useThemeColors();
-
- const uiAssets=useThemeAssets();
-  const source = uiAssets.navigation[name as keyof typeof uiAssets.navigation];
-  if (source) return <Image source={source} accessible={false} resizeMode="contain" style={{width:size,height:size,flexShrink:0}}/>;
-  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d="M12 22S4 15 4 9a8 8 0 0 1 16 0c0 6-8 13-8 13ZM12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="none" stroke={color??c.ink} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></Svg>;
+ const paths:Record<string,string>={home:'M3 11 12 3 21 11M5 10v11h5v-7h4v7h5V10',album:'M4 4h16v16H4ZM4 15l5-5 4 4 3-3 4 4M15 7h1',plus:'M12 5v14M5 12h14',friends:'M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM1 21v-3a7 7 0 0 1 14 0v3M17 4a4 4 0 0 1 0 8M18 15a5 5 0 0 1 5 5',account:'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM3 23v-2a9 9 0 0 1 18 0v2'};
+ return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d={paths[name]??paths.album} fill="none" stroke={color??c.ink} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
 export function Welcome({children}:{children?:React.ReactNode}) {
@@ -82,8 +77,8 @@ export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab
   const insets = useSafeAreaInsets();
   const compact = useAppViewport().height < 500;
   return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={[s.nav,{paddingBottom:Math.max(4,insets.bottom)}]}><View style={s.navRail}>
-    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={[s.fab,compact&&{width:50,height:50}]}><JournalIcon name="plus" size={compact?32:54}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
-      {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={32}/></View>}
+    {tabs.map(item => item.id === 'plus' ? <View key={item.id} style={s.createSlot}><Pressable accessibilityRole="button" accessibilityLabel={item.label} onPress={onCreate} style={[s.fab,compact&&{width:50,height:50}]}><JournalIcon name="plus" size={26} color={c.onPrimary}/></Pressable></View> : <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)} style={({pressed})=>[s.navItem,compact&&{minHeight:50,paddingVertical:2},compact&&tab===item.id&&s.navSelected,pressed&&{backgroundColor:c.primaryLight}]}>
+      {!compact&&<View style={[s.navIconSlot,tab===item.id&&s.navSelected]}><JournalIcon name={item.id} size={24}/></View>}
       <Text style={[s.navText,tab===item.id&&s.navTextSelected]}>{item.label}</Text>
       <View testID={tab===item.id?'nav-selection':undefined} style={[s.navIndicator,tab!==item.id&&{opacity:0}]}/>
     </Pressable>)}
@@ -92,8 +87,8 @@ export function JournalNav({tab, onTab, onCreate}: {tab: JournalTab; onTab: (tab
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   caption: {fontSize: 12, color: c.muted, textAlign: 'center', marginTop: 8},
-  titleRow: {marginTop:0,marginBottom:16,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}, title: {fontSize:24, lineHeight:35,fontWeight: '700', color: c.ink, letterSpacing: -1}, subtitle: {fontSize: 14, lineHeight: 22, color: c.muted, marginTop: 8},
-  mapFrame: {borderWidth: 1, borderColor: c.line, borderRadius: 22, overflow: 'hidden', backgroundColor: c.sheet}, mapCaption: {padding: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center'}, mapCaptionText: {fontSize: 13, color: c.ink}, total: {color: c.sea, fontWeight: '700', fontSize: 13},
+  titleRow: {marginTop:0,marginBottom:16,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12}, title: {fontSize:24, lineHeight:35,fontWeight: '700', color: c.ink, letterSpacing: 0}, subtitle: {fontSize: 14, lineHeight: 22, color: c.muted, marginTop: 8},
+  mapFrame: {borderWidth: 1, borderColor: c.line, borderRadius: 12, overflow: 'hidden', backgroundColor: c.sheet}, mapCaption: {padding: 14, flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center'}, mapCaptionText: {fontSize: 13, color: c.ink}, total: {color: c.sea, fontWeight: '700', fontSize: 13},
   section: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, marginBottom: 12}, sectionTitle: {fontSize: 18, fontWeight: '700', color: c.ink},
   empty: {alignItems: 'center', paddingVertical: 26}, emptyTitle: {color: c.ink, fontSize: 18, fontWeight: '700', marginTop: 12},
   list: {marginHorizontal:-16,marginTop:16,backgroundColor:c.sheet},
@@ -128,5 +123,5 @@ const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   navTextSelected: {color:c.navigation.activeLabel,fontWeight:'700'},
   navIndicator: {height:3,width:16,borderRadius:2,marginTop:1,backgroundColor:c.navigation.activeLabel},
   createSlot: {flex: 1, minWidth: 48, alignItems: 'center', justifyContent: 'center'},
-  fab: {width:54,height:54,alignItems:'center',justifyContent:'center',borderRadius:27},
+  fab: {backgroundColor:c.primary,width:54,height:54,alignItems:'center',justifyContent:'center',borderRadius:27},
 });

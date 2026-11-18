@@ -1,5 +1,9 @@
 import data from './data/korea-districts.json';
-import {contains,polygons,project} from './provinces';
+import {contains,polygons} from './provinces';
+import {geoMercator} from 'd3-geo';
+
+const projection=geoMercator().center([127,36]).scale(4000).translate([220,315]);
+export const project=(point:number[])=>projection([point[0],point[1]])!;
 
 export const areas:Record<string,string[]>={
   수도권:['KR-11','KR-28','KR-41'], 강원권:['KR-42'],

@@ -1,56 +1,56 @@
-import {afterEach, expect, test, vi} from 'vitest';
+import {expect,test,vi} from 'vitest';
 import React from '../../frontend/node_modules/react';
 import {renderToStaticMarkup} from '../../frontend/node_modules/react-dom/server';
-const {maps,pins,layers,buttons}=vi.hoisted(()=>({maps:[] as any[],pins:[] as any[],layers:[] as any[],buttons:[] as any[]}));
-vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Platform:{OS:'android'},useWindowDimensions:()=>({width:390,height:844,fontScale:1}),View:'section',Text:({numberOfLines,...p}:any)=>createElement('span',p),Image:({source,onLoad,onError,onLoadEnd,...p}:any)=>createElement('img',{...p,src:source?.uri}),Pressable:(props:any)=>{buttons.push(props);const {accessibilityLabel,accessibilityRole,onPress,style,...p}=props;return createElement('button',{...p,'aria-label':accessibilityLabel});},ScrollView:'div',StyleSheet:{create:(s:any)=>s}};});
-vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circle:'circle',G:'g',Path:'path',Text:'text'}));
-vi.mock('../../frontend/node_modules/@maplibre/maplibre-react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Map:(p:any)=>{maps.push(p);return createElement('native-map',null,p.children);},Camera:()=>null,Layer:(p:any)=>{layers.push(p);return null;},Marker:(p:any)=>{pins.push(p);return createElement('native-marker',{title:p.accessibilityLabel},p.children);}};});
-vi.mock('../../frontend/src/Feedback',async()=>({default:(await import('../../frontend/node_modules/react-native')).Pressable}));
-vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{defaultAvatar:{uri:'fixture://default-bear'},ocean:Object.fromEntries(['wave','cloud','plane','boat'].map(kind=>[kind,{uri:'fixture://'+kind}]))}}));
+vi.mock('../../frontend/node_modules/react-native',async()=>{const {createElement}=await import('../../frontend/node_modules/react');return {Platform:{OS:'android'},PanResponder:{create:()=>({panHandlers:{}})},useWindowDimensions:()=>({width:390,height:844,fontScale:2}),Modal:(p:any)=>p.visible?createElement('aside',null,p.children):null,View:'section',Text:'span',Image:'img',Pressable:(p:any)=>createElement('button',{'aria-label':p.accessibilityLabel},p.children),ScrollView:'div',StyleSheet:{create:(s:any)=>s}};});
+vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circle:'circle',G:'g',Path:'path',Line:'line',Text:'text',TSpan:'tspan',Defs:'defs',Mask:'mask',Rect:'rect',Image:'image'}));
+vi.mock('../../frontend/src/Feedback',async()=>({useReducedMotion:()=>true,default:(await import('../../frontend/node_modules/react-native')).Pressable}));
+vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{oceanDepth:{uri:'fixture://ocean-depth'},defaultAvatar:{uri:'fixture://default-bear'}}}));
+vi.mock('../../frontend/src/TileSurface',()=>({default:()=>React.createElement('div',{'data-native-tile':true})}));
 import TravelMap from '../../frontend/src/TravelMap';
-import NativeRecordMarker from '../../frontend/src/NativeRecordMarker';
-import {provinceFeatures} from '../../frontend/src/provinces';
-afterEach(()=>{maps.length=0;pins.length=0;layers.length=0;buttons.length=0;});
-
-test('MapLibre mounts without Google configuration and style retains all rings and holes',()=>{
- const markup=renderToStaticMarkup(React.createElement(TravelMap,{records:[],fullScreen:true}));
- expect(markup).toContain('<native-map');expect(markup).toContain('stroke="#FFFFFF"');expect(markup).not.toContain('fixture://plane');expect(markup).not.toContain('지도 표시 실패');
- expect(maps[0].mapStyle.sources.provinces.data.features.map((f:any)=>f.geometry)).toEqual(provinceFeatures.map(f=>f.geometry));
- expect(maps[0].mapStyle.sources.provinces.data.features).toHaveLength(17);
- expect(maps[0].logo).toBe(false);expect(markup).toContain('지도 확대');expect(markup).toContain('대한민국 전체 보기');
+const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,status:'complete',locations:{source:'exif',latitude,longitude}});
+test('TC-SVG-MAP-001 Native SVG renders country with white boundaries and separate own visits',()=>{
+ const mine=record('me',37.5665,126.978),friend=record('friend',33.4996,126.5312);
+ const html=renderToStaticMarkup(React.createElement(TravelMap,{fullScreen:true,records:[mine,friend],ownRecords:[mine]}));
+ expect(html.match(/<path[^>]*testID="map-region-/g)).toHaveLength(17);expect(html.match(/testID="map-label-/g)).toHaveLength(17);expect(html).toContain('stroke="#FFFFFF"');expect(html).toContain('testID="svg-ocean"');expect(html).not.toContain('testID="ocean-land-');expect(html).toContain('testID="ocean-texture"');expect(html.match(/testID="map-label-11"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('서울');expect(html.match(/testID="map-label-43"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('충북');expect(html).toContain('서울특별시 · 1개');expect(html).toContain('제주특별자치도 · 1개');
+ expect(html).toMatch(/testID="map-region-50"[^>]*fill="#E5E9E2"/);expect(html).not.toMatch(/testID="map-region-11"[^>]*fill="#E5E9E2"/);
+ expect(html).not.toMatch(/native-map|maplibre|NaN|Infinity/);
 });
-test('real-coordinate markers preserve thumbnail/author and suppress old Google provenance',()=>{
- const record={id:'mine',owner_id:'me',status:'complete',locations:{source:'exif',latitude:35.815,longitude:127.153}};
- const google={...record,id:'old',locations:{...record.locations,source:'google'}};
- const markup=renderToStaticMarkup(React.createElement(TravelMap,{records:[record,google],covers:{mine:'https://example.test/cover'},authors:{me:{display_name:'여행자 이름',avatar_url:'https://example.test/avatar'}}}));
- expect(pins.find(p=>p.id==='mine').lngLat).toEqual([127.153,35.815]);expect(pins.some(p=>p.id==='old')).toBe(false);
- expect(markup).toContain('https://example.test/cover');expect(markup).toContain('https://example.test/avatar');expect(markup).toContain('여행자 이름');
-});
-test('own stamps stay separate from friend records and correction pin does not need complete status',()=>{
- const mine={id:'mine',owner_id:'me',status:'complete',locations:{latitude:37.5665,longitude:126.978}};
- const friend={id:'friend',owner_id:'friend',status:'complete',locations:{latitude:33.4996,longitude:126.5312}};
- const markup=renderToStaticMarkup(React.createElement(TravelMap,{records:[mine,friend],ownRecords:[mine]}));
- expect(markup).not.toContain('✓ ');expect(layers.find(l=>l.id==='own-visits').filter[2][1]).toEqual(['KR-11']);
- pins.length=0;
- renderToStaticMarkup(React.createElement(TravelMap,{records:[{id:'selection',locations:{latitude:35.815,longitude:127.153}}],onCoordinate:()=>{}}));
- expect(pins.find(p=>p.id==='selection').lngLat).toEqual([127.153,35.815]);
+test('TC-SVG-MAP-001 Native correction keeps finite real pins but excludes unconfirmed Google positions',()=>{
+ const pin={...record('selection',35.815,127.153),status:undefined},old={...pin,id:'google',locations:{...pin.locations,source:'google'}};
+ const html=renderToStaticMarkup(React.createElement(TravelMap,{records:[pin,old],onCoordinate:()=>{}}));
+ expect(html.match(/<circle /g)).toHaveLength(1);expect(html).toContain('map-location-selection');expect(html).not.toMatch(/map-location-google|NaN|Infinity/);
 });
 
 
-test('TC-MAPLIBRE-011: native maps keep ocean ornaments without mountain or grass markers',()=>{
- for(const onCoordinate of [undefined,()=>{}]){
-  pins.length=0;renderToStaticMarkup(React.createElement(TravelMap,{records:[],onCoordinate}));
-  const ornaments=pins.filter(p=>p.id.startsWith('ornament-'));
-  if(onCoordinate)expect(ornaments).toHaveLength(0);else expect(ornaments.length).toBeGreaterThan(0);
-  expect(ornaments.some(p=>/mountain|grass/.test(p.id))).toBe(false);
- }
+test('TC-MAP-SIMPLE-001 Native nationwide covers keyless Positron with the existing SVG',()=>{
+ const mine=record('me',37.5665,126.978);
+ const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[mine],ownRecords:[mine]}));
+ expect(html).toMatch(/testID="map-region-11"[^>]*fill="#F5F3ED"/);
+ expect(html).not.toContain('testID="map-label-');expect(html).not.toContain('testID="svg-ocean"');expect(html).toContain('map-overview-cover');expect(html).toContain('data-native-tile');
+ expect(html).toContain('지도 지역 및 사진 목록');expect(html).toContain('지도 홈');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
 });
 
-test('TC-MAP-MARKER-002: native marker cancels a moved hold and suppresses the release after a long press',()=>{
- const onOpen=vi.fn(),record={id:'first',owner_id:'me',status:'complete',locations:{latitude:37,longitude:127}},group=[record,{...record,id:'second'}];
- renderToStaticMarkup(React.createElement(NativeRecordMarker,{record,group,covers:{},authors:{},correction:false,onOpen}));
- const button=buttons.find(p=>p.onLongPress);expect(button.delayLongPress).toBe(500);const touch=(x:number,y:number)=>({nativeEvent:{pageX:x,pageY:y}}),event={nativeEvent:{identifier:1},stopPropagation:vi.fn()};
- button.onPressIn?.();button.onTouchStart(touch(0,0));button.onTouchMove(touch(9,0));button.onPressIn?.();button.onLongPress();button.onPress(event);expect(onOpen).not.toHaveBeenCalled();
- button.onPressIn?.();button.onTouchStart(touch(0,0));button.onLongPress();button.onPress(event);expect(onOpen).toHaveBeenCalledTimes(1);
- button.onTouchCancel();button.onPress({nativeEvent:{},stopPropagation:vi.fn()});expect(onOpen).toHaveBeenCalledTimes(2);
+
+test('TC-MAP-HOME-003 Native home overlays the selected province below labels and preserves source paths',()=>{
+ const navigation={current:{province:'11',selected:null,camera:null,detail:false,regionOffset:0,recordOffset:0}};
+ const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[],navigation}));
+ const overlay=html.match(/<path[^>]*testID="map-selection"[^>]*>/)?.[0];expect(overlay).toBeDefined();expect(overlay).toContain('fill="#3B82F6"');expect(overlay).toContain('fill-opacity="0.18"');expect(overlay).toContain('stroke="#2563EB"');
+ expect(overlay?.match(/ d="([^"]+)"/)?.[1]).toBe(html.match(/testID="map-region-11" d="([^"]+)"/)?.[1]);expect(html.match(/testID="map-label-/g)).toHaveLength(1);expect(html.match(/testID="map-label-11"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('서울특별시');expect(html).toContain('fill="#7D868B"');
+ const nonhome=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:false,fullScreen:true,records:[],navigation}));expect(nonhome).not.toContain('map-selection');
+});
+
+test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fallback boundary',async()=>{
+ const {default:Module}=await import('node:module');
+ const load=(Module as any)._load;let nativeProps:any;
+ const spy=vi.spyOn(Module as any,'_load').mockImplementation(function(request:any,...args:any[]){
+  if(request==='@maplibre/maplibre-react-native')return {Map:(props:any)=>{nativeProps=props;return null;},Camera:()=>null,Layer:()=>null};
+  return load.call(Module,request,...args);
+ });
+ try{
+  const {default:TileSurface}=await vi.importActual<typeof import('../../frontend/src/TileSurface')>('../../frontend/src/TileSurface');
+  const failure=vi.fn(),tileError=vi.fn();
+  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError}));
+  expect(typeof nativeProps.mapStyle).toBe('string');expect(JSON.parse(nativeProps.mapStyle)).toEqual({version:8,sources:{},layers:[]});
+  nativeProps.onDidFailLoadingMap();expect(failure).toHaveBeenCalledOnce();expect(tileError).not.toHaveBeenCalled();
+ }finally{spy.mockRestore();}
 });

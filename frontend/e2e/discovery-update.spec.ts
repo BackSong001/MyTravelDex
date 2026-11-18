@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 import {districts} from '../src/destinationDraw';
 import {provinceLabels} from '../src/provinces';
 test('TC-DISCOVERY-001/STYLE-002: guest destination draw uses real region candidates and style stays design only at 320px',async({page})=>{
- await page.setViewportSize({width:320,height:700});await page.goto('/');await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();await page.getByRole('button',{name:'어디로 가봥?',exact:true}).click();
+ await page.setViewportSize({width:320,height:700});await page.goto('/');await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();await page.getByRole('button',{name:'대한민국',exact:true}).click();await page.getByRole('button',{name:'어디로 가봥?',exact:true}).click();
  await expect(page.getByRole('radio',{name:'미방문 지역'})).toBeDisabled();
  await page.getByRole('radio',{name:'권역 선택'}).click();await page.getByRole('radio',{name:'제주권'}).click();
  await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();

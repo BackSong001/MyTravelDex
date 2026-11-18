@@ -74,6 +74,8 @@ test('TC-FRIEND-003: accepted friends add only public complete records to the ex
  const visible=await record(1,'public');await record(1,'private');await record(1,'public',false);await record(2,'public');
  expect((await users[0].api.following()).map((r:any)=>r.id)).toEqual([visible]);
  expect(await users[2].api.following()).toEqual([]);
+ expect((await users[0].api.following(undefined,undefined,undefined,users[1].id)).map((r:any)=>r.id)).toEqual([visible]);
+ expect(await users[0].api.following(undefined,undefined,undefined,users[2].id)).toEqual([]);
  expect(await users[0].api.request(`/rest/v1/photos?owner_id=eq.${users[1].id}`)).toEqual([]);
  await expect(users[1].api.request(`/rest/v1/profiles?id=eq.${users[1].id}`,'PATCH',{public_profile_enabled:false})).rejects.toMatchObject({status:400});
  expect((await users[0].api.following()).map((r:any)=>r.id)).toEqual([visible]);

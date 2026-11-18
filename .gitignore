@@ -15,5 +15,4 @@ playwright-report/
 backend/supabase/.temp/
 backend/supabase/.branches/
 
-# Generated from pinned MapLibre dependency by frontend postinstall
 frontend/public/vendor/maplibre/

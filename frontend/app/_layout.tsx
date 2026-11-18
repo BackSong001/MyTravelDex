@@ -8,14 +8,12 @@ import {StatusBar} from 'expo-status-bar';
 import {Backpack} from '../src/Journal';
 import {api} from '../src/runtime';
 import {contrastRatio} from '../src/themes';
-import {ThemeProvider} from '../src/ThemeProvider';
 import useAppViewport from '../src/useAppViewport';
 import {MotionProvider} from '../src/Feedback';
 
 void SplashScreen.preventAutoHideAsync().catch(() => {});
 
-export default function Layout(){return <ThemeProvider><ThemedLayout/></ThemeProvider>;}
-function ThemedLayout() {
+export default function Layout() {
  const c=useThemeColors(),viewport=useAppViewport();
  const s=useThemeStyles(makeStyles);
   const [localReady, setLocalReady] = useState(false);
@@ -39,13 +37,13 @@ function ThemedLayout() {
       <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>
     </View>
     {!ready && <View style={s.splash} accessible accessibilityLabel="여행가봥 시작 중" accessibilityRole="progressbar">
-      <Backpack size={112}/><Text style={s.brand}>여행가봥</Text>
+      <Backpack size={96}/><Text style={s.brand}>여행가봥</Text><Text style={{color:c.muted,marginTop:12}}>사진으로 남기는 나의 여행</Text>
     </View>}
   </View></MotionProvider>;
 }
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   root: {flex: 1, backgroundColor: c.paper},
-  splash: {...StyleSheet.absoluteFillObject, backgroundColor: c.paper, justifyContent: 'center', alignItems: 'center', padding: 24},
+  splash: {...StyleSheet.absoluteFillObject, backgroundColor: c.map.ocean, justifyContent: 'center', alignItems: 'center', padding: 24},
   brand: {fontSize: 32, fontWeight: '800', color: c.ink, marginTop: 20, textAlign: 'center'},
 });

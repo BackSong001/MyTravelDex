@@ -4,8 +4,8 @@ import Svg,{Circle,Path} from 'react-native-svg';
 import Text from './FontText';
 import Pressable,{useReducedMotion} from './Feedback';
 import {useThemeColors} from './ThemeContext';
-import {project,provinceLabels,provincePalette} from './provinces';
-import {areas,districts,drawDelays,eligibleDistricts,pickDistrict,type District,type DrawMode} from './destinationDraw';
+import {provinceLabels,provincePalette} from './provinces';
+import {project,areas,districts,drawDelays,eligibleDistricts,pickDistrict,type District,type DrawMode} from './destinationDraw';
 
 const silhouettes=Object.entries(provinceLabels).map(([id])=>({
   id,path:districts.filter(d=>d.province===id).map(d=>d.path).join(''),

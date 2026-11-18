@@ -14,5 +14,5 @@ test('bundle environment mod is idempotent, fingerprints public inputs and verif
  assert.equal(twice,once);
  for(const name of ['EXPO_PUBLIC_SUPABASE_URL','EXPO_PUBLIC_SUPABASE_ANON_KEY','EXPO_PUBLIC_APP_ENV'])assert.ok(once.includes(name));
  assert.match(once,/inputs.property\('traveldexPublicEnvironment'/);
- assert.match(once,/SHA-256/);assert.match(once,/doLast/);assert.match(once,/jsBundleDir/);assert.match(once,/does not match/);
+ assert.match(once,/publicValues.take\(3\).any/);assert.match(once,/SHA-256/);assert.match(once,/doLast/);assert.match(once,/jsBundleDir/);assert.match(once,/does not match/);
 });
