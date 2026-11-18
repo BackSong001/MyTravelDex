@@ -1982,3 +1982,11 @@ AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, 
 작성·위치 선택·도감 상세에서 지도 탭과 같은 전국 경계, 상세 Positron 지도, 지도 도구를 사용하도록 통합했다. 모바일 웹에서 실제 기록과 위치 선택 흐름을 확인했다. 저장 핀과 실제 타일의 좌표 정렬, 해외 좌표 보정, 접근성 도구와 복귀를 각각 확인했다.
 
 변경 파일은 frontend/src/{SvgTravelMap.tsx,OceanBackground.tsx,uiAssets.ts}, frontend/e2e/{map-fixture.ts,photo-map.spec.ts,svg-map.spec.ts,simple-map.spec.ts,social-travel.spec.ts}, backend/tests/maps-native.test.ts, AGENTS.md와 docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md이다.
+
+## 2026-11-18 20:11 KST
+
+> Implement the plan.
+
+사진 두 단계 작성과 EXIF 확인, 세계 지도 개요·간소화된 국내 타일, 홈 여행 다람쥐와 지도 출처를 구현했다. 후속 기능과 사업 모델은 검토 명세에 기록했고, 격리 Local 웹·Android에서 작성 흐름을 검증했다.
+
+변경 파일은 `AGENTS.md`, `backend/tests/photos-picker.test.ts`, `backend/tests/travel-studio.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRAVEL_ROADMAP.md`, `docs/TRAVEL_STUDIO.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/plugins/withPhotoMetadata.cjs`, `frontend/src/MapAttribution.tsx`, `frontend/src/PhotoTray.tsx`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/src/TravelerSquirrel.tsx`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/README.md`, `frontend/src/data/maps/world-overview.json`, `frontend/src/photoCity.ts`, `frontend/src/photos.ts`, `frontend/src/simpleMapStyle.ts`, `frontend/src/studioDates.ts`이다.
