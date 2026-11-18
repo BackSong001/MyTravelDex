@@ -74,7 +74,7 @@ export type TravelMapProps = {
   navigation?: {current:MapNavigation|null};
   navigationOwner?: string|null;
   records: any[];
-  focus?: {latitude:number;longitude:number;label?:string};
+  focus?: {latitude:number;longitude:number;label?:string;bounds?:number[]};
   covers?: Record<string, string>;
   authors?: Record<string, {display_name: string | null; avatar_url: string | null}>;
   onSelect?: (record: any) => void;

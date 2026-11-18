@@ -1,3 +1,5 @@
+import {buildDestinations,isDestinationVisited,type Destination} from './destinationUnits';
+export {isDestinationVisited,type Destination} from './destinationUnits';
 import data from './data/korea-districts.json';
 import {contains,polygons} from './provinces';
 import {geoMercator} from 'd3-geo';
@@ -33,16 +35,17 @@ export const districts=data.flatMap(row=>{
   return [{...row,geometry,province:'KR-'+province,path,bounds:extent(rings.flat()),frame:extent(projected.flat())}];
 });
 export type District=typeof districts[number];
+export const destinations=buildDestinations(districts);
 export type DrawMode='nation'|'unvisited'|'area';
 export const drawDelays=Array.from({length:18},(_,i)=>55+i*i*1.4);
 
-export function eligibleDistricts(mode:DrawMode,area:string,visited:ReadonlySet<string>|null){
-  if(mode==='area')return districts.filter(d=>areas[area]?.includes(d.province));
-  if(mode==='unvisited')return visited?districts.filter(d=>!visited.has(d.id)):[];
-  return districts;
+export function eligibleDestinations(mode:DrawMode,area:string,visited:ReadonlySet<string>|null){
+  if(mode==='area')return destinations.filter(d=>areas[area]?.includes(d.province));
+  if(mode==='unvisited')return visited?destinations.filter(d=>!isDestinationVisited(d,visited)):[];
+  return destinations;
 }
-export function pickDistrict(pool:District[],random=Math.random){
-  return pool[Math.floor(random()*pool.length)] as District|undefined;
+export function pickDestination(pool:Destination[],random=Math.random){
+  return pool[Math.floor(random()*pool.length)] as Destination|undefined;
 }
 type Visit={owner_id:string;status:string;locations?:{latitude:number|string|null;longitude:number|string|null}|null};
 export function visitedDistricts(records:Visit[],owner:string){

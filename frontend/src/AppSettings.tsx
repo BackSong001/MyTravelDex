@@ -9,9 +9,9 @@ import BadgeCabinet from './BadgeCabinet';
 import {DestinationDraw,StyleTravel} from './TravelDiscovery';
 import {clearBadgeDraws} from './badges';
 import type {TravelApi} from './api';
-import {visitedDistricts,type District} from './destinationDraw';
+import {visitedDistricts,type Destination} from './destinationDraw';
 type Pane='menu'|'discovery'|'badges'|'style';
-export default function AppSettings({owner,api,tab,onTab,onCreate,onLogin,isCurrent,visited=null,records,failed,drawRequest=0,onRegion,onAlbum}:{owner?:string,api:TravelApi,tab:JournalTab,onTab:(tab:JournalTab)=>void,onCreate:()=>void,onLogin:()=>void,isCurrent:()=>boolean;visited?:string[]|null;records?:Parameters<typeof visitedDistricts>[0];failed?:boolean;drawRequest?:number;onAlbum?:(id:string)=>void;onRegion:(district:District)=>void}){
+export default function AppSettings({owner,api,tab,onTab,onCreate,onLogin,isCurrent,visited=null,records,failed,drawRequest=0,onRegion,onAlbum}:{owner?:string,api:TravelApi,tab:JournalTab,onTab:(tab:JournalTab)=>void,onCreate:()=>void,onLogin:()=>void,isCurrent:()=>boolean;visited?:string[]|null;records?:Parameters<typeof visitedDistricts>[0];failed?:boolean;drawRequest?:number;onAlbum?:(id:string)=>void;onRegion:(district:Destination)=>void}){
  const c=useThemeColors(),[open,setOpen]=useState(false),[pane,setPane]=useState<Pane>('menu'),[styleChoices,setStyleChoices]=useState<Record<number,string>>({}),trigger=useRef<any>(null),previous=useRef(owner);
  useEffect(()=>{if(!owner&&previous.current)clearBadgeDraws();if(previous.current!==owner){setPane('menu');setStyleChoices({});}previous.current=owner;},[owner]);
  const scroll=useRef<ScrollView>(null);
