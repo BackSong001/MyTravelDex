@@ -7,7 +7,7 @@ test('TC-DISCOVERY-001/STYLE-002: guest destination draw uses real region candid
  const rect=await entry.boundingBox();expect(rect!.width).toBeGreaterThanOrEqual(48);expect(rect!.height).toBeGreaterThanOrEqual(48);
  for(const control of ['지도 확대','지도 축소','지도 홈']){
   const other=await page.getByRole('button',{name:control,exact:true}).boundingBox();
-  expect(rect!.y+rect!.height).toBeLessThanOrEqual(other!.y);
+  expect(other!.y+other!.height).toBeLessThanOrEqual(rect!.y);
  }
  const nav=await page.getByRole('tablist',{name:'주요 탐색'}).boundingBox();
  expect(rect!.y+rect!.height).toBeLessThanOrEqual(nav!.y);
