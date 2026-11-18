@@ -1,10 +1,10 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {Animated,Pressable} from 'react-native';
+import {Animated,Pressable,View} from 'react-native';
 import Svg,{Path,Ellipse,Circle,G} from 'react-native-svg';
 import {useReducedMotion} from './Feedback';
 import Text from './FontText';
 
-export default function TravelerSquirrel(){
+export default function TravelerSquirrel({onCreate,onMap,onFeed}:{onCreate:()=>void;onMap:()=>void;onFeed:()=>void}){
  const reduced=useReducedMotion(),breath=useRef(new Animated.Value(0)).current,nod=useRef(new Animated.Value(0)).current;
  const [hello,setHello]=useState(false);
  useEffect(()=>{
@@ -12,7 +12,7 @@ export default function TravelerSquirrel(){
   const loop=Animated.loop(Animated.sequence([Animated.timing(breath,{toValue:-3,duration:1000,isInteraction:false,useNativeDriver:true}),Animated.timing(breath,{toValue:0,duration:1150,isInteraction:false,useNativeDriver:true}),Animated.delay(2500)]));loop.start();return()=>{loop.stop();nod.stopAnimation();};
  },[reduced,breath,nod]);
  function greet(){setHello(v=>!v);if(reduced)return;nod.stopAnimation();nod.setValue(0);Animated.sequence([Animated.timing(nod,{toValue:1,duration:240,useNativeDriver:true}),Animated.spring(nod,{toValue:0,useNativeDriver:true})]).start();}
- return <Pressable testID="travel-squirrel" accessibilityRole="button" accessibilityLabel="여행 다람쥐에게 인사하기" onPress={greet} style={{height:214,borderRadius:20,overflow:'hidden',backgroundColor:'#F4F5EC',alignItems:'center',justifyContent:'center'}}>
+ return <View><Pressable testID="travel-squirrel" accessibilityRole="button" accessibilityLabel="여행 다람쥐에게 인사하기" accessibilityHint="누르면 여행가봥 사용법을 열거나 닫아요" accessibilityState={{expanded:hello}} onPress={greet} style={{height:214,borderRadius:20,overflow:'hidden',backgroundColor:'#F4F5EC',alignItems:'center',justifyContent:'center'}}>
  <Animated.View style={{transform:[{translateY:breath},{rotate:nod.interpolate({inputRange:[0,1],outputRange:['0deg','-7deg']})}]}}>
  <Svg width={215} height={168} viewBox="0 0 230 180" accessible={false}>
  <Ellipse cx={114} cy={164} rx={68} ry={5} fill="#DADFCC"/>
@@ -28,5 +28,15 @@ export default function TravelerSquirrel(){
  <Circle cx={145} cy={80} r={4} fill="#372F29"/><Circle cx={146} cy={79} r={1} fill="white"/><Ellipse cx={165} cy={89} rx={4} ry={3} fill="#48382E"/>
  <G rotation={hello?-8:0} origin="122,63"><Path d="M95 60L101 42Q105 33 119 38L128 35Q136 35 141 54Z" fill="#82977A"/><Path d="M99 51Q122 58 140 47L143 56L98 65Z" fill="#536C58"/><Path d="M82 65Q98 59 112 59Q136 59 151 51Q162 50 151 61Q124 75 88 71Q76 70 82 65Z" fill="#758D73"/></G>
  <Path d="M138 122Q147 126 156 116" fill="none" stroke="#CA8250" strokeWidth={10} strokeLinecap="round"/>
- </Svg></Animated.View><Text style={{color:'#41564A',fontWeight:'600'}}>{hello?'반가워요, 여행자님!':'오늘은 어디로 떠날까요?'}</Text></Pressable>;
+ </Svg></Animated.View><Text style={{color:'#41564A',fontWeight:'600'}}>{hello?'반가워요, 여행자님!':'여행가봥이 처음인가요?'}</Text></Pressable>
+ {hello&&<View style={{paddingTop:10}}>
+  {([
+   ['사진으로 쓰기','사진을 담으면 촬영일과 위치를 확인할 수 있어요.',onCreate],
+   ['지도에서 찾기','여행 사진을 눌러 그 지역의 기록을 펼쳐보세요.',onMap],
+   ['피드 둘러보기','여행자들이 공개한 기록을 만날 수 있어요.',onFeed],
+  ] as const).map(([title,description,open])=><Pressable key={title} accessibilityRole="button" accessibilityLabel={title} onPress={open}
+   style={{minHeight:60,paddingVertical:8,paddingHorizontal:14,justifyContent:'center',borderBottomColor:'#E6E9E1',borderBottomWidth:1}}>
+   <Text style={{fontSize:16,fontWeight:'600',color:'#29382D'}}>{title}　›</Text><Text style={{fontSize:14,color:'#526055',marginTop:3}}>{description}</Text>
+  </Pressable>)}
+ </View>}</View>;
 }

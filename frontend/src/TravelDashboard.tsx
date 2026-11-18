@@ -20,7 +20,7 @@ export default function TravelDashboard(p:Props){
  const preview=earned.find(group=>group.pieces.some(piece=>piece.records.some(record=>record.id===recent?.id)))??earned[0];
  return <View style={{gap:22}}>
   {p.error?<Notice message={p.error}/>:!p.ready&&p.owner?<ActivityIndicator accessibilityLabel="내 여행 확인 중"/>:<>
-   <TravelerSquirrel/>
+   <TravelerSquirrel onCreate={p.onCreate} onMap={p.onMap} onFeed={p.onFeed}/>
    <View style={{borderTopWidth:1,borderBottomWidth:1,borderColor:'#E7E8EA',paddingVertical:16,flexDirection:'row'}}>
     {([['여행 기록',p.records.length,p.onJournal],['방문 시·도',earned.length,p.onMap],['퍼즐 조각',pieces,p.onPuzzle]] as const).map(([label,count,open])=><Pressable key={label} accessibilityRole="button" accessibilityLabel={label+' '+count} onPress={open} style={{flex:1,alignItems:'center',justifyContent:'center'}}><Text style={s.title}>{count}</Text><Text style={s.muted}>{label}</Text></Pressable>)}
    </View>

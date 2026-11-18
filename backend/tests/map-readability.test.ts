@@ -9,7 +9,7 @@ test('TC-MAP-READABILITY-001 sparse domestic labels render above the exterior wi
  expect(s.layers.find(l=>l.id==='label_other')?.minzoom).toBe(13);
  expect(s.layers.find(l=>l.id==='highway-name-major')?.minzoom).toBe(14);
  expect(s.layers.find(l=>l.id==='highway-name-minor')?.minzoom).toBe(16);
- expect(s.layers.find(l=>l.id==='park')?.paint?.['fill-color']).toBe('#D6E7BE');
+ expect(s.layers.filter(l=>['park','landcover_wood'].includes(l.id))).toHaveLength(0);
  expect(s.layers.find(l=>l.id==='water')?.paint?.['fill-color']).toBe('#B9DDF3');
  expect(simpleMapColors.water).toBe('#A9D7EE');
 });
@@ -41,4 +41,16 @@ test('TC-MAP-READABILITY-001 conservative label land retains inland city candida
  expect(readFileSync('frontend/src/data/maps/label-land.json').byteLength).toBeLessThan(500000);
  for(const point of [[126.978,37.5665],[129.0753,35.18],[126.5313,33.4999]])expect(containsRegion(labelLand.geometry as any,point as [number,number])).toBe(true);
  for(const point of [[130.4019,33.59],[139.69,35.68]])expect(containsRegion(labelLand.geometry as any,point as [number,number])).toBe(false);
+});
+
+import {geoArea,geoContains} from '../../frontend/node_modules/d3-geo/src/index.js';
+test('every bundled world polygon covers its land side, including antimeridian islands',()=>{
+ const world=JSON.parse(readFileSync('frontend/src/data/maps/world-overview.json','utf8'));
+ for(const country of world.land){
+  const {geometry}=country,polygons=geometry.type==='Polygon'?[geometry.coordinates]:geometry.coordinates;
+  for(const coordinates of polygons)expect(geoArea({type:'Polygon',coordinates})).toBeLessThan(2*Math.PI);
+ }
+ const russia=world.land.find((f:any)=>f.properties.code==='RUS');
+ expect(geoContains(russia,[129.85,37.12])).toBe(false);
+ expect(geoContains(russia,[37.62,55.75])).toBe(true);
 });

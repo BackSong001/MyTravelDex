@@ -1,11 +1,10 @@
 import {useThemeColors,useThemeStyles,type ThemeColors} from '../src/ThemeContext';
 import React, {useEffect, useState} from 'react';
-import Text from '../src/FontText';
 import {Platform,StyleSheet, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SplashScreen, Stack} from 'expo-router';
 import {StatusBar} from 'expo-status-bar';
-import {Backpack} from '../src/Journal';
+import {TravelSplash} from '../src/TravelSplash';
 import {api} from '../src/runtime';
 import {contrastRatio} from '../src/themes';
 import useAppViewport from '../src/useAppViewport';
@@ -29,21 +28,17 @@ export default function Layout() {
     return () => {active = false;};
   }, []);
   useEffect(() => {
-    if (ready) void SplashScreen.hideAsync().catch(() => {});
-  }, [ready]);
+    if (laidOut) void SplashScreen.hideAsync().catch(() => {});
+  }, [laidOut]);
   return <MotionProvider><View testID="viewport-frame" style={[s.root,Platform.OS==='web'&&{position:'absolute',top:viewport.top??0,left:viewport.left??0,width:viewport.width,maxWidth:'100%',height:viewport.height}]} onLayout={() => setLaidOut(true)}>
     <StatusBar style={contrastRatio('#FFFFFF',c.paper)>contrastRatio('#000000',c.paper)?'light':'dark'}/>
     <View style={s.root} accessibilityElementsHidden={!ready} importantForAccessibility={ready ? 'auto' : 'no-hide-descendants'}>
       <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>
     </View>
-    {!ready && <View style={s.splash} accessible accessibilityLabel="여행가봥 시작 중" accessibilityRole="progressbar">
-      <Backpack size={96}/><Text style={s.brand}>여행가봥</Text><Text style={{color:c.muted,marginTop:12}}>사진으로 남기는 나의 여행</Text>
-    </View>}
+    {!ready && <TravelSplash label="여행가봥 시작 중"/>}
   </View></MotionProvider>;
 }
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   root: {flex: 1, backgroundColor: c.paper},
-  splash: {...StyleSheet.absoluteFillObject, backgroundColor: c.map.ocean, justifyContent: 'center', alignItems: 'center', padding: 24},
-  brand: {fontSize: 32, fontWeight: '800', color: c.ink, marginTop: 20, textAlign: 'center'},
 });

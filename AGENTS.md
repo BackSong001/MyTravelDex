@@ -689,3 +689,7 @@ FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭
 
 ## 사진 여행 스튜디오
 최신 작성·지도·홈 계약은 `docs/TRAVEL_STUDIO.md`, 검토 전용 기능·BM은 `docs/TRAVEL_ROADMAP.md`를 따른다. 서버 API·RLS·기존 기록 상한을 유지하고 신규 UI 5장, 월말 날짜 확인, 도시 선택, 세계지도와 국내 상세 전환을 검사한다.
+
+## 워크숍 출시 후보
+
+Web/Android는 공통 여행 가방과 지도 스타일을 사용한다. 태그는 분류·아이콘 시안까지 다룬다. 상세 범위는 [워크숍 계획](docs/PLAN_MVP.md)을 따른다.

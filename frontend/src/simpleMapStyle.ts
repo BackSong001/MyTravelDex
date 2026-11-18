@@ -4,14 +4,14 @@ import positron from './data/maps/positron.json';
 import exterior from './data/maps/korea-exterior.json';
 import labelLand from './data/maps/label-land.json';
 
-export const simpleMapColors={water:'#A9D7EE',land:'#F5F3ED',green:'#D6E7BE',forest:'#CADDBB',river:'#B9DDF3',building:'#DDDAD2',label:'#687178',border:'#CFD5D7'};
+export const simpleMapColors={water:'#A9D7EE',land:'#F5F3ED',river:'#B9DDF3',building:'#DDDAD2',label:'#687178',border:'#CFD5D7'};
 export const overviewLimit=(fitZoom:number)=>Math.max(7.5,fitZoom+.5);
 export const detailAfterZoom=(detail:boolean,fitZoom:number,zoom:number,previousZoom:number)=>detail&&zoom>=previousZoom||zoom>=fitZoom+1||detail&&zoom>fitZoom+.5;
 // 원본 Positron은 고정하고 표시 정책만 양 플랫폼에 공통 적용한다.
 export function simpleMapStyle():StyleSpecification{
  const style=JSON.parse(JSON.stringify(positron)) as StyleSpecification;
  style.layers=style.layers.filter(l=>!['boundary','poi','aerodrome_label'].includes((l as any)['source-layer'])&&!/shield|label_country/.test(l.id));
- style.layers=style.layers.filter(l=>!/(railway|aeroway|highway_service|highway_path|highway_track|_casing|building_3d)/.test(l.id));
+ style.layers=style.layers.filter(l=>!['park','landcover_wood'].includes(l.id)&&!/(railway|aeroway|highway_service|highway_path|highway_track|_casing|building_3d)/.test(l.id));
  const symbols=style.layers.filter(l=>l.type==='symbol');
  for(const layer of style.layers){
   if(layer.type==='symbol'){
@@ -22,7 +22,7 @@ export function simpleMapStyle():StyleSpecification{
    layer.paint={...layer.paint,'text-color':simpleMapColors.label,'text-halo-color':'#FFFFFF','text-halo-width':1.5,'text-halo-blur':.5};
   }else if(layer.type==='background')layer.paint={...layer.paint,'background-color':simpleMapColors.land};
   else if(layer.type==='fill'){
-   const color=layer.id==='park'?simpleMapColors.green:layer.id==='landcover_wood'?simpleMapColors.forest:layer.id==='water'?simpleMapColors.river:layer.id==='building'?simpleMapColors.building:undefined;
+   const color=layer.id==='water'?simpleMapColors.river:layer.id==='building'?simpleMapColors.building:undefined;
    if(layer.id==='building'){layer.minzoom=16;layer.filter=['all',...(layer.filter?[layer.filter]:[]),['>', ['number',['get','render_height'],0],12]] as FilterSpecification;}
    if(color)layer.paint={...layer.paint,'fill-color':color};
   }else if(layer.type==='line'){

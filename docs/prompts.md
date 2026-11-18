@@ -1990,3 +1990,111 @@ AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, 
 사진 두 단계 작성과 EXIF 확인, 세계 지도 개요·간소화된 국내 타일, 홈 여행 다람쥐와 지도 출처를 구현했다. 후속 기능과 사업 모델은 검토 명세에 기록했고, 격리 Local 웹·Android에서 작성 흐름을 검증했다.
 
 변경 파일은 `AGENTS.md`, `backend/tests/photos-picker.test.ts`, `backend/tests/travel-studio.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRAVEL_ROADMAP.md`, `docs/TRAVEL_STUDIO.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/plugins/withPhotoMetadata.cjs`, `frontend/src/MapAttribution.tsx`, `frontend/src/PhotoTray.tsx`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/src/TravelerSquirrel.tsx`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/README.md`, `frontend/src/data/maps/world-overview.json`, `frontend/src/photoCity.ts`, `frontend/src/photos.ts`, `frontend/src/simpleMapStyle.ts`, `frontend/src/studioDates.ts`이다.
+
+## 2026-11-18 21:53 KST
+
+> # 여행가봥 프로젝트 기획 회의 정리
+>
+> ## 1. 회의 핵심 요약
+>
+> 이번 회의에서는 **여행가봥 앱의 홈 화면 개편, 여행 콘텐츠 확장, 태그 기반 분류 시스템, 캐릭터 브랜딩, 출시 전략**을 중심으로 논의했다.
+>
+> 핵심 방향은 기존 지도 기반 여행 기록 기능을 유지하면서 피드와 스토리텔링 기능을 추가하고, 게임형 이벤트와 브랜드 캐릭터를 통해 사용자 참여도를 높이는 것이다.
+>
+> ## 2. 주요 논의 사항
+>
+> | 구분 | 주요 내용 |
+> |---|---|
+> | 홈 화면 개편 | 지도 중심 구조 유지 및 피드 기능 도입 검토 |
+> | UI/UX 개선 | 지도, 피드, 마이페이지의 효율적인 배치 및 타 서비스 사례 참고 |
+> | 여행 기록 | 지도 기반 여행 기록 통합 관리 및 스토리텔링 기능 추가 |
+> | 콘텐츠 기획 | 전국 산·바다를 활용한 게임형 이벤트, 온천·낚시 등 테마 확장 |
+> | 태그 시스템 | 사전 정의된 태그와 사용자 입력 태그를 활용한 사진 분류 |
+> | AI 기능 | 사진 분석을 통한 자동 태그 생성 및 맞춤형 콘텐츠 추천 검토 |
+> | 캐릭터 브랜딩 | 다람쥐, 수달, 카피바라 등 캐릭터 후보 및 이름 선정 |
+> | 튜토리얼 | 캐릭터를 활용한 앱 사용법 안내 및 온보딩 구성 |
+> | 개발 방향 | PWA 기반 개발 방향 논의 |
+> | 출시 전략 | 약 14일의 앱 검토 기간을 고려한 조기 출시 추진 |
+> | 홍보 및 발표 | 워크샵 발표 자료, 캐릭터 홍보 전략, 스타트업 보고서 준비 |
+>
+> ## 3. 핵심 기획 방향
+>
+> ### ① 홈 화면 및 사용자 경험 개선
+>
+> - 기존 지도 기반 여행 기록 기능 유지
+> - 홈 화면에 피드 기능 추가 검토
+> - 지도와 마이페이지의 역할 및 배치 재정립
+> - 여행 기록에 스토리텔링 요소 도입
+> - 타 여행 플랫폼 사례를 참고해 간결한 인터페이스 설계
+>
+> ### ② 여행 콘텐츠 및 이벤트 확장
+>
+> - 전국 산과 바다를 활용한 게임형 여행 이벤트 기획
+> - 온천, 낚시 등 다양한 여행 테마 추가 검토
+> - 여행 기록과 이벤트 참여를 연결하는 방식 논의
+> - 사용자 참여와 지속적인 앱 이용을 유도하는 콘텐츠 개발
+>
+> ### ③ 태그 기반 콘텐츠 분류
+>
+> - 여행 테마별 기본 태그 목록 사전 정의
+> - 태그별 아이콘 제작
+> - 사용자 직접 입력 태그 지원
+> - AI 기반 사진 자동 태그 생성 검토
+> - 태그를 활용한 여행 기록 검색, 필터링 및 추천 기능 구현
+>
+> ### ④ 브랜드 캐릭터 및 홍보
+>
+> - 다람쥐, 수달, 카피바라 등 캐릭터 후보 검토
+> - '가랑이', '사랑이' 등 캐릭터 이름 논의
+> - 순우리말의 의미와 어원을 고려한 작명
+> - AI 특유의 인위적인 느낌을 줄인 자연스럽고 귀여운 디자인 추구
+> - 캐릭터를 튜토리얼, 앱 안내, 홍보 콘텐츠에 활용
+>
+> ### ⑤ 개발 및 출시 전략
+>
+> - PWA 기반 개발 방향 논의
+> - 홈 화면 개편과 피드 기능 도입 계획
+> - 앱 검토 기간 약 14일을 고려한 조기 출시 추진
+> - 워크샵 발표 및 프로젝트 진행 상황 점검
+> - 광고 배포 여부와 홍보 일정 추가 검토
+>
+> ### 6 스플래시 화면
+> - 처음 실행 할 때, 스플래시 화면을 띄워서 앱 화면이 준비 되면 디스플레이
+> - 지도 화면으로 전환할 때, 렉이 조금 있으므로 그때도 스플래시 화면을 디스플레이
+> - 스플래시 화면은 가운데에 가방을 두고 밑에 앱 이름인 "여행가봥"을 띄우고, 로딩을 기다리는 화면
+> - 스플래시 화면의 가방은 움직임이 있고 역동적이어야함. 가방이 나타나는 장면을 애니메이션처럼 구성
+>
+> ## 4. 향후 진행 과제
+>
+> ### 1차 우선순위
+> - [ ] 홈 화면 구조 확정 (지도·피드·마이페이지)
+> - [ ] 기존 기능 유지 범위 및 출시 MVP 확정
+> - [ ] 앱 출시 일정 및 워크샵 발표 자료 준비
+> - [ ] 스플래시 화면
+>
+> ### 2차 우선순위
+> - [ ] 태그 목록 및 분류 체계 설계
+> - [ ] 캐릭터 디자인 및 이름 선정
+> - [ ] 캐릭터 기반 튜토리얼 기획
+>
+> ### 3차 우선순위
+> - [ ] AI 자동 태그 및 추천 기능 검토
+> - [ ] 산·바다 등 테마형 이벤트 구체화
+>
+> ## 5. 최종 정리
+>
+> **여행가봥의 핵심 방향은 단순한 여행 기록 앱에서 여행 기록·공유·수집·탐색을 결합한 참여형 여행 플랫폼으로 발전시키는 것이다.**
+>
+> 단기적으로는 홈 화면 개편, 피드 도입 여부 결정, 캐릭터 브랜딩, 앱 출시 준비에 집중하고, 중장기적으로 AI 태그 분류, 맞춤형 추천, 테마별 게임형 이벤트를 확장하는 방향이다.
+>
+> > **확인 필요:** 이번 회의 내용에는 확정된 결정과 검토 단계의 아이디어가 혼재되어 있으므로 홈 화면 구조, 캐릭터, PWA 전환 여부, 출시 범위는 최종 확정이 필요하다.
+>
+> 현재 브랜치를 jhyun/plan 으로 생성하고 스위치하여 구현.
+> 기존에 홈화면 개편, 피드, 마이페이지는 변경했지만, 요구사항에 구현하지 못한 부분이 있다면 구현.
+> 추가로, 현재 웹화면인 지도 화면이 [Image #1] 처럼 산 부분이 삐쭉삐죽 튀어나온 부분인데, 너무 디자인이 별로라서 해결하거나, 안된다면 초록 부분 색깔은 빼줘.
+> 그리고 세계지도가 너무 지도 윤곽이 안잡혀있어서, 지도 모양은 잡아주고 안에 세부적인 지역명은 넣지말고 지역마다 구분선은 넣어줘. 그리고 대표적인 지역명만 표시하는 방향으로
+> 작업이 끝나면 커밋푸쉬도해줘
+
+태그 범위 확인 답변: “분류 체계·아이콘 설계까지. 실제 저장·검색은 후속 작업”. 앱 시작·지도 전환에 가방을 표시하고 다람쥐 안내를 실제 화면과 연결했다. 국내 산 면 채색을 걷고 해외 해안선·국경·광역 경계를 보강했다.
+
+변경 파일은 `AGENTS.md`, `backend/tests/map-readability.test.ts`, `docs/API_SPEC.md`, `docs/PLAN_MVP.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/design/travel-theme-icons.svg`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/public/index.html`, `frontend/public/travel-splash.png`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/src/TravelSplash.tsx`, `frontend/src/TravelerSquirrel.tsx`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/README.md`, `frontend/src/data/maps/world-overview.json`, `frontend/src/provinces.ts`, `frontend/src/simpleMapStyle.ts`, `scripts/build-world-overview.py`이다.

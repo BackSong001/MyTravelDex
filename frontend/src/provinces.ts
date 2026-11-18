@@ -69,6 +69,7 @@ export type MapNavigation = {
   recordOffset: number;
 };
 export type TravelMapProps = {
+  onCanvasReady?:()=>void;
   homeMap?: boolean;
   navigation?: {current:MapNavigation|null};
   navigationOwner?: string|null;

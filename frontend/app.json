@@ -5,9 +5,9 @@
     "scheme": "mytraveldex",
     "version": "1.0.0",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./public/travel-splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#EFFAFF"
+      "backgroundColor": "#FFFFFF"
     },
     "orientation": "default",
     "userInterfaceStyle": "light",

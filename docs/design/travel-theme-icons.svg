@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 98" role="img" aria-labelledby="title">
+<title id="title">여행 테마 아이콘 시안. 산, 바다, 온천, 낚시, 도시 산책, 음식.</title>
+<rect width="384" height="98" rx="12" fill="#F8F8F3"/>
+<g fill="none" stroke="#37594B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+ <svg x="14" y="16" width="36" height="36" viewBox="0 0 24 24"><path d="m2 19 8-14 4 7 2-3 6 10Zm5-9 3 2 2-3"/></svg>
+ <svg x="78" y="16" width="36" height="36" viewBox="0 0 24 24"><path d="M2 10q3-5 6 0t6 0 8 0M2 15q3-5 6 0t6 0 8 0"/></svg>
+ <svg x="142" y="16" width="36" height="36" viewBox="0 0 24 24"><path d="M2 14q0 7 10 7t10-7ZM7 11c-3-3 3-4 0-8m5 8c-3-3 3-4 0-8m5 8c-3-3 3-4 0-8"/></svg>
+ <svg x="206" y="16" width="36" height="36" viewBox="0 0 24 24"><circle cx="15" cy="4" r="2"/><path d="M15 6v9a5 5 0 0 1-10 0v-3l3 3"/></svg>
+ <svg x="270" y="16" width="36" height="36" viewBox="0 0 24 24"><path d="M3 17V7h7v10m0-12V3h8v14M5 10h2m6-4h2m-2 4h2M2 21l20-4"/></svg>
+ <svg x="334" y="16" width="36" height="36" viewBox="0 0 24 24"><path d="M2 12h20q-1 8-10 8t-10-8Zm7 9h6m-5-10 7-9m-4 9 8-8"/></svg>
+</g><g font-family="sans-serif" font-size="13" fill="#263B32" text-anchor="middle">
+<text x="32" y="76">산</text><text x="96" y="76">바다</text><text x="160" y="76">온천</text>
+<text x="224" y="76">낚시</text><text x="288" y="76">도시 산책</text><text x="352" y="76">음식</text></g></svg>

@@ -188,3 +188,27 @@ test('studio appends five images, confirms date and city, then publishes to the 
  expect(assets).toHaveLength(4);expect(row.visibility).toBe('public');expect(row.locations.latitude).toBeCloseTo(37.5665,4);
  await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+row.id)).toBeVisible();
 });
+
+test('home guide opens real destinations and each map entry shows the backpack until layout',async({page})=>{
+ await login(page);
+ await page.evaluate(()=>{
+  const events:string[]=[];
+  (window as any).mapSplashEvents=events;
+  new MutationObserver(changes=>{
+   for(const change of changes)for(const node of Array.from(change.addedNodes)){
+    if(node instanceof Element&&(node.matches('[aria-label="지도 준비 중"]')||node.querySelector('[aria-label="지도 준비 중"]')))events.push('splash');
+   }
+  }).observe(document.body,{subtree:true,childList:true});
+ });
+ const guide=page.getByTestId('travel-squirrel');
+ for(const destination of ['지도에서 찾기','피드 둘러보기','사진으로 쓰기']){
+  await guide.click();
+  await page.getByRole('button',{name:destination,exact:true}).click();
+  if(destination==='지도에서 찾기'){
+   await expect(page.getByTestId('svg-map-canvas')).toBeVisible();await expect(page.getByLabel('지도 준비 중')).toHaveCount(0);
+   await expect.poll(()=>page.evaluate(()=>(window as any).mapSplashEvents.length)).toBe(1);
+  }else if(destination==='피드 둘러보기')await expect(page.getByTestId('social-feed')).toBeVisible();
+  else {await expect(page.getByRole('button',{name:'사진 목록',exact:true})).toBeVisible();break;}
+  await page.getByRole('tab',{name:'홈',exact:true}).click();
+ }
+});
