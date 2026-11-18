@@ -160,3 +160,16 @@ test('TC-SVG-MAP-001 district handoff and navigation survive unmount until owner
  await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');
  await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
 });
+
+test('TC-DRAW-002/003 destination clears prior selection and returns to overview',async({page})=>{
+ await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
+ await page.evaluate(()=>(window as any).update({homeMap:true,focus:{latitude:33.4,longitude:126.55,label:'제주시'}}));
+ await expect(page.getByText('◎ 제주시',{exact:true})).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.selected)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.province)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera.center)).toEqual([126.55,33.4]);
+ await page.evaluate(()=>(window as any).update({focus:undefined}));
+ await expect(page.getByTestId('map-destination')).toHaveCount(0);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.detail)).toBe(false);
+});
