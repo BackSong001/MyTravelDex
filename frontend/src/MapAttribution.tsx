@@ -6,15 +6,16 @@ import Text from './FontText';
 import {Linking,Platform,View} from 'react-native';
 const MAP_ATTRIBUTION='SGIS · vuski/admdongkor · CC BY 4.0 · 2026-04-01';
 
-export default function MapAttribution({records,tiles=false}:{records:any[];tiles?:boolean}){
+export default function MapAttribution({records,tiles=false,domestic=true}:{records:any[];tiles?:boolean;domestic?:boolean}){
  const c=useThemeColors();
  const credits=[...new Set(records.filter(record=>record.locations?.source!=='google').map(record=>record.locations?.attribution).filter(Boolean))];
+ if(!domestic&&!tiles&&!credits.length)return null;
  const external=tiles||credits.length>0;
  const additional=credits.filter(credit=>credit!=='Powered by Geoapify | © OpenStreetMap contributors');
  const linkStyle={fontSize:10,lineHeight:16,color:c.ink};
  const link=(label:string,url:string)=><Text accessibilityRole="link" {...(Platform.OS==='web'?{href:url,hrefAttrs:{target:'_blank',rel:'noopener noreferrer'}}:{onPress:()=>{void Linking.openURL(url);}})} style={linkStyle}>{label}</Text>;
  return <View testID="map-attribution" style={{paddingHorizontal:6,paddingVertical:2,backgroundColor:c.paper}}>
-  <Text style={linkStyle}>{link('SGIS · vuski','https://github.com/vuski/admdongkor')} {credits.length>0&&<>· {link('Powered by Geoapify','https://www.geoapify.com/')}</>} {external&&<>· {link('© OpenStreetMap contributors','https://www.openstreetmap.org/copyright')}</>}{tiles&&<> · {link('© OpenMapTiles','https://openmaptiles.org/')}</>}</Text>
+  <Text style={linkStyle}>{domestic&&link('SGIS · vuski','https://github.com/vuski/admdongkor')} {credits.length>0&&<>· {link('Powered by Geoapify','https://www.geoapify.com/')}</>} {external&&<>· {link('© OpenStreetMap contributors','https://www.openstreetmap.org/copyright')}</>}{tiles&&<> · {link('© OpenMapTiles','https://openmaptiles.org/')}</>}</Text>
   {additional.map(credit=><Text key={String(credit)} style={linkStyle}>{String(credit)}</Text>)}
  </View>;
 }
@@ -38,8 +39,8 @@ export function ProfileMapCredits({compact=false}:{compact?:boolean}={}){
   <SourceLink label="Positron · OpenMapTiles · CC BY 4.0 · 표시 수정" url="https://github.com/openmaptiles/positron-gl-style"/>
   <SourceLink label="CartoDB Basemaps · Stamen / Paul Norman · CC BY 3.0" url="https://github.com/CartoDB/CartoDB-basemaps"/>
   <SourceLink label="© OpenMapTiles" url="https://openmaptiles.org/"/>
-  <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> · </Text><SourceLink label="© OpenStreetMap contributors" url="https://www.openstreetmap.org/copyright"/></View>
-  <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> | </Text><SourceLink label="© OpenAddresses contributors" url="https://openaddresses.io/"/></View>
+  <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Natural Earth · 세계 개요" url="https://www.naturalearthdata.com/"/><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> · </Text><SourceLink label="© OpenStreetMap contributors" url="https://www.openstreetmap.org/copyright"/></View>
+  <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Natural Earth · 세계 개요" url="https://www.naturalearthdata.com/"/><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> | </Text><SourceLink label="© OpenAddresses contributors" url="https://openaddresses.io/"/></View>
   </>}
  </View>;
 }

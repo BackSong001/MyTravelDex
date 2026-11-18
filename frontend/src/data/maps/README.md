@@ -24,3 +24,5 @@ Mercator scale1000/translate0의128색상층을2048² PNG에구운고정asset이
 `home-map-areas.json`과 `label-land.json`은 같은 2026-04-01 시도 원본에서 생성한 표시용 파생물이며 위 출처·라이선스를 적용한다. Shapely==2.2.0/pyproj==3.7.2 환경에서 `python scripts/build-map-areas.py`로 생성하고 `--check`로 원본 hash·재생성 일치를 확인한다. EPSG5179의 최대polygon 직접거리30km 이내는 본토fit, 나머지는10km 연결요소로 묶어 원본polygon index만 보관한다. 표시ID는 DB/행정code가 아니다.
 
 이름 필터만 250m 내부buffer→100m단순화→원본교집합을 사용한다. 경계/작은섬의 이름은 생략될 수 있으며 원본 육지·사진·위치판정·섬 목록에는 이 축소geometry를 사용하지 않는다. 정확한 계약/검증은 `docs/MAP_READABILITY_SPEC.md`를 따른다.
+
+세계 개요는 Natural Earth v5.1.2의 ne_110m_admin_0_countries와 ne_110m_populated_places를 사용한다. 대한민국은 기존 국내 경계 자료로 표시한다. 경위도는 소수점 3자리로 반올림했다. 도시 표시는 인구 150만 이상 또는 scalerank 1 이하이며 화면 밀도에 따라 줄인다. https://github.com/nvkelso/natural-earth-vector/tree/v5.1.2/geojson · https://www.naturalearthdata.com/about/terms-of-use/ (public domain).

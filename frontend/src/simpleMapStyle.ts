@@ -11,6 +11,7 @@ export const detailAfterZoom=(detail:boolean,fitZoom:number,zoom:number,previous
 export function simpleMapStyle():StyleSpecification{
  const style=JSON.parse(JSON.stringify(positron)) as StyleSpecification;
  style.layers=style.layers.filter(l=>!['boundary','poi','aerodrome_label'].includes((l as any)['source-layer'])&&!/shield|label_country/.test(l.id));
+ style.layers=style.layers.filter(l=>!/(railway|aeroway|highway_service|highway_path|highway_track|_casing|building_3d)/.test(l.id));
  const symbols=style.layers.filter(l=>l.type==='symbol');
  for(const layer of style.layers){
   if(layer.type==='symbol'){
@@ -22,8 +23,13 @@ export function simpleMapStyle():StyleSpecification{
   }else if(layer.type==='background')layer.paint={...layer.paint,'background-color':simpleMapColors.land};
   else if(layer.type==='fill'){
    const color=layer.id==='park'?simpleMapColors.green:layer.id==='landcover_wood'?simpleMapColors.forest:layer.id==='water'?simpleMapColors.river:layer.id==='building'?simpleMapColors.building:undefined;
+   if(layer.id==='building'){layer.minzoom=16;layer.filter=['all',...(layer.filter?[layer.filter]:[]),['>', ['number',['get','render_height'],0],12]] as FilterSpecification;}
    if(color)layer.paint={...layer.paint,'fill-color':color};
   }else if(layer.type==='line'){
+   layer.layout={...layer.layout,'line-cap':'round','line-join':'round'};
+   if(layer.id==='highway_major_subtle')layer.filter=['all',layer.filter!,['match',['get','class'],['trunk','primary'],true,false]] as FilterSpecification;
+   if(layer.id.endsWith('_subtle'))layer.paint={...layer.paint,'line-color':'#FCFCFA','line-width':1.5};
+   if(/minor|service/.test(layer.id))layer.minzoom=Math.max(layer.minzoom??0,14);
    if(layer.id==='waterway')layer.paint={...layer.paint,'line-color':simpleMapColors.river};
    else if(/^(highway|tunnel|bridge).*inner|^highway_minor$/.test(layer.id))layer.paint={...layer.paint,'line-color':'#FFFFFF'};
   }

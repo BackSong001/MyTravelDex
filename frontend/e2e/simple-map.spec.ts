@@ -203,3 +203,13 @@ test('journal detail draws real Positron terrain under the saved coordinate',asy
  });
  expect(difference).toBeLessThan(1);
 });
+
+test('foreign record keeps its pin on the simplified world map and Home restores Korea',async({page})=>{
+ await page.evaluate(()=>(window as any).update({homeMap:false,fullScreen:false,records:[{id:'tokyo',status:'complete',locations:{latitude:35.6895,longitude:139.6917,source:'manual'}}]}));
+ await expect(page.getByTestId('map-location-tokyo')).toBeVisible();
+ await expect(page.getByTestId('tile-surface')).toHaveCount(0);
+ await expect(page.getByTestId('world-overview').locator('path').first()).toBeAttached();
+ await expect.poll(()=>page.getByTestId('world-overview').locator('text').count()).toBeGreaterThan(0);
+ await page.getByRole('button',{name:'지도 홈',exact:true}).click();
+ await expect(page.getByTestId('map-region-11')).toBeVisible();
+});
