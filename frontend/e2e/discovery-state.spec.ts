@@ -1,22 +1,93 @@
 import {test,expect} from '@playwright/test';
 import {build} from 'esbuild';
+import {districts,destinations} from '../src/destinationDraw';
 import path from 'node:path';
 import {nativeImageAssets} from './native-image-assets';
 let bundle='';
 test.beforeAll(async()=>{bundle=(await build({bundle:true,write:false,format:'iife',platform:'browser',plugins:[nativeImageAssets],define:{'process.env.NODE_ENV':'"test"'},resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
- import React from 'react';import{createRoot}from'react-dom/client';import{DestinationDraw}from'./src/TravelDiscovery';import{contrastRatio}from'./src/themes';import AppSettings from './src/AppSettings';import{SafeAreaProvider}from'react-native-safe-area-context';
- const root=createRoot(document.getElementById('root'));let owner='owner-a',visited=['KR-11'],mode='draw';window.contrastRatio=contrastRatio;
- window.updateDiscovery=(next={})=>{if('visited'in next)visited=next.visited;if(next.owner)owner=next.owner;if(next.mode)mode=next.mode;root.render(<SafeAreaProvider initialMetrics={{frame:{x:0,y:0,width:390,height:844},insets:{top:0,right:0,bottom:0,left:0}}}>{mode==='draw'?<DestinationDraw owner={owner} visited={visited} onRegion={()=>{}}/>:<AppSettings owner={owner} api={{}} tab="home" onTab={()=>{}} onCreate={()=>{}} onLogin={()=>{}} isCurrent={()=>true} onRegion={()=>{}}/>}</SafeAreaProvider>);};window.updateDiscovery();
+ import React from 'react';import{createRoot}from'react-dom/client';import{DestinationDraw}from'./src/TravelDiscovery';import{contrastRatio}from'./src/themes';import AppSettings from './src/AppSettings';import {MotionProvider} from './src/Feedback';import{SafeAreaProvider}from'react-native-safe-area-context';
+ const root=createRoot(document.getElementById('root'));let owner='owner-a',visited=new Set(['11010']),mode='draw';window.contrastRatio=contrastRatio;
+ window.updateDiscovery=(next={})=>{if('visited'in next)visited=next.visited?new Set(next.visited):null;if(next.owner)owner=next.owner;if(next.mode)mode=next.mode;root.render(<SafeAreaProvider initialMetrics={{frame:{x:0,y:0,width:390,height:844},insets:{top:0,right:0,bottom:0,left:0}}}><MotionProvider>{mode==='draw'?<DestinationDraw owner={owner} visited={visited} stamps={['KR-11']} onRegion={()=>{}}/>:<AppSettings owner={owner} api={{}} tab="home" onTab={()=>{}} onCreate={()=>{}} onLogin={()=>{}} isCurrent={()=>true} onRegion={()=>{}}/>}</MotionProvider></SafeAreaProvider>);};window.updateDiscovery();
  `}})).outputFiles[0].text;});
 test.beforeEach(async({page})=>{await page.goto('about:blank');await page.setContent('<div id="root"></div>');await page.addScriptTag({content:bundle});});
 test('TC-DISCOVERY-002: selected visit exclusion blocks drawing during unknown data and survives recovery',async({page})=>{
- const exclude=page.getByRole('checkbox',{name:'방문한 지역 제외',exact:true}),draw=page.getByRole('button',{name:'여행지 뽑기',exact:true});await exclude.click();await expect(exclude).toBeChecked();await draw.click();await expect(page.getByTestId('destination-result')).not.toHaveText('서울');
+ const exclude=page.getByRole('radio',{name:'미방문 지역',exact:true}),draw=page.getByRole('button',{name:'여행지 뽑기',exact:true});await exclude.click();await expect(exclude).toBeChecked();await draw.click();await expect(page.getByTestId('destination-result')).not.toHaveText('서울 종로구');
  await page.evaluate(()=>(window as any).updateDiscovery({visited:null}));await expect(exclude).toBeChecked();await expect(draw).toBeDisabled();await expect(page.getByTestId('destination-result')).toHaveCount(0);
- await page.evaluate(()=>(window as any).updateDiscovery({visited:['KR-11']}));await expect(exclude).toBeChecked();await expect(draw).toBeEnabled();await expect(page.getByText('대한민국 · 16개 지역',{exact:true})).toBeVisible();
+ await page.evaluate(()=>(window as any).updateDiscovery({visited:['11010']}));await expect(exclude).toBeChecked();await expect(draw).toBeEnabled();await expect(page.getByText(`추첨 후보 · ${destinations.length}곳`,{exact:true})).toBeVisible();
 });
 test('TC-DISCOVERY-003: the active draw button keep their actual text contrast',async({page})=>{
  const ratio=await page.getByRole('button',{name:'여행지 뽑기',exact:true}).evaluate(node=>{const text=node.querySelector('div')!,hex=(rgb:string)=>'#'+rgb.match(/\d+/g)!.slice(0,3).map(n=>Number(n).toString(16).padStart(2,'0')).join('');return (window as any).contrastRatio(hex(getComputedStyle(node).backgroundColor),hex(getComputedStyle(text).color));});expect(ratio).toBeGreaterThanOrEqual(4.5);
 });
 test('TC-STYLE-002: pane reentry preserves choices and changing owner resets them',async({page})=>{
  await page.evaluate(()=>(window as any).updateDiscovery({mode:'settings'}));await page.getByRole('button',{name:'설정',exact:true}).click();await page.getByRole('button',{name:'스타일 여행',exact:true}).click();await page.getByRole('radio',{name:'자연',exact:true}).click();await page.getByRole('button',{name:'여행 도구 뒤로',exact:true}).click();await page.getByRole('button',{name:'스타일 여행',exact:true}).click();await expect(page.getByText('1 / 4 선택',{exact:true})).toBeVisible();await page.evaluate(()=>(window as any).updateDiscovery({owner:'owner-b'}));await page.getByRole('button',{name:'스타일 여행',exact:true}).click();await expect(page.getByText('0 / 4 선택',{exact:true})).toBeVisible();
+});
+
+test('TC-DRAW-001: draw stays on the national map until it settles and cancels on exit',async({page})=>{
+ const draw=page.getByRole('button',{name:'여행지 뽑기',exact:true});
+ const map=page.locator('svg[viewBox]').first(),national=await map.getAttribute('viewBox');
+ await draw.click();
+ await expect(page.getByRole('button',{name:'추첨 중…'})).toBeDisabled();
+ await expect(map).toHaveAttribute('viewBox',national!);
+ await page.evaluate(()=>(window as any).updateDiscovery({mode:'settings'}));
+ await page.evaluate(()=>(window as any).updateDiscovery({mode:'draw'}));
+ await expect(draw).toBeEnabled();
+ await page.getByRole('radio',{name:'권역 선택'}).click();
+ await page.getByRole('radio',{name:'제주권'}).click();
+ await draw.click();
+ const result=await page.getByTestId('destination-result').innerText();
+ await expect(page.getByTestId('draw-highlight')).toHaveAttribute('aria-label',result);
+ await expect(map).not.toHaveAttribute('viewBox',national!);
+ await expect(page.getByText('미방문 · 첫 여행을 떠나볼까요?')).toBeVisible();
+ await expect(page.getByText('제주 스탬프 · 미획득 · 여행을 기록하고 모아 보세요.')).toBeVisible();
+});
+test('TC-DRAW-001: reduced motion goes directly to the selected district',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+ await expect(page.getByTestId('destination-result')).toBeVisible({timeout:1000});
+});
+
+test('TC-DRAW-001: a first district visit can share an earned province stamp and exhausted users can switch modes',async({page})=>{
+ const codes=districts.map(d=>d.id);
+ await page.evaluate(visited=>(window as any).updateDiscovery({visited}),codes.filter(id=>id!=='11010'));
+ await page.getByRole('radio',{name:'미방문 지역'}).click();
+ await page.getByRole('button',{name:'여행지 뽑기'}).click();
+ await expect(page.getByTestId('destination-result')).toHaveText('서울특별시');
+ await expect(page.getByText('하위 지역 방문 · 24/25')).toBeVisible();
+ await expect(page.getByText('일부 방문 · 아직 가보지 않은 지역을 만나보세요.')).toBeVisible();
+ await expect(page.getByTestId('draw-highlight')).toHaveAttribute('d',destinations.find(d=>d.label==='서울특별시')!.path);
+ await expect(page.getByText('서울 스탬프 · 획득')).toBeVisible();
+ await page.evaluate(visited=>(window as any).updateDiscovery({visited}),codes);
+ await expect(page.getByRole('button',{name:'여행지 뽑기'})).toBeDisabled();
+ await page.getByRole('radio',{name:'전국 랜덤'}).click();
+ await expect(page.getByText(`추첨 후보 · ${destinations.length}곳`)).toBeVisible();
+ await expect(page.getByRole('button',{name:'여행지 뽑기'})).toBeEnabled();
+});
+
+test('TC-DRAW-004: changing reduced motion preserves a completed result',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+ const result=await page.getByTestId('destination-result').innerText();
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await expect(page.getByTestId('destination-result')).toHaveText(result);
+});
+
+test('TC-DRAW-004: enabling reduced motion finishes the pending draw',async({page})=>{
+ await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+ await expect(page.getByRole('button',{name:'추첨 중…'})).toBeDisabled();
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await expect(page.getByTestId('destination-result')).toBeVisible({timeout:1000});
+ await expect(page.getByRole('button',{name:'다시 뽑기'})).toBeEnabled();
+});
+
+test('TC-DRAW-008: each grouped city highlights exactly its members',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.getByRole('radio',{name:'미방문 지역'}).click();
+ for(const label of ['부산광역시','경기도 수원시','경상남도 창원시','부산광역시 기장군']){
+  const candidate=destinations.find(d=>d.label===label)!;
+  await page.evaluate(visited=>(window as any).updateDiscovery({visited}),districts.filter(d=>d.id!==candidate.members[0].id).map(d=>d.id));
+  await expect(page.getByText('추첨 후보 · 1곳')).toBeVisible();
+  await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+  await expect(page.getByTestId('destination-result')).toHaveText(label);
+  await expect(page.getByTestId('draw-highlight')).toHaveAttribute('d',candidate.path);
+ }
 });

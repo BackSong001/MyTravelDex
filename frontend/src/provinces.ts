@@ -71,10 +71,11 @@ export type MapNavigation = {
 export type TravelMapProps = {
   onCanvasReady?:()=>void;
   homeMap?: boolean;
+  onDraw?: ()=>void;
   navigation?: {current:MapNavigation|null};
   navigationOwner?: string|null;
   records: any[];
-  focus?: {latitude:number;longitude:number};
+  focus?: {latitude:number;longitude:number;label?:string;bounds?:number[]};
   covers?: Record<string, string>;
   authors?: Record<string, {display_name: string | null; avatar_url: string | null}>;
   onSelect?: (record: any) => void;

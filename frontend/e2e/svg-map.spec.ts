@@ -1,4 +1,6 @@
 import {openMapFixture} from './map-fixture';
+import {geoMercator} from 'd3-geo';
+import {destinations} from '../src/destinationDraw';
 import {test,expect} from '@playwright/test';
 import {build} from 'esbuild';
 import path from 'node:path';
@@ -6,7 +8,7 @@ import {nativeImageAssets} from './native-image-assets';
 let bundle='';
 test.beforeAll(async()=>{bundle=(await build({bundle:true,write:false,format:'iife',platform:'browser',plugins:[nativeImageAssets],define:{'process.env.EXPO_PUBLIC_GEOAPIFY_MAP_KEY':'""','process.env.NODE_ENV':'"test"','__DEV__':'false'},alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
 import React from 'react';import {createRoot} from 'react-dom/client';import Map from './src/SvgTravelMap';import Ocean from './src/OceanBackground';import Svg from 'react-native-svg';import {regions,fitProjection} from './src/regions';import {geoMercator} from 'd3-geo';
-const root=createRoot(document.getElementById('root'));const record={id:'one',owner_id:'me',status:'complete',title:'서울 기록',start_date:'2026-01-01',end_date:'2026-01-02',locations:{latitude:37.5665,longitude:126.978,source:'manual'}};let props={records:[record],ownRecords:[record],fullScreen:true};window.opened=[];window.coordinates=[];window.regions=[];window.navigation={current:null};window.hide=()=>root.render(null);window.update=(next)=>{props={...props,...next};root.render(<Map {...props} navigation={window.navigation} onRegion={(...args)=>window.regions.push(args)} onSelect={r=>window.opened.push(r.id)} onCoordinate={props.correction?(lat,lng)=>window.coordinates.push([lat,lng]):undefined}/>);};window.update({});window.oceanProof=(focus)=>{let p=fitProjection(regions,500,600);p.center(p.invert([250,300])).translate([250,300]).scale(p.scale()*.75);if(focus)p=geoMercator().center(focus).scale(50000).translate([250,300]);window.proofPoint=(lng,lat)=>p([lng,lat]);root.render(<div style={{display:'flex',background:'#D7EFF1'}}>{[1,2].map(n=><Svg key={n} testID={'ocean-proof-'+n} width={500} height={600} viewBox='0 0 500 600'><Ocean base={p} transform='translate(0,0) scale(1)' width={500} height={600}/></Svg>)}</div>);};`}})).outputFiles[0].text;});
+const root=createRoot(document.getElementById('root'));const record={id:'one',owner_id:'me',status:'complete',title:'서울 기록',start_date:'2026-01-01',end_date:'2026-01-02',locations:{latitude:37.5665,longitude:126.978,source:'manual'}};let props={records:[record],ownRecords:[record],fullScreen:true};window.draws=0;window.opened=[];window.coordinates=[];window.regions=[];window.navigation={current:null};window.hide=()=>root.render(null);window.update=(next)=>{props={...props,...next};root.render(<Map {...props} onDraw={props.draw?()=>window.draws++:undefined} navigation={window.navigation} onRegion={(...args)=>window.regions.push(args)} onSelect={r=>window.opened.push(r.id)} onCoordinate={props.correction?(lat,lng)=>window.coordinates.push([lat,lng]):undefined}/>);};window.update({});window.oceanProof=(focus)=>{let p=fitProjection(regions,500,600);p.center(p.invert([250,300])).translate([250,300]).scale(p.scale()*.75);if(focus)p=geoMercator().center(focus).scale(50000).translate([250,300]);window.proofPoint=(lng,lat)=>p([lng,lat]);root.render(<div style={{display:'flex',background:'#D7EFF1'}}>{[1,2].map(n=><Svg key={n} testID={'ocean-proof-'+n} width={500} height={600} viewBox='0 0 500 600'><Ocean base={p} transform='translate(0,0) scale(1)' width={500} height={600}/></Svg>)}</div>);};`}})).outputFiles[0].text;});
 test.beforeEach(async({page})=>{await openMapFixture(page,bundle);});
 test('TC-SVG-OCEAN-002 real pixels preserve mainland, islands and holes without cross-instance clipping',async({page})=>{
  await page.setViewportSize({width:1100,height:700});await page.evaluate(()=>(window as any).oceanProof());
@@ -96,4 +98,76 @@ test('district handoff, camera and finder scroll survive unmount until owner res
  await page.getByRole('button',{name:'닫기',exact:true}).click();
  await page.evaluate(()=>(window as any).update({navigationOwner:'new-owner'}));
  await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
+});
+
+test('TC-DRAW-002/003 destination clears prior selection and returns to overview',async({page})=>{
+ await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
+ await page.evaluate(()=>(window as any).update({homeMap:true,focus:{latitude:33.4,longitude:126.55,label:'제주시'}}));
+ await expect(page.getByText('◎ 제주시',{exact:true})).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.selected)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.province)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera.center)).toEqual([126.55,33.4]);
+ await page.evaluate(()=>(window as any).update({focus:undefined}));
+ await expect(page.getByTestId('map-destination')).toHaveCount(0);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.detail)).toBe(false);
+});
+
+test('TC-DRAW-006 icon stays clear of map content and controls on short screens',async({page})=>{
+ await page.setViewportSize({width:390,height:300});
+ await page.locator('#root').evaluate(node=>{node.style.height='280px';});
+ await page.evaluate(()=>(window as any).update({homeMap:true,draw:true,records:[]}));
+ const icon=page.getByRole('button',{name:'여행지 랜덤 뽑기',exact:true});
+ await expect(icon).toBeVisible();
+ const rect=(await icon.boundingBox())!,canvas=(await page.getByTestId('svg-map-canvas').boundingBox())!;
+ expect(rect.y).toBeGreaterThanOrEqual(0);
+ for(const name of ['대한민국','지도 확대','지도 축소','지도 홈']){
+  const other=(await page.getByRole('button',{name,exact:true}).boundingBox())!;
+  expect(rect.x>=other.x+other.width||rect.x+rect.width<=other.x||rect.y>=other.y+other.height||rect.y+rect.height<=other.y,name).toBe(true);
+ }
+ expect(rect.y).toBeGreaterThanOrEqual(canvas.y+canvas.height);
+ await icon.click();
+ expect(await page.evaluate(()=>(window as any).draws)).toBe(1);
+});
+
+test('TC-DRAW-008: destination handoff fits the entire grouped bounds at narrow and wide sizes',async({page})=>{
+ for(const width of [320,1200]){
+  await page.setViewportSize({width,height:800});
+  for(const label of ['부산광역시','경기도 수원시','경상남도 창원시','인천광역시']){
+   const d=destinations.find(d=>d.label===label)!;
+   await page.evaluate(d=>(window as any).update({homeMap:true,focus:{latitude:d.point[1],longitude:d.point[0],label:d.label,bounds:d.bounds}}),d);
+   await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current?.camera?.scale)).toBeGreaterThan(0);
+   const box=await page.getByTestId('svg-map-canvas').boundingBox();
+   const camera=await page.evaluate(()=>(window as any).navigation.current.camera);
+   const p=geoMercator().center(camera.center).scale(camera.scale).translate([box!.width/2,box!.height/2]);
+   for(const point of [[d.bounds[0],d.bounds[1]],[d.bounds[2],d.bounds[3]]]){
+    const [x,y]=p(point as [number,number])!;
+    expect(x).toBeGreaterThanOrEqual(23);expect(x).toBeLessThanOrEqual(box!.width-23);
+    expect(y).toBeGreaterThanOrEqual(23);expect(y).toBeLessThanOrEqual(box!.height-23);
+   }
+  }
+ }
+});
+
+test('TC-DRAW-009: resizing preserves manual zoom and home after destination handoff',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ const d=destinations.find(d=>d.label==='부산광역시')!;
+ await page.evaluate(d=>(window as any).update({homeMap:true,focus:{latitude:d.point[1],longitude:d.point[0],label:d.label,bounds:d.bounds}}),d);
+ await expect(page.getByTestId('map-destination')).toBeVisible();
+ await page.getByRole('button',{name:'지도 확대',exact:true}).click();
+ const zoomed=await page.evaluate(()=>(window as any).navigation.current.camera);
+ await page.setViewportSize({width:500,height:844});
+ await expect.poll(()=>page.getByTestId('svg-map-canvas').evaluate(n=>n.getBoundingClientRect().width)).toBeGreaterThan(400);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toEqual(zoomed);
+ await page.getByRole('button',{name:'지도 홈',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBe(null);
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(()=>page.getByTestId('svg-map-canvas').evaluate(n=>n.getBoundingClientRect().width)).toBeLessThan(400);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBe(null);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.detail)).toBe(false);
+ const next=destinations.find(d=>d.label==='경기도 수원시')!;
+ await page.evaluate(d=>(window as any).update({focus:{latitude:d.point[1],longitude:d.point[0],label:d.label,bounds:d.bounds}}),next);
+ await expect(page.getByText('◎ 경기도 수원시',{exact:true})).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera?.scale)).toBeGreaterThan(0);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.detail)).toBe(true);
 });
