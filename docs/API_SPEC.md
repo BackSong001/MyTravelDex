@@ -521,3 +521,11 @@ TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정�
 ## 국내 경계 벡터 타일
 
 FR-MAP-TILES-001. 상세 렌더러는 정적 /boundary-tiles/<버전>/{z}/{x}/{y}.pbf 및 표시 이름 필터용 자산을 읽는다. Native는 동일 타일을 번들 자산에서 읽는다. 사용자 데이터·키·DB 호출은 필요하지 않다.
+
+osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
+
+`POST /functions/v1/photon-location`은 로그인 bearer를 요구한다. `{query}`는 최대 200자, 최대 5개이며 각 후보에 `id`·`provider_place_id`(OSM N/W/R:id), `name`, `latitude`, `longitude`, `address`, `provider/source=photon`, `attribution`을 반환한다. 선택 후 이 후보를 명시 확정한다. `{latitude,longitude}`는 검색 후보의 주소를 원래 좌표에 보완한다. 미인증 401, 잘못된 입력 400, 공급자 제한 429, 그 외 외부 실패 502. 공개 Photon 서비스로 검색어 또는 역조회 좌표가 전달된다. 키 추가는 없다. 운영 사용 전 locations.source 확장 migration과 새 Edge Function을 함께 배포해야 한다.
+
+FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
+
+2026-11-19 연결된 Supabase 프로젝트에 `20261119020000_photon_locations.sql`과 `photon-location`을 적용했다. 인증된 서울역 검색·역조회 각 HTTP 200, 미인증 요청 HTTP 401을 확인했다. 별도 정밀경계 migration `20261119010000_location_regions.sql`은 이번 배포에서 제외했다.

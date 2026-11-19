@@ -7,12 +7,12 @@ test.use({launchOptions:{args:['--enable-webgl','--use-gl=angle','--use-angle=sw
 
 const place = {
  id:'e2e-jeonju-hanok', name:'전주 한옥마을', address:'대한민국 전북특별자치도 전주시 완산구',
- provider:'geoapify', latitude:35.8151, longitude:127.1539,
+ provider:'photon', latitude:35.8151, longitude:127.1539,
 };
 const detail = {
- latitude:35.8151, longitude:127.1539, source:'geoapify', place_name:place.name,
+ latitude:35.8151, longitude:127.1539, source:'photon', place_name:place.name,
  provider_place_id:place.id, address:place.address, country_code:'KR', country_name:'대한민국',
- region_name:'전북특별자치도', city_name:'전주시', attribution:'Powered by Geoapify · © OpenStreetMap contributors',
+ region_name:'전북특별자치도', city_name:'전주시', attribution:'© OpenStreetMap',
 };
 const other = {...place, id:'e2e-seoul', name:'서울 후보', address:'대한민국 서울특별시', latitude:37.5665, longitude:126.978};
 let user:{id:string;email:string;password:string};
@@ -22,7 +22,7 @@ test.beforeEach(async({page})=>{
  const {id}=await admin('/auth/v1/admin/users','POST',{email,password,email_confirm:true});
  user={id,email,password};
  // 랜드마크 자동 검색도 외부 장소 대역으로 처리하고 Auth·DB·Storage는 실제 HTTP를 사용한다.
- await page.route('**/functions/v1/geocode-location',route=>route.fulfill({json:[]}));
+ await page.route('**/functions/v1/photon-location',route=>route.fulfill({json:[]}));
  await login(page,email,password);
  await page.getByRole('button',{name:'기록 만들기',exact:true}).click();
  await page.getByLabel('여행 제목',{exact:true}).fill('ocean-ui-test');
@@ -61,7 +61,7 @@ async function unchangedParent(page:Page){
 test('위치 후보는 지도에서 비교하고 취소하면 기존 부모 위치·입력을 유지한다',async({page})=>{
  await choosePlace(page);
  const calls:unknown[]=[];
- await page.route('**/functions/v1/geocode-location',async route=>{
+ await page.route('**/functions/v1/photon-location',async route=>{
   const body=route.request().postDataJSON();calls.push(body);
   await route.fulfill({json:body.query?[place,other]:detail});
  });
@@ -76,7 +76,7 @@ test('위치 후보는 지도에서 비교하고 취소하면 기존 부모 위�
  await pin.click();
  await expect(picker.getByLabel('선택한 위치',{exact:true})).toContainText(place.address);
  await expect(picker.getByRole('button',{name:'이 위치로 선택',exact:true})).toBeEnabled();
- expect(calls).toEqual([{query:place.name},{provider:'geoapify',place_id:place.id}]);
+ expect(calls).toEqual([{query:place.name}]);
  await unchangedParent(page);
  await picker.getByRole('button',{name:'닫기',exact:true}).click();
  await unchangedParent(page);
@@ -87,7 +87,7 @@ test('위치 후보는 지도에서 비교하고 취소하면 기존 부모 위�
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}`)).toEqual([]);
 });
 
-test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하고 실제 사진을 홈 지역목록에 표시한다',async({page})=>{
+test('명시 확정은 Photon 후보의 원래 좌표를 저장하고 실제 사진을 홈 지역목록에 표시한다',async({page})=>{
  const chooser=page.waitForEvent('filechooser');
  await page.getByRole('button',{name:'사진 선택',exact:true}).click();
  await(await chooser).setFiles(path.resolve('frontend/e2e/fixtures/jeonju.jpg'));
@@ -96,9 +96,9 @@ test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하�
  await page.getByLabel('여행 시작일',{exact:true}).fill('2026-11-01');
  await page.getByLabel('여행 종료일',{exact:true}).fill('2026-11-03');
  const calls:unknown[]=[];
- await page.route('**/functions/v1/geocode-location',async route=>{
+ await page.route('**/functions/v1/photon-location',async route=>{
   const body=route.request().postDataJSON();calls.push(body);
-  await route.fulfill({json:body.query?[{...place,latitude:0,longitude:0}]:detail});
+  await route.fulfill({json:body.query?[{...place,...detail}]:detail});
  });
  const picker=await openPicker(page);
  await search(page);
@@ -108,7 +108,7 @@ test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하�
  await picker.getByRole('button',{name:'이 위치로 선택',exact:true}).click();
  await expect(picker).toHaveCount(0);
  await expect(page.getByLabel('선택한 장소',{exact:true})).toContainText(place.name);
- expect(calls).toEqual([{query:place.name},{provider:'geoapify',place_id:place.id}]);
+ expect(calls).toEqual([{query:place.name}]);
  await save(page);
  const records=await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}&select=*,locations(*)`);
  expect(records).toHaveLength(1);
@@ -149,23 +149,22 @@ test('명시 확정은 검색 좌표 대신 place_id 상세 좌표를 저장하�
 
 test('닫힌 검색·상세의 지연 응답은 다시 연 창의 후보와 부모 위치를 바꾸지 않는다',async({page})=>{
  await choosePlace(page);
- for(const kind of ['query','detail']){
+ {
   let release!:()=>void;
   const gate=new Promise<void>(resolve=>{release=resolve;});
-  await page.route('**/functions/v1/geocode-location',async route=>{
+  await page.route('**/functions/v1/photon-location',async route=>{
    const body=route.request().postDataJSON();
-   if((kind==='query'&&body.query)||(kind==='detail'&&body.place_id))await gate;
+   if(body.query)await gate;
    await route.fulfill({json:body.query?[place]:detail});
   });
   let picker=await openPicker(page);
   try{
    await search(page);
-   if(kind==='detail')await picker.getByRole('button',{name:`${place.name} ${place.address}`,exact:true}).click();
-   await expect(picker.getByText(kind==='query'?'장소를 찾고 있어요.':'장소 상세를 확인하고 있어요.',{exact:true})).toBeVisible();
+   await expect(picker.getByText('장소를 찾고 있어요.',{exact:true})).toBeVisible();
    await picker.getByRole('button',{name:'닫기',exact:true}).click();
    await unchangedParent(page);
    picker=await openPicker(page);
-   const response=page.waitForResponse(r=>r.url().endsWith('/functions/v1/geocode-location')&&(kind==='query'?!!r.request().postDataJSON().query:!!r.request().postDataJSON().place_id));
+   const response=page.waitForResponse(r=>r.url().endsWith('/functions/v1/photon-location')&&!!r.request().postDataJSON().query);
    release();await(await response).finished();
    await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
    await expect(picker.getByLabel('선택한 위치',{exact:true})).toContainText('제주 시청');
@@ -180,17 +179,16 @@ test('닫힌 검색·상세의 지연 응답은 다시 연 창의 후보와 부�
 
 test('검색 결과 없음·검색 오류·상세 오류에도 검색어와 기존 작성 입력을 보존한다',async({page})=>{
  await choosePlace(page);
- for(const kind of ['empty','search-error','detail-error']){
-  await page.route('**/functions/v1/geocode-location',async route=>{
+ for(const kind of ['empty','search-error']){
+  await page.route('**/functions/v1/photon-location',async route=>{
    const body=route.request().postDataJSON();
-   if(kind==='search-error'||(kind==='detail-error'&&body.place_id)){
+   if(kind==='search-error'){
     await route.fulfill({status:502,json:{error:'EXTERNAL_SERVICE_ERROR'}});
    }else await route.fulfill({json:kind==='empty'?[]:[place]});
   });
   const picker=await openPicker(page);
   await search(page);
-  if(kind==='detail-error')await picker.getByRole('button',{name:`${place.name} ${place.address}`,exact:true}).click();
-  await expect(picker.getByRole('alert')).toContainText(kind==='empty'?'검색 결과가 없어요':kind==='search-error'?'장소 검색에 실패했어요':'장소 상세를 확인하지 못했어요');
+  await expect(picker.getByRole('alert')).toContainText(kind==='empty'?'검색 결과가 없어요':'장소 검색에 실패했어요');
   await expect(picker.getByLabel('장소 검색',{exact:true})).toHaveValue(place.name);
   await expect(picker.getByRole('button',{name:'이 위치로 선택',exact:true})).toBeDisabled();
   await picker.getByRole('button',{name:'닫기',exact:true}).click();
@@ -201,7 +199,7 @@ test('검색 결과 없음·검색 오류·상세 오류에도 검색어와 기�
 
 test('서로 가까운 검색 결과도 확정 후보는 묶지 않고 선택한 장소 핀 하나로 표시한다',async({page})=>{
  const nearby={...other,latitude:place.latitude+0.0001,longitude:place.longitude+0.0001};
- await page.route('**/functions/v1/geocode-location',async route=>{
+ await page.route('**/functions/v1/photon-location',async route=>{
   const body=route.request().postDataJSON();await route.fulfill({json:body.query?[nearby,place]:detail});
  });
  const picker=await openPicker(page);await search(page);

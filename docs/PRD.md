@@ -571,3 +571,7 @@ TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정�
 ## 국내 경계 벡터 타일
 
 전국에서 부산을 선택하면 기존 지역 fit·사진·요약과 선택 강조를 유지하며 보이는 범위의 경계 타일로 상세를 구성한다. 지도 이동과 재방문은 같은 지도 인스턴스에서 처리한다.
+
+osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
+
+FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.

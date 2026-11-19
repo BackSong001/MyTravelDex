@@ -4,19 +4,14 @@ import Pressable from './Feedback';
 import notices from './data/maps/map-notices.json';
 import Text from './FontText';
 import {Linking,Platform,View} from 'react-native';
-import {MAP_ATTRIBUTION,MAP_SOURCE_LABEL,MAP_SOURCE_URL} from './mapDataVersion';
+import {MAP_ATTRIBUTION,MAP_SOURCE_URL} from './mapDataVersion';
 
-export default function MapAttribution({records,tiles=false,domestic=true}:{records:any[];tiles?:boolean;domestic?:boolean}){
+export default function MapAttribution(){
  const c=useThemeColors();
- const credits=[...new Set(records.filter(record=>record.locations?.source!=='google').map(record=>record.locations?.attribution).filter(Boolean))];
- if(!domestic&&!tiles&&!credits.length)return null;
- const external=tiles||credits.length>0;
- const additional=credits.filter(credit=>credit!=='Powered by Geoapify | © OpenStreetMap contributors');
  const linkStyle={fontSize:10,lineHeight:16,color:c.ink};
  const link=(label:string,url:string)=><Text accessibilityRole="link" {...(Platform.OS==='web'?{href:url,hrefAttrs:{target:'_blank',rel:'noopener noreferrer'}}:{onPress:()=>{void Linking.openURL(url);}})} style={linkStyle}>{label}</Text>;
  return <View testID="map-attribution" style={{paddingHorizontal:6,paddingVertical:2,backgroundColor:c.paper}}>
-  <Text style={linkStyle}>{domestic&&link(MAP_SOURCE_LABEL,MAP_SOURCE_URL)} {credits.length>0&&<>· {link('Powered by Geoapify','https://www.geoapify.com/')}</>} {external&&<>· {link('© OpenStreetMap contributors','https://www.openstreetmap.org/copyright')}</>}{tiles&&<> · {link('© OpenMapTiles','https://openmaptiles.org/')}</>}</Text>
-  {additional.map(credit=><Text key={String(credit)} style={linkStyle}>{String(credit)}</Text>)}
+  {link('© OpenStreetMap','https://www.openstreetmap.org/copyright')}
  </View>;
 }
 
@@ -37,12 +32,11 @@ export function ProfileMapCredits({compact=false}:{compact?:boolean}={}){
   <Text style={{color:c.muted,fontSize:12}}>경계가 겹치는 위치는 방문 지역을 자동 지정하지 않습니다.</Text>
   <SourceLink label="이전 스탬프 경계 · SGIS · vuski · 2026-04-01" url="https://github.com/vuski/admdongkor"/>
   <SourceLink label="이전 스탬프 경계 라이선스 · CC BY 4.0" url="https://creativecommons.org/licenses/by/4.0/"/>
-  <SourceLink label="OpenFreeMap · Positron" url="https://openfreemap.org/"/>
-  <SourceLink label="Positron · OpenMapTiles · CC BY 4.0 · 표시 수정" url="https://github.com/openmaptiles/positron-gl-style"/>
-  <SourceLink label="CartoDB Basemaps · Stamen / Paul Norman · CC BY 3.0" url="https://github.com/CartoDB/CartoDB-basemaps"/>
-  <SourceLink label="© OpenMapTiles" url="https://openmaptiles.org/"/>
-  <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Natural Earth · 세계 개요" url="https://www.naturalearthdata.com/"/><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> · </Text><SourceLink label="© OpenStreetMap contributors" url="https://www.openstreetmap.org/copyright"/></View>
-  <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center'}}><SourceLink label="Natural Earth · 세계 개요" url="https://www.naturalearthdata.com/"/><SourceLink label="Powered by Geoapify" url="https://www.geoapify.com/"/><Text style={{color:c.muted}}> | </Text><SourceLink label="© OpenAddresses contributors" url="https://openaddresses.io/"/></View>
+  <SourceLink label="현재 지도 · OpenStreetMap" url="https://www.openstreetmap.org/copyright"/>
+  <SourceLink label="세계 경계 · Natural Earth" url="https://www.naturalearthdata.com/"/>
+  <SourceLink label="장소 검색 · Photon" url="https://photon.komoot.io/"/>
+  <SourceLink label="지도 글꼴 · Noto Sans" url="https://notofonts.github.io/"/>
+  <SourceLink label="이전 저장 장소 · Geoapify" url="https://www.geoapify.com/"/>
   </>}
  </View>;
 }

@@ -21,3 +21,5 @@ export function atlasCamera(center:[number,number],requested:number,width:number
   const y = clamp(mercatorY(clamp(center[1],south,north)),bottom+halfY,top-halfY);
   return {center:[x,Math.atan(Math.sinh(y))/radians] as [number,number],scale};
 }
+
+export const detailAfterZoom=(detail:boolean,fitZoom:number,zoom:number,previousZoom:number)=>detail&&zoom>=previousZoom||zoom>=fitZoom+1||detail&&zoom>fitZoom+.5;

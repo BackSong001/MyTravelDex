@@ -1085,3 +1085,7 @@ TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정�
 ## 국내 경계 벡터 타일
 
 2026-11-09 원본의 표시 전용 XYZ/MVT(두 레이어, z5~11, 이후 overzoom)를 빌드 시 생성한다. 세계 외부 차폐는 고정 사각형으로 유지한다. 상세 이름은 사용자 확대 후 보이는 범위의 보수적 국내 영역으로 제한한다. 기존 OpenFreeMap·PostGIS·지역 판정과 구서버 호환은 유지한다.
+
+osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
+
+FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.

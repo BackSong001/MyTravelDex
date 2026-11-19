@@ -1,7 +1,7 @@
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 
-export const boundaryTilePath=/^\/boundary-tiles\/kr\d{8}-[a-f0-9]{12}\/\d+\/\d+\/\d+\.pbf$/;
+export const boundaryTilePath=/^\/boundary-tiles\/(?:blocks|osm|kr\d{8})-[a-f0-9]{12}\/\d+\/\d+\/\d+\.pbf$/;
 
 export async function openMapFixture(page:Page,bundle:string){
  await page.route('http://map.test/**',async route=>{

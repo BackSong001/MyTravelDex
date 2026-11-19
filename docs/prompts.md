@@ -2467,3 +2467,53 @@ Android Hermes 정적 export37.4MB 성공 및390px 전국 지도 이미지 확�
 | 2026-11-19 17:17 KST | git에 커밋하고 푸쉬해줘 | jsj 브랜치의 지도 최신화·무손실 압축·초기 표시 최적화·전국 해안 보정 및 회귀/문서 114개 파일을 검토하여 커밋·origin/jsj 푸시 대상으로 확정. 기존 검증 결과를 확인하고 비밀 설정/실제 비밀값 및 테스트 산출물 제외를 검사했다. | 변경 파일: docs/prompts.md (이력 추가), 기존 작업 변경 파일은 커밋에 포함 |
 
 커밋 검증 보완: Git 줄바꿈 정규화로 label-land.json의 SHA256이 달라지는 것을 확인하여 `.gitattributes`에 지도 JSON 바이트 보존 규칙을 추가했다. 원본 좌표와 파일 내용은 변경하지 않고 staged 원본 해시와 manifest를 대조한다. 추가 변경 파일: `.gitattributes`, `frontend/src/data/maps/README.md`, `docs/prompts.md`.
+
+## 2026-11-19 20:34 KST
+
+> Implement the plan.
+
+osm-test의 OSM 단일 MapLibre 지도·본인 방문색과 Photon 검색/역조회를 구현했다. Local HTTP·Chromium·Android 게스트를 검증했다. 웹 첫 선택과 첫 화면의 비용 차이 및 에뮬레이터 jank는 TEST_CASE 최신절에 기록했다.
+
+변경 파일은 `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`, `AGENTS.md`, `.env.example`, `backend/supabase/{config.toml,functions/_shared/photon.ts,functions/photon-location/index.ts,migrations/20261119020000_photon_locations.sql}`, `backend/tests/{osm-photon.test.ts,photon.local.test.mjs,map-attribution.test.ts,maps-native.test.ts}`, `scripts/build-osm-regions.py`, `frontend/scripts/build-osm-tiles.mjs`, `frontend/public/boundary-tiles/`, `frontend/src/data/maps/osm-*.json`, `frontend/src/{osmMapStyle,simpleMapStyle,tileCamera,TileSurface.types}.ts`, `frontend/src/{TileSurface,TileSurface.web,SvgTravelMap,MapAttribution,LocationPicker}.tsx`, `frontend/app/index.tsx`, `frontend/e2e/{helpers,map-fixture,location-picker.spec,simple-map.spec}.ts`다.
+
+## 2026-11-19 21:00 KST
+
+> 다녀간 지역 색깔은 안칠해도되고, 너무 사실적인 세부 타일은 안넣어도돼. 그리고 전국지도가 아닌 세계지도는 아예 타일을 안넣어도되고 구분선만 넣으면 되.
+> 세부타일이 동글동글한 모양이었으면 좋겠어 [Image #1] 만약 안된다면 초록색은 빼줘.
+> Photon 검색을 사용하기위해 마이그레이션과 함수배포는 해도돼
+
+국내 공원·수계를 도식화하고 국외에는 내장 경계만 그린다. 선택 강조와 사진 동작을 유지하고 방문 면 채색을 제거했다. 지정된 Photon migration/Edge를 연결된 프로젝트에 적용하고 검색·역조회·비로그인 제한을 검증했다.
+
+변경 파일은 `scripts/build-{outline-world,osm-detail,osm-regions}.py`, `frontend/scripts/build-osm-tiles.mjs`, `frontend/public/boundary-tiles/`, `frontend/src/data/maps/{outline-world,osm-version,osm-audit}.json`, `frontend/src/{osmMapStyle.ts,WorldOverview.tsx,SvgTravelMap.tsx,TileSurface.tsx,TileSurface.web.tsx,MapAttribution.tsx}`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `backend/tests/{maps-native,osm-photon}.test.ts`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`, `AGENTS.md`다.
+
+## 2026-11-19 21:14 KST
+
+> [Image #1] 근데 이거봐바. 강이 삐죽삐죽 튀어나온게 너무 이상하지않아? 아니면 확대해서 강이 정상적으로 보일때까지 보이지않게 해야하나?
+> 동글동글하고 쓸데없는 세부 정보는 빼고 보기 편안하게 변경할 수는 없을까?
+
+경남을 같은 배율로 전후 비교하고, 내륙 수계를 광역 생략·대표 본류·지류와 수면의 세 단계로 나눴다. 중심선의 급한 꺾임과 수면의 좁은 홈을 둥글게 처리하고 로컬 웹 프리뷰에 반영했다.
+
+변경 파일은 `scripts/build-osm-detail.py`, `frontend/scripts/build-osm-tiles.mjs`, `frontend/src/osmMapStyle.ts`, `frontend/src/data/maps/osm-version.json`, `frontend/public/boundary-tiles/`, `frontend/e2e/simple-map.spec.ts`, `AGENTS.md`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`다.
+
+## 2026-11-19 21:35 KST — 국내 일반지도와 해외 해안선
+
+- 사용자 요청 원문
+
+  > 세계지도는 구분선도 안넣는게 나은 거 같아. 그리고 실제 지도의 타일이나 건물정도는 표현해줘. 고속도로같은건 표현안해도돼. 기준은 카카오맵 처럼
+
+  > /feedback 네이버 지도가 openStreetMap을 사용중인데, 그냥 고속도로만 지우고 네이버맵 타일기준 참고해서 구현해줘
+
+- 결과: 네이버 일반지도를 참고해 국내 OSM 도로·건물·역을 배율별로 표시하고 고속도로와 연결로를 제외했다. 해외 국경·행정 경계를 녹여 해안선만 표시했다.
+- 변경 파일: `scripts/build-osm-neighborhood.py`, `scripts/build-outline-world.py`, `frontend/src/osmMapStyle.ts`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/{osm-neighborhood-version,outline-world}.json`, `frontend/public/boundary-tiles/blocks-9e47c9076a67/`, `backend/tests/osm-photon.test.ts`, `frontend/e2e/{map-fixture,simple-map.spec}.ts`, `AGENTS.md`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`.
+
+## 2026-11-19 21:43 KST — 시·도 선택 배율
+
+- 요청 원문: 어 지금 너무 좋아. 특별시/도 선택했을때, 살짝 타일이 보였으면 좋겠어. 줌인 범위를 조금 좁혀줘.
+- 결과: 지도 탭에서 시·도를 선택하면 5px 여백으로 본토에 맞추고 저배율에서도 해당 시·도의 주요 일반도로를 최대 세 노선 보여준다. 기존 상세 타일로 이어지는 Web 렌더와 Android 에뮬레이터의 부산 선택을 확인했다.
+- 변경 파일: `frontend/src/{SvgTravelMap.tsx,regions.ts,osmMapStyle.ts,data/maps/osm-road-preview.json}`, `scripts/build-osm-road-preview.py`, `frontend/e2e/{photo-map,simple-map}.spec.ts`, `AGENTS.md`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`.
+
+## 2026-11-19 21:46 KST — 이전 시·도 선택 지도 복원
+
+- 요청 원문: 아 머야. 이건 별로야. 그냥 처음처럼 해줘
+- 결과: 선택 직후 간선도로 미리보기를 제거하고 16px 여백의 본토 맞춤으로 복귀했다. 동네 상세 지도는 유지했고 로컬 웹을 이전 버전으로 복원했다.
+- 변경 파일: 직전 시·도 선택 배율 작업의 제품·검사·문서 및 생성 자산, `backend/tests/osm-photon.test.ts`.

@@ -6,7 +6,7 @@ import type {MultiPolygon,FeatureCollection} from 'geojson';
 
 export const simpleMapColors={water:'#A9D7EE',land:'#F5F3ED',river:'#B9DDF3',building:'#DDDAD2',label:'#687178',border:'#CFD5D7'};
 export const overviewLimit=(fitZoom:number)=>Math.max(7.5,fitZoom+.5);
-export const detailAfterZoom=(detail:boolean,fitZoom:number,zoom:number,previousZoom:number)=>detail&&zoom>=previousZoom||zoom>=fitZoom+1||detail&&zoom>fitZoom+.5;
+export {detailAfterZoom} from './tileCamera';
 // 원본 Positron은 고정하고 표시 정책만 양 플랫폼에 공통 적용한다.
 export function simpleMapStyle(labelLand?:MultiPolygon):StyleSpecification{
  const style=JSON.parse(JSON.stringify(positron)) as StyleSpecification;

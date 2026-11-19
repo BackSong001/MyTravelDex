@@ -60,3 +60,6 @@ verify_jwt = false
 
 [functions.cleanup-avatars]
 verify_jwt = false
+
+[functions.photon-location]
+verify_jwt = false
