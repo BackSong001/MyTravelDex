@@ -1,0 +1,32 @@
+{
+  "korea-sido": {
+    "sourceBytes": 25418235,
+    "packedBytes": 8794945,
+    "sourceSha256": "4207ffb3c01fea6ea9573d5ae31257ac1419a9b561d4757ee3ec27e2f9ea8158"
+  },
+  "korea-sigungu": {
+    "sourceBytes": 34207852,
+    "packedBytes": 11951599,
+    "sourceSha256": "a5a39c6813e15c775b4b4cebd4002b712e4b386c891b694c0dea4a7d463bc2f9"
+  },
+  "gyeonggi-cities": {
+    "sourceBytes": 911398,
+    "packedBytes": 317637,
+    "sourceSha256": "181a95e9f8aebf643a65f607322017cd81a18cd2e33c3cd3bd26073e54828c1a"
+  },
+  "korea-exterior": {
+    "sourceBytes": 23467289,
+    "packedBytes": 8662875,
+    "sourceSha256": "8bcac06b505979fd1edc347a79bb7470622593b6f6b760c732d2d6505201a66f"
+  },
+  "label-land": {
+    "sourceBytes": 454805,
+    "packedBytes": 302234,
+    "sourceSha256": "7d5b6078cebf5edc0e38d4aaa87e7dbbffbede1065aaccd42c4bed4d79996946"
+  },
+  "legacy-stamp-sido-20260401": {
+    "sourceBytes": 5882683,
+    "packedBytes": 2081362,
+    "sourceSha256": "76b47436a96ee9837fb22d792d4c98260133cae747a446207647304873375535"
+  }
+}

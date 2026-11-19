@@ -1,9 +1,9 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {afterAll,beforeAll,expect,test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
 let admin:TravelApi,guest:TravelApi;const users:{id:string;api:TravelApi}[]=[];
-beforeAll(async()=>{const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;guest=new TravelApi(status.API_URL,status.ANON_KEY);for(let i=0;i<2;i++){const email=`setup-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`,user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});const api=new TravelApi(status.API_URL,status.ANON_KEY);await api.login(email,password);users.push({id:user.id,api});}});
+beforeAll(async()=>{const status=localSupabaseStatus();if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;guest=new TravelApi(status.API_URL,status.ANON_KEY);for(let i=0;i<2;i++){const email=`setup-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`,user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});const api=new TravelApi(status.API_URL,status.ANON_KEY);await api.login(email,password);users.push({id:user.id,api});}});
 afterAll(async()=>{for(const user of users)await admin.request(`/auth/v1/admin/users/${user.id}`,'DELETE');});
 test('TC-ONBOARD-001: only the owner completion action can atomically finish validated setup',async()=>{
  const api=users[0].api;expect(await api.rpc('profile_setup_status',{})).toEqual({profile_setup_complete:false});

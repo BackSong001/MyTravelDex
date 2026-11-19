@@ -1,3 +1,4 @@
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {afterEach,expect,test,vi} from 'vitest';
 import {execFileSync} from 'node:child_process';
 import {googleGeocode,googlePlace} from '../supabase/functions/_shared/google';
@@ -15,7 +16,7 @@ test('TC-EXT-003: invalid key and quota errors become safe service errors',async
  await expect(googleGeocode(1,1,'test-key')).rejects.toThrow('EXTERNAL_SERVICE_ERROR');await expect(googlePlace('제주','test-key')).rejects.toThrow('EXTERNAL_SERVICE_ERROR');
 });
 test('TC-EXT-004: local provider configuration is checked; real consent requires external E2E',async()=>{
- const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+ const status=localSupabaseStatus();
  if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');
  const result=await fetch(`${status.API_URL}/auth/v1/settings`,{headers:{apikey:status.ANON_KEY}});expect(result.status).toBe(200);expect(typeof(await result.json()).external.google).toBe('boolean');
 });

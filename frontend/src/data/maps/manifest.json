@@ -1,0 +1,31 @@
+{
+  "status": "integrated-official-with-unresolved-overlaps",
+  "boundaryDate": "2026-11-09",
+  "codeFileDate": "2026-11-11",
+  "checkedAt": "2026-11-19",
+  "source": "https://www.vworld.kr/dtmk/dtmk_ntads_s002.do?svcCde=NA&dsId=21",
+  "sourceSha256": "b9e3378959472f0076c8ff90d053e9316077a734c1b1d1c3d49f499cba75427b",
+  "codesSha256": "e81ded8b09c3c90de45c9c486fc289c11caf0a39d7cb8662ac5a8b59b233ddd4",
+  "provinceCount": 16,
+  "districtCount": 256,
+  "crs": "EPSG:4326",
+  "sourceCrs": "EPSG:5186",
+  "encoding": "cp949",
+  "simplification": "none",
+  "license": "CC BY (VWorld source page)",
+  "comparisonSource": "https://www.vworld.kr/dtmk/dtmk_ntads_s002.do?svcCde=MK&dsId=30252",
+  "comparisonConstructionYear": 2025,
+  "files": {
+    "korea-sido.json": "4207ffb3c01fea6ea9573d5ae31257ac1419a9b561d4757ee3ec27e2f9ea8158",
+    "korea-sigungu.json": "a5a39c6813e15c775b4b4cebd4002b712e4b386c891b694c0dea4a7d463bc2f9"
+  },
+  "quality": {
+    "overlapPairs": 514,
+    "maximumOverlapSqM": 1087120.348404711,
+    "resolution": "multiple district matches remain unresolved; no DB writes",
+    "correctionReport": "docs/admin-boundary-corrections-20261109.json"
+  },
+  "previousGitCommit": "97c6c70a8bd836c3cf7b05c242328b21d908aa62",
+  "changeCutoff": "2026-11-18",
+  "latestDeltaReferenceDate": "2026-11-16"
+}

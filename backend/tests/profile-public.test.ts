@@ -1,3 +1,4 @@
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {execFileSync,spawn} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
@@ -5,7 +6,7 @@ import {afterAll,beforeAll,expect,test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
 let admin:TravelApi,guest:TravelApi;const users:{id:string;api:TravelApi}[]=[];
 beforeAll(async()=>{
- const s=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+ const s=localSupabaseStatus();
  if(s.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');
  admin=new TravelApi(s.API_URL,s.SERVICE_ROLE_KEY);admin.token=s.SERVICE_ROLE_KEY;guest=new TravelApi(s.API_URL,s.ANON_KEY);
  for(let i=0;i<2;i++){const email=`public-profile-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`,user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true,user_metadata:{full_name:'Auth name must stay private',avatar_url:'https://lh3.googleusercontent.com/not-selected'}});const api=new TravelApi(s.API_URL,s.ANON_KEY);await api.login(email,password);users.push({id:user.id,api});}

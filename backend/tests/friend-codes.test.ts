@@ -1,11 +1,11 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {afterAll,beforeAll,expect,test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
 let admin:TravelApi,guest:TravelApi;
 const people:{id:string;code:string;api:TravelApi}[]=[];
 beforeAll(async()=>{
- const s=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));if(s.API_URL!=='http://127.0.0.1:54321')throw Error('Local only');
+ const s=localSupabaseStatus();if(s.API_URL!=='http://127.0.0.1:54321')throw Error('Local only');
  admin=new TravelApi(s.API_URL,s.SERVICE_ROLE_KEY);admin.token=s.SERVICE_ROLE_KEY;guest=new TravelApi(s.API_URL,s.ANON_KEY);
  await Promise.all(Array.from({length:24},async(_,index)=>{
   const email=`code-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;

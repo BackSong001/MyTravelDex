@@ -1917,3 +1917,363 @@ AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, 
 - 요청 원문: 특별시/도 선택했을 때, 그 지역 이름은 보여줬으면 해. 예를 들어 경상남도 지역이나 그 지역 사진을 클릭하면 연한 회색글씨로 경상남도 이름은 보여주면 좋겠다
 - 결과: 홈 선택시도 정식명 하나를 연회색 SVG로 표시하고 전국/먼섬에서는 숨김. 기존 약칭/타일이름 공개조건 보존. unit/SSR10pass/types·export/APK 성공, Web2pass+기존Escape실패 후 실제닫기준비조건 대상1pass, Native 경북/경남 실제표시 확인. Escape 및 실폰/iOS/성능 수용은 별도.
 - 변경 파일: frontend/src/mapLabels.ts, frontend/src/SvgTravelMap.tsx, backend/tests/map-labels.test.ts, backend/tests/maps-native.test.ts, frontend/e2e/simple-map.spec.ts, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, AGENTS.md, docs/prompts.md.
+# 2026-11-18 17:42 KST — 행정구역 최신화
+
+## 프롬프트 원문
+
+```text
+# 여행가봥 — 대한민국 행정구역 지도 데이터 최신화 (2026년 기준)
+
+## 1. 개발 목표
+
+현재 여행가봥(MyTravelDex) 프로젝트에서 사용 중인 **2018년 기준 대한민국 행정구역 데이터를 2026년 11월 기준으로 확인 가능한 최신 공식 데이터로 교체**해 줘.
+
+이번 작업은 단순히 GeoJSON 파일만 변경하는 것이 아니라, 최신 행정구역 개편 사항을 지도·여행 기록·여행도감·스탬프·여행지 뽑기 기능에 일관되게 반영하는 것이 목표야.
+
+기존 UI/UX, 디자인, 사용자 기록 및 주요 기능은 최대한 유지해야 해.
+
+## 2. 작업 전 기존 프로젝트 분석
+
+코드를 수정하기 전에 다음 사항을 확인해 줘.
+
+1. 현재 사용 중인 GeoJSON 및 행정구역 경계 파일과 기준 연도
+2. SVG/GeoJSON/d3-geo 지도 렌더링 구조
+3. 시·도 및 시·군·구의 행정구역 코드와 명칭
+4. 지역별 방문 기록 및 여행도감 데이터 구조
+5. Supabase에 저장된 지역 코드와 위치 정보
+6. 스탬프 획득 및 지역별 수집률 계산 방식
+7. '어디로 가봥?' 여행지 랜덤 뽑기 후보 생성 방식
+8. 지도 마커, 지역명 라벨, 확대·축소 및 클릭 기능
+
+기존 구조를 분석하고 수정 범위를 정한 다음 작업을 진행해 줘.
+
+## 3. 최신 공식 행정구역 데이터 확보
+
+2026년 11월 18일까지 시행된 변경사항을 기준으로 최신 자료를 확인하고 적용해 줘.
+
+### 3.1 지도 경계 데이터
+
+우선 사용할 데이터:
+
+**재난안전데이터 공유플랫폼 — 시군구법정경계**
+
+- URL: [https://www.safetydata.go.kr/disaster-data/view?dataSn=900](https://www.safetydata.go.kr/disaster-data/view?dataSn=900)
+- 제공 기관: 한국지역정보개발원
+- 확인된 갱신일: 2026년 11월 6일
+- 형식: SHP, SHX, DBF
+
+가능하면 위 공식 데이터를 직접 다운로드해 사용한다.
+
+자료에 포함된 실제 행정구역 기준일과 갱신일을 구분해 확인한다.
+
+자료가 최신 행정구역 개편을 완전히 반영하지 못했다면, 추가 공식 자료를 대조해 누락된 경계를 보완한다.
+
+### 3.2 행정구역 코드 및 명칭
+
+행정안전부의 최신 행정구역 코드 변경내역을 확인한다.
+
+- URL: [https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000052](https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000052)
+
+2026년 10월 30일 기준 코드 변경내역을 포함해, 작업 시점에 확인 가능한 최신 자료를 사용한다.
+
+법정동 코드와 행정기관 코드를 구분하고, 기존 프로젝트에서 사용하는 코드 체계와 정확히 매핑한다.
+
+### 3.3 데이터 변환 및 최적화
+
+- SHP 데이터를 GeoJSON으로 변환
+- 원본 좌표계를 확인하고 WGS84(EPSG:4326)로 변환
+- 한글 인코딩 정상 처리
+- Polygon/MultiPolygon 유효성 검증
+- 도서 지역 및 해안선 보존
+- 지도 렌더링 성능을 고려한 경계 단순화
+- 최신 시·군·구 경계를 기준으로 상위 시·도 경계 생성
+- 데이터 원본, 기준일, 변환 과정 기록
+
+지도 경계가 중복되거나 해안선이 이중으로 표시되지 않도록 기존 경계 레이어 구조도 확인한다.
+
+## 4. 2026년 행정구역 개편 반영
+
+### 4.1 전남광주통합특별시
+
+2026년 7월 1일 출범한 전남광주통합특별시를 반영한다.
+
+- 기존 광주광역시와 전라남도의 통합
+- 새로운 광역 행정구역 명칭 및 코드 반영
+- 기존 광주·전남 지역의 하위 행정구역 유지 및 최신 코드 매핑
+- 지도 경계와 지역명 라벨 수정
+- 기존 광주·전남 여행 기록의 지역 매핑 보존
+
+광주 도심과 전남의 시·군을 여행지 뽑기에서 어떻게 구분할지도 기존 확정 규칙에 맞춰 처리한다.
+
+### 4.2 인천광역시 행정체제 개편
+
+2026년 7월 1일 시행된 행정구역 개편을 반영한다.
+
+- 기존 중구·동구 관할 지역을 제물포구·영종구로 재편
+- 기존 서구 관할 지역을 서해구·검단구로 재편
+- 변경된 경계와 최신 행정구역 코드 반영
+- 기존 사용자 기록을 실제 위치에 따라 새 행정구역에 매핑
+
+이름만 교체하지 말고 실제 경계 변경사항을 반영해야 한다.
+
+### 4.3 기타 변경사항
+
+2018년 이후 2026년 11월 18일까지 발생한 행정구역 신설, 폐지, 분할, 통합, 명칭 변경 등을 공식 자료와 대조해 반영한다.
+
+변경 사항을 임의로 추측하지 않으며, 공식 자료로 검증된 내용만 적용한다.
+
+광역 행정구역 개편으로 전국 시·도 개수가 변경됐다면 기존 코드에 고정된 시·도 개수 역시 수정한다.
+
+## 5. 기존 지도 시스템 유지 및 개선
+
+기존 React/SVG/GeoJSON/d3-geo 지도 구현 방식을 유지한다.
+
+다음 기능은 정상적으로 동작해야 한다.
+
+- 전국 시·도 지도 표시
+- 시·군·구 상세 지도 표시
+- 지도 확대·축소 및 이동
+- 지역 클릭 및 선택
+- 방문 지역 색상 표시
+- 여행 기록 사진 마커
+- 지역명 라벨
+- 기존 바다 및 배경 디자인
+- 모바일 및 웹 반응형 UI
+
+기존 색상 및 디자인 스타일을 변경하지 않는다.
+
+행정구역 명칭은 최신 공식 명칭을 사용하되, 지도 라벨에서는 기존의 간결한 표시 규칙을 유지한다.
+
+## 6. '어디로 가봥?' 여행지 뽑기 연동
+
+현재 구현된 여행지 랜덤 뽑기 기능을 최신 행정구역 데이터와 연동해 줘.
+
+기존에 확정한 여행지 추첨 규칙을 유지한다.
+
+- 일반 시·군은 독립적인 추첨 후보
+- 일반 시의 구는 상위 시로 통합
+- 특별시·광역시의 자치구는 상위 도시로 통합
+- 특별시·광역시의 군은 독립적인 추첨 후보
+- 세종시는 하나의 추첨 후보
+- 제주도는 제주시·서귀포시로 구분
+
+전남광주통합특별시는 광주 도심의 자치구를 하나의 '광주' 여행지로 묶되, 기존 전남 지역의 시·군은 각각 독립적인 여행지로 유지한다.
+
+이는 공식 행정계층과 별도로 적용하는 여행가봥의 여행 목적지 분류 규칙이다.
+
+통합된 여행지 목록을 기준으로 균등 랜덤 추첨한다.
+
+기존 하이라이트 애니메이션, 추첨 모드, 결과 카드 및 다시 뽑기 기능은 유지한다.
+
+## 7. 기존 사용자 데이터 보존
+
+이번 작업에서 가장 중요한 요구사항이다.
+
+**Supabase에 저장된 기존 사용자 기록을 삭제하거나 초기화하면 안 된다.**
+
+보존 대상:
+
+- 사용자 여행 기록
+- 사진 및 사진 저장 경로
+- GPS 좌표
+- 지역별 방문 정보
+- 여행도감 수집 기록
+- 스탬프 획득 내역
+- 친구 관련 데이터
+
+### 7.1 행정구역 코드 매핑
+
+2018년 기준 지역 코드와 최신 지역 코드를 비교해 변경 매핑 테이블을 생성한다.
+
+- 명칭만 변경된 지역
+- 경계가 변경된 지역
+- 새로 생성된 지역
+- 폐지된 지역
+- 분할 또는 통합된 지역
+
+각 유형에 맞는 마이그레이션 규칙을 적용한다.
+
+GPS 좌표가 있는 기존 여행 기록은 최신 경계에 대한 공간 판정으로 새 행정구역을 결정할 수 있도록 한다.
+
+GPS가 없거나 위치가 모호한 기록은 임의로 다른 지역에 배정하지 않는다.
+
+### 7.2 스탬프 및 방문 기록
+
+기존에 획득한 스탬프를 임의로 회수하지 않는다.
+
+지역 개편 때문에 스탬프나 수집률이 변경될 수 있다면 기존 데이터와 새 기준의 차이를 검증한다.
+
+필요한 경우 기존 스탬프 기록과 최신 행정구역 기준 수집 상태를 분리해서 관리한다.
+
+### 7.3 데이터베이스 변경 안전성
+
+- 변경 전 데이터 백업 방안 마련
+- 마이그레이션 스크립트 작성
+- 재실행 가능한 마이그레이션 설계
+- 기존 데이터 변경 전후 비교
+- 실패 시 롤백 방안 준비
+
+운영 DB에 파괴적인 변경을 수행하기 전에 변경 영향과 필요한 승인 사항을 보고한다.
+
+## 8. 데이터 관리 구조 개선
+
+향후 2027년 이후 행정구역 데이터도 쉽게 교체할 수 있도록 구조를 개선한다.
+
+- 행정구역 데이터 기준일 및 출처 관리
+- 지도 경계 데이터와 행정구역 코드 매핑 분리
+- 행정구역 변경 이력 관리
+- GeoJSON 변환 스크립트 재사용
+- 데이터 버전 관리
+- 구버전과 신버전 비교 검증
+
+앱 실행 시 매번 공공 API를 호출하지 말고 검증된 정적 GeoJSON 파일을 우선 사용한다.
+
+외부 API 키가 필요하다면 필요한 설정만 별도로 안내한다.
+
+## 9. 필수 테스트
+
+1. 최신 광역자치단체 목록과 지도 표시 일치
+2. 전남광주통합특별시 경계 및 하위 행정구역 정상 표시
+3. 인천 개편 지역 경계와 이름 정상 표시
+4. 전국 시·군·구 중복 또는 누락 여부 확인
+5. 지도 지역명 라벨 및 클릭 기능 정상 작동
+6. 기존 여행 기록 마커 위치 유지
+7. 방문 지역 및 스탬프 데이터 유지
+8. 여행지 랜덤 뽑기 최신 후보 목록 적용
+9. 통합 여행지 하이라이트 정상 동작
+10. 지도 확대·축소 및 모바일 UI 정상 동작
+11. 행정구역 코드 마이그레이션 결과 검증
+12. 기존 데이터와 신규 데이터 간 불일치 확인
+
+가능하면 자동화 테스트를 작성한다.
+
+## 10. 개발 방식 및 완료 보고
+
+작업 순서:
+
+1. 기존 프로젝트 분석
+2. 최신 공식 데이터 확보
+3. 2018년 데이터와 최신 데이터 비교
+4. GeoJSON 변환 및 데이터 검증
+5. 기존 지도에 최신 경계 적용
+6. 행정구역 코드 및 사용자 데이터 매핑
+7. 여행지 뽑기 기능 연동
+8. 전체 기능 및 회귀 테스트
+9. 오류 수정
+10. 변경 사항 보고
+
+직접 수행 가능한 패키지 설치, 데이터 변환, 코드 수정, 테스트는 모두 진행한다.
+
+사용자 권한이나 인증이 필요한 작업만 별도로 요청한다.
+
+최종 보고에는 다음 내용을 포함한다.
+
+- 적용 데이터 기준일 및 공식 출처
+- 변경된 행정구역 목록
+- 새롭게 생성된 GeoJSON 파일
+- 수정된 코드 및 컴포넌트
+- Supabase 마이그레이션 내용
+- 테스트 성공 및 실패 결과
+- 남아 있는 문제점
+
+**최종 목표: 2026년 11월 기준 최신 대한민국 행정구역을 여행가봥 지도에 반영하면서 기존 여행 기록, 지도 디자인, 여행지 뽑기 및 스탬프 기능을 안전하게 유지하는 것이다.**
+```
+
+## 결과 요약
+
+공식 SHP의 불완전성을 확인하고 2026-10-01 SGIS 가공 경계를 11월11일 공식 코드와 대조해 16시도/256시군구·167추첨 후보로 연결했다. 이전 스탬프 경계 보존, 코드 후보표·변경 목록·변환 스크립트와 명세를 추가했다. 관련 Vitest45/Python4/지도Web11/타입/웹export 통과. 전체 Local HTTP·Android·완전한 공식 SHP 대조는 미완료이며 DB/운영 변경·커밋·푸시 없음.
+
+변경 파일: `.gitignore`, `AGENTS.md`, `docs/{ADMIN_REGIONS_2026,API_SPEC,PRD,REQUIREMENT,TEST_CASE,TRD,prompts}.md`, `frontend/app/index.tsx`, `frontend/src/{DestinationScreen,MapAttribution,Social,StampCatalog}.tsx`, `frontend/src/{destinationDraw,destinationUnits,mapLabels,provinces,regions}.ts`, `frontend/src/data/maps/{README.md,manifest.json,korea-sido.json,korea-sigungu.json,korea-exterior.json,korea-ocean.json,gyeonggi-cities.json,home-map-areas.json,label-land.json,legacy-stamp-sido-20260401.json,legacy-code-crosswalk.json,changes-20260401-20261001.json}`, `frontend/assets/maps/ocean-depth.png`, `scripts/{prepare-admin-regions,convert-admin-shp,compare-admin-regions,test-admin-regions,build-map-areas,build-map-cities,build-map-exterior,build-ocean}.py`, `scripts/requirements-admin.txt`, `backend/tests/{admin-regions-2026,destination-draw,map-attribution,map-cities,map-labels,map-readability,maps-native,ocean,provinces,simple-map,stamp-catalog,svg-regions}.test.ts`, `frontend/e2e/{profile-stamps,profile,svg-map}.spec.ts`.
+
+---
+
+## 2026-11-19 12:08 KST — 공식 전국 경계 추가 확보·감사 및 Windows 테스트 보완
+
+### 사용자 프롬프트 원문
+
+> 최신 공식 전국 경계 데이터를 추가로 확보해서 남은 대조·검증도 계속 진행해 줘. 기존 사용자 데이터는 그대로 보존하고, 테스트 환경 문제도 해결 가능한 범위에서 마무리해 줘.
+
+로그인 요청에 대한 사용자 응답: `로그인했어`
+
+### 결과 요약
+
+브이월드 로그인 후 11월9일 전국 전체본과 10·12·16일 변동 ZIP을 확보하고 PRJ/CPG/hash 및 코드·명칭·기하를 감사했다. SIG 16시도/256시군구 코드는 앱과 일치하지만 명칭17개 불일치·원본 도형3개 오류·감사용 유효화 후 겹침519쌍이 있어 앱 채택은 보류했다. 감사 전용 GeoJSON/전국 비교 보고서를 만들고 원본을 Git 제외 artifacts에 보존했다. Supabase Windows 실행 경로와 오류 비밀값 노출을 수정(신규10개 Red→Green)했으며 전체 Vitest129개 통과/3개 환경 실패/86개 보류, 지도Web11개·Python5개·타입검사 통과. Docker/Local HTTP 및 Native 수용은 미완료. 사용자 DB/사진/AVD 초기화·운영 변경·커밋·푸시 없음.
+
+### 이번 후속 작업 변경 파일
+
+- `.gitignore`, `AGENTS.md`, `docs/{ADMIN_REGIONS_2026,TRD,TEST_CASE,prompts}.md`, `docs/admin-boundary-source-audit.json`, `docs/admin-boundary-comparison-20261109.json`, `frontend/src/data/maps/README.md`
+- `scripts/{audit-official-boundaries,test-audit-official}.py`, `scripts/local-supabase.mjs`
+- `backend/tests/{auth,badges,contact-id,cors,external,friend-codes,friends,geocode-vnext,onboarding,photo,profile-public,vnext,local-supabase}.test.ts`, `frontend/e2e/helpers.ts`
+- Git 제외 산출물: `artifacts/admin-boundaries/2026-11-09/` 원본 ZIP4개, 법정코드, 감사 보고서 및 `audit/official-sigungu-candidate.geojson`(운영 미승인 후보).
+
+기존 첫 작업의 지도/추첨/스탬프 코드와 경계 변경은 보존했으며 이번 후속 작업에서 추가로 교체하지 않았다.
+
+## 2026-11-19 12:48 KST
+
+### 사용자 프롬프트 원문
+
+> 공식 경계의 도형 오류와 겹침을 추가 공식 자료로 대조해서 안전하게 보정 가능한 부분은 처리하고, 최신 경계 적용까지 계속 진행해 줘. 기존 사용자 기록은 그대로 보존해 줘.
+
+### 결과 요약
+
+국토지리정보원 비교용 공식 자료를 추가 다운로드하고 최신 공식 EMD와 일치한 겹침 부분만 보정했다. 원본 도형 오류3개·재투영 미세 오류37개를 유효화하고 232개 지역 쌍의 중복 부분 약0.22㎢를 제거했다. 최신 확보 SIG 2026-11-09 경계를 앱에 적용(16시도/256시군구/167목적지)했으나 514쌍의 겹침은 근거 부족으로 보존하고 다중 GPS 귀속은 미확정으로 유지한다. 미확정 기록의 마커·상세 접근, 과거 스탬프 해시, 원본 사용자 DB/사진/GPS 보존. 전체 Vitest132통과/3개 환경실패/86보류, Python9개 및 설치 자산검증·8GB 한도 TypeScript·웹 export 통과. 웹 JS92.8MB로 모바일 성능/Android와 Docker Local HTTP 수용은 미완료. 커밋·푸시·운영 DB 변경·배포 없음.
+
+### 이번 작업 변경 파일
+
+- 신규: `scripts/prepare-official-regions.py`, `scripts/test-official-corrections.py`, `scripts/verify-official-regions.py`, `frontend/src/mapDataVersion.ts`, `docs/admin-boundary-corrections-20261109.json`, `frontend/src/data/maps/changes-20260401-20261109.json`.
+- 갱신: `AGENTS.md`, `docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,ADMIN_REGIONS_2026,prompts}.md`, `docs/admin-boundary-source-audit.json`.
+- 앱: `frontend/src/{regions,mapLabels,destinationDraw,MapAttribution,DestinationScreen,StampCatalog,SvgTravelMap}.tsx 또는 .ts`, `frontend/src/data/maps/{README.md,manifest.json,korea-sido.json,korea-sigungu.json,gyeonggi-cities.json,korea-exterior.json,home-map-areas.json,label-land.json,korea-ocean.json}`, `frontend/assets/maps/ocean-depth.png`.
+- 생성기: `scripts/{build-map-cities,build-map-areas,compare-admin-regions}.py`. 기존 exterior/ocean 생성기로 파생 자산 재생성.
+- 검증: `backend/tests/{admin-regions-2026,map-attribution,map-readability,ocean,svg-regions}.test.ts`, `frontend/e2e/svg-map.spec.ts`. 기존 Native/스탬프 테스트 실패는 assertion 완화 없이 링 방향 구현 수정으로 해결했다.
+- Git 제외: 추가 공식 원본/정의서 `artifacts/admin-boundaries/ngii-2025/`, 보정 후보 및 이전 정적 지도 백업, 검증 산출물. 기존 미커밋 변경은 보존했다.
+
+브라우저 후속 결과: 지도 전체11개 통과, 공식 경계에서 육지로 바뀐 구버전 수역 fixture1개 수정 후 대상 재실행 통과(종합12개 시나리오). 390px 전국 지도 이미지 확인 및 최종 웹 export 성공. 실패를 assertion 완화로 처리하지 않고 공식 union의 실제 내부 수역점으로 검증을 유지했다.
+
+최종 파생 지도 재현 검사(build-map-areas.py --check)와 git diff --check 통과. home-map-areas/label-land 내용 일치·36개 도서 그룹·공식 원본 해시 불변 확인.
+
+## 2026-11-19 14:21 KST
+
+### 사용자 프롬프트 원문
+
+> 웹 번들 92.8MB를 줄이고 모바일 성능 최적화까지 계속 진행해 줘. 공식 경계 판정 정확도와 기존 사용자 기록은 보존하고, 지도 표시·여행지 뽑기·스탬프 기능 회귀 테스트도 진행해 줘.
+
+### 결과 요약
+
+공식/과거 스탬프 좌표를 Float64 무손실 압축 자산으로 분리하고 geometry 지연 복원·정확한 bbox/링 캐시·추첨 경로 지연 생성·보이는 시군구만 경로 생성/캐시·웹 측정 전 중복 생성 방지를 적용했다. 최종 웹 JS92.8MB→34,446,178bytes(약63% 감소), gzip24,249,395bytes. 좌표 단순화 시안은 최종 채택하지 않았으며 원본6종 hash/모든 값 복원·544개 위치판정 동일성·과거 기록 보존을 검증했다. Vitest135통과/3개 Docker환경실패/86보류, 기본 메모리 TypeScript·웹 export 통과. CPU4배 모바일viewport에서 준비24~25초, 확대/홈복귀0.56~1.5초, GC후힙약98MB; 최초 로딩 및 실제Android 성능 수용은 미완료다. 사용자 DB/사진/GPS·스탬프/친구 변경, 커밋·푸시·운영 배포 없음.
+
+### 이번 작업 변경 파일
+
+- 신규: `scripts/pack-map-data.mjs`, `frontend/src/packedMapData.ts`, `frontend/src/data/maps/packed/`의6종 JSON 및manifest, `backend/tests/{packed-map,map-performance}.test.ts`.
+- 수정: `frontend/package.json`, `frontend/package-lock.json`, `frontend/src/{regions,provinces,simpleMapStyle,destinationDraw,destinationUnits}.ts`, `frontend/src/{SvgTravelMap,DestinationScreen}.tsx`, `frontend/e2e/svg-map.spec.ts`, `frontend/src/data/maps/{README.md,map-notices.json}`.
+- 문서: `AGENTS.md`, `docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,ADMIN_REGIONS_2026,prompts}.md`.
+- Git 제외 측정 결과: `artifacts/admin-boundaries/{predicate-performance,mobile-map-performance,vitest-performance-final}.json`, 브라우저/Android export 결과. 이전 미커밋 변경 및 공식 원본 GeoJSON은 보존했다.
+
+Android Hermes 정적 export37.4MB 성공 및390px 전국 지도 이미지 확인. APK/AAB 설치 또는 실기기 성능 완료로 간주하지 않는다.
+
+최종 지도 Playwright 전체13/13 통과(2.7분), 압축 재생성 --check 및 git diff --check 통과. 사용자 요청 범위의 변경 파일을 확인했고 기존 변경은 보존했다.
+
+## 2026-11-19 15:36 KST
+
+### 사용자 프롬프트 원문
+
+> 최초 지도 로딩 24\~25초도 더 줄여 줘. 공식 경계 판정 정확도와 기존 사용자 기록은 유지하면서, 첫 화면이 빨리 뜨도록 최적화하고 회귀 테스트도 진행해 줘.
+
+### 결과 요약
+
+332개 표시 bounds/anchor·16개SVG를 빌드 시 사전 계산하고 최초 표시에서 정확한 위치 geometry 복원을 피했다. 스탬프 윤곽/시도/본토·섬 geometry를 지연하고, 홈에서 숨겨진 MapLibre 시작을 첫 상세 진입으로 미뤘다. 준비 전 SVG를 유지하고 오류·재시도·카메라·기록 접근을 보존했다. 동일 CPU4배 harness 준비25,266→15,326ms(약39% 감소), GC후힙약98→64MB. 실제 정적 웹은 첫화면4.8~6.5초·지도선택후1.3~1.7초, 초기타일요청0; 서로 다른 측정을 혼합하지 않았다. 표시 캐시로웹37.7MB/Android HBC40.7MB로 증가했다. 공식/과거 스탬프 원본좌표·hash·판정/사용자DB/사진/GPS/친구 데이터는 유지한다. 지도13·실제타일3·정적웹4개 Playwright 통과, 전체Vitest137통과/3Docker환경실패/86보류 후 추가1개를 포함한대상18개통과, 타입·웹/Android정적빌드·캐시재현 통과. 실기기/WAN/대량 로그인 기록 성능은 미검증이며 배포·커밋·푸시 없음.
+
+### 이번 작업 변경 파일
+
+- 신규: `scripts/build-map-display.mjs`, `frontend/src/{displayCache,svgPath}.ts`, `frontend/src/data/maps/{display-metadata,display-paths}.json`, `backend/tests/display-cache.test.ts`.
+- 앱: `frontend/src/{regions,homeMapAreas,mapLabels,provinces,packedMapData}.ts`, `frontend/src/{SvgTravelMap,OceanBackground,StampCatalog,TileSurface,TileSurface.web}.tsx`, `frontend/src/TileSurface.types.ts`.
+- 검증: `backend/tests/{maps-native,map-attribution}.test.ts`, `frontend/e2e/{svg-map,simple-map,static-web}.spec.ts`.
+- 문서: `AGENTS.md`, `docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,ADMIN_REGIONS_2026,prompts}.md`, `frontend/src/data/maps/README.md`.
+- Git 제외: `artifacts/admin-boundaries/`의 캐시 생성 도구 산출물, 성능/테스트 JSON, 실제 정적 웹/Android시험 export 및 이미지. 기존 미커밋 변경을 보존했다. 실제 .env는 읽거나 수정하지 않고, 정적 실행 측정에만 비밀이 아닌 placeholder 공개 설정을 프로세스에 사용했다.
+
+| 2026-11-19 16:09 KST | 상세 지도 눌렀을 때 한 쪽 부분이 하늘 색이 되는 문제가 있어 이거 왜 그런지 점검하고 고쳐봐 | 대형 바다 차폐 도형의 타일 렌더링 육지 침범을 재현하고 표시 차폐를 52개 셀로 분할. 공식 판정/스탬프 경계와 사용자 DB 보존. 단위23·웹24 검증, 타입·웹 빌드 성공, 실제 경상북도 화면 정상 확인. Android 실기기 미검증. | 변경 파일: scripts/build-map-exterior.py; frontend/src/simpleMapStyle.ts; frontend/src/data/maps/korea-exterior.json; frontend/src/data/maps/packed/korea-exterior.json; frontend/src/data/maps/packed/manifest.json; frontend/src/data/maps/README.md; frontend/e2e/exterior-mask.spec.ts; frontend/e2e/simple-map.spec.ts; AGENTS.md; docs/REQUIREMENT.md; docs/PRD.md; docs/TRD.md; docs/API_SPEC.md; docs/TEST_CASE.md; docs/ADMIN_REGIONS_2026.md; docs/prompts.md |
+
+| 2026-11-19 17:13 KST | 다른 지역 상세 지도에서도 같은 문제가 없는지 전국 시·도와 모바일 화면까지 점검해 줘. 기존 사용자 기록과 경계 판정 정확도는 유지해 줘. | 전국16시도·36도서·252화면 대조에서 해안 누락을 추가 발견해 차폐 2673개/홀128/tolerance0으로 보정. 최종495872샘플 불일치0, UI48조건·웹20·단위20·타입·웹빌드 통과. 판정/스탬프 원본 해시 및 사용자 데이터 보존. 모바일웹 검증이며 실기기 미실행. | 변경 파일: scripts/build-map-exterior.py; scripts/check-nationwide-mask.py; frontend/src/simpleMapStyle.ts; frontend/src/data/maps/korea-exterior.json; frontend/src/data/maps/packed/korea-exterior.json; frontend/src/data/maps/packed/manifest.json; frontend/src/data/maps/README.md; frontend/e2e/nationwide-mask.spec.ts; frontend/e2e/simple-map.spec.ts; backend/tests/simple-map.test.ts; AGENTS.md; docs/REQUIREMENT.md; docs/PRD.md; docs/TRD.md; docs/API_SPEC.md; docs/TEST_CASE.md; docs/ADMIN_REGIONS_2026.md; docs/NATIONWIDE_MAP_QA_20261119.md; docs/prompts.md |
+
+| 2026-11-19 17:17 KST | git에 커밋하고 푸쉬해줘 | jsj 브랜치의 지도 최신화·무손실 압축·초기 표시 최적화·전국 해안 보정 및 회귀/문서 114개 파일을 검토하여 커밋·origin/jsj 푸시 대상으로 확정. 기존 검증 결과를 확인하고 비밀 설정/실제 비밀값 및 테스트 산출물 제외를 검사했다. | 변경 파일: docs/prompts.md (이력 추가), 기존 작업 변경 파일은 커밋에 포함 |
+
+커밋 검증 보완: Git 줄바꿈 정규화로 label-land.json의 SHA256이 달라지는 것을 확인하여 `.gitattributes`에 지도 JSON 바이트 보존 규칙을 추가했다. 원본 좌표와 파일 내용은 변경하지 않고 staged 원본 해시와 manifest를 대조한다. 추가 변경 파일: `.gitattributes`, `frontend/src/data/maps/README.md`, `docs/prompts.md`.

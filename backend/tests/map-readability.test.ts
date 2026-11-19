@@ -20,8 +20,8 @@ import {readFileSync} from 'node:fs';
 import data from '../../frontend/src/data/maps/home-map-areas.json';
 test('TC-MAP-READABILITY-001 remote islands have stable separate targets while mainland and source codes stay intact',()=>{
  expect(data.sourceHash).toBe(createHash('sha256').update(readFileSync('frontend/src/data/maps/korea-sido.json')).digest('hex'));
- expect(homeMainlands).toHaveLength(17);expect(homeIslands).toHaveLength(22);
- expect(new Set(homeIslands.map(f=>f.properties.code)).size).toBe(22);
+ expect(homeMainlands).toHaveLength(16);expect(homeIslands).toHaveLength(36);
+ expect(new Set(homeIslands.map(f=>f.properties.code)).size).toBe(36);
  expect(homeAreaAt(37.4845,130.9057)?.properties.parentCode).toBe('47');
  expect(homeAreaAt(37.957,124.665)?.properties.parentCode).toBe('28');
  expect(homeAreaAt(33.4996,126.5312)).toBeUndefined();

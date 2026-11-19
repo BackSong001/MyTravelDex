@@ -12,17 +12,18 @@ assert shapely.__version__ == '2.2.0' and pyproj.__version__ == '3.7.2'
 root = Path(__file__).resolve().parents[1] / 'frontend/src/data/maps'
 source = root / 'korea-sido.json'
 digest = hashlib.sha256(source.read_bytes()).hexdigest()
-assert digest == '76b47436a96ee9837fb22d792d4c98260133cae747a446207647304873375535'
+assert digest == json.loads((source.parent / 'manifest.json').read_text(encoding='utf-8'))['files']['korea-sido.json']
 forward = pyproj.Transformer.from_crs(4326, 5179, always_xy=True).transform
 back = pyproj.Transformer.from_crs(5179, 4326, always_xy=True).transform
-features = json.loads(source.read_text())['features']
-districts = json.loads((root / 'korea-sigungu.json').read_text())['features']
+features = json.loads(source.read_text(encoding='utf-8'))['features']
+districts = json.loads((root / 'korea-sigungu.json').read_text(encoding='utf-8'))['features']
 
 def partition(polygons):
     # 최대육지와 직접거리만 사용한다. 가까운 섬을 통해 30km 범위를 연장하지 않는다.
     core = max(range(len(polygons)), key=lambda i: (polygons[i].area, -i))
     mainland = [i for i, p in enumerate(polygons) if p.distance(polygons[core]) <= 30000]
-    remaining = [i for i in range(len(polygons)) if i not in set(mainland)]
+    mainland_set = set(mainland)
+    remaining = [i for i in range(len(polygons)) if i not in mainland_set]
     tree = STRtree([polygons[i] for i in remaining])
     unseen = set(range(len(remaining)))
     groups = []
@@ -55,7 +56,7 @@ for f in sorted(features, key=lambda f:f['properties']['code']):
         indices = sorted(order[i] for i in group)
         anchor = max((original[i] for i in indices),key=lambda p:p.area).representative_point()
         candidates = [d for d in districts if d['properties']['parentCode']==code and shape(d['geometry']).covers(anchor)]
-        district = min(candidates,key=lambda d:d['properties']['code']) if candidates else f
+        district = candidates[0] if len(candidates)==1 else f
         identifier = f"island:{code}:" + hashlib.sha256(','.join(map(str,group)).encode()).hexdigest()[:12]
         islands.append({'id':identifier,'indices':indices,'districtCode':district['properties']['code'],'name':district['properties']['name']+' 섬 지역 '+str(len(islands)+1)})
     all_indices = [order[i] for i in main]+[i for item in islands for i in item['indices']]
@@ -65,13 +66,15 @@ land = unary_union([shape(f['geometry']) for f in features])
 metric_land = transform(forward,land)
 interior = metric_land.buffer(-250).simplify(100,preserve_topology=True).intersection(metric_land)
 labels = transform(back,interior).intersection(land)
+# 라벨 표시용 좌표만 약 0.1m 단위로 줄이고 원본 육지로 다시 잘라낸다. 판정 경계는 변경하지 않는다.
+labels = shapely.set_precision(shapely.set_precision(labels,1e-6),0).intersection(land)
 assert labels.is_valid and not labels.is_empty and labels.difference(land).area < 1e-12
 assert labels.area/land.area > .9
-outputs = {'home-map-areas.json':{'sourceHash':digest,'projection':'EPSG:5179','date':'2026-04-01','provinces':areas},'label-land.json':{'type':'Feature','properties':{'sourceHash':digest,'insetMeters':250,'simplifyMeters':100},'geometry':mapping(labels)}}
+outputs = {'home-map-areas.json':{'sourceHash':digest,'projection':'EPSG:5179','date':json.loads((source.parent / 'manifest.json').read_text(encoding='utf-8'))['boundaryDate'],'provinces':areas},'label-land.json':{'type':'Feature','properties':{'sourceHash':digest,'insetMeters':250,'simplifyMeters':100,'coordinatePrecisionDegrees':1e-6},'geometry':mapping(labels)}}
 for name,value in outputs.items():
     data=json.dumps(value,ensure_ascii=False,separators=(',',':'))+'\n'
-    if '--check' in sys.argv: assert (root/name).read_text()==data
-    else: (root/name).write_text(data)
+    if '--check' in sys.argv: assert (root/name).read_text(encoding='utf-8')==data
+    else: (root/name).write_text(data, encoding='utf-8')
     print(name,len(data.encode()))
 print('island groups',sum(len(p['islands']) for p in areas))
 assert hashlib.sha256(source.read_bytes()).hexdigest()==digest

@@ -10,6 +10,7 @@ export default function TileSurface(props:TileSurfaceProps){
   map.current=instance;
   const labels=()=>{for(const l of live.current.style.layers)if(l.type==='symbol'&&instance.getLayer(l.id))instance.setLayoutProperty(l.id,'visibility',live.current.labelsVisible===false?'none':'visible');};
   instance.on('style.load',labels);
+  instance.once('idle',()=>live.current.onReady?.());
   instance.on('error',()=>live.current.onTileError());instance.on('webglcontextlost',()=>live.current.onFailure());
   const observer=new ResizeObserver(()=>{instance.resize();instance.jumpTo({...live.current.camera,bearing:0,pitch:0});});observer.observe(host.current!);
   return()=>{observer.disconnect();map.current=null;instance.remove();};

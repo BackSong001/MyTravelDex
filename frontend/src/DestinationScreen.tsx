@@ -1,3 +1,4 @@
+import {MAP_ATTRIBUTION} from './mapDataVersion';
 import React,{memo,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {View,useWindowDimensions} from 'react-native';
 import Svg,{Circle,Path} from 'react-native-svg';
@@ -8,7 +9,7 @@ import {provinceLabels,provincePalette} from './provinces';
 import {isDestinationVisited,project,areas,districts,drawDelays,eligibleDestinations,pickDestination,type Destination,type DrawMode} from './destinationDraw';
 
 const silhouettes=Object.entries(provinceLabels).map(([id])=>({
-  id,path:districts.filter(d=>d.province===id).map(d=>d.path).join(''),
+  id,get path(){return districts.filter(d=>d.province===id).map(d=>d.path).join('');},
 }));
 function frame(bounds:number[],padding:number){
   const [left,top,right,bottom]=bounds;
@@ -106,7 +107,7 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
     <View style={{height:Math.max(184,Math.min(420,height*.43)),borderRadius:18,overflow:'hidden',backgroundColor:c.map.ocean}}>
       <DrawMap active={active} result={result} reduced={reduced}/>
     </View>
-    <Text style={{color:c.muted,fontSize:12}}>통계청 2018 · southkorea-maps · 단순화 경계</Text>
+    <Text style={{color:c.muted,fontSize:12}}>{MAP_ATTRIBUTION}</Text>
     {result&&<View accessibilityLiveRegion="polite" style={{padding:16,borderRadius:16,gap:6,backgroundColor:c.sheet}}>
       <Text style={{color:c.muted}}>이번 여행지는</Text>
       <Text testID="destination-result" accessibilityRole="header" style={{fontSize:26,color:c.ink,fontWeight:'700'}}>{result.label}</Text>

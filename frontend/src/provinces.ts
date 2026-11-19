@@ -1,11 +1,14 @@
 import {regions,regionAt,legacyCodes,containsRegion} from './regions';
 import {colors as palette} from './theme';
 import {validCoordinates} from './domain';
+import legacyPacked from './data/maps/packed/legacy-stamp-sido-20260401.json';
+import {unpackCollection} from './packedMapData';
+const legacyStamps=unpackCollection(legacyPacked);
 
 type Position = number[];
 type Geometry = {type: 'Polygon'; coordinates: Position[][]} | {type: 'MultiPolygon'; coordinates: Position[][][]};
 type Feature = {properties: {shapeISO: string; shapeName: string}; geometry: Geometry};
-export const provinceFeatures = regions.map(f=>({...f,properties:{shapeISO:legacyCodes[f.properties.code],shapeName:f.properties.name}})) as Feature[];
+export const provinceFeatures = regions.map(f=>({properties:{shapeISO:legacyCodes[f.properties.code],shapeName:f.properties.name},get geometry(){return f.geometry;}})) as Feature[];
 export const provinceLabels: Record<string, {name: string; point: Position; offset?: Position}> = {
   'KR-11': {name: '서울', point: [126.98,37.56], offset: [-7,-21]},
   'KR-28': {name: '인천', point: [126.7,37.45], offset: [-40,0]},
@@ -16,8 +19,7 @@ export const provinceLabels: Record<string, {name: string; point: Position; offs
   'KR-50': {name: '세종', point: [127.28,36.56], offset: [0,-15]},
   'KR-30': {name: '대전', point: [127.38,36.35], offset: [0,14]},
   'KR-45': {name: '전북', point: [127.15,35.8]},
-  'KR-46': {name: '전남', point: [126.9,34.7]},
-  'KR-29': {name: '광주', point: [126.85,35.16], offset: [-35,-5]},
+  'KR-12': {name: '전남광주', point: [126.9,34.7]},
   'KR-47': {name: '경북', point: [128.75,36.5]},
   'KR-27': {name: '대구', point: [128.6,35.88]},
   'KR-48': {name: '경남', point: [128.1,35.35]},
@@ -51,7 +53,8 @@ export function groupProvinceRecords(records: any[]) {
 
 // 색은 데이터 배열 순서가 아니라 고정 지역 ID 순서로 배정한다.
 export function provincePalette(regions: string[]): Record<string,string> {
- return Object.fromEntries(Object.keys(provinceLabels).sort().map((id,index)=>[id,regions[index%regions.length]]));
+ const previous=['KR-11','KR-26','KR-27','KR-28','KR-29','KR-30','KR-31','KR-41','KR-42','KR-43','KR-44','KR-45','KR-46','KR-47','KR-48','KR-49','KR-50'];
+ return Object.fromEntries(Object.keys(provinceLabels).map(id=>[id,regions[previous.indexOf(id==='KR-12'?'KR-46':id)%regions.length]]));
 }
 export const provinceColors = provincePalette(palette.map.regionPastels);
 export type MapNavigation = {
@@ -91,4 +94,17 @@ export function mapRecords(records: any[], correction = false) {
 }
 export function visitedProvinceIds(records: any[], ownerId: string | null | undefined): string[] {
   return ownerId ? Object.keys(groupProvinceRecords(records.filter(record => record.owner_id === ownerId))).sort() : [];
+}
+
+export function legacyStampNames(records:any[]){
+ const names=new Set<string>();
+ for(const record of records){
+  const p=record.locations;
+  if(record.status!=='complete'||p?.latitude==null||p.longitude==null)continue;
+  const lat=Number(p.latitude),lng=Number(p.longitude);
+  if(!validCoordinates(lat,lng))continue;
+  const region=legacyStamps.features.find(f=>containsRegion(f.geometry as Geometry,[lng,lat]));
+  if(region)names.add(region.properties.name);
+ }
+ return [...names].sort();
 }

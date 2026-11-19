@@ -1,0 +1,126 @@
+{
+  "checkedAt": "2026-11-19",
+  "cutoff": "2026-11-18",
+  "applicationBoundaryUnchanged": false,
+  "sources": [
+    {
+      "title": "브이월드 법정구역정보",
+      "provider": "국토교통부",
+      "url": "https://www.vworld.kr/dtmk/dtmk_ntads_s002.do?svcCde=NA&dsId=21",
+      "datasetId": "20171128DS00001",
+      "status": "integrated-with-documented-unresolved-overlaps",
+      "distributionCrsFromMetadata": "EPSG:5186",
+      "licenseFromPage": "CC BY",
+      "encoding": "SIG CPG=949 / cp949",
+      "sha256": "45a11f43b62782dd8fbe5d678c22a3aa058bac4325da1d96ceea377c79d7b1eb",
+      "files": [
+        {
+          "fileSequence": "2732",
+          "kind": "full",
+          "referenceDate": "2026-11-09",
+          "publishedAt": "2026-11-13",
+          "displaySize": "120 MB",
+          "filename": "AL_D001_00_20261109.zip",
+          "sha256": "45a11f43b62782dd8fbe5d678c22a3aa058bac4325da1d96ceea377c79d7b1eb",
+          "bytes": 125489661
+        },
+        {
+          "fileSequence": "2731",
+          "kind": "delta",
+          "referenceDate": "2026-11-10",
+          "publishedAt": "2026-11-11",
+          "displaySize": "123 KB",
+          "filename": "CH_D001_00_20261110.zip",
+          "sha256": "96d93697d26e5387f737971cde77cd004153bd4f07978dfe7c3251ca2dd2a8fc",
+          "bytes": 126338
+        },
+        {
+          "fileSequence": "2733",
+          "kind": "delta",
+          "referenceDate": "2026-11-12",
+          "publishedAt": "2026-11-16",
+          "displaySize": "1,074 BYTES",
+          "filename": "CH_D001_00_20261112.zip",
+          "sha256": "be13d545c97f4fd9752c5ed6cc5326bf1c2bce7087cbeca8a03fd82d71d3b48c",
+          "bytes": 1074
+        },
+        {
+          "fileSequence": "2734",
+          "kind": "delta",
+          "referenceDate": "2026-11-16",
+          "publishedAt": "2026-11-17",
+          "displaySize": "35 KB",
+          "filename": "CH_D001_00_20261116.zip",
+          "sha256": "c495cfacc118b341569eccbb813ed13b9d820ac621a6cad0e35144b26d92ecbb",
+          "bytes": 35457
+        }
+      ],
+      "verificationRequired": [
+        "Remaining conflicting overlaps are not uniquely assigned; further authoritative clarification remains necessary"
+      ],
+      "localArchiveDirectory": "artifacts/admin-boundaries/2026-11-09",
+      "comparisonReport": "docs/admin-boundary-comparison-20261109.json",
+      "deltaLayers": [
+        {
+          "date": "2026-11-10",
+          "layers": [
+            "EMD",
+            "LIO"
+          ],
+          "parentCodes": [
+            "41550"
+          ]
+        },
+        {
+          "date": "2026-11-12",
+          "layers": [
+            "EMD"
+          ],
+          "parentCodes": [
+            "28720"
+          ]
+        },
+        {
+          "date": "2026-11-16",
+          "layers": [
+            "LIO"
+          ],
+          "parentCodes": [
+            "43720",
+            "48820"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "브이월드 연속수치지형도 행정경계",
+      "url": "https://www.vworld.kr/dtmk/dtmk_ntads_s002.do?svcCde=MK&dsId=30252",
+      "filename": "N3A_G0100000.zip",
+      "publishedAt": "2026-09-21",
+      "constructionYear": 2025,
+      "constructionYearEvidence": "Public operator Q&A response dated 2026-10-07",
+      "status": "downloaded-for-corroboration-only-not-current-boundary",
+      "localArchive": "artifacts/admin-boundaries/ngii-2025/N3A_G0100000.zip",
+      "sha256": "d7a3751bd89f8eabd129eff603b15a55e61afe472e5255a9202ec5a2b01fe6fa",
+      "crsFromPrj": "EPSG:5179",
+      "role": "Only corroborates contemporaneous EMD-exclusive overlap portions; no guessed aliases for reorganized districts"
+    },
+    {
+      "title": "LX 법정구역",
+      "url": "https://geomarket.kr/user/dataset/view.do?data_sn=159",
+      "publishedAt": "2024-11-11",
+      "status": "excluded-as-current-2026-boundary"
+    }
+  ],
+  "additionalOfficialReferences": [
+    {
+      "url": "https://www.data.go.kr/data/15029173/standard.do",
+      "role": "Official description of legal EMD boundary data"
+    },
+    {
+      "url": "https://www.incheon.go.kr/IC01070101",
+      "role": "Incheon administrative reorganization corroboration; not digitized into geometry"
+    }
+  ],
+  "correctionReport": "docs/admin-boundary-corrections-20261109.json"
+}

@@ -6,12 +6,13 @@ vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circl
 vi.mock('../../frontend/src/Feedback',async()=>({useReducedMotion:()=>true,default:(await import('../../frontend/node_modules/react-native')).Pressable}));
 vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{oceanDepth:{uri:'fixture://ocean-depth'},defaultAvatar:{uri:'fixture://default-bear'}}}));
 vi.mock('../../frontend/src/TileSurface',()=>({default:()=>React.createElement('div',{'data-native-tile':true})}));
+vi.mock('../../frontend/src/Journal',()=>({DestinationIcon:()=>React.createElement('svg')}));
 import TravelMap from '../../frontend/src/TravelMap';
 const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,status:'complete',locations:{source:'exif',latitude,longitude}});
 test('TC-SVG-MAP-001 Native SVG renders country with white boundaries and separate own visits',()=>{
  const mine=record('me',37.5665,126.978),friend=record('friend',33.4996,126.5312);
  const html=renderToStaticMarkup(React.createElement(TravelMap,{fullScreen:true,records:[mine,friend],ownRecords:[mine]}));
- expect(html.match(/<path[^>]*testID="map-region-/g)).toHaveLength(17);expect(html.match(/testID="map-label-/g)).toHaveLength(17);expect(html).toContain('stroke="#FFFFFF"');expect(html).toContain('testID="svg-ocean"');expect(html).not.toContain('testID="ocean-land-');expect(html).toContain('testID="ocean-texture"');expect(html.match(/testID="map-label-11"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('서울');expect(html.match(/testID="map-label-43"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('충북');expect(html).toContain('서울특별시 · 1개');expect(html).toContain('제주특별자치도 · 1개');
+ expect(html.match(/<path[^>]*testID="map-region-/g)).toHaveLength(16);expect(html.match(/testID="map-label-/g)).toHaveLength(16);expect(html).toContain('stroke="#FFFFFF"');expect(html).toContain('testID="svg-ocean"');expect(html).not.toContain('testID="ocean-land-');expect(html).toContain('testID="ocean-texture"');expect(html.match(/testID="map-label-11"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('서울');expect(html.match(/testID="map-label-43"[^>]*>(.*?)<\/text>/)?.[1].replace(/<[^>]+>/g,'')).toBe('충북');expect(html).toContain('서울특별시 · 1개');expect(html).toContain('제주특별자치도 · 1개');
  expect(html).toMatch(/testID="map-region-50"[^>]*fill="#E5E9E2"/);expect(html).not.toMatch(/testID="map-region-11"[^>]*fill="#E5E9E2"/);
  expect(html).not.toMatch(/native-map|maplibre|NaN|Infinity/);
 });
@@ -26,7 +27,7 @@ test('TC-MAP-SIMPLE-001 Native nationwide covers keyless Positron with the exist
  const mine=record('me',37.5665,126.978);
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[mine],ownRecords:[mine]}));
  expect(html).toMatch(/testID="map-region-11"[^>]*fill="#F5F3ED"/);
- expect(html).not.toContain('testID="map-label-');expect(html).not.toContain('testID="svg-ocean"');expect(html).toContain('map-overview-cover');expect(html).toContain('data-native-tile');
+ expect(html).not.toContain('testID="map-label-');expect(html).not.toContain('testID="svg-ocean"');expect(html).toContain('map-overview-cover');expect(html).not.toContain('data-native-tile');
  expect(html).toContain('지도 지역 및 사진 목록');expect(html).toContain('지도 홈');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
 });
 
@@ -48,9 +49,10 @@ test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fa
  });
  try{
   const {default:TileSurface}=await vi.importActual<typeof import('../../frontend/src/TileSurface')>('../../frontend/src/TileSurface');
-  const failure=vi.fn(),tileError=vi.fn();
-  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError}));
+  const failure=vi.fn(),tileError=vi.fn(),ready=vi.fn();
+  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError,onReady:ready}));
   expect(typeof nativeProps.mapStyle).toBe('string');expect(JSON.parse(nativeProps.mapStyle)).toEqual({version:8,sources:{},layers:[]});
   nativeProps.onDidFailLoadingMap();expect(failure).toHaveBeenCalledOnce();expect(tileError).not.toHaveBeenCalled();
+  expect(ready).not.toHaveBeenCalled();nativeProps.onDidFinishRenderingMapFully();expect(ready).toHaveBeenCalledOnce();
  }finally{spy.mockRestore();}
 });

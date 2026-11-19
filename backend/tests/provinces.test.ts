@@ -3,14 +3,14 @@ import {colors} from '../../frontend/src/theme';
 import {contains,groupProvinceRecords,provinceAt,provinceFeatures,provinceLabels,provinceColors,mapRecords,visitedProvinceIds} from '../../frontend/src/provinces';
 
 test('TC-MAP-001: all 17 province features have matching labels and finite SVG paths',()=>{
- expect(provinceFeatures).toHaveLength(17);expect(new Set(provinceFeatures.map(f=>f.properties.shapeISO)).size).toBe(17);
+ expect(provinceFeatures).toHaveLength(16);expect(new Set(provinceFeatures.map(f=>f.properties.shapeISO)).size).toBe(16);
  expect(Object.keys(provinceLabels).sort()).toEqual(provinceFeatures.map(f=>f.properties.shapeISO).sort());
 });
 test('TC-MAP-002: points match provinces, city enclaves and Jeju; overseas and invalid input are excluded',()=>{
  expect(provinceAt(37.5665,126.978)).toBe('KR-11');
  expect(provinceAt(33.4996,126.5312)).toBe('KR-49');
  expect(provinceAt(35.1796,129.0756)).toBe('KR-26');
- expect(provinceAt(35.1595,126.8526)).toBe('KR-29');
+ expect(provinceAt(35.1595,126.8526)).toBe('KR-12');
  expect(provinceAt(35.8714,128.6014)).toBe('KR-27');
  expect(provinceAt(35.6895,139.6917)).toBeUndefined();expect(provinceAt(NaN,127)).toBeUndefined();
 });

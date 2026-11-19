@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {afterAll,beforeAll,expect,test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
@@ -6,7 +6,7 @@ let admin:TravelApi,guest:TravelApi;
 const users:{id:string,api:TravelApi}[]=[];
 const keys=['passport','camera','camp','gate','coffee'];
 beforeAll(async()=>{
- const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+ const status=localSupabaseStatus();
  if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');
  admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;guest=new TravelApi(status.API_URL,status.ANON_KEY);
  for(let i=0;i<2;i++){const email=`badge-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;const user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});const api=new TravelApi(status.API_URL,status.ANON_KEY);await api.login(email,password);users.push({id:user.id,api});}

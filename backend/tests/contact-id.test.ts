@@ -1,9 +1,9 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {afterAll,beforeAll,expect,test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
 let admin:TravelApi,guest:TravelApi;const users:{id:string;code:string;api:TravelApi}[]=[];
-beforeAll(async()=>{const s=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));if(s.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');admin=new TravelApi(s.API_URL,s.SERVICE_ROLE_KEY);admin.token=s.SERVICE_ROLE_KEY;guest=new TravelApi(s.API_URL,s.ANON_KEY);for(let i=0;i<3;i++){const email=`contact-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`,user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});const api=new TravelApi(s.API_URL,s.ANON_KEY);await api.login(email,password);const profile=await api.request(`/rest/v1/profiles?id=eq.${user.id}`);users.push({id:user.id,code:profile[0].user_code,api});}});
+beforeAll(async()=>{const s=localSupabaseStatus();if(s.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');admin=new TravelApi(s.API_URL,s.SERVICE_ROLE_KEY);admin.token=s.SERVICE_ROLE_KEY;guest=new TravelApi(s.API_URL,s.ANON_KEY);for(let i=0;i<3;i++){const email=`contact-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`,user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});const api=new TravelApi(s.API_URL,s.ANON_KEY);await api.login(email,password);const profile=await api.request(`/rest/v1/profiles?id=eq.${user.id}`);users.push({id:user.id,code:profile[0].user_code,api});}});
 afterAll(async()=>{for(const u of users)await admin.request(`/auth/v1/admin/users/${u.id}`,'DELETE');});
 test('TC-USER-ID-004: authenticated exact ID exposes only ID fields while public directory keeps its separate minimal fields and original table stays private',async()=>{
  const a=users[0],b=users[1];await b.api.request(`/rest/v1/profiles?id=eq.${b.id}`,'PATCH',{display_name:'숨긴 이름'});

@@ -1,6 +1,6 @@
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {expect,type Page} from '@playwright/test';
-import {execFileSync} from 'node:child_process';
-export const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+export const status=localSupabaseStatus();
 if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');
 export const headers={apikey:status.SERVICE_ROLE_KEY,Authorization:`Bearer ${status.SERVICE_ROLE_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'};
 export async function admin(path:string,method='GET',body?:unknown){const r=await fetch(`${status.API_URL}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw new Error(`Local fixture request failed (${r.status})`);const t=await r.text();const result=t?JSON.parse(t):null;

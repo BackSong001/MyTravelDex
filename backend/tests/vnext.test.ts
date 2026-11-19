@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {afterAll, beforeAll, expect, test, vi} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
@@ -29,7 +29,7 @@ const profile = (index: number, body: unknown) => rest(`profiles?id=eq.${users[i
 const pair = (follower = 0, followee = 1) => ({follower_id: users[follower].id, followee_id: users[followee].id});
 
 beforeAll(async () => {
-  const status = JSON.parse(execFileSync('node_modules/.bin/supabase', ['status', '--workdir', 'backend', '-o', 'json'], {encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']}));
+  const status = localSupabaseStatus();
   if (status.API_URL !== base) throw new Error('Only local Supabase is allowed; environment failure is not TDD Red.');
   anon = status.ANON_KEY;
   service = status.SERVICE_ROLE_KEY;

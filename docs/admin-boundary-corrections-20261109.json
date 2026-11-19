@@ -1,0 +1,8135 @@
+{
+  "status": "official-with-documented-unresolved-overlaps",
+  "method": "Only mutually exclusive EMD and NGII agreement trims the competing SIG; preserve all unresolved areas",
+  "sources": {
+    "sig": "b9e3378959472f0076c8ff90d053e9316077a734c1b1d1c3d49f499cba75427b",
+    "emd": "fb33f9198955ace360f942a41a5bdf433ed2db8112db22e00825b4029920bdaf",
+    "ngii": "cb9a24dfbf9256b66cbcd8cb7b54d3fa200b716f28d6c4572146ad0221cbf3d3",
+    "codes": "e81ded8b09c3c90de45c9c486fc289c11caf0a39d7cb8662ac5a8b59b233ddd4",
+    "deltas": {
+      "CH_D001_00_20261110(EMD).shp": "a018af2fe838c1e1a6ab00c3783e27f3eae58b10ef03642cedf33db338abb8f1",
+      "CH_D001_00_20261110(LIO).shp": "8acdf7cb79ee95e205d688ff995bfa65bf39cfa5c29a4bfa34df5fc0985901e7",
+      "CH_D001_00_20261112(EMD).shp": "7b438bad70eda1536ff0eb8663efccde5641cd8a4a4b5ec6d6322996271fc778",
+      "CH_D001_00_20261116(LIO).shp": "b3874f5d24ce46f679c6b5f6d5a3b47fc6f1b3fd5c730b3dda21241f4fd5599d"
+    }
+  },
+  "excludedDeltaParents": [
+    "28720",
+    "41550",
+    "43720",
+    "48820"
+  ],
+  "invalidEmdParents": [
+    "12800",
+    "12870",
+    "26140",
+    "26290",
+    "26440",
+    "30110",
+    "30200",
+    "31200",
+    "36110",
+    "41130",
+    "41270",
+    "41280",
+    "41310",
+    "41630",
+    "41800",
+    "43110",
+    "43730",
+    "44200",
+    "47150",
+    "48220",
+    "48240",
+    "51130",
+    "52110",
+    "52180",
+    "52190",
+    "52210",
+    "52710",
+    "52800"
+  ],
+  "invalidNgiiCodes": [
+    "30140",
+    "36110"
+  ],
+  "topologyRepairs": [
+    {
+      "code": "12780",
+      "stage": "source",
+      "reason": "Self-intersection[180664.708833248 215504.889293231]",
+      "areaDifferenceSqM": 1.8477439880371094e-06
+    },
+    {
+      "code": "12790",
+      "stage": "source",
+      "reason": "Too few points in geometry component[150921.02078293 209936.486545644]",
+      "areaDifferenceSqM": 3.5762786865234375e-07
+    },
+    {
+      "code": "44825",
+      "stage": "source",
+      "reason": "Nested shells[125319.440159018 453486.928202615]",
+      "areaDifferenceSqM": 0.4577045440673828
+    },
+    {
+      "code": "11215",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.100742483008 37.5736453211839]",
+      "roundTripDifferenceSqM": 0.039180851971087394
+    },
+    {
+      "code": "11350",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.093999990854 37.6522951000748]",
+      "roundTripDifferenceSqM": 8.966461109675716e-05
+    },
+    {
+      "code": "11680",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.103305565513 37.4928237793861]",
+      "roundTripDifferenceSqM": 0.0004306192479397293
+    },
+    {
+      "code": "12790",
+      "stage": "WGS84",
+      "reason": "Too few points in geometry component[126.606148567103 34.344850266529]",
+      "roundTripDifferenceSqM": 5.813359291769329e-05
+    },
+    {
+      "code": "26110",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.031703361937 35.1160645153834]",
+      "roundTripDifferenceSqM": 0.0002239574023878504
+    },
+    {
+      "code": "26230",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.081956999764 35.1715566313287]",
+      "roundTripDifferenceSqM": 0.0002717754491938229
+    },
+    {
+      "code": "26260",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.110241112365 35.21014875209]",
+      "roundTripDifferenceSqM": 7.887512616104692e-05
+    },
+    {
+      "code": "26500",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.130995550274 35.164329811789]",
+      "roundTripDifferenceSqM": 0.08892602028682255
+    },
+    {
+      "code": "27200",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.608728547111 35.8542995571163]",
+      "roundTripDifferenceSqM": 0.0
+    },
+    {
+      "code": "27230",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.618942387664 35.9764403348233]",
+      "roundTripDifferenceSqM": 0.01538971225984529
+    },
+    {
+      "code": "27720",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.580977435407 36.2794381603809]",
+      "roundTripDifferenceSqM": 0.0069415873732259215
+    },
+    {
+      "code": "41500",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.527474722757 37.3280373979456]",
+      "roundTripDifferenceSqM": 0.004980719708678818
+    },
+    {
+      "code": "41830",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.815187056143 37.5637648290052]",
+      "roundTripDifferenceSqM": 0.010942055109516343
+    },
+    {
+      "code": "43150",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.273400411914 37.1475492535977]",
+      "roundTripDifferenceSqM": 0.016357967813298964
+    },
+    {
+      "code": "43760",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.634634764922 36.7934804094158]",
+      "roundTripDifferenceSqM": 0.0006762372703005269
+    },
+    {
+      "code": "43800",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.384102768949 37.1579779082271]",
+      "roundTripDifferenceSqM": 0.0021934230002268094
+    },
+    {
+      "code": "44210",
+      "stage": "WGS84",
+      "reason": "Self-intersection[126.591895653866 36.837434380635]",
+      "roundTripDifferenceSqM": 0.0
+    },
+    {
+      "code": "44250",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.255950483573 36.3290309193143]",
+      "roundTripDifferenceSqM": 0.00024519721941552736
+    },
+    {
+      "code": "44710",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.5913090631 36.1324775423742]",
+      "roundTripDifferenceSqM": 0.01585235963619553
+    },
+    {
+      "code": "44760",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.05563001898 36.2782323930372]",
+      "roundTripDifferenceSqM": 0.031516364061314014
+    },
+    {
+      "code": "44770",
+      "stage": "WGS84",
+      "reason": "Self-intersection[126.857172899519 36.0711117208685]",
+      "roundTripDifferenceSqM": 0.0024438647353314347
+    },
+    {
+      "code": "44825",
+      "stage": "WGS84",
+      "reason": "Self-intersection[126.348378784724 36.7783170333119]",
+      "roundTripDifferenceSqM": 5.167460902035187e-06
+    },
+    {
+      "code": "47130",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.075337896499 35.6519399919002]",
+      "roundTripDifferenceSqM": 0.0005413995081524669
+    },
+    {
+      "code": "47170",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.995858490187 36.5016737888308]",
+      "roundTripDifferenceSqM": 0.20476170403680938
+    },
+    {
+      "code": "47760",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.995377533266 36.7781324439185]",
+      "roundTripDifferenceSqM": 0.0002813708350206884
+    },
+    {
+      "code": "47770",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.151415373413 36.4990567134595]",
+      "roundTripDifferenceSqM": 0.018462729270711083
+    },
+    {
+      "code": "47930",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.183867634698 37.038809708596]",
+      "roundTripDifferenceSqM": 0.0008301078635000181
+    },
+    {
+      "code": "48330",
+      "stage": "WGS84",
+      "reason": "Self-intersection[129.015810152097 35.5243403818634]",
+      "roundTripDifferenceSqM": 0.001373108746769546
+    },
+    {
+      "code": "48740",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.504366608013 35.6396098068217]",
+      "roundTripDifferenceSqM": 0.00399341073708439
+    },
+    {
+      "code": "48880",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.959853521166 35.5190583634206]",
+      "roundTripDifferenceSqM": 7.162145686913631e-05
+    },
+    {
+      "code": "50130",
+      "stage": "WGS84",
+      "reason": "Self-intersection[126.168350964277 33.2830419486244]",
+      "roundTripDifferenceSqM": 7.351662062998922e-07
+    },
+    {
+      "code": "51720",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.092996594514 37.897823109213]",
+      "roundTripDifferenceSqM": 0.0021415410361879487
+    },
+    {
+      "code": "51770",
+      "stage": "WGS84",
+      "reason": "Self-intersection[128.915677152365 37.169661710008]",
+      "roundTripDifferenceSqM": 0.0392917674817037
+    },
+    {
+      "code": "52140",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.02293382856 36.1371708503807]",
+      "roundTripDifferenceSqM": 0.002937005069729843
+    },
+    {
+      "code": "52720",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.265386893864 35.7668373739772]",
+      "roundTripDifferenceSqM": 0.0
+    },
+    {
+      "code": "52740",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.619961550539 35.8388720227687]",
+      "roundTripDifferenceSqM": 0.00017870804977782886
+    },
+    {
+      "code": "52750",
+      "stage": "WGS84",
+      "reason": "Self-intersection[127.275875047641 35.752894951996]",
+      "roundTripDifferenceSqM": 0.0012616426520267194
+    }
+  ],
+  "corrections": [
+    {
+      "codes": [
+        "11110",
+        "11140"
+      ],
+      "originalOverlapSqM": 616.5636281237068,
+      "removedFromFirstSqM": 241.62483189047762,
+      "removedFromSecondSqM": 353.48091085065676
+    },
+    {
+      "codes": [
+        "11110",
+        "11410"
+      ],
+      "originalOverlapSqM": 393.03312593361744,
+      "removedFromFirstSqM": 205.40600164038844,
+      "removedFromSecondSqM": 155.8110836982027
+    },
+    {
+      "codes": [
+        "11110",
+        "11290"
+      ],
+      "originalOverlapSqM": 12.819113130025702,
+      "removedFromFirstSqM": 0.007001120670298018,
+      "removedFromSecondSqM": 0.24294207623862948
+    },
+    {
+      "codes": [
+        "11140",
+        "11440"
+      ],
+      "originalOverlapSqM": 117.77365592469465,
+      "removedFromFirstSqM": 67.5570136866909,
+      "removedFromSecondSqM": 30.843077079552884
+    },
+    {
+      "codes": [
+        "11140",
+        "11410"
+      ],
+      "originalOverlapSqM": 0.6585298424471122,
+      "removedFromFirstSqM": 0.032829119489875325,
+      "removedFromSecondSqM": 0.5657272972269906
+    },
+    {
+      "codes": [
+        "11140",
+        "11200"
+      ],
+      "originalOverlapSqM": 7.7148553617369515,
+      "removedFromFirstSqM": 5.532791391194522,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11140",
+        "11230"
+      ],
+      "originalOverlapSqM": 1.3458501234536584,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 1.3447147886009172
+    },
+    {
+      "codes": [
+        "11170",
+        "11650"
+      ],
+      "originalOverlapSqM": 1346.3890428066413,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 1169.4628123945797
+    },
+    {
+      "codes": [
+        "11170",
+        "11680"
+      ],
+      "originalOverlapSqM": 172.7549527001829,
+      "removedFromFirstSqM": 35.49737460883984,
+      "removedFromSecondSqM": 9.155325682648218e-08
+    },
+    {
+      "codes": [
+        "11170",
+        "11590"
+      ],
+      "originalOverlapSqM": 18.761049150553365,
+      "removedFromFirstSqM": 0.9853393883878212,
+      "removedFromSecondSqM": 0.011184675060614047
+    },
+    {
+      "codes": [
+        "11170",
+        "11440"
+      ],
+      "originalOverlapSqM": 10.531988577001721,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.4713049838505801
+    },
+    {
+      "codes": [
+        "11170",
+        "11200"
+      ],
+      "originalOverlapSqM": 7.0620637808970415,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 1.1810062749842645
+    },
+    {
+      "codes": [
+        "11200",
+        "11230"
+      ],
+      "originalOverlapSqM": 52.647103304763675,
+      "removedFromFirstSqM": 6.567014427236295e-07,
+      "removedFromSecondSqM": 52.41689542155729
+    },
+    {
+      "codes": [
+        "11215",
+        "11710"
+      ],
+      "originalOverlapSqM": 0.00778555858778418,
+      "removedFromFirstSqM": 0.007085827867967964,
+      "removedFromSecondSqM": 1.520442549640533e-06
+    },
+    {
+      "codes": [
+        "11215",
+        "11740"
+      ],
+      "originalOverlapSqM": 0.008157777512413977,
+      "removedFromFirstSqM": 0.008016820074141989,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11215",
+        "11260"
+      ],
+      "originalOverlapSqM": 315.74693508041037,
+      "removedFromFirstSqM": 52.0686567276712,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11230",
+        "11260"
+      ],
+      "originalOverlapSqM": 377.4666087671796,
+      "removedFromFirstSqM": 363.0564184471796,
+      "removedFromSecondSqM": 6.028811257380809
+    },
+    {
+      "codes": [
+        "11230",
+        "11290"
+      ],
+      "originalOverlapSqM": 217.77794200763535,
+      "removedFromFirstSqM": 70.05663715606013,
+      "removedFromSecondSqM": 119.17229824706082
+    },
+    {
+      "codes": [
+        "11260",
+        "11290"
+      ],
+      "originalOverlapSqM": 20.559464878227104,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 19.26910486999111
+    },
+    {
+      "codes": [
+        "11260",
+        "11350"
+      ],
+      "originalOverlapSqM": 43.68867769895146,
+      "removedFromFirstSqM": 32.499025365536255,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11290",
+        "11305"
+      ],
+      "originalOverlapSqM": 19.251154045212292,
+      "removedFromFirstSqM": 6.1544518909112975,
+      "removedFromSecondSqM": 11.56559764863875
+    },
+    {
+      "codes": [
+        "11290",
+        "11350"
+      ],
+      "originalOverlapSqM": 409.3747534654592,
+      "removedFromFirstSqM": 338.39496793138096,
+      "removedFromSecondSqM": 37.79106261997602
+    },
+    {
+      "codes": [
+        "11305",
+        "11350"
+      ],
+      "originalOverlapSqM": 216.42892747110707,
+      "removedFromFirstSqM": 112.2208049735316,
+      "removedFromSecondSqM": 60.780005780110656
+    },
+    {
+      "codes": [
+        "11305",
+        "11320"
+      ],
+      "originalOverlapSqM": 935.2314791694234,
+      "removedFromFirstSqM": 836.0633772860679,
+      "removedFromSecondSqM": 69.37130786459026
+    },
+    {
+      "codes": [
+        "11320",
+        "11350"
+      ],
+      "originalOverlapSqM": 0.014052020585577122,
+      "removedFromFirstSqM": 7.300594592756403e-05,
+      "removedFromSecondSqM": 0.0016870343149955717
+    },
+    {
+      "codes": [
+        "11350",
+        "41360"
+      ],
+      "originalOverlapSqM": 169.15842204210153,
+      "removedFromFirstSqM": 53.89055403968673,
+      "removedFromSecondSqM": 51.12221799730624
+    },
+    {
+      "codes": [
+        "11350",
+        "41150"
+      ],
+      "originalOverlapSqM": 0.005480939847692656,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.00548094029656835
+    },
+    {
+      "codes": [
+        "11380",
+        "11440"
+      ],
+      "originalOverlapSqM": 783.9767474163875,
+      "removedFromFirstSqM": 102.92420151022117,
+      "removedFromSecondSqM": 599.2755378310493
+    },
+    {
+      "codes": [
+        "11380",
+        "11410"
+      ],
+      "originalOverlapSqM": 41.8146967758666,
+      "removedFromFirstSqM": 40.230619185276076,
+      "removedFromSecondSqM": 3.9502233100047967e-07
+    },
+    {
+      "codes": [
+        "11410",
+        "11440"
+      ],
+      "originalOverlapSqM": 782.6341099377269,
+      "removedFromFirstSqM": 0.014426993839123811,
+      "removedFromSecondSqM": 759.1258763523635
+    },
+    {
+      "codes": [
+        "11440",
+        "11560"
+      ],
+      "originalOverlapSqM": 460.07573216306264,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 455.75164277489057
+    },
+    {
+      "codes": [
+        "11470",
+        "11530"
+      ],
+      "originalOverlapSqM": 351.4557977401571,
+      "removedFromFirstSqM": 84.1281091165943,
+      "removedFromSecondSqM": 64.81587091780676
+    },
+    {
+      "codes": [
+        "11470",
+        "11560"
+      ],
+      "originalOverlapSqM": 1073.8224125037223,
+      "removedFromFirstSqM": 335.5948143589767,
+      "removedFromSecondSqM": 535.3190728939533
+    },
+    {
+      "codes": [
+        "11470",
+        "11500"
+      ],
+      "originalOverlapSqM": 486.3693139065907,
+      "removedFromFirstSqM": 484.99366916938897,
+      "removedFromSecondSqM": 2.7384738745360634e-07
+    },
+    {
+      "codes": [
+        "11500",
+        "11560"
+      ],
+      "originalOverlapSqM": 28.432526986156304,
+      "removedFromFirstSqM": 27.577410938587164,
+      "removedFromSecondSqM": 0.8248380035308087
+    },
+    {
+      "codes": [
+        "11500",
+        "28245"
+      ],
+      "originalOverlapSqM": 11122.520154672358,
+      "removedFromFirstSqM": 2314.2486351179045,
+      "removedFromSecondSqM": 0.1186969312596631
+    },
+    {
+      "codes": [
+        "11500",
+        "41570"
+      ],
+      "originalOverlapSqM": 438.993370469208,
+      "removedFromFirstSqM": 102.85458532880773,
+      "removedFromSecondSqM": 92.09940709439098
+    },
+    {
+      "codes": [
+        "11530",
+        "41210"
+      ],
+      "originalOverlapSqM": 612.6738814745564,
+      "removedFromFirstSqM": 267.28696299364873,
+      "removedFromSecondSqM": 83.30925982461746
+    },
+    {
+      "codes": [
+        "11530",
+        "11545"
+      ],
+      "originalOverlapSqM": 747.6961192991125,
+      "removedFromFirstSqM": 320.0426439400336,
+      "removedFromSecondSqM": 409.8585473528508
+    },
+    {
+      "codes": [
+        "11530",
+        "11620"
+      ],
+      "originalOverlapSqM": 501.6811130613641,
+      "removedFromFirstSqM": 501.62909343112034,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11530",
+        "11560"
+      ],
+      "originalOverlapSqM": 192.8393157759897,
+      "removedFromFirstSqM": 22.115583507803404,
+      "removedFromSecondSqM": 160.00089091416802
+    },
+    {
+      "codes": [
+        "11545",
+        "41210"
+      ],
+      "originalOverlapSqM": 311.154832747712,
+      "removedFromFirstSqM": 102.18477021924055,
+      "removedFromSecondSqM": 193.99239642929652
+    },
+    {
+      "codes": [
+        "11545",
+        "11620"
+      ],
+      "originalOverlapSqM": 94.90133895195832,
+      "removedFromFirstSqM": 93.0341930884534,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11590",
+        "11650"
+      ],
+      "originalOverlapSqM": 1622.726423652265,
+      "removedFromFirstSqM": 1479.4601080831155,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11590",
+        "11620"
+      ],
+      "originalOverlapSqM": 51.89390113651068,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.0026107635973883834
+    },
+    {
+      "codes": [
+        "11620",
+        "11650"
+      ],
+      "originalOverlapSqM": 732.1981344094047,
+      "removedFromFirstSqM": 690.5166159465512,
+      "removedFromSecondSqM": 28.63661120192888
+    },
+    {
+      "codes": [
+        "11620",
+        "41290"
+      ],
+      "originalOverlapSqM": 158.19370978594904,
+      "removedFromFirstSqM": 7.097972444961276,
+      "removedFromSecondSqM": 24.580466624869807
+    },
+    {
+      "codes": [
+        "11650",
+        "11680"
+      ],
+      "originalOverlapSqM": 0.0036716543271592284,
+      "removedFromFirstSqM": 0.0034986769897561287,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "11650",
+        "41290"
+      ],
+      "originalOverlapSqM": 475.76303163216033,
+      "removedFromFirstSqM": 1.9184613107081974e-07,
+      "removedFromSecondSqM": 203.3232536735746
+    },
+    {
+      "codes": [
+        "11680",
+        "11710"
+      ],
+      "originalOverlapSqM": 417.642347653382,
+      "removedFromFirstSqM": 0.00014453927261613968,
+      "removedFromSecondSqM": 395.11376733872976
+    },
+    {
+      "codes": [
+        "11710",
+        "41450"
+      ],
+      "originalOverlapSqM": 153.79125014328517,
+      "removedFromFirstSqM": 60.82994042749,
+      "removedFromSecondSqM": 68.3479793989278
+    },
+    {
+      "codes": [
+        "11710",
+        "11740"
+      ],
+      "originalOverlapSqM": 46.027657709659444,
+      "removedFromFirstSqM": 46.01206402827251,
+      "removedFromSecondSqM": 9.911223210704767e-06
+    },
+    {
+      "codes": [
+        "11740",
+        "41450"
+      ],
+      "originalOverlapSqM": 1445.9593755600256,
+      "removedFromFirstSqM": 755.1886909709874,
+      "removedFromSecondSqM": 590.6894143176387
+    },
+    {
+      "codes": [
+        "26110",
+        "26170"
+      ],
+      "originalOverlapSqM": 397.37174486230185,
+      "removedFromFirstSqM": 95.82488973238968,
+      "removedFromSecondSqM": 108.35271498853004
+    },
+    {
+      "codes": [
+        "26170",
+        "26230"
+      ],
+      "originalOverlapSqM": 539.3301775071917,
+      "removedFromFirstSqM": 483.17823735726796,
+      "removedFromSecondSqM": 56.15102707225808
+    },
+    {
+      "codes": [
+        "26230",
+        "26470"
+      ],
+      "originalOverlapSqM": 16.562705482588058,
+      "removedFromFirstSqM": 11.23870636545819,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "26260",
+        "26470"
+      ],
+      "originalOverlapSqM": 818.1759119487277,
+      "removedFromFirstSqM": 37.853194575238945,
+      "removedFromSecondSqM": 733.6339629112011
+    },
+    {
+      "codes": [
+        "26260",
+        "26350"
+      ],
+      "originalOverlapSqM": 392.75564235813954,
+      "removedFromFirstSqM": 216.00909736025343,
+      "removedFromSecondSqM": 108.23799294436951
+    },
+    {
+      "codes": [
+        "26260",
+        "26320"
+      ],
+      "originalOverlapSqM": 42.73790875685129,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.0006193786721337871
+    },
+    {
+      "codes": [
+        "26260",
+        "26410"
+      ],
+      "originalOverlapSqM": 336.6551013378698,
+      "removedFromFirstSqM": 0.23657948575524967,
+      "removedFromSecondSqM": 204.01079161892574
+    },
+    {
+      "codes": [
+        "26320",
+        "26530"
+      ],
+      "originalOverlapSqM": 548.5779145988749,
+      "removedFromFirstSqM": 5.851905194828468,
+      "removedFromSecondSqM": 1.4895971453728976
+    },
+    {
+      "codes": [
+        "26320",
+        "26410"
+      ],
+      "originalOverlapSqM": 52.85164911088118,
+      "removedFromFirstSqM": 0.004655055905990138,
+      "removedFromSecondSqM": 11.794684755905928
+    },
+    {
+      "codes": [
+        "26320",
+        "48250"
+      ],
+      "originalOverlapSqM": 34.27621722731548,
+      "removedFromFirstSqM": 0.0002715631490366466,
+      "removedFromSecondSqM": 22.724675549093913
+    },
+    {
+      "codes": [
+        "26320",
+        "48330"
+      ],
+      "originalOverlapSqM": 850.9905766171146,
+      "removedFromFirstSqM": 335.9308019772493,
+      "removedFromSecondSqM": 405.6134903624988
+    },
+    {
+      "codes": [
+        "26350",
+        "26500"
+      ],
+      "originalOverlapSqM": 783.9618446837735,
+      "removedFromFirstSqM": 80.82086240266787,
+      "removedFromSecondSqM": 690.5229269940221
+    },
+    {
+      "codes": [
+        "26350",
+        "26710"
+      ],
+      "originalOverlapSqM": 1212.3590436746886,
+      "removedFromFirstSqM": 658.5532909239951,
+      "removedFromSecondSqM": 343.7309163681339
+    },
+    {
+      "codes": [
+        "26380",
+        "26530"
+      ],
+      "originalOverlapSqM": 447.9988320661757,
+      "removedFromFirstSqM": 16.959547242587554,
+      "removedFromSecondSqM": 392.953244298086
+    },
+    {
+      "codes": [
+        "26410",
+        "26710"
+      ],
+      "originalOverlapSqM": 89.46406603835472,
+      "removedFromFirstSqM": 1.0759412871955334,
+      "removedFromSecondSqM": 71.98305467951857
+    },
+    {
+      "codes": [
+        "26410",
+        "48330"
+      ],
+      "originalOverlapSqM": 32.42192167228683,
+      "removedFromFirstSqM": 3.4525148316429974,
+      "removedFromSecondSqM": 0.14944346824404628
+    },
+    {
+      "codes": [
+        "26470",
+        "26500"
+      ],
+      "originalOverlapSqM": 1.1745971636133634,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 1.1745588309410095
+    },
+    {
+      "codes": [
+        "27110",
+        "27290"
+      ],
+      "originalOverlapSqM": 63.376812465415085,
+      "removedFromFirstSqM": 18.055159256740588,
+      "removedFromSecondSqM": 1.161610919774638
+    },
+    {
+      "codes": [
+        "27110",
+        "27260"
+      ],
+      "originalOverlapSqM": 607.4194645941891,
+      "removedFromFirstSqM": 302.1485713015253,
+      "removedFromSecondSqM": 197.88482396198117
+    },
+    {
+      "codes": [
+        "27110",
+        "27170"
+      ],
+      "originalOverlapSqM": 89.317231227639,
+      "removedFromFirstSqM": 16.792834827097234,
+      "removedFromSecondSqM": 1.2936639496072977
+    },
+    {
+      "codes": [
+        "27110",
+        "27230"
+      ],
+      "originalOverlapSqM": 549.3557471163977,
+      "removedFromFirstSqM": 284.2176303875433,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "27140",
+        "27260"
+      ],
+      "originalOverlapSqM": 343.4575007744548,
+      "removedFromFirstSqM": 89.60286976000232,
+      "removedFromSecondSqM": 3.3772598292375657
+    },
+    {
+      "codes": [
+        "27140",
+        "47290"
+      ],
+      "originalOverlapSqM": 227.5402411681112,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 206.98104029087608
+    },
+    {
+      "codes": [
+        "27140",
+        "27230"
+      ],
+      "originalOverlapSqM": 1181.1174506566203,
+      "removedFromFirstSqM": 239.24630802792294,
+      "removedFromSecondSqM": 51.9873820965568
+    },
+    {
+      "codes": [
+        "27140",
+        "47850"
+      ],
+      "originalOverlapSqM": 244.90100991734278,
+      "removedFromFirstSqM": 1.3347948358872843e-08,
+      "removedFromSecondSqM": 242.70368320629018
+    },
+    {
+      "codes": [
+        "27140",
+        "27720"
+      ],
+      "originalOverlapSqM": 82.45749408078836,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.021276483451353606
+    },
+    {
+      "codes": [
+        "27170",
+        "27710"
+      ],
+      "originalOverlapSqM": 220.7523986067718,
+      "removedFromFirstSqM": 203.77301240070653,
+      "removedFromSecondSqM": 1.1908537285579734
+    },
+    {
+      "codes": [
+        "27170",
+        "27230"
+      ],
+      "originalOverlapSqM": 1508.013770382714,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 47.727660541437245
+    },
+    {
+      "codes": [
+        "27200",
+        "27290"
+      ],
+      "originalOverlapSqM": 97.66751916870174,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.4930432420620776
+    },
+    {
+      "codes": [
+        "27200",
+        "27260"
+      ],
+      "originalOverlapSqM": 189.15701821254902,
+      "removedFromFirstSqM": 1.4744923714590843,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "27230",
+        "47850"
+      ],
+      "originalOverlapSqM": 365.8912906602669,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 287.5622626482192
+    },
+    {
+      "codes": [
+        "27290",
+        "27710"
+      ],
+      "originalOverlapSqM": 1685.149098951283,
+      "removedFromFirstSqM": 473.45093127408995,
+      "removedFromSecondSqM": 391.2693100507801
+    },
+    {
+      "codes": [
+        "27710",
+        "48740"
+      ],
+      "originalOverlapSqM": 788.9372366075396,
+      "removedFromFirstSqM": 100.66637694442113,
+      "removedFromSecondSqM": 80.49875650795673
+    },
+    {
+      "codes": [
+        "27710",
+        "47840"
+      ],
+      "originalOverlapSqM": 175.6717567144483,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 55.67277772002632
+    },
+    {
+      "codes": [
+        "27710",
+        "47850"
+      ],
+      "originalOverlapSqM": 201.64172217935425,
+      "removedFromFirstSqM": 34.67082632481327,
+      "removedFromSecondSqM": 0.032328513348156895
+    },
+    {
+      "codes": [
+        "27720",
+        "47230"
+      ],
+      "originalOverlapSqM": 140.91496874040004,
+      "removedFromFirstSqM": 36.52450843946954,
+      "removedFromSecondSqM": 9.843610048123546
+    },
+    {
+      "codes": [
+        "27720",
+        "47730"
+      ],
+      "originalOverlapSqM": 98.62673008587002,
+      "removedFromFirstSqM": 0.0016417825083351865,
+      "removedFromSecondSqM": 88.40981482909886
+    },
+    {
+      "codes": [
+        "28177",
+        "28185"
+      ],
+      "originalOverlapSqM": 0.47438390310210754,
+      "removedFromFirstSqM": 0.23080841154892895,
+      "removedFromSecondSqM": 0.029954699293655313
+    },
+    {
+      "codes": [
+        "28177",
+        "28200"
+      ],
+      "originalOverlapSqM": 10.431770198025813,
+      "removedFromFirstSqM": 0.13385350931377576,
+      "removedFromSecondSqM": 4.183063448487156
+    },
+    {
+      "codes": [
+        "28185",
+        "28200"
+      ],
+      "originalOverlapSqM": 676.8944909626622,
+      "removedFromFirstSqM": 0.3849493121484605,
+      "removedFromSecondSqM": 675.7797321973126
+    },
+    {
+      "codes": [
+        "28200",
+        "41390"
+      ],
+      "originalOverlapSqM": 8143.945149864322,
+      "removedFromFirstSqM": 326.52646490806734,
+      "removedFromSecondSqM": 2412.0457675053285
+    },
+    {
+      "codes": [
+        "28200",
+        "28237"
+      ],
+      "originalOverlapSqM": 16.198087500214918,
+      "removedFromFirstSqM": 0.2691844479406595,
+      "removedFromSecondSqM": 7.631119127610005
+    },
+    {
+      "codes": [
+        "28245",
+        "41570"
+      ],
+      "originalOverlapSqM": 3040.873506931756,
+      "removedFromFirstSqM": 47.01047457894523,
+      "removedFromSecondSqM": 943.8428830688506
+    },
+    {
+      "codes": [
+        "30170",
+        "44710"
+      ],
+      "originalOverlapSqM": 77.15949144652504,
+      "removedFromFirstSqM": 0.7897979701618275,
+      "removedFromSecondSqM": 16.860259301226268
+    },
+    {
+      "codes": [
+        "30170",
+        "30230"
+      ],
+      "originalOverlapSqM": 425.81029114029303,
+      "removedFromFirstSqM": 133.41091792264268,
+      "removedFromSecondSqM": 50.667232330448655
+    },
+    {
+      "codes": [
+        "31110",
+        "31140"
+      ],
+      "originalOverlapSqM": 2805.9541953486264,
+      "removedFromFirstSqM": 883.5838730030665,
+      "removedFromSecondSqM": 1768.332205772928
+    },
+    {
+      "codes": [
+        "31110",
+        "31710"
+      ],
+      "originalOverlapSqM": 14.596768019894341,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 12.032300071191447
+    },
+    {
+      "codes": [
+        "31140",
+        "31710"
+      ],
+      "originalOverlapSqM": 530.6459529375643,
+      "removedFromFirstSqM": 184.3532456653839,
+      "removedFromSecondSqM": 202.38818719899126
+    },
+    {
+      "codes": [
+        "31710",
+        "48330"
+      ],
+      "originalOverlapSqM": 588.825158292231,
+      "removedFromFirstSqM": 265.94385047619716,
+      "removedFromSecondSqM": 304.4298551509765
+    },
+    {
+      "codes": [
+        "31710",
+        "47130"
+      ],
+      "originalOverlapSqM": 780.3142588188481,
+      "removedFromFirstSqM": 4.89489326248847e-12,
+      "removedFromSecondSqM": 736.5062629584075
+    },
+    {
+      "codes": [
+        "41150",
+        "41360"
+      ],
+      "originalOverlapSqM": 148.3543340520456,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 148.3543340520456
+    },
+    {
+      "codes": [
+        "41150",
+        "41650"
+      ],
+      "originalOverlapSqM": 3941.893884240953,
+      "removedFromFirstSqM": 473.7867232862081,
+      "removedFromSecondSqM": 1952.6441724533272
+    },
+    {
+      "codes": [
+        "41210",
+        "41390"
+      ],
+      "originalOverlapSqM": 783.495450265517,
+      "removedFromFirstSqM": 29.219146691657045,
+      "removedFromSecondSqM": 493.17696622588335
+    },
+    {
+      "codes": [
+        "41220",
+        "41370"
+      ],
+      "originalOverlapSqM": 680.5752555918059,
+      "removedFromFirstSqM": 305.0645470765817,
+      "removedFromSecondSqM": 123.05686903604786
+    },
+    {
+      "codes": [
+        "41290",
+        "41430"
+      ],
+      "originalOverlapSqM": 235.25393938917702,
+      "removedFromFirstSqM": 114.31276530836061,
+      "removedFromSecondSqM": 31.317674506371517
+    },
+    {
+      "codes": [
+        "41360",
+        "41450"
+      ],
+      "originalOverlapSqM": 897.6693803450917,
+      "removedFromFirstSqM": 634.1119331975369,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "41360",
+        "41830"
+      ],
+      "originalOverlapSqM": 27.9227107492826,
+      "removedFromFirstSqM": 1.2573003548222578e-05,
+      "removedFromSecondSqM": 27.91315232883796
+    },
+    {
+      "codes": [
+        "41360",
+        "41820"
+      ],
+      "originalOverlapSqM": 116.28886672322538,
+      "removedFromFirstSqM": 3.389277351103419e-11,
+      "removedFromSecondSqM": 43.67919179608155
+    },
+    {
+      "codes": [
+        "41360",
+        "41650"
+      ],
+      "originalOverlapSqM": 6120.908455218961,
+      "removedFromFirstSqM": 325.1898701356884,
+      "removedFromSecondSqM": 2605.346966025487
+    },
+    {
+      "codes": [
+        "41450",
+        "41610"
+      ],
+      "originalOverlapSqM": 210.07142360312497,
+      "removedFromFirstSqM": 77.77741883040942,
+      "removedFromSecondSqM": 67.14406363253308
+    },
+    {
+      "codes": [
+        "41500",
+        "43770"
+      ],
+      "originalOverlapSqM": 264.1597456463427,
+      "removedFromFirstSqM": 51.07128111749786,
+      "removedFromSecondSqM": 195.6889175214186
+    },
+    {
+      "codes": [
+        "41500",
+        "41670"
+      ],
+      "originalOverlapSqM": 449.17795711254286,
+      "removedFromFirstSqM": 141.63831990004013,
+      "removedFromSecondSqM": 14.708130859521622
+    },
+    {
+      "codes": [
+        "41610",
+        "41670"
+      ],
+      "originalOverlapSqM": 492.0675894873236,
+      "removedFromFirstSqM": 0.0022339168335359376,
+      "removedFromSecondSqM": 441.12201132702097
+    },
+    {
+      "codes": [
+        "41610",
+        "41830"
+      ],
+      "originalOverlapSqM": 758.9463887141981,
+      "removedFromFirstSqM": 293.67649762735135,
+      "removedFromSecondSqM": 210.50978790694467
+    },
+    {
+      "codes": [
+        "41650",
+        "41820"
+      ],
+      "originalOverlapSqM": 58475.141906885176,
+      "removedFromFirstSqM": 52450.00013529865,
+      "removedFromSecondSqM": 1864.4490874388239
+    },
+    {
+      "codes": [
+        "41650",
+        "51790"
+      ],
+      "originalOverlapSqM": 56.92022637105378,
+      "removedFromFirstSqM": 0.003958132332843935,
+      "removedFromSecondSqM": 56.80253968360618
+    },
+    {
+      "codes": [
+        "41670",
+        "43770"
+      ],
+      "originalOverlapSqM": 26.652570340562356,
+      "removedFromFirstSqM": 0.5535835403241617,
+      "removedFromSecondSqM": 18.299066763655357
+    },
+    {
+      "codes": [
+        "41670",
+        "43130"
+      ],
+      "originalOverlapSqM": 393.06752924477047,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 231.81739082856927
+    },
+    {
+      "codes": [
+        "41670",
+        "41830"
+      ],
+      "originalOverlapSqM": 119.58466342651302,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 65.45872615886279
+    },
+    {
+      "codes": [
+        "41820",
+        "41830"
+      ],
+      "originalOverlapSqM": 197.78656565329288,
+      "removedFromFirstSqM": 197.77204372835158,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "41820",
+        "51110"
+      ],
+      "originalOverlapSqM": 279.6041800359144,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 172.27429579034015
+    },
+    {
+      "codes": [
+        "41820",
+        "51790"
+      ],
+      "originalOverlapSqM": 15.716298127909567,
+      "removedFromFirstSqM": 6.67158950072913,
+      "removedFromSecondSqM": 1.0331740079188186e-05
+    },
+    {
+      "codes": [
+        "41830",
+        "51720"
+      ],
+      "originalOverlapSqM": 150.9515044909225,
+      "removedFromFirstSqM": 91.64933244766779,
+      "removedFromSecondSqM": 0.0015310485277950647
+    },
+    {
+      "codes": [
+        "41830",
+        "51730"
+      ],
+      "originalOverlapSqM": 90.48105691760554,
+      "removedFromFirstSqM": 0.011971136605325228,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "43130",
+        "43760"
+      ],
+      "originalOverlapSqM": 47.114985348281905,
+      "removedFromFirstSqM": 33.28934151702418,
+      "removedFromSecondSqM": 11.210101893516594
+    },
+    {
+      "codes": [
+        "43130",
+        "47280"
+      ],
+      "originalOverlapSqM": 156.29957435161364,
+      "removedFromFirstSqM": 9.352870495002415,
+      "removedFromSecondSqM": 23.52520899272762
+    },
+    {
+      "codes": [
+        "43130",
+        "43770"
+      ],
+      "originalOverlapSqM": 789.38006931218,
+      "removedFromFirstSqM": 398.44011100332006,
+      "removedFromSecondSqM": 293.898423707827
+    },
+    {
+      "codes": [
+        "43150",
+        "43800"
+      ],
+      "originalOverlapSqM": 426.4206119238602,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 426.4065872863589
+    },
+    {
+      "codes": [
+        "43150",
+        "51750"
+      ],
+      "originalOverlapSqM": 24.794361241201038,
+      "removedFromFirstSqM": 22.271249036735526,
+      "removedFromSecondSqM": 0.004735253203705809
+    },
+    {
+      "codes": [
+        "43740",
+        "44710"
+      ],
+      "originalOverlapSqM": 184.805394177026,
+      "removedFromFirstSqM": 4.270764912168623,
+      "removedFromSecondSqM": 142.58032508599132
+    },
+    {
+      "codes": [
+        "43740",
+        "47250"
+      ],
+      "originalOverlapSqM": 14.182676096472463,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.06212663452892038
+    },
+    {
+      "codes": [
+        "43745",
+        "43760"
+      ],
+      "originalOverlapSqM": 230.8200388503241,
+      "removedFromFirstSqM": 31.003204914033304,
+      "removedFromSecondSqM": 182.84527669945658
+    },
+    {
+      "codes": [
+        "43745",
+        "43750"
+      ],
+      "originalOverlapSqM": 436.4001714178788,
+      "removedFromFirstSqM": 297.45201894932427,
+      "removedFromSecondSqM": 24.88386200391229
+    },
+    {
+      "codes": [
+        "43745",
+        "43770"
+      ],
+      "originalOverlapSqM": 900.3556649581985,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 77.64362354350557
+    },
+    {
+      "codes": [
+        "43750",
+        "43770"
+      ],
+      "originalOverlapSqM": 884.0969649335307,
+      "removedFromFirstSqM": 444.7046490055426,
+      "removedFromSecondSqM": 414.23185356219784
+    },
+    {
+      "codes": [
+        "43760",
+        "47250"
+      ],
+      "originalOverlapSqM": 481.3367701042453,
+      "removedFromFirstSqM": 149.3838307588092,
+      "removedFromSecondSqM": 281.0895631649404
+    },
+    {
+      "codes": [
+        "43760",
+        "47280"
+      ],
+      "originalOverlapSqM": 441.78911240373907,
+      "removedFromFirstSqM": 97.02445801942372,
+      "removedFromSecondSqM": 0.012046284605178134
+    },
+    {
+      "codes": [
+        "43760",
+        "43770"
+      ],
+      "originalOverlapSqM": 306.86915139362725,
+      "removedFromFirstSqM": 200.4469940972369,
+      "removedFromSecondSqM": 14.730220681212936
+    },
+    {
+      "codes": [
+        "43800",
+        "47900"
+      ],
+      "originalOverlapSqM": 415.9052553188019,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 211.33489510719755
+    },
+    {
+      "codes": [
+        "43800",
+        "47280"
+      ],
+      "originalOverlapSqM": 201.25942994220122,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 169.519091169614
+    },
+    {
+      "codes": [
+        "43800",
+        "51750"
+      ],
+      "originalOverlapSqM": 99.86229666752627,
+      "removedFromFirstSqM": 6.473610602438595,
+      "removedFromSecondSqM": 89.10161300595409
+    },
+    {
+      "codes": [
+        "44150",
+        "44230"
+      ],
+      "originalOverlapSqM": 107.12743780208018,
+      "removedFromFirstSqM": 106.59148283492334,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "44150",
+        "44250"
+      ],
+      "originalOverlapSqM": 61.25468402597096,
+      "removedFromFirstSqM": 50.84680281056532,
+      "removedFromSecondSqM": 0.09841366562295456
+    },
+    {
+      "codes": [
+        "44150",
+        "44760"
+      ],
+      "originalOverlapSqM": 422.8134513585891,
+      "removedFromFirstSqM": 30.45025982068954,
+      "removedFromSecondSqM": 334.15085890595583
+    },
+    {
+      "codes": [
+        "44150",
+        "44790"
+      ],
+      "originalOverlapSqM": 1729.3867021076733,
+      "removedFromFirstSqM": 1195.2403098235716,
+      "removedFromSecondSqM": 121.02137982423696
+    },
+    {
+      "codes": [
+        "44180",
+        "44760"
+      ],
+      "originalOverlapSqM": 93.95005504523208,
+      "removedFromFirstSqM": 0.7266603708896047,
+      "removedFromSecondSqM": 70.18061551992669
+    },
+    {
+      "codes": [
+        "44180",
+        "44790"
+      ],
+      "originalOverlapSqM": 4.435961987715723,
+      "removedFromFirstSqM": 4.430246891309964,
+      "removedFromSecondSqM": 9.006910832641096e-07
+    },
+    {
+      "codes": [
+        "44180",
+        "44770"
+      ],
+      "originalOverlapSqM": 16.704632530661314,
+      "removedFromFirstSqM": 6.332291853788647e-10,
+      "removedFromSecondSqM": 11.06444981174547
+    },
+    {
+      "codes": [
+        "44180",
+        "44800"
+      ],
+      "originalOverlapSqM": 412.34298782278455,
+      "removedFromFirstSqM": 288.4469413825269,
+      "removedFromSecondSqM": 117.78805896025708
+    },
+    {
+      "codes": [
+        "44210",
+        "44825"
+      ],
+      "originalOverlapSqM": 20.559125062710983,
+      "removedFromFirstSqM": 20.462827872421023,
+      "removedFromSecondSqM": 0.09626926133941574
+    },
+    {
+      "codes": [
+        "44210",
+        "44270"
+      ],
+      "originalOverlapSqM": 125.78750794509763,
+      "removedFromFirstSqM": 43.45893146330076,
+      "removedFromSecondSqM": 80.16881458931474
+    },
+    {
+      "codes": [
+        "44230",
+        "52140"
+      ],
+      "originalOverlapSqM": 103.29034996891625,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 63.12475937648602
+    },
+    {
+      "codes": [
+        "44230",
+        "44760"
+      ],
+      "originalOverlapSqM": 533.9710987088006,
+      "removedFromFirstSqM": 14.495145410492242,
+      "removedFromSecondSqM": 70.94332519470616
+    },
+    {
+      "codes": [
+        "44270",
+        "44810"
+      ],
+      "originalOverlapSqM": 526.0552249747615,
+      "removedFromFirstSqM": 115.89606343056798,
+      "removedFromSecondSqM": 227.5625226792807
+    },
+    {
+      "codes": [
+        "44760",
+        "52140"
+      ],
+      "originalOverlapSqM": 90.40049279166982,
+      "removedFromFirstSqM": 7.174145501708514,
+      "removedFromSecondSqM": 51.883137867044496
+    },
+    {
+      "codes": [
+        "44760",
+        "44790"
+      ],
+      "originalOverlapSqM": 91.06413697547401,
+      "removedFromFirstSqM": 58.813555762687464,
+      "removedFromSecondSqM": 21.173312965773675
+    },
+    {
+      "codes": [
+        "44760",
+        "44770"
+      ],
+      "originalOverlapSqM": 52.77950712433275,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 52.764332356271446
+    },
+    {
+      "codes": [
+        "44790",
+        "44800"
+      ],
+      "originalOverlapSqM": 318.4348062801429,
+      "removedFromFirstSqM": 194.69395204774435,
+      "removedFromSecondSqM": 108.7783744962184
+    },
+    {
+      "codes": [
+        "44790",
+        "44810"
+      ],
+      "originalOverlapSqM": 280.08577647308186,
+      "removedFromFirstSqM": 214.1597930207607,
+      "removedFromSecondSqM": 38.39182980791101
+    },
+    {
+      "codes": [
+        "44800",
+        "44810"
+      ],
+      "originalOverlapSqM": 1250.29924765016,
+      "removedFromFirstSqM": 754.7407915699841,
+      "removedFromSecondSqM": 336.1234551436588
+    },
+    {
+      "codes": [
+        "47130",
+        "47820"
+      ],
+      "originalOverlapSqM": 320.8024076424945,
+      "removedFromFirstSqM": 167.67397924787582,
+      "removedFromSecondSqM": 0.0005251361712641292
+    },
+    {
+      "codes": [
+        "47130",
+        "47230"
+      ],
+      "originalOverlapSqM": 425.3210655384821,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 282.12500032165053
+    },
+    {
+      "codes": [
+        "47170",
+        "47750"
+      ],
+      "originalOverlapSqM": 902.3436466355907,
+      "removedFromFirstSqM": 209.2597955195804,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "47170",
+        "47920"
+      ],
+      "originalOverlapSqM": 793.8164425746944,
+      "removedFromFirstSqM": 1.5548730695108288,
+      "removedFromSecondSqM": 239.30411697981458
+    },
+    {
+      "codes": [
+        "47170",
+        "47900"
+      ],
+      "originalOverlapSqM": 299.60866343914296,
+      "removedFromFirstSqM": 4.9986034227248055,
+      "removedFromSecondSqM": 270.07330738482835
+    },
+    {
+      "codes": [
+        "47170",
+        "47210"
+      ],
+      "originalOverlapSqM": 1769.740462822528,
+      "removedFromFirstSqM": 590.1545662622096,
+      "removedFromSecondSqM": 367.4533293223741
+    },
+    {
+      "codes": [
+        "47190",
+        "47850"
+      ],
+      "originalOverlapSqM": 110.02169206259724,
+      "removedFromFirstSqM": 105.65065968359302,
+      "removedFromSecondSqM": 4.370890195499436
+    },
+    {
+      "codes": [
+        "47190",
+        "47250"
+      ],
+      "originalOverlapSqM": 161.10360639653072,
+      "removedFromFirstSqM": 160.94225429929412,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "47210",
+        "47920"
+      ],
+      "originalOverlapSqM": 97.3290738451847,
+      "removedFromFirstSqM": 96.311651401212,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "47210",
+        "47900"
+      ],
+      "originalOverlapSqM": 286.5255478130844,
+      "removedFromFirstSqM": 62.76416375509308,
+      "removedFromSecondSqM": 174.23898364909144
+    },
+    {
+      "codes": [
+        "47230",
+        "47290"
+      ],
+      "originalOverlapSqM": 2.5251304424421464,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 1.5748793482459962
+    },
+    {
+      "codes": [
+        "47230",
+        "47750"
+      ],
+      "originalOverlapSqM": 644.6679338017566,
+      "removedFromFirstSqM": 0.01843322437668027,
+      "removedFromSecondSqM": 291.91114479804673
+    },
+    {
+      "codes": [
+        "47250",
+        "47280"
+      ],
+      "originalOverlapSqM": 915.7650850430668,
+      "removedFromFirstSqM": 695.3817303677542,
+      "removedFromSecondSqM": 103.02761303677727
+    },
+    {
+      "codes": [
+        "47280",
+        "47900"
+      ],
+      "originalOverlapSqM": 545.158404645924,
+      "removedFromFirstSqM": 448.91416215177696,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "47290",
+        "47820"
+      ],
+      "originalOverlapSqM": 340.4358487242251,
+      "removedFromFirstSqM": 38.08436391548798,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "47730",
+        "47900"
+      ],
+      "originalOverlapSqM": 228.13536842270815,
+      "removedFromFirstSqM": 25.464796503300015,
+      "removedFromSecondSqM": 186.16398717656688
+    },
+    {
+      "codes": [
+        "47750",
+        "47770"
+      ],
+      "originalOverlapSqM": 229.9250172330132,
+      "removedFromFirstSqM": 0.07702276607619163,
+      "removedFromSecondSqM": 5.8032731965346755
+    },
+    {
+      "codes": [
+        "47760",
+        "47770"
+      ],
+      "originalOverlapSqM": 268.4423368462594,
+      "removedFromFirstSqM": 228.18647046816113,
+      "removedFromSecondSqM": 5.714945311229393e-06
+    },
+    {
+      "codes": [
+        "47760",
+        "47920"
+      ],
+      "originalOverlapSqM": 0.6947379135654211,
+      "removedFromFirstSqM": 0.08345946384679036,
+      "removedFromSecondSqM": 0.36579891599913594
+    },
+    {
+      "codes": [
+        "47770",
+        "47930"
+      ],
+      "originalOverlapSqM": 158.8180289839695,
+      "removedFromFirstSqM": 82.06670382753055,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "47820",
+        "48270"
+      ],
+      "originalOverlapSqM": 542.6458933394181,
+      "removedFromFirstSqM": 22.162663883544102,
+      "removedFromSecondSqM": 227.3443498463335
+    },
+    {
+      "codes": [
+        "47830",
+        "48890"
+      ],
+      "originalOverlapSqM": 775.166001267999,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 278.82379328263255
+    },
+    {
+      "codes": [
+        "47830",
+        "47840"
+      ],
+      "originalOverlapSqM": 139.6974435339946,
+      "removedFromFirstSqM": 139.69497625541692,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "47840",
+        "48890"
+      ],
+      "originalOverlapSqM": 373.48810040379453,
+      "removedFromFirstSqM": 122.02434656577054,
+      "removedFromSecondSqM": 0.00014247960018654027
+    },
+    {
+      "codes": [
+        "47840",
+        "47850"
+      ],
+      "originalOverlapSqM": 440.4493691344294,
+      "removedFromFirstSqM": 47.44127819206386,
+      "removedFromSecondSqM": 383.4532146143357
+    },
+    {
+      "codes": [
+        "47920",
+        "47930"
+      ],
+      "originalOverlapSqM": 391.4003382304518,
+      "removedFromFirstSqM": 89.43889052992404,
+      "removedFromSecondSqM": 164.14744533192882
+    },
+    {
+      "codes": [
+        "47920",
+        "51750"
+      ],
+      "originalOverlapSqM": 710.4768036851024,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 330.60395790881023
+    },
+    {
+      "codes": [
+        "48170",
+        "48860"
+      ],
+      "originalOverlapSqM": 130.14395527013005,
+      "removedFromFirstSqM": 74.55752531668662,
+      "removedFromSecondSqM": 31.595690185376668
+    },
+    {
+      "codes": [
+        "48250",
+        "48270"
+      ],
+      "originalOverlapSqM": 190.1707477882045,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 190.17074065386478
+    },
+    {
+      "codes": [
+        "48270",
+        "48740"
+      ],
+      "originalOverlapSqM": 372.9258536353318,
+      "removedFromFirstSqM": 279.75541544368286,
+      "removedFromSecondSqM": 0.04032420919259039
+    },
+    {
+      "codes": [
+        "48720",
+        "48740"
+      ],
+      "originalOverlapSqM": 220.37408700554852,
+      "removedFromFirstSqM": 1.5867208889438572e-07,
+      "removedFromSecondSqM": 218.31340447631192
+    },
+    {
+      "codes": [
+        "48720",
+        "48890"
+      ],
+      "originalOverlapSqM": 471.0156097505193,
+      "removedFromFirstSqM": 279.58352335452963,
+      "removedFromSecondSqM": 70.71972960499718
+    },
+    {
+      "codes": [
+        "48730",
+        "48740"
+      ],
+      "originalOverlapSqM": 109.17624408489286,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 109.10756942261605
+    },
+    {
+      "codes": [
+        "48740",
+        "48890"
+      ],
+      "originalOverlapSqM": 119.20323274932434,
+      "removedFromFirstSqM": 16.54991305942815,
+      "removedFromSecondSqM": 8.055990029193424
+    },
+    {
+      "codes": [
+        "48850",
+        "48860"
+      ],
+      "originalOverlapSqM": 11.460494230397723,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 11.460494230397671
+    },
+    {
+      "codes": [
+        "48860",
+        "48870"
+      ],
+      "originalOverlapSqM": 1746.551031103509,
+      "removedFromFirstSqM": 233.51025033043655,
+      "removedFromSecondSqM": 1496.0097226693113
+    },
+    {
+      "codes": [
+        "48860",
+        "48890"
+      ],
+      "originalOverlapSqM": 25.049726005338528,
+      "removedFromFirstSqM": 24.128102155660823,
+      "removedFromSecondSqM": 2.5989214170888867e-07
+    },
+    {
+      "codes": [
+        "48860",
+        "48880"
+      ],
+      "originalOverlapSqM": 17.06334488153462,
+      "removedFromFirstSqM": 11.630494363438924,
+      "removedFromSecondSqM": 2.016682332703213
+    },
+    {
+      "codes": [
+        "48870",
+        "52740"
+      ],
+      "originalOverlapSqM": 583.4872688627765,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 583.4872688627765
+    },
+    {
+      "codes": [
+        "48870",
+        "48880"
+      ],
+      "originalOverlapSqM": 9.459629501463496,
+      "removedFromFirstSqM": 0.00031808388088497226,
+      "removedFromSecondSqM": 9.013504055858654
+    },
+    {
+      "codes": [
+        "48880",
+        "48890"
+      ],
+      "originalOverlapSqM": 738.3880135618951,
+      "removedFromFirstSqM": 707.5886169051184,
+      "removedFromSecondSqM": 1.047148557207387
+    },
+    {
+      "codes": [
+        "50110",
+        "50130"
+      ],
+      "originalOverlapSqM": 117.869411706507,
+      "removedFromFirstSqM": 35.09031132995116,
+      "removedFromSecondSqM": 49.70477076497101
+    },
+    {
+      "codes": [
+        "51110",
+        "51720"
+      ],
+      "originalOverlapSqM": 33.97683756501097,
+      "removedFromFirstSqM": 7.768591093701923,
+      "removedFromSecondSqM": 2.6348963908668906e-09
+    },
+    {
+      "codes": [
+        "51110",
+        "51790"
+      ],
+      "originalOverlapSqM": 374449.4820460241,
+      "removedFromFirstSqM": 7441.298476609654,
+      "removedFromSecondSqM": 68020.92395322901
+    },
+    {
+      "codes": [
+        "51110",
+        "51800"
+      ],
+      "originalOverlapSqM": 3854.5481448950113,
+      "removedFromFirstSqM": 0.27203892166254623,
+      "removedFromSecondSqM": 854.010134011626
+    },
+    {
+      "codes": [
+        "51110",
+        "51810"
+      ],
+      "originalOverlapSqM": 1006.4195537576361,
+      "removedFromFirstSqM": 12.560063694602963,
+      "removedFromSecondSqM": 966.6640756917018
+    },
+    {
+      "codes": [
+        "51150",
+        "51770"
+      ],
+      "originalOverlapSqM": 36.06409128141878,
+      "removedFromFirstSqM": 31.199350067500106,
+      "removedFromSecondSqM": 0.03765568594393313
+    },
+    {
+      "codes": [
+        "51150",
+        "51830"
+      ],
+      "originalOverlapSqM": 551.7321758437812,
+      "removedFromFirstSqM": 381.0110370531012,
+      "removedFromSecondSqM": 26.05913915434425
+    },
+    {
+      "codes": [
+        "51170",
+        "51230"
+      ],
+      "originalOverlapSqM": 204.29333720202777,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 59.45487583521896
+    },
+    {
+      "codes": [
+        "51190",
+        "51230"
+      ],
+      "originalOverlapSqM": 188.53275200064007,
+      "removedFromFirstSqM": 0.4223875422940932,
+      "removedFromSecondSqM": 51.219333998582925
+    },
+    {
+      "codes": [
+        "51190",
+        "51750"
+      ],
+      "originalOverlapSqM": 481.396122884838,
+      "removedFromFirstSqM": 126.15332342352454,
+      "removedFromSecondSqM": 118.34758542453646
+    },
+    {
+      "codes": [
+        "51190",
+        "51770"
+      ],
+      "originalOverlapSqM": 314.46778938070753,
+      "removedFromFirstSqM": 1.8896548245131032e-08,
+      "removedFromSecondSqM": 162.2720581958892
+    },
+    {
+      "codes": [
+        "51210",
+        "51830"
+      ],
+      "originalOverlapSqM": 393.0596652346348,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 0.1428111178821076
+    },
+    {
+      "codes": [
+        "51210",
+        "51810"
+      ],
+      "originalOverlapSqM": 167.60781181400665,
+      "removedFromFirstSqM": 38.50802381028208,
+      "removedFromSecondSqM": 39.860406744200716
+    },
+    {
+      "codes": [
+        "51210",
+        "51820"
+      ],
+      "originalOverlapSqM": 844.118750870968,
+      "removedFromFirstSqM": 13.054443970443218,
+      "removedFromSecondSqM": 750.0934438292903
+    },
+    {
+      "codes": [
+        "51230",
+        "51770"
+      ],
+      "originalOverlapSqM": 1670.1865906712208,
+      "removedFromFirstSqM": 371.0520091928931,
+      "removedFromSecondSqM": 259.6206409366817
+    },
+    {
+      "codes": [
+        "51720",
+        "51810"
+      ],
+      "originalOverlapSqM": 516.6834255453183,
+      "removedFromFirstSqM": 57.28538986898073,
+      "removedFromSecondSqM": 156.01050265097587
+    },
+    {
+      "codes": [
+        "51730",
+        "51760"
+      ],
+      "originalOverlapSqM": 209.01844421878684,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 209.0018390939925
+    },
+    {
+      "codes": [
+        "51750",
+        "51760"
+      ],
+      "originalOverlapSqM": 109.84422063598271,
+      "removedFromFirstSqM": 109.84142020195354,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "51760",
+        "51770"
+      ],
+      "originalOverlapSqM": 275.9628931953407,
+      "removedFromFirstSqM": 0.0,
+      "removedFromSecondSqM": 275.94226558987526
+    },
+    {
+      "codes": [
+        "51790",
+        "51800"
+      ],
+      "originalOverlapSqM": 1202.233506463749,
+      "removedFromFirstSqM": 415.7575142259248,
+      "removedFromSecondSqM": 139.18898542428997
+    },
+    {
+      "codes": [
+        "51800",
+        "51810"
+      ],
+      "originalOverlapSqM": 1258.034251975112,
+      "removedFromFirstSqM": 1258.034251975112,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "51810",
+        "51830"
+      ],
+      "originalOverlapSqM": 67485.23513076904,
+      "removedFromFirstSqM": 15999.228034223564,
+      "removedFromSecondSqM": 1363.3826289415783
+    },
+    {
+      "codes": [
+        "52720",
+        "52750"
+      ],
+      "originalOverlapSqM": 374.7081504213247,
+      "removedFromFirstSqM": 204.63454924946655,
+      "removedFromSecondSqM": 169.9689046605182
+    },
+    {
+      "codes": [
+        "52720",
+        "52740"
+      ],
+      "originalOverlapSqM": 284.9269047283034,
+      "removedFromFirstSqM": 75.12194816211903,
+      "removedFromSecondSqM": 120.92025566778108
+    },
+    {
+      "codes": [
+        "52720",
+        "52730"
+      ],
+      "originalOverlapSqM": 248.86764863333508,
+      "removedFromFirstSqM": 14.797704350017431,
+      "removedFromSecondSqM": 223.42349353194106
+    },
+    {
+      "codes": [
+        "52730",
+        "52740"
+      ],
+      "originalOverlapSqM": 485.337483636106,
+      "removedFromFirstSqM": 262.780810363009,
+      "removedFromSecondSqM": 32.67957519211107
+    },
+    {
+      "codes": [
+        "52740",
+        "52750"
+      ],
+      "originalOverlapSqM": 49.108325152140445,
+      "removedFromFirstSqM": 49.10353736219673,
+      "removedFromSecondSqM": 0.0
+    },
+    {
+      "codes": [
+        "52750",
+        "52770"
+      ],
+      "originalOverlapSqM": 299.2463065351094,
+      "removedFromFirstSqM": 286.04179267265687,
+      "removedFromSecondSqM": 4.2565063677437625
+    }
+  ],
+  "nationalLandDifferenceSqM": 0.00689358615939477,
+  "nationalOverlayToleranceSqM": 0.01,
+  "overlapPairsBefore": 519,
+  "overlapPairsAfter": 514,
+  "remainingOverlaps": [
+    {
+      "codes": [
+        "11110",
+        "11140"
+      ],
+      "areaSqM": 21.45788538591209,
+      "point": [
+        126.98991512945024,
+        37.5681255236204
+      ]
+    },
+    {
+      "codes": [
+        "11110",
+        "11410"
+      ],
+      "areaSqM": 31.81604060092385,
+      "point": [
+        126.95372214364853,
+        37.598640274582166
+      ]
+    },
+    {
+      "codes": [
+        "11110",
+        "41281"
+      ],
+      "areaSqM": 205.4892682736713,
+      "point": [
+        126.97488861337209,
+        37.63185631916752
+      ]
+    },
+    {
+      "codes": [
+        "11110",
+        "11290"
+      ],
+      "areaSqM": 12.569169931623353,
+      "point": [
+        127.02305130379978,
+        37.57791406428022
+      ]
+    },
+    {
+      "codes": [
+        "11140",
+        "11440"
+      ],
+      "areaSqM": 19.37356515841015,
+      "point": [
+        126.96238836497828,
+        37.551637452714985
+      ]
+    },
+    {
+      "codes": [
+        "11140",
+        "11410"
+      ],
+      "areaSqM": 0.059973433311584265,
+      "point": [
+        126.96231511681029,
+        37.55910046693982
+      ]
+    },
+    {
+      "codes": [
+        "11140",
+        "11200"
+      ],
+      "areaSqM": 2.182063970416524,
+      "point": [
+        127.02340034943538,
+        37.57161038935491
+      ]
+    },
+    {
+      "codes": [
+        "11140",
+        "11230"
+      ],
+      "areaSqM": 3.053020563028957e-05,
+      "point": [
+        127.02339337569416,
+        37.57189818149262
+      ]
+    },
+    {
+      "codes": [
+        "11170",
+        "11650"
+      ],
+      "areaSqM": 176.92623042358633,
+      "point": [
+        127.01032342660189,
+        37.52738215903042
+      ]
+    },
+    {
+      "codes": [
+        "11170",
+        "11680"
+      ],
+      "areaSqM": 137.2575780819481,
+      "point": [
+        127.01551883643026,
+        37.53240248829988
+      ]
+    },
+    {
+      "codes": [
+        "11170",
+        "11590"
+      ],
+      "areaSqM": 17.76452509352007,
+      "point": [
+        126.97941858165488,
+        37.50655353772484
+      ]
+    },
+    {
+      "codes": [
+        "11170",
+        "11440"
+      ],
+      "areaSqM": 10.060683593273765,
+      "point": [
+        126.96238343381631,
+        37.551529961205176
+      ]
+    },
+    {
+      "codes": [
+        "11170",
+        "11200"
+      ],
+      "areaSqM": 5.881057506626949,
+      "point": [
+        127.00881704338296,
+        37.544105174918805
+      ]
+    },
+    {
+      "codes": [
+        "11200",
+        "11230"
+      ],
+      "areaSqM": 0.026614109517873318,
+      "point": [
+        127.02418094126313,
+        37.571429865645634
+      ]
+    },
+    {
+      "codes": [
+        "11215",
+        "11710"
+      ],
+      "areaSqM": 0.0006982098844836573,
+      "point": [
+        127.10914745658495,
+        37.54299747301171
+      ]
+    },
+    {
+      "codes": [
+        "11215",
+        "11740"
+      ],
+      "areaSqM": 0.00014095758411260354,
+      "point": [
+        127.10931509467221,
+        37.5433052918227
+      ]
+    },
+    {
+      "codes": [
+        "11215",
+        "11260"
+      ],
+      "areaSqM": 263.67827835148137,
+      "point": [
+        127.10044004128827,
+        37.57340688855067
+      ]
+    },
+    {
+      "codes": [
+        "11215",
+        "41310"
+      ],
+      "areaSqM": 0.0027010924570692145,
+      "point": [
+        127.1146428246398,
+        37.556860495165
+      ]
+    },
+    {
+      "codes": [
+        "11230",
+        "11260"
+      ],
+      "areaSqM": 8.38137905962552,
+      "point": [
+        127.07131787495307,
+        37.60592214786452
+      ]
+    },
+    {
+      "codes": [
+        "11230",
+        "11290"
+      ],
+      "areaSqM": 21.97252368658406,
+      "point": [
+        127.06691786542027,
+        37.60614478534941
+      ]
+    },
+    {
+      "codes": [
+        "11260",
+        "41310"
+      ],
+      "areaSqM": 33.13685105845504,
+      "point": [
+        127.10572914922821,
+        37.62031020433921
+      ]
+    },
+    {
+      "codes": [
+        "11260",
+        "11290"
+      ],
+      "areaSqM": 1.2903600085901745,
+      "point": [
+        127.07007699483583,
+        37.61541826525174
+      ]
+    },
+    {
+      "codes": [
+        "11260",
+        "11350"
+      ],
+      "areaSqM": 11.189652332120566,
+      "point": [
+        127.07021816394389,
+        37.61547141794818
+      ]
+    },
+    {
+      "codes": [
+        "11290",
+        "41281"
+      ],
+      "areaSqM": 436.6041973613395,
+      "point": [
+        126.98094256776193,
+        37.63482378274208
+      ]
+    },
+    {
+      "codes": [
+        "11290",
+        "11305"
+      ],
+      "areaSqM": 1.531103856926819,
+      "point": [
+        127.01010714071904,
+        37.61687102374162
+      ]
+    },
+    {
+      "codes": [
+        "11290",
+        "11350"
+      ],
+      "areaSqM": 33.18872290998196,
+      "point": [
+        127.06268885751227,
+        37.61434014653156
+      ]
+    },
+    {
+      "codes": [
+        "11305",
+        "41281"
+      ],
+      "areaSqM": 1753.9425105416376,
+      "point": [
+        126.98500196646268,
+        37.637269424626496
+      ]
+    },
+    {
+      "codes": [
+        "11305",
+        "11350"
+      ],
+      "areaSqM": 43.42758539078831,
+      "point": [
+        127.04961902905913,
+        37.62438650674776
+      ]
+    },
+    {
+      "codes": [
+        "11305",
+        "11320"
+      ],
+      "areaSqM": 29.796794021106724,
+      "point": [
+        127.02086103933594,
+        37.64904137247012
+      ]
+    },
+    {
+      "codes": [
+        "11305",
+        "41630"
+      ],
+      "areaSqM": 62.43307831220784,
+      "point": [
+        126.99533868644228,
+        37.68142063920005
+      ]
+    },
+    {
+      "codes": [
+        "11320",
+        "11350"
+      ],
+      "areaSqM": 0.012291980983098246,
+      "point": [
+        127.05180294474553,
+        37.68526904961943
+      ]
+    },
+    {
+      "codes": [
+        "11320",
+        "41630"
+      ],
+      "areaSqM": 11.723151003398351,
+      "point": [
+        127.01441987402089,
+        37.69961445649886
+      ]
+    },
+    {
+      "codes": [
+        "11350",
+        "41310"
+      ],
+      "areaSqM": 20.62073281230809,
+      "point": [
+        127.10546982232297,
+        37.62072323308418
+      ]
+    },
+    {
+      "codes": [
+        "11350",
+        "41360"
+      ],
+      "areaSqM": 64.14565000480596,
+      "point": [
+        127.09619184184712,
+        37.669913832911604
+      ]
+    },
+    {
+      "codes": [
+        "11380",
+        "11440"
+      ],
+      "areaSqM": 81.69112537149871,
+      "point": [
+        126.90122971687546,
+        37.576595389998865
+      ]
+    },
+    {
+      "codes": [
+        "11380",
+        "11410"
+      ],
+      "areaSqM": 1.5840766034675586,
+      "point": [
+        126.90212990509072,
+        37.57603963292168
+      ]
+    },
+    {
+      "codes": [
+        "11380",
+        "41281"
+      ],
+      "areaSqM": 1490.1842377565806,
+      "point": [
+        126.88584823476987,
+        37.59392592216742
+      ]
+    },
+    {
+      "codes": [
+        "11410",
+        "11440"
+      ],
+      "areaSqM": 22.78810945422621,
+      "point": [
+        126.90404174211848,
+        37.574701472213924
+      ]
+    },
+    {
+      "codes": [
+        "11440",
+        "11560"
+      ],
+      "areaSqM": 4.324089386332574,
+      "point": [
+        126.88858925534863,
+        37.55207691383573
+      ]
+    },
+    {
+      "codes": [
+        "11440",
+        "41281"
+      ],
+      "areaSqM": 865.1775500403076,
+      "point": [
+        126.87710824722267,
+        37.58358725722818
+      ]
+    },
+    {
+      "codes": [
+        "11470",
+        "11530"
+      ],
+      "areaSqM": 202.51181770539998,
+      "point": [
+        126.87903628346898,
+        37.5175873926413
+      ]
+    },
+    {
+      "codes": [
+        "11470",
+        "11560"
+      ],
+      "areaSqM": 202.9085252522244,
+      "point": [
+        126.88108245710748,
+        37.527765458531135
+      ]
+    },
+    {
+      "codes": [
+        "11470",
+        "41196"
+      ],
+      "areaSqM": 213.66713464011121,
+      "point": [
+        126.82188551384046,
+        37.54021330162797
+      ]
+    },
+    {
+      "codes": [
+        "11470",
+        "11500"
+      ],
+      "areaSqM": 1.3756447387117232,
+      "point": [
+        126.82748866886047,
+        37.547477477997276
+      ]
+    },
+    {
+      "codes": [
+        "11500",
+        "11560"
+      ],
+      "areaSqM": 0.030278044411143457,
+      "point": [
+        126.88069040471197,
+        37.54817403607849
+      ]
+    },
+    {
+      "codes": [
+        "11500",
+        "28245"
+      ],
+      "areaSqM": 8808.152822593907,
+      "point": [
+        126.78101510805845,
+        37.57033984632333
+      ]
+    },
+    {
+      "codes": [
+        "11500",
+        "41196"
+      ],
+      "areaSqM": 194.9508427697521,
+      "point": [
+        126.82144702095906,
+        37.540738526664384
+      ]
+    },
+    {
+      "codes": [
+        "11500",
+        "41281"
+      ],
+      "areaSqM": 823.8738096043076,
+      "point": [
+        126.80430169329892,
+        37.603733820136874
+      ]
+    },
+    {
+      "codes": [
+        "11500",
+        "41570"
+      ],
+      "areaSqM": 244.0393780415549,
+      "point": [
+        126.80038896233673,
+        37.590317242588796
+      ]
+    },
+    {
+      "codes": [
+        "11530",
+        "41210"
+      ],
+      "areaSqM": 262.07765865836933,
+      "point": [
+        126.83293291721644,
+        37.47722207507532
+      ]
+    },
+    {
+      "codes": [
+        "11530",
+        "11545"
+      ],
+      "areaSqM": 17.794927999084134,
+      "point": [
+        126.88532921024533,
+        37.4829427897943
+      ]
+    },
+    {
+      "codes": [
+        "11530",
+        "11620"
+      ],
+      "areaSqM": 0.052019630555062125,
+      "point": [
+        126.89896670982696,
+        37.478944547109215
+      ]
+    },
+    {
+      "codes": [
+        "11530",
+        "41194"
+      ],
+      "areaSqM": 69.09847574678656,
+      "point": [
+        126.82095464001148,
+        37.49061486245949
+      ]
+    },
+    {
+      "codes": [
+        "11530",
+        "11560"
+      ],
+      "areaSqM": 10.722841353935152,
+      "point": [
+        126.87930878435324,
+        37.51791007146781
+      ]
+    },
+    {
+      "codes": [
+        "11530",
+        "41192"
+      ],
+      "areaSqM": 2.0800981861747494,
+      "point": [
+        126.822492105222,
+        37.50604429104393
+      ]
+    },
+    {
+      "codes": [
+        "11530",
+        "41196"
+      ],
+      "areaSqM": 367.2047311810454,
+      "point": [
+        126.8222952757364,
+        37.506971184936724
+      ]
+    },
+    {
+      "codes": [
+        "11545",
+        "41171"
+      ],
+      "areaSqM": 221.67801487735795,
+      "point": [
+        126.92835797311552,
+        37.44975515778195
+      ]
+    },
+    {
+      "codes": [
+        "11545",
+        "41210"
+      ],
+      "areaSqM": 14.977666099895693,
+      "point": [
+        126.89911925252326,
+        37.43955263114849
+      ]
+    },
+    {
+      "codes": [
+        "11545",
+        "11620"
+      ],
+      "areaSqM": 1.8671458637312526,
+      "point": [
+        126.92848318491966,
+        37.45046262447125
+      ]
+    },
+    {
+      "codes": [
+        "11590",
+        "11650"
+      ],
+      "areaSqM": 143.26631556756556,
+      "point": [
+        126.98191678665077,
+        37.48145802786199
+      ]
+    },
+    {
+      "codes": [
+        "11590",
+        "11620"
+      ],
+      "areaSqM": 30.399138855039435,
+      "point": [
+        126.9816869713421,
+        37.47675234946682
+      ]
+    },
+    {
+      "codes": [
+        "11620",
+        "11650"
+      ],
+      "areaSqM": 13.044907264396112,
+      "point": [
+        126.98798221770103,
+        37.45912339234172
+      ]
+    },
+    {
+      "codes": [
+        "11620",
+        "41171"
+      ],
+      "areaSqM": 378.2313492653948,
+      "point": [
+        126.93247482782944,
+        37.44452875306546
+      ]
+    },
+    {
+      "codes": [
+        "11620",
+        "41290"
+      ],
+      "areaSqM": 126.51527071802363,
+      "point": [
+        126.96378070950773,
+        37.44107916182293
+      ]
+    },
+    {
+      "codes": [
+        "11650",
+        "41131"
+      ],
+      "areaSqM": 449.04923965503144,
+      "point": [
+        127.05174782116919,
+        37.428754928402334
+      ]
+    },
+    {
+      "codes": [
+        "11650",
+        "11680"
+      ],
+      "areaSqM": 0.00017297733686891074,
+      "point": [
+        127.10116753634051,
+        37.45853266793344
+      ]
+    },
+    {
+      "codes": [
+        "11650",
+        "41290"
+      ],
+      "areaSqM": 272.43977795565235,
+      "point": [
+        126.98900906838591,
+        37.45831250973067
+      ]
+    },
+    {
+      "codes": [
+        "11680",
+        "41131"
+      ],
+      "areaSqM": 372.95387669513667,
+      "point": [
+        127.12338723903969,
+        37.46608098256116
+      ]
+    },
+    {
+      "codes": [
+        "11680",
+        "11710"
+      ],
+      "areaSqM": 22.52843576944475,
+      "point": [
+        127.1032288040961,
+        37.49285698467256
+      ]
+    },
+    {
+      "codes": [
+        "11710",
+        "41131"
+      ],
+      "areaSqM": 9.040387239749647,
+      "point": [
+        127.12435053508617,
+        37.46658319591926
+      ]
+    },
+    {
+      "codes": [
+        "11710",
+        "41450"
+      ],
+      "areaSqM": 24.613330317403804,
+      "point": [
+        127.14519340042601,
+        37.51671380028571
+      ]
+    },
+    {
+      "codes": [
+        "11710",
+        "11740"
+      ],
+      "areaSqM": 0.015583773125447063,
+      "point": [
+        127.14508301662104,
+        37.516886888022896
+      ]
+    },
+    {
+      "codes": [
+        "11740",
+        "41450"
+      ],
+      "areaSqM": 100.08127027181763,
+      "point": [
+        127.1778518250074,
+        37.57192605211669
+      ]
+    },
+    {
+      "codes": [
+        "11740",
+        "41310"
+      ],
+      "areaSqM": 0.0008874696085317069,
+      "point": [
+        127.11554666607704,
+        37.556876284765764
+      ]
+    },
+    {
+      "codes": [
+        "12110",
+        "12800"
+      ],
+      "areaSqM": 2274.449047823714,
+      "point": [
+        126.45575598924215,
+        34.79312394800818
+      ]
+    },
+    {
+      "codes": [
+        "12110",
+        "12810"
+      ],
+      "areaSqM": 49.80933799005611,
+      "point": [
+        126.4582323937972,
+        34.80835693816172
+      ]
+    },
+    {
+      "codes": [
+        "12130",
+        "12150"
+      ],
+      "areaSqM": 4.698043220419766,
+      "point": [
+        127.54507473597073,
+        34.850425841907025
+      ]
+    },
+    {
+      "codes": [
+        "12130",
+        "12190"
+      ],
+      "areaSqM": 0.11403197141761945,
+      "point": [
+        127.59631528283987,
+        34.89447349342812
+      ]
+    },
+    {
+      "codes": [
+        "12150",
+        "12750"
+      ],
+      "areaSqM": 2.5489609474682293,
+      "point": [
+        127.32793969139955,
+        34.8854323873613
+      ]
+    },
+    {
+      "codes": [
+        "12150",
+        "12760"
+      ],
+      "areaSqM": 0.7262774717096095,
+      "point": [
+        127.18860878415687,
+        35.10822017706355
+      ]
+    },
+    {
+      "codes": [
+        "12150",
+        "12720"
+      ],
+      "areaSqM": 4.511401146483497,
+      "point": [
+        127.39243095501264,
+        35.127420234484106
+      ]
+    },
+    {
+      "codes": [
+        "12150",
+        "12190"
+      ],
+      "areaSqM": 3.804709437013872,
+      "point": [
+        127.56422644488751,
+        35.00023457435922
+      ]
+    },
+    {
+      "codes": [
+        "12150",
+        "12730"
+      ],
+      "areaSqM": 3.1470965212152344,
+      "point": [
+        127.44059334605075,
+        35.17284733102697
+      ]
+    },
+    {
+      "codes": [
+        "12170",
+        "12800"
+      ],
+      "areaSqM": 12.827782440493655,
+      "point": [
+        126.6345159693824,
+        34.89859151367112
+      ]
+    },
+    {
+      "codes": [
+        "12170",
+        "12810"
+      ],
+      "areaSqM": 0.39808862025842856,
+      "point": [
+        126.52929539894825,
+        34.92606735507705
+      ]
+    },
+    {
+      "codes": [
+        "12170",
+        "12270"
+      ],
+      "areaSqM": 167.93560164556757,
+      "point": [
+        126.80251298861607,
+        35.05568456594915
+      ]
+    },
+    {
+      "codes": [
+        "12170",
+        "12820"
+      ],
+      "areaSqM": 3.8409864218856358,
+      "point": [
+        126.59511726692884,
+        34.995411164974435
+      ]
+    },
+    {
+      "codes": [
+        "12170",
+        "12330"
+      ],
+      "areaSqM": 1.445413066071037,
+      "point": [
+        126.73061896576421,
+        35.107730259272856
+      ]
+    },
+    {
+      "codes": [
+        "12190",
+        "48850"
+      ],
+      "areaSqM": 68251.56369246796,
+      "point": [
+        127.77047946884285,
+        34.980515273278684
+      ]
+    },
+    {
+      "codes": [
+        "12190",
+        "12730"
+      ],
+      "areaSqM": 1.2014621502886849,
+      "point": [
+        127.62137109658624,
+        35.18089904718578
+      ]
+    },
+    {
+      "codes": [
+        "12210",
+        "12760"
+      ],
+      "areaSqM": 144.49178008871556,
+      "point": [
+        126.9357426036746,
+        35.074449573095926
+      ]
+    },
+    {
+      "codes": [
+        "12210",
+        "12270"
+      ],
+      "areaSqM": 0.02514828033433881,
+      "point": [
+        126.9296183527551,
+        35.126427803054334
+      ]
+    },
+    {
+      "codes": [
+        "12210",
+        "12300"
+      ],
+      "areaSqM": 0.35106972880838916,
+      "point": [
+        126.994857355814,
+        35.12342037958339
+      ]
+    },
+    {
+      "codes": [
+        "12240",
+        "12270"
+      ],
+      "areaSqM": 0.08036615364800359,
+      "point": [
+        126.89620526653647,
+        35.152073746438596
+      ]
+    },
+    {
+      "codes": [
+        "12240",
+        "12300"
+      ],
+      "areaSqM": 0.00739103665207565,
+      "point": [
+        126.88416537048674,
+        35.16971729849549
+      ]
+    },
+    {
+      "codes": [
+        "12240",
+        "12330"
+      ],
+      "areaSqM": 8.917148317064793,
+      "point": [
+        126.80940635348152,
+        35.115626986463994
+      ]
+    },
+    {
+      "codes": [
+        "12270",
+        "12760"
+      ],
+      "areaSqM": 39.47778366629856,
+      "point": [
+        126.90033388220688,
+        35.080818674865945
+      ]
+    },
+    {
+      "codes": [
+        "12270",
+        "12330"
+      ],
+      "areaSqM": 0.6852625118402602,
+      "point": [
+        126.78998832069114,
+        35.08003934673546
+      ]
+    },
+    {
+      "codes": [
+        "12300",
+        "12760"
+      ],
+      "areaSqM": 34.68156955794327,
+      "point": [
+        127.01175611546645,
+        35.12736786481042
+      ]
+    },
+    {
+      "codes": [
+        "12300",
+        "12710"
+      ],
+      "areaSqM": 420.4825346738084,
+      "point": [
+        126.90951824835238,
+        35.25844289087132
+      ]
+    },
+    {
+      "codes": [
+        "12300",
+        "12330"
+      ],
+      "areaSqM": 14.270629086236445,
+      "point": [
+        126.85312384756055,
+        35.21796738456995
+      ]
+    },
+    {
+      "codes": [
+        "12300",
+        "12840"
+      ],
+      "areaSqM": 15.544446668702896,
+      "point": [
+        126.8538366035073,
+        35.238473688921815
+      ]
+    },
+    {
+      "codes": [
+        "12330",
+        "12820"
+      ],
+      "areaSqM": 0.13576752862008107,
+      "point": [
+        126.64747985749871,
+        35.1440982122813
+      ]
+    },
+    {
+      "codes": [
+        "12330",
+        "12840"
+      ],
+      "areaSqM": 4.706537105497889,
+      "point": [
+        126.77470812001232,
+        35.23047190766668
+      ]
+    },
+    {
+      "codes": [
+        "12710",
+        "12760"
+      ],
+      "areaSqM": 0.004943905254215497,
+      "point": [
+        127.0802638761463,
+        35.119829563676575
+      ]
+    },
+    {
+      "codes": [
+        "12710",
+        "12720"
+      ],
+      "areaSqM": 4.550274944769362,
+      "point": [
+        127.10038117994648,
+        35.21280866900727
+      ]
+    },
+    {
+      "codes": [
+        "12710",
+        "52770"
+      ],
+      "areaSqM": 1039709.1349080851,
+      "point": [
+        126.96717625776998,
+        35.396042695783954
+      ]
+    },
+    {
+      "codes": [
+        "12710",
+        "12840"
+      ],
+      "areaSqM": 4.500332089477755,
+      "point": [
+        126.87599403180944,
+        35.32269462780983
+      ]
+    },
+    {
+      "codes": [
+        "12720",
+        "12760"
+      ],
+      "areaSqM": 0.04845099453589796,
+      "point": [
+        127.19114407953793,
+        35.206234484334274
+      ]
+    },
+    {
+      "codes": [
+        "12720",
+        "52770"
+      ],
+      "areaSqM": 29525.814088055653,
+      "point": [
+        127.17914272234903,
+        35.332932846385205
+      ]
+    },
+    {
+      "codes": [
+        "12720",
+        "12730"
+      ],
+      "areaSqM": 0.0011039832838974917,
+      "point": [
+        127.38559919113594,
+        35.279100931962034
+      ]
+    },
+    {
+      "codes": [
+        "12720",
+        "52190"
+      ],
+      "areaSqM": 9723.909175243432,
+      "point": [
+        127.26689422248563,
+        35.31361690801764
+      ]
+    },
+    {
+      "codes": [
+        "12730",
+        "48850"
+      ],
+      "areaSqM": 108457.01991060816,
+      "point": [
+        127.59689199629351,
+        35.267527262460675
+      ]
+    },
+    {
+      "codes": [
+        "12730",
+        "52190"
+      ],
+      "areaSqM": 4614.59113594086,
+      "point": [
+        127.44723149083228,
+        35.36146944242699
+      ]
+    },
+    {
+      "codes": [
+        "12740",
+        "12750"
+      ],
+      "areaSqM": 5.969478425408029,
+      "point": [
+        127.33963109851041,
+        34.82656377167577
+      ]
+    },
+    {
+      "codes": [
+        "12750",
+        "12760"
+      ],
+      "areaSqM": 0.9205889614424447,
+      "point": [
+        127.06983974743426,
+        34.86541748156753
+      ]
+    },
+    {
+      "codes": [
+        "12750",
+        "12770"
+      ],
+      "areaSqM": 0.47150130678366714,
+      "point": [
+        127.02084884651316,
+        34.8119590323559
+      ]
+    },
+    {
+      "codes": [
+        "12760",
+        "12800"
+      ],
+      "areaSqM": 0.009959558299690576,
+      "point": [
+        126.82394316604513,
+        34.871048140307536
+      ]
+    },
+    {
+      "codes": [
+        "12760",
+        "12770"
+      ],
+      "areaSqM": 0.17943442950084404,
+      "point": [
+        126.93743512680432,
+        34.829010979492104
+      ]
+    },
+    {
+      "codes": [
+        "12770",
+        "12780"
+      ],
+      "areaSqM": 0.1074039403832357,
+      "point": [
+        126.86766238677875,
+        34.66650867904012
+      ]
+    },
+    {
+      "codes": [
+        "12770",
+        "12800"
+      ],
+      "areaSqM": 8.890024458904579e-06,
+      "point": [
+        126.85816828893539,
+        34.86217929082246
+      ]
+    },
+    {
+      "codes": [
+        "12780",
+        "12790"
+      ],
+      "areaSqM": 0.2981448553493114,
+      "point": [
+        126.69398060289815,
+        34.56488633805956
+      ]
+    },
+    {
+      "codes": [
+        "12780",
+        "12800"
+      ],
+      "areaSqM": 2.395863175337924,
+      "point": [
+        126.68111182773022,
+        34.71274545627144
+      ]
+    },
+    {
+      "codes": [
+        "12790",
+        "12800"
+      ],
+      "areaSqM": 1087120.348404711,
+      "point": [
+        126.51081135942896,
+        34.678539159275395
+      ]
+    },
+    {
+      "codes": [
+        "12800",
+        "12810"
+      ],
+      "areaSqM": 218.03547093991412,
+      "point": [
+        126.46019828378292,
+        34.79289107828641
+      ]
+    },
+    {
+      "codes": [
+        "12810",
+        "12820"
+      ],
+      "areaSqM": 2.16097760688443,
+      "point": [
+        126.49199938302485,
+        35.000374267564915
+      ]
+    },
+    {
+      "codes": [
+        "12820",
+        "12830"
+      ],
+      "areaSqM": 2.4193274067828585,
+      "point": [
+        126.50529087022538,
+        35.18487239856262
+      ]
+    },
+    {
+      "codes": [
+        "12820",
+        "12840"
+      ],
+      "areaSqM": 3.885815353573218,
+      "point": [
+        126.60648951693616,
+        35.23288997120834
+      ]
+    },
+    {
+      "codes": [
+        "12830",
+        "12840"
+      ],
+      "areaSqM": 3.3539291068406794,
+      "point": [
+        126.60776202698366,
+        35.269898375832774
+      ]
+    },
+    {
+      "codes": [
+        "12830",
+        "52790"
+      ],
+      "areaSqM": 94820.12897291653,
+      "point": [
+        126.62079880607806,
+        35.324069280165865
+      ]
+    },
+    {
+      "codes": [
+        "12840",
+        "52770"
+      ],
+      "areaSqM": 155604.65763212612,
+      "point": [
+        126.90365759359702,
+        35.428423130044095
+      ]
+    },
+    {
+      "codes": [
+        "12840",
+        "52180"
+      ],
+      "areaSqM": 3110.2779635825864,
+      "point": [
+        126.79931400428318,
+        35.46813566136664
+      ]
+    },
+    {
+      "codes": [
+        "12840",
+        "52790"
+      ],
+      "areaSqM": 652082.1294736774,
+      "point": [
+        126.64706957419699,
+        35.32948538667396
+      ]
+    },
+    {
+      "codes": [
+        "12860",
+        "12870"
+      ],
+      "areaSqM": 4074.545072798691,
+      "point": [
+        126.21258589627614,
+        34.55747728707976
+      ]
+    },
+    {
+      "codes": [
+        "26110",
+        "26140"
+      ],
+      "areaSqM": 995.6983350606985,
+      "point": [
+        129.02299934214733,
+        35.10089751965414
+      ]
+    },
+    {
+      "codes": [
+        "26110",
+        "26170"
+      ],
+      "areaSqM": 193.1941232230915,
+      "point": [
+        129.02722625373576,
+        35.1155941723159
+      ]
+    },
+    {
+      "codes": [
+        "26140",
+        "26380"
+      ],
+      "areaSqM": 0.00012541776965946383,
+      "point": [
+        128.99982373097345,
+        35.12096359492735
+      ]
+    },
+    {
+      "codes": [
+        "26140",
+        "26170"
+      ],
+      "areaSqM": 15.331134480056733,
+      "point": [
+        129.02563974677557,
+        35.13511713823026
+      ]
+    },
+    {
+      "codes": [
+        "26140",
+        "26530"
+      ],
+      "areaSqM": 243.04972817823432,
+      "point": [
+        129.01137348414957,
+        35.138160821777554
+      ]
+    },
+    {
+      "codes": [
+        "26140",
+        "26230"
+      ],
+      "areaSqM": 757.546169189892,
+      "point": [
+        129.0240063384063,
+        35.13624669234597
+      ]
+    },
+    {
+      "codes": [
+        "26170",
+        "26290"
+      ],
+      "areaSqM": 147.8487146939272,
+      "point": [
+        129.06514378816476,
+        35.14053817738209
+      ]
+    },
+    {
+      "codes": [
+        "26170",
+        "26230"
+      ],
+      "areaSqM": 0.0009129885514768354,
+      "point": [
+        129.06453816858684,
+        35.14141544792041
+      ]
+    },
+    {
+      "codes": [
+        "26230",
+        "26290"
+      ],
+      "areaSqM": 288.34348460824197,
+      "point": [
+        129.08237275687054,
+        35.15770021000668
+      ]
+    },
+    {
+      "codes": [
+        "26230",
+        "26530"
+      ],
+      "areaSqM": 27.535406711076178,
+      "point": [
+        129.02150912192164,
+        35.18780878011027
+      ]
+    },
+    {
+      "codes": [
+        "26230",
+        "26470"
+      ],
+      "areaSqM": 5.323999115190042,
+      "point": [
+        129.08179063795654,
+        35.171972913065595
+      ]
+    },
+    {
+      "codes": [
+        "26260",
+        "26470"
+      ],
+      "areaSqM": 46.68875446952754,
+      "point": [
+        129.06185843576094,
+        35.19180779303293
+      ]
+    },
+    {
+      "codes": [
+        "26260",
+        "26350"
+      ],
+      "areaSqM": 68.5085520559785,
+      "point": [
+        129.11449351139981,
+        35.19591772538201
+      ]
+    },
+    {
+      "codes": [
+        "26260",
+        "26320"
+      ],
+      "areaSqM": 42.73728937937676,
+      "point": [
+        129.06119166799522,
+        35.22554119575536
+      ]
+    },
+    {
+      "codes": [
+        "26260",
+        "26410"
+      ],
+      "areaSqM": 132.40773023182686,
+      "point": [
+        129.11006391367084,
+        35.21016520634993
+      ]
+    },
+    {
+      "codes": [
+        "26290",
+        "26500"
+      ],
+      "areaSqM": 5.994715216676986e-06,
+      "point": [
+        129.0949191684344,
+        35.1621589957193
+      ]
+    },
+    {
+      "codes": [
+        "26320",
+        "26530"
+      ],
+      "areaSqM": 541.2364122551627,
+      "point": [
+        129.01367871101388,
+        35.18888660483863
+      ]
+    },
+    {
+      "codes": [
+        "26320",
+        "26410"
+      ],
+      "areaSqM": 41.05230929837768,
+      "point": [
+        129.04721440399237,
+        35.27382420808273
+      ]
+    },
+    {
+      "codes": [
+        "26320",
+        "48250"
+      ],
+      "areaSqM": 11.55127011730091,
+      "point": [
+        128.99787043896708,
+        35.237167177588624
+      ]
+    },
+    {
+      "codes": [
+        "26320",
+        "48330"
+      ],
+      "areaSqM": 109.4462842830948,
+      "point": [
+        129.03261296382576,
+        35.27650588742514
+      ]
+    },
+    {
+      "codes": [
+        "26350",
+        "26500"
+      ],
+      "areaSqM": 12.618055287516409,
+      "point": [
+        129.11605685041636,
+        35.185130453917274
+      ]
+    },
+    {
+      "codes": [
+        "26350",
+        "26710"
+      ],
+      "areaSqM": 210.0748363881302,
+      "point": [
+        129.1458391327312,
+        35.25016732204287
+      ]
+    },
+    {
+      "codes": [
+        "26380",
+        "26530"
+      ],
+      "areaSqM": 38.08604052258103,
+      "point": [
+        128.96141790554532,
+        35.133087599365766
+      ]
+    },
+    {
+      "codes": [
+        "26410",
+        "26710"
+      ],
+      "areaSqM": 16.405070072312782,
+      "point": [
+        129.1445803513381,
+        35.250931874587394
+      ]
+    },
+    {
+      "codes": [
+        "26410",
+        "48330"
+      ],
+      "areaSqM": 28.819963371897817,
+      "point": [
+        129.0477050755449,
+        35.27441580904844
+      ]
+    },
+    {
+      "codes": [
+        "26440",
+        "48129"
+      ],
+      "areaSqM": 106.22487464041059,
+      "point": [
+        128.83801169343175,
+        35.122931492202085
+      ]
+    },
+    {
+      "codes": [
+        "26440",
+        "26530"
+      ],
+      "areaSqM": 1784.9438578153859,
+      "point": [
+        128.98395862315547,
+        35.19834936765896
+      ]
+    },
+    {
+      "codes": [
+        "26440",
+        "48250"
+      ],
+      "areaSqM": 536.2206747810817,
+      "point": [
+        128.79408987185627,
+        35.157862864884365
+      ]
+    },
+    {
+      "codes": [
+        "26470",
+        "26500"
+      ],
+      "areaSqM": 3.833375035355857e-05,
+      "point": [
+        129.09432389263003,
+        35.16208430146049
+      ]
+    },
+    {
+      "codes": [
+        "27110",
+        "27290"
+      ],
+      "areaSqM": 44.16004229088247,
+      "point": [
+        128.57424579887703,
+        35.86150095674452
+      ]
+    },
+    {
+      "codes": [
+        "27110",
+        "27260"
+      ],
+      "areaSqM": 107.38606933638557,
+      "point": [
+        128.61417592247952,
+        35.86690917312764
+      ]
+    },
+    {
+      "codes": [
+        "27110",
+        "27170"
+      ],
+      "areaSqM": 71.2307324515255,
+      "point": [
+        128.57862005936965,
+        35.87544558982716
+      ]
+    },
+    {
+      "codes": [
+        "27110",
+        "27230"
+      ],
+      "areaSqM": 265.13811673425187,
+      "point": [
+        128.6035824722488,
+        35.87385115996312
+      ]
+    },
+    {
+      "codes": [
+        "27140",
+        "27260"
+      ],
+      "areaSqM": 250.4773712208208,
+      "point": [
+        128.65040853578014,
+        35.878691096259594
+      ]
+    },
+    {
+      "codes": [
+        "27140",
+        "47290"
+      ],
+      "areaSqM": 20.559200874774053,
+      "point": [
+        128.73479486333036,
+        35.85183783580777
+      ]
+    },
+    {
+      "codes": [
+        "27140",
+        "27230"
+      ],
+      "areaSqM": 889.8837605346636,
+      "point": [
+        128.61838686208029,
+        35.97674857141227
+      ]
+    },
+    {
+      "codes": [
+        "27140",
+        "47850"
+      ],
+      "areaSqM": 2.197326711045889,
+      "point": [
+        128.64065949037322,
+        36.01043070321304
+      ]
+    },
+    {
+      "codes": [
+        "27140",
+        "27720"
+      ],
+      "areaSqM": 82.4362175973495,
+      "point": [
+        128.641503016828,
+        36.01036063187041
+      ]
+    },
+    {
+      "codes": [
+        "27170",
+        "27710"
+      ],
+      "areaSqM": 15.78853248019749,
+      "point": [
+        128.52592899745682,
+        35.88775219030429
+      ]
+    },
+    {
+      "codes": [
+        "27170",
+        "27230"
+      ],
+      "areaSqM": 1460.2861098441713,
+      "point": [
+        128.55813046740036,
+        35.88996343050057
+      ]
+    },
+    {
+      "codes": [
+        "27200",
+        "27290"
+      ],
+      "areaSqM": 97.17447592670638,
+      "point": [
+        128.5744139256419,
+        35.85937731228977
+      ]
+    },
+    {
+      "codes": [
+        "27200",
+        "27260"
+      ],
+      "areaSqM": 187.6825258397971,
+      "point": [
+        128.6087882847846,
+        35.85397371744931
+      ]
+    },
+    {
+      "codes": [
+        "27230",
+        "47850"
+      ],
+      "areaSqM": 78.3290280099474,
+      "point": [
+        128.55639199504216,
+        35.970796480649184
+      ]
+    },
+    {
+      "codes": [
+        "27290",
+        "27710"
+      ],
+      "areaSqM": 820.4288576241989,
+      "point": [
+        128.4837310812259,
+        35.83121983205071
+      ]
+    },
+    {
+      "codes": [
+        "27710",
+        "48740"
+      ],
+      "areaSqM": 607.7721031537006,
+      "point": [
+        128.4227546497966,
+        35.62556333210166
+      ]
+    },
+    {
+      "codes": [
+        "27710",
+        "47840"
+      ],
+      "areaSqM": 119.99897899512041,
+      "point": [
+        128.3957364868778,
+        35.872295200096175
+      ]
+    },
+    {
+      "codes": [
+        "27710",
+        "47850"
+      ],
+      "areaSqM": 166.9385673441833,
+      "point": [
+        128.42470964430265,
+        35.923486699369136
+      ]
+    },
+    {
+      "codes": [
+        "27720",
+        "47230"
+      ],
+      "areaSqM": 94.54685025216592,
+      "point": [
+        128.70684562596358,
+        36.060550728726575
+      ]
+    },
+    {
+      "codes": [
+        "27720",
+        "47730"
+      ],
+      "areaSqM": 10.215273480353739,
+      "point": [
+        128.58105158222318,
+        36.27941403598546
+      ]
+    },
+    {
+      "codes": [
+        "28125",
+        "28177"
+      ],
+      "areaSqM": 477.13288425716485,
+      "point": [
+        126.66117804538105,
+        37.48149679640505
+      ]
+    },
+    {
+      "codes": [
+        "28125",
+        "28275"
+      ],
+      "areaSqM": 2.5330115191965565,
+      "point": [
+        126.67439951140031,
+        37.47622880512403
+      ]
+    },
+    {
+      "codes": [
+        "28177",
+        "28185"
+      ],
+      "areaSqM": 0.21362055471161778,
+      "point": [
+        126.63717507771828,
+        37.43056124697509
+      ]
+    },
+    {
+      "codes": [
+        "28177",
+        "28200"
+      ],
+      "areaSqM": 6.114853241288716,
+      "point": [
+        126.69296824071832,
+        37.449844513013396
+      ]
+    },
+    {
+      "codes": [
+        "28177",
+        "28275"
+      ],
+      "areaSqM": 0.16458649916220416,
+      "point": [
+        126.68174129741575,
+        37.47367444061845
+      ]
+    },
+    {
+      "codes": [
+        "28185",
+        "28200"
+      ],
+      "areaSqM": 0.7298089445726694,
+      "point": [
+        126.7055860673074,
+        37.42858279394214
+      ]
+    },
+    {
+      "codes": [
+        "28200",
+        "41390"
+      ],
+      "areaSqM": 5405.372917456572,
+      "point": [
+        126.77865822037376,
+        37.451043043765935
+      ]
+    },
+    {
+      "codes": [
+        "28200",
+        "41194"
+      ],
+      "areaSqM": 14.329499577019352,
+      "point": [
+        126.77796564434084,
+        37.471842537383026
+      ]
+    },
+    {
+      "codes": [
+        "28200",
+        "28237"
+      ],
+      "areaSqM": 8.297783927952068,
+      "point": [
+        126.71530160687075,
+        37.47627554661941
+      ]
+    },
+    {
+      "codes": [
+        "28200",
+        "28275"
+      ],
+      "areaSqM": 0.001750136267899785,
+      "point": [
+        126.68811973280555,
+        37.47104230675718
+      ]
+    },
+    {
+      "codes": [
+        "28237",
+        "41194"
+      ],
+      "areaSqM": 2586.8422283564655,
+      "point": [
+        126.74858761886962,
+        37.48521534384722
+      ]
+    },
+    {
+      "codes": [
+        "28237",
+        "41192"
+      ],
+      "areaSqM": 3333.1634122526275,
+      "point": [
+        126.75266717048055,
+        37.51618288274023
+      ]
+    },
+    {
+      "codes": [
+        "28237",
+        "28275"
+      ],
+      "areaSqM": 3.026381076699384e-06,
+      "point": [
+        126.69280861043728,
+        37.495212312357005
+      ]
+    },
+    {
+      "codes": [
+        "28237",
+        "41196"
+      ],
+      "areaSqM": 0.14983740387808017,
+      "point": [
+        126.76060616780312,
+        37.51976021158363
+      ]
+    },
+    {
+      "codes": [
+        "28245",
+        "28275"
+      ],
+      "areaSqM": 4.708835780415314e-06,
+      "point": [
+        126.69926878969316,
+        37.567622917370485
+      ]
+    },
+    {
+      "codes": [
+        "28245",
+        "28290"
+      ],
+      "areaSqM": 0.031051037055166222,
+      "point": [
+        126.68752180773976,
+        37.58346651605328
+      ]
+    },
+    {
+      "codes": [
+        "28245",
+        "41196"
+      ],
+      "areaSqM": 2640.5387974025775,
+      "point": [
+        126.76210574247116,
+        37.54065313399256
+      ]
+    },
+    {
+      "codes": [
+        "28245",
+        "41570"
+      ],
+      "areaSqM": 2050.0201492759493,
+      "point": [
+        126.7264495241601,
+        37.591891397280364
+      ]
+    },
+    {
+      "codes": [
+        "28290",
+        "41570"
+      ],
+      "areaSqM": 14372.286573131196,
+      "point": [
+        126.65682065941013,
+        37.637955873270194
+      ]
+    },
+    {
+      "codes": [
+        "30110",
+        "44710"
+      ],
+      "areaSqM": 351.7932141397697,
+      "point": [
+        127.49200017197838,
+        36.23743819387623
+      ]
+    },
+    {
+      "codes": [
+        "30110",
+        "30140"
+      ],
+      "areaSqM": 590.0310771593099,
+      "point": [
+        127.41529027165338,
+        36.340640642183175
+      ]
+    },
+    {
+      "codes": [
+        "30110",
+        "30230"
+      ],
+      "areaSqM": 3.5515322753061582,
+      "point": [
+        127.41486385050071,
+        36.341130465727055
+      ]
+    },
+    {
+      "codes": [
+        "30110",
+        "43720"
+      ],
+      "areaSqM": 16.24203924371618,
+      "point": [
+        127.55527460110363,
+        36.3955051990146
+      ]
+    },
+    {
+      "codes": [
+        "30110",
+        "43111"
+      ],
+      "areaSqM": 711.9505677609488,
+      "point": [
+        127.5120294393928,
+        36.4135673001587
+      ]
+    },
+    {
+      "codes": [
+        "30140",
+        "44710"
+      ],
+      "areaSqM": 154.36981874394758,
+      "point": [
+        127.42206006842883,
+        36.20812249284805
+      ]
+    },
+    {
+      "codes": [
+        "30140",
+        "30170"
+      ],
+      "areaSqM": 807.8882126125594,
+      "point": [
+        127.36890863110307,
+        36.28310100022557
+      ]
+    },
+    {
+      "codes": [
+        "30140",
+        "30230"
+      ],
+      "areaSqM": 720.0581261372561,
+      "point": [
+        127.41357160604115,
+        36.342288208212786
+      ]
+    },
+    {
+      "codes": [
+        "30170",
+        "44710"
+      ],
+      "areaSqM": 59.50943417595666,
+      "point": [
+        127.37230203477816,
+        36.27208817348091
+      ]
+    },
+    {
+      "codes": [
+        "30170",
+        "30200"
+      ],
+      "areaSqM": 1760.8257502159752,
+      "point": [
+        127.33136650450557,
+        36.30158513843507
+      ]
+    },
+    {
+      "codes": [
+        "30170",
+        "30230"
+      ],
+      "areaSqM": 241.7321408802307,
+      "point": [
+        127.39740014477108,
+        36.364368998072
+      ]
+    },
+    {
+      "codes": [
+        "30200",
+        "44250"
+      ],
+      "areaSqM": 1438.7162458348093,
+      "point": [
+        127.27217088639395,
+        36.270077184735214
+      ]
+    },
+    {
+      "codes": [
+        "30200",
+        "36110"
+      ],
+      "areaSqM": 469.88176584504515,
+      "point": [
+        127.38212383185353,
+        36.499884927292136
+      ]
+    },
+    {
+      "codes": [
+        "30200",
+        "30230"
+      ],
+      "areaSqM": 1177.1266935985225,
+      "point": [
+        127.39896810821038,
+        36.37415466002256
+      ]
+    },
+    {
+      "codes": [
+        "30230",
+        "43112"
+      ],
+      "areaSqM": 477.25298360611396,
+      "point": [
+        127.44356204416076,
+        36.450683935283806
+      ]
+    },
+    {
+      "codes": [
+        "30230",
+        "43111"
+      ],
+      "areaSqM": 1646.060558463531,
+      "point": [
+        127.48972798901988,
+        36.453123908696945
+      ]
+    },
+    {
+      "codes": [
+        "31110",
+        "31140"
+      ],
+      "areaSqM": 154.03811657034913,
+      "point": [
+        129.3405831084477,
+        35.549061244267754
+      ]
+    },
+    {
+      "codes": [
+        "31110",
+        "31710"
+      ],
+      "areaSqM": 2.5644679483538613,
+      "point": [
+        129.26549253369714,
+        35.557161132404566
+      ]
+    },
+    {
+      "codes": [
+        "31110",
+        "31200"
+      ],
+      "areaSqM": 380.87857795735795,
+      "point": [
+        129.33132843150705,
+        35.599085328263605
+      ]
+    },
+    {
+      "codes": [
+        "31140",
+        "31710"
+      ],
+      "areaSqM": 143.9045200741748,
+      "point": [
+        129.31134182654512,
+        35.49253489748584
+      ]
+    },
+    {
+      "codes": [
+        "31140",
+        "31200"
+      ],
+      "areaSqM": 190.24166323285903,
+      "point": [
+        129.348876776967,
+        35.54891764905535
+      ]
+    },
+    {
+      "codes": [
+        "31170",
+        "31200"
+      ],
+      "areaSqM": 688.584441905882,
+      "point": [
+        129.39525548791948,
+        35.52183170871236
+      ]
+    },
+    {
+      "codes": [
+        "31200",
+        "31710"
+      ],
+      "areaSqM": 176.6555833676322,
+      "point": [
+        129.29843860682885,
+        35.61653273743475
+      ]
+    },
+    {
+      "codes": [
+        "31200",
+        "47130"
+      ],
+      "areaSqM": 183.75741474000586,
+      "point": [
+        129.34950439209584,
+        35.67761765712622
+      ]
+    },
+    {
+      "codes": [
+        "31710",
+        "48330"
+      ],
+      "areaSqM": 18.451452667935094,
+      "point": [
+        129.01715137891253,
+        35.52370454467342
+      ]
+    },
+    {
+      "codes": [
+        "31710",
+        "47130"
+      ],
+      "areaSqM": 43.80799586738443,
+      "point": [
+        129.07989033583294,
+        35.69455767089535
+      ]
+    },
+    {
+      "codes": [
+        "36110",
+        "44150"
+      ],
+      "areaSqM": 668.3596479150452,
+      "point": [
+        127.27669137462439,
+        36.413884229229716
+      ]
+    },
+    {
+      "codes": [
+        "36110",
+        "44131"
+      ],
+      "areaSqM": 169.79493164934945,
+      "point": [
+        127.16831169201737,
+        36.73314710914772
+      ]
+    },
+    {
+      "codes": [
+        "36110",
+        "43112"
+      ],
+      "areaSqM": 351.2339051094855,
+      "point": [
+        127.3776253258605,
+        36.56264451410791
+      ]
+    },
+    {
+      "codes": [
+        "36110",
+        "43113"
+      ],
+      "areaSqM": 373.775831015453,
+      "point": [
+        127.30085850661104,
+        36.585645104048986
+      ]
+    },
+    {
+      "codes": [
+        "41111",
+        "41117"
+      ],
+      "areaSqM": 205.62985984996035,
+      "point": [
+        127.03912441436222,
+        37.320645528188685
+      ]
+    },
+    {
+      "codes": [
+        "41111",
+        "41113"
+      ],
+      "areaSqM": 320.5461903158747,
+      "point": [
+        126.96809648874255,
+        37.29373965836373
+      ]
+    },
+    {
+      "codes": [
+        "41111",
+        "41115"
+      ],
+      "areaSqM": 247.95612001798625,
+      "point": [
+        127.02781174795408,
+        37.291680674598
+      ]
+    },
+    {
+      "codes": [
+        "41111",
+        "41430"
+      ],
+      "areaSqM": 40.91697023003344,
+      "point": [
+        126.9606075126187,
+        37.30228974395866
+      ]
+    },
+    {
+      "codes": [
+        "41113",
+        "41595"
+      ],
+      "areaSqM": 14813.359218999325,
+      "point": [
+        127.01219315220945,
+        37.22640109606192
+      ]
+    },
+    {
+      "codes": [
+        "41113",
+        "41117"
+      ],
+      "areaSqM": 306.3078592951732,
+      "point": [
+        127.03782562655068,
+        37.24063583689472
+      ]
+    },
+    {
+      "codes": [
+        "41113",
+        "41593"
+      ],
+      "areaSqM": 8825.107889582467,
+      "point": [
+        126.92910715190003,
+        37.27058435402494
+      ]
+    },
+    {
+      "codes": [
+        "41113",
+        "41115"
+      ],
+      "areaSqM": 1095.4460826988302,
+      "point": [
+        126.9855233759551,
+        37.28274573797714
+      ]
+    },
+    {
+      "codes": [
+        "41113",
+        "41430"
+      ],
+      "areaSqM": 440.01704206680904,
+      "point": [
+        126.95706209376472,
+        37.302235093557876
+      ]
+    },
+    {
+      "codes": [
+        "41115",
+        "41117"
+      ],
+      "areaSqM": 31.82859163753519,
+      "point": [
+        127.04106912831385,
+        37.29101442959164
+      ]
+    },
+    {
+      "codes": [
+        "41117",
+        "41595"
+      ],
+      "areaSqM": 12543.216442161744,
+      "point": [
+        127.06564363912324,
+        37.24017055148082
+      ]
+    },
+    {
+      "codes": [
+        "41117",
+        "41463"
+      ],
+      "areaSqM": 951.9380731176483,
+      "point": [
+        127.07133675049478,
+        37.24656666958021
+      ]
+    },
+    {
+      "codes": [
+        "41117",
+        "41465"
+      ],
+      "areaSqM": 140.67875377059812,
+      "point": [
+        127.04007890681076,
+        37.3208678240476
+      ]
+    },
+    {
+      "codes": [
+        "41131",
+        "41430"
+      ],
+      "areaSqM": 202.48861016286233,
+      "point": [
+        127.04330699644468,
+        37.404253079443734
+      ]
+    },
+    {
+      "codes": [
+        "41131",
+        "41135"
+      ],
+      "areaSqM": 615.2466840060657,
+      "point": [
+        127.06454992484429,
+        37.39862462325987
+      ]
+    },
+    {
+      "codes": [
+        "41131",
+        "41133"
+      ],
+      "areaSqM": 361.8279235977476,
+      "point": [
+        127.1185604287798,
+        37.42135845257547
+      ]
+    },
+    {
+      "codes": [
+        "41131",
+        "41450"
+      ],
+      "areaSqM": 1814.2291777129772,
+      "point": [
+        127.1511190640829,
+        37.473660272428795
+      ]
+    },
+    {
+      "codes": [
+        "41133",
+        "41135"
+      ],
+      "areaSqM": 193.0112972228601,
+      "point": [
+        127.1317316049871,
+        37.41721071092608
+      ]
+    },
+    {
+      "codes": [
+        "41135",
+        "41430"
+      ],
+      "areaSqM": 430.4192186623725,
+      "point": [
+        127.02795782100783,
+        37.374859204785174
+      ]
+    },
+    {
+      "codes": [
+        "41135",
+        "41465"
+      ],
+      "areaSqM": 281.0483597916144,
+      "point": [
+        127.12469844212413,
+        37.336826654743
+      ]
+    },
+    {
+      "codes": [
+        "41135",
+        "41610"
+      ],
+      "areaSqM": 41.00628761906168,
+      "point": [
+        127.13364669412903,
+        37.348173048889045
+      ]
+    },
+    {
+      "codes": [
+        "41150",
+        "41650"
+      ],
+      "areaSqM": 1515.462988501831,
+      "point": [
+        127.11752214826123,
+        37.772705700971095
+      ]
+    },
+    {
+      "codes": [
+        "41150",
+        "41630"
+      ],
+      "areaSqM": 8061.099932630725,
+      "point": [
+        127.04456548508006,
+        37.764540067719665
+      ]
+    },
+    {
+      "codes": [
+        "41171",
+        "41390"
+      ],
+      "areaSqM": 113.66412630059637,
+      "point": [
+        126.87788686439376,
+        37.38726978971197
+      ]
+    },
+    {
+      "codes": [
+        "41171",
+        "41271"
+      ],
+      "areaSqM": 12.19108350745859,
+      "point": [
+        126.89544068973375,
+        37.36035408757954
+      ]
+    },
+    {
+      "codes": [
+        "41171",
+        "41410"
+      ],
+      "areaSqM": 23.911703761868324,
+      "point": [
+        126.9418079776796,
+        37.37857957528173
+      ]
+    },
+    {
+      "codes": [
+        "41171",
+        "41173"
+      ],
+      "areaSqM": 125.81195858410054,
+      "point": [
+        126.94143560431965,
+        37.37897368120948
+      ]
+    },
+    {
+      "codes": [
+        "41171",
+        "41210"
+      ],
+      "areaSqM": 87.75426821801551,
+      "point": [
+        126.8938925046814,
+        37.42049192900872
+      ]
+    },
+    {
+      "codes": [
+        "41173",
+        "41410"
+      ],
+      "areaSqM": 468.86710705763926,
+      "point": [
+        126.94244700391495,
+        37.378440582705196
+      ]
+    },
+    {
+      "codes": [
+        "41173",
+        "41430"
+      ],
+      "areaSqM": 173.94651606828953,
+      "point": [
+        126.96414950484818,
+        37.36181194449273
+      ]
+    },
+    {
+      "codes": [
+        "41173",
+        "41290"
+      ],
+      "areaSqM": 0.41070325258503093,
+      "point": [
+        126.9823593702324,
+        37.40064764546696
+      ]
+    },
+    {
+      "codes": [
+        "41192",
+        "41194"
+      ],
+      "areaSqM": 613.8456239570282,
+      "point": [
+        126.76244648800485,
+        37.48708890666138
+      ]
+    },
+    {
+      "codes": [
+        "41192",
+        "41196"
+      ],
+      "areaSqM": 168.33177374532318,
+      "point": [
+        126.79463098486337,
+        37.51741954799367
+      ]
+    },
+    {
+      "codes": [
+        "41194",
+        "41390"
+      ],
+      "areaSqM": 725.8815921245631,
+      "point": [
+        126.77830282085515,
+        37.47185298225338
+      ]
+    },
+    {
+      "codes": [
+        "41194",
+        "41210"
+      ],
+      "areaSqM": 55.173983778357986,
+      "point": [
+        126.83156418211485,
+        37.4663839528204
+      ]
+    },
+    {
+      "codes": [
+        "41210",
+        "41390"
+      ],
+      "areaSqM": 261.0993373513731,
+      "point": [
+        126.82622786228195,
+        37.459489104344456
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "44133"
+      ],
+      "areaSqM": 1666.9464507054936,
+      "point": [
+        127.10805614908196,
+        36.96888277202233
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "41370"
+      ],
+      "areaSqM": 252.4538394850157,
+      "point": [
+        127.03776437533692,
+        37.136164321871476
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "41597"
+      ],
+      "areaSqM": 7141.601681771417,
+      "point": [
+        127.10600970251018,
+        37.14204195571999
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "41461"
+      ],
+      "areaSqM": 146.4361251177366,
+      "point": [
+        127.10964197371797,
+        37.1261286097821
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "44270"
+      ],
+      "areaSqM": 21.608996308595785,
+      "point": [
+        126.83127770638116,
+        36.94848379703778
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "41591"
+      ],
+      "areaSqM": 48605.240641823904,
+      "point": [
+        126.99987220395982,
+        37.110517716797766
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "44200"
+      ],
+      "areaSqM": 701.0635888222637,
+      "point": [
+        127.01538857111375,
+        36.935401850982174
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "41593"
+      ],
+      "areaSqM": 6628.887750874743,
+      "point": [
+        127.01718296907244,
+        37.12996558034802
+      ]
+    },
+    {
+      "codes": [
+        "41220",
+        "41550"
+      ],
+      "areaSqM": 448.6388050979913,
+      "point": [
+        127.1210905691546,
+        37.076224773663334
+      ]
+    },
+    {
+      "codes": [
+        "41250",
+        "41650"
+      ],
+      "areaSqM": 0.027269932592067114,
+      "point": [
+        127.09130542747607,
+        37.97162890912017
+      ]
+    },
+    {
+      "codes": [
+        "41250",
+        "41630"
+      ],
+      "areaSqM": 393.34002697399205,
+      "point": [
+        127.10881028832324,
+        37.860375558802616
+      ]
+    },
+    {
+      "codes": [
+        "41250",
+        "41800"
+      ],
+      "areaSqM": 222.245106669025,
+      "point": [
+        127.09058944695627,
+        37.97157189405802
+      ]
+    },
+    {
+      "codes": [
+        "41271",
+        "41273"
+      ],
+      "areaSqM": 1940.0356854097026,
+      "point": [
+        126.82197516253197,
+        37.30359301542877
+      ]
+    },
+    {
+      "codes": [
+        "41271",
+        "41390"
+      ],
+      "areaSqM": 0.0016879057070581585,
+      "point": [
+        126.88149517264215,
+        37.377139246122994
+      ]
+    },
+    {
+      "codes": [
+        "41271",
+        "41593"
+      ],
+      "areaSqM": 26628.160609257586,
+      "point": [
+        126.88246007306665,
+        37.283708393166854
+      ]
+    },
+    {
+      "codes": [
+        "41271",
+        "41410"
+      ],
+      "areaSqM": 528.8753090154721,
+      "point": [
+        126.88765322444516,
+        37.31767943383162
+      ]
+    },
+    {
+      "codes": [
+        "41271",
+        "41430"
+      ],
+      "areaSqM": 3.5568289439235037,
+      "point": [
+        126.93294700777365,
+        37.30316639681758
+      ]
+    },
+    {
+      "codes": [
+        "41273",
+        "41390"
+      ],
+      "areaSqM": 16932.628744662306,
+      "point": [
+        126.786381233625,
+        37.3382093712345
+      ]
+    },
+    {
+      "codes": [
+        "41281",
+        "41285"
+      ],
+      "areaSqM": 61.47538869160553,
+      "point": [
+        126.79151985114633,
+        37.62600854421909
+      ]
+    },
+    {
+      "codes": [
+        "41281",
+        "41570"
+      ],
+      "areaSqM": 1730.2016347619726,
+      "point": [
+        126.8022657030422,
+        37.60522072034008
+      ]
+    },
+    {
+      "codes": [
+        "41281",
+        "41630"
+      ],
+      "areaSqM": 505.6504850844774,
+      "point": [
+        126.90811460085837,
+        37.6712912358467
+      ]
+    },
+    {
+      "codes": [
+        "41281",
+        "41480"
+      ],
+      "areaSqM": 95.70247933724144,
+      "point": [
+        126.8368531259736,
+        37.72744716193595
+      ]
+    },
+    {
+      "codes": [
+        "41285",
+        "41287"
+      ],
+      "areaSqM": 1353.886864064676,
+      "point": [
+        126.77473456373453,
+        37.67459188503426
+      ]
+    },
+    {
+      "codes": [
+        "41285",
+        "41570"
+      ],
+      "areaSqM": 312.1197394149549,
+      "point": [
+        126.75800855688443,
+        37.63048334395816
+      ]
+    },
+    {
+      "codes": [
+        "41285",
+        "41480"
+      ],
+      "areaSqM": 458.11701280144626,
+      "point": [
+        126.8363532104974,
+        37.72747860904548
+      ]
+    },
+    {
+      "codes": [
+        "41287",
+        "41570"
+      ],
+      "areaSqM": 23602.90739478908,
+      "point": [
+        126.67197626490383,
+        37.679796324036566
+      ]
+    },
+    {
+      "codes": [
+        "41287",
+        "41480"
+      ],
+      "areaSqM": 218.9267732635058,
+      "point": [
+        126.72676134032699,
+        37.703285027053646
+      ]
+    },
+    {
+      "codes": [
+        "41290",
+        "41430"
+      ],
+      "areaSqM": 89.62349957547316,
+      "point": [
+        126.98628736209024,
+        37.406891123951226
+      ]
+    },
+    {
+      "codes": [
+        "41310",
+        "41450"
+      ],
+      "areaSqM": 64.26856590312033,
+      "point": [
+        127.16973651769874,
+        37.579021811846324
+      ]
+    },
+    {
+      "codes": [
+        "41310",
+        "41360"
+      ],
+      "areaSqM": 2990.7322524816786,
+      "point": [
+        127.11152925273565,
+        37.64259797025737
+      ]
+    },
+    {
+      "codes": [
+        "41360",
+        "41450"
+      ],
+      "areaSqM": 263.5574471260129,
+      "point": [
+        127.20699803345303,
+        37.58394453853046
+      ]
+    },
+    {
+      "codes": [
+        "41360",
+        "41830"
+      ],
+      "areaSqM": 0.009545846630550556,
+      "point": [
+        127.37092765737331,
+        37.6460121310726
+      ]
+    },
+    {
+      "codes": [
+        "41360",
+        "41820"
+      ],
+      "areaSqM": 72.60967492704049,
+      "point": [
+        127.29307213436762,
+        37.77579944410326
+      ]
+    },
+    {
+      "codes": [
+        "41360",
+        "41650"
+      ],
+      "areaSqM": 3190.3716190231603,
+      "point": [
+        127.21952562392443,
+        37.75844928328445
+      ]
+    },
+    {
+      "codes": [
+        "41370",
+        "41597"
+      ],
+      "areaSqM": 22787.079534104138,
+      "point": [
+        127.10140978323467,
+        37.14599407583718
+      ]
+    },
+    {
+      "codes": [
+        "41370",
+        "41595"
+      ],
+      "areaSqM": 5558.659247577512,
+      "point": [
+        127.03187254430016,
+        37.200015645285305
+      ]
+    },
+    {
+      "codes": [
+        "41370",
+        "41593"
+      ],
+      "areaSqM": 2753.794780508759,
+      "point": [
+        127.00824673441845,
+        37.16850786979475
+      ]
+    },
+    {
+      "codes": [
+        "41430",
+        "41465"
+      ],
+      "areaSqM": 311.5233472256167,
+      "point": [
+        127.02793033687246,
+        37.37054140058767
+      ]
+    },
+    {
+      "codes": [
+        "41450",
+        "41610"
+      ],
+      "areaSqM": 65.14994114082229,
+      "point": [
+        127.17548455422795,
+        37.47860636875107
+      ]
+    },
+    {
+      "codes": [
+        "41461",
+        "41597"
+      ],
+      "areaSqM": 64411.38737926617,
+      "point": [
+        127.14197355380698,
+        37.16964379351284
+      ]
+    },
+    {
+      "codes": [
+        "41461",
+        "41610"
+      ],
+      "areaSqM": 225.73442445474961,
+      "point": [
+        127.24244045812641,
+        37.35369164193002
+      ]
+    },
+    {
+      "codes": [
+        "41461",
+        "41500"
+      ],
+      "areaSqM": 9.515418495444532,
+      "point": [
+        127.33890827537691,
+        37.27049595953895
+      ]
+    },
+    {
+      "codes": [
+        "41463",
+        "41597"
+      ],
+      "areaSqM": 5471.466224883353,
+      "point": [
+        127.09606281411907,
+        37.21840637434727
+      ]
+    },
+    {
+      "codes": [
+        "41463",
+        "41595"
+      ],
+      "areaSqM": 436.0756611002901,
+      "point": [
+        127.0747415055671,
+        37.22816971549144
+      ]
+    },
+    {
+      "codes": [
+        "41463",
+        "41465"
+      ],
+      "areaSqM": 34.18825927211856,
+      "point": [
+        127.09295461945037,
+        37.30241753024432
+      ]
+    },
+    {
+      "codes": [
+        "41480",
+        "41630"
+      ],
+      "areaSqM": 170.6974016664148,
+      "point": [
+        126.93163632085177,
+        37.7526215244802
+      ]
+    },
+    {
+      "codes": [
+        "41480",
+        "41800"
+      ],
+      "areaSqM": 879.5732216373932,
+      "point": [
+        126.79737324000656,
+        37.992811724762
+      ]
+    },
+    {
+      "codes": [
+        "41500",
+        "43770"
+      ],
+      "areaSqM": 17.399547007089048,
+      "point": [
+        127.62780710987114,
+        37.15440985487273
+      ]
+    },
+    {
+      "codes": [
+        "41500",
+        "41550"
+      ],
+      "areaSqM": 136.7831452834368,
+      "point": [
+        127.45669724405462,
+        37.13304260140455
+      ]
+    },
+    {
+      "codes": [
+        "41500",
+        "41670"
+      ],
+      "areaSqM": 292.83150635317384,
+      "point": [
+        127.52684786753181,
+        37.329339676998096
+      ]
+    },
+    {
+      "codes": [
+        "41550",
+        "44133"
+      ],
+      "areaSqM": 723.0472430150757,
+      "point": [
+        127.12161459331246,
+        36.96825604204671
+      ]
+    },
+    {
+      "codes": [
+        "41550",
+        "43750"
+      ],
+      "areaSqM": 66.63260917876413,
+      "point": [
+        127.29017382557224,
+        36.894299177065506
+      ]
+    },
+    {
+      "codes": [
+        "41550",
+        "43770"
+      ],
+      "areaSqM": 54.25757493598425,
+      "point": [
+        127.48633700361302,
+        37.0548288178578
+      ]
+    },
+    {
+      "codes": [
+        "41591",
+        "41593"
+      ],
+      "areaSqM": 8.933053755447736,
+      "point": [
+        126.84337255213707,
+        37.26473675231367
+      ]
+    },
+    {
+      "codes": [
+        "41595",
+        "41597"
+      ],
+      "areaSqM": 1.2431996151425867e-05,
+      "point": [
+        127.07579237331056,
+        37.225607051421385
+      ]
+    },
+    {
+      "codes": [
+        "41610",
+        "41670"
+      ],
+      "areaSqM": 50.94334424522927,
+      "point": [
+        127.443670928933,
+        37.37651114631063
+      ]
+    },
+    {
+      "codes": [
+        "41610",
+        "41830"
+      ],
+      "areaSqM": 254.7601031884991,
+      "point": [
+        127.33831756057224,
+        37.53475729813509
+      ]
+    },
+    {
+      "codes": [
+        "41630",
+        "41650"
+      ],
+      "areaSqM": 2.6492043389044877,
+      "point": [
+        127.1057480189751,
+        37.78054940539302
+      ]
+    },
+    {
+      "codes": [
+        "41630",
+        "41800"
+      ],
+      "areaSqM": 97.18147534612042,
+      "point": [
+        126.9989944145089,
+        37.93565791814931
+      ]
+    },
+    {
+      "codes": [
+        "41650",
+        "41820"
+      ],
+      "areaSqM": 4160.692911361409,
+      "point": [
+        127.34035897874146,
+        37.924170255705405
+      ]
+    },
+    {
+      "codes": [
+        "41650",
+        "51790"
+      ],
+      "areaSqM": 0.11372855432326345,
+      "point": [
+        127.43074384783252,
+        38.115378783366005
+      ]
+    },
+    {
+      "codes": [
+        "41650",
+        "41800"
+      ],
+      "areaSqM": 151.7428779667319,
+      "point": [
+        127.1246012771384,
+        38.038071468136316
+      ]
+    },
+    {
+      "codes": [
+        "41670",
+        "43770"
+      ],
+      "areaSqM": 7.79992003551894,
+      "point": [
+        127.62989284140468,
+        37.15426143461094
+      ]
+    },
+    {
+      "codes": [
+        "41670",
+        "43130"
+      ],
+      "areaSqM": 161.25013841659893,
+      "point": [
+        127.69509890350096,
+        37.14071469278942
+      ]
+    },
+    {
+      "codes": [
+        "41670",
+        "41830"
+      ],
+      "areaSqM": 54.125937268510825,
+      "point": [
+        127.68291712749918,
+        37.414328283169496
+      ]
+    },
+    {
+      "codes": [
+        "41800",
+        "51780"
+      ],
+      "areaSqM": 88.05633111931478,
+      "point": [
+        127.18024696857786,
+        38.18655159673948
+      ]
+    },
+    {
+      "codes": [
+        "41820",
+        "41830"
+      ],
+      "areaSqM": 0.014521924977657238,
+      "point": [
+        127.37152472483913,
+        37.64764389652208
+      ]
+    },
+    {
+      "codes": [
+        "41820",
+        "51110"
+      ],
+      "areaSqM": 107.32988424884479,
+      "point": [
+        127.50768568161125,
+        37.71954692308116
+      ]
+    },
+    {
+      "codes": [
+        "41820",
+        "51790"
+      ],
+      "areaSqM": 9.04469830623815,
+      "point": [
+        127.5219817993236,
+        38.001281520956304
+      ]
+    },
+    {
+      "codes": [
+        "41830",
+        "51720"
+      ],
+      "areaSqM": 59.300561218965,
+      "point": [
+        127.81432979133672,
+        37.56405521855372
+      ]
+    },
+    {
+      "codes": [
+        "41830",
+        "51130"
+      ],
+      "areaSqM": 129.00726962545124,
+      "point": [
+        127.76089939705778,
+        37.36871860242216
+      ]
+    },
+    {
+      "codes": [
+        "41830",
+        "51730"
+      ],
+      "areaSqM": 90.46908578002439,
+      "point": [
+        127.84781757368505,
+        37.549807924048274
+      ]
+    },
+    {
+      "codes": [
+        "43111",
+        "43720"
+      ],
+      "areaSqM": 1123.7507672752363,
+      "point": [
+        127.51482987139005,
+        36.42387908846231
+      ]
+    },
+    {
+      "codes": [
+        "43111",
+        "43112"
+      ],
+      "areaSqM": 49.117965303523434,
+      "point": [
+        127.48294149334569,
+        36.644623961707914
+      ]
+    },
+    {
+      "codes": [
+        "43111",
+        "43114"
+      ],
+      "areaSqM": 135.0890261138633,
+      "point": [
+        127.51165725865428,
+        36.65300252023358
+      ]
+    },
+    {
+      "codes": [
+        "43112",
+        "43113"
+      ],
+      "areaSqM": 267.69782755111055,
+      "point": [
+        127.41557250173516,
+        36.60672220672779
+      ]
+    },
+    {
+      "codes": [
+        "43112",
+        "43114"
+      ],
+      "areaSqM": 385.7845891349384,
+      "point": [
+        127.48250392008633,
+        36.64604386528876
+      ]
+    },
+    {
+      "codes": [
+        "43113",
+        "44131"
+      ],
+      "areaSqM": 281.8521318160016,
+      "point": [
+        127.28563201445814,
+        36.691778645701255
+      ]
+    },
+    {
+      "codes": [
+        "43113",
+        "43114"
+      ],
+      "areaSqM": 187.4678491958831,
+      "point": [
+        127.32005360625122,
+        36.72375553660004
+      ]
+    },
+    {
+      "codes": [
+        "43114",
+        "44131"
+      ],
+      "areaSqM": 925.9964073235905,
+      "point": [
+        127.41750739211278,
+        36.757012506544555
+      ]
+    },
+    {
+      "codes": [
+        "43114",
+        "43745"
+      ],
+      "areaSqM": 181.4481715866096,
+      "point": [
+        127.56815213235232,
+        36.77248872558417
+      ]
+    },
+    {
+      "codes": [
+        "43130",
+        "43760"
+      ],
+      "areaSqM": 2.615541936160102,
+      "point": [
+        128.0235285827942,
+        36.815827252659794
+      ]
+    },
+    {
+      "codes": [
+        "43130",
+        "47280"
+      ],
+      "areaSqM": 123.4214948657978,
+      "point": [
+        128.06717438071513,
+        36.81673486161431
+      ]
+    },
+    {
+      "codes": [
+        "43130",
+        "43770"
+      ],
+      "areaSqM": 97.04153459985811,
+      "point": [
+        127.69542344933146,
+        37.14041664394309
+      ]
+    },
+    {
+      "codes": [
+        "43130",
+        "51130"
+      ],
+      "areaSqM": 337.5761945708691,
+      "point": [
+        127.75966539338052,
+        37.16664448989455
+      ]
+    },
+    {
+      "codes": [
+        "43150",
+        "43800"
+      ],
+      "areaSqM": 0.014024637196823043,
+      "point": [
+        128.24692931452492,
+        36.88194205372443
+      ]
+    },
+    {
+      "codes": [
+        "43150",
+        "51750"
+      ],
+      "areaSqM": 2.518376951941337,
+      "point": [
+        128.2982466822881,
+        37.13416019212299
+      ]
+    },
+    {
+      "codes": [
+        "43150",
+        "51130"
+      ],
+      "areaSqM": 293.1325712143008,
+      "point": [
+        127.98043563538803,
+        37.257725635960696
+      ]
+    },
+    {
+      "codes": [
+        "43720",
+        "43730"
+      ],
+      "areaSqM": 203.20717239240548,
+      "point": [
+        127.64805948906672,
+        36.442728159537175
+      ]
+    },
+    {
+      "codes": [
+        "43730",
+        "43740"
+      ],
+      "areaSqM": 176.110098603314,
+      "point": [
+        127.63410264739841,
+        36.18079982607927
+      ]
+    },
+    {
+      "codes": [
+        "43730",
+        "47250"
+      ],
+      "areaSqM": 279.50468866580997,
+      "point": [
+        127.84536304028363,
+        36.317071144332736
+      ]
+    },
+    {
+      "codes": [
+        "43740",
+        "44710"
+      ],
+      "areaSqM": 37.95430417808066,
+      "point": [
+        127.59145951257796,
+        36.132266370941835
+      ]
+    },
+    {
+      "codes": [
+        "43740",
+        "47150"
+      ],
+      "areaSqM": 0.012710151890769777,
+      "point": [
+        127.93307098118771,
+        36.05060620954651
+      ]
+    },
+    {
+      "codes": [
+        "43740",
+        "47250"
+      ],
+      "areaSqM": 14.120549461943668,
+      "point": [
+        128.04494567849727,
+        36.252845517456535
+      ]
+    },
+    {
+      "codes": [
+        "43745",
+        "43760"
+      ],
+      "areaSqM": 16.97155723741983,
+      "point": [
+        127.6347722400693,
+        36.79355116453494
+      ]
+    },
+    {
+      "codes": [
+        "43745",
+        "43750"
+      ],
+      "areaSqM": 114.06429046313617,
+      "point": [
+        127.56398923242723,
+        36.78313223620731
+      ]
+    },
+    {
+      "codes": [
+        "43745",
+        "43770"
+      ],
+      "areaSqM": 822.7120414146152,
+      "point": [
+        127.61767810369507,
+        36.83514246491421
+      ]
+    },
+    {
+      "codes": [
+        "43750",
+        "44131"
+      ],
+      "areaSqM": 132.27674839011377,
+      "point": [
+        127.42039728647687,
+        36.760618368165964
+      ]
+    },
+    {
+      "codes": [
+        "43750",
+        "43770"
+      ],
+      "areaSqM": 25.16046236742956,
+      "point": [
+        127.4563227842675,
+        36.965965246313125
+      ]
+    },
+    {
+      "codes": [
+        "43760",
+        "47250"
+      ],
+      "areaSqM": 50.863376178606345,
+      "point": [
+        127.87921025629043,
+        36.656712365573426
+      ]
+    },
+    {
+      "codes": [
+        "43760",
+        "47280"
+      ],
+      "areaSqM": 344.75260810043136,
+      "point": [
+        127.92491721811855,
+        36.60274072352231
+      ]
+    },
+    {
+      "codes": [
+        "43760",
+        "43770"
+      ],
+      "areaSqM": 91.69193661568181,
+      "point": [
+        127.79823724246341,
+        36.90884804436672
+      ]
+    },
+    {
+      "codes": [
+        "43800",
+        "47900"
+      ],
+      "areaSqM": 204.57036021074146,
+      "point": [
+        128.44022825236414,
+        36.836943355396784
+      ]
+    },
+    {
+      "codes": [
+        "43800",
+        "47280"
+      ],
+      "areaSqM": 31.740338772587243,
+      "point": [
+        128.36805700826108,
+        36.8023562413196
+      ]
+    },
+    {
+      "codes": [
+        "43800",
+        "51750"
+      ],
+      "areaSqM": 4.287073057758916,
+      "point": [
+        128.38484942375217,
+        37.15772589215762
+      ]
+    },
+    {
+      "codes": [
+        "44131",
+        "44150"
+      ],
+      "areaSqM": 257.35723205635435,
+      "point": [
+        127.13261324371464,
+        36.64505831978025
+      ]
+    },
+    {
+      "codes": [
+        "44131",
+        "44133"
+      ],
+      "areaSqM": 1113.276658377208,
+      "point": [
+        127.13044325683822,
+        36.819459767068686
+      ]
+    },
+    {
+      "codes": [
+        "44131",
+        "44200"
+      ],
+      "areaSqM": 1012.7611129746534,
+      "point": [
+        127.11301498637903,
+        36.78243229015245
+      ]
+    },
+    {
+      "codes": [
+        "44133",
+        "44200"
+      ],
+      "areaSqM": 205.90089993378172,
+      "point": [
+        127.09355655320351,
+        36.91372093692603
+      ]
+    },
+    {
+      "codes": [
+        "44150",
+        "44230"
+      ],
+      "areaSqM": 0.5359549668634664,
+      "point": [
+        127.06578762139422,
+        36.27803237666607
+      ]
+    },
+    {
+      "codes": [
+        "44150",
+        "44250"
+      ],
+      "areaSqM": 10.30946755044671,
+      "point": [
+        127.25590603343029,
+        36.329059139174376
+      ]
+    },
+    {
+      "codes": [
+        "44150",
+        "44760"
+      ],
+      "areaSqM": 58.212332631638795,
+      "point": [
+        127.05618897742825,
+        36.278055106416
+      ]
+    },
+    {
+      "codes": [
+        "44150",
+        "44790"
+      ],
+      "areaSqM": 413.1250124525344,
+      "point": [
+        126.98531413619104,
+        36.34192306988186
+      ]
+    },
+    {
+      "codes": [
+        "44180",
+        "44760"
+      ],
+      "areaSqM": 23.042779156816316,
+      "point": [
+        126.69220094987185,
+        36.19030691824861
+      ]
+    },
+    {
+      "codes": [
+        "44180",
+        "44790"
+      ],
+      "areaSqM": 0.00571509791942691,
+      "point": [
+        126.7246902249442,
+        36.37502653739674
+      ]
+    },
+    {
+      "codes": [
+        "44180",
+        "44770"
+      ],
+      "areaSqM": 5.640182718693751,
+      "point": [
+        126.69193993457596,
+        36.1899783512403
+      ]
+    },
+    {
+      "codes": [
+        "44180",
+        "44800"
+      ],
+      "areaSqM": 6.107987479618046,
+      "point": [
+        126.59978942871423,
+        36.47895300794235
+      ]
+    },
+    {
+      "codes": [
+        "44200",
+        "44810"
+      ],
+      "areaSqM": 281.8893744725758,
+      "point": [
+        126.83046169294202,
+        36.771013444333555
+      ]
+    },
+    {
+      "codes": [
+        "44200",
+        "44270"
+      ],
+      "areaSqM": 105.43235137965326,
+      "point": [
+        126.84401800070182,
+        36.88090820017492
+      ]
+    },
+    {
+      "codes": [
+        "44210",
+        "44825"
+      ],
+      "areaSqM": 2.7929129518842242e-05,
+      "point": [
+        126.3483730227271,
+        36.7783196925581
+      ]
+    },
+    {
+      "codes": [
+        "44210",
+        "44270"
+      ],
+      "areaSqM": 2.159761891769264,
+      "point": [
+        126.65350781424094,
+        36.775004429895354
+      ]
+    },
+    {
+      "codes": [
+        "44230",
+        "52710"
+      ],
+      "areaSqM": 6.453487470124401,
+      "point": [
+        127.13389831209112,
+        36.06966841316887
+      ]
+    },
+    {
+      "codes": [
+        "44230",
+        "52140"
+      ],
+      "areaSqM": 40.165590591305325,
+      "point": [
+        127.02315452154552,
+        36.13693095370922
+      ]
+    },
+    {
+      "codes": [
+        "44230",
+        "44760"
+      ],
+      "areaSqM": 448.5326281072987,
+      "point": [
+        126.99367853272688,
+        36.18074984423163
+      ]
+    },
+    {
+      "codes": [
+        "44270",
+        "44810"
+      ],
+      "areaSqM": 182.59663886424394,
+      "point": [
+        126.73217071934714,
+        36.790872420691045
+      ]
+    },
+    {
+      "codes": [
+        "44710",
+        "52710"
+      ],
+      "areaSqM": 438.87541009076176,
+      "point": [
+        127.37097837202077,
+        36.04526263936623
+      ]
+    },
+    {
+      "codes": [
+        "44760",
+        "52140"
+      ],
+      "areaSqM": 31.34320942635905,
+      "point": [
+        126.98443127430437,
+        36.14768559169425
+      ]
+    },
+    {
+      "codes": [
+        "44760",
+        "44790"
+      ],
+      "areaSqM": 11.077268248120111,
+      "point": [
+        126.86202198227485,
+        36.32149281615752
+      ]
+    },
+    {
+      "codes": [
+        "44760",
+        "44770"
+      ],
+      "areaSqM": 0.015174768024587731,
+      "point": [
+        126.85710619766674,
+        36.07113748326661
+      ]
+    },
+    {
+      "codes": [
+        "44790",
+        "44800"
+      ],
+      "areaSqM": 14.962479734849312,
+      "point": [
+        126.77302289234514,
+        36.53422181844932
+      ]
+    },
+    {
+      "codes": [
+        "44790",
+        "44810"
+      ],
+      "areaSqM": 27.534153646764597,
+      "point": [
+        126.78027447757941,
+        36.53226060282652
+      ]
+    },
+    {
+      "codes": [
+        "44800",
+        "44810"
+      ],
+      "areaSqM": 159.35613469516377,
+      "point": [
+        126.73810071120666,
+        36.54502661852017
+      ]
+    },
+    {
+      "codes": [
+        "47111",
+        "47130"
+      ],
+      "areaSqM": 158.49068634318033,
+      "point": [
+        129.28629233907918,
+        36.06235769639677
+      ]
+    },
+    {
+      "codes": [
+        "47113",
+        "47130"
+      ],
+      "areaSqM": 642.456479771735,
+      "point": [
+        129.15312252179763,
+        36.05475367383925
+      ]
+    },
+    {
+      "codes": [
+        "47113",
+        "47230"
+      ],
+      "areaSqM": 90.65947297787118,
+      "point": [
+        129.15110630471102,
+        36.05507212567492
+      ]
+    },
+    {
+      "codes": [
+        "47113",
+        "47750"
+      ],
+      "areaSqM": 25.43915690630329,
+      "point": [
+        129.25028793162892,
+        36.32015666928211
+      ]
+    },
+    {
+      "codes": [
+        "47113",
+        "47770"
+      ],
+      "areaSqM": 30.724126864747937,
+      "point": [
+        129.25222044933793,
+        36.32180115475396
+      ]
+    },
+    {
+      "codes": [
+        "47130",
+        "47820"
+      ],
+      "areaSqM": 153.12790326157975,
+      "point": [
+        129.01710151595123,
+        35.845660724933666
+      ]
+    },
+    {
+      "codes": [
+        "47130",
+        "47230"
+      ],
+      "areaSqM": 143.1960652183625,
+      "point": [
+        129.0566808952026,
+        35.92419957932834
+      ]
+    },
+    {
+      "codes": [
+        "47150",
+        "47840"
+      ],
+      "areaSqM": 96.10765997731369,
+      "point": [
+        128.2258014751257,
+        36.054266746468706
+      ]
+    },
+    {
+      "codes": [
+        "47150",
+        "47850"
+      ],
+      "areaSqM": 185.74170000896567,
+      "point": [
+        128.30039873067912,
+        36.061732913375195
+      ]
+    },
+    {
+      "codes": [
+        "47150",
+        "47190"
+      ],
+      "areaSqM": 436.91604438921013,
+      "point": [
+        128.29174422213785,
+        36.088217968684404
+      ]
+    },
+    {
+      "codes": [
+        "47170",
+        "47750"
+      ],
+      "areaSqM": 693.0838511190566,
+      "point": [
+        128.99354839037179,
+        36.49792070234448
+      ]
+    },
+    {
+      "codes": [
+        "47170",
+        "47920"
+      ],
+      "areaSqM": 552.9574525226859,
+      "point": [
+        128.74465798919945,
+        36.8003823721731
+      ]
+    },
+    {
+      "codes": [
+        "47170",
+        "47900"
+      ],
+      "areaSqM": 24.536752631321953,
+      "point": [
+        128.4594602757788,
+        36.551525068961936
+      ]
+    },
+    {
+      "codes": [
+        "47170",
+        "47210"
+      ],
+      "areaSqM": 812.1325672327782,
+      "point": [
+        128.72798672053162,
+        36.695398976623025
+      ]
+    },
+    {
+      "codes": [
+        "47190",
+        "47850"
+      ],
+      "areaSqM": 0.00014210917733817143,
+      "point": [
+        128.40550936989823,
+        36.09089024076694
+      ]
+    },
+    {
+      "codes": [
+        "47190",
+        "47250"
+      ],
+      "areaSqM": 0.16135209949472334,
+      "point": [
+        128.15857603819012,
+        36.296254168872785
+      ]
+    },
+    {
+      "codes": [
+        "47210",
+        "47920"
+      ],
+      "areaSqM": 1.0174224448891194,
+      "point": [
+        128.6380378069435,
+        36.88746054674391
+      ]
+    },
+    {
+      "codes": [
+        "47210",
+        "47900"
+      ],
+      "areaSqM": 49.52240040772763,
+      "point": [
+        128.4584233901097,
+        36.84552928961957
+      ]
+    },
+    {
+      "codes": [
+        "47230",
+        "47290"
+      ],
+      "areaSqM": 0.9502510941683127,
+      "point": [
+        128.85543817014084,
+        35.89986770624705
+      ]
+    },
+    {
+      "codes": [
+        "47230",
+        "47750"
+      ],
+      "areaSqM": 352.73835578333455,
+      "point": [
+        128.9246070932819,
+        36.18163541002185
+      ]
+    },
+    {
+      "codes": [
+        "47250",
+        "47280"
+      ],
+      "areaSqM": 117.35574164288498,
+      "point": [
+        127.9319711403613,
+        36.532157774338664
+      ]
+    },
+    {
+      "codes": [
+        "47280",
+        "47900"
+      ],
+      "areaSqM": 96.24424249586221,
+      "point": [
+        128.36842282496124,
+        36.80207840596393
+      ]
+    },
+    {
+      "codes": [
+        "47290",
+        "47820"
+      ],
+      "areaSqM": 302.3514848094035,
+      "point": [
+        128.74424620649526,
+        35.70404675405741
+      ]
+    },
+    {
+      "codes": [
+        "47730",
+        "47750"
+      ],
+      "areaSqM": 151.10971055792197,
+      "point": [
+        128.88880104214365,
+        36.297076253890076
+      ]
+    },
+    {
+      "codes": [
+        "47730",
+        "47900"
+      ],
+      "areaSqM": 16.50658474048256,
+      "point": [
+        128.3420845122679,
+        36.52523050298482
+      ]
+    },
+    {
+      "codes": [
+        "47750",
+        "47770"
+      ],
+      "areaSqM": 224.04483906813363,
+      "point": [
+        129.1517238461475,
+        36.49955581338165
+      ]
+    },
+    {
+      "codes": [
+        "47760",
+        "47770"
+      ],
+      "areaSqM": 40.25586066322556,
+      "point": [
+        129.26900670259923,
+        36.67369061863553
+      ]
+    },
+    {
+      "codes": [
+        "47760",
+        "47920"
+      ],
+      "areaSqM": 0.24547953314170728,
+      "point": [
+        128.98935123292176,
+        36.77571783930368
+      ]
+    },
+    {
+      "codes": [
+        "47770",
+        "47930"
+      ],
+      "areaSqM": 76.7513251578591,
+      "point": [
+        129.2695630332036,
+        36.67363328537213
+      ]
+    },
+    {
+      "codes": [
+        "47820",
+        "48270"
+      ],
+      "areaSqM": 293.1388796125962,
+      "point": [
+        128.87521320894496,
+        35.635244490537055
+      ]
+    },
+    {
+      "codes": [
+        "47830",
+        "48890"
+      ],
+      "areaSqM": 496.34220798392244,
+      "point": [
+        128.30649322216217,
+        35.65558723928061
+      ]
+    },
+    {
+      "codes": [
+        "47830",
+        "47840"
+      ],
+      "areaSqM": 0.0024672784048772605,
+      "point": [
+        128.27286478922034,
+        35.81725532936142
+      ]
+    },
+    {
+      "codes": [
+        "47840",
+        "48890"
+      ],
+      "areaSqM": 251.4636113593853,
+      "point": [
+        128.0972553249177,
+        35.83207970689115
+      ]
+    },
+    {
+      "codes": [
+        "47840",
+        "47850"
+      ],
+      "areaSqM": 9.554876327316713,
+      "point": [
+        128.3939397252203,
+        35.94101586412593
+      ]
+    },
+    {
+      "codes": [
+        "47920",
+        "47930"
+      ],
+      "areaSqM": 137.81400236954136,
+      "point": [
+        129.15532758388304,
+        36.888092073660054
+      ]
+    },
+    {
+      "codes": [
+        "47920",
+        "51750"
+      ],
+      "areaSqM": 379.8728457751787,
+      "point": [
+        128.7418165406345,
+        37.03537647101791
+      ]
+    },
+    {
+      "codes": [
+        "48121",
+        "48123"
+      ],
+      "areaSqM": 422.1249470680074,
+      "point": [
+        128.66856694016928,
+        35.245967346984436
+      ]
+    },
+    {
+      "codes": [
+        "48121",
+        "48127"
+      ],
+      "areaSqM": 12.798417727856311,
+      "point": [
+        128.58499877306997,
+        35.264881656117815
+      ]
+    },
+    {
+      "codes": [
+        "48121",
+        "48730"
+      ],
+      "areaSqM": 0.01897794205615355,
+      "point": [
+        128.59096549259516,
+        35.27437966669109
+      ]
+    },
+    {
+      "codes": [
+        "48121",
+        "48250"
+      ],
+      "areaSqM": 2457.5840426193495,
+      "point": [
+        128.747270364752,
+        35.332558128207076
+      ]
+    },
+    {
+      "codes": [
+        "48121",
+        "48740"
+      ],
+      "areaSqM": 246.59951064939617,
+      "point": [
+        128.64544877982988,
+        35.37334476622582
+      ]
+    },
+    {
+      "codes": [
+        "48123",
+        "48129"
+      ],
+      "areaSqM": 96.06723670509004,
+      "point": [
+        128.74073909748464,
+        35.16672372270546
+      ]
+    },
+    {
+      "codes": [
+        "48123",
+        "48250"
+      ],
+      "areaSqM": 234.4855093454833,
+      "point": [
+        128.72578682306332,
+        35.23693590649048
+      ]
+    },
+    {
+      "codes": [
+        "48125",
+        "48170"
+      ],
+      "areaSqM": 52.193950193611904,
+      "point": [
+        128.36506368043547,
+        35.17135560987127
+      ]
+    },
+    {
+      "codes": [
+        "48125",
+        "48127"
+      ],
+      "areaSqM": 118.01906015317998,
+      "point": [
+        128.5868700374899,
+        35.21176610845086
+      ]
+    },
+    {
+      "codes": [
+        "48125",
+        "48730"
+      ],
+      "areaSqM": 322.9719932913249,
+      "point": [
+        128.4366610892962,
+        35.16484705065654
+      ]
+    },
+    {
+      "codes": [
+        "48127",
+        "48730"
+      ],
+      "areaSqM": 152.83835940251447,
+      "point": [
+        128.49473757778213,
+        35.27425822820945
+      ]
+    },
+    {
+      "codes": [
+        "48129",
+        "48250"
+      ],
+      "areaSqM": 150.1969611775441,
+      "point": [
+        128.7933581315982,
+        35.15714005364769
+      ]
+    },
+    {
+      "codes": [
+        "48170",
+        "48860"
+      ],
+      "areaSqM": 23.9907397693775,
+      "point": [
+        127.91147541940317,
+        35.23968366694267
+      ]
+    },
+    {
+      "codes": [
+        "48170",
+        "48820"
+      ],
+      "areaSqM": 1998.2987534701147,
+      "point": [
+        128.1902935280167,
+        35.077373502976855
+      ]
+    },
+    {
+      "codes": [
+        "48170",
+        "48240"
+      ],
+      "areaSqM": 1786.7529429385488,
+      "point": [
+        128.15883013640092,
+        35.06546510263349
+      ]
+    },
+    {
+      "codes": [
+        "48220",
+        "48820"
+      ],
+      "areaSqM": 83.09314102035839,
+      "point": [
+        128.44116349531458,
+        34.972000946509226
+      ]
+    },
+    {
+      "codes": [
+        "48240",
+        "48850"
+      ],
+      "areaSqM": 351.33050331314286,
+      "point": [
+        127.92478509820954,
+        35.028633489944646
+      ]
+    },
+    {
+      "codes": [
+        "48240",
+        "48820"
+      ],
+      "areaSqM": 812.9918787225249,
+      "point": [
+        128.1579620761447,
+        34.988604452165156
+      ]
+    },
+    {
+      "codes": [
+        "48250",
+        "48270"
+      ],
+      "areaSqM": 7.134829217228522e-06,
+      "point": [
+        128.80451159818844,
+        35.37470258381757
+      ]
+    },
+    {
+      "codes": [
+        "48270",
+        "48740"
+      ],
+      "areaSqM": 93.13011398194908,
+      "point": [
+        128.6442073782216,
+        35.43305620884803
+      ]
+    },
+    {
+      "codes": [
+        "48720",
+        "48740"
+      ],
+      "areaSqM": 2.0606825338058323,
+      "point": [
+        128.43603206200333,
+        35.394573683947854
+      ]
+    },
+    {
+      "codes": [
+        "48720",
+        "48890"
+      ],
+      "areaSqM": 120.71235679515439,
+      "point": [
+        128.09687692663977,
+        35.3680165507278
+      ]
+    },
+    {
+      "codes": [
+        "48730",
+        "48740"
+      ],
+      "areaSqM": 0.06867466319059767,
+      "point": [
+        128.43753133110292,
+        35.39243932513902
+      ]
+    },
+    {
+      "codes": [
+        "48740",
+        "48890"
+      ],
+      "areaSqM": 94.59732966327056,
+      "point": [
+        128.36972184087614,
+        35.519130646025
+      ]
+    },
+    {
+      "codes": [
+        "48860",
+        "48870"
+      ],
+      "areaSqM": 17.031058111003528,
+      "point": [
+        127.78225374083173,
+        35.45866889538939
+      ]
+    },
+    {
+      "codes": [
+        "48860",
+        "48890"
+      ],
+      "areaSqM": 0.9216238493374648,
+      "point": [
+        127.95970214190991,
+        35.51801308192294
+      ]
+    },
+    {
+      "codes": [
+        "48860",
+        "48880"
+      ],
+      "areaSqM": 3.4161681854125976,
+      "point": [
+        127.95968747183419,
+        35.51803668629571
+      ]
+    },
+    {
+      "codes": [
+        "48870",
+        "48880"
+      ],
+      "areaSqM": 0.4458073630074693,
+      "point": [
+        127.69701133361292,
+        35.757679998075695
+      ]
+    },
+    {
+      "codes": [
+        "48880",
+        "48890"
+      ],
+      "areaSqM": 29.752248100649005,
+      "point": [
+        127.95386614554045,
+        35.54427336488102
+      ]
+    },
+    {
+      "codes": [
+        "50110",
+        "50130"
+      ],
+      "areaSqM": 33.074329611672056,
+      "point": [
+        126.16822656383881,
+        33.283067853492824
+      ]
+    },
+    {
+      "codes": [
+        "51110",
+        "51720"
+      ],
+      "areaSqM": 26.20824647080713,
+      "point": [
+        127.6074720430343,
+        37.70333559783726
+      ]
+    },
+    {
+      "codes": [
+        "51110",
+        "51790"
+      ],
+      "areaSqM": 298987.243422609,
+      "point": [
+        127.76610366119426,
+        38.02921128008042
+      ]
+    },
+    {
+      "codes": [
+        "51110",
+        "51800"
+      ],
+      "areaSqM": 3000.292613395314,
+      "point": [
+        127.93532552983908,
+        38.0139947209651
+      ]
+    },
+    {
+      "codes": [
+        "51110",
+        "51810"
+      ],
+      "areaSqM": 27.19683374632825,
+      "point": [
+        127.98382569184515,
+        37.98891450157454
+      ]
+    },
+    {
+      "codes": [
+        "51130",
+        "51730"
+      ],
+      "areaSqM": 346.51666500438307,
+      "point": [
+        128.08778813348135,
+        37.30088703435833
+      ]
+    },
+    {
+      "codes": [
+        "51150",
+        "51770"
+      ],
+      "areaSqM": 4.827085545205936,
+      "point": [
+        128.9716004605897,
+        37.53539186534462
+      ]
+    },
+    {
+      "codes": [
+        "51150",
+        "51830"
+      ],
+      "areaSqM": 144.6619996375035,
+      "point": [
+        128.80136198568863,
+        37.91308637211729
+      ]
+    },
+    {
+      "codes": [
+        "51170",
+        "51230"
+      ],
+      "areaSqM": 144.83846136744683,
+      "point": [
+        129.13915573954645,
+        37.464575097730375
+      ]
+    },
+    {
+      "codes": [
+        "51170",
+        "51770"
+      ],
+      "areaSqM": 146.30522808705706,
+      "point": [
+        128.9729212324433,
+        37.53334156292911
+      ]
+    },
+    {
+      "codes": [
+        "51190",
+        "51230"
+      ],
+      "areaSqM": 136.89103045907967,
+      "point": [
+        128.9350854520532,
+        37.24524350503832
+      ]
+    },
+    {
+      "codes": [
+        "51190",
+        "51750"
+      ],
+      "areaSqM": 236.89521403723842,
+      "point": [
+        128.88836540415468,
+        37.09111159553488
+      ]
+    },
+    {
+      "codes": [
+        "51190",
+        "51770"
+      ],
+      "areaSqM": 152.19573118373552,
+      "point": [
+        128.91605300921088,
+        37.16898720903048
+      ]
+    },
+    {
+      "codes": [
+        "51210",
+        "51830"
+      ],
+      "areaSqM": 392.91685412018046,
+      "point": [
+        128.46625134099892,
+        38.1189782458879
+      ]
+    },
+    {
+      "codes": [
+        "51210",
+        "51810"
+      ],
+      "areaSqM": 89.23938127684853,
+      "point": [
+        128.4283435018938,
+        38.18930621705553
+      ]
+    },
+    {
+      "codes": [
+        "51210",
+        "51820"
+      ],
+      "areaSqM": 80.97086173750232,
+      "point": [
+        128.5817210264834,
+        38.227989895266184
+      ]
+    },
+    {
+      "codes": [
+        "51230",
+        "51770"
+      ],
+      "areaSqM": 1039.5139405510224,
+      "point": [
+        128.86062123684673,
+        37.38169688471254
+      ]
+    },
+    {
+      "codes": [
+        "51720",
+        "51810"
+      ],
+      "areaSqM": 303.40889451938136,
+      "point": [
+        128.09352795469363,
+        37.89781782871872
+      ]
+    },
+    {
+      "codes": [
+        "51730",
+        "51760"
+      ],
+      "areaSqM": 0.01660512409385952,
+      "point": [
+        128.25111131275165,
+        37.4408644011107
+      ]
+    },
+    {
+      "codes": [
+        "51750",
+        "51760"
+      ],
+      "areaSqM": 0.002800434466382407,
+      "point": [
+        128.32287571661922,
+        37.36918725528835
+      ]
+    },
+    {
+      "codes": [
+        "51760",
+        "51770"
+      ],
+      "areaSqM": 0.02062760438548139,
+      "point": [
+        128.5962026086024,
+        37.28058533521391
+      ]
+    },
+    {
+      "codes": [
+        "51780",
+        "51790"
+      ],
+      "areaSqM": 111.27991076507419,
+      "point": [
+        127.86237146963956,
+        38.28304962613062
+      ]
+    },
+    {
+      "codes": [
+        "51790",
+        "51800"
+      ],
+      "areaSqM": 647.2870068068898,
+      "point": [
+        127.90311053411743,
+        38.05134789177172
+      ]
+    },
+    {
+      "codes": [
+        "51810",
+        "51830"
+      ],
+      "areaSqM": 50122.63490932813,
+      "point": [
+        128.48498394123038,
+        37.961183860168575
+      ]
+    },
+    {
+      "codes": [
+        "52111",
+        "52113"
+      ],
+      "areaSqM": 186.13351162858467,
+      "point": [
+        127.07684770791106,
+        35.827173432432794
+      ]
+    },
+    {
+      "codes": [
+        "52111",
+        "52710"
+      ],
+      "areaSqM": 491.44760436836276,
+      "point": [
+        127.06586987077301,
+        35.822439577697786
+      ]
+    },
+    {
+      "codes": [
+        "52113",
+        "52710"
+      ],
+      "areaSqM": 2129.7089916835525,
+      "point": [
+        127.12697852579639,
+        35.901489171653225
+      ]
+    },
+    {
+      "codes": [
+        "52113",
+        "52140"
+      ],
+      "areaSqM": 0.001280971442973739,
+      "point": [
+        126.99814692036239,
+        35.884651171102696
+      ]
+    },
+    {
+      "codes": [
+        "52113",
+        "52210"
+      ],
+      "areaSqM": 103.20852703581566,
+      "point": [
+        126.9991328744591,
+        35.88204125525573
+      ]
+    },
+    {
+      "codes": [
+        "52130",
+        "52210"
+      ],
+      "areaSqM": 148.44877166925048,
+      "point": [
+        126.47987683353195,
+        35.81306575161857
+      ]
+    },
+    {
+      "codes": [
+        "52140",
+        "52710"
+      ],
+      "areaSqM": 1306.0720561574726,
+      "point": [
+        127.0417250384277,
+        35.925586184347154
+      ]
+    },
+    {
+      "codes": [
+        "52140",
+        "52210"
+      ],
+      "areaSqM": 1016.3113068380995,
+      "point": [
+        126.96099040746813,
+        35.902485075431194
+      ]
+    },
+    {
+      "codes": [
+        "52180",
+        "52770"
+      ],
+      "areaSqM": 967.4395662447815,
+      "point": [
+        126.97777254022971,
+        35.55560232806691
+      ]
+    },
+    {
+      "codes": [
+        "52180",
+        "52750"
+      ],
+      "areaSqM": 285.0315423691944,
+      "point": [
+        127.09491837626075,
+        35.60985199668975
+      ]
+    },
+    {
+      "codes": [
+        "52180",
+        "52790"
+      ],
+      "areaSqM": 73.37397194549759,
+      "point": [
+        126.71843925138676,
+        35.57325059055516
+      ]
+    },
+    {
+      "codes": [
+        "52180",
+        "52800"
+      ],
+      "areaSqM": 322.2237593031099,
+      "point": [
+        126.8262729658772,
+        35.71232397707938
+      ]
+    },
+    {
+      "codes": [
+        "52180",
+        "52210"
+      ],
+      "areaSqM": 583.2883866603322,
+      "point": [
+        126.84846208388583,
+        35.727920053314584
+      ]
+    },
+    {
+      "codes": [
+        "52190",
+        "52770"
+      ],
+      "areaSqM": 203.32948773149656,
+      "point": [
+        127.18700072684791,
+        35.336353143555385
+      ]
+    },
+    {
+      "codes": [
+        "52190",
+        "52750"
+      ],
+      "areaSqM": 400.7477829672756,
+      "point": [
+        127.36319326446383,
+        35.55793983893787
+      ]
+    },
+    {
+      "codes": [
+        "52190",
+        "52740"
+      ],
+      "areaSqM": 26.349105297597315,
+      "point": [
+        127.51515566989602,
+        35.49788439111446
+      ]
+    },
+    {
+      "codes": [
+        "52210",
+        "52800"
+      ],
+      "areaSqM": 479.1430672360758,
+      "point": [
+        126.82427015362393,
+        35.713019917118615
+      ]
+    },
+    {
+      "codes": [
+        "52710",
+        "52750"
+      ],
+      "areaSqM": 302.589737255029,
+      "point": [
+        127.2701442638546,
+        35.777549590754184
+      ]
+    },
+    {
+      "codes": [
+        "52720",
+        "52750"
+      ],
+      "areaSqM": 0.10469651020822124,
+      "point": [
+        127.2758777629075,
+        35.752891577947686
+      ]
+    },
+    {
+      "codes": [
+        "52720",
+        "52740"
+      ],
+      "areaSqM": 88.88470089962199,
+      "point": [
+        127.57796723130369,
+        35.79410695785845
+      ]
+    },
+    {
+      "codes": [
+        "52720",
+        "52730"
+      ],
+      "areaSqM": 10.64645075227216,
+      "point": [
+        127.61988876818178,
+        35.83956019829677
+      ]
+    },
+    {
+      "codes": [
+        "52730",
+        "52740"
+      ],
+      "areaSqM": 189.87709607553396,
+      "point": [
+        127.62062205628868,
+        35.836011799775626
+      ]
+    },
+    {
+      "codes": [
+        "52740",
+        "52750"
+      ],
+      "areaSqM": 0.004787790479544134,
+      "point": [
+        127.37871531279373,
+        35.57618052876575
+      ]
+    },
+    {
+      "codes": [
+        "52750",
+        "52770"
+      ],
+      "areaSqM": 8.948007497189991,
+      "point": [
+        127.18708720642786,
+        35.481541616229975
+      ]
+    },
+    {
+      "codes": [
+        "52790",
+        "52800"
+      ],
+      "areaSqM": 576.3322392017752,
+      "point": [
+        126.7177994072082,
+        35.57333332205139
+      ]
+    }
+  ],
+  "nameCorrections": [
+    {
+      "code": "52111",
+      "sourceName": "전북특별차지도 전주시 완산구",
+      "name": "전북특별자치도 전주시완산구"
+    },
+    {
+      "code": "52113",
+      "sourceName": "전북특별차지도 전주시 덕진구",
+      "name": "전북특별자치도 전주시덕진구"
+    },
+    {
+      "code": "52130",
+      "sourceName": "전북특별차지도 군산시",
+      "name": "전북특별자치도 군산시"
+    },
+    {
+      "code": "52140",
+      "sourceName": "전북특별차지도 익산시",
+      "name": "전북특별자치도 익산시"
+    },
+    {
+      "code": "52180",
+      "sourceName": "전북특별차지도 정읍시",
+      "name": "전북특별자치도 정읍시"
+    },
+    {
+      "code": "52190",
+      "sourceName": "전북특별차지도 남원시",
+      "name": "전북특별자치도 남원시"
+    },
+    {
+      "code": "52210",
+      "sourceName": "전북특별차지도 김제시",
+      "name": "전북특별자치도 김제시"
+    },
+    {
+      "code": "52710",
+      "sourceName": "전북특별차지도 완주군",
+      "name": "전북특별자치도 완주군"
+    },
+    {
+      "code": "52720",
+      "sourceName": "전북특별차지도 진안군",
+      "name": "전북특별자치도 진안군"
+    },
+    {
+      "code": "52730",
+      "sourceName": "전북특별차지도 무주군",
+      "name": "전북특별자치도 무주군"
+    },
+    {
+      "code": "52740",
+      "sourceName": "전북특별차지도 장수군",
+      "name": "전북특별자치도 장수군"
+    },
+    {
+      "code": "52750",
+      "sourceName": "전북특별차지도 임실군",
+      "name": "전북특별자치도 임실군"
+    },
+    {
+      "code": "52770",
+      "sourceName": "전북특별차지도 순창군",
+      "name": "전북특별자치도 순창군"
+    },
+    {
+      "code": "52790",
+      "sourceName": "전북특별차지도 고창군",
+      "name": "전북특별자치도 고창군"
+    },
+    {
+      "code": "52800",
+      "sourceName": "전북특별차지도 부안군",
+      "name": "전북특별자치도 부안군"
+    },
+    {
+      "code": "50110",
+      "sourceName": "제주도 제주시",
+      "name": "제주특별자치도 제주시"
+    },
+    {
+      "code": "50130",
+      "sourceName": "제주도 서귀포시",
+      "name": "제주특별자치도 서귀포시"
+    }
+  ]
+}

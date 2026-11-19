@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
@@ -13,7 +13,7 @@ const send=(from=0,to=1)=>users[from].api.request('/rest/v1/friend_requests','PO
 const accept=(from=0,to=1)=>users[to].api.request(requestPath(from,to),'PATCH',{status:'accepted'});
 
 beforeAll(async()=>{
- const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+ const status=localSupabaseStatus();
  if(status.API_URL!==base)throw new Error('Only local Supabase is allowed');
  admin=new TravelApi(base,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;
  localAnon=status.ANON_KEY;guest=new TravelApi(base,localAnon);

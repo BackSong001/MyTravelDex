@@ -1,0 +1,4331 @@
+{
+  "targetVersion": "2026-11-09",
+  "method": "planar overlap >=1%; diagnostic candidates, not legal aliases",
+  "rows": [
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11010",
+      "oldName": "종로구",
+      "candidates": [
+        {
+          "code": "11110",
+          "name": "종로구",
+          "oldAreaFraction": 0.944677
+        },
+        {
+          "code": "11140",
+          "name": "중구",
+          "oldAreaFraction": 0.014858
+        },
+        {
+          "code": "11290",
+          "name": "성북구",
+          "oldAreaFraction": 0.035229
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11020",
+      "oldName": "중구",
+      "candidates": [
+        {
+          "code": "11110",
+          "name": "종로구",
+          "oldAreaFraction": 0.014437
+        },
+        {
+          "code": "11140",
+          "name": "중구",
+          "oldAreaFraction": 0.887534
+        },
+        {
+          "code": "11170",
+          "name": "용산구",
+          "oldAreaFraction": 0.05059
+        },
+        {
+          "code": "11200",
+          "name": "성동구",
+          "oldAreaFraction": 0.026326
+        },
+        {
+          "code": "11410",
+          "name": "서대문구",
+          "oldAreaFraction": 0.018219
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11030",
+      "oldName": "용산구",
+      "candidates": [
+        {
+          "code": "11170",
+          "name": "용산구",
+          "oldAreaFraction": 0.95443
+        },
+        {
+          "code": "11440",
+          "name": "마포구",
+          "oldAreaFraction": 0.026031
+        },
+        {
+          "code": "11560",
+          "name": "영등포구",
+          "oldAreaFraction": 0.01133
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11040",
+      "oldName": "성동구",
+      "candidates": [
+        {
+          "code": "11200",
+          "name": "성동구",
+          "oldAreaFraction": 0.964454
+        },
+        {
+          "code": "11230",
+          "name": "동대문구",
+          "oldAreaFraction": 0.012443
+        },
+        {
+          "code": "11680",
+          "name": "강남구",
+          "oldAreaFraction": 0.015513
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11050",
+      "oldName": "광진구",
+      "candidates": [
+        {
+          "code": "11200",
+          "name": "성동구",
+          "oldAreaFraction": 0.014875
+        },
+        {
+          "code": "11215",
+          "name": "광진구",
+          "oldAreaFraction": 0.949816
+        },
+        {
+          "code": "11260",
+          "name": "중랑구",
+          "oldAreaFraction": 0.021528
+        },
+        {
+          "code": "41310",
+          "name": "구리시",
+          "oldAreaFraction": 0.011177
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11060",
+      "oldName": "동대문구",
+      "candidates": [
+        {
+          "code": "11200",
+          "name": "성동구",
+          "oldAreaFraction": 0.015376
+        },
+        {
+          "code": "11230",
+          "name": "동대문구",
+          "oldAreaFraction": 0.959006
+        },
+        {
+          "code": "11290",
+          "name": "성북구",
+          "oldAreaFraction": 0.019817
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11070",
+      "oldName": "중랑구",
+      "candidates": [
+        {
+          "code": "11230",
+          "name": "동대문구",
+          "oldAreaFraction": 0.010462
+        },
+        {
+          "code": "11260",
+          "name": "중랑구",
+          "oldAreaFraction": 0.978437
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11080",
+      "oldName": "성북구",
+      "candidates": [
+        {
+          "code": "11110",
+          "name": "종로구",
+          "oldAreaFraction": 0.016006
+        },
+        {
+          "code": "11290",
+          "name": "성북구",
+          "oldAreaFraction": 0.950853
+        },
+        {
+          "code": "11305",
+          "name": "강북구",
+          "oldAreaFraction": 0.010565
+        },
+        {
+          "code": "11350",
+          "name": "노원구",
+          "oldAreaFraction": 0.020127
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11090",
+      "oldName": "강북구",
+      "candidates": [
+        {
+          "code": "11290",
+          "name": "성북구",
+          "oldAreaFraction": 0.01254
+        },
+        {
+          "code": "11305",
+          "name": "강북구",
+          "oldAreaFraction": 0.95288
+        },
+        {
+          "code": "11320",
+          "name": "도봉구",
+          "oldAreaFraction": 0.011025
+        },
+        {
+          "code": "41281",
+          "name": "고양시덕양구",
+          "oldAreaFraction": 0.023123
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11100",
+      "oldName": "도봉구",
+      "candidates": [
+        {
+          "code": "11305",
+          "name": "강북구",
+          "oldAreaFraction": 0.016813
+        },
+        {
+          "code": "11320",
+          "name": "도봉구",
+          "oldAreaFraction": 0.969546
+        },
+        {
+          "code": "11350",
+          "name": "노원구",
+          "oldAreaFraction": 0.010009
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11110",
+      "oldName": "노원구",
+      "candidates": [
+        {
+          "code": "11320",
+          "name": "도봉구",
+          "oldAreaFraction": 0.010836
+        },
+        {
+          "code": "11350",
+          "name": "노원구",
+          "oldAreaFraction": 0.953462
+        },
+        {
+          "code": "41360",
+          "name": "남양주시",
+          "oldAreaFraction": 0.017098
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11120",
+      "oldName": "은평구",
+      "candidates": [
+        {
+          "code": "11380",
+          "name": "은평구",
+          "oldAreaFraction": 0.941306
+        },
+        {
+          "code": "11410",
+          "name": "서대문구",
+          "oldAreaFraction": 0.029711
+        },
+        {
+          "code": "41281",
+          "name": "고양시덕양구",
+          "oldAreaFraction": 0.025781
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11130",
+      "oldName": "서대문구",
+      "candidates": [
+        {
+          "code": "11110",
+          "name": "종로구",
+          "oldAreaFraction": 0.029011
+        },
+        {
+          "code": "11410",
+          "name": "서대문구",
+          "oldAreaFraction": 0.96063
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11140",
+      "oldName": "마포구",
+      "candidates": [
+        {
+          "code": "11410",
+          "name": "서대문구",
+          "oldAreaFraction": 0.021816
+        },
+        {
+          "code": "11440",
+          "name": "마포구",
+          "oldAreaFraction": 0.95614
+        },
+        {
+          "code": "11560",
+          "name": "영등포구",
+          "oldAreaFraction": 0.015923
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11150",
+      "oldName": "양천구",
+      "candidates": [
+        {
+          "code": "11470",
+          "name": "양천구",
+          "oldAreaFraction": 0.960449
+        },
+        {
+          "code": "11560",
+          "name": "영등포구",
+          "oldAreaFraction": 0.030329
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11160",
+      "oldName": "강서구",
+      "candidates": [
+        {
+          "code": "11470",
+          "name": "양천구",
+          "oldAreaFraction": 0.017491
+        },
+        {
+          "code": "11500",
+          "name": "강서구",
+          "oldAreaFraction": 0.963058
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11170",
+      "oldName": "구로구",
+      "candidates": [
+        {
+          "code": "11470",
+          "name": "양천구",
+          "oldAreaFraction": 0.065711
+        },
+        {
+          "code": "11530",
+          "name": "구로구",
+          "oldAreaFraction": 0.882467
+        },
+        {
+          "code": "41210",
+          "name": "광명시",
+          "oldAreaFraction": 0.028962
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11180",
+      "oldName": "금천구",
+      "candidates": [
+        {
+          "code": "11530",
+          "name": "구로구",
+          "oldAreaFraction": 0.015688
+        },
+        {
+          "code": "11545",
+          "name": "금천구",
+          "oldAreaFraction": 0.913642
+        },
+        {
+          "code": "11620",
+          "name": "관악구",
+          "oldAreaFraction": 0.023164
+        },
+        {
+          "code": "41210",
+          "name": "광명시",
+          "oldAreaFraction": 0.041858
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11190",
+      "oldName": "영등포구",
+      "candidates": [
+        {
+          "code": "11560",
+          "name": "영등포구",
+          "oldAreaFraction": 0.971543
+        },
+        {
+          "code": "11590",
+          "name": "동작구",
+          "oldAreaFraction": 0.014644
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11200",
+      "oldName": "동작구",
+      "candidates": [
+        {
+          "code": "11170",
+          "name": "용산구",
+          "oldAreaFraction": 0.0127
+        },
+        {
+          "code": "11590",
+          "name": "동작구",
+          "oldAreaFraction": 0.947104
+        },
+        {
+          "code": "11620",
+          "name": "관악구",
+          "oldAreaFraction": 0.034887
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11210",
+      "oldName": "관악구",
+      "candidates": [
+        {
+          "code": "11545",
+          "name": "금천구",
+          "oldAreaFraction": 0.023129
+        },
+        {
+          "code": "11590",
+          "name": "동작구",
+          "oldAreaFraction": 0.017522
+        },
+        {
+          "code": "11620",
+          "name": "관악구",
+          "oldAreaFraction": 0.949832
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11220",
+      "oldName": "서초구",
+      "candidates": [
+        {
+          "code": "11650",
+          "name": "서초구",
+          "oldAreaFraction": 0.935909
+        },
+        {
+          "code": "41131",
+          "name": "성남시수정구",
+          "oldAreaFraction": 0.014534
+        },
+        {
+          "code": "41290",
+          "name": "과천시",
+          "oldAreaFraction": 0.026672
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11230",
+      "oldName": "강남구",
+      "candidates": [
+        {
+          "code": "11650",
+          "name": "서초구",
+          "oldAreaFraction": 0.023317
+        },
+        {
+          "code": "11680",
+          "name": "강남구",
+          "oldAreaFraction": 0.972518
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11240",
+      "oldName": "송파구",
+      "candidates": [
+        {
+          "code": "11215",
+          "name": "광진구",
+          "oldAreaFraction": 0.015208
+        },
+        {
+          "code": "11710",
+          "name": "송파구",
+          "oldAreaFraction": 0.958823
+        },
+        {
+          "code": "41450",
+          "name": "하남시",
+          "oldAreaFraction": 0.010847
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "11250",
+      "oldName": "강동구",
+      "candidates": [
+        {
+          "code": "11740",
+          "name": "강동구",
+          "oldAreaFraction": 0.977849
+        },
+        {
+          "code": "41450",
+          "name": "하남시",
+          "oldAreaFraction": 0.01493
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21010",
+      "oldName": "중구",
+      "candidates": [
+        {
+          "code": "26110",
+          "name": "중구",
+          "oldAreaFraction": 0.980532
+        },
+        {
+          "code": "26140",
+          "name": "서구",
+          "oldAreaFraction": 0.016122
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21020",
+      "oldName": "서구",
+      "candidates": [
+        {
+          "code": "26110",
+          "name": "중구",
+          "oldAreaFraction": 0.042649
+        },
+        {
+          "code": "26140",
+          "name": "서구",
+          "oldAreaFraction": 0.843986
+        },
+        {
+          "code": "26170",
+          "name": "동구",
+          "oldAreaFraction": 0.01347
+        },
+        {
+          "code": "26380",
+          "name": "사하구",
+          "oldAreaFraction": 0.071957
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21030",
+      "oldName": "동구",
+      "candidates": [
+        {
+          "code": "26110",
+          "name": "중구",
+          "oldAreaFraction": 0.033085
+        },
+        {
+          "code": "26170",
+          "name": "동구",
+          "oldAreaFraction": 0.919398
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21040",
+      "oldName": "영도구",
+      "candidates": [
+        {
+          "code": "26200",
+          "name": "영도구",
+          "oldAreaFraction": 0.91854
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21050",
+      "oldName": "부산진구",
+      "candidates": [
+        {
+          "code": "26170",
+          "name": "동구",
+          "oldAreaFraction": 0.019496
+        },
+        {
+          "code": "26230",
+          "name": "부산진구",
+          "oldAreaFraction": 0.934787
+        },
+        {
+          "code": "26290",
+          "name": "남구",
+          "oldAreaFraction": 0.012863
+        },
+        {
+          "code": "26470",
+          "name": "연제구",
+          "oldAreaFraction": 0.019091
+        },
+        {
+          "code": "26530",
+          "name": "사상구",
+          "oldAreaFraction": 0.012834
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21060",
+      "oldName": "동래구",
+      "candidates": [
+        {
+          "code": "26260",
+          "name": "동래구",
+          "oldAreaFraction": 0.942965
+        },
+        {
+          "code": "26410",
+          "name": "금정구",
+          "oldAreaFraction": 0.041977
+        },
+        {
+          "code": "26470",
+          "name": "연제구",
+          "oldAreaFraction": 0.011323
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21070",
+      "oldName": "남구",
+      "candidates": [
+        {
+          "code": "26290",
+          "name": "남구",
+          "oldAreaFraction": 0.963664
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21080",
+      "oldName": "북구",
+      "candidates": [
+        {
+          "code": "26230",
+          "name": "부산진구",
+          "oldAreaFraction": 0.013121
+        },
+        {
+          "code": "26320",
+          "name": "북구",
+          "oldAreaFraction": 0.939313
+        },
+        {
+          "code": "26410",
+          "name": "금정구",
+          "oldAreaFraction": 0.011614
+        },
+        {
+          "code": "48250",
+          "name": "김해시",
+          "oldAreaFraction": 0.018088
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21090",
+      "oldName": "해운대구",
+      "candidates": [
+        {
+          "code": "26350",
+          "name": "해운대구",
+          "oldAreaFraction": 0.942095
+        },
+        {
+          "code": "26710",
+          "name": "기장군",
+          "oldAreaFraction": 0.023726
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21100",
+      "oldName": "사하구",
+      "candidates": [
+        {
+          "code": "26380",
+          "name": "사하구",
+          "oldAreaFraction": 0.871757
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21110",
+      "oldName": "금정구",
+      "candidates": [
+        {
+          "code": "26410",
+          "name": "금정구",
+          "oldAreaFraction": 0.984032
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21120",
+      "oldName": "강서구",
+      "candidates": [
+        {
+          "code": "26440",
+          "name": "강서구",
+          "oldAreaFraction": 0.946622
+        },
+        {
+          "code": "48250",
+          "name": "김해시",
+          "oldAreaFraction": 0.015775
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21130",
+      "oldName": "연제구",
+      "candidates": [
+        {
+          "code": "26230",
+          "name": "부산진구",
+          "oldAreaFraction": 0.030951
+        },
+        {
+          "code": "26260",
+          "name": "동래구",
+          "oldAreaFraction": 0.048861
+        },
+        {
+          "code": "26470",
+          "name": "연제구",
+          "oldAreaFraction": 0.898861
+        },
+        {
+          "code": "26500",
+          "name": "수영구",
+          "oldAreaFraction": 0.018801
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21140",
+      "oldName": "수영구",
+      "candidates": [
+        {
+          "code": "26290",
+          "name": "남구",
+          "oldAreaFraction": 0.026794
+        },
+        {
+          "code": "26350",
+          "name": "해운대구",
+          "oldAreaFraction": 0.0284
+        },
+        {
+          "code": "26470",
+          "name": "연제구",
+          "oldAreaFraction": 0.038488
+        },
+        {
+          "code": "26500",
+          "name": "수영구",
+          "oldAreaFraction": 0.900306
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21150",
+      "oldName": "사상구",
+      "candidates": [
+        {
+          "code": "26140",
+          "name": "서구",
+          "oldAreaFraction": 0.020234
+        },
+        {
+          "code": "26320",
+          "name": "북구",
+          "oldAreaFraction": 0.011376
+        },
+        {
+          "code": "26380",
+          "name": "사하구",
+          "oldAreaFraction": 0.017929
+        },
+        {
+          "code": "26530",
+          "name": "사상구",
+          "oldAreaFraction": 0.938683
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "21310",
+      "oldName": "기장군",
+      "candidates": [
+        {
+          "code": "26710",
+          "name": "기장군",
+          "oldAreaFraction": 0.973351
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22010",
+      "oldName": "중구",
+      "candidates": [
+        {
+          "code": "27110",
+          "name": "중구",
+          "oldAreaFraction": 0.915225
+        },
+        {
+          "code": "27170",
+          "name": "서구",
+          "oldAreaFraction": 0.014911
+        },
+        {
+          "code": "27230",
+          "name": "북구",
+          "oldAreaFraction": 0.049015
+        },
+        {
+          "code": "27260",
+          "name": "수성구",
+          "oldAreaFraction": 0.02066
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22020",
+      "oldName": "동구",
+      "candidates": [
+        {
+          "code": "27140",
+          "name": "동구",
+          "oldAreaFraction": 0.979967
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22030",
+      "oldName": "서구",
+      "candidates": [
+        {
+          "code": "27170",
+          "name": "서구",
+          "oldAreaFraction": 0.929194
+        },
+        {
+          "code": "27230",
+          "name": "북구",
+          "oldAreaFraction": 0.035982
+        },
+        {
+          "code": "27710",
+          "name": "달성군",
+          "oldAreaFraction": 0.017972
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22040",
+      "oldName": "남구",
+      "candidates": [
+        {
+          "code": "27110",
+          "name": "중구",
+          "oldAreaFraction": 0.017458
+        },
+        {
+          "code": "27200",
+          "name": "남구",
+          "oldAreaFraction": 0.952785
+        },
+        {
+          "code": "27260",
+          "name": "수성구",
+          "oldAreaFraction": 0.011709
+        },
+        {
+          "code": "27290",
+          "name": "달서구",
+          "oldAreaFraction": 0.018029
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22050",
+      "oldName": "북구",
+      "candidates": [
+        {
+          "code": "27140",
+          "name": "동구",
+          "oldAreaFraction": 0.012144
+        },
+        {
+          "code": "27230",
+          "name": "북구",
+          "oldAreaFraction": 0.964194
+        },
+        {
+          "code": "47850",
+          "name": "칠곡군",
+          "oldAreaFraction": 0.013783
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22060",
+      "oldName": "수성구",
+      "candidates": [
+        {
+          "code": "27260",
+          "name": "수성구",
+          "oldAreaFraction": 0.973916
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22070",
+      "oldName": "달서구",
+      "candidates": [
+        {
+          "code": "27290",
+          "name": "달서구",
+          "oldAreaFraction": 0.960951
+        },
+        {
+          "code": "27710",
+          "name": "달성군",
+          "oldAreaFraction": 0.027928
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "22310",
+      "oldName": "달성군",
+      "candidates": [
+        {
+          "code": "27710",
+          "name": "달성군",
+          "oldAreaFraction": 0.968987
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23010",
+      "oldName": "중구",
+      "candidates": [
+        {
+          "code": "28125",
+          "name": "제물포구",
+          "oldAreaFraction": 0.097401
+        },
+        {
+          "code": "28155",
+          "name": "영종구",
+          "oldAreaFraction": 0.853744
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23020",
+      "oldName": "동구",
+      "candidates": [
+        {
+          "code": "28125",
+          "name": "제물포구",
+          "oldAreaFraction": 0.981805
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23030",
+      "oldName": "남구",
+      "candidates": [
+        {
+          "code": "28125",
+          "name": "제물포구",
+          "oldAreaFraction": 0.026926
+        },
+        {
+          "code": "28177",
+          "name": "미추홀구",
+          "oldAreaFraction": 0.947431
+        },
+        {
+          "code": "28185",
+          "name": "연수구",
+          "oldAreaFraction": 0.016138
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23040",
+      "oldName": "연수구",
+      "candidates": [
+        {
+          "code": "28185",
+          "name": "연수구",
+          "oldAreaFraction": 0.938994
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23050",
+      "oldName": "남동구",
+      "candidates": [
+        {
+          "code": "28200",
+          "name": "남동구",
+          "oldAreaFraction": 0.963752
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23060",
+      "oldName": "부평구",
+      "candidates": [
+        {
+          "code": "28200",
+          "name": "남동구",
+          "oldAreaFraction": 0.026483
+        },
+        {
+          "code": "28237",
+          "name": "부평구",
+          "oldAreaFraction": 0.957588
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23070",
+      "oldName": "계양구",
+      "candidates": [
+        {
+          "code": "28245",
+          "name": "계양구",
+          "oldAreaFraction": 0.953498
+        },
+        {
+          "code": "28275",
+          "name": "서해구",
+          "oldAreaFraction": 0.014639
+        },
+        {
+          "code": "41570",
+          "name": "김포시",
+          "oldAreaFraction": 0.010121
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23080",
+      "oldName": "서구",
+      "candidates": [
+        {
+          "code": "28245",
+          "name": "계양구",
+          "oldAreaFraction": 0.015181
+        },
+        {
+          "code": "28275",
+          "name": "서해구",
+          "oldAreaFraction": 0.519398
+        },
+        {
+          "code": "28290",
+          "name": "검단구",
+          "oldAreaFraction": 0.43162
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23310",
+      "oldName": "강화군",
+      "candidates": [
+        {
+          "code": "28710",
+          "name": "강화군",
+          "oldAreaFraction": 0.975944
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "23320",
+      "oldName": "옹진군",
+      "candidates": [
+        {
+          "code": "28720",
+          "name": "옹진군",
+          "oldAreaFraction": 0.920313
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "24010",
+      "oldName": "동구",
+      "candidates": [
+        {
+          "code": "12210",
+          "name": "동구",
+          "oldAreaFraction": 0.950979
+        },
+        {
+          "code": "12270",
+          "name": "남구",
+          "oldAreaFraction": 0.021948
+        },
+        {
+          "code": "12300",
+          "name": "북구",
+          "oldAreaFraction": 0.021783
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "24020",
+      "oldName": "서구",
+      "candidates": [
+        {
+          "code": "12240",
+          "name": "서구",
+          "oldAreaFraction": 0.946498
+        },
+        {
+          "code": "12270",
+          "name": "남구",
+          "oldAreaFraction": 0.024929
+        },
+        {
+          "code": "12330",
+          "name": "광산구",
+          "oldAreaFraction": 0.018689
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "24030",
+      "oldName": "남구",
+      "candidates": [
+        {
+          "code": "12170",
+          "name": "나주시",
+          "oldAreaFraction": 0.019796
+        },
+        {
+          "code": "12240",
+          "name": "서구",
+          "oldAreaFraction": 0.018829
+        },
+        {
+          "code": "12270",
+          "name": "남구",
+          "oldAreaFraction": 0.956008
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "24040",
+      "oldName": "북구",
+      "candidates": [
+        {
+          "code": "12300",
+          "name": "북구",
+          "oldAreaFraction": 0.982226
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "24050",
+      "oldName": "광산구",
+      "candidates": [
+        {
+          "code": "12330",
+          "name": "광산구",
+          "oldAreaFraction": 0.984737
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "25010",
+      "oldName": "동구",
+      "candidates": [
+        {
+          "code": "30110",
+          "name": "동구",
+          "oldAreaFraction": 0.953899
+        },
+        {
+          "code": "30140",
+          "name": "중구",
+          "oldAreaFraction": 0.018339
+        },
+        {
+          "code": "30230",
+          "name": "대덕구",
+          "oldAreaFraction": 0.012627
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "25020",
+      "oldName": "중구",
+      "candidates": [
+        {
+          "code": "30110",
+          "name": "동구",
+          "oldAreaFraction": 0.017999
+        },
+        {
+          "code": "30140",
+          "name": "중구",
+          "oldAreaFraction": 0.973047
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "25030",
+      "oldName": "서구",
+      "candidates": [
+        {
+          "code": "30170",
+          "name": "서구",
+          "oldAreaFraction": 0.981285
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "25040",
+      "oldName": "유성구",
+      "candidates": [
+        {
+          "code": "30200",
+          "name": "유성구",
+          "oldAreaFraction": 0.979038
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "25050",
+      "oldName": "대덕구",
+      "candidates": [
+        {
+          "code": "30110",
+          "name": "동구",
+          "oldAreaFraction": 0.016232
+        },
+        {
+          "code": "30230",
+          "name": "대덕구",
+          "oldAreaFraction": 0.957838
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "26010",
+      "oldName": "중구",
+      "candidates": [
+        {
+          "code": "31110",
+          "name": "중구",
+          "oldAreaFraction": 0.934541
+        },
+        {
+          "code": "31200",
+          "name": "북구",
+          "oldAreaFraction": 0.014901
+        },
+        {
+          "code": "31710",
+          "name": "울주군",
+          "oldAreaFraction": 0.042352
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "26020",
+      "oldName": "남구",
+      "candidates": [
+        {
+          "code": "31140",
+          "name": "남구",
+          "oldAreaFraction": 0.957023
+        },
+        {
+          "code": "31710",
+          "name": "울주군",
+          "oldAreaFraction": 0.012021
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "26030",
+      "oldName": "동구",
+      "candidates": [
+        {
+          "code": "31170",
+          "name": "동구",
+          "oldAreaFraction": 0.884291
+        },
+        {
+          "code": "31200",
+          "name": "북구",
+          "oldAreaFraction": 0.052477
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "26040",
+      "oldName": "북구",
+      "candidates": [
+        {
+          "code": "31200",
+          "name": "북구",
+          "oldAreaFraction": 0.981974
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "26310",
+      "oldName": "울주군",
+      "candidates": [
+        {
+          "code": "31710",
+          "name": "울주군",
+          "oldAreaFraction": 0.985668
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "29010",
+      "oldName": "세종시",
+      "candidates": [
+        {
+          "code": "36110",
+          "name": "세종특별자치시",
+          "oldAreaFraction": 0.97663
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31011",
+      "oldName": "수원시장안구",
+      "candidates": [
+        {
+          "code": "41111",
+          "name": "수원시장안구",
+          "oldAreaFraction": 0.943631
+        },
+        {
+          "code": "41115",
+          "name": "수원시팔달구",
+          "oldAreaFraction": 0.010246
+        },
+        {
+          "code": "41430",
+          "name": "의왕시",
+          "oldAreaFraction": 0.028909
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31012",
+      "oldName": "수원시권선구",
+      "candidates": [
+        {
+          "code": "41113",
+          "name": "수원시권선구",
+          "oldAreaFraction": 0.957253
+        },
+        {
+          "code": "41271",
+          "name": "안산시상록구",
+          "oldAreaFraction": 0.012645
+        },
+        {
+          "code": "41593",
+          "name": "화성시효행구",
+          "oldAreaFraction": 0.013191
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31013",
+      "oldName": "수원시팔달구",
+      "candidates": [
+        {
+          "code": "41111",
+          "name": "수원시장안구",
+          "oldAreaFraction": 0.020667
+        },
+        {
+          "code": "41113",
+          "name": "수원시권선구",
+          "oldAreaFraction": 0.025468
+        },
+        {
+          "code": "41115",
+          "name": "수원시팔달구",
+          "oldAreaFraction": 0.915381
+        },
+        {
+          "code": "41117",
+          "name": "수원시영통구",
+          "oldAreaFraction": 0.038486
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31014",
+      "oldName": "수원시영통구",
+      "candidates": [
+        {
+          "code": "41115",
+          "name": "수원시팔달구",
+          "oldAreaFraction": 0.01867
+        },
+        {
+          "code": "41117",
+          "name": "수원시영통구",
+          "oldAreaFraction": 0.941849
+        },
+        {
+          "code": "41463",
+          "name": "용인시기흥구",
+          "oldAreaFraction": 0.019939
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31021",
+      "oldName": "성남시수정구",
+      "candidates": [
+        {
+          "code": "41131",
+          "name": "성남시수정구",
+          "oldAreaFraction": 0.969499
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31022",
+      "oldName": "성남시중원구",
+      "candidates": [
+        {
+          "code": "41133",
+          "name": "성남시중원구",
+          "oldAreaFraction": 0.961759
+        },
+        {
+          "code": "41610",
+          "name": "광주시",
+          "oldAreaFraction": 0.023467
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31023",
+      "oldName": "성남시분당구",
+      "candidates": [
+        {
+          "code": "41135",
+          "name": "성남시분당구",
+          "oldAreaFraction": 0.976901
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31030",
+      "oldName": "의정부시",
+      "candidates": [
+        {
+          "code": "41150",
+          "name": "의정부시",
+          "oldAreaFraction": 0.958751
+        },
+        {
+          "code": "41360",
+          "name": "남양주시",
+          "oldAreaFraction": 0.012221
+        },
+        {
+          "code": "41630",
+          "name": "양주시",
+          "oldAreaFraction": 0.01218
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31041",
+      "oldName": "안양시만안구",
+      "candidates": [
+        {
+          "code": "41171",
+          "name": "안양시만안구",
+          "oldAreaFraction": 0.959749
+        },
+        {
+          "code": "41173",
+          "name": "안양시동안구",
+          "oldAreaFraction": 0.017183
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31042",
+      "oldName": "안양시동안구",
+      "candidates": [
+        {
+          "code": "41171",
+          "name": "안양시만안구",
+          "oldAreaFraction": 0.01094
+        },
+        {
+          "code": "41173",
+          "name": "안양시동안구",
+          "oldAreaFraction": 0.9653
+        },
+        {
+          "code": "41430",
+          "name": "의왕시",
+          "oldAreaFraction": 0.012764
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31050",
+      "oldName": "부천시",
+      "candidates": [
+        {
+          "code": "11470",
+          "name": "양천구",
+          "oldAreaFraction": 0.012361
+        },
+        {
+          "code": "11500",
+          "name": "강서구",
+          "oldAreaFraction": 0.013357
+        },
+        {
+          "code": "11530",
+          "name": "구로구",
+          "oldAreaFraction": 0.012957
+        },
+        {
+          "code": "28237",
+          "name": "부평구",
+          "oldAreaFraction": 0.017701
+        },
+        {
+          "code": "41192",
+          "name": "부천시원미구",
+          "oldAreaFraction": 0.364833
+        },
+        {
+          "code": "41194",
+          "name": "부천시소사구",
+          "oldAreaFraction": 0.219919
+        },
+        {
+          "code": "41196",
+          "name": "부천시오정구",
+          "oldAreaFraction": 0.354157
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31060",
+      "oldName": "광명시",
+      "candidates": [
+        {
+          "code": "41171",
+          "name": "안양시만안구",
+          "oldAreaFraction": 0.022548
+        },
+        {
+          "code": "41210",
+          "name": "광명시",
+          "oldAreaFraction": 0.944754
+        },
+        {
+          "code": "41390",
+          "name": "시흥시",
+          "oldAreaFraction": 0.014153
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31070",
+      "oldName": "평택시",
+      "candidates": [
+        {
+          "code": "41220",
+          "name": "평택시",
+          "oldAreaFraction": 0.970617
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31080",
+      "oldName": "동두천시",
+      "candidates": [
+        {
+          "code": "41250",
+          "name": "동두천시",
+          "oldAreaFraction": 0.976437
+        },
+        {
+          "code": "41650",
+          "name": "포천시",
+          "oldAreaFraction": 0.01189
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31091",
+      "oldName": "안산시상록구",
+      "candidates": [
+        {
+          "code": "41271",
+          "name": "안산시상록구",
+          "oldAreaFraction": 0.952897
+        },
+        {
+          "code": "41410",
+          "name": "군포시",
+          "oldAreaFraction": 0.011747
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31092",
+      "oldName": "안산시단원구",
+      "candidates": [
+        {
+          "code": "41273",
+          "name": "안산시단원구",
+          "oldAreaFraction": 0.917884
+        },
+        {
+          "code": "41390",
+          "name": "시흥시",
+          "oldAreaFraction": 0.011131
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31101",
+      "oldName": "고양시덕양구",
+      "candidates": [
+        {
+          "code": "41281",
+          "name": "고양시덕양구",
+          "oldAreaFraction": 0.968598
+        },
+        {
+          "code": "41285",
+          "name": "고양시일산동구",
+          "oldAreaFraction": 0.010975
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31103",
+      "oldName": "고양시일산동구",
+      "candidates": [
+        {
+          "code": "41285",
+          "name": "고양시일산동구",
+          "oldAreaFraction": 0.980157
+        },
+        {
+          "code": "41287",
+          "name": "고양시일산서구",
+          "oldAreaFraction": 0.012422
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31104",
+      "oldName": "고양시일산서구",
+      "candidates": [
+        {
+          "code": "41287",
+          "name": "고양시일산서구",
+          "oldAreaFraction": 0.985232
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31110",
+      "oldName": "과천시",
+      "candidates": [
+        {
+          "code": "11650",
+          "name": "서초구",
+          "oldAreaFraction": 0.010234
+        },
+        {
+          "code": "41173",
+          "name": "안양시동안구",
+          "oldAreaFraction": 0.011828
+        },
+        {
+          "code": "41290",
+          "name": "과천시",
+          "oldAreaFraction": 0.953851
+        },
+        {
+          "code": "41430",
+          "name": "의왕시",
+          "oldAreaFraction": 0.015806
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31120",
+      "oldName": "구리시",
+      "candidates": [
+        {
+          "code": "11260",
+          "name": "중랑구",
+          "oldAreaFraction": 0.013308
+        },
+        {
+          "code": "41310",
+          "name": "구리시",
+          "oldAreaFraction": 0.940761
+        },
+        {
+          "code": "41360",
+          "name": "남양주시",
+          "oldAreaFraction": 0.022925
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31130",
+      "oldName": "남양주시",
+      "candidates": [
+        {
+          "code": "41360",
+          "name": "남양주시",
+          "oldAreaFraction": 0.988355
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31140",
+      "oldName": "오산시",
+      "candidates": [
+        {
+          "code": "41220",
+          "name": "평택시",
+          "oldAreaFraction": 0.011673
+        },
+        {
+          "code": "41370",
+          "name": "오산시",
+          "oldAreaFraction": 0.963952
+        },
+        {
+          "code": "41597",
+          "name": "화성시동탄구",
+          "oldAreaFraction": 0.012506
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31150",
+      "oldName": "시흥시",
+      "candidates": [
+        {
+          "code": "41390",
+          "name": "시흥시",
+          "oldAreaFraction": 0.966548
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31160",
+      "oldName": "군포시",
+      "candidates": [
+        {
+          "code": "41410",
+          "name": "군포시",
+          "oldAreaFraction": 0.969933
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31170",
+      "oldName": "의왕시",
+      "candidates": [
+        {
+          "code": "41410",
+          "name": "군포시",
+          "oldAreaFraction": 0.011402
+        },
+        {
+          "code": "41430",
+          "name": "의왕시",
+          "oldAreaFraction": 0.953784
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31180",
+      "oldName": "하남시",
+      "candidates": [
+        {
+          "code": "41450",
+          "name": "하남시",
+          "oldAreaFraction": 0.974071
+        },
+        {
+          "code": "41610",
+          "name": "광주시",
+          "oldAreaFraction": 0.011672
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31191",
+      "oldName": "용인시처인구",
+      "candidates": [
+        {
+          "code": "41461",
+          "name": "용인시처인구",
+          "oldAreaFraction": 0.983811
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31192",
+      "oldName": "용인시기흥구",
+      "candidates": [
+        {
+          "code": "41117",
+          "name": "수원시영통구",
+          "oldAreaFraction": 0.012307
+        },
+        {
+          "code": "41463",
+          "name": "용인시기흥구",
+          "oldAreaFraction": 0.97753
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31193",
+      "oldName": "용인시수지구",
+      "candidates": [
+        {
+          "code": "41135",
+          "name": "성남시분당구",
+          "oldAreaFraction": 0.015269
+        },
+        {
+          "code": "41463",
+          "name": "용인시기흥구",
+          "oldAreaFraction": 0.014257
+        },
+        {
+          "code": "41465",
+          "name": "용인시수지구",
+          "oldAreaFraction": 0.959711
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31200",
+      "oldName": "파주시",
+      "candidates": [
+        {
+          "code": "41480",
+          "name": "파주시",
+          "oldAreaFraction": 0.962154
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31210",
+      "oldName": "이천시",
+      "candidates": [
+        {
+          "code": "41500",
+          "name": "이천시",
+          "oldAreaFraction": 0.982833
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31220",
+      "oldName": "안성시",
+      "candidates": [
+        {
+          "code": "41550",
+          "name": "안성시",
+          "oldAreaFraction": 0.980041
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31230",
+      "oldName": "김포시",
+      "candidates": [
+        {
+          "code": "41570",
+          "name": "김포시",
+          "oldAreaFraction": 0.974557
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31240",
+      "oldName": "화성시",
+      "candidates": [
+        {
+          "code": "41591",
+          "name": "화성시만세구",
+          "oldAreaFraction": 0.660049
+        },
+        {
+          "code": "41593",
+          "name": "화성시효행구",
+          "oldAreaFraction": 0.215484
+        },
+        {
+          "code": "41595",
+          "name": "화성시병점구",
+          "oldAreaFraction": 0.034905
+        },
+        {
+          "code": "41597",
+          "name": "화성시동탄구",
+          "oldAreaFraction": 0.076155
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31250",
+      "oldName": "광주시",
+      "candidates": [
+        {
+          "code": "41610",
+          "name": "광주시",
+          "oldAreaFraction": 0.983724
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31260",
+      "oldName": "양주시",
+      "candidates": [
+        {
+          "code": "41630",
+          "name": "양주시",
+          "oldAreaFraction": 0.981181
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31270",
+      "oldName": "포천시",
+      "candidates": [
+        {
+          "code": "41650",
+          "name": "포천시",
+          "oldAreaFraction": 0.990485
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31280",
+      "oldName": "여주시",
+      "candidates": [
+        {
+          "code": "41670",
+          "name": "여주시",
+          "oldAreaFraction": 0.985171
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31350",
+      "oldName": "연천군",
+      "candidates": [
+        {
+          "code": "41800",
+          "name": "연천군",
+          "oldAreaFraction": 0.957441
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31370",
+      "oldName": "가평군",
+      "candidates": [
+        {
+          "code": "41820",
+          "name": "가평군",
+          "oldAreaFraction": 0.985215
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "31380",
+      "oldName": "양평군",
+      "candidates": [
+        {
+          "code": "41830",
+          "name": "양평군",
+          "oldAreaFraction": 0.989441
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32010",
+      "oldName": "춘천시",
+      "candidates": [
+        {
+          "code": "51110",
+          "name": "춘천시",
+          "oldAreaFraction": 0.988961
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32020",
+      "oldName": "원주시",
+      "candidates": [
+        {
+          "code": "51130",
+          "name": "원주시",
+          "oldAreaFraction": 0.987155
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32030",
+      "oldName": "강릉시",
+      "candidates": [
+        {
+          "code": "51150",
+          "name": "강릉시",
+          "oldAreaFraction": 0.989719
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32040",
+      "oldName": "동해시",
+      "candidates": [
+        {
+          "code": "51170",
+          "name": "동해시",
+          "oldAreaFraction": 0.972891
+        },
+        {
+          "code": "51230",
+          "name": "삼척시",
+          "oldAreaFraction": 0.01278
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32050",
+      "oldName": "태백시",
+      "candidates": [
+        {
+          "code": "51190",
+          "name": "태백시",
+          "oldAreaFraction": 0.982791
+        },
+        {
+          "code": "51230",
+          "name": "삼척시",
+          "oldAreaFraction": 0.012338
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32060",
+      "oldName": "속초시",
+      "candidates": [
+        {
+          "code": "51210",
+          "name": "속초시",
+          "oldAreaFraction": 0.966777
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32070",
+      "oldName": "삼척시",
+      "candidates": [
+        {
+          "code": "51230",
+          "name": "삼척시",
+          "oldAreaFraction": 0.99088
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32310",
+      "oldName": "홍천군",
+      "candidates": [
+        {
+          "code": "51720",
+          "name": "홍천군",
+          "oldAreaFraction": 0.990098
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32320",
+      "oldName": "횡성군",
+      "candidates": [
+        {
+          "code": "51730",
+          "name": "횡성군",
+          "oldAreaFraction": 0.989521
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32330",
+      "oldName": "영월군",
+      "candidates": [
+        {
+          "code": "51750",
+          "name": "영월군",
+          "oldAreaFraction": 0.984483
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32340",
+      "oldName": "평창군",
+      "candidates": [
+        {
+          "code": "51760",
+          "name": "평창군",
+          "oldAreaFraction": 0.992083
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32350",
+      "oldName": "정선군",
+      "candidates": [
+        {
+          "code": "51770",
+          "name": "정선군",
+          "oldAreaFraction": 0.99028
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32360",
+      "oldName": "철원군",
+      "candidates": [
+        {
+          "code": "51780",
+          "name": "철원군",
+          "oldAreaFraction": 0.985813
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32370",
+      "oldName": "화천군",
+      "candidates": [
+        {
+          "code": "51790",
+          "name": "화천군",
+          "oldAreaFraction": 0.990311
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32380",
+      "oldName": "양구군",
+      "candidates": [
+        {
+          "code": "51800",
+          "name": "양구군",
+          "oldAreaFraction": 0.987285
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32390",
+      "oldName": "인제군",
+      "candidates": [
+        {
+          "code": "51810",
+          "name": "인제군",
+          "oldAreaFraction": 0.992081
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32400",
+      "oldName": "고성군",
+      "candidates": [
+        {
+          "code": "51820",
+          "name": "고성군",
+          "oldAreaFraction": 0.991965
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "32410",
+      "oldName": "양양군",
+      "candidates": [
+        {
+          "code": "51830",
+          "name": "양양군",
+          "oldAreaFraction": 0.990083
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33020",
+      "oldName": "충주시",
+      "candidates": [
+        {
+          "code": "43130",
+          "name": "충주시",
+          "oldAreaFraction": 0.987971
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33030",
+      "oldName": "제천시",
+      "candidates": [
+        {
+          "code": "43150",
+          "name": "제천시",
+          "oldAreaFraction": 0.984912
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33041",
+      "oldName": "청주시상당구",
+      "candidates": [
+        {
+          "code": "43111",
+          "name": "청주시상당구",
+          "oldAreaFraction": 0.984689
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33042",
+      "oldName": "청주시서원구",
+      "candidates": [
+        {
+          "code": "43111",
+          "name": "청주시상당구",
+          "oldAreaFraction": 0.018446
+        },
+        {
+          "code": "43112",
+          "name": "청주시서원구",
+          "oldAreaFraction": 0.965681
+        },
+        {
+          "code": "43113",
+          "name": "청주시흥덕구",
+          "oldAreaFraction": 0.010976
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33043",
+      "oldName": "청주시흥덕구",
+      "candidates": [
+        {
+          "code": "43113",
+          "name": "청주시흥덕구",
+          "oldAreaFraction": 0.989064
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33044",
+      "oldName": "청주시청원구",
+      "candidates": [
+        {
+          "code": "43114",
+          "name": "청주시청원구",
+          "oldAreaFraction": 0.969562
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33320",
+      "oldName": "보은군",
+      "candidates": [
+        {
+          "code": "43720",
+          "name": "보은군",
+          "oldAreaFraction": 0.985541
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33330",
+      "oldName": "옥천군",
+      "candidates": [
+        {
+          "code": "43730",
+          "name": "옥천군",
+          "oldAreaFraction": 0.989531
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33340",
+      "oldName": "영동군",
+      "candidates": [
+        {
+          "code": "43740",
+          "name": "영동군",
+          "oldAreaFraction": 0.988603
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33350",
+      "oldName": "진천군",
+      "candidates": [
+        {
+          "code": "43750",
+          "name": "진천군",
+          "oldAreaFraction": 0.984911
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33360",
+      "oldName": "괴산군",
+      "candidates": [
+        {
+          "code": "43760",
+          "name": "괴산군",
+          "oldAreaFraction": 0.98735
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33370",
+      "oldName": "음성군",
+      "candidates": [
+        {
+          "code": "43770",
+          "name": "음성군",
+          "oldAreaFraction": 0.984724
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33380",
+      "oldName": "단양군",
+      "candidates": [
+        {
+          "code": "43800",
+          "name": "단양군",
+          "oldAreaFraction": 0.991641
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "33390",
+      "oldName": "증평군",
+      "candidates": [
+        {
+          "code": "43745",
+          "name": "증평군",
+          "oldAreaFraction": 0.964895
+        },
+        {
+          "code": "43760",
+          "name": "괴산군",
+          "oldAreaFraction": 0.013902
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34011",
+      "oldName": "천안시동남구",
+      "candidates": [
+        {
+          "code": "44131",
+          "name": "천안시동남구",
+          "oldAreaFraction": 0.983282
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34012",
+      "oldName": "천안시서북구",
+      "candidates": [
+        {
+          "code": "41550",
+          "name": "안성시",
+          "oldAreaFraction": 0.010289
+        },
+        {
+          "code": "44131",
+          "name": "천안시동남구",
+          "oldAreaFraction": 0.027849
+        },
+        {
+          "code": "44133",
+          "name": "천안시서북구",
+          "oldAreaFraction": 0.947028
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34020",
+      "oldName": "공주시",
+      "candidates": [
+        {
+          "code": "44150",
+          "name": "공주시",
+          "oldAreaFraction": 0.988119
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34030",
+      "oldName": "보령시",
+      "candidates": [
+        {
+          "code": "44180",
+          "name": "보령시",
+          "oldAreaFraction": 0.97944
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34040",
+      "oldName": "아산시",
+      "candidates": [
+        {
+          "code": "44200",
+          "name": "아산시",
+          "oldAreaFraction": 0.992363
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34050",
+      "oldName": "서산시",
+      "candidates": [
+        {
+          "code": "44210",
+          "name": "서산시",
+          "oldAreaFraction": 0.981268
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34060",
+      "oldName": "논산시",
+      "candidates": [
+        {
+          "code": "44230",
+          "name": "논산시",
+          "oldAreaFraction": 0.98671
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34070",
+      "oldName": "계룡시",
+      "candidates": [
+        {
+          "code": "30200",
+          "name": "유성구",
+          "oldAreaFraction": 0.011038
+        },
+        {
+          "code": "44230",
+          "name": "논산시",
+          "oldAreaFraction": 0.016089
+        },
+        {
+          "code": "44250",
+          "name": "계룡시",
+          "oldAreaFraction": 0.963914
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34080",
+      "oldName": "당진시",
+      "candidates": [
+        {
+          "code": "44270",
+          "name": "당진시",
+          "oldAreaFraction": 0.989555
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34310",
+      "oldName": "금산군",
+      "candidates": [
+        {
+          "code": "44710",
+          "name": "금산군",
+          "oldAreaFraction": 0.979839
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34330",
+      "oldName": "부여군",
+      "candidates": [
+        {
+          "code": "44760",
+          "name": "부여군",
+          "oldAreaFraction": 0.987515
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34340",
+      "oldName": "서천군",
+      "candidates": [
+        {
+          "code": "44770",
+          "name": "서천군",
+          "oldAreaFraction": 0.981039
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34350",
+      "oldName": "청양군",
+      "candidates": [
+        {
+          "code": "44790",
+          "name": "청양군",
+          "oldAreaFraction": 0.984152
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34360",
+      "oldName": "홍성군",
+      "candidates": [
+        {
+          "code": "44800",
+          "name": "홍성군",
+          "oldAreaFraction": 0.98949
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34370",
+      "oldName": "예산군",
+      "candidates": [
+        {
+          "code": "44810",
+          "name": "예산군",
+          "oldAreaFraction": 0.98528
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "34380",
+      "oldName": "태안군",
+      "candidates": [
+        {
+          "code": "44825",
+          "name": "태안군",
+          "oldAreaFraction": 0.948469
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35011",
+      "oldName": "전주시완산구",
+      "candidates": [
+        {
+          "code": "52111",
+          "name": "전주시완산구",
+          "oldAreaFraction": 0.950471
+        },
+        {
+          "code": "52113",
+          "name": "전주시덕진구",
+          "oldAreaFraction": 0.026692
+        },
+        {
+          "code": "52710",
+          "name": "완주군",
+          "oldAreaFraction": 0.019085
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35012",
+      "oldName": "전주시덕진구",
+      "candidates": [
+        {
+          "code": "52113",
+          "name": "전주시덕진구",
+          "oldAreaFraction": 0.961282
+        },
+        {
+          "code": "52710",
+          "name": "완주군",
+          "oldAreaFraction": 0.025176
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35020",
+      "oldName": "군산시",
+      "candidates": [
+        {
+          "code": "52130",
+          "name": "군산시",
+          "oldAreaFraction": 0.961655
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35030",
+      "oldName": "익산시",
+      "candidates": [
+        {
+          "code": "52140",
+          "name": "익산시",
+          "oldAreaFraction": 0.987777
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35040",
+      "oldName": "정읍시",
+      "candidates": [
+        {
+          "code": "52180",
+          "name": "정읍시",
+          "oldAreaFraction": 0.986156
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35050",
+      "oldName": "남원시",
+      "candidates": [
+        {
+          "code": "52190",
+          "name": "남원시",
+          "oldAreaFraction": 0.985549
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35060",
+      "oldName": "김제시",
+      "candidates": [
+        {
+          "code": "52210",
+          "name": "김제시",
+          "oldAreaFraction": 0.986316
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35310",
+      "oldName": "완주군",
+      "candidates": [
+        {
+          "code": "52710",
+          "name": "완주군",
+          "oldAreaFraction": 0.979678
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35320",
+      "oldName": "진안군",
+      "candidates": [
+        {
+          "code": "52720",
+          "name": "진안군",
+          "oldAreaFraction": 0.99151
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35330",
+      "oldName": "무주군",
+      "candidates": [
+        {
+          "code": "52730",
+          "name": "무주군",
+          "oldAreaFraction": 0.98578
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35340",
+      "oldName": "장수군",
+      "candidates": [
+        {
+          "code": "52740",
+          "name": "장수군",
+          "oldAreaFraction": 0.983666
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35350",
+      "oldName": "임실군",
+      "candidates": [
+        {
+          "code": "52750",
+          "name": "임실군",
+          "oldAreaFraction": 0.987364
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35360",
+      "oldName": "순창군",
+      "candidates": [
+        {
+          "code": "52770",
+          "name": "순창군",
+          "oldAreaFraction": 0.982805
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35370",
+      "oldName": "고창군",
+      "candidates": [
+        {
+          "code": "52790",
+          "name": "고창군",
+          "oldAreaFraction": 0.981275
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "35380",
+      "oldName": "부안군",
+      "candidates": [
+        {
+          "code": "52800",
+          "name": "부안군",
+          "oldAreaFraction": 0.975328
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36010",
+      "oldName": "목포시",
+      "candidates": [
+        {
+          "code": "12110",
+          "name": "목포시",
+          "oldAreaFraction": 0.934393
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36020",
+      "oldName": "여수시",
+      "candidates": [
+        {
+          "code": "12130",
+          "name": "여수시",
+          "oldAreaFraction": 0.945571
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36030",
+      "oldName": "순천시",
+      "candidates": [
+        {
+          "code": "12150",
+          "name": "순천시",
+          "oldAreaFraction": 0.984413
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36040",
+      "oldName": "나주시",
+      "candidates": [
+        {
+          "code": "12170",
+          "name": "나주시",
+          "oldAreaFraction": 0.985876
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36060",
+      "oldName": "광양시",
+      "candidates": [
+        {
+          "code": "12190",
+          "name": "광양시",
+          "oldAreaFraction": 0.97489
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36310",
+      "oldName": "담양군",
+      "candidates": [
+        {
+          "code": "12710",
+          "name": "담양군",
+          "oldAreaFraction": 0.982879
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36320",
+      "oldName": "곡성군",
+      "candidates": [
+        {
+          "code": "12720",
+          "name": "곡성군",
+          "oldAreaFraction": 0.989594
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36330",
+      "oldName": "구례군",
+      "candidates": [
+        {
+          "code": "12730",
+          "name": "구례군",
+          "oldAreaFraction": 0.992224
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36350",
+      "oldName": "고흥군",
+      "candidates": [
+        {
+          "code": "12740",
+          "name": "고흥군",
+          "oldAreaFraction": 0.963368
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36360",
+      "oldName": "보성군",
+      "candidates": [
+        {
+          "code": "12750",
+          "name": "보성군",
+          "oldAreaFraction": 0.978669
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36370",
+      "oldName": "화순군",
+      "candidates": [
+        {
+          "code": "12760",
+          "name": "화순군",
+          "oldAreaFraction": 0.98944
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36380",
+      "oldName": "장흥군",
+      "candidates": [
+        {
+          "code": "12770",
+          "name": "장흥군",
+          "oldAreaFraction": 0.971535
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36390",
+      "oldName": "강진군",
+      "candidates": [
+        {
+          "code": "12780",
+          "name": "강진군",
+          "oldAreaFraction": 0.971068
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36400",
+      "oldName": "해남군",
+      "candidates": [
+        {
+          "code": "12790",
+          "name": "해남군",
+          "oldAreaFraction": 0.980852
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36410",
+      "oldName": "영암군",
+      "candidates": [
+        {
+          "code": "12800",
+          "name": "영암군",
+          "oldAreaFraction": 0.983823
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36420",
+      "oldName": "무안군",
+      "candidates": [
+        {
+          "code": "12810",
+          "name": "무안군",
+          "oldAreaFraction": 0.957859
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36430",
+      "oldName": "함평군",
+      "candidates": [
+        {
+          "code": "12820",
+          "name": "함평군",
+          "oldAreaFraction": 0.977704
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36440",
+      "oldName": "영광군",
+      "candidates": [
+        {
+          "code": "12830",
+          "name": "영광군",
+          "oldAreaFraction": 0.96362
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36450",
+      "oldName": "장성군",
+      "candidates": [
+        {
+          "code": "12840",
+          "name": "장성군",
+          "oldAreaFraction": 0.984448
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36460",
+      "oldName": "완도군",
+      "candidates": [
+        {
+          "code": "12850",
+          "name": "완도군",
+          "oldAreaFraction": 0.919338
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36470",
+      "oldName": "진도군",
+      "candidates": [
+        {
+          "code": "12860",
+          "name": "진도군",
+          "oldAreaFraction": 0.945335
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "36480",
+      "oldName": "신안군",
+      "candidates": [
+        {
+          "code": "12870",
+          "name": "신안군",
+          "oldAreaFraction": 0.914099
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37011",
+      "oldName": "포항시남구",
+      "candidates": [
+        {
+          "code": "47111",
+          "name": "포항시남구",
+          "oldAreaFraction": 0.982063
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37012",
+      "oldName": "포항시북구",
+      "candidates": [
+        {
+          "code": "47113",
+          "name": "포항시북구",
+          "oldAreaFraction": 0.989132
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37020",
+      "oldName": "경주시",
+      "candidates": [
+        {
+          "code": "47130",
+          "name": "경주시",
+          "oldAreaFraction": 0.989009
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37030",
+      "oldName": "김천시",
+      "candidates": [
+        {
+          "code": "47150",
+          "name": "김천시",
+          "oldAreaFraction": 0.99014
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37040",
+      "oldName": "안동시",
+      "candidates": [
+        {
+          "code": "47170",
+          "name": "안동시",
+          "oldAreaFraction": 0.98951
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37050",
+      "oldName": "구미시",
+      "candidates": [
+        {
+          "code": "47190",
+          "name": "구미시",
+          "oldAreaFraction": 0.984934
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37060",
+      "oldName": "영주시",
+      "candidates": [
+        {
+          "code": "47210",
+          "name": "영주시",
+          "oldAreaFraction": 0.985655
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37070",
+      "oldName": "영천시",
+      "candidates": [
+        {
+          "code": "47230",
+          "name": "영천시",
+          "oldAreaFraction": 0.990035
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37080",
+      "oldName": "상주시",
+      "candidates": [
+        {
+          "code": "47250",
+          "name": "상주시",
+          "oldAreaFraction": 0.988189
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37090",
+      "oldName": "문경시",
+      "candidates": [
+        {
+          "code": "47280",
+          "name": "문경시",
+          "oldAreaFraction": 0.985789
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37100",
+      "oldName": "경산시",
+      "candidates": [
+        {
+          "code": "47290",
+          "name": "경산시",
+          "oldAreaFraction": 0.985559
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37310",
+      "oldName": "군위군",
+      "candidates": [
+        {
+          "code": "27720",
+          "name": "군위군",
+          "oldAreaFraction": 0.98532
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37320",
+      "oldName": "의성군",
+      "candidates": [
+        {
+          "code": "47730",
+          "name": "의성군",
+          "oldAreaFraction": 0.988416
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37330",
+      "oldName": "청송군",
+      "candidates": [
+        {
+          "code": "47750",
+          "name": "청송군",
+          "oldAreaFraction": 0.988264
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37340",
+      "oldName": "영양군",
+      "candidates": [
+        {
+          "code": "47760",
+          "name": "영양군",
+          "oldAreaFraction": 0.990109
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37350",
+      "oldName": "영덕군",
+      "candidates": [
+        {
+          "code": "47770",
+          "name": "영덕군",
+          "oldAreaFraction": 0.987624
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37360",
+      "oldName": "청도군",
+      "candidates": [
+        {
+          "code": "47820",
+          "name": "청도군",
+          "oldAreaFraction": 0.987803
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37370",
+      "oldName": "고령군",
+      "candidates": [
+        {
+          "code": "27710",
+          "name": "달성군",
+          "oldAreaFraction": 0.012316
+        },
+        {
+          "code": "47830",
+          "name": "고령군",
+          "oldAreaFraction": 0.971933
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37380",
+      "oldName": "성주군",
+      "candidates": [
+        {
+          "code": "47840",
+          "name": "성주군",
+          "oldAreaFraction": 0.990877
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37390",
+      "oldName": "칠곡군",
+      "candidates": [
+        {
+          "code": "47850",
+          "name": "칠곡군",
+          "oldAreaFraction": 0.985804
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37400",
+      "oldName": "예천군",
+      "candidates": [
+        {
+          "code": "47900",
+          "name": "예천군",
+          "oldAreaFraction": 0.985418
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37410",
+      "oldName": "봉화군",
+      "candidates": [
+        {
+          "code": "47920",
+          "name": "봉화군",
+          "oldAreaFraction": 0.989547
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37420",
+      "oldName": "울진군",
+      "candidates": [
+        {
+          "code": "47930",
+          "name": "울진군",
+          "oldAreaFraction": 0.988841
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "37430",
+      "oldName": "울릉군",
+      "candidates": [
+        {
+          "code": "47940",
+          "name": "울릉군",
+          "oldAreaFraction": 0.976275
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38030",
+      "oldName": "진주시",
+      "candidates": [
+        {
+          "code": "48170",
+          "name": "진주시",
+          "oldAreaFraction": 0.985541
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38050",
+      "oldName": "통영시",
+      "candidates": [
+        {
+          "code": "48220",
+          "name": "통영시",
+          "oldAreaFraction": 0.901166
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38060",
+      "oldName": "사천시",
+      "candidates": [
+        {
+          "code": "48240",
+          "name": "사천시",
+          "oldAreaFraction": 0.958323
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38070",
+      "oldName": "김해시",
+      "candidates": [
+        {
+          "code": "48250",
+          "name": "김해시",
+          "oldAreaFraction": 0.99033
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38080",
+      "oldName": "밀양시",
+      "candidates": [
+        {
+          "code": "48270",
+          "name": "밀양시",
+          "oldAreaFraction": 0.987889
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38090",
+      "oldName": "거제시",
+      "candidates": [
+        {
+          "code": "48310",
+          "name": "거제시",
+          "oldAreaFraction": 0.948565
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38100",
+      "oldName": "양산시",
+      "candidates": [
+        {
+          "code": "48330",
+          "name": "양산시",
+          "oldAreaFraction": 0.982242
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38111",
+      "oldName": "창원시의창구",
+      "candidates": [
+        {
+          "code": "48121",
+          "name": "창원시의창구",
+          "oldAreaFraction": 0.955543
+        },
+        {
+          "code": "48123",
+          "name": "창원시성산구",
+          "oldAreaFraction": 0.030747
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38112",
+      "oldName": "창원시성산구",
+      "candidates": [
+        {
+          "code": "48123",
+          "name": "창원시성산구",
+          "oldAreaFraction": 0.976643
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38113",
+      "oldName": "창원시마산합포구",
+      "candidates": [
+        {
+          "code": "48125",
+          "name": "창원시마산합포구",
+          "oldAreaFraction": 0.960274
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38114",
+      "oldName": "창원시마산회원구",
+      "candidates": [
+        {
+          "code": "48125",
+          "name": "창원시마산합포구",
+          "oldAreaFraction": 0.014739
+        },
+        {
+          "code": "48127",
+          "name": "창원시마산회원구",
+          "oldAreaFraction": 0.96913
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38115",
+      "oldName": "창원시진해구",
+      "candidates": [
+        {
+          "code": "48129",
+          "name": "창원시진해구",
+          "oldAreaFraction": 0.93692
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38310",
+      "oldName": "의령군",
+      "candidates": [
+        {
+          "code": "48720",
+          "name": "의령군",
+          "oldAreaFraction": 0.986649
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38320",
+      "oldName": "함안군",
+      "candidates": [
+        {
+          "code": "48730",
+          "name": "함안군",
+          "oldAreaFraction": 0.986584
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38330",
+      "oldName": "창녕군",
+      "candidates": [
+        {
+          "code": "48740",
+          "name": "창녕군",
+          "oldAreaFraction": 0.987396
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38340",
+      "oldName": "고성군",
+      "candidates": [
+        {
+          "code": "48820",
+          "name": "고성군",
+          "oldAreaFraction": 0.974427
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38350",
+      "oldName": "남해군",
+      "candidates": [
+        {
+          "code": "48840",
+          "name": "남해군",
+          "oldAreaFraction": 0.968253
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38360",
+      "oldName": "하동군",
+      "candidates": [
+        {
+          "code": "48850",
+          "name": "하동군",
+          "oldAreaFraction": 0.98842
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38370",
+      "oldName": "산청군",
+      "candidates": [
+        {
+          "code": "48860",
+          "name": "산청군",
+          "oldAreaFraction": 0.988875
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38380",
+      "oldName": "함양군",
+      "candidates": [
+        {
+          "code": "48870",
+          "name": "함양군",
+          "oldAreaFraction": 0.9905
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38390",
+      "oldName": "거창군",
+      "candidates": [
+        {
+          "code": "48880",
+          "name": "거창군",
+          "oldAreaFraction": 0.983409
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "38400",
+      "oldName": "합천군",
+      "candidates": [
+        {
+          "code": "48890",
+          "name": "합천군",
+          "oldAreaFraction": 0.988079
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "39010",
+      "oldName": "제주시",
+      "candidates": [
+        {
+          "code": "50110",
+          "name": "제주시",
+          "oldAreaFraction": 0.989475
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    },
+    {
+      "sourceCodeSystem": "KOSTAT-2018",
+      "oldCode": "39020",
+      "oldName": "서귀포시",
+      "candidates": [
+        {
+          "code": "50130",
+          "name": "서귀포시",
+          "oldAreaFraction": 0.984714
+        }
+      ],
+      "rule": "unique_gps_match_only",
+      "withoutGps": "unresolved"
+    }
+  ]
+}

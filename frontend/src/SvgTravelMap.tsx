@@ -8,7 +8,7 @@ import Pressable,{useReducedMotion} from './Feedback';
 import PhotoSummarySheet from './PhotoSummarySheet';
 import {clusterPhotos,latestRecords} from './photoMap';
 import {useThemeColors} from './ThemeContext';
-import {districts,regions,displayCities,cityByDistrict,regionAt,renderFeature,fitProjection,legacyCodes} from './regions';
+import {districts,regions,displayCities,cityByDistrict,regionAt,renderFeature,fitProjection,legacyCodes,projectedBounds,regionPath} from './regions';
 import {homeMainlands,homeIslands,homeArea,homeAreaAt} from './homeMapAreas';
 import {mapRecords,type TravelMapProps,type MapNavigation} from './provinces';
 import MapAttribution from './MapAttribution';
@@ -19,6 +19,7 @@ import {simpleMapStyle,simpleMapColors,overviewLimit,detailAfterZoom} from './si
 import {scaleToZoom,zoomToScale} from './tileCamera';
 import {usePhotoGroupMotion} from './usePhotoGroupMotion';
 import {regionLabelAnchor,layoutMapLabels} from './mapLabels';
+import {packedBounds} from './packedMapData';
 
 type Point=[number,number];
 type Touch={identifier:string|number;pageX:number;pageY:number};
@@ -27,7 +28,7 @@ const emptyNavigation=():MapNavigation=>({province:null,selected:null,camera:nul
 export default function TravelMap({records,ownRecords,covers={},authors={},onSelect,onRegion,onCoordinate,focus,onDraw,fullScreen,navigation,navigationOwner,homeMap=false}:TravelMapProps){
  const [tileFailed,setTileFailed]=useState(false),[tileError,setTileError]=useState(false);
  const tileEnabled=homeMap&&!tileFailed;
- const tileStyle=useMemo(()=>homeMap?simpleMapStyle():null,[homeMap]);
+ const [tilesMounted,setTilesMounted]=useState(false),[tileReady,setTileReady]=useState(false);
  const [moving,setMoving]=useState(false),[pressedPhoto,setPressedPhoto]=useState<string|null>(null);
  const reduced=useReducedMotion(),animation=useRef<number|null>(null),animationVersion=useRef(0),[summary,updateSummary]=useState<string[]>(()=>navigation?.current?.summaryIds??[]);
  const stopAnimation=()=>{animationVersion.current++;if(animation.current!==null)cancelAnimationFrame(animation.current);animation.current=null;setMoving(false);};
@@ -38,6 +39,7 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  const dimensions=useWindowDimensions(),labelFont=homeMap?12*dimensions.fontScale:undefined;
  const c=useThemeColors(),host=useRef<View>(null),wide=useWindowDimensions().width>=700&&!!fullScreen;
  const [size,setSize]=useState({width:320,height:300}),[view,setView]=useState(()=>navigation?.current??emptyNavigation()),[hover,setHover]=useState<string|null>(null);
+ const [measured,setMeasured]=useState(Platform.OS!=='web');
  const live=useRef(view),owner=useRef(navigationOwner),regionList=useRef<ScrollView>(null);
  const restored=useRef({regions:false});
  const remember=(patch:Partial<MapNavigation>)=>{live.current={...live.current,...patch};if(navigation)navigation.current=live.current;};
@@ -57,7 +59,7 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  const own=useMemo(()=>new Set((ownRecords??[]).filter(r=>r.status==='complete'&&r.locations).map(r=>regionAt(Number(r.locations.latitude),Number(r.locations.longitude))?.properties.code).filter(Boolean)),[ownRecords]);
  const features=regions;
  const correction=focus??(onCoordinate||!fullScreen?entries[0]?.locations:undefined),lat=correction?.latitude,lng=correction?.longitude;
- const base=useMemo(()=>fitProjection(features,size.width,size.height),[features,size]);
+ const base=useMemo(()=>measured?fitProjection(features,size.width,size.height):geoMercator(),[features,size,measured]);
  const constrain=(projection:GeoProjection)=>{
   if(!homeMap)return projection;
   const center=projection.invert!([size.width/2,size.height/2]);
@@ -66,13 +68,22 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  };
  const p=useMemo(()=>camera?constrain(geoMercator().center(camera.center).scale(camera.scale).translate([size.width/2,size.height/2])):base,[base,camera,size,homeMap]);
  const mapZoom=scaleToZoom(p.scale()),fitZoom=scaleToZoom(base.scale()),national=homeMap?!(view.detail??(!!province||mapZoom>=fitZoom+1)):mapZoom<=overviewLimit(fitZoom);
- const tileVisible=tileEnabled&&!national;
+ const tilesWanted=tileEnabled&&!national;
+ const mountTiles=measured&&tileEnabled&&(tilesWanted||tilesMounted);
+ const tileVisible=tilesWanted&&tileReady;
+ const tileStyle=useMemo(()=>mountTiles?simpleMapStyle():null,[mountTiles]);
+ useEffect(()=>{if(tilesWanted)setTilesMounted(true);if(!homeMap){setTilesMounted(false);setTileReady(false);}},[tilesWanted,homeMap]);
  const tileCamera=useMemo(()=>({center:p.invert!([size.width/2,size.height/2]) as Point,zoom:scaleToZoom(p.scale())}),[p,size]);
  const ratio=p.scale()/base.scale(),origin=p([0,0])!,baseOrigin=base([0,0])!,tx=origin[0]-baseOrigin[0]*ratio,ty=origin[1]-baseOrigin[1]*ratio;
- const geometryBounds=useMemo(()=>{const path=geoPath(base);return new Map([...regions,...(!homeMap||finder?[...districts,...displayCities]:[])].map(f=>[f.properties.code,path.bounds(renderFeature(f))]));},[base,homeMap,finder]);
+ const geometryBounds=useMemo(()=>{const path=geoPath(base);return new Map((measured?[...regions,...(!homeMap||finder?[...districts,...displayCities]:[])]:[]).map(f=>{
+  const b=packedBounds.get(f);
+  // 화면 밖 지역 판정은 원본을 감싸는 사각형으로 한다. 실제 SVG/GPS 좌표는 그대로다.
+  const geometry=b?{type:'Polygon' as const,coordinates:[[[b[0],b[1]],[b[0],b[3]],[b[2],b[3]],[b[2],b[1]],[b[0],b[1]]]]}:renderFeature(f);
+  return [f.properties.code,path.bounds(geometry)];
+ }));},[base,homeMap,finder,measured]);
  const intersects=(code:string)=>{const b=geometryBounds.get(code);if(!b)return false;return b[1][0]*ratio+tx>=0&&b[0][0]*ratio+tx<=size.width&&b[1][1]*ratio+ty>=0&&b[0][1]*ratio+ty<=size.height;};
  const detailCodes=useRef(new Set<string>());
- const provinceBounds=useMemo(()=>{const path=geoPath(base);return [...regions,...(homeMap?displayCities:[])].map(f=>({f,b: path.bounds(renderFeature(f))}));},[base,homeMap]);
+ const provinceBounds=useMemo(()=>(measured?[...regions,...(homeMap?displayCities:[])]:[]).map(f=>({f,b:projectedBounds(f,base)})),[base,homeMap,measured]);
  const detailed=useMemo(()=>{
   if(moving)return detailCodes.current;
   const next=new Set<string>();
@@ -86,29 +97,37 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  const targetPhotoGroups=useMemo<{x:number;y:number;records:any[];provinceCode?:string;islandCode?:string|null}[]>(()=>{
   const cached=photoCache.current;
   if(!homeMap&&moving&&cached&&cached.indexed===indexed)return cached.groups.map(g=>{const coordinate=cached.p.invert!([g.x,g.y]),point=coordinate&&p(coordinate);return point?{...g,x:point[0],y:point[1]}:g;});
-  if(onCoordinate||!fullScreen)return [];
+  if(!measured||onCoordinate||!fullScreen)return [];
   const overview=(homeMap?[...homeMainlands,...homeIslands]:regions).filter(f=>homeMap?national:!detailed.has(f.properties.code)).flatMap(f=>{
    const provinceCode=f.properties.level==='island'?f.properties.parentCode!:f.properties.code;
    const islandCode=f.properties.level==='island'?f.properties.code:null;
    const records=latestRecords(indexed.filter(x=>x.region?.properties.parentCode===provinceCode&&(!homeMap||(x.island?.properties.code??null)===islandCode)).map(x=>x.record));
+   if(!records.length)return [];
    const point=p(regionLabelAnchor(f).point);
    return records.length&&point?[{x:point[0],y:point[1]+(homeMap?0:38),records,provinceCode,islandCode}]:[];
   });
-  const points=indexed.filter(x=>x.region&&(homeMap?!national:detailed.has(x.region.properties.parentCode!))).map(({record,region,island})=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)])!;return {...record,mapArea:island?.properties.code??region!.properties.parentCode,x:point[0],y:point[1]};});
+  // 새 경계에서 지역이 미확정이어도 사진은 원래 GPS에 유지한다.
+  const points=indexed.filter(x=>!x.region||(homeMap?!national:detailed.has(x.region.properties.parentCode!))).map(({record,region,island})=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)])!;return {...record,mapArea:region?(island?.properties.code??region.properties.parentCode):'unresolved',x:point[0],y:point[1]};});
   const result=[...overview,...clusterPhotos(points,64,homeMap?r=>r.mapArea!:undefined)].filter(g=>g.x>=0&&g.y>=0&&g.x<=size.width&&g.y<=size.height);photoCache.current={p,indexed,groups:result};return result;
- },[indexed,p,detailed,size,onCoordinate,fullScreen,moving,homeMap,national,province]);
+ },[indexed,p,detailed,size,onCoordinate,fullScreen,moving,homeMap,national,province,measured]);
  const photoGroups=usePhotoGroupMotion(targetPhotoGroups,reduced||!homeMap);
  const labelCache=useRef<{p:GeoProjection;font:number|undefined;labels:ReturnType<typeof layoutMapLabels>}|null>(null);
  const labels=useMemo(()=>{
+  if(!measured)return [];
   if(homeMap){const feature=province&&!island?homeArea(province):undefined;return feature?layoutMapLabels([feature],p,size.width,size.height,photoGroups.map(g=>({x:g.x,y:g.y,width:60,height:60})),labelFont,false):[];}
   const cached=labelCache.current;
   if(moving&&cached&&cached.font===labelFont)return cached.labels.map(label=>{const coordinate=cached.p.invert!(label.anchor),anchor=coordinate&&p(coordinate);return anchor?{...label,anchor:anchor as Point,x:anchor[0]+label.x-label.anchor[0],y:anchor[1]+label.y-label.anchor[1]}:label;});
   const result=layoutMapLabels(labelFeatures,p,size.width,size.height,photoGroups.map(g=>({x:g.x,y:g.y,width:60,height:60})),labelFont);labelCache.current={p,font:labelFont,labels:result};return result;
- },[labelFeatures,p,size,photoGroups,moving,labelFont,homeMap,mapZoom,fitZoom,selected,province,island]);
+ },[labelFeatures,p,size,photoGroups,moving,labelFont,homeMap,mapZoom,fitZoom,selected,province,island,measured]);
  const groupsRef=useRef(photoGroups);groupsRef.current=photoGroups;
- const districtPaths=useMemo(()=>{if(homeMap)return [];const path=geoPath(base).digits(1);return [...districts,...displayCities].map(f=>({f,d:path(renderFeature(f))??''}));},[base,homeMap]);
+ const districtPathCache=useMemo(()=>new Map<string,string>(),[base]);
+ const districtPaths=useMemo(()=>{if(homeMap)return [];const path=geoPath(base).digits(1);return visibleAreas.map(f=>{
+  let d=districtPathCache.get(f.properties.code);
+  if(d===undefined){d=path(renderFeature(f))??'';districtPathCache.set(f.properties.code,d);}
+  return {f,d};
+ });},[base,homeMap,visibleAreas,districtPathCache]);
 
- const paths=useMemo(()=>{const path=geoPath(base).digits(1);return features.map(f=>({f,d:path(renderFeature(f))??''}));},[base,features]);
+ const paths=useMemo(()=>(measured?features:[]).map(f=>({f,...regionPath(f,base)})),[base,features,measured]);
  // 공통 Mercator 변환으로 제스처마다 경계 경로를 다시 생성하지 않는다.
  const current=useRef({p,size,province,onCoordinate,onSelect,entries,reduced,homeMap});current.current={p,size,province,onCoordinate,onSelect,entries,reduced,homeMap};
  const gesture=useRef<Gesture|null>(null),position=useRef({x:0,y:0});
@@ -222,9 +241,9 @@ export default function TravelMap({records,ownRecords,covers={},authors={},onSel
  return <View testID="svg-travel-map" style={{flex:fullScreen?1:undefined,minHeight:fullScreen?0:380,backgroundColor:c.surface,borderRadius:16,overflow:'hidden'}}>
   {!wide&&!homeMap&&heading}
   <View style={{flex:1,minHeight:0,flexDirection:wide&&!homeMap?'row':'column'}}>
-   <View ref={host} testID="svg-map-canvas" accessible={homeMap} accessibilityRole={homeMap&&Platform.OS!=='web'?'button':undefined} accessibilityLabel={homeMap?`지도 지역 및 사진 목록${Platform.OS==='web'?'. Enter 또는 Space 키로 열기':''}`:undefined} accessibilityKeyShortcuts={homeMap&&Platform.OS==='web'?'Enter Space':undefined} accessibilityHint={homeMap?'활성화하거나 Enter 또는 Space 키로 지역과 사진 목록 열기':undefined} accessibilityActions={homeMap?[{name:'activate',label:'지역과 사진 목록 열기'}]:undefined} onAccessibilityAction={e=>{if(homeMap&&e.nativeEvent.actionName==='activate')setFinder(true);}} {...responder.panHandlers} onLayout={e=>{const {width,height}=e.nativeEvent.layout;if(width&&height)setSize({width,height});measurePosition();}} onTouchStart={measurePosition} {...(Platform.OS==='web'?{role:homeMap?'application':undefined,tabIndex:homeMap?0:undefined,onClick:(e:any)=>{if(homeMap&&e.detail===0){e.preventDefault();e.stopPropagation();setFinder(true);}},onKeyDown:(e:any)=>{if(homeMap&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.stopPropagation();if(!e.repeat)setFinder(true);}},onPointerDown:(e:any)=>{const r=e.currentTarget.getBoundingClientRect();position.current={x:r.left+window.scrollX,y:r.top+window.scrollY};},onWheel:(e:any)=>zoom(e.deltaY>0?.8:1.25),onPointerMove:(e:any)=>{if(e.buttons)return;const r=e.currentTarget.getBoundingClientRect(),coord=p.invert!([e.clientX-r.left,e.clientY-r.top]);const f=coord&&regionAt(coord[1],coord[0]);setHover(f?(province?f.properties.code:f.properties.parentCode):null);},onPointerLeave:()=>setHover(null)} as any:{})} style={{flex:1,minHeight:120,height:fullScreen?undefined:260,backgroundColor:homeMap?simpleMapColors.water:c.map.ocean,...(Platform.OS==='web'?{touchAction:'none'} as any:{})}}>
-    {tileEnabled&&<TileBoundary onFailure={()=>setTileFailed(true)}><TileSurface style={tileStyle!} labelsVisible={view.labelRevealed===true} camera={tileCamera} onFailure={()=>setTileFailed(true)} onTileError={()=>setTileError(true)}/></TileBoundary>}
-    <Svg style={homeMap?{position:'relative',zIndex:1}:undefined} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`} accessible={false}>{homeMap&&!tileVisible&&<Rect testID="map-overview-cover" width={size.width} height={size.height} fill={simpleMapColors.water}/>} {!homeMap&&!tileEnabled&&<OceanBackground coverLand={false} base={base} transform={`translate(${tx},${ty}) scale(${ratio})`} width={size.width} height={size.height}/>}<G transform={`translate(${tx},${ty}) scale(${ratio})`}>{paths.filter(({f})=>!tileVisible&&intersects(f.properties.code)).map(({f,d})=>{const code=f.properties.code,visited=districts.some(child=>child.properties.parentCode===code&&own.has(child.properties.code));return <Path key={code} testID={`map-region-${code}`} d={d} fill={!homeMap&&(selected===code||hover===code)?c.map.regionBorderSelected:visited&&!homeMap?c.map.regionPastels[Number(code)%c.map.regionPastels.length]:homeMap?simpleMapColors.land:c.map.landDefault} stroke={homeMap?simpleMapColors.border:c.map.regionBorder} strokeWidth={1/ratio} fillRule="evenodd"/>;})}{districtPaths.filter(({f})=>!homeMap&&visibleAreas.includes(f)).map(({f,d})=><Path key={f.properties.code} testID={`map-district-${f.properties.code}`} d={d} fill={!homeMap&&own.has(f.properties.code)?c.map.regionPastels[Number(f.properties.code)%c.map.regionPastels.length]:homeMap?simpleMapColors.land:c.map.landDefault} stroke={homeMap?simpleMapColors.border:c.map.regionBorder} strokeWidth={.8/ratio} fillRule="evenodd"/>)}{homeMap&&province&&paths.filter(({f})=>f.properties.code===province).map(({f,d})=><Path key={f.properties.code} testID="map-selection" pointerEvents="none" d={d} fill="#3B82F6" fillOpacity={.18} stroke="#2563EB" strokeWidth={2/ratio} fillRule="evenodd"/>)}</G><G pointerEvents="none" accessible={false}>{labels.map(label=><G key={label.code}>
+   <View ref={host} testID="svg-map-canvas" accessible={homeMap} accessibilityRole={homeMap&&Platform.OS!=='web'?'button':undefined} accessibilityLabel={homeMap?`지도 지역 및 사진 목록${Platform.OS==='web'?'. Enter 또는 Space 키로 열기':''}`:undefined} accessibilityKeyShortcuts={homeMap&&Platform.OS==='web'?'Enter Space':undefined} accessibilityHint={homeMap?'활성화하거나 Enter 또는 Space 키로 지역과 사진 목록 열기':undefined} accessibilityActions={homeMap?[{name:'activate',label:'지역과 사진 목록 열기'}]:undefined} onAccessibilityAction={e=>{if(homeMap&&e.nativeEvent.actionName==='activate')setFinder(true);}} {...responder.panHandlers} onLayout={e=>{const {width,height}=e.nativeEvent.layout;if(width&&height){setSize({width,height});setMeasured(true);}measurePosition();}} onTouchStart={measurePosition} {...(Platform.OS==='web'?{role:homeMap?'application':undefined,tabIndex:homeMap?0:undefined,onClick:(e:any)=>{if(homeMap&&e.detail===0){e.preventDefault();e.stopPropagation();setFinder(true);}},onKeyDown:(e:any)=>{if(homeMap&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.stopPropagation();if(!e.repeat)setFinder(true);}},onPointerDown:(e:any)=>{const r=e.currentTarget.getBoundingClientRect();position.current={x:r.left+window.scrollX,y:r.top+window.scrollY};},onWheel:(e:any)=>zoom(e.deltaY>0?.8:1.25),onPointerMove:(e:any)=>{if(e.buttons)return;const r=e.currentTarget.getBoundingClientRect(),coord=p.invert!([e.clientX-r.left,e.clientY-r.top]);const f=coord&&regionAt(coord[1],coord[0]);setHover(f?(province?f.properties.code:f.properties.parentCode):null);},onPointerLeave:()=>setHover(null)} as any:{})} style={{flex:1,minHeight:120,height:fullScreen?undefined:260,backgroundColor:homeMap?simpleMapColors.water:c.map.ocean,...(Platform.OS==='web'?{touchAction:'none'} as any:{})}}>
+    {mountTiles&&<TileBoundary onFailure={()=>{setTileReady(false);setTileFailed(true);}}><TileSurface onReady={()=>setTileReady(true)} style={tileStyle!} labelsVisible={view.labelRevealed===true} camera={tileCamera} onFailure={()=>{setTileReady(false);setTileFailed(true);}} onTileError={()=>setTileError(true)}/></TileBoundary>}
+    <Svg style={homeMap?{position:'relative',zIndex:1}:undefined} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`} accessible={false}>{homeMap&&!tileVisible&&<Rect testID="map-overview-cover" width={size.width} height={size.height} fill={simpleMapColors.water}/>} {!homeMap&&!tileEnabled&&<OceanBackground coverLand={false} base={base} transform={`translate(${tx},${ty}) scale(${ratio})`} width={size.width} height={size.height}/>}<G transform={`translate(${tx},${ty}) scale(${ratio})`}>{paths.filter(({f})=>!tileVisible&&intersects(f.properties.code)).map(({f,d,transform,strokeScale})=>{const code=f.properties.code,visited=districts.some(child=>child.properties.parentCode===code&&own.has(child.properties.code));return <Path key={code} testID={`map-region-${code}`} d={d} transform={transform} fill={!homeMap&&(selected===code||hover===code)?c.map.regionBorderSelected:visited&&!homeMap?c.map.regionPastels[Number(code)%c.map.regionPastels.length]:homeMap?simpleMapColors.land:c.map.landDefault} stroke={homeMap?simpleMapColors.border:c.map.regionBorder} strokeWidth={1/(ratio*strokeScale)} fillRule="evenodd"/>;})}{districtPaths.filter(({f})=>!homeMap&&visibleAreas.includes(f)).map(({f,d})=><Path key={f.properties.code} testID={`map-district-${f.properties.code}`} d={d} fill={!homeMap&&own.has(f.properties.code)?c.map.regionPastels[Number(f.properties.code)%c.map.regionPastels.length]:homeMap?simpleMapColors.land:c.map.landDefault} stroke={homeMap?simpleMapColors.border:c.map.regionBorder} strokeWidth={.8/ratio} fillRule="evenodd"/>)}{homeMap&&province&&paths.filter(({f})=>f.properties.code===province).map(({f,d,transform,strokeScale})=><Path key={f.properties.code} testID="map-selection" pointerEvents="none" d={d} transform={transform} fill="#3B82F6" fillOpacity={.18} stroke="#2563EB" strokeWidth={2/(ratio*strokeScale)} fillRule="evenodd"/>)}</G><G pointerEvents="none" accessible={false}>{labels.map(label=><G key={label.code}>
      {Math.hypot(label.x-label.anchor[0],label.y-label.anchor[1])>label.fontSize&&<Line x1={label.anchor[0]} y1={label.anchor[1]} x2={label.x} y2={label.y} stroke={c.muted} strokeWidth={.7} opacity={.5}/>}
      {[true,false].map(halo=><SvgText key={String(halo)} testID={halo?undefined:`map-label-${label.code}`} x={label.x} y={label.y-(label.lines.length-1)*(label.fontSize+2)/2+label.fontSize*.35} fontSize={label.fontSize} fontFamily="sans-serif" fontWeight="500" textAnchor="middle" fill={halo?'#FFFFFF':homeMap?'#7D868B':c.map.mapLabel} stroke={halo?'#FFFFFF':'none'} strokeWidth={halo?3:0} strokeLinejoin="round">{label.lines.map((line,i)=><TSpan key={i} x={label.x} dy={i?label.fontSize+2:0}>{line}</TSpan>)}</SvgText>)}
     </G>)}</G>{onCoordinate||!fullScreen?<>{entries.map(record=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)]);return point?<Circle key={record.id} testID={`map-location-${record.id}`} cx={point[0]} cy={point[1]} r={6} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/>:null;})}{lat!=null&&lng!=null&&!entries.some(r=>Number(r.locations.latitude)===Number(lat)&&Number(r.locations.longitude)===Number(lng))&&p([Number(lng),Number(lat)])&&<Circle cx={p([Number(lng),Number(lat)])![0]} cy={p([Number(lng),Number(lat)])![1]} r={9} fill={c.primary} stroke="#FFFFFF" strokeWidth={3}/>}</>:null}{photoGroups.map(g=><G key={g.records.map(r=>r.id).join('/')} pointerEvents="none" opacity={g.opacity} testID={`map-photo-${g.records[0].id}`} transform={pressedPhoto===g.records[0].id&&!reduced?`translate(${g.x},${g.y}) scale(1.04) translate(${-g.x},${-g.y})`:undefined}><Rect x={g.x-27} y={g.y-24} width={54} height={54} rx={10} fill="#244753" opacity={.14}/><Rect x={g.x-27} y={g.y-27} width={54} height={54} rx={10} fill="#FFFFFF" stroke={c.line}/>{covers[g.records[0].id]?<SvgImage href={{uri:covers[g.records[0].id]}} x={g.x-24} y={g.y-24} width={48} height={48} preserveAspectRatio="xMidYMid slice"/>:<Rect x={g.x-24} y={g.y-24} width={48} height={48} fill={c.map.landDefault}/>}{(!homeMap||g.records.length>1)&&<>{homeMap?<Rect x={g.x-24} y={g.y-24} width={48} height={48} fill="#000000" opacity={.35}/>:<Circle cx={g.x+21} cy={g.y-21} r={12} fill={c.primary}/>}<SvgText x={homeMap?g.x:g.x+21} y={homeMap?g.y+8:g.y-17} textAnchor="middle" fill={homeMap?'#FFFFFF':c.onPrimary} fontSize={homeMap?22:11} fontWeight="700">{g.records.length}</SvgText></>}</G>)}{destinationPoint&&<G pointerEvents="none" testID="map-destination"><Circle cx={destinationPoint[0]} cy={destinationPoint[1]} r={7} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/><SvgText x={destinationPoint[0]} y={destinationPoint[1]-14} textAnchor="middle" fill={c.ink} stroke={c.sheet} strokeWidth={.3} fontSize={16}>◎ {destination?.label}</SvgText></G>}</Svg>

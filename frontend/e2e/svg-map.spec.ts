@@ -3,13 +3,44 @@ import {destinations} from '../src/destinationDraw';
 import {test,expect} from '@playwright/test';
 import {build} from 'esbuild';
 import path from 'node:path';
-import {readFileSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {nativeImageAssets} from './native-image-assets';
 let bundle='';
-test.beforeAll(async()=>{bundle=(await build({bundle:true,write:false,format:'iife',platform:'browser',plugins:[nativeImageAssets],define:{'process.env.EXPO_PUBLIC_GEOAPIFY_MAP_KEY':'""','process.env.NODE_ENV':'"test"','__DEV__':'false'},alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
+test.beforeAll(async()=>{bundle=(await build({bundle:true,minify:true,write:false,format:'iife',platform:'browser',plugins:[nativeImageAssets],define:{'process.env.EXPO_PUBLIC_GEOAPIFY_MAP_KEY':'""','process.env.NODE_ENV':'"test"','__DEV__':'false'},alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
 import React from 'react';import {createRoot} from 'react-dom/client';import Map from './src/SvgTravelMap';import Ocean from './src/OceanBackground';import Svg from 'react-native-svg';import {regions,fitProjection} from './src/regions';import {geoMercator} from 'd3-geo';
 const root=createRoot(document.getElementById('root'));const record={id:'one',owner_id:'me',status:'complete',title:'서울 기록',start_date:'2026-01-01',end_date:'2026-01-02',locations:{latitude:37.5665,longitude:126.978,source:'manual'}};let props={records:[record],ownRecords:[record],fullScreen:true};window.draws=0;window.opened=[];window.coordinates=[];window.regions=[];window.navigation={current:null};window.hide=()=>root.render(null);window.update=(next)=>{props={...props,...next};root.render(<Map {...props} onDraw={props.draw?()=>window.draws++:undefined} navigation={window.navigation} onRegion={(...args)=>window.regions.push(args)} onSelect={r=>window.opened.push(r.id)} onCoordinate={props.correction?(lat,lng)=>window.coordinates.push([lat,lng]):undefined}/>);};window.update({});window.oceanProof=(focus)=>{let p=fitProjection(regions,500,600);p.center(p.invert([250,300])).translate([250,300]).scale(p.scale()*.75);if(focus)p=geoMercator().center(focus).scale(50000).translate([250,300]);window.proofPoint=(lng,lat)=>p([lng,lat]);root.render(<div style={{display:'flex',background:'#D7EFF1'}}>{[1,2].map(n=><Svg key={n} testID={'ocean-proof-'+n} width={500} height={600} viewBox='0 0 500 600'><Ocean base={p} transform='translate(0,0) scale(1)' width={500} height={600}/></Svg>)}</div>);};`}})).outputFiles[0].text;});
 test.beforeEach(async({page})=>{await page.setContent('<div id="root" style="height:700px;display:flex;flex-direction:column"></div>');await page.addScriptTag({content:bundle});});
+
+test('TC-ADMIN-PERF-001 mobile viewport remains interactive with 4x CPU throttling',async({page,context})=>{
+ await page.goto('about:blank');await page.setViewportSize({width:390,height:844});
+ const cdp=await context.newCDPSession(page);await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});await cdp.send('Performance.enable');
+ await page.setContent('<div id="root" style="height:700px;display:flex;flex-direction:column"></div>');
+ const start=Date.now();await page.addScriptTag({content:bundle});
+ const injectionMs=Date.now()-start;
+ await expect(page.getByTestId('map-label-11')).toBeVisible({timeout:20000});
+ const readyMs=Date.now()-start,zoom=Date.now();
+ await page.getByRole('button',{name:'지도 확대',exact:true}).click();
+ await page.getByRole('button',{name:'대한민국',exact:true}).click();
+ await expect(page.getByTestId('map-label-11')).toBeVisible();
+ const zoomAndHomeMs=Date.now()-zoom;
+ await cdp.send('HeapProfiler.collectGarbage');
+ const metrics=await cdp.send('Performance.getMetrics');
+ mkdirSync('artifacts/admin-boundaries',{recursive:true});
+ writeFileSync('artifacts/admin-boundaries/mobile-map-performance.json',JSON.stringify({viewport:[390,844],cpuThrottle:4,readyMs,injectionMs,bundleBytes:Buffer.byteLength(bundle),zoomAndHomeMs,jsHeapUsedBytesAfterGC:metrics.metrics.find(m=>m.name==='JSHeapUsedSize')?.value,environment:'Desktop Chromium harness with inlined test PNGs, not production page or Android device; no network transfer'},null,2));
+ await cdp.send('Emulation.setCPUThrottlingRate',{rate:1});
+});
+
+test('TC-ADMIN-2026-003 unassigned GPS records keep their photo marker and detail access',async({page})=>{
+ for(const homeMap of [false,true]){
+  await page.evaluate(homeMap=>{const record={id:'unassigned',owner_id:'me',status:'complete',title:'미확정 기록',locations:{latitude:36,longitude:125,source:'manual'}};(window as any).update({homeMap,records:[record],ownRecords:[record]});},homeMap);
+  await expect(page.getByTestId('map-photo-unassigned')).toBeVisible();
+  if(homeMap){await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');}
+  await page.getByRole('button',{name:'미확정 기록 · 1개 요약',exact:true}).click();
+  await page.getByRole('button',{name:'미확정 기록 자세히 보기',exact:true}).click();
+  await page.getByRole('button',{name:'닫기',exact:true}).click();
+ }
+ expect(await page.evaluate(()=>(window as any).opened)).toEqual(['unassigned','unassigned']);
+});
 test('TC-SVG-OCEAN-002 real pixels preserve mainland, islands and holes without cross-instance clipping',async({page})=>{
  await page.setViewportSize({width:1100,height:700});await page.evaluate(()=>(window as any).oceanProof());
  await expect(page.getByTestId('ocean-texture')).toHaveCount(2);await expect(page.locator('mask')).toHaveCount(0);
@@ -24,21 +55,21 @@ test('TC-SVG-OCEAN-002 real pixels preserve mainland, islands and holes without 
  for(const color of first.slice(0,3))expect(color).toEqual([220,233,231]);
  expect(first[3][1]).toBeGreaterThan(first[4][1]);expect(first[4][1]).toBeGreaterThan(first[5][1]);
  // 원자료에서 실제 union의 가장 큰 내부 ring에 있는 점이다.
- await page.evaluate(()=>(window as any).oceanProof([126.48074349150586,34.686873318244906]));
- const hole=(await sample(1,[[126.48074349150586,34.686873318244906]]))[0];expect(hole).not.toEqual([220,233,231]);expect(hole[1]).toBeGreaterThan(220);
+ await page.evaluate(()=>(window as any).oceanProof([126.59163907821693,35.81657837267625]));
+ const hole=(await sample(1,[[126.59163907821693,35.81657837267625]]))[0];expect(hole).not.toEqual([220,233,231]);expect(hole[1]).toBeGreaterThan(220);
  await page.getByTestId('ocean-proof-1').getByTestId('ocean-texture').evaluate(node=>new Promise<void>(resolve=>{node.addEventListener('error',()=>resolve(),{once:true});node.setAttribute('href','data:image/png;base64,broken');}));
- expect((await sample(1,[[126.48074349150586,34.686873318244906]]))[0]).toEqual([114,148,170]);
+ expect((await sample(1,[[126.59163907821693,35.81657837267625]]))[0]).toEqual([114,148,170]);
 
 });
 test('TC-SVG-OCEAN-001 coastline background remains behind unchanged land and labels',async({page})=>{
  await expect(page.getByTestId('svg-ocean')).toHaveCount(1);
- await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
- await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(17);
+ await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(16);
+ await expect(page.locator('text[data-testid^="map-label-"]')).toHaveCount(16);
  await expect(page.getByTestId('map-region-50')).toHaveAttribute('fill','#E5E9E2');
- await page.screenshot({path:'/tmp/ocean-country.png'});
+ await page.screenshot({path:'test-results/ocean-country.png'});
  await page.getByRole('button',{name:'부산광역시 · 0개',exact:true}).click();
  await expect(page.locator('text[data-testid^="map-label-26"]')).toHaveCount(16);
- await page.screenshot({path:'/tmp/ocean-busan.png'});
+ await page.screenshot({path:'test-results/ocean-busan.png'});
  const landPath=await page.getByTestId('map-region-26').getAttribute('d'),landTransform=await page.getByTestId('map-region-26').locator('..').getAttribute('transform');
  await page.getByRole('button',{name:'지도 확대',exact:true}).click();
  await expect(page.getByTestId('map-region-26')).toHaveAttribute('d',landPath!);await expect(page.getByTestId('map-region-26').locator('..')).not.toHaveAttribute('transform',landTransform!);
@@ -46,7 +77,7 @@ test('TC-SVG-OCEAN-001 coastline background remains behind unchanged land and la
  await page.getByRole('button',{name:'대한민국',exact:true}).click();
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
  await expect(page.locator('text[data-testid^="map-label-11"]')).toHaveCount(25);
- await page.screenshot({path:'/tmp/ocean-seoul.png'});
+ await page.screenshot({path:'test-results/ocean-seoul.png'});
 });
 test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readable without blocking map selection',async({page})=>{
  const sido=JSON.parse(readFileSync('frontend/src/data/maps/korea-sido.json','utf8')).features;
@@ -56,10 +87,10 @@ test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readabl
  const overlap=()=>labels.evaluateAll(nodes=>{const boxes=nodes.map(n=>n.getBoundingClientRect());let pairs=0;for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){const a=boxes[i],b=boxes[j];if(Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1)pairs++;}return pairs;});
  for(const [width,height] of [[320,568],[390,844],[1440,900]]){
   await page.setViewportSize({width,height});await page.locator('#root').evaluate((n,h)=>{(n as HTMLElement).style.height=`${h-24}px`;},height);
-  await expect(labels).toHaveCount(17);await expect.poll(names).toEqual(['서울','부산','대구','인천','광주','대전','울산','세종','경기','강원','충북','충남','전북','전남','경북','경남','제주'].sort());
+  await expect(labels).toHaveCount(16);await expect.poll(names).toEqual(['서울','부산','대구','인천','대전','울산','세종','경기','강원','충북','충남','전북','전남광주','경북','경남','제주'].sort());
   await expect.poll(overlap).toBe(0);
   for(const label of await labels.all()){await expect(label).toBeInViewport();const font=await label.evaluate(n=>parseFloat(getComputedStyle(n).fontSize));expect(font).toBeGreaterThanOrEqual(10);expect(font).toBeLessThanOrEqual(14);}
-  await page.screenshot({path:`/tmp/map-label-country-${width}.png`});
+  await page.screenshot({path:`test-results/map-label-country-${width}.png`});
  }
  for(const province of sido){
   await page.getByRole('button',{name:new RegExp('^'+province.properties.name+' ·')}).click();
@@ -81,7 +112,7 @@ test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readabl
   // 최소 화면은 전체 이름을 보존하고 실제 잔여 충돌을 기록한다.
   await test.info().attach(`labels-${code}-320`,{body:JSON.stringify({width:320,province:code,overlapPairs:await overlap()}),contentType:'application/json'});
   for(const label of await selectedLabels.all()){await expect(label).toBeInViewport();const font=await label.evaluate(n=>parseFloat(getComputedStyle(n).fontSize));expect(font).toBeGreaterThanOrEqual(10);expect(font).toBeLessThanOrEqual(14);}
-  await page.screenshot({path:`/tmp/map-label-district-${code}-320.png`});
+  await page.screenshot({path:`test-results/map-label-district-${code}-320.png`});
   await page.getByRole('button',{name:'대한민국',exact:true}).click();
  }
  await page.setViewportSize({width:1440,height:900});await page.locator('#root').evaluate(n=>{(n as HTMLElement).style.height='876px';});
@@ -95,7 +126,7 @@ test('TC-SVG-MAP-LABEL-001 short country and full district labels remain readabl
  expect(await page.getByTestId('map-label-50110').evaluate(n=>parseFloat(getComputedStyle(n).fontSize))).toBeLessThanOrEqual(14);
 });
 test('TC-SVG-MAP-001 country, district, scoped list and refreshed own visits',async({page})=>{
- await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
+ await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(16);
  await expect(page.getByTestId('map-region-11')).not.toHaveAttribute('fill','#E5E9E2');
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
  await expect(page.locator('path[data-testid^="map-district-11"]')).toHaveCount(25);
@@ -112,7 +143,7 @@ test('TC-SVG-MAP-001 keyboard, resizing, zoom and correction use SVG coordinates
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  for(const [width,height] of [[320,568],[844,390],[1440,900]]){
   await page.setViewportSize({width,height});await page.locator('#root').evaluate((n,h)=>{(n as HTMLElement).style.height=`${h-24}px`;},height);
-  await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
+  await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(16);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  }
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByTestId('map-region-name')).toHaveText('서울특별시');
@@ -160,7 +191,7 @@ test('TC-SVG-MAP-001 district handoff and navigation survive unmount until owner
  await expect.poll(()=>options.evaluate(n=>n.scrollLeft)).toBeGreaterThan(100);
  await page.evaluate(()=>(window as any).update({navigationOwner:'new-owner'}));
  await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');
- await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(17);
+ await expect(page.locator('path[data-testid^="map-region-"]')).toHaveCount(16);
 });
 
 test('TC-DRAW-002/003 destination clears prior selection and returns to overview',async({page})=>{
