@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {createServer, type Server} from 'node:http';
 import {afterAll, afterEach, beforeAll, expect, test, vi} from 'vitest';
@@ -15,7 +15,7 @@ let server: Server;
 let endpoint: string;
 
 beforeAll(async () => {
-  const status = JSON.parse(execFileSync('node_modules/.bin/supabase', ['status', '--workdir', 'backend', '-o', 'json'], {encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']}));
+  const status = localSupabaseStatus();
   if (status.API_URL !== base) throw new Error('Only local Supabase is allowed; environment failure is not TDD Red.');
   anon = status.ANON_KEY;
   env.SUPABASE_SERVICE_ROLE_KEY = status.SERVICE_ROLE_KEY;

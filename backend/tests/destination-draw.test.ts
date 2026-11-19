@@ -4,7 +4,7 @@ import {contains} from '../../frontend/src/provinces';
 
 describe('TC-DRAW-001',()=>{
   it('preserves source ids, interior points and the area partition',()=>{
-    expect(new Set(districts.map(d=>d.id)).size).toBe(250);
+    expect(new Set(districts.map(d=>d.id)).size).toBe(256);
     districts.forEach(d=>{
       expect(contains(d.geometry,d.point),d.id).toBe(true);
     });
@@ -13,7 +13,7 @@ describe('TC-DRAW-001',()=>{
   it('uses only the owner’s complete locations and blocks unknown or exhausted filters',()=>{
     const record={owner_id:'me',status:'complete',locations:{latitude:37.572,longitude:126.979}};
     const visited=visitedDistricts([record,{...record,owner_id:'other'},{...record,status:'draft'}],'me');
-    expect([...visited]).toEqual(['11010']);
+    expect([...visited]).toEqual(['11110']);
     expect(visitedDistricts([{...record,owner_id:'other'},{...record,status:'draft'}],'me').size).toBe(0);
     expect(eligibleDestinations('unvisited','',visited)).toHaveLength(destinations.length);
     expect(eligibleDestinations('unvisited','',null)).toHaveLength(0);

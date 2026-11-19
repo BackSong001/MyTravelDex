@@ -99,7 +99,7 @@ test('UI-MAP-001 홈은 전체 지도이며 사진 추가 진입은 하단 + 하
 });
 test('UI-MAP-002 저장한 제주 기록을 지역 지도에서 선택하고 상세 조회',async({page})=>{
  await draft(page);await save(page);await page.getByRole('tab',{name:'홈',exact:true}).click();
- await expect(page.getByText('내 발자국 1 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('1 / 17');await page.getByRole('tab',{name:'홈',exact:true}).click();
+ await expect(page.getByText('내 발자국 1 / 16',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('1 / 16');await page.getByRole('tab',{name:'홈',exact:true}).click();
  await page.getByRole('button',{name:'제주특별자치도 · 1개',exact:true}).click();
  await page.getByRole('button',{name:'제주시 · 1개',exact:true}).click();
  await page.getByRole('button',{name:'제주 여행 상세 보기',exact:true}).click();await page.getByRole('button',{name:'여행 관리',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();

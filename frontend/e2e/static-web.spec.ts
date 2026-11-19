@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {createServer,type Server} from 'node:http';
-import {readFile,stat,readdir} from 'node:fs/promises';
+import {readFile,stat,readdir,writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 let server:Server,origin:string;
 const root=path.resolve(process.env.WEB_EXPORT_DIR||'frontend/dist');
@@ -17,6 +17,22 @@ test.beforeAll(async()=>{
  await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));origin=`http://127.0.0.1:${(server.address() as any).port}`;
 });
 test.afterAll(async()=>{if(server)await new Promise<void>((resolve,reject)=>server.close(error=>error?reject(error):resolve()));});
+
+test('TC-ADMIN-PERF-002 exported mobile home paints before any terrain initialization',async({page,context})=>{
+ const cdp=await context.newCDPSession(page);await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});await cdp.send('Performance.enable');
+ const terrain:string[]=[];page.on('request',r=>{if(r.url().includes('tiles.openfreemap.org'))terrain.push(r.url());});
+ await page.setViewportSize({width:390,height:844});
+ const start=Date.now();await page.goto(origin);await expect(page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true})).toBeVisible({timeout:20000});
+ const shellReadyMs=Date.now()-start,mapStart=Date.now();
+ await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();
+ await expect(page.getByTestId('map-region-11')).toBeVisible({timeout:20000});
+ const mapReadyMs=Date.now()-mapStart;
+ await expect(page.getByTestId('tile-surface')).toHaveCount(0);expect(terrain).toEqual([]);
+ await cdp.send('HeapProfiler.collectGarbage');const metrics=await cdp.send('Performance.getMetrics');
+ await mkdir('artifacts/admin-boundaries',{recursive:true});
+ await writeFile('artifacts/admin-boundaries/export-first-load-performance.json',JSON.stringify({shellReadyMs,mapReadyMs,cpuThrottle:4,viewport:[390,844],jsHeapUsedBytesAfterGC:metrics.metrics.find(m=>m.name==='JSHeapUsedSize')?.value,terrainRequests:terrain.length,environment:'Actual Expo export via local HTTP; desktop Chromium; not Android device or WAN'},null,2));
+ await page.screenshot({path:'artifacts/admin-boundaries/first-load-mobile.png'});
+});
 test('TC-WEB-EXPORT-001: callback serves actual index HTML while JS and PNG keep their MIME and bytes',async()=>{
  const callback=await fetch(origin+'/auth/callback?error=access_denied');expect(callback.status).toBe(200);expect(callback.headers.get('content-type')).toBe('text/html');expect(Buffer.from(await callback.arrayBuffer()).equals(await readFile(path.join(root,'index.html')))).toBe(true);
  const js=(await readdir(path.join(root,'_expo/static/js/web'))).find(f=>f.startsWith('entry-'))!;
@@ -36,7 +52,7 @@ test('TC-WEB-EXPORT-001: production callback loads, removes rejected query and e
 test('TC-PHOTO-MAP-001: exported guest map shows country and zoom without requesting public records',async({page})=>{
  const feed:string[]=[],errors:string[]=[];page.on('request',r=>{if(/\/rest\/v1\/(travel_records|following_travel_records)/.test(r.url()))feed.push(r.url());});page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin);await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();
- await expect(page.getByTestId('tile-surface').locator('canvas')).toBeVisible();await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
+ await expect(page.getByTestId('tile-surface')).toHaveCount(0);await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
  await page.setViewportSize({width:320,height:568});await expect(page.getByTestId('svg-map-canvas')).toBeVisible();
  await expect(page.getByRole('button',{name:'지역 찾기',exact:true})).toHaveCount(0);
  for(const reset of ['지도 홈','대한민국']){

@@ -12,6 +12,8 @@ frontend/.env.local
 test-results/
 playwright-report/
 .vitest/
+scripts/__pycache__/
+artifacts/admin-boundaries/
 backend/supabase/.temp/
 backend/supabase/.branches/
 

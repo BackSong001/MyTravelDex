@@ -6,11 +6,12 @@ vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:'svg',Circl
 vi.mock('../../frontend/src/Feedback',async()=>({useReducedMotion:()=>true,default:(await import('../../frontend/node_modules/react-native')).Pressable}));
 vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{oceanDepth:{uri:'fixture://ocean-depth'},defaultAvatar:{uri:'fixture://default-bear'}}}));
 vi.mock('../../frontend/src/TileSurface',()=>({default:()=>React.createElement('div',{'data-native-tile':true})}));
+vi.mock('../../frontend/src/Journal',()=>({DestinationIcon:()=>React.createElement('svg')}));
 import TravelMap from '../../frontend/src/TravelMap';
 const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,status:'complete',locations:{source:'exif',latitude,longitude}});
 test('Native composer background uses the same overview and controls as the map tab',()=>{
  const html=renderToStaticMarkup(React.createElement(TravelMap,{fullScreen:true,records:[record('me',37.5665,126.978)]}));
- expect(html.match(/testID="map-region-\d+"/g)).toHaveLength(17);
+ expect(html.match(/testID="map-region-\d+"/g)).toHaveLength(16);
  expect(html).toContain('map-overview-cover');expect(html).toContain('지도 홈');expect(html).toContain('map-photo-me');
  expect(html).not.toMatch(/svg-ocean|ocean-texture|map-region-options|파스텔 방문|지도 확대|NaN|Infinity/);
 });
@@ -25,7 +26,7 @@ test('TC-MAP-SIMPLE-001 Native nationwide covers keyless Positron with the exist
  const mine=record('me',37.5665,126.978);
  const html=renderToStaticMarkup(React.createElement(TravelMap,{homeMap:true,fullScreen:true,records:[mine],ownRecords:[mine]}));
  expect(html).toMatch(/testID="map-region-11"[^>]*fill="#F5F3ED"/);
- expect(html).not.toContain('testID="map-label-');expect(html).not.toContain('testID="svg-ocean"');expect(html).toContain('map-overview-cover');expect(html).toContain('data-native-tile');
+ expect(html).not.toContain('testID="map-label-');expect(html).not.toContain('testID="svg-ocean"');expect(html).toContain('map-overview-cover');expect(html).not.toContain('data-native-tile');
  expect(html).toContain('지도 지역 및 사진 목록');expect(html).toContain('지도 홈');expect(html).not.toContain('map-region-options');expect(html).not.toContain('회색 미방문');
 });
 
@@ -47,9 +48,10 @@ test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fa
  });
  try{
   const {default:TileSurface}=await vi.importActual<typeof import('../../frontend/src/TileSurface')>('../../frontend/src/TileSurface');
-  const failure=vi.fn(),tileError=vi.fn();
-  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError}));
+  const failure=vi.fn(),tileError=vi.fn(),ready=vi.fn();
+  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError,onReady:ready}));
   expect(typeof nativeProps.mapStyle).toBe('string');expect(JSON.parse(nativeProps.mapStyle)).toEqual({version:8,sources:{},layers:[]});
   nativeProps.onDidFailLoadingMap();expect(failure).toHaveBeenCalledOnce();expect(tileError).not.toHaveBeenCalled();
+  expect(ready).not.toHaveBeenCalled();nativeProps.onDidFinishRenderingMapFully();expect(ready).toHaveBeenCalledOnce();
  }finally{spy.mockRestore();}
 });

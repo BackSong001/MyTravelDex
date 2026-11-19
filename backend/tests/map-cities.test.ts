@@ -18,5 +18,5 @@ test('TC-MAP-HOME-004 display city unions keep all 47 source districts and exact
    const point=regionLabelAnchor(district).point;expect(containsRegion(city.geometry,point)).toBe(true);expect(regionAt(point[1],point[0])?.properties.code).toBe(code);
   }
  }
- expect(districts).toHaveLength(255);
+ expect(districts).toHaveLength(256);
 });

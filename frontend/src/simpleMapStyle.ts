@@ -1,8 +1,10 @@
 import type {StyleSpecification,FilterSpecification} from 'maplibre-gl';
 import {regions} from './regions';
 import positron from './data/maps/positron.json';
-import exterior from './data/maps/korea-exterior.json';
-import labelLand from './data/maps/label-land.json';
+import exteriorPacked from './data/maps/packed/korea-exterior.json';
+import labelPacked from './data/maps/packed/label-land.json';
+import {unpackFeature,unpackCollection} from './packedMapData';
+const exterior=unpackCollection(exteriorPacked),labelLand=unpackFeature(labelPacked);
 
 export const simpleMapColors={water:'#A9D7EE',land:'#F5F3ED',river:'#B9DDF3',building:'#DDDAD2',label:'#687178',border:'#CFD5D7'};
 export const overviewLimit=(fitZoom:number)=>Math.max(7.5,fitZoom+.5);
@@ -36,7 +38,7 @@ export function simpleMapStyle():StyleSpecification{
  }
  style.layers=style.layers.filter(l=>l.type!=='symbol');
  style.sources.provinces={type:'geojson',data:{type:'FeatureCollection',features:regions}};
- style.sources['korea-exterior']={type:'geojson',data:exterior as any};
+ style.sources['korea-exterior']={type:'geojson',data:exterior as any,tolerance:0};
  style.layers.push(
   {id:'korea-exterior',type:'fill',source:'korea-exterior',paint:{'fill-color':simpleMapColors.water,'fill-antialias':false}},
   ...symbols,

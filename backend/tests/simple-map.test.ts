@@ -3,8 +3,9 @@ import {simpleMapStyle,overviewLimit,simpleMapColors} from '../../frontend/src/s
 describe('TC-MAP-SIMPLE-001 terrain contract',()=>{
  it('uses keyless OpenFreeMap terrain and explicit domestic cover',()=>{
   const s=simpleMapStyle();expect((s.sources.openmaptiles as any).url).toBe('https://tiles.openfreemap.org/planet');
-  expect((s.sources.provinces as any).data.features).toHaveLength(17);
+  expect((s.sources.provinces as any).data.features).toHaveLength(16);
   expect(s.layers.some(l=>l.id==='korea-exterior')).toBe(true);
+  expect((s.sources['korea-exterior'] as any).tolerance).toBe(0);
   expect(s.layers.filter(l=>(l as any)['source-layer']==='boundary')).toHaveLength(0);
   expect(simpleMapColors.label).toBe('#687178');
  });

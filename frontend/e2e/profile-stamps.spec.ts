@@ -21,20 +21,20 @@ test.beforeAll(async()=>{
 });
 test.afterAll(async()=>{if(user){if(unregistered.size)await admin('/storage/v1/object/travel-photos','DELETE',{prefixes:[...unregistered]});await cleanRecords(user.id);await admin(`/auth/v1/admin/users/${user.id}`,'DELETE');}});
 test('TC-FIGMA-STAMP-001: own private/public complete regions deduplicate, exclude drafts/overseas and decode the matching Figma symbols',async({page})=>{
- await login(page,user.email,user.password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 17');
+ await login(page,user.email,user.password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 16');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 16');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 16');
  await page.getByRole('button',{name:/^여행 스탬프 보기 ·/}).click();await page.getByRole('tab',{name:'모은 스탬프 2',exact:true}).click();
- await expect(page.getByTestId('region-stamp')).toHaveCount(2);await expect(page.getByTestId('stamp-total')).toHaveAccessibleName('스탬프 방문 지역 수 · 2 / 17');await expect(page.getByLabel('서울, 방문 완료',{exact:true})).toBeVisible();await expect(page.getByLabel('부산, 방문 완료',{exact:true})).toBeVisible();
+ await expect(page.getByTestId('region-stamp')).toHaveCount(2);await expect(page.getByTestId('stamp-total')).toHaveAccessibleName('스탬프 방문 지역 수 · 2 / 16');await expect(page.getByLabel('서울, 방문 완료',{exact:true})).toBeVisible();await expect(page.getByLabel('부산, 방문 완료',{exact:true})).toBeVisible();
  for(const file of ['busan-seagull-stamp-v1','seoul-ginkgo-stamp-v1']){
   const image=page.locator(`img[src*="${file}"]`);await expect(image).toHaveCount(1);await expect.poll(()=>image.evaluate(node=>node instanceof HTMLImageElement&&node.complete&&node.naturalWidth>0)).toBe(true);
   const box=(await image.boundingBox())!;expect(box.width).toBeCloseTo(108,0);expect(box.height).toBeCloseTo(108,0);
  }
  await page.screenshot({path:'docs/design/verification/figma-my-stamps-20261109.png'});
  await page.getByRole('button',{name:'프로필로 돌아가기',exact:true}).click();await page.getByRole('tab',{name:'홈',exact:true}).click();
- await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'공개 여행',exact:true}).click();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 17');
+ await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'공개 여행',exact:true}).click();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 16');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 16');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 16');
 });
 
 test('TC-FIGMA-PROFILE-001: same-owner refresh preserves editing while an account boundary clears summary, editing and stamps',async({page})=>{
- await login(page,user.email,user.password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 17');
+ await login(page,user.email,user.password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 16');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 16');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 16');
  await page.getByRole('button',{name:'프로필 수정',exact:true}).click();await page.getByLabel('닉네임',{exact:true}).fill('이전 계정의 미저장 이름');
  await page.evaluate(()=>{const key=Object.keys(localStorage).find(k=>/^sb-.*-auth-token$/.test(k))!;const session=JSON.parse(localStorage.getItem(key)!);const channel=new BroadcastChannel(key);channel.postMessage({event:'TOKEN_REFRESHED',session});channel.close();});
  await expect(page.getByLabel('닉네임',{exact:true})).toHaveValue('이전 계정의 미저장 이름');
@@ -43,17 +43,17 @@ test('TC-FIGMA-PROFILE-001: same-owner refresh preserves editing while an accoun
  const other=await page.context().newPage();
  try{
   await other.goto('/');await other.getByRole('tab',{name:'My',exact:true}).click();await other.getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
-  await login(other,email,password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-name')).toHaveText('새 계정 검증 여행자');await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');await expect(page.getByLabel('닉네임',{exact:true})).toHaveCount(0);
+  await login(other,email,password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-name')).toHaveText('새 계정 검증 여행자');await expect(page.getByTestId('profile-visits')).toHaveText('0 / 16');await expect(page.getByLabel('닉네임',{exact:true})).toHaveCount(0);
   await page.getByRole('button',{name:/^여행 스탬프 보기 ·/}).click();await page.getByRole('tab',{name:'모은 스탬프 0',exact:true}).click();await expect(page.getByTestId('region-stamp')).toHaveCount(0);
  }finally{await other.close();await admin(`/auth/v1/admin/users/${next.id}`,'DELETE');}
 });
 
 test('TC-FIGMA-STAMP-001: a failed refresh cannot turn a previous visit count into zero and retry restores confirmation',async({page})=>{
- await login(page,user.email,user.password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 17');
+ await login(page,user.email,user.password);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 16');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 16');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 16');
  await page.route('**/rest/v1/travel_records?**',route=>route.request().method()==='GET'&&new URL(route.request().url()).searchParams.get('owner_id')===`eq.${user.id}`?route.fulfill({status:503,json:{message:'Visits unavailable'}}):route.continue());
  await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:/^표시 범위/}).click();await page.getByRole('button',{name:'공개 여행',exact:true}).click();await page.getByRole('tab',{name:'My',exact:true}).click();
- await expect(page.getByTestId('profile-visits')).toHaveText('확인 필요');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 확인 필요');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 확인 필요');await expect(page.getByText('0 / 17',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'목록 다시 불러오기',exact:true})).toBeVisible();
- await page.unroute('**/rest/v1/travel_records?**');await page.getByRole('button',{name:'목록 다시 불러오기',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 17');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 17');
+ await expect(page.getByTestId('profile-visits')).toHaveText('확인 필요');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 확인 필요');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 확인 필요');await expect(page.getByText('0 / 16',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'목록 다시 불러오기',exact:true})).toBeVisible();
+ await page.unroute('**/rest/v1/travel_records?**');await page.getByRole('button',{name:'목록 다시 불러오기',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('2 / 16');await expect(page.getByTestId('profile-visits')).toHaveAccessibleName('내 방문 지역 수 · 2 / 16');await expect(page.getByRole('button',{name:/^여행 스탬프 보기 ·/})).toHaveAccessibleName('여행 스탬프 보기 · 2 / 16');
 });
 
 
@@ -104,18 +104,18 @@ test('TC-FIGMA-MY-TRIPS-001: new records, cover/title/privacy changes and deleti
  try{
   await login(page,user.email,user.password);await draft(page,2);await page.getByLabel('여행 제목',{exact:true}).fill('새 My 여행');await save(page);
   const [record]=await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}&title=eq.${encodeURIComponent('새 My 여행')}`),photos=await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}&order=display_order.asc`);paths=photos.flatMap((photo:any)=>[photo.original_path,photo.thumbnail_path]);
-  await page.getByRole('tab',{name:'My',exact:true}).click();const section=page.getByLabel('나의 최근 여행',{exact:true});await expect(section.getByTestId('profile-trip-count')).toHaveText('전체 5개 중 최근 3개');await expect(page.getByTestId('profile-visits')).toHaveText('3 / 17');
+  await page.getByRole('tab',{name:'My',exact:true}).click();const section=page.getByLabel('나의 최근 여행',{exact:true});await expect(section.getByTestId('profile-trip-count')).toHaveText('전체 5개 중 최근 3개');await expect(page.getByTestId('profile-visits')).toHaveText('3 / 16');
   await section.getByRole('button',{name:/^새 My 여행,/}).click();await page.getByRole('button',{name:'여행 관리',exact:true}).click();
   const title='수정한 긴 My 여행 제목을 끝까지 읽을 수 있어요';await page.getByLabel('제목 수정',{exact:true}).fill(title);await page.getByLabel('내용 수정',{exact:true}).fill('My 한 줄 기록 확인');await page.getByRole('button',{name:'수정 저장',exact:true}).click();
   await page.getByRole('button',{name:'대표사진 지정',exact:true}).nth(1).click();await expect.poll(async()=>(await admin(`/rest/v1/photos?travel_record_id=eq.${record.id}&is_cover=eq.true`))[0].id).toBe(photos[1].id);
   await page.getByRole('button',{name:'공개로 변경',exact:true}).click();await expect(page.getByRole('button',{name:'비공개로 변경',exact:true})).toBeVisible();await page.getByRole('button',{name:'목록으로',exact:true}).click();
   const changed=section.getByRole('button',{name:new RegExp(`^${title},`)});await expect(changed).toBeVisible();await expect(changed).toContainText('공개 여행');await expect(changed).toContainText('My 한 줄 기록 확인');
   const image=changed.getByRole('img',{name:`${title} 대표사진`,exact:true});await expect(image).toHaveAttribute('src',new RegExp(photos[1].id));await expect.poll(()=>image.evaluate(node=>node instanceof HTMLImageElement&&node.complete&&node.naturalWidth>0)).toBe(true);
-  await expect(section.getByTestId('profile-trip-count')).toHaveText('전체 5개 중 최근 3개');await expect(page.getByTestId('profile-visits')).toHaveText('3 / 17');await expect(section.getByRole('button',{name:/, 내 여행,/})).toHaveCount(3);await section.scrollIntoViewIfNeeded();
+  await expect(section.getByTestId('profile-trip-count')).toHaveText('전체 5개 중 최근 3개');await expect(page.getByTestId('profile-visits')).toHaveText('3 / 16');await expect(section.getByRole('button',{name:/, 내 여행,/})).toHaveCount(3);await section.scrollIntoViewIfNeeded();
   await page.screenshot({path:'docs/design/verification/figma-my-trips-20261109.png'});
   await changed.scrollIntoViewIfNeeded();await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));const beforeDelete=await page.getByTestId('content-scroll').evaluate(node=>node.scrollTop);
   await changed.click();await page.getByRole('button',{name:'여행 관리',exact:true}).click();await page.getByRole('button',{name:'기록 삭제',exact:true}).click();await page.getByRole('button',{name:'삭제 확인',exact:true}).click();
-  await expect(section.getByTestId('profile-trip-count')).toHaveText('전체 4개 중 최근 3개');await expect(changed).toHaveCount(0);await expect(page.getByTestId('profile-visits')).toHaveText('2 / 17');await expect(section.getByRole('button',{name:/^검증 /}).first()).toBeInViewport();
+  await expect(section.getByTestId('profile-trip-count')).toHaveText('전체 4개 중 최근 3개');await expect(changed).toHaveCount(0);await expect(page.getByTestId('profile-visits')).toHaveText('2 / 16');await expect(section.getByRole('button',{name:/^검증 /}).first()).toBeInViewport();
   await expect.poll(()=>page.getByTestId('content-scroll').evaluate((node,offset)=>Math.abs(node.scrollTop-Math.min(offset,node.scrollHeight-node.clientHeight)),beforeDelete)).toBeLessThanOrEqual(2);
   await expect(page.getByRole('tablist',{name:'주요 탐색',exact:true}).getByRole('tab',{name:'My',exact:true})).toHaveAttribute('aria-selected','true');
  }finally{if(paths.length)await admin('/storage/v1/object/travel-photos','DELETE',{prefixes:paths});}

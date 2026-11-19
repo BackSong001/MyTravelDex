@@ -7,7 +7,7 @@ export default function TileSurface(p:TileSurfaceProps){
  const camera=useRef<CameraRef>(null),ready=useRef(false);
  const style=useMemo(()=>JSON.stringify({...p.style,layers:p.style.layers.map(l=>l.type==='symbol'?{...l,layout:{...l.layout,visibility:'none'}}:l)}),[p.style]);
  useEffect(()=>{if(ready.current)camera.current?.jumpTo({...p.camera,bearing:0,pitch:0});},[p.camera]);
- return <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',inset:0}}><Map style={{flex:1}} mapStyle={style} touchRotate={false} touchPitch={false} attribution={false} onDidFailLoadingMap={p.onFailure} onDidFinishLoadingStyle={()=>{ready.current=true;camera.current?.jumpTo({...p.camera,bearing:0,pitch:0});}}>
+ return <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{position:'absolute',inset:0}}><Map style={{flex:1}} mapStyle={style} touchRotate={false} touchPitch={false} attribution={false} onDidFailLoadingMap={p.onFailure} onDidFinishRenderingMapFully={()=>p.onReady?.()} onDidFinishLoadingStyle={()=>{ready.current=true;camera.current?.jumpTo({...p.camera,bearing:0,pitch:0});}}>
   <Camera ref={camera} initialViewState={p.camera} maxZoom={18}/>
   {p.style.layers.filter(l=>l.type==='symbol').map(l=><Layer key={l.id} id={l.id} type="symbol" layout={{visibility:p.labelsVisible===false?'none':'visible'}}/>)}
  </Map></View>;

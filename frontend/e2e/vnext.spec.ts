@@ -240,7 +240,7 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await otherFriend.getByRole('button',{name:'공개로 변경',exact:true}).click();
   await expect(otherFriend.getByRole('button',{name:'비공개로 변경',exact:true})).toBeVisible();
   await page.getByRole('tab',{name:'My',exact:true}).click();
-  await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');
+  await expect(page.getByTestId('profile-visits')).toHaveText('0 / 16');
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   await admin(`/rest/v1/profiles?id=eq.${other.id}`,'PATCH',{display_name:'검색%_친구'});
   await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill('%_');
@@ -292,8 +292,8 @@ test('TC-VNEXT-UI-006 팔로우 실제 HTTP·공개 완료만 조회·해제·�
   await expect.poll(()=>admin(`/rest/v1/follows?follower_id=eq.${owner.id}&followee_id=eq.${other.id}`)).toEqual([]);
   await page.getByRole('tab',{name:'여행도감',exact:true}).click();
   await page.getByRole('button',{name:'내 여행',exact:true}).click();await expect(page.getByText('첫 번째 여행을 펼쳐보세요',{exact:true})).toBeVisible();
-  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByText('내 발자국 0 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');await page.getByRole('tab',{name:'홈',exact:true}).click();
-  await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('0 / 17');
+  await page.getByRole('tab',{name:'홈',exact:true}).click();await expect(page.getByText('내 발자국 0 / 16',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('0 / 16');await page.getByRole('tab',{name:'홈',exact:true}).click();
+  await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('0 / 16');
   await page.getByRole('tab',{name:'친구',exact:true}).click();
   const removed=page.waitForResponse(r=>r.url().includes('/rest/v1/follows?')&&r.request().method()==='DELETE');
   await page.getByTestId(`friend-person-${peer.id}`).first().getByRole('button',{name:'팔로우 해제',exact:true}).click();expect((await removed).ok()).toBe(true);
@@ -313,7 +313,7 @@ test('TC-VNEXT-UI-005/STAMP-001 내 비공개 완료·중복 방문·초안 제�
  const location=await admin('/rest/v1/locations','POST',{owner_id:user.id,latitude:37.56,longitude:126.97,source:'manual',country_code:'KR',region_name:'서울특별시'});
  await admin('/rest/v1/travel_records','POST',{owner_id:user.id,location_id:location[0].id,start_date:'2026-01-10',end_date:'2026-01-10',title:'완료하지 않은 서울',visibility:'private'});
  await page.reload();await page.getByRole('tab',{name:'My',exact:true}).click();
- await expect(page.getByTestId('profile-visits')).toHaveText('1 / 17');
+ await expect(page.getByTestId('profile-visits')).toHaveText('1 / 16');
  await page.getByRole('button',{name:/^여행 스탬프 보기 ·/}).click();
  await expect(page.getByLabel('제주, 방문 완료',{exact:true})).toBeVisible();await expect(page.getByLabel('서울, 미획득',{exact:true})).toHaveCount(1);
  await page.getByRole('button',{name:'프로필로 돌아가기',exact:true}).click();
@@ -322,7 +322,7 @@ test('TC-VNEXT-UI-005/STAMP-001 내 비공개 완료·중복 방문·초안 제�
   await page.getByRole('button',{name:new RegExp(`^${title},`)}).click();
   await page.getByRole('button',{name:'여행 관리',exact:true}).click();await page.getByRole('button',{name:'기록 삭제',exact:true}).click();await page.getByRole('button',{name:'삭제 확인',exact:true}).click();
   await page.getByRole('tab',{name:'My',exact:true}).click();
-  await expect(page.getByTestId('profile-visits')).toHaveText(`${remaining} / 17`);
+  await expect(page.getByTestId('profile-visits')).toHaveText(`${remaining} / 16`);
  }
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${user.id}`)).toHaveLength(1);
 });

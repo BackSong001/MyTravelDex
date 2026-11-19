@@ -10,6 +10,7 @@ export const puzzleArtwork:Record<string,number>={
  '41':require('../assets/ui/puzzles/41.jpg'),
  '43':require('../assets/ui/puzzles/43.jpg'),
  '44':require('../assets/ui/puzzles/44.jpg'),
+ '12':require('../assets/ui/puzzles/46.jpg'),
  '46':require('../assets/ui/puzzles/46.jpg'),
  '47':require('../assets/ui/puzzles/47.jpg'),
  '48':require('../assets/ui/puzzles/48.jpg'),

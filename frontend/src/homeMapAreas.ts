@@ -1,10 +1,12 @@
 import areaData from './data/maps/home-map-areas.json';
 import {regions,regionAt,type Region} from './regions';
+import {registerDisplay} from './displayCache';
 
 // 행정/저장용 원본을 재사용하고 카메라에 필요한 polygon 참조만 묶는다.
 const areaFeature=(source:Region,indices:number[],code:string,name:string,level:string):Region=>{
- const polygons=source.geometry.type==='Polygon'?[source.geometry.coordinates]:source.geometry.coordinates;
- return {type:'Feature',properties:{code,name,level,parentCode:source.properties.code},geometry:{type:'MultiPolygon',coordinates:indices.map(i=>polygons[i])}};
+ let geometry:Region['geometry']|undefined;
+ const result:Region={type:'Feature',properties:{code,name,level,parentCode:source.properties.code},get geometry(){if(!geometry){const polygons=source.geometry.type==='Polygon'?[source.geometry.coordinates]:source.geometry.coordinates;geometry={type:'MultiPolygon',coordinates:indices.map(i=>polygons[i])};}return geometry;}};
+ registerDisplay(result,level==='province'?'mainland:'+code:code);return result;
 };
 export const homeMainlands=areaData.provinces.map(a=>{
  const source=regions.find(f=>f.properties.code===a.code)!;

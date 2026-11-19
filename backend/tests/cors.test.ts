@@ -1,8 +1,8 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {expect,test} from 'vitest';
 
 test('TC-HTTP-CORS: Edge preflights and denied requests expose CORS without bypassing authorization',async()=>{
- const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+ const status=localSupabaseStatus();
  if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');
  for(const name of ['photo-url','cleanup-storage','geocode-location']){
   const url=`${status.API_URL}/functions/v1/${name}`;

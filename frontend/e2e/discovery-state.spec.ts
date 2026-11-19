@@ -6,14 +6,14 @@ import {nativeImageAssets} from './native-image-assets';
 let bundle='';
 test.beforeAll(async()=>{bundle=(await build({bundle:true,write:false,format:'iife',platform:'browser',plugins:[nativeImageAssets],define:{'process.env.NODE_ENV':'"test"'},resolveExtensions:['.web.tsx','.tsx','.web.ts','.ts','.web.js','.js','.json'],alias:{'react-native':path.resolve('frontend/node_modules/react-native-web'),'react-native-svg':path.resolve('frontend/node_modules/react-native-svg/lib/module/ReactNativeSVG.web.js')},stdin:{resolveDir:path.resolve('frontend'),loader:'tsx',contents:`
  import React from 'react';import{createRoot}from'react-dom/client';import{DestinationDraw}from'./src/TravelDiscovery';import{contrastRatio}from'./src/themes';import AppSettings from './src/AppSettings';import {MotionProvider} from './src/Feedback';import{SafeAreaProvider}from'react-native-safe-area-context';
- const root=createRoot(document.getElementById('root'));let owner='owner-a',visited=new Set(['11010']),mode='draw';window.contrastRatio=contrastRatio;
+ const root=createRoot(document.getElementById('root'));let owner='owner-a',visited=new Set(['11110']),mode='draw';window.contrastRatio=contrastRatio;
  window.updateDiscovery=(next={})=>{if('visited'in next)visited=next.visited?new Set(next.visited):null;if(next.owner)owner=next.owner;if(next.mode)mode=next.mode;root.render(<SafeAreaProvider initialMetrics={{frame:{x:0,y:0,width:390,height:844},insets:{top:0,right:0,bottom:0,left:0}}}><MotionProvider>{mode==='draw'?<DestinationDraw owner={owner} visited={visited} stamps={['KR-11']} onRegion={()=>{}}/>:<AppSettings owner={owner} api={{}} tab="home" onTab={()=>{}} onCreate={()=>{}} onLogin={()=>{}} isCurrent={()=>true} onRegion={()=>{}}/>}</MotionProvider></SafeAreaProvider>);};window.updateDiscovery();
  `}})).outputFiles[0].text;});
 test.beforeEach(async({page})=>{await page.goto('about:blank');await page.setContent('<div id="root"></div>');await page.addScriptTag({content:bundle});});
 test('TC-DISCOVERY-002: selected visit exclusion blocks drawing during unknown data and survives recovery',async({page})=>{
  const exclude=page.getByRole('radio',{name:'미방문 지역',exact:true}),draw=page.getByRole('button',{name:'여행지 뽑기',exact:true});await exclude.click();await expect(exclude).toBeChecked();await draw.click();await expect(page.getByTestId('destination-result')).not.toHaveText('서울 종로구');
  await page.evaluate(()=>(window as any).updateDiscovery({visited:null}));await expect(exclude).toBeChecked();await expect(draw).toBeDisabled();await expect(page.getByTestId('destination-result')).toHaveCount(0);
- await page.evaluate(()=>(window as any).updateDiscovery({visited:['11010']}));await expect(exclude).toBeChecked();await expect(draw).toBeEnabled();await expect(page.getByText(`추첨 후보 · ${destinations.length}곳`,{exact:true})).toBeVisible();
+ await page.evaluate(()=>(window as any).updateDiscovery({visited:['11110']}));await expect(exclude).toBeChecked();await expect(draw).toBeEnabled();await expect(page.getByText(`추첨 후보 · ${destinations.length}곳`,{exact:true})).toBeVisible();
 });
 test('TC-DISCOVERY-003: the active draw button keep their actual text contrast',async({page})=>{
  const ratio=await page.getByRole('button',{name:'여행지 뽑기',exact:true}).evaluate(node=>{const text=node.querySelector('div')!,hex=(rgb:string)=>'#'+rgb.match(/\d+/g)!.slice(0,3).map(n=>Number(n).toString(16).padStart(2,'0')).join('');return (window as any).contrastRatio(hex(getComputedStyle(node).backgroundColor),hex(getComputedStyle(text).color));});expect(ratio).toBeGreaterThanOrEqual(4.5);
@@ -48,7 +48,7 @@ test('TC-DRAW-001: reduced motion goes directly to the selected district',async(
 
 test('TC-DRAW-001: a first district visit can share an earned province stamp and exhausted users can switch modes',async({page})=>{
  const codes=districts.map(d=>d.id);
- await page.evaluate(visited=>(window as any).updateDiscovery({visited}),codes.filter(id=>id!=='11010'));
+ await page.evaluate(visited=>(window as any).updateDiscovery({visited}),codes.filter(id=>id!=='11110'));
  await page.getByRole('radio',{name:'미방문 지역'}).click();
  await page.getByRole('button',{name:'여행지 뽑기'}).click();
  await expect(page.getByTestId('destination-result')).toHaveText('서울특별시');

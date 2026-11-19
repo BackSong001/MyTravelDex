@@ -1,13 +1,15 @@
 import {geoArea,geoCentroid,type GeoProjection} from 'd3-geo';
 import {containsRegion,renderFeature,type Region} from './regions';
+import {cachedDisplay} from './displayCache';
 
 type Point=[number,number];
 const provinceLabelNames:Record<string,string>={
- '11':'서울','26':'부산','27':'대구','28':'인천','29':'광주','30':'대전','31':'울산','36':'세종',
+ '12':'전남광주','11':'서울','26':'부산','27':'대구','28':'인천','29':'광주','30':'대전','31':'울산','36':'세종',
  '41':'경기','43':'충북','44':'충남','46':'전남','47':'경북','48':'경남','50':'제주','51':'강원','52':'전북',
 };
 const anchors=new WeakMap<Region,{point:Point;area:number}>();
 export function regionLabelAnchor(region:Region){
+ const prepared=cachedDisplay(region);if(prepared)return prepared.anchor;
  const cached=anchors.get(region);if(cached)return cached;
  const polygons=region.geometry.type==='Polygon'?[region.geometry.coordinates]:region.geometry.coordinates;
  const parts=polygons.map(coordinates=>{const feature={...region,geometry:{type:'Polygon' as const,coordinates}};return {feature:renderFeature(feature),area:Math.min(geoArea(feature),4*Math.PI-geoArea(feature))};});
@@ -16,7 +18,9 @@ export function regionLabelAnchor(region:Region){
  if(!containsRegion(feature.geometry,point)){
   // 오목한 해안이나 hole의 중심은 가장 큰 섬/육지의 내부 수평구간으로 옮긴다.
   const rings=feature.geometry.type==='Polygon'?feature.geometry.coordinates:feature.geometry.coordinates[0];
-  const ys=rings[0].map(p=>p[1]),y=(Math.min(...ys)+Math.max(...ys))/2,xs:number[]=[];
+  let minY=Infinity,maxY=-Infinity;
+  for(const [,y] of rings[0]){minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
+  const y=(minY+maxY)/2,xs:number[]=[];
   for(const ring of rings)for(let i=1;i<ring.length;i++){
    const [ax,ay]=ring[i-1],[bx,by]=ring[i];
    if((ay>y)!==(by>y))xs.push(ax+(y-ay)*(bx-ax)/(by-ay));

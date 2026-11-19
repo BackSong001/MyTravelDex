@@ -6,7 +6,7 @@ import {geoPath} from 'd3-geo';
 import Text from './FontText';
 import Pressable from './Feedback';
 import {travelPuzzles} from './travelPuzzles';
-import {fitProjection,renderFeature} from './regions';
+import {districts,fitProjection,renderFeature} from './regions';
 import {Action,Notice,socialStyles as s} from './SocialUI';
 import {JournalIcon} from './Journal';
 import type {TravelApi} from './api';
@@ -26,7 +26,7 @@ export default function TravelDashboard(p:Props){
    </View>
    <Pressable accessibilityRole="button" accessibilityLabel="퍼즐 보기" onPress={p.onPuzzle} style={[s.row,{backgroundColor:'#F6F6F5',borderRadius:10,padding:12,gap:16}]}>
     {preview&&<Image accessible={false} source={art[preview.province.properties.code]} style={{width:68,height:68,borderRadius:6}}/>}
-    <View style={{flex:1,gap:4}}><Text style={s.heading}>나의 여행 퍼즐</Text><Text style={s.muted}>{pieces} / 255 조각</Text><View style={{height:4,backgroundColor:'#DDDEDF',borderRadius:2,overflow:'hidden'}}><View style={{height:4,width:`${pieces/255*100}%`,backgroundColor:'#242427'}}/></View></View><JournalIcon name="next" size={18}/>
+    <View style={{flex:1,gap:4}}><Text style={s.heading}>나의 여행 퍼즐</Text><Text style={s.muted}>{pieces} / {districts.length} 조각</Text><View style={{height:4,backgroundColor:'#DDDEDF',borderRadius:2,overflow:'hidden'}}><View style={{height:4,width:`${pieces/districts.length*100}%`,backgroundColor:'#242427'}}/></View></View><JournalIcon name="next" size={18}/>
    </Pressable>
   </>}
   <View style={[s.row,{flexWrap:'wrap'}]}><Action label="내 여행 전체" onPress={p.onJournal}/><Action label="지도 펼치기" onPress={p.onMap}/><Action label="여행 피드" onPress={p.onFeed}/></View>
