@@ -513,3 +513,11 @@ TC-MAP-EXTERIOR-001: 경상북도 상세 배율(8.3976)에서 바다 차폐의 �
 TC-MAP-EXTERIOR-002 보완: 0.25도 기본 셀의 해안 부분은 최대 0.0625도까지 추가 분할하며, 폴리곤 홀 수가 128개를 넘으면 더 분할한다. 차폐의 실제 영역 및 공식 판정/기록 보존 계약은 동일하다.
 
 TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정하여 인접 분할 셀의 타일 단순화로 인한 1px 틈을 방지한다. 판정용 원본 및 사용자 데이터는 변경하지 않는다.
+
+## 2026년 지도 경량화
+
+기존 locations(*)에 district_code, boundary_date, island_code, legacy_stamp_name이 추가된다. 모두 DB 파생 필드이며 클라이언트 입력은 판정에 사용하지 않는다. 경계 원본은 PostgREST에 공개하지 않는다.
+
+## 국내 경계 벡터 타일
+
+FR-MAP-TILES-001. 상세 렌더러는 정적 /boundary-tiles/<버전>/{z}/{x}/{y}.pbf 및 표시 이름 필터용 자산을 읽는다. Native는 동일 타일을 번들 자산에서 읽는다. 사용자 데이터·키·DB 호출은 필요하지 않다.

@@ -1,3 +1,4 @@
+import {location} from './helpers/map-fixtures';
 import {describe,expect,it} from 'vitest';
 import {destinations,districts,eligibleDestinations,pickDestination,visitedDistricts,drawDelays,areas} from '../../frontend/src/destinationDraw';
 import {contains} from '../../frontend/src/provinces';
@@ -11,7 +12,7 @@ describe('TC-DRAW-001',()=>{
     expect(Object.keys(areas).flatMap(area=>eligibleDestinations('area',area,null)).map(d=>d.id).sort()).toEqual(destinations.map(d=>d.id).sort());
   });
   it('uses only the owner’s complete locations and blocks unknown or exhausted filters',()=>{
-    const record={owner_id:'me',status:'complete',locations:{latitude:37.572,longitude:126.979}};
+    const record={owner_id:'me',status:'complete',locations:{...location(37.572,126.979)}};
     const visited=visitedDistricts([record,{...record,owner_id:'other'},{...record,status:'draft'}],'me');
     expect([...visited]).toEqual(['11110']);
     expect(visitedDistricts([{...record,owner_id:'other'},{...record,status:'draft'}],'me').size).toBe(0);

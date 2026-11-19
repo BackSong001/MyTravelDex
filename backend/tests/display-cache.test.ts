@@ -10,14 +10,16 @@ import metadata from '../../frontend/src/data/maps/display-metadata.json';
 import {compactSvgPath} from '../../frontend/src/svgPath';
 test('TC-ADMIN-PERF-002 display cache matches source hashes, anchors and direct projection',()=>{
  for(const [name,hash] of Object.entries(metadata.sources))expect(createHash('sha256').update(readFileSync('frontend/src/data/maps/'+name+'.json')).digest('hex')).toBe(hash);
- const p=geoMercator().scale(150).translate([0,0]);
- for(const f of [...regions,...districts,...displayCities,...homeMainlands,...homeIslands]){
-  expect(cachedDisplay(f)?.bounds).toEqual(geoPath(p).bounds(renderFeature(f)));
-  expect(regionLabelAnchor(f)).toEqual(regionLabelAnchor({...f}));
+ const source=(name:string)=>JSON.parse(readFileSync('frontend/src/data/maps/'+name+'.json','utf8')).features;
+ const raw=[...source('korea-sido'),...source('korea-sigungu'),...source('gyeonggi-cities')];
+ for(const f of [...regions,...districts,...displayCities]){
+  const exact=raw.find(r=>r.properties.code===f.properties.code);
+  expect(cachedDisplay(f)?.bounds).toEqual(geoPath(geoMercator().scale(150).translate([0,0])).bounds(renderFeature(exact)));
+  expect(regionLabelAnchor(f)).toEqual(regionLabelAnchor(exact));
  }
  for(const size of [[320,260],[390,844],[1440,900]]){
   const actual=fitProjection(regions,...size as [number,number]);
-  const direct=geoMercator().fitExtent([[16,16],[size[0]-16,size[1]-16]],{type:'FeatureCollection',features:regions.map(renderFeature)});
+  const direct=geoMercator().fitExtent([[16,16],[size[0]-16,size[1]-16]],{type:'FeatureCollection',features:raw.filter(f=>f.properties.level==='province').map(renderFeature)});
   expect(actual.scale()).toBeCloseTo(direct.scale(),8);
   actual.translate().forEach((v,i)=>expect(v).toBeCloseTo(direct.translate()[i],8));
  }

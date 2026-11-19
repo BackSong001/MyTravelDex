@@ -1,16 +1,15 @@
 import {MAP_ATTRIBUTION} from './mapDataVersion';
-import React,{memo,useLayoutEffect,useMemo,useRef,useState} from 'react';
+import React,{memo,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {View,useWindowDimensions} from 'react-native';
 import Svg,{Circle,Path} from 'react-native-svg';
 import Text from './FontText';
 import Pressable,{useReducedMotion} from './Feedback';
 import {useThemeColors} from './ThemeContext';
 import {provinceLabels,provincePalette} from './provinces';
-import {isDestinationVisited,project,areas,districts,drawDelays,eligibleDestinations,pickDestination,type Destination,type DrawMode} from './destinationDraw';
+import {destinationGeometry} from './regionalAssets';
+import {regions,regionPath,legacyCodes} from './regions';
+import {isDestinationVisited,destinationPath,drawProjection,project,areas,districts,drawDelays,eligibleDestinations,pickDestination,type Destination,type DrawMode} from './destinationDraw';
 
-const silhouettes=Object.entries(provinceLabels).map(([id])=>({
-  id,get path(){return districts.filter(d=>d.province===id).map(d=>d.path).join('');},
-}));
 function frame(bounds:number[],padding:number){
   const [left,top,right,bottom]=bounds;
   return [left-padding,top-padding,right-left+padding*2,bottom-top+padding*2];
@@ -19,7 +18,7 @@ const nationalFrame=frame([Math.min(...districts.map(d=>d.frame[0])),Math.min(..
   Math.max(...districts.map(d=>d.frame[2])),Math.max(...districts.map(d=>d.frame[3]))],10);
 const Land=memo(function Land(){
   const c=useThemeColors(),palette=provincePalette(c.map.regionPastels);
-  return <>{silhouettes.map(p=><Path key={p.id} d={p.path} fill={palette[p.id]} stroke={c.sheet} vectorEffect="non-scaling-stroke" strokeWidth={0.55} fillRule="evenodd"/>)}</>;
+  return <>{regions.map(f=><Path key={f.properties.code} d={regionPath(f,drawProjection).d} transform={regionPath(f,drawProjection).transform} fill={palette[legacyCodes[f.properties.code]]} stroke={c.sheet} vectorEffect="non-scaling-stroke" strokeWidth={0.55} fillRule="evenodd"/>)}</>;
 });
 
 function DrawMap({active,result,reduced}:{active?:Destination;result?:Destination;reduced:boolean}){
@@ -37,6 +36,17 @@ function DrawMap({active,result,reduced}:{active?:Destination;result?:Destinatio
     handle=requestAnimationFrame(advance);
     return ()=>cancelAnimationFrame(handle);
   },[result,reduced]);
+  const [precise,setPrecise]=useState<{destination:Destination;path:string}|null>(null);
+  useEffect(()=>{
+    if(!result)return;
+    let active=true;
+    const province=regions.find(f=>legacyCodes[f.properties.code]===result.province)!;
+    destinationGeometry(province.properties.code,new Set(result.members.map(m=>m.id))).then(shapes=>{
+      if(active)setPrecise({destination:result,path:shapes.map(destinationPath).join('')});
+    }).catch(()=>{/* 표시 자산을 읽지 못하면 기존 추첨 윤곽을 유지한다. */});
+    return()=>{active=false;};
+  },[result]);
+  const highlighted=result&&precise?.destination===result?precise.path:active?.path;
   if(!districts.length)return null;
   const span=result?Math.max(result.frame[2]-result.frame[0],result.frame[3]-result.frame[1]):0;
   const end=result?frame(result.frame,Math.max(span*.18,1)):nationalFrame;
@@ -46,8 +56,8 @@ function DrawMap({active,result,reduced}:{active?:Destination;result?:Destinatio
   return <Svg width="100%" height="100%" viewBox={box.join(' ')} accessibilityLabel="대한민국 여행지 추첨 지도">
     <Land/>
     {active&&<>
-      <Path d={active.path} fill="none" stroke={c.focus} strokeWidth={stroke*3} strokeOpacity={.23}/>
-      <Path testID="draw-highlight" accessibilityLabel={active.label} d={active.path} fill={c.warm} fillRule="evenodd" stroke={c.focus} strokeWidth={stroke}/>
+      <Path d={highlighted} fill="none" stroke={c.focus} strokeWidth={stroke*3} strokeOpacity={.23}/>
+      <Path testID="draw-highlight" accessibilityLabel={active.label} d={highlighted} fill={c.warm} fillRule="evenodd" stroke={c.focus} strokeWidth={stroke}/>
     </>}
     {point&&(!result||t<1)&&<Circle cx={point[0]} cy={point[1]} r={stroke*(result?2+t*9:3)} fill={c.warm} fillOpacity={.28} stroke={c.focus} strokeWidth={stroke*.6}/>}
   </Svg>;

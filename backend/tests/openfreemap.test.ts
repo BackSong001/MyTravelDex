@@ -1,8 +1,9 @@
+import {testTerrain} from './helpers/map-fixtures';
 import {expect,test} from 'vitest';
 import {simpleMapStyle,detailAfterZoom} from '../../frontend/src/simpleMapStyle';
 import {clusterPhotos} from '../../frontend/src/photoMap';
 test('TC-MAP-OFM-001 Positron is keyless, shared and masks foreign terrain below domestic text',()=>{
- const s=simpleMapStyle();expect((s.sources.openmaptiles as any).url).toBe('https://tiles.openfreemap.org/planet');
+ const s=simpleMapStyle(testTerrain());expect((s.sources.openmaptiles as any).url).toBe('https://tiles.openfreemap.org/planet');
  expect(JSON.stringify(s)).not.toMatch(/geoapify|apiKey=/);
  expect(s.layers.at(-1)?.id).toBe('province-boundaries');
  const outside=s.layers.findIndex(l=>l.id==='korea-exterior');expect(outside).toBeLessThan(s.layers.findIndex(l=>l.type==='symbol'));

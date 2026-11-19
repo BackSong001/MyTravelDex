@@ -1,6 +1,7 @@
+import {location} from './helpers/map-fixtures';
 import {expect,test} from 'vitest';
 import {travelPuzzles} from '../../frontend/src/travelPuzzles';
-const record=(id:string,owner_id='a',status='complete',latitude=37.5665,longitude=126.978)=>({id,owner_id,status,visibility:'private',locations:{latitude,longitude}});
+const record=(id:string,owner_id='a',status='complete',latitude=37.5665,longitude=126.978)=>({id,owner_id,status,visibility:'private',locations:location(latitude,longitude)});
 test('TC-SNS-005 puzzles derive only from current own complete records and preserve duplicates as one piece',()=>{
  const result=travelPuzzles([record('1'),record('2'),record('foreign','a','complete',48.85,2.35),record('draft','a','draft'),record('other','b')],'a');
  expect(result).toHaveLength(16);

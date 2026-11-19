@@ -1,7 +1,6 @@
-import {regionAt} from './regions';
+import {regionAt,type Region} from './regions';
 const municipalities=new Set(['11','26','27','28','29','30','31','36']);
-export function photoCity(lat:number,lng:number,address:{country_code?:string;region_name?:string;city_name?:string}|null){
- const region=regionAt(lat,lng)?.properties;
+export function photoCity(lat:number,lng:number,address:{country_code?:string;region_name?:string;city_name?:string}|null,region:Region['properties']|null|undefined=regionAt(lat,lng)?.properties){
  if(region){
   if(municipalities.has(region.parentCode!))return region.parentCode;
   // 원자료의 청주시상당구 등 일반구는 상위 시로 비교한다.

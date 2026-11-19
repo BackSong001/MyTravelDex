@@ -9,3 +9,5 @@ frontend/src/data/maps/home-map-areas.json -text whitespace=cr-at-eol
 frontend/src/data/maps/display-metadata.json -text whitespace=cr-at-eol
 frontend/src/data/maps/display-paths.json -text whitespace=cr-at-eol
 frontend/src/data/maps/packed/*.json -text whitespace=cr-at-eol
+
+frontend/public/boundary-tiles/**/*.pbf binary

@@ -1,11 +1,14 @@
+import {testTerrain} from './helpers/map-fixtures';
 import {describe,it,expect} from 'vitest';
 import {simpleMapStyle,overviewLimit,simpleMapColors} from '../../frontend/src/simpleMapStyle';
 describe('TC-MAP-SIMPLE-001 terrain contract',()=>{
  it('uses keyless OpenFreeMap terrain and explicit domestic cover',()=>{
-  const s=simpleMapStyle();expect((s.sources.openmaptiles as any).url).toBe('https://tiles.openfreemap.org/planet');
-  expect((s.sources.provinces as any).data.features).toHaveLength(16);
+  const s=simpleMapStyle(testTerrain());expect((s.sources.openmaptiles as any).url).toBe('https://tiles.openfreemap.org/planet');
+  expect(s.sources['domestic-boundaries']).toMatchObject({type:'vector',minzoom:5,maxzoom:11,bounds:[124,33,132,39]});
+  expect(JSON.stringify(simpleMapStyle()).length).toBeLessThan(100000);
   expect(s.layers.some(l=>l.id==='korea-exterior')).toBe(true);
-  expect((s.sources['korea-exterior'] as any).tolerance).toBe(0);
+  expect(s.layers.find(l=>l.id==='korea-exterior')).toMatchObject({source:'domestic-boundaries','source-layer':'sea'});
+  expect(s.layers.find(l=>l.id==='province-boundaries')).toMatchObject({source:'domestic-boundaries','source-layer':'provinces'});
   expect(s.layers.filter(l=>(l as any)['source-layer']==='boundary')).toHaveLength(0);
   expect(simpleMapColors.label).toBe('#687178');
  });

@@ -1,10 +1,6 @@
-import {regions,regionAt,legacyCodes,containsRegion} from './regions';
+import {regions,regionAt,recordRegion,REGION_DATE,legacyCodes,containsRegion} from './regions';
 import {colors as palette} from './theme';
 import {validCoordinates} from './domain';
-import legacyPacked from './data/maps/packed/legacy-stamp-sido-20260401.json';
-import {unpackCollection} from './packedMapData';
-const legacyStamps=unpackCollection(legacyPacked);
-
 type Position = number[];
 type Geometry = {type: 'Polygon'; coordinates: Position[][]} | {type: 'MultiPolygon'; coordinates: Position[][][]};
 type Feature = {properties: {shapeISO: string; shapeName: string}; geometry: Geometry};
@@ -45,7 +41,8 @@ export function groupProvinceRecords(records: any[]) {
   const grouped: Record<string, any[]> = {};
   for (const record of records) {
     if (record.status !== 'complete' || !record.locations || record.locations.latitude == null || record.locations.longitude == null) continue;
-    const id = provinceAt(Number(record.locations.latitude),Number(record.locations.longitude));
+    const parent=recordRegion(record.locations)?.properties.parentCode;
+    const id=parent&&legacyCodes[parent];
     if (id) (grouped[id] ??= []).push(record);
   }
   return grouped;
@@ -104,8 +101,7 @@ export function legacyStampNames(records:any[]){
   if(record.status!=='complete'||p?.latitude==null||p.longitude==null)continue;
   const lat=Number(p.latitude),lng=Number(p.longitude);
   if(!validCoordinates(lat,lng))continue;
-  const region=legacyStamps.features.find(f=>containsRegion(f.geometry as Geometry,[lng,lat]));
-  if(region)names.add(region.properties.name);
+  if(p.boundary_date===REGION_DATE&&p.legacy_stamp_name)names.add(p.legacy_stamp_name);
  }
  return [...names].sort();
 }

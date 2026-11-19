@@ -8,12 +8,13 @@ import Pressable,{useReducedMotion} from './Feedback';
 import PhotoSummarySheet from './PhotoSummarySheet';
 import {clusterPhotos,latestRecords} from './photoMap';
 import {useThemeColors} from './ThemeContext';
-import {districts,regions,regionAt,regionPath,projectedBounds,fitProjection,legacyCodes} from './regions';
+import {districts,regions,regionAt,recordRegion,regionPath,projectedBounds,fitProjection,legacyCodes} from './regions';
 import {homeMainlands,homeIslands,homeArea,homeAreaAt} from './homeMapAreas';
 import {mapRecords,type TravelMapProps,type MapNavigation} from './provinces';
 import WorldOverview from './WorldOverview';
 import MapAttribution from './MapAttribution';
 import TileSurface from './TileSurface';
+import {visibleLabelCells,labelGeometry} from './regionalAssets';
 import TileBoundary from './TileBoundary';
 import {simpleMapStyle,simpleMapColors,detailAfterZoom} from './simpleMapStyle';
 import {atlasCamera,outsideAtlas,scaleToZoom,zoomToScale} from './tileCamera';
@@ -56,7 +57,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   return()=>cancelAnimationFrame(frame);
  },[finder,summary.length]);
  const entries=useMemo(()=>mapRecords(records,!!onCoordinate),[records,!!onCoordinate]);
- const indexed=useMemo(()=>entries.map(record=>({record,region:regionAt(Number(record.locations.latitude),Number(record.locations.longitude)),island:homeAreaAt(Number(record.locations.latitude),Number(record.locations.longitude))})),[entries]);
+ const indexed=useMemo(()=>entries.map(record=>({record,region:recordRegion(record.locations),island:homeIslands.find(f=>f.properties.code===record.locations.island_code)})),[entries]);
  const features=regions;
  const correction=focus??(onCoordinate||!fullScreen?entries[0]?.locations:undefined),lat=correction?.latitude,lng=correction?.longitude;
  const base=useMemo(()=>measured?fitProjection(features,size.width,size.height):geoMercator(),[features,size,measured]);
@@ -79,7 +80,20 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  const tilesWanted=measured&&tileEnabled&&domesticVisible&&!national;
  const mountTiles=tileEnabled&&domesticVisible&&(tilesWanted||tilesMounted);
  const tileVisible=tilesWanted&&tileReady;
- const tileStyle=useMemo(()=>mountTiles?simpleMapStyle():null,[mountTiles]);
+ const labelCells=useMemo(()=>{
+  if(!tilesWanted||!view.labelRevealed||mapZoom<11)return '';
+  const nw=p.invert?.([0,0]),se=p.invert?.([size.width,size.height]);
+  return nw&&se?visibleLabelCells(nw[0],se[1],se[0],nw[1]):'';
+ },[tilesWanted,view.labelRevealed,mapZoom,p,size]);
+ const [labelMask,setLabelMask]=useState<{cells:string;geometry:Awaited<ReturnType<typeof labelGeometry>>}|null>(null);
+ useEffect(()=>{
+  if(!labelCells||moving||labelMask?.cells===labelCells)return;
+  let active=true;
+  labelGeometry(labelCells).then(geometry=>{if(active)setLabelMask({cells:labelCells,geometry});})
+   .catch(()=>{if(active)setTileError(true);});
+  return()=>{active=false;};
+ },[labelCells,moving,labelMask?.cells]);
+ const tileStyle=useMemo(()=>mountTiles?simpleMapStyle(labelMask?.geometry):null,[mountTiles,labelMask]);
  useEffect(()=>{if(tilesWanted)setTilesMounted(true);if(!mountTiles)setTileReady(false);},[tilesWanted,mountTiles]);
  const detailCodes=useRef(new Set<string>());
  const visibleDistricts=useMemo(()=>{
@@ -248,7 +262,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  return <View testID="svg-travel-map" style={{flex:fullScreen?1:undefined,height:fullScreen?undefined:320,minHeight:0,backgroundColor:c.surface,borderRadius:16,overflow:'hidden'}}>
   <View style={{flex:1,minHeight:0,flexDirection:'column'}}>
    <View ref={host} testID="svg-map-canvas" accessible accessibilityRole={Platform.OS!=='web'?'button':undefined} accessibilityLabel={`지도 지역 및 사진 목록${Platform.OS==='web'?'. Enter 또는 Space 키로 열기':''}`} accessibilityKeyShortcuts={Platform.OS==='web'?'Enter Space':undefined} accessibilityHint="활성화하거나 Enter 또는 Space 키로 지도 도구 열기" accessibilityActions={[{name:'activate',label:'지도 도구 열기'}]} onAccessibilityAction={e=>{if(e.nativeEvent.actionName==='activate')setFinder(true);}} {...responder.panHandlers} onLayout={e=>{const {width,height}=e.nativeEvent.layout;if(width&&height){setMeasured(true);setSize({width,height});onCanvasReady?.();}measurePosition();}} onTouchStart={measurePosition} {...(Platform.OS==='web'?{role:'application',tabIndex:0,onClick:(e:any)=>{if(e.detail===0){e.preventDefault();e.stopPropagation();setFinder(true);}},onKeyDown:(e:any)=>{if(['+','=','-'].includes(e.key)){e.preventDefault();zoom(e.key==='-'?1/1.5:1.5);return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(!e.repeat)setFinder(true);}},onPointerDown:(e:any)=>{const r=e.currentTarget.getBoundingClientRect();position.current={x:r.left+window.scrollX,y:r.top+window.scrollY};},onWheel:(e:any)=>zoom(e.deltaY>0?.8:1.25)} as any:{})} style={{flex:1,minHeight:120,height:fullScreen?undefined:260,backgroundColor:simpleMapColors.water,...(Platform.OS==='web'?{touchAction:'none'} as any:{})}}>
-    {mountTiles&&<TileBoundary onFailure={()=>setTileFailed(true)}><TileSurface style={tileStyle!} onReady={()=>setTileReady(true)} labelsVisible={view.labelRevealed===true} camera={tileCamera} onFailure={()=>setTileFailed(true)} onTileError={()=>setTileError(true)}/></TileBoundary>}
+    {mountTiles&&tileStyle&&<TileBoundary onFailure={()=>setTileFailed(true)}><TileSurface style={tileStyle} onReady={()=>setTileReady(true)} labelsVisible={!!labelCells&&labelMask?.cells===labelCells} camera={tileCamera} onFailure={()=>setTileFailed(true)} onTileError={()=>setTileError(true)}/></TileBoundary>}
     <Svg style={{position:'relative',zIndex:1}} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`} accessible={false}>
      {!tileVisible&&<Rect testID="map-overview-cover" width={size.width} height={size.height} fill={simpleMapColors.water}/>}
      <WorldOverview base={base} scale={ratio} x={tx} y={ty} width={size.width} height={size.height} zoom={mapZoom}/>

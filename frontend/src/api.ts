@@ -1,3 +1,4 @@
+import {resolveLocationRows} from './regionalAssets';
 export class ApiError extends Error {
   serverCode?: string;
   constructor(public code: string, public status: number, message: string) { super(message); }
@@ -50,7 +51,7 @@ export class TravelApi {
     if (start) q.set('end_date', `gte.${start}`);
     if (end) q.set('start_date', `lte.${end}`);
     if (region) q.set('locations.region_name', `eq.${region}`);
-    return this.listPages(`/rest/v1/travel_records?${q}`);
+    return this.listPages(`/rest/v1/travel_records?${q}`).then(resolveLocationRows);
   }
   following(start?: string, end?: string, region?: string, owner?: string) {
     const q = new URLSearchParams({select:`*,locations${region?'!inner':''}(*)`,order:'start_date.desc,id.asc'});
@@ -58,11 +59,11 @@ export class TravelApi {
     if(start)q.set('end_date',`gte.${start}`);
     if(end)q.set('start_date',`lte.${end}`);
     if(region)q.set('locations.region_name',`eq.${region}`);
-    return this.listPages(`/rest/v1/following_travel_records?${q}`);
+    return this.listPages(`/rest/v1/following_travel_records?${q}`).then(resolveLocationRows);
   }
   drafts(owner:string) {
     const q=new URLSearchParams({owner_id:`eq.${owner}`,status:'eq.draft',select:'*,locations(*)',order:'created_at.desc,id.asc'});
-    return this.listPages(`/rest/v1/travel_records?${q}`);
+    return this.listPages(`/rest/v1/travel_records?${q}`).then(resolveLocationRows);
   }
   async update(id: string, values: unknown) {
     const rows = await this.request(`/rest/v1/travel_records?id=eq.${id}`, 'PATCH', values);

@@ -1,7 +1,8 @@
+import {testTerrain} from './helpers/map-fixtures';
 import {expect,test} from 'vitest';
 import {simpleMapStyle,simpleMapColors} from '../../frontend/src/simpleMapStyle';
 test('TC-MAP-READABILITY-001 sparse domestic labels render above the exterior without changing terrain',()=>{
- const s=simpleMapStyle(),outside=s.layers.findIndex(l=>l.id==='korea-exterior');
+ const s=simpleMapStyle(testTerrain()),outside=s.layers.findIndex(l=>l.id==='korea-exterior');
  const labels=s.layers.filter(l=>l.type==='symbol');
  expect(labels.every(l=>s.layers.indexOf(l)>outside)).toBe(true);
  for(const l of labels){expect(l.minzoom).toBeGreaterThanOrEqual(11);expect(JSON.stringify(l.filter)).toContain('within');expect(l.layout?.['text-allow-overlap']).toBe(false);}

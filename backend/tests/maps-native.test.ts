@@ -1,3 +1,4 @@
+import {location} from './helpers/map-fixtures';
 import {expect,test,vi} from 'vitest';
 import React from '../../frontend/node_modules/react';
 import {renderToStaticMarkup} from '../../frontend/node_modules/react-dom/server';
@@ -8,7 +9,7 @@ vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{oceanDepth:{uri:'fixture:/
 vi.mock('../../frontend/src/TileSurface',()=>({default:()=>React.createElement('div',{'data-native-tile':true})}));
 vi.mock('../../frontend/src/Journal',()=>({DestinationIcon:()=>React.createElement('svg')}));
 import TravelMap from '../../frontend/src/TravelMap';
-const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,status:'complete',locations:{source:'exif',latitude,longitude}});
+const record=(id:string,latitude:number,longitude:number)=>({id,owner_id:id,status:'complete',locations:{source:'exif',...location(latitude,longitude)}});
 test('Native composer background uses the same overview and controls as the map tab',()=>{
  const html=renderToStaticMarkup(React.createElement(TravelMap,{fullScreen:true,records:[record('me',37.5665,126.978)]}));
  expect(html.match(/testID="map-region-\d+"/g)).toHaveLength(16);

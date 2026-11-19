@@ -81,6 +81,21 @@ Mercator scale1000/translate0의128색상층을2048² PNG에구운고정asset이
 
 전국 검증은 `npx playwright test frontend/e2e/nationwide-mask.spec.ts`로 252개 화면을 캡처한 다음, 지리 라이브러리가 설치된 Python으로 `scripts/check-nationwide-mask.py`를 실행한다. 원본 sido를 독립 판정 기준으로 사용하며 3px 경계 오차 구간은 별도 집계한다. 실제 UI 선택은 `simple-map.spec.ts`의 `nationwide UI` 3개 시나리오(48개 지역 선택)를 사용한다.
 
-최종 전국 검증 결과는 `docs/NATIONWIDE_MAP_QA_20261119.md`를 따른다. 차폐는 2,673개, 최대 홀128개이며 `simpleMapStyle`의 차폐 소스 tolerance=0을 유지해 인접 셀의 자동 단순화 틈을 방지한다.
+MVT 전환 전 전국 검증 결과는 `docs/NATIONWIDE_MAP_QA_20261119.md`에 있다. 당시 GeoJSON 차폐 2,673개와 최대 홀 128개를 동일한 벡터 타일 생성기의 입력으로 사용한다.
 
 지도 JSON은 `.gitattributes`의 `-text` 규칙으로 자동 줄바꿈 변환을 막는다. 원본 및 packed manifest SHA256은 파일 바이트 기준이므로 Git 저장/checkout에서도 LF/CRLF를 임의 변환하지 않는다.
+
+## 2026-11-09 경계의 DB 적재와 화면 배포
+
+현재 화면은 `light/`의 시도 윤곽과 원본에서 산출한 카메라 범위·기준점을 사용한다. 지도와 여행지 추첨의 전국 윤곽은 같은 SVG 경로다. 웹 상세 화면은 `public/boundary-tiles/<버전>/{z}/{x}/{y}.pbf`에서 보이는 타일의 바다와 시도 경계선을 함께 읽는다. z5~11을 생성하고 이후에는 z11 타일을 확대한다. Android는 같은 파일을 APK assets에서 읽는다. 확대 후 이름을 표시할 때만 화면과 만나는 국내 육지 필터를 읽고, 전국 화면은 기존 SVG를 사용한다. Positron 타일은 기존 OpenFreeMap을 사용한다. 원본 JSON과 이전 packed 파일은 출처 검증과 재생성을 위해 저장소에 남긴다.
+
+DB 설치에는 스키마 migration과 원본 적재가 모두 필요하다. 로컬에서 기존 migration을 적용한 뒤 해당 DB의 psql에 아래 출력을 전달한다. psql 접속은 프로젝트에서 관리하는 연결 설정을 사용한다.
+
+```sh
+npx supabase migration up --local --workdir backend
+python3 scripts/load-location-regions.py | psql -X -v ON_ERROR_STOP=1 'service=mytraveldex_local'
+```
+
+마지막 인자는 로컬 Supabase PostgreSQL을 가리키는 libpq 서비스 설정 예시다. 사용하는 로컬 연결 설정에 맞춰 교체한다. 적재기는 해시를 검증한 시군구 256개, 별도 선택 섬 36개, 4월 스탬프 17개를 비공개 `travel_geo`에 넣고 활성 버전과 기존 위치 파생 필드를 한 트랜잭션에서 갱신한다. 기존 위치가 많으면 이 작업 동안 위치 쓰기가 대기하므로 운영 적용 시 시간을 잡는다. 같은 버전 재실행은 이미 채운 위치를 건드리지 않는다. DB에 기준일이 없는 기존 서버에서는 해당 좌표를 포함할 수 있는 시도의 정밀 자산만 읽어 분류한다. 알 수 없는 기준일의 코드를 현재 행정구역으로 해석하지 않는다.
+
+화면 자산은 Shapely 2.2.0 환경에서 `python3 scripts/build-light-maps.py`와 `node scripts/build-map-display.mjs`, `node --max-old-space-size=6144 frontend/scripts/build-boundary-tiles.mjs` 순서로 생성한다. 출처/버전 변경 시 DB 적재기·화면 자산을 함께 검토한다. 단순화된 해안선은 상세 배율에서 정밀 경계와 차이가 생길 수 있으며 저장 위치·스탬프·퍼즐은 원본 판정을 사용한다.

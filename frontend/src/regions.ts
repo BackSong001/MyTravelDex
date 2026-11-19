@@ -1,17 +1,12 @@
 import {geoMercator,geoPath,type GeoProjection} from 'd3-geo';
 import {registerDisplay,cachedDisplay,cachedSvgPath} from './displayCache';
 import type {Feature,Polygon,MultiPolygon} from 'geojson';
-import sidoPacked from './data/maps/packed/korea-sido.json';
-import sigunguPacked from './data/maps/packed/korea-sigungu.json';
-import cityPacked from './data/maps/packed/gyeonggi-cities.json';
-import {unpackCollection,packedBounds} from './packedMapData';
-const sido=unpackCollection(sidoPacked),sigungu=unpackCollection(sigunguPacked),cityDisplay=unpackCollection(cityPacked);
+import {packedBounds} from './packedMapData';
+import {regions,districts,displayCities} from './regionOutlines';
+export {regions,districts,displayCities};
 import {MAP_BOUNDARY_DATE} from './mapDataVersion';
 export type Region=Feature<Polygon|MultiPolygon,{code:string;parentCode:string|null;name:string;level:string}>;
-export const regions=sido.features as Region[],districts=sigungu.features as Region[];
-export const districtSource=sigungu.features;
-// 표시 전용 union이며 regionAt의 판정 원본은 districts로 유지한다.
-export const displayCities=cityDisplay.features as (Region & {properties:Region['properties'] & {members:string[]}})[];
+export const districtSource=districts as (Region & {point:number[]})[];
 for(const feature of [...regions,...districts,...displayCities])registerDisplay(feature,feature.properties.code);
 export const cityByDistrict=new Map(displayCities.flatMap(f=>f.properties.members.map(code=>[code,f] as const)));
 export const REGION_DATE=MAP_BOUNDARY_DATE;
@@ -78,4 +73,10 @@ export function regionPath(f:Region,p:GeoProjection){
  const d=cachedSvgPath(f);if(d===undefined)return {d:geoPath(p).digits(1)(renderFeature(f))??'',transform:undefined,strokeScale:1};
  const origin=p([0,0])!,scale=p.scale()/150;
  return {d,transform:`translate(${origin[0]},${origin[1]}) scale(${scale})`,strokeScale:scale};
+}
+
+const districtByCode=new Map(districts.map(f=>[f.properties.code,f]));
+export function recordRegion(location:unknown){
+ const p=location as {district_code?:string;boundary_date?:string}|null;
+ return p?.boundary_date===REGION_DATE&&p.district_code?districtByCode.get(p.district_code):undefined;
 }

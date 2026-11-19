@@ -2,18 +2,20 @@ import {test,expect} from '@playwright/test';
 import {build} from 'esbuild';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
+import {boundaryTilePath} from './map-fixture';
 
 test('domestic land stays uncovered across detail tile seams',async({page})=>{
  test.setTimeout(120000);
  await page.setViewportSize({width:1100,height:974});
- const bundle=(await build({bundle:true,minify:true,write:false,format:'iife',platform:'browser',stdin:{resolveDir:path.resolve('frontend'),loader:'ts',contents:`
+ const bundle=(await build({bundle:true,minify:true,write:false,format:'iife',platform:'browser',resolveExtensions:['.web.ts','.ts','.js','.json'],stdin:{resolveDir:path.resolve('frontend'),loader:'ts',contents:`
  import {Map,setWorkerUrl} from 'maplibre-gl';import {simpleMapStyle} from './src/simpleMapStyle';
- setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');const s=simpleMapStyle();
- window.map=new Map({container:'map',style:{version:8,sources:{'korea-exterior':s.sources['korea-exterior']},layers:[{id:'land',type:'background',paint:{'background-color':'#F5F3ED'}},s.layers.find(l=>l.id==='korea-exterior')]},center:[128.69091680230983,36.36086962976508],zoom:8.397611018909181,interactive:false,attributionControl:false});
+ (async()=>{setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');const s=simpleMapStyle();
+ window.map=new Map({container:'map',style:{version:8,sources:{'domestic-boundaries':s.sources['domestic-boundaries'],'outside-tile-bounds':s.sources['outside-tile-bounds']},layers:[{id:'land',type:'background',paint:{'background-color':'#F5F3ED'}},s.layers.find(l=>l.id==='outside-tile-bounds'),s.layers.find(l=>l.id==='korea-exterior')]},center:[128.69091680230983,36.36086962976508],zoom:8.397611018909181,interactive:false,attributionControl:false});
+ })();
  `}})).outputFiles[0].text;
- await page.route('http://mask.test/**',async route=>{const name=new URL(route.request().url()).pathname;await route.fulfill(name.startsWith('/vendor/')?{body:readFileSync('frontend/public'+name),contentType:'text/javascript'}:{contentType:'text/html',body:'<style>body{margin:0}#map{position:absolute;inset:0}</style><div id="map"></div>'});});
+ await page.route('http://mask.test/**',async route=>{const name=new URL(route.request().url()).pathname;await route.fulfill(boundaryTilePath.test(name)?{body:readFileSync('frontend/public'+name),contentType:'application/vnd.mapbox-vector-tile'}:/^\/maps\/20261109\/[a-z0-9-]+\.mapgeo$/.test(name)?{body:readFileSync('frontend/public'+name),contentType:'application/octet-stream'}:name.startsWith('/vendor/')?{body:readFileSync('frontend/public'+name),contentType:'text/javascript'}:{contentType:'text/html',body:'<style>body{margin:0}#map{position:absolute;inset:0}</style><div id="map"></div>'});});
  await page.goto('http://mask.test');await page.addScriptTag({content:bundle});
- await expect.poll(()=>page.evaluate(()=>{const m=(window as any).map;return m?.loaded()&&m.areTilesLoaded();}),{timeout:60000}).toBe(true);
+ await expect.poll(()=>page.evaluate(()=>{const m=(window as any).map;return m?.loaded?.()&&m.areTilesLoaded();}),{timeout:60000}).toBe(true);
  const scenarios=[
   ...[8.397611018909181,7.7,8,8.9].map(zoom=>({width:1100,center:[128.69091680230983,36.36086962976508],zoom,coordinates:zoom>8.5?[[128,36.5],[128.2,36.5],[128.8,36.5],[129,36.5]]:[[127.8,36.5],[128,36.5],[128.2,36.5],[128.8,36.5],[129,36.5],[129.8,36.5]],sea:zoom>8.5?0:1})),
   {width:390,center:[128,36.5],zoom:8.4,coordinates:[[127.8,36.5],[128,36.5],[128.2,36.5]],sea:0},

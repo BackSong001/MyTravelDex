@@ -31,7 +31,8 @@ import PhotoGallery from '../src/PhotoGallery';
 import LocationPicker from '../src/LocationPicker';
 import {ProfileEditor,ProfileSetupGate,Friends,isUserId} from '../src/Social';
 import {photoCity} from '../src/photoCity';
-import {districts,regionAt} from '../src/regions';
+import {exactLocation} from '../src/regionalAssets';
+import {districts,recordRegion} from '../src/regions';
 import {groupProvinceRecords,provinceLabels,type MapNavigation} from '../src/provinces';
 import {googleLogin,auth} from '../src/auth';
 import {Author, Backpack, Collection, JournalNav, JournalIcon, Welcome, JournalTab} from '../src/Journal';
@@ -101,7 +102,8 @@ export default function Home(){
    let request=reverseCache.current.get(key);
    if(!request){request=api.request('/functions/v1/geocode-location','POST',{latitude,longitude}).catch(()=>null);reverseCache.current.set(key,request!);}
    const detail=await request;
-   const city=photoCity(latitude,longitude,detail);
+   const region=await exactLocation(latitude,longitude).catch(()=>null);
+   const city=photoCity(latitude,longitude,detail,recordRegion(region)?.properties??null);
    return {...detail,id:p.id,uri:p.asset.uri,latitude,longitude,source:'exif',city,place_name:detail?.place_name||city?.split('/').at(-1)?.replace(/^\d+$/,'')||'사진의 촬영 위치'};
   })).then(values=>{
    if(!active||edited.current.location)return;
@@ -175,7 +177,7 @@ export default function Home(){
   }else result=own;
   if(request!==listRequest.current)return;
   if(provinceFilter&&!drafts)result=groupProvinceRecords(result)[provinceFilter]??[];
-  if(districtFilter&&!drafts)result=result.filter(record=>{const region=record.locations&&regionAt(Number(record.locations.latitude),Number(record.locations.longitude));return districtFilter==='other'?!region:region?.properties.code===districtFilter;});
+  if(districtFilter&&!drafts)result=result.filter(record=>{const region=recordRegion(record.locations);return districtFilter==='other'?!region:region?.properties.code===districtFilter;});
   setRows(result);
   setOwnRows(own);setOwnLoaded(!!current);
   const next=await recordCovers(api,result,current?.user.id,()=>request===listRequest.current);if(!next)return;

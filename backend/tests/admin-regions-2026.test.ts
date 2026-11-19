@@ -1,3 +1,4 @@
+import {location} from './helpers/map-fixtures';
 import {expect,it} from 'vitest';
 import {regions,districts,regionAt,REGION_DATE} from '../../frontend/src/regions';
 import {destinations,visitedDistricts} from '../../frontend/src/destinationDraw';
@@ -33,15 +34,15 @@ it('TC-ADMIN-2026-001 uses the verified sixteen provinces and reorganized distri
  expect(regionAt(35.1595,126.8526)?.properties.parentCode).toBe('12');
 });
 it('keeps previous Gwangju and Jeonnam stamps separate from current collection',()=>{
- const rows=[{status:'complete',locations:{latitude:35.1595,longitude:126.8526}},{status:'complete',locations:{latitude:34.8118,longitude:126.3922}}];
+ const rows=[{status:'complete',locations:{...location(35.1595,126.8526)}},{status:'complete',locations:{...location(34.8118,126.3922)}}];
  expect(legacyStampNames(rows)).toEqual(['광주광역시','전라남도']);
  expect(Object.keys(groupProvinceRecords(rows))).toEqual(['KR-12']);
- expect(rows.map(r=>r.locations)).toEqual([{latitude:35.1595,longitude:126.8526},{latitude:34.8118,longitude:126.3922}]);
+ expect(rows.map(({locations:{latitude,longitude}})=>({latitude,longitude}))).toEqual([{latitude:35.1595,longitude:126.8526},{latitude:34.8118,longitude:126.3922}]);
 });
 it('TC-ADMIN-2026-002 shares district ids and preserves the Gwangju destination rule',()=>{
  expect(destinations.flatMap(d=>d.members.map(m=>m.id)).sort()).toEqual(districts.map(d=>d.properties.code).sort());
  const gwangju=destinations.find(d=>d.name==='광주')!;
  expect(gwangju.members).toHaveLength(5);
  expect(destinations.find(d=>d.name==='목포시')?.members).toHaveLength(1);
- expect([...visitedDistricts([{owner_id:'me',status:'complete',locations:{latitude:37.572,longitude:126.979}}],'me')]).toEqual(['11110']);
+ expect([...visitedDistricts([{owner_id:'me',status:'complete',locations:{...location(37.572,126.979)}}],'me')]).toEqual(['11110']);
 });
