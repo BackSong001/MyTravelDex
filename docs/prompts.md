@@ -2098,3 +2098,11 @@ AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, 
 태그 범위 확인 답변: “분류 체계·아이콘 설계까지. 실제 저장·검색은 후속 작업”. 앱 시작·지도 전환에 가방을 표시하고 다람쥐 안내를 실제 화면과 연결했다. 국내 산 면 채색을 걷고 해외 해안선·국경·광역 경계를 보강했다.
 
 변경 파일은 `AGENTS.md`, `backend/tests/map-readability.test.ts`, `docs/API_SPEC.md`, `docs/PLAN_MVP.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/design/travel-theme-icons.svg`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/public/index.html`, `frontend/public/travel-splash.png`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/src/TravelSplash.tsx`, `frontend/src/TravelerSquirrel.tsx`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/README.md`, `frontend/src/data/maps/world-overview.json`, `frontend/src/provinces.ts`, `frontend/src/simpleMapStyle.ts`, `scripts/build-world-overview.py`이다.
+
+## 2026-11-19 13:40 KST
+
+> 광고 계획을 따로 명세서를 만들고, AGENTS.md에서 참조하는 식으로 만들어주고, 커밋 푸쉬해줘
+
+Android 공개 피드의 광고 배치, Expo·AdMob 설정, 동의 및 출시 검증을 별도 명세로 작성하고 AGENTS.md에서 연결했다.
+
+변경 파일은 `docs/ADMOB_PLAN.md`, `AGENTS.md`, `docs/prompts.md`이다.

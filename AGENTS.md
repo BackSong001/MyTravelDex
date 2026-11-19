@@ -199,6 +199,8 @@ adb logcat
 
 ## 문서 일관성 규칙
 
+Android 공개 피드의 광고 도입 범위, AdMob 설정과 검증은 [여행가봥 AdMob 도입 계획](docs/ADMOB_PLAN.md)을 따른다.
+
 현재 홈 지도는 MapLibre + 로컬 KOSTAT 2018 17개 시·도 GeoJSON Polygon이며 배경 타일 없이 선택 지역만 테두리를 표시한다. MapLibre 렌더링 실패 시 국내 SVG 대체 보기를 제공한다. 출처·라이선스·기준 연도를 유지하고 내 스탬프는 친구/공개 범위와 별개로 본인 complete만 집계한다.
 
 여행가봥 재설계의 기준은 `docs/DISAN.md`와 사용자 스토리보드/컬러 자산이다. 기존 UI를 최종 시안으로 간주하지 않는다. 디자인 변경은 Google OAuth·실제 Storage 업로드·기존 테스트 계약을 유지하고, 로컬 회귀 테스트를 위해 원격 프로젝트를 초기화하거나 환경을 자동 전환하지 않는다.
