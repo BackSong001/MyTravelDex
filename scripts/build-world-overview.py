@@ -21,16 +21,17 @@ def rounded(points):
     return [rounded(part) for part in points]
 
 
+names = {'PRK': '북한', 'CHN': '중국', 'JPN': '일본'}
 borders = defaultdict(list)
 for f in features('ne_10m_admin_1_states_provinces_lines'):
     code = f['properties']['ADM0_A3']
-    if not f['geometry'] or code == 'KOR':
+    if not f['geometry'] or code not in names:
         continue
     geom = shape(f['geometry'])
     borders[code].extend(geom.geoms if geom.geom_type == 'MultiLineString' else [geom])
 
 land, labels = [], []
-countries = features('ne_10m_admin_0_countries')
+countries = [f for f in features('ne_10m_admin_0_countries') if f['properties']['ADM0_A3'] in names]
 polygons = []
 for f in countries:
     poly = make_valid(shape(f['geometry']))
@@ -38,16 +39,15 @@ for f in countries:
         poly = MultiPolygon([part for part in poly.geoms if part.geom_type == 'Polygon'])
     polygons.append(poly)
 # 인접 국가가 같은 선을 공유하도록 함께 단순화한다.
-for f, country in zip(countries, coverage_simplify(polygons, .035)):
+for f, country in zip(countries, coverage_simplify(polygons, .002)):
     p = f['properties']
-    code, name = p['ADM0_A3'], p['NAME_KO'] or p['NAME']
-    if code == 'KOR':
-        continue
+    code = p['ADM0_A3']
+    name = names[code]
     geom = mapping(orient_polygons(country, exterior_cw=True))
     item = dict(type='Feature', properties=dict(name=name, code=code),
                 bbox=country.bounds, geometry=dict(type=geom['type'], coordinates=rounded(geom['coordinates'])))
     if borders[code]:
-        merged = linemerge(MultiLineString(borders[code])).simplify(.035)
+        merged = linemerge(MultiLineString(borders[code])).simplify(.002)
         clipped = merged.intersection(make_valid(shape(item['geometry'])))
         lines = getattr(clipped, 'geoms', [clipped])
         item['divisions'] = [rounded(line.coords) for line in lines if line.geom_type == 'LineString' and line.length > .015]
@@ -56,7 +56,7 @@ for f, country in zip(countries, coverage_simplify(polygons, .035)):
 
 for f in features('ne_110m_populated_places'):
     p = f['properties']
-    if p['ADM0_A3'] != 'KOR' and (p['POP_MAX'] >= 1500000 or p['SCALERANK'] <= 1):
+    if p['ADM0_A3'] in names and (p['POP_MAX'] >= 1500000 or p['SCALERANK'] <= 1):
         labels.append([p['NAME_KO'] or p['NAME'], *rounded(f['geometry']['coordinates']), 7])
 
 dest.write_text(json.dumps(dict(land=land, labels=sorted(labels, key=lambda row: row[3])),

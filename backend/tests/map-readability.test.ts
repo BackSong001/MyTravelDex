@@ -44,13 +44,32 @@ test('TC-MAP-READABILITY-001 conservative label land retains inland city candida
 });
 
 import {geoArea,geoContains} from '../../frontend/node_modules/d3-geo/src/index.js';
-test('every bundled world polygon covers its land side, including antimeridian islands',()=>{
+test('the regional atlas contains only the three neighbours, with oriented land and representative labels',()=>{
  const world=JSON.parse(readFileSync('frontend/src/data/maps/world-overview.json','utf8'));
+ expect(world.land.map((f:any)=>f.properties.code).sort()).toEqual(['CHN','JPN','PRK']);
  for(const country of world.land){
   const {geometry}=country,polygons=geometry.type==='Polygon'?[geometry.coordinates]:geometry.coordinates;
   for(const coordinates of polygons)expect(geoArea({type:'Polygon',coordinates})).toBeLessThan(2*Math.PI);
  }
- const russia=world.land.find((f:any)=>f.properties.code==='RUS');
- expect(geoContains(russia,[129.85,37.12])).toBe(false);
- expect(geoContains(russia,[37.62,55.75])).toBe(true);
+ expect(world.land.every((f:any)=>f.divisions.length>0 && !geoContains(f,[129.85,37.12]))).toBe(true);
+ for(const name of ['중국','일본','북한','도쿄도'])expect(world.labels.some(([label]:string[])=>label===name)).toBe(true);
+ expect(world.labels.some(([label]:string[])=>label==='러시아')).toBe(false);
+});
+
+import {atlasCamera} from '../../frontend/src/tileCamera';
+import {geoMercator} from '../../frontend/node_modules/d3-geo/src/index.js';
+test('zoom and pan keep every viewport corner inside the regional atlas at different aspect ratios',()=>{
+ for(const [w,h] of [[320,740],[1440,600],[900,120]]){
+  for(const point of [[-170,-75],[170,80],[127,36]] as [number,number][]){
+   for(const request of [30,1800,90000]){
+    const c=atlasCamera(point,request,w,h,false);
+    const p=geoMercator().center(c.center).scale(c.scale).translate([w/2,h/2]);
+    const [left,top]=p.invert([0,0]),[right,bottom]=p.invert([w,h]);
+    expect(left).toBeGreaterThanOrEqual(72-1e-7);expect(right).toBeLessThanOrEqual(155+1e-7);
+    expect(bottom).toBeGreaterThanOrEqual(14-1e-7);expect(top).toBeLessThanOrEqual(55+1e-7);
+    if(request===30)expect(atlasCamera(c.center,10,w,h,false).scale).toBe(c.scale);
+   }
+  }
+ }
+ expect(atlasCamera([2.3522,48.8566],70000,320,640,true)).toEqual({center:[2.3522,48.8566],scale:70000});
 });

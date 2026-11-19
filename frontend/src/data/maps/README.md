@@ -25,6 +25,6 @@ Mercator scale1000/translate0의128색상층을2048² PNG에구운고정asset이
 
 이름 필터만 250m 내부buffer→100m단순화→원본교집합을 사용한다. 경계/작은섬의 이름은 생략될 수 있으며 원본 육지·사진·위치판정·섬 목록에는 이 축소geometry를 사용하지 않는다. 정확한 계약/검증은 `docs/MAP_READABILITY_SPEC.md`를 따른다.
 
-세계 개요는 Natural Earth v5.1.2의 ne_10m_admin_0_countries, ne_10m_admin_1_states_provinces_lines와 ne_110m_populated_places를 사용한다. 대한민국은 기존 국내 경계 자료로 표시한다. 경위도는 소수점 4자리로 반올림했다. 도시 표시는 인구 150만 이상 또는 scalerank 1 이하이며 화면 밀도에 따라 줄인다. https://github.com/nvkelso/natural-earth-vector/tree/v5.1.2/geojson · https://www.naturalearthdata.com/about/terms-of-use/ (public domain).
+동아시아 개요는 Natural Earth v5.1.2의 ne_10m_admin_0_countries, ne_10m_admin_1_states_provinces_lines와 ne_110m_populated_places를 사용한다. 북한(PRK)·중국(CHN)·일본(JPN)만 포함한다. 대한민국은 기존 국내 경계 자료로 표시한다. 경위도는 소수점 4자리로 반올림했다. 도시 표시는 인구 150만 이상 또는 scalerank 1 이하이며 화면 밀도에 따라 줄인다. https://github.com/nvkelso/natural-earth-vector/tree/v5.1.2/geojson · https://www.naturalearthdata.com/about/terms-of-use/ (public domain).
 
-고정 버전에서 위 세 GeoJSON을 내려받은 폴더를 인자로 주어 Shapely 2.2 환경에서 `python scripts/build-world-overview.py <folder>`로 재생성한다. 국가 경계는 함께 단순화해 공통 국경을 보존한다. 내부 경계는 국가별 연결 뒤 0.035도 허용오차로 간소화하고 표시용 육지와 교차한 선만 줌 5부터 표시한다. 지명은 화면당 최대 8개다.
+고정 버전에서 위 세 GeoJSON을 내려받은 폴더를 인자로 주어 Shapely 2.2 환경에서 `python scripts/build-world-overview.py <folder>`로 재생성한다. 해안·국경에는 0.002도 단순화 매개변수를 사용하고 인접 국가를 함께 처리해 공유선을 보존한다. 내부 경계는 국가별 연결 뒤 0.002도 허용오차로 간소화하고 표시용 육지와 교차한 선만 줌 5부터 표시한다. 지명은 화면당 최대 8개다.

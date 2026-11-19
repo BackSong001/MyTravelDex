@@ -141,7 +141,7 @@ test('TC-PHOTO-MAP-001 photo press responds and reduced motion cancels its scale
 });
 
 
-test('TC-MAP-HOME-002 home uses the canvas, fixed labels, minimum fit and two-step photo activation',async({page})=>{
+test('TC-MAP-HOME-002 home uses the canvas, fixed labels, regional zoom limit and two-step photo activation',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.evaluate(()=>(window as any).update({homeMap:true}));
  await expect(page.getByTestId('map-region-options')).toHaveCount(0);
@@ -149,8 +149,11 @@ test('TC-MAP-HOME-002 home uses the canvas, fixed labels, minimum fit and two-st
  await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
  const canvas=page.getByTestId('svg-map-canvas');expect((await canvas.boundingBox())!.height).toBeGreaterThan(600);
  const scale=()=>page.locator('path[data-testid^="map-region-"]').first().locator('..').getAttribute('transform').then(v=>Number(v!.match(/scale\(([^)]+)/)![1]));
- for(let i=0;i<4;i++)await canvas.press('-');
- expect(await scale()).toBeCloseTo(1,5);
+ for(let i=0;i<15;i++)await canvas.press('-');
+ const minScale=await scale();expect(minScale).toBeLessThan(1);
+ await canvas.press('-');expect(await scale()).toBeCloseTo(minScale,6);
+ await page.getByRole('button',{name:'지도 홈',exact:true}).click();
+ await expect.poll(scale).toBeCloseTo(1,5);
  const photo=page.getByTestId('map-photo-one');let b=(await photo.boundingBox())!;await page.mouse.click(b.x+b.width/2,b.y+b.height/2);
  await expect(page.getByTestId('map-region-name')).toHaveText('서울특별시');
  await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
@@ -171,7 +174,7 @@ test('TC-MAP-HOME-002 mode change cancels home flight and correction remains fre
  await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
  await page.evaluate(()=>(window as any).update({homeMap:false}));
  await expect(page.getByTestId('map-region-options')).toHaveCount(0);
- const snapshots=await page.evaluate(()=>new Promise<string[]>(resolve=>{const values:string[]=[];const until=performance.now()+450;const frame=()=>{values.push(JSON.stringify((window as any).navigation.current.camera));if(performance.now()<until)requestAnimationFrame(frame);else resolve(values);};requestAnimationFrame(frame);}));
+ const snapshots=await page.evaluate(()=>new Promise<string[]>(resolve=>{const values:string[]=[];const until=performance.now()+600;const frame=()=>{values.push(JSON.stringify((window as any).navigation.current.camera));if(performance.now()<until)requestAnimationFrame(frame);else resolve(values);};requestAnimationFrame(frame);}));
  expect(new Set(snapshots).size).toBe(1);
  await page.evaluate(()=>(window as any).update({correction:true,records:[],focus:{latitude:48.8566,longitude:2.3522}}));
  await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera.center)).toEqual([2.3522,48.8566]);
@@ -268,17 +271,23 @@ test('TC-MAP-HOME-004 both country controls animate and interrupted return never
   expect(samples.some(x=>x.time<300&&x.camera!==null)).toBe(true);expect(new Set(samples.filter(x=>x.camera).map(x=>x.camera.scale)).size).toBeGreaterThan(2);expect(samples.every(x=>x.province===null)).toBe(true);expect(samples.at(-1).camera).toBeNull();
  }
  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect.poll(()=>page.evaluate(()=>Math.abs((window as any).navigation.current.camera.scale-(window as any).regionScale('11')))).toBeLessThan(.01);
- const samples=await page.evaluate(()=>new Promise<string[]>(resolve=>{let interrupted=false;const rows:string[]=[];const start=performance.now();(document.querySelector('[aria-label="지도 홈"]') as HTMLElement).click();const frame=()=>{if(!interrupted&&performance.now()-start>100){(document.querySelector('[aria-label="지도 확대"]') as HTMLElement).click();interrupted=true;}else if(interrupted)rows.push(JSON.stringify((window as any).navigation.current.camera));if(performance.now()-start<600)requestAnimationFrame(frame);else resolve(rows);};requestAnimationFrame(frame);}));expect(new Set(samples).size).toBe(1);expect(samples[0]).not.toBe('null');
+ const time=new Date('2026-11-19T00:00:00Z');
+ await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
+ await page.getByRole('button',{name:'지도 홈',exact:true}).click();await page.clock.runFor(112);
+ await canvas.press('+');
+ const interrupted=await page.evaluate(()=>(window as any).navigation.current.camera);
+ expect(interrupted).not.toBeNull();await page.clock.runFor(500);
+ expect(await page.evaluate(()=>(window as any).navigation.current.camera)).toEqual(interrupted);
 });
 
 for(const target of ['서울 기록 · 1개 지역 확대','해외·지역 미배정'])test('TC-MAP-HOME-004 modal selection cancels country completion: '+target,async({page})=>{
  const time=new Date('2026-11-17T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
  await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>(window as any).update({homeMap:true}));const canvas=page.getByTestId('svg-map-canvas');
- await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await page.clock.runFor(400);
+ await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await page.clock.runFor(600);
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await page.clock.runFor(32);
  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:target,exact:true}).click();
  const selected=await page.evaluate(()=>(window as any).navigation.current.camera);expect(selected).not.toBeNull();
- await page.clock.runFor(450);
+ await page.clock.runFor(600);
  const n=await page.evaluate(()=>(window as any).navigation.current);expect(n.camera).not.toBeNull();
  if(target.startsWith('서울')){
   await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);expect(n.province).toBe('11');expect(n.detail).toBe(true);
@@ -332,4 +341,26 @@ test('TC-MAP-SIMPLE-001 nonhome region selection keeps the original fit',async({
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
  const result=await page.evaluate(()=>({camera:(window as any).navigation.current.camera,scale:(window as any).regionScale('11'),center:(window as any).regionCenter('11')}));
  expect(result.camera.scale).toBeCloseTo(result.scale,8);result.camera.center.forEach((n:number,i:number)=>expect(n).toBeCloseTo(result.center[i],8));
+});
+
+test('overview province tap eases into the fit and settles after half a second',async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.evaluate(()=>(window as any).update({homeMap:true}));
+ const canvas=page.getByTestId('svg-map-canvas');
+ const box=(await canvas.boundingBox())!;
+ const start=await page.evaluate(()=>(window as any).countryScale());
+ const point=await page.evaluate(()=>(window as any).countryPoint([129.0756,35.1796]));
+ const time=new Date('2026-11-19T00:00:00Z');
+ await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
+ await page.mouse.click(box.x+point[0],box.y+point[1]);
+ await expect(page.getByTestId('map-region-name')).toHaveText('부산광역시');
+ const progress=()=>page.evaluate(initial=>{
+  const n=(window as any).navigation.current;
+  return Math.log(n.camera.scale/initial)/Math.log(n.fitScale/initial);
+ },start);
+ await page.clock.runFor(96);
+ const early=await progress();expect(early).toBeGreaterThan(0);expect(early).toBeLessThan(.2);
+ await page.clock.runFor(288);
+ const later=await progress();expect(later).toBeGreaterThan(.65);expect(later).toBeLessThan(.95);
+ await page.clock.runFor(192);expect(await progress()).toBeCloseTo(1,8);
 });

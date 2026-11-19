@@ -15,7 +15,7 @@ import MapAttribution from './MapAttribution';
 import TileSurface from './TileSurface';
 import TileBoundary from './TileBoundary';
 import {simpleMapStyle,simpleMapColors,detailAfterZoom} from './simpleMapStyle';
-import {scaleToZoom,zoomToScale} from './tileCamera';
+import {atlasCamera,outsideAtlas,scaleToZoom,zoomToScale} from './tileCamera';
 import {usePhotoGroupMotion} from './usePhotoGroupMotion';
 import {regionLabelAnchor,layoutMapLabels} from './mapLabels';
 
@@ -58,13 +58,15 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  const features=regions;
  const correction=focus??(onCoordinate||!fullScreen?entries[0]?.locations:undefined),lat=correction?.latitude,lng=correction?.longitude;
  const base=useMemo(()=>fitProjection(features,size.width,size.height),[features,size]);
+ const externalFocus=!homeMap && lng!=null && lat!=null && outsideAtlas(Number(lng),Number(lat));
  const constrain=(projection:GeoProjection)=>{
-  if(!homeMap)return projection;
-  const center=projection.invert!([size.width/2,size.height/2]);
+  const midpoint:[number,number]=[size.width/2,size.height/2];
+  const center=projection.invert!(midpoint);
   if(!center||!center.every(Number.isFinite))return projection;
-  return projection.center([Math.max(-180,Math.min(180,center[0])),Math.max(-84,Math.min(84,center[1]))]).scale(Math.max(Math.max(size.width,size.height)/(2*Math.PI),Math.min(zoomToScale(18),projection.scale()))).translate([size.width/2,size.height/2]);
+  const bounded=atlasCamera(center,projection.scale(),size.width,size.height,externalFocus);
+  return geoMercator().center(bounded.center).scale(bounded.scale).translate(midpoint);
  };
- const p=useMemo(()=>camera?constrain(geoMercator().center(camera.center).scale(camera.scale).translate([size.width/2,size.height/2])):base,[base,camera,size,homeMap]);
+ const p=useMemo(()=>constrain(camera?geoMercator().center(camera.center).scale(camera.scale).translate([size.width/2,size.height/2]):base),[base,camera,size,externalFocus]);
  const mapZoom=scaleToZoom(p.scale()),fitZoom=scaleToZoom(base.scale()),national=!(view.detail??(!!province||mapZoom>=fitZoom+1));
 
  const tileCamera=useMemo(()=>({center:p.invert!([size.width/2,size.height/2]) as Point,zoom:scaleToZoom(p.scale())}),[p,size]);
@@ -124,10 +126,32 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   }
   current.current.p=projection;change({...patch,camera:{center,scale:projection.scale()}});
  };
- const fly=(target:GeoProjection,onComplete?:()=>void)=>{
-  stopAnimation();const version=animationVersion.current;const start=current.current.p,from=start.invert!([size.width/2,size.height/2])!,to=target.invert!([size.width/2,size.height/2])!;
+ const fly=(target:GeoProjection,{overviewProvince=false,onComplete}:{overviewProvince?:boolean;onComplete?:()=>void}={})=>{
+  stopAnimation();
   if(reduced){saveCamera(target);onComplete?.();return;}
-  setMoving(true);const begun=Date.now();const frame=()=>{if(version!==animationVersion.current)return;const t=Math.min(1,(Date.now()-begun)/350),e=1-Math.pow(1-t,3);saveCamera(geoMercator().center([from[0]+(to[0]-from[0])*e,from[1]+(to[1]-from[1])*e]).scale(start.scale()*Math.pow(target.scale()/start.scale(),e)).translate([size.width/2,size.height/2]));if(t<1)animation.current=requestAnimationFrame(frame);else {animation.current=null;setMoving(false);onComplete?.();}};animation.current=requestAnimationFrame(frame);
+  const version=animationVersion.current,start=current.current.p;
+  const midpoint:Point=[size.width/2,size.height/2];
+  const from=start.invert!(midpoint)!,to=target.invert!(midpoint)!;
+  const startScale=start.scale(),scaleRatio=target.scale()/startScale;
+  const intermediate=geoMercator().translate(midpoint);
+  const duration=overviewProvince?520:350;
+  // 상세 레이어를 준비한 시간이 전국→시도 전환의 첫 프레임을 건너뛰지 않도록 한다.
+  let begun=overviewProvince?undefined:performance.now();
+  setMoving(true);
+  const frame=()=>{
+   if(version!==animationVersion.current)return;
+   const now=performance.now();
+   begun??=now;
+   const t=Math.min(1,(now-begun)/duration);
+   if(t===1){
+    saveCamera(target);animation.current=null;setMoving(false);onComplete?.();return;
+   }
+   const progress=overviewProvince?t*t*(3-2*t):1-Math.pow(1-t,3);
+   const center:Point=[from[0]+(to[0]-from[0])*progress,from[1]+(to[1]-from[1])*progress];
+   saveCamera(intermediate.center(center).scale(startScale*Math.pow(scaleRatio,progress)));
+   animation.current=requestAnimationFrame(frame);
+  };
+  animation.current=requestAnimationFrame(frame);
  };
  const choose=(code:string)=>{
   const feature=[...regions,...districts,...homeIslands].find(f=>f.properties.code===code);if(!feature)return;
@@ -135,7 +159,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   const fitFeature=feature.properties.level==='province'?homeArea(code)!:feature;
   const target=fitProjection([fitFeature],size.width,size.height);
   change({province:provinceCode,selected:feature.properties.level==='district'?code:null,island:isIsland?code:null,recordOffset:0,detail:true,fitScale:target.scale(),labelRevealed:false});
-  fly(target);
+  fly(target,{overviewProvince:national&&feature.properties.level==='province'});
  };
  const updateGesture=(touches:readonly Touch[])=>{
   const g=gesture.current;if(!g||!touches.length)return;
@@ -147,7 +171,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   let scale=g.base.scale(),from=a,to=b;
   if(points.length>1){const dist=(v:Point[])=>Math.hypot(v[1][0]-v[0][0],v[1][1]-v[0][1]);scale=Math.max(30,Math.min(zoomToScale(18),scale*dist(points)/Math.max(1,dist(g.points))));from=[(a[0]+g.points[1][0])/2,(a[1]+g.points[1][1])/2];to=[(b[0]+points[1][0])/2,(b[1]+points[1][1])/2];}
   const anchor=g.base.invert!(from),next=geoMercator().center(g.base.center()).scale(scale).translate(g.base.translate());if(!anchor)return;
-  const at=next(anchor)!;next.translate([next.translate()[0]+to[0]-at[0],next.translate()[1]+to[1]-at[1]]);g.latest=next;saveCamera(next,Math.abs(next.scale()-g.base.scale())>1e-6);
+  const at=next(anchor)!;next.translate([next.translate()[0]+to[0]-at[0],next.translate()[1]+to[1]-at[1]]);saveCamera(next,Math.abs(next.scale()-g.base.scale())>1e-6);g.latest=current.current.p;
  };
  const photoProvince=(group:typeof photoGroups[number])=>group.provinceCode??indexed.find(x=>x.record.id===group.records[0].id)?.region?.properties.parentCode;
  const photoIsland=(group:typeof photoGroups[number])=>group.islandCode??indexed.find(x=>x.record.id===group.records[0].id)?.island?.properties.code??null;
@@ -174,7 +198,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   },onPanResponderTerminate:()=>{gesture.current=null;setPressedPhoto(null);setMoving(false);},
  }),[]);
  useEffect(()=>{if(lat!=null&&lng!=null&&Number.isFinite(Number(lat))&&Number.isFinite(Number(lng))){stopAnimation();change({detail:true,labelRevealed:false,camera:{center:[Number(lng),Number(lat)],scale:onCoordinate?70000:16000}});}},[lat,lng,!!onCoordinate]);
- const country=()=>{stopAnimation();gesture.current=null;setPressedPhoto(null);setFinder(false);setSummary([]);const start=live.current.camera;change({...emptyNavigation(),camera:start});fly(base,()=>change({camera:null}));regionList.current?.scrollTo({x:0,y:0,animated:false});};
+ const country=()=>{stopAnimation();gesture.current=null;setPressedPhoto(null);setFinder(false);setSummary([]);const start=live.current.camera;change({...emptyNavigation(),camera:start});fly(base,{onComplete:()=>change({camera:null})});regionList.current?.scrollTo({x:0,y:0,animated:false});};
  const zoom=(factor:number)=>{stopAnimation();const center=p.invert!([size.width/2,size.height/2])!;saveCamera(geoMercator().center(center).scale(Math.max(30,Math.min(zoomToScale(18),p.scale()*factor))).translate([size.width/2,size.height/2]),true);};
  const activeName=island?homeIslands.find(f=>f.properties.code===island)?.properties.name:selected==='other'?'해외·지역 미배정':selected?districts.find(d=>d.properties.code===selected)?.properties.name:province?regions.find(r=>r.properties.code===province)?.properties.name:'대한민국';
  const button=(label:string,action:()=>void,active=false,display=label)=><Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:active}} onPress={action} style={{minWidth:48,minHeight:48,padding:10,borderRadius:10,justifyContent:'center',backgroundColor:active?c.primary:c.surface,borderWidth:1,borderColor:c.line}}><Text style={{color:active?c.onPrimary:c.ink,fontSize:13,textAlign:'center'}}>{display}</Text></Pressable>;

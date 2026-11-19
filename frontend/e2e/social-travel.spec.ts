@@ -189,7 +189,7 @@ test('studio appends five images, confirms date and city, then publishes to the 
  await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+row.id)).toBeVisible();
 });
 
-test('home guide opens real destinations and each map entry shows the backpack until layout',async({page})=>{
+test('home shortcuts open real destinations and each map entry shows the backpack until layout',async({page})=>{
  await login(page);
  await page.evaluate(()=>{
   const events:string[]=[];
@@ -200,14 +200,12 @@ test('home guide opens real destinations and each map entry shows the backpack u
    }
   }).observe(document.body,{subtree:true,childList:true});
  });
- const guide=page.getByTestId('travel-squirrel');
- for(const destination of ['지도에서 찾기','피드 둘러보기','사진으로 쓰기']){
-  await guide.click();
+ for(const destination of ['지도 펼치기','여행 피드','새 여행 기록']){
   await page.getByRole('button',{name:destination,exact:true}).click();
-  if(destination==='지도에서 찾기'){
+  if(destination==='지도 펼치기'){
    await expect(page.getByTestId('svg-map-canvas')).toBeVisible();await expect(page.getByLabel('지도 준비 중')).toHaveCount(0);
    await expect.poll(()=>page.evaluate(()=>(window as any).mapSplashEvents.length)).toBe(1);
-  }else if(destination==='피드 둘러보기')await expect(page.getByTestId('social-feed')).toBeVisible();
+  }else if(destination==='여행 피드')await expect(page.getByTestId('social-feed')).toBeVisible();
   else {await expect(page.getByRole('button',{name:'사진 목록',exact:true})).toBeVisible();break;}
   await page.getByRole('tab',{name:'홈',exact:true}).click();
  }

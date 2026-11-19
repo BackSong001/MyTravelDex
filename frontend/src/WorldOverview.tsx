@@ -1,6 +1,7 @@
 import React,{useMemo} from 'react';
 import {geoPath,type GeoProjection} from 'd3-geo';
 import {Path,G,Text} from 'react-native-svg';
+import {simpleMapColors} from './simpleMapStyle';
 import {renderFeature,type Region} from './regions';
 
 type Country = Omit<Region,'bbox'> & {bbox:[number,number,number,number]; divisions?:number[][][]};
@@ -26,8 +27,8 @@ export default function WorldOverview({base,scale,x,y,width,height,zoom}:Props){
    if(zoom>=5&&feature.divisions&&!atlas.divisions.has(id)){
     atlas.divisions.set(id,atlas.path({type:'MultiLineString',coordinates:feature.divisions})??'');
    }
-   return <G key={id}><Path testID={'world-land-'+id} d={atlas.land.get(id)} fill="#F5F2E9" stroke="#939C99" strokeWidth={1.15/scale} strokeLinejoin="round"/>
-    {zoom>=5&&atlas.divisions.has(id)&&<Path testID={'world-divisions-'+id} d={atlas.divisions.get(id)} fill="none" stroke="#B9B4AA" strokeWidth={.8/scale} strokeLinejoin="round"/>}</G>;
+   return <G key={id}><Path testID={'world-land-'+id} d={atlas.land.get(id)} fill={simpleMapColors.land} stroke={simpleMapColors.border} fillRule="evenodd" strokeWidth={1/scale} strokeLinejoin="round"/>
+    {zoom>=5&&atlas.divisions.has(id)&&<Path testID={'world-divisions-'+id} d={atlas.divisions.get(id)} fill="none" stroke={simpleMapColors.border} strokeWidth={.8/scale} strokeLinejoin="round"/>}</G>;
   })}</G>
  {world.labels.map(([name,lon,lat,rank])=>{
   if(occupied.length>=8||rank>Math.max(2,zoom+2)||(rank===7&&zoom<5))return null;

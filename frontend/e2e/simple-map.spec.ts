@@ -115,7 +115,7 @@ test('TC-MAP-OFM-001 foreign land shows the bundled atlas while domestic islands
  const host=page.getByTestId('svg-map-canvas'),box=await host.boundingBox();for(const [x,y] of pixels){expect(x).toBeGreaterThan(0);expect(x).toBeLessThan(box!.width);expect(y).toBeGreaterThan(0);expect(y).toBeLessThan(box!.height);}
  const png=(await host.screenshot()).toString('base64');
  const rgb=await page.evaluate(({png,pixels})=>new Promise<number[][]>((resolve,reject)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=i.width;c.height=i.height;const ctx=c.getContext('2d')!;ctx.drawImage(i,0,0);resolve(pixels.map(([x,y])=>Array.from(ctx.getImageData(Math.round(x),Math.round(y),1,1).data).slice(0,3)));};i.onerror=reject;i.src='data:image/png;base64,'+png;}),{png,pixels});
- expect(rgb[0]).toEqual([245,242,233]);expect(rgb[1]).toEqual([245,242,233]);for(const c of rgb.slice(2,5))expect(c).not.toEqual([169,215,238]);expect(rgb[5]).toEqual([169,215,238]);
+ expect(rgb[0]).toEqual([245,243,237]);expect(rgb[1]).toEqual([245,243,237]);for(const c of rgb.slice(2,5))expect(c).not.toEqual([169,215,238]);expect(rgb[5]).toEqual([169,215,238]);
  await test.info().attach('domestic-exterior-pixels',{body:JSON.stringify(rgb),contentType:'application/json'});
 });
 
@@ -179,7 +179,7 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  await expect.poll(()=>page.evaluate(()=>!!(window as any).renderer?.getLayer('label_city'))).toBe(true);
  const time=new Date('2026-11-17T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
  const choose=async(name:string)=>{await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:new RegExp('^'+name+' ·')}).click();};
- await choose('서울특별시');await page.clock.runFor(450);await canvas.press('+');
+ await choose('서울특별시');await page.clock.runFor(600);await canvas.press('+');
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await choose('경상남도');await page.clock.runFor(48);
  expect(await page.evaluate(()=>{const n=(window as any).navigation.current;return Math.abs(n.camera.scale-n.fitScale);})).toBeGreaterThan(1);
@@ -242,4 +242,51 @@ test('mountain detail keeps the water and roads without the angular woodland fil
     &&map.queryRenderedFeatures({layers:['waterway','water','highway_major_subtle']}).length>0;
  }),{timeout:30000}).toBe(true);
  await page.getByTestId('svg-map-canvas').screenshot({path:test.info().outputPath('jirisan.png')});
+});
+
+test('zooming out stops at the East Asia overview and keeps only neighbouring outlines',async({page})=>{
+ const canvas=page.getByTestId('svg-map-canvas');
+ await canvas.focus();
+ for(let i=0;i<16;i++)await canvas.press('-');
+ const camera=()=>page.evaluate(()=>(window as any).navigation.current.camera);
+ const minimum=await camera();
+ await canvas.press('-');expect((await camera()).scale).toBe(minimum.scale);
+ const lands=page.locator('[data-testid^="world-land-"]');
+ const codes=await lands.evaluateAll(nodes=>nodes.map(n=>n.getAttribute('data-testid')!.slice(11)));
+ expect(codes.sort()).toEqual(['CHN','JPN','PRK']);
+ const domestic=page.locator('[data-testid^="map-region-"][fill]').first();
+ await expect(domestic).toBeAttached();
+ for(const land of await lands.all()){
+  await expect(land).toHaveAttribute('fill',(await domestic.getAttribute('fill'))!);
+  await expect(land).toHaveAttribute('stroke',(await domestic.getAttribute('stroke'))!);
+ }
+});
+
+test('Hwanghae coast retains its bays and headlands at a regional zoom',async({page},info)=>{
+ await page.setViewportSize({width:548,height:430});
+ await page.evaluate(()=>{
+  const w=window as any;
+  w.hide();
+  document.getElementById('root')!.style.height='430px';
+  w.navigation.current={province:null,selected:null,detail:false,camera:{center:[126.08,38.42],scale:14400}};
+ });
+ await expect(page.getByTestId('svg-map-canvas')).toHaveCount(0);
+ await page.evaluate(()=>(window as any).update({records:[]}));
+ const host=page.getByTestId('svg-map-canvas');
+ const points=await page.getByTestId('world-land-PRK').evaluate(node=>{
+  const base=(window as any).countryProjection(),path=node as unknown as SVGGraphicsElement;
+  const box=path.ownerSVGElement!.getBoundingClientRect();
+  return [[125.4114,37.8673],[125.1155,37.9802]].map(coordinate=>{
+   const [x,y]=base(coordinate),pixel=new DOMPoint(x,y).matrixTransform(path.getScreenCTM()!);
+   return [Math.round(pixel.x-box.left),Math.round(pixel.y-box.top)];
+  });
+ });
+ const image=await host.screenshot({path:info.outputPath('hwanghae-coast.png')});
+ const pixels=await page.evaluate(async({data,points})=>{
+  const img=new Image();img.src='data:image/png;base64,'+data;await img.decode();
+  const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
+  const ctx=canvas.getContext('2d')!;ctx.drawImage(img,0,0);
+  return points.map(([x,y])=>Array.from(ctx.getImageData(x,y,1,1).data).slice(0,3));
+ },{data:image.toString('base64'),points});
+ expect(pixels).toEqual([[245,243,237],[169,215,238]]);
 });
