@@ -2,21 +2,18 @@ import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import React from 'react';
 import Text from './FontText';
-import {Animated, Image, Platform, StyleSheet, Switch, View, useWindowDimensions} from 'react-native';
+import {Image, Platform, StyleSheet, Switch, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Svg, {Circle,Path,Rect} from 'react-native-svg';
+import Svg, {Path} from 'react-native-svg';
 import Avatar from './Avatar';
-import MascotArt from './MascotArt';
 
 
 export function DestinationIcon(){
- const c=useThemeColors();
- return <Svg width={26} height={26} viewBox="0 0 28 28" accessible={false} aria-hidden>
-  <Path d="M15 21c-2 2.5-4 4-4 4S3 18 3 11a8 8 0 0 1 16 0" fill="none" stroke={c.ink} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round"/>
-  <Circle cx={11} cy={10} r={2.6} fill="none" stroke={c.ink} strokeWidth={1.6}/>
-  <Rect x={13} y={13} width={12} height={12} rx={3} fill={c.warm} stroke={c.ink} strokeWidth={1.6}/>
-  {[ [16.5,16.5],[21.5,16.5],[19,19],[16.5,21.5],[21.5,21.5] ].map(([cx,cy])=><Circle key={cx+','+cy} cx={cx} cy={cy} r={.8} fill={c.ink}/>)}
- </Svg>;
+ return <Image accessible={false} source={require('../assets/ui/navigation/destination.png')} resizeMode="contain" style={{width:34,height:34}}/>;
+}
+
+export function AddPhotoIcon({size=34}:{size?:number}){
+ return <Image accessible={false} source={require('../assets/ui/navigation/add-photo.png')} resizeMode="contain" style={{width:size,height:size}}/>;
 }
 
 export function Backpack({size = 42}: {size?: number}) {
@@ -37,25 +34,18 @@ export function JournalIcon({name, color, solid=false, size = 26}: {name: string
  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d={paths[name]??paths.album} fill={solid?(color??c.ink):'none'} fillRule="evenodd" stroke={color??c.ink} strokeWidth={name==='more'?3.5:1.85} strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
-function WelcomeIllustration({compact}:{compact:boolean}) {
- const [rest]=React.useState(()=>new Animated.Value(0));
- const scale=compact ? 0.68 : 0.9;
- return <View accessible accessibilityRole="image" accessibilityLabel="카메라를 든 볼빵 다람쥐" pointerEvents="none"
-   style={{width:216*scale,height:180*scale,alignItems:'center',justifyContent:'center'}}>
-  <View style={{width:216,height:180,flexShrink:0,transform:[{scale}]}}>
-   <Svg width={216} height={180} viewBox="0 0 216 180" accessible={false} style={StyleSheet.absoluteFill}>
-    <Path fill="#E3F3FA" d="M161 9 Q166 24 175 34 L186 49 192 62 195 74 193 89 196 95 191 99 190 107 181 117 172 120 167 126 160 123 155 130 150 126 143 132 137 129 132 136 127 133 118 141 117 134 111 136 114 128 108 126 112 121 109 116 115 109 111 104 116 96 112 91 118 82 114 76 117 71 110 67 112 60 117 64 122 57 119 53 124 48 119 44 126 40 121 35 127 33 132 25 138 27 143 22 150 22 155 17 Z M110 151 Q119 146 125 149 Q127 155 113 158 Q102 159 104 155 Z"/>
-   </Svg>
-   <MascotArt kind="cheeky" idle={rest} wave={rest} photo={rest} hop={rest}/>
-  </View>
- </View>;
-}
-
 export function Welcome({children}:{children?:React.ReactNode}) {
- const c=useThemeColors(),{width,height}=useWindowDimensions(),wide=width>=760;
- return <View testID="login-layout" style={{width:'100%',maxWidth:960,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:wide?'center':'stretch',gap:wide?64:24,paddingVertical:wide?64:24}}>
-  <View style={{flex:wide?1:undefined,gap:16}}><WelcomeIllustration compact={height<650}/><Text accessibilityRole="header" style={{color:c.ink,fontSize:32,lineHeight:42,fontWeight:'600'}}>나만의 여행도감</Text><Text style={{color:c.muted,fontSize:16,lineHeight:26,maxWidth:360}}>사진에 남은 장소를 모아{ '\n'}다음 여행으로 이어가세요</Text></View>
-  {children&&<View style={{flex:wide?1:undefined,width:'100%',maxWidth:400,gap:8}}>{children}</View>}
+ const c=useThemeColors();
+ const {height,width}=useWindowDimensions();
+ const compact=height<650;
+ const iconSize=compact?120:160;
+ return <View testID="login-layout" style={{width:'100%',maxWidth:400,alignSelf:'center',alignItems:'center',gap:compact?16:24,paddingVertical:compact?4:24}}>
+  <View style={{width:'100%',alignItems:'center',gap:8}}>
+   <Image source={require('../public/lavender-backpack.png')} accessible accessibilityLabel="보라색 여행 배낭" resizeMode="contain" style={{width:iconSize,height:iconSize}}/>
+   <Text accessibilityRole="header" style={{color:c.ink,fontSize:36,lineHeight:46,fontWeight:'700',textAlign:'center'}}>여행가봥</Text>
+   <Text style={{color:c.muted,fontSize:16,lineHeight:25,textAlign:'center'}}>여행 사진을 지도에 담고,{width<440?'\n':' '}지역 스탬프를 모아보세요.</Text>
+  </View>
+  {children&&<View style={{width:'100%',gap:8}}>{children}</View>}
  </View>;
 }
 
@@ -101,8 +91,11 @@ export function Collection({records,covers,onOpen,authors={},emptySearch=false,d
 }
 
 const tabs = [
-  {id: 'home', label: '홈'}, {id: 'feed', label: '피드'},
-  {id: 'map', label: '지도'}, {id: 'album', label: '도감'}, {id: 'account', label: 'My'},
+  {id:'home', label:'홈', icon:require('../assets/ui/navigation/backpack.png')},
+  {id:'feed', label:'피드', icon:require('../assets/ui/navigation/camera.png')},
+  {id:'map', label:'지도', icon:require('../assets/ui/navigation/world-map.png')},
+  {id:'album', label:'도감', icon:require('../assets/ui/navigation/book.png')},
+  {id:'account', label:'My', icon:require('../assets/ui/navigation/id-card.png')},
 ] as const;
 export function JournalNav({tab,onTab,rail=false}: {tab:JournalTab;onTab:(tab:JournalTab)=>void;onCreate:()=>void;rail?:boolean}){
  const c=useThemeColors(),insets=useSafeAreaInsets();
@@ -112,7 +105,7 @@ export function JournalNav({tab,onTab,rail=false}: {tab:JournalTab;onTab:(tab:Jo
    {rail&&<Text style={{fontSize:23,fontWeight:'800',letterSpacing:-1.2,marginBottom:28,marginLeft:12,color:c.ink}}>여행가봥</Text>}
    {tabs.map(item=><Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)}
     style={{flex:rail?undefined:1,minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,gap:14,borderRadius:10,backgroundColor:rail&&tab===item.id?c.warm:c.paper}}>
-     <JournalIcon name={item.id} size={24} color={tab===item.id?c.ink:c.muted} solid={tab===item.id&&(item.id==='home'||item.id==='account')}/>
+     <Image source={item.icon} accessible={false} resizeMode="contain" style={{width:32,height:32}}/>
      {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===item.id?'700':'400'}}>{item.label}</Text>}
      {tab===item.id&&<View testID="nav-selection" style={{position:'absolute',bottom:4,width:5,height:5,borderRadius:3,backgroundColor:rail?'transparent':c.ink}}/>}
    </Pressable>)}

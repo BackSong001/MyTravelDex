@@ -5,7 +5,7 @@ import Svg,{Circle,Path} from 'react-native-svg';
 import Text from './FontText';
 import Pressable,{useReducedMotion} from './Feedback';
 import {useThemeColors} from './ThemeContext';
-import {provinceLabels,provincePalette} from './provinces';
+import {provinceLabels} from './provinces';
 import {destinationGeometry} from './regionalAssets';
 import {regions,regionPath,legacyCodes} from './regions';
 import {isDestinationVisited,destinationPath,drawProjection,project,areas,districts,drawDelays,eligibleDestinations,pickDestination,type Destination,type DrawMode} from './destinationDraw';
@@ -16,9 +16,14 @@ function frame(bounds:number[],padding:number){
 }
 const nationalFrame=frame([Math.min(...districts.map(d=>d.frame[0])),Math.min(...districts.map(d=>d.frame[1])),
   Math.max(...districts.map(d=>d.frame[2])),Math.max(...districts.map(d=>d.frame[3]))],10);
+const landColor='#D5B6EB';
+const winnerColor='#67477F';
 const Land=memo(function Land(){
-  const c=useThemeColors(),palette=provincePalette(c.map.regionPastels);
-  return <>{regions.map(f=><Path key={f.properties.code} d={regionPath(f,drawProjection).d} transform={regionPath(f,drawProjection).transform} fill={palette[legacyCodes[f.properties.code]]} stroke={c.sheet} vectorEffect="non-scaling-stroke" strokeWidth={0.55} fillRule="evenodd"/>)}</>;
+  return <>{regions.map(region=>{
+    const {d,transform}=regionPath(region,drawProjection);
+    return <Path key={region.properties.code} d={d} transform={transform} fill={landColor}
+      fillRule="evenodd" stroke="#FFFFFF" strokeWidth={0.55} vectorEffect="non-scaling-stroke"/>;
+  })}</>;
 });
 
 function DrawMap({active,result,reduced}:{active?:Destination;result?:Destination;reduced:boolean}){
@@ -55,10 +60,8 @@ function DrawMap({active,result,reduced}:{active?:Destination;result?:Destinatio
   const point=active?project(active.point):null,stroke=box[3]*.005;
   return <Svg width="100%" height="100%" viewBox={box.join(' ')} accessibilityLabel="대한민국 여행지 추첨 지도">
     <Land/>
-    {active&&<>
-      <Path d={highlighted} fill="none" stroke={c.focus} strokeWidth={stroke*3} strokeOpacity={.23}/>
-      <Path testID="draw-highlight" accessibilityLabel={active.label} d={highlighted} fill={c.warm} fillRule="evenodd" stroke={c.focus} strokeWidth={stroke}/>
-    </>}
+    {active&&<Path testID="draw-highlight" accessibilityLabel={active.label} d={highlighted}
+      fill={result?winnerColor:landColor} fillRule="evenodd" stroke={winnerColor} strokeWidth={stroke}/>}
     {point&&(!result||t<1)&&<Circle cx={point[0]} cy={point[1]} r={stroke*(result?2+t*9:3)} fill={c.warm} fillOpacity={.28} stroke={c.focus} strokeWidth={stroke*.6}/>}
   </Svg>;
 }
@@ -114,7 +117,7 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
   const stamp=result&&stamps?.includes(result.province);
   const visitedCount=result&&visited?result.members.filter(m=>visited.has(m.id)).length:0;
   return <View style={{gap:12}}>
-    <View style={{height:Math.max(184,Math.min(420,height*.43)),borderRadius:18,overflow:'hidden',backgroundColor:c.map.ocean}}>
+    <View style={{height:Math.max(184,Math.min(420,height*.43)),borderRadius:18,overflow:'hidden',backgroundColor:'#E6F4F4',borderWidth:1,borderColor:'#D3E8E8'}}>
       <DrawMap active={active} result={result} reduced={reduced}/>
     </View>
     <Text style={{color:c.muted,fontSize:12}}>{MAP_ATTRIBUTION}</Text>

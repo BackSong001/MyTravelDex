@@ -62,12 +62,12 @@ test('TC-UI-008 손상된 이미지와 지원하지 않는 형식 거부',async(
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
 });
 test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
- await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveCount(0);
- await expect(page.getByRole('heading',{name:'나만의 여행도감',exact:true})).toBeVisible();
+ await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'설정',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'여행가봥',exact:true})).toBeVisible();
  await page.screenshot({path:'test-results/journal-login.png',fullPage:true});
- await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();
+ await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();
  await expect(page.getByRole('tab',{name:'홈',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'기록 만들기',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'여행 기록 추가',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
 });
 test('UI-JOURNAL-002 하단 도감과 지도 및 MY 탐색',async({page})=>{
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();await expect(page.getByRole('tab',{name:'여행도감',exact:true})).toHaveAttribute('aria-selected','true');

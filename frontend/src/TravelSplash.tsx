@@ -19,7 +19,7 @@ export function TravelSplash({label}:{label:string}){
    {rotate:progress.interpolate({inputRange:[0,1],outputRange:['-13deg','0deg']})},
    {scale:progress.interpolate({inputRange:[0,1],outputRange:[.8,1]})}
   ]}}>
-   <View style={styles.crop}><Image accessible={false} source={require('../public/travel-splash.png')} style={styles.logo}/></View>
+   <Image accessible={false} source={require('../public/lavender-backpack.png')} resizeMode="contain" style={styles.logo}/>
   </Animated.View>
   <Text style={styles.brand}>여행가봥</Text>
  </View>;
@@ -40,6 +40,6 @@ export function MapEntrance({children}:{children:(onReady:()=>void)=>React.React
 
 const styles=StyleSheet.create({
  cover:{...StyleSheet.absoluteFillObject,zIndex:3,alignItems:'center',justifyContent:'center',backgroundColor:'#FFFFFF'},
- crop:{width:150,height:99,overflow:'hidden'},logo:{width:150,height:150},
+ logo:{width:150,height:150},
  brand:{color:'#352E27',fontSize:26,fontWeight:'700',marginTop:6},
 });
