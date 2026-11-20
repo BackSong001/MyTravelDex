@@ -463,7 +463,7 @@ supabase db push
 - 실제 Android 지도는 React Native 0.81.5/Fabric과 MapLibre Native 11.5.1을 사용한다. 웹은 MapLibre GL JS 6.16.0과 Expo Babel import.meta 변환·로컬 worker/공유 모듈 복사 및 export를 사용한다. `npm --prefix frontend run android:configured`로 자체 APK의 MapLibre config plugin·표시명·스플래시를 동기화한다. Google 지도 key는 필요하지 않으며 Expo Go로 네이티브 수용을 판정하지 않는다.
 
 - 실제 `.env` 프로젝트를 사용하는 Android 자체 테스트 APK는 `npm --prefix frontend run android:configured`로 빌드·설치한다. SDK는 `ANDROID_HOME` 또는 `~/Android/Sdk`를 사용한다. production JS를 내장하고 기본 개발 서명을 쓰므로 Play Store 배포 검증과 구분한다. Expo Go는 실제 Google OAuth 앱 복귀 검증 대상으로 사용하지 않는다.
-- 실제 프로젝트 웹 실행은 `npm --prefix frontend run configured -- --web --localhost --port 8083`을 사용한다. SDK 54 개발 virtual env의 `.env.local` 우선 적용을 피하도록 기본 `--no-dev`와 `EXPO_NO_DOTENV=1`을 사용한다. 로컬 테스트 `.env.local`은 보존한다.
+- 실제 프로젝트 웹 실행은 `npm --prefix frontend run configured -- --web --localhost --port 8083`을 사용한다. SDK 54 개발 virtual env의 `.env.local` 우선 적용을 피하도록 기본 `--no-dev`와 `EXPO_NO_DOTENV=1`을 사용한다. 로컬 테스트 `.env.local`은 보존한다. Metro 변환 캐시는 Supabase URL·공개 키·앱 환경별로 구분한다. 값을 바꾸면 웹 서버를 재시작한다.
 
 - 실제 `.env` 프로젝트는 `node scripts/configured.mjs --check`로 진단하고 `npm --prefix frontend run configured -- --web --port 8083`으로 별도 실행한다. Google Provider 비활성·테이블 404·관리 권한 부재를 로컬 테스트 성공과 구분한다. 다른 프로젝트로 자동 전환하지 않는다.
 

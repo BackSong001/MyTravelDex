@@ -81,7 +81,9 @@ export default function Home(){
  useEffect(()=>{let current=true;setCapabilityError('');void socialApi.rpc('social_capabilities',{}).then(()=>{if(current)setSocialSupported(true);}).catch(e=>{if(!current)return;if(e.status===404||e.serverCode==='PGRST202')setSocialSupported(false);else setCapabilityError('소셜 서버 상태를 확인하지 못했어요. 입력을 유지한 채 다시 확인할 수 있어요.');});return()=>{current=false;};},[socialApi,capabilityAttempt]);
  const socialEpoch=sessionEpoch.current;
  function socialChanged(){if(socialEpoch!==sessionEpoch.current)return;setSocialRevision(x=>x+1);void latestLoad.current().catch(()=>{});}
- const socialProps={api:socialApi,disabled:busy,owner:session?.user?.id,revision:socialRevision,onChanged:socialChanged,onLogin:()=>setScreen('login'),onOpen:(r:any)=>readDetail(r,'feed')};
+ const googleIdentity=session?.user?.identities?.find((identity:{provider:string})=>identity.provider==='google')?.identity_data;
+ const googlePhoto=googleIdentity?.avatar_url??googleIdentity?.picture;
+ const socialProps={googlePhoto:typeof googlePhoto==='string'&&/^https:\/\/(lh[0-9]+\.googleusercontent\.com|[a-z0-9-]+\.ggpht\.com)\/[^\s\\]+$/.test(googlePhoto)?googlePhoto:null,api:socialApi,disabled:busy,owner:session?.user?.id,revision:socialRevision,onChanged:socialChanged,onLogin:()=>setScreen('login'),onOpen:(r:any)=>readDetail(r,'feed')};
  function ownJournal(puzzle=false){setFriendOwner('');setScope('mine');setDrafts(false);setProvinceFilter('');setDistrictFilter('');setPuzzleOpen(puzzle);navigate('album');}
  const [photoNotice,setPhotoNotice]=useState(''),[noticeVersion,setNoticeVersion]=useState(0);
  const [locationOpen,setLocationOpen]=useState(false);
