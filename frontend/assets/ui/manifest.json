@@ -109,6 +109,66 @@
       "source": "사용자 첨부: 세종 전통 종 스티커 일러스트.png",
       "sha256": "e82e425c22f181c107030d9bc4edda57707ecd15ca1d559f8275f2eb06e2f410",
       "bytes": 1944209
+    },
+    {
+      "file": "paju-dove-stamp-v1.webp",
+      "source": "사용자 첨부: 파주 하늘스카프 비둘기 배지.webp",
+      "sha256": "c6b9ea7c868c927cc3d29bf419e2921b60df87c64525dcfcb3f923df42ed3b55",
+      "bytes": 790146
+    },
+    {
+      "file": "yeosu-night-cable-car-stamp-v1.webp",
+      "source": "사용자 첨부: 여수 밤바다 케이블카 배지.webp",
+      "sha256": "dd738c9b4cdb58b5c2c51f65d287f9012bfcb29bfa4d6f878cff80c6920e9cb2",
+      "bytes": 1022678
+    },
+    {
+      "file": "mokpo-modern-history-stamp-v1.webp",
+      "source": "사용자 첨부: 목포근대역사관 여행 스탬프 배지.webp",
+      "sha256": "0c17a66331789e174223588b5d4cf91cd7a7a6baa0378cf37167cd9d9e8a121a",
+      "bytes": 1001782
+    },
+    {
+      "file": "gongju-autumn-fortress-stamp-v1.webp",
+      "source": "사용자 첨부: 공주 가을 성곽 배지.webp",
+      "sha256": "f4beef7a8f90c55aff1a15f0d5768db34833d3054142faf4db071381889ea50c",
+      "bytes": 937774
+    },
+    {
+      "file": "cheonan-walnut-pastry-stamp-v1.webp",
+      "source": "사용자 첨부: 연갈색 천안 호두과자 스탬프.webp",
+      "sha256": "d84e88c574f99007fc390edbd86a8cd12d0192e243c10eda220f729b526587f0",
+      "bytes": 796978
+    },
+    {
+      "file": "gimhae-pink-amusement-park-stamp-v1.webp",
+      "source": "사용자 첨부: 김해 소프트 핑크 테마 놀이공원.webp",
+      "sha256": "be8c088d72f3a91155c84199d695ca1da23bb475bb42c7c0b1dab636c86e56f6",
+      "bytes": 902836
+    },
+    {
+      "file": "sokcho-seoraksan-beach-stamp-v1.webp",
+      "source": "사용자 첨부: 속초 설악산 해변 여행 스탬프.webp",
+      "sha256": "64d81defeb16a4afeea77d16f094e0f87947f9cd27cdac5a66b6ccdf20418ab2",
+      "bytes": 968364
+    },
+    {
+      "file": "ulleungdo-sunrise-observatory-stamp-v1.webp",
+      "source": "사용자 첨부: 울릉도 일출 전망대 엠블럼.webp",
+      "sha256": "f28471ae21859f103f162f5cac61504af837aa12864be826e4eb0d5289d7dbc6",
+      "bytes": 913848
+    },
+    {
+      "file": "inje-spring-stamp-v1.webp",
+      "source": "사용자 첨부: 인제 샘터 풍경 배지.webp",
+      "sha256": "6a9a3dde97764d7dfa39d2441f55d5a9a40a34fa60320bfee55e5a4b298fe973",
+      "bytes": 1006122
+    },
+    {
+      "file": "pohang-space-walk-sunrise-stamp-v1.png",
+      "source": "사용자 첨부: 포항 스페이스워크와 호미곶 일출.png",
+      "sha256": "d36b3b026af9506df018ef741bf1f8be0f5624f7800c68aa6cbe7f5a40dedd1c",
+      "bytes": 1492214
     }
   ]
 }
