@@ -1,5 +1,5 @@
 import {Image} from 'https://deno.land/x/imagescript@1.3.0/mod.ts';
-import {imageDimensions} from '../_shared/avatar.ts';
+import {encodeAvatar} from '../_shared/avatar.ts';
 import {corsHeaders,reply} from '../_shared/http.ts';
 const base=Deno.env.get('SUPABASE_URL')!,key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const headers={apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json'};
@@ -15,9 +15,9 @@ Deno.serve(async req=>{
   const reader=req.body?.getReader();if(!reader)return reply({error:'Missing image'},400);
   for(;;){const {value,done}=await reader.read();if(done)break;length+=value.length;if(length>5*1024*1024){await reader.cancel();return reply({error:'Image exceeds 5 MiB'},413);}chunks.push(value);}
   const bytes=new Uint8Array(length);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
-  let image:Image;
-  try{imageDimensions(bytes,req.headers.get('Content-Type')??'');image=await Image.decode(bytes);if(image.width*image.height>20000000)throw new Error('Image too large');}catch{return reply({error:'Invalid JPEG or PNG image'},400);}
-  image.contain(512,512);const jpeg=await image.encodeJPEG(85);if(jpeg.length>524288)return reply({error:'Encoded image too large'},413);
+  let jpeg;
+  try{jpeg=await encodeAvatar(Image,bytes,req.headers.get('Content-Type')??'');}catch{return reply({error:'Invalid JPEG or PNG image'},400);}
+  if(jpeg.length>524288)return reply({error:'Encoded image too large'},413);
   const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(x=>x.toString(16).padStart(2,'0')).join('');
   const reserved=await fetch(`${base}/rest/v1/rpc/social_avatar_reserve`,{method:'POST',headers,body:JSON.stringify({actor,asset,digest})});
   if(!reserved.ok)return reply({error:'Avatar unavailable or upload ID conflict'},reserved.status===400?409:reserved.status);

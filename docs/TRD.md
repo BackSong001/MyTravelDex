@@ -968,6 +968,8 @@ Home은 기존 작성·상세·Auth세대 소유를 유지한다. JournalTab에f
 신규SNS컴포넌트는owner key와캡처한bearer의독립TravelApi를사용한다. 공개상태/차단/제재/관계/반응뒤revision변경시공유SNS snapshot·Modal본문/URL을폐기하고현재권한으로재조회한다. feed는FlatList20keyset/화면내카드사진만요청,프로필/알림/검색도20페이지+명시더보기. 404미지원은새SNS영역에만표시하고기존My편집/기록/지도/작성은작동한다. 저장성공후refresh실패는실패안내와재조회이며서버mutation을되돌리지않는다.
 Avatar업로드ID는쿼리upload_id(비밀아님)로전달가능하고본문은rawbytes다. DB예약은파일쓰기전등록·검증완료후만연결가능;실패예약은24h청소. 출력이미지서버처리에ImageScript1.3.0한개를Edge전용고정추가하며클라이언트의존성은추가하지않는다.
 
+프로필 사진은 Edge에서 JPEG APP1 또는 PNG eXIf의 기본 이미지 Orientation(1~8)을 읽어 회전과 반전을 픽셀에 적용한 뒤 512px JPEG로 변환한다. 방향 태그가 없거나 유효하지 않으면 원래 픽셀 방향을 유지한다. 웹·네이티브는 같은 서명 URL의 결과를 표시한다.
+
 ### avatar 정리 경합 보강
 퇴역asset행은삭제하지않고retired_at/cleanup_queued=true의tombstone으로보존한다. 같은owner/UUID의경로는영구재사용불가이며reserve/verify/프로필연결모두거절한다. 계정삭제cascade만metadata를제거하며해당owner는Auth삭제되므로경로새연결이불가하다. 정리후job ack와asset tombstone수명은분리한다. cleanup 후보는현재프로필참조없음을LIMIT100전에적용하고profile→asset잠금뒤참조를다시검사한다. 미queued 전용 후보는 후속 재수거 절의 순환 후보로 대체한다. Storage DELETE실패/중복worker의늦은DELETE는불변퇴역경로에만작용한다. 기존활성avatar/이전GoogleURL/여행Storage는변경하지않는다.
 
