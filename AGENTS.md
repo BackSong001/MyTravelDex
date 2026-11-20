@@ -763,3 +763,5 @@ FR-MAP-TILES-001은 국내 표시 경계만 정적 XYZ 벡터 타일로 생성�
 osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
 
 FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](docs/OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
+
+약관 공개 문서는 legal/에서 관리한다. 공개 연락처와 서비스 실제 동작을 대조하고 [대한민국 스토어 등록 가이드](docs/STORE_RELEASE_KR.md)에 따라 데이터 보안·로그인 심사·삭제 경로를 확인한다. 심사 계정의 비밀번호는 문서에 기록하지 않는다.

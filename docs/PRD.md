@@ -575,3 +575,5 @@ TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정�
 osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
 
 FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
+
+배포 준비 시 로그인 전에 약관정보를 열어보고, 로그인 후에도 설정에서 같은 문서로 돌아갈 수 있다. 계정·데이터 삭제는 앱 사용이 어려운 사람도 웹에서 요청할 수 있다. 세부 문안과 한국 출시 입력값은 [스토어 등록 가이드](STORE_RELEASE_KR.md)를 따른다.

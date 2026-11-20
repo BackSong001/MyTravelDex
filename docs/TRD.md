@@ -1093,3 +1093,5 @@ osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도
 FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
 
 Photon 전용 호스팅은 Supabase Edge Secret `PHOTON_BASE_URL`로 연결한다. 앱의 입력으로 호스트를 바꿀 수 없으며, 전달받은 Supabase 인증정보를 Photon으로 보내지 않는다. 전용 주소 설정 시 공개 데모로 우회하지 않는다. 운영 확인은 로그인 검색과 원좌표 역조회 각각의 실제 200 응답을 기준으로 한다.
+
+FR-LEGAL-001. 약관은 서버리스 정적 HTML로 제공한다. 앱은 고정 HTTPS 주소만 열며 계정·토큰·현재 화면을 전달하지 않는다. 열람과 동의 기록을 구분한다. 정적 배포 원본은 legal/이다.

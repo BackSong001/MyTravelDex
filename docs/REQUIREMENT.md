@@ -600,3 +600,5 @@ FR-MAP-TILES-001. 전국 개요는 기존 로컬 경로를 유지하며 최초 �
 osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
 
 FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
+
+FR-LEGAL-001. 비로그인과 로그인 사용자 모두 설정의 ‘약관정보’에서 공개 HTML 문서로 이동할 수 있다. 개인정보처리방침과 계정 삭제 안내에는 각각 고정 URL을 둔다.

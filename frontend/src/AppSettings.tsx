@@ -1,3 +1,4 @@
+import LegalLink from './LegalLink';
 import {DestinationIcon} from './Journal';
 import React,{useEffect,useRef,useState} from 'react';
 import {Modal,Platform,ScrollView,View} from 'react-native';
@@ -33,7 +34,7 @@ export default function AppSettings({owner,api,tab,onTab,onCreate,onLogin,isCurr
      <Pressable accessibilityRole="button" accessibilityLabel="설정 닫기" onPress={close} style={{padding:12}}><Text style={{color:c.ink}}>닫기</Text></Pressable>
     </View>
     <ScrollView ref={scroll} contentContainerStyle={{width:'100%',maxWidth:640,alignSelf:'center',padding:16,paddingBottom:32,gap:16}} keyboardShouldPersistTaps="handled">
-     {open&&pane==='menu'&&<View>{accountMenu?.map(action=><Pressable key={action.label} accessibilityRole="button" accessibilityLabel={action.label} disabled={action.disabled} onPress={()=>leave(action.run)} style={{justifyContent:'center',paddingHorizontal:14,borderBottomWidth:1,borderColor:c.line}}><Text style={{fontSize:16,color:c.ink}}>{action.label}</Text></Pressable>)}{entry('어디로 가봥?','다음에 가 볼 국내 여행지를 뽑아요', 'discovery')}{entry('뱃지 보관함','작은 여행 뱃지를 모으는 공간','badges')}{entry('스타일 여행','네 가지 취향으로 생각해 보는 여행','style')}</View>}
+     {open&&pane==='menu'&&<View>{accountMenu?.map(action=><Pressable key={action.label} accessibilityRole="button" accessibilityLabel={action.label} disabled={action.disabled} onPress={()=>leave(action.run)} style={{justifyContent:'center',paddingHorizontal:14,borderBottomWidth:1,borderColor:c.line}}><Text style={{fontSize:16,color:c.ink}}>{action.label}</Text></Pressable>)}{entry('어디로 가봥?','다음에 가 볼 국내 여행지를 뽑아요', 'discovery')}{entry('뱃지 보관함','작은 여행 뱃지를 모으는 공간','badges')}{entry('스타일 여행','네 가지 취향으로 생각해 보는 여행','style')}<LegalLink/><LegalLink deletion/></View>}
      {open&&pane==='badges'&&<BadgeCabinet key={owner??'guest'} owner={owner} api={api} isCurrent={isCurrent} onLogin={()=>leave(onLogin)}/>}
      {open&&pane==='discovery'&&<DestinationDraw key={owner??'guest'} owner={owner} onDrawStart={()=>scroll.current?.scrollTo({y:0,animated:false})} visited={visits} stamps={owner?visited:null} failed={failed} onRegion={district=>leave(()=>onRegion(district))} onAlbum={onAlbum?id=>leave(()=>onAlbum(id)):undefined}/>}
      {open&&pane==='style'&&<StyleTravel choices={styleChoices} onChange={setStyleChoices}/>}
