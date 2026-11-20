@@ -2,10 +2,11 @@ import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import React from 'react';
 import Text from './FontText';
-import {Image, Platform, StyleSheet, Switch, View, useWindowDimensions} from 'react-native';
+import {Animated, Image, Platform, StyleSheet, Switch, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Svg, {Circle,Path,Rect} from 'react-native-svg';
 import Avatar from './Avatar';
+import MascotArt from './MascotArt';
 
 
 export function DestinationIcon(){
@@ -36,10 +37,24 @@ export function JournalIcon({name, color, solid=false, size = 26}: {name: string
  return <Svg width={size} height={size} viewBox="0 0 24 24" accessible={false}><Path d={paths[name]??paths.album} fill={solid?(color??c.ink):'none'} fillRule="evenodd" stroke={color??c.ink} strokeWidth={name==='more'?3.5:1.85} strokeLinecap="round" strokeLinejoin="round"/></Svg>;
 }
 
+function WelcomeIllustration({compact}:{compact:boolean}) {
+ const [rest]=React.useState(()=>new Animated.Value(0));
+ const scale=compact ? 0.68 : 0.9;
+ return <View accessible accessibilityRole="image" accessibilityLabel="카메라를 든 볼빵 다람쥐" pointerEvents="none"
+   style={{width:216*scale,height:180*scale,alignItems:'center',justifyContent:'center'}}>
+  <View style={{width:216,height:180,flexShrink:0,transform:[{scale}]}}>
+   <Svg width={216} height={180} viewBox="0 0 216 180" accessible={false} style={StyleSheet.absoluteFill}>
+    <Path fill="#E3F3FA" d="M161 9 Q166 24 175 34 L186 49 192 62 195 74 193 89 196 95 191 99 190 107 181 117 172 120 167 126 160 123 155 130 150 126 143 132 137 129 132 136 127 133 118 141 117 134 111 136 114 128 108 126 112 121 109 116 115 109 111 104 116 96 112 91 118 82 114 76 117 71 110 67 112 60 117 64 122 57 119 53 124 48 119 44 126 40 121 35 127 33 132 25 138 27 143 22 150 22 155 17 Z M110 151 Q119 146 125 149 Q127 155 113 158 Q102 159 104 155 Z"/>
+   </Svg>
+   <MascotArt kind="cheeky" idle={rest} wave={rest} photo={rest} hop={rest}/>
+  </View>
+ </View>;
+}
+
 export function Welcome({children}:{children?:React.ReactNode}) {
- const c=useThemeColors(),wide=useWindowDimensions().width>=760;
+ const c=useThemeColors(),{width,height}=useWindowDimensions(),wide=width>=760;
  return <View testID="login-layout" style={{width:'100%',maxWidth:960,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:wide?'center':'stretch',gap:wide?64:24,paddingVertical:wide?64:24}}>
-  <View style={{flex:wide?1:undefined,gap:16}}><Backpack size={84}/><Text accessibilityRole="header" style={{color:c.ink,fontSize:32,lineHeight:42,fontWeight:'600'}}>나만의 여행도감</Text><Text style={{color:c.muted,fontSize:16,lineHeight:26,maxWidth:360}}>사진에 남은 장소를 모아{ '\n'}다음 여행으로 이어가세요</Text></View>
+  <View style={{flex:wide?1:undefined,gap:16}}><WelcomeIllustration compact={height<650}/><Text accessibilityRole="header" style={{color:c.ink,fontSize:32,lineHeight:42,fontWeight:'600'}}>나만의 여행도감</Text><Text style={{color:c.muted,fontSize:16,lineHeight:26,maxWidth:360}}>사진에 남은 장소를 모아{ '\n'}다음 여행으로 이어가세요</Text></View>
   {children&&<View style={{flex:wide?1:undefined,width:'100%',maxWidth:400,gap:8}}>{children}</View>}
  </View>;
 }
