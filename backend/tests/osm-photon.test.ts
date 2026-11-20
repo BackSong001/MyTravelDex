@@ -31,3 +31,49 @@ it('distinguishes an empty result from provider errors and rejects out-of-range 
  await expect(photonLocation({query:'서울'},async()=>new Response(null,{status:429}))).rejects.toThrow('RATE_LIMITED');
  await expect(photonLocation({latitude:91,longitude:0})).rejects.toThrow('VALIDATION_ERROR');
 });
+
+it('recovers from a transient gateway or non-JSON response without repeating a rate-limited request',async()=>{
+ for(const first of [new Response(null,{status:503}),new Response('<html>unavailable</html>'),new TypeError('network')]){
+  let calls=0;
+  const rows=await photonLocation({query:'부산'},async()=>{
+   if(++calls===1){if(first instanceof Error)throw first;return first;}
+   return Response.json({features:[feature]});
+  });
+  expect(rows).toHaveLength(1);
+  expect(calls).toBe(2);
+ }
+ let calls=0;
+ await expect(photonLocation({query:'부산'},async()=>{calls++;return new Response(null,{status:429});})).rejects.toThrow('RATE_LIMITED');
+ expect(calls).toBe(1);
+});
+
+it('identifies upstream access denial and bounds retries on a persistent gateway failure',async()=>{
+ for(const [status,expectedCalls] of [[403,1],[502,2]]){
+  let calls=0;
+  await expect(photonLocation({query:'서울역'},async()=>{calls++;return new Response(null,{status});})).rejects.toThrow('PHOTON_HTTP_'+status);
+  expect(calls).toBe(expectedCalls);
+ }
+});
+
+it('routes both operations only to the configured Photon path',async()=>{
+ const urls:URL[]=[];
+ const fetcher=async(input:RequestInfo|URL,init?:RequestInit)=>{
+  urls.push(new URL(String(input)));
+  expect(init?.redirect).toBe('error');
+  expect(new Headers(init?.headers).has('authorization')).toBe(false);
+  return Response.json({features:[feature]});
+ };
+ const host='https://geocoder.example/service';
+ await photonLocation({query:'서울역'},fetcher,host);
+ const point={latitude:37.551,longitude:126.971};
+ expect(await photonLocation(point,fetcher,host)).toMatchObject(point);
+ expect(urls.map(url=>url.origin+url.pathname)).toEqual([host+'/api/',host+'/reverse/']);
+ expect(urls.map(url=>url.searchParams.get('osm_tag'))).toEqual(['!place:postcode','!place:postcode']);
+ expect(urls[0].searchParams.get('q')).toBe('서울역');
+ expect(urls[1].searchParams.get('lat')).toBe(String(point.latitude));
+ await expect(photonLocation({query:'서울역',baseUrl:'https://other.example'},fetcher,host)).rejects.toThrow('VALIDATION_ERROR');
+ for(const invalid of ['http://insecure.example','https://user:pass@host.example','https://host.example/?secret=1','bad address']){
+  await expect(photonLocation({query:'서울역'},fetcher,invalid)).rejects.toThrow('PHOTON_CONFIGURATION');
+ }
+ expect(urls).toHaveLength(2);
+});

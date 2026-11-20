@@ -41,3 +41,7 @@ TC-MAP-OSM-001은 한국 경계 대응, 전국과 부산 이동에서 한 render
 동네 타일 재생성은 위와 같은 OSM PBF·국내 경계를 사용해 `python scripts/build-osm-neighborhood.py south-korea.osm.pbf /tmp/osm-derived/regions.geojson`을 실행한다. pyosmium, Shapely와 Tippecanoe 2.77.0을 생성 환경에서 사용했다. `blocks-9e47c9076a67`는 줌 10~12의 10,326개 XYZ이고, 건물 1,389,201개를 포함한다. 원자료에서 geometry 구성이 실패한 객체 52개는 제외했다. 정적 자산은 약 121 MiB이며 Web에서는 현재 시야의 타일을 요청한다. Android APK 안에서 이 타일 세트의 압축 크기는 약 71 MiB다.
 
 시·도와 전국 대표사진 선택은 본토에 16px 여백을 두고 맞춘다. 도로는 기존 상세 배율에서 표시한다.
+
+장소 요청 실패 진단은 원격 응답의 HTTP 상태 또는 전송·형식 오류만 포함한다. 검색어·좌표·본문은 포함하지 않는다. Photon의 일시적인 연결 실패, 502/503/504 또는 JSON 대신 온 성공 응답은 같은 요청을 한 번만 다시 시도한다. 429와 다른 4xx는 재시도하지 않으며 빈 후보는 정상 결과다.
+
+운영 Photon 기본 주소는 `https://photon.backsong.cloud`다. Edge가 검색과 역조회에 `osm_tag=!place:postcode`를 전달해 OSM ID가 없는 합성 우편번호 후보를 제외한다. 실제 장소의 주소와 원좌표는 기존 계약을 따른다.
