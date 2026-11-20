@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.65.0",
+    "imagescript": "1.3.0",
     "supabase": "2.122.1",
     "vite": "7.3.7",
     "vitest": "4.1.12"
