@@ -529,3 +529,5 @@ osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도
 FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
 
 2026-11-19 연결된 Supabase 프로젝트에 `20261119020000_photon_locations.sql`과 `photon-location`을 적용했다. 인증된 서울역 검색·역조회 각 HTTP 200, 미인증 요청 HTTP 401을 확인했다. 별도 정밀경계 migration `20261119010000_location_regions.sql`은 이번 배포에서 제외했다.
+
+`photon-location`은 Supabase 서버 환경변수 `PHOTON_BASE_URL`에서 운영자가 지정한 HTTPS Photon 서버를 읽는다. 경로 접두어를 허용하며 검색과 역조회 모두 해당 서버로만 전송한다. 미설정 환경은 기존 공개 데모 주소를 사용한다. 502의 선택적 `reason`은 공급자 HTTP 상태 또는 전송·형식 오류 분류만 포함한다.

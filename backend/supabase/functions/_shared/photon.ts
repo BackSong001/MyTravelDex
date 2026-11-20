@@ -28,14 +28,49 @@ function place(feature: Feature) {
   };
 }
 
-export async function photonLocation(body: unknown, request: typeof fetch = fetch) {
+async function requestFeatures(url: URL, request: typeof fetch, retry = true): Promise<Feature[]> {
+  let response: Response;
+  try {
+    response = await request(url, {
+      headers: {Accept: 'application/json', 'User-Agent': 'MyTravelDex/1.0 (https://github.com/BackSong001/MyTravelDex)'},
+      redirect: 'error',
+      signal: AbortSignal.timeout(8000),
+    });
+  } catch {
+    if (retry) return requestFeatures(url, request, false);
+    throw Error('PHOTON_NETWORK');
+  }
+  if (!response.ok) {
+    await response.body?.cancel();
+    if (retry && [502, 503, 504].includes(response.status)) return requestFeatures(url, request, false);
+    throw Error(response.status === 429 ? 'RATE_LIMITED' : 'PHOTON_HTTP_' + response.status);
+  }
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    if (retry) return requestFeatures(url, request, false);
+    throw Error('PHOTON_INVALID_JSON');
+  }
+  if (!Array.isArray(data?.features)) throw Error('PHOTON_INVALID_FEATURES');
+  return data.features;
+}
+
+export async function photonLocation(body: unknown, request: typeof fetch = fetch, baseUrl?: string) {
   if (!body || typeof body !== 'object') throw Error('VALIDATION_ERROR');
   const input = body as Input;
   const search = typeof input.query === 'string';
   const keys = search ? ['query'] : ['latitude', 'longitude'];
   if (Object.keys(input).some(k => !keys.includes(k))) throw Error('VALIDATION_ERROR');
 
-  const url = new URL(search ? '/api/' : '/reverse/', 'https://photon.komoot.io');
+  let url: URL;
+  try {
+    url = new URL(baseUrl || 'https://photon.komoot.io');
+  } catch {
+    throw Error('PHOTON_CONFIGURATION');
+  }
+  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash) throw Error('PHOTON_CONFIGURATION');
+  url.pathname = url.pathname.replace(/\/+$/, '') + (search ? '/api/' : '/reverse/');
   if (search) {
     if (!input.query!.trim() || input.query!.length > 200) throw Error('VALIDATION_ERROR');
     url.searchParams.set('q', input.query!.trim());
@@ -44,14 +79,9 @@ export async function photonLocation(body: unknown, request: typeof fetch = fetc
     url.searchParams.set('lat', String(input.latitude));
     url.searchParams.set('lon', String(input.longitude));
   }
+  url.searchParams.set('osm_tag', '!place:postcode');
   url.searchParams.set('limit', search ? '5' : '1');
-  const response = await request(url, {
-    headers: {'User-Agent': 'MyTravelDex/1.0 (https://github.com/BackSong001/MyTravelDex)'},
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!response.ok) throw Error(response.status === 429 ? 'RATE_LIMITED' : 'EXTERNAL_SERVICE_ERROR');
-  const {features} = await response.json();
-  if (!Array.isArray(features)) throw Error('EXTERNAL_SERVICE_ERROR');
+  const features = await requestFeatures(url, request);
   const rows = features.slice(0, search ? 5 : 1).map(place);
   if (search) return rows.filter((row, i) => rows.findIndex(other => other.id === row.id) === i);
   // 역조회 후보 중심으로 사용자가 선택한 좌표를 이동시키지 않는다.
