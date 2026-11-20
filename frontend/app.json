@@ -5,7 +5,7 @@
     "scheme": "mytraveldex",
     "version": "1.0.0",
     "splash": {
-      "image": "./public/travel-splash.png",
+      "image": "./public/lavender-backpack.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },

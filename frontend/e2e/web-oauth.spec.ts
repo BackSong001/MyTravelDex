@@ -8,17 +8,25 @@ test.beforeEach(async({page})=>{
  await page.route('**/auth/v1/settings',route=>route.fulfill({json:{external:{google:true}}}));
  await page.route('**/auth/v1/user',route=>route.fulfill({json:user}));
 });
-test('짧은 로그인 화면에서 카메라를 든 볼빵 다람쥐와 지도 진입 버튼을 표시한다',async({page})=>{
+test('짧은 로그인 화면에서 보라색 여행 배낭과 지도 진입 버튼을 표시한다',async({page})=>{
  await page.setViewportSize({width:320,height:568});
  await page.goto('/');
- const mascot=page.getByRole('img',{name:'카메라를 든 볼빵 다람쥐'});
- await expect(mascot).toBeInViewport({ratio:1});
- await expect(mascot.getByTestId('squirrel-camera')).toBeVisible();
+ const backpack=page.getByRole('img',{name:'보라색 여행 배낭'});
+ const title=page.getByRole('heading',{name:'여행가봥',exact:true});
+ await expect(page.getByTestId('login-layout').getByRole('heading',{name:'여행가봥',exact:true})).toBeVisible();
+ await expect(page.getByText('여행가봥',{exact:true})).toHaveCount(1);
+ await expect(title).toBeInViewport({ratio:1});
+ await expect(page.getByText('여행 사진을 지도에 담고, 지역 스탬프를 모아보세요.',{exact:true})).toBeVisible();
+ await expect(backpack).toBeInViewport({ratio:1});
+ await expect.poll(()=>backpack.evaluate(node=>{const image=node.matches('img')?node:node.querySelector('img');return (image as HTMLImageElement|null)?.naturalWidth??0;})).toBeGreaterThan(0);
  const google=page.getByRole('button',{name:'Google 로그인',exact:true});
  const explore=page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true});
  await expect(google).toBeInViewport({ratio:1});
- await explore.scrollIntoViewIfNeeded();
  await expect(explore).toBeInViewport({ratio:1});
+ const settings=page.getByRole('button',{name:'설정',exact:true});
+ await settings.click();
+ await expect(page.getByRole('heading',{name:'설정',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'설정 닫기',exact:true}).click();
  await explore.click();
  await expect(page.getByRole('button',{name:'대한민국',exact:true})).toBeVisible();
 });
@@ -48,7 +56,10 @@ test('TC-WEB-OAUTH-002: cancellation and missing verifier expose no raw error an
 test('TC-WEB-DESIGN-001: desktop and 320px login remain readable with keyboard targets and no tilted tile',async({page})=>{
  for(const width of [320,390,1440]){await page.setViewportSize({width,height:900});await page.goto('/');const layout=page.getByTestId('login-layout');await expect(layout).toBeVisible();const box=(await layout.boundingBox())!;expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);
   const button=page.getByRole('button',{name:'Google 로그인',exact:true}),target=(await button.boundingBox())!;expect(target.width).toBeGreaterThanOrEqual(48);expect(target.height).toBeGreaterThanOrEqual(48);expect(target.width).toBeLessThanOrEqual(400);await button.focus();await expect(button).toBeFocused();
-  expect(await layout.evaluate(node=>getComputedStyle(node).flexDirection)).toBe(width>=760?'row':'column');
+  for(const item of [layout.getByRole('img',{name:'보라색 여행 배낭'}),layout.getByRole('heading'),button]){
+   const bounds=(await item.boundingBox())!;
+   expect(Math.abs(bounds.x+bounds.width/2-width/2)).toBeLessThan(2);
+  }
  }
  await page.screenshot({path:'/tmp/mytraveldex-web-review/after-login-desktop.png'});await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/mytraveldex-web-review/after-login-mobile.png'});
 });

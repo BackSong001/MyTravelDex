@@ -1,3 +1,4 @@
+import {DestinationIcon} from './Journal';
 import React,{useEffect,useRef,useState} from 'react';
 import {Modal,Platform,ScrollView,View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -21,7 +22,7 @@ export default function AppSettings({owner,api,tab,onTab,onCreate,onLogin,isCurr
  const visits=React.useMemo(()=>pane==='discovery'&&owner&&known&&records?visitedDistricts(records,owner):null,[owner,known,records,pane]);
  function close(){direct.current=false;setOpen(false);setPane('menu');if(Platform.OS==='web')requestAnimationFrame(()=>trigger.current?.focus());}
  function leave(action:()=>void){close();action();}
- const entry=(name:string,detail:string,next:Pane)=><Pressable accessibilityRole="button" accessibilityLabel={name} onPress={()=>setPane(next)} style={{padding:20,borderBottomWidth:1,borderColor:c.line,gap:8}}><Text style={{fontSize:20,lineHeight:30,color:c.ink,fontWeight:'600'}}>{name}</Text><Text style={{color:c.muted,lineHeight:24}}>{detail}</Text></Pressable>;
+ const entry=(name:string,detail:string,next:Pane)=><Pressable accessibilityRole="button" accessibilityLabel={name} onPress={()=>setPane(next)} style={{padding:20,borderBottomWidth:1,borderColor:c.line,gap:8}}><View style={{flexDirection:'row',alignItems:'center',gap:10}}>{next==='discovery'&&<DestinationIcon/>}<Text style={{fontSize:20,lineHeight:30,color:c.ink,fontWeight:'600'}}>{name}</Text></View><Text style={{color:c.muted,lineHeight:24}}>{detail}</Text></Pressable>;
  return <>
   {!hideTrigger&&<Pressable ref={trigger} accessibilityRole="button" accessibilityLabel="설정" accessibilityState={{expanded:open}} onPress={()=>setOpen(true)} style={{padding:12,alignItems:'center',justifyContent:'center',gap:4}}>{[0,1,2].map(i=><View key={i} style={{height:2,width:22,backgroundColor:c.ink}}/>)}</Pressable>}
   <Modal visible={open} animationType="none" onRequestClose={close}>
