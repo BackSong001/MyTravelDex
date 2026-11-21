@@ -1,7 +1,19 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {publicConfiguration,expoArguments} from './configured.mjs';
 import appConfig from '../frontend/app.config.ts';
+
+test('Metro reuses transforms only for matching public bundle settings', () => {
+  const target = {EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',EXPO_PUBLIC_APP_ENV:'development'};
+  const version = overrides => execFileSync(process.execPath, ['-p', "require('./metro.config').cacheVersion"], {
+    cwd: new URL('../frontend/', import.meta.url), env: {...process.env, ...target, ...overrides}, encoding: 'utf8',
+  }).trim();
+  const configured = version({});
+  assert.equal(version({}), configured);
+  for (const [name, value] of Object.entries(target)) assert.notEqual(version({[name]: value + '-other'}), configured);
+  assert.ok(!configured.includes(target.EXPO_PUBLIC_SUPABASE_ANON_KEY));
+});
 
 test('configured web avoids development env override and Android embeds a standalone bundle',()=>{
   assert.deepEqual(expoArguments(['--web','--port','8083']),['start','--web','--port','8083','--no-dev']);

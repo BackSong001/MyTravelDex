@@ -5,11 +5,13 @@ import * as Crypto from 'expo-crypto';
 import * as DocumentPicker from 'expo-document-picker';
 import {File} from 'expo-file-system';
 import Text from './FontText';
+import Avatar from './Avatar';
+import ProfilePreview from './ProfilePreview';
 import {JournalIcon} from './Journal';
 import Pressable from './Feedback';
 import type {TravelApi} from './api';
 import {Action,IconAction,Notice,PageTail,SocialAvatar,SocialModal,SocialPhoto,failure,socialStyles as s,useSocialPage,type PageSnapshot} from './SocialUI';
-type Props={api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:()=>void;onLogin:()=>void;onOpen:(record:any)=>void};
+type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:()=>void;onLogin:()=>void;onOpen:(record:any)=>void};
 type Overlay={kind:'comments'|'profile'|'report'|'search'|'notifications'|'people';id?:string;record?:any;target?:'record'|'comment'|'profile';people?:string};
 export default function SocialFeed(props:Props&{snapshot:React.MutableRefObject<PageSnapshot|null>}){
  const [mode,setMode]=useState(props.snapshot.current?.key?.includes('social_saved')?'saved':props.snapshot.current?.key?.includes('following')?'following':'public'),[overlay,setOverlay]=useState<Overlay|null>(null),[actionError,setActionError]=useState('');
@@ -103,28 +105,76 @@ function Notifications(props:Props&{onOverlay:(o:Overlay)=>void;onClose:()=>void
  async function open(item:any){if(busy.current)return;busy.current=true;try{await props.api.rpc('social_read_notifications',{notification_ids:[item.id]});if(!live.current)return;if(item.record_id){const record=await props.api.rpc('social_record_item',{record_id:item.record_id});if(live.current){props.onClose();props.onOpen(record);}}else props.onOverlay({kind:'profile',id:item.actor.id});}catch(e){if(live.current)setError(failure(e));}finally{busy.current=false;}}
  return <><Text style={[s.muted,{padding:16}]}>읽지 않은 알림 {page.unread}개</Text>{error&&<Notice message={error}/>}<FlatList data={page.items} keyExtractor={n=>n.id} contentContainerStyle={{padding:16}} renderItem={({item})=><Pressable accessibilityRole="button" onPress={()=>void open(item)} style={[s.section,s.row]}><SocialAvatar api={props.api} author={item.actor}/><View style={{flex:1}}><Text style={s.text}>{item.actor?.display_name||'여행자'}{item.kind==='like'?'님이 좋아요를 눌렀어요':item.kind==='follow'?'님이 팔로우했어요':'님이 댓글을 남겼어요'}</Text><Text numberOfLines={2} style={s.muted}>{item.body||item.title}</Text>{!item.read_at&&<Text style={{color:'#146F75',fontSize:12}}>읽지 않음</Text>}</View></Pressable>} ListFooterComponent={<PageTail page={page}/>}/></>;
 }
+function releasePickedPhoto(uri:string){
+ if(Platform.OS==='web'){if(uri.startsWith('blob:'))URL.revokeObjectURL(uri);}
+ else try{new File(uri).delete();}catch{}
+}
+
 export function SocialProfile(props:Props&{target:string;onOverlay:(o:Overlay)=>void;headerActions?:React.ReactNode;onCreate?:()=>void;children?:React.ReactNode;snapshot?:React.MutableRefObject<PageSnapshot|null>;onSummaryReady?:()=>void}){
  const [profile,setProfile]=useState<any>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[edit,setEdit]=useState(false),[name,setName]=useState(''),[bio,setBio]=useState(''),[avatar,setAvatar]=useState<string|null>(null),[avatarMode,setAvatarMode]=useState('keep'),[attempt,setAttempt]=useState(0),guard=useRef(false),live=useRef(true);
- const editing=useRef(false);function editProfile(value:boolean){editing.current=value;setEdit(value);}
+ const [preview,setPreview]=useState(false);
+ const editing=useRef(false);function editProfile(value:boolean){editing.current=value;setEdit(value);setPreview(false);}
  const page=useSocialPage(props.api,'social_profile_records',{target_id:props.target},props.revision,props.snapshot);
  useEffect(()=>{if(!profile||page.loading||edit)return;const frame=requestAnimationFrame(()=>props.onSummaryReady?.());return()=>cancelAnimationFrame(frame);},[profile,page.loading,page.items,edit,props.onSummaryReady]);
  useEffect(()=>{let active=true;live.current=true;setError('');void props.api.rpc('social_profile',{target_id:props.target}).then(p=>{if(active){setProfile(p);if(!editing.current){setName(p.display_name);setBio(p.bio);}}}).catch(e=>{if(active){if([403,404].includes(e.status))setProfile(null);setError(failure(e));}});return()=>{active=false;live.current=false;};},[props.api,props.target,props.revision,attempt]);
  async function run(work:()=>Promise<any>){if(guard.current)return;guard.current=true;setBusy(true);setError('');try{await work();}catch(e){if(live.current)setError(failure(e));}finally{guard.current=false;if(live.current)setBusy(false);}}
  const upload=useRef<{id:string;bytes:ArrayBuffer;mime:string}|null>(null),[uploadPending,setUploadPending]=useState(false);
- useEffect(()=>()=>{upload.current=null;},[]);
+ const photoUri=useRef<string|null>(null);
+ function discardPhoto(){
+  if(photoUri.current)releasePickedPhoto(photoUri.current);
+  photoUri.current=null;upload.current=null;
+ }
+ useEffect(()=>discardPhoto,[]);
  async function sendUpload(){const pending=upload.current;if(!pending)return;const result=await props.api.request('/functions/v1/profile-avatar?upload_id='+pending.id,'POST',pending.bytes,pending.mime);if(live.current&&upload.current===pending){setAvatar(result.avatar_id);setAvatarMode('upload');upload.current=null;setUploadPending(false);}}
- async function pick(){const result=await DocumentPicker.getDocumentAsync({type:['image/jpeg','image/png'],multiple:false,copyToCacheDirectory:true,base64:false});if(result.canceled)return;const file=result.assets[0];try{if(!live.current)return;const source=Platform.OS==='web'?file.file:new File(file.uri);if(!source||source.size>5*1024*1024)throw new Error('프로필 사진은 5 MiB 이하로 선택해 주세요.');const bytes=await source.arrayBuffer();if(!live.current)return;if(bytes.byteLength>5*1024*1024)throw new Error('프로필 사진은 5 MiB 이하로 선택해 주세요.');upload.current={id:Crypto.randomUUID(),bytes,mime:file.mimeType||''};setUploadPending(true);await sendUpload();}finally{if(Platform.OS==='web'&&file.uri.startsWith('blob:'))URL.revokeObjectURL(file.uri);else if(Platform.OS!=='web')try{new File(file.uri).delete();}catch{}}}
-
+ async function pick(){
+  const result=await DocumentPicker.getDocumentAsync({type:['image/jpeg','image/png'],multiple:false,copyToCacheDirectory:true,base64:false});
+  if(result.canceled)return;
+  const file=result.assets[0];
+  let retained=false;
+  try{
+   if(!live.current)return;
+   const source=Platform.OS==='web'?file.file:new File(file.uri);
+   if(!source||source.size>5*1024*1024)throw new Error('프로필 사진은 5 MiB 이하로 선택해 주세요.');
+   const bytes=await source.arrayBuffer();if(!live.current)return;
+   if(bytes.byteLength>5*1024*1024)throw new Error('프로필 사진은 5 MiB 이하로 선택해 주세요.');
+   discardPhoto();photoUri.current=file.uri;retained=true;
+   upload.current={id:Crypto.randomUUID(),bytes,mime:file.mimeType||''};
+   setUploadPending(true);await sendUpload();
+  }finally{if(!retained)releasePickedPhoto(file.uri);}
+ }
+ function save(){
+  void run(async()=>{
+   await props.api.rpc('social_update_profile',{display_name:name,bio,avatar_mode:avatarMode,avatar_id:avatarMode==='upload'?avatar:null});
+   if(live.current){editProfile(false);discardPhoto();props.onChanged();}
+  });
+ }
  const own=props.owner===props.target;
- return <View style={{gap:16}}>{!profile&&props.headerActions&&<View style={{alignSelf:'flex-end'}}>{props.headerActions}</View>}{error&&<Notice message={error} retry={()=>setAttempt(x=>x+1)}/>} {!profile&&!error&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}{profile&&<>
- <View style={[s.row,{justifyContent:'space-between'}]}><Text selectable style={[s.heading,{letterSpacing:-.5}]}>@{profile.user_code}</Text>{props.headerActions}</View>
- <View style={[s.row,{gap:20}]}><SocialAvatar api={props.api} author={profile} size={76}/><View style={{flex:1,gap:6}}>
-  <Text accessibilityRole="header" style={[s.heading,{fontSize:16}]}>{profile.display_name}</Text>
+ const displayBio=preview?bio:profile?.bio;
+ const header=profile&&<><View style={[s.row,{justifyContent:'space-between'}]}><Text selectable style={[s.heading,{letterSpacing:-.5}]}>@{profile.user_code}</Text>{!preview&&props.headerActions}</View>
+ <View style={[s.row,{gap:20}]}>{preview&&avatarMode!=='keep'?<Avatar size={76} url={avatarMode==='upload'?photoUri.current:avatarMode==='google'?props.googlePhoto:null}/>:<SocialAvatar api={props.api} author={profile} size={76}/>}<View style={{flex:1,gap:6}}>
+  <Text accessibilityRole="header" style={[s.heading,{fontSize:16}]}>{preview?name.trim():profile.display_name}</Text>
   <View style={[s.row,{justifyContent:'space-between',gap:4}]}>{[['여행',profile.travel_count],['팔로워',profile.follower_count],['팔로잉',profile.following_count]].map(([label,count])=><View key={label}><Text style={s.heading}>{count}</Text><Text style={s.muted}>{label}</Text></View>)}</View>
  </View></View>
- {!!profile.bio&&<Text style={s.text}>{profile.bio}</Text>}
- {own?<View style={[s.row,{flexWrap:'wrap'}]}><Action label="프로필 편집" onPress={()=>{editProfile(!editing.current);setName(profile.display_name);setBio(profile.bio);setAvatarMode('keep');setAvatar(null);upload.current=null;setUploadPending(false);}}/><Action label="팔로잉 관리" onPress={()=>props.onOverlay({kind:'people',people:'following'})}/><IconAction icon="bell" label="알림" onPress={()=>props.onOverlay({kind:'notifications'})}/></View>:<View style={[s.row,{flexWrap:'wrap'}]}><Action label={profile.following?'팔로잉 취소':'팔로우'} primary={!profile.following} disabled={busy} onPress={()=>props.owner?void run(async()=>{await props.api.rpc('social_set_follow',{target_id:props.target,enabled:!profile.following});if(live.current)props.onChanged();}):props.onLogin()}/><Action label="신고 및 차단" onPress={()=>props.owner?props.onOverlay({kind:'report',target:'profile',id:props.target}):props.onLogin()}/></View>}
- {edit&&<View style={[s.section,{gap:12}]}><TextInput accessibilityLabel="프로필 이름" value={name} onChangeText={setName} maxLength={30} editable={!busy} style={s.input}/><TextInput accessibilityLabel="프로필 소개" value={bio} onChangeText={setBio} maxLength={150} multiline editable={!busy} style={s.input}/><Text style={s.muted}>{bio.length} / 150</Text><Action label="프로필 사진 선택" disabled={busy} onPress={()=>void run(pick)}/>{uploadPending&&<Action label="사진 업로드 다시 시도" disabled={busy} onPress={()=>void run(sendUpload)}/>}{avatarMode==='upload'&&<Text style={s.muted}>새 사진을 준비했어요. 저장하면 적용됩니다.</Text>}<View style={[s.row,{flexWrap:'wrap'}]}><Action label="기본 사진" disabled={busy} onPress={()=>{setAvatarMode('none');upload.current=null;setUploadPending(false);}}/><Action label="Google 사진" disabled={busy} onPress={()=>{setAvatarMode('google');upload.current=null;setUploadPending(false);}}/></View><Action label="프로필 저장" primary disabled={busy||uploadPending||!name.trim()} onPress={()=>void run(async()=>{await props.api.rpc('social_update_profile',{display_name:name,bio,avatar_mode:avatarMode,avatar_id:avatarMode==='upload'?avatar:null});if(live.current){editProfile(false);props.onChanged();}})}/><Action label="편집 취소" disabled={busy} onPress={()=>{editProfile(false);setAvatar(null);setAvatarMode('keep');upload.current=null;setUploadPending(false);}}/></View>}
+ {!!displayBio&&<Text style={s.text}>{displayBio}</Text>}</>;
+ if(own&&profile&&edit&&preview)return <ProfilePreview busy={busy} error={error} onEdit={()=>setPreview(false)} onSave={save}>{header}</ProfilePreview>;
+ return <View style={{gap:16}}>{!profile&&props.headerActions&&<View style={{alignSelf:'flex-end'}}>{props.headerActions}</View>}{error&&<Notice message={error} retry={()=>setAttempt(x=>x+1)}/>} {!profile&&!error&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}{profile&&<>
+ {header}
+ {own?<View style={[s.row,{flexWrap:'wrap'}]}><Action label="프로필 편집" disabled={busy} onPress={()=>{editProfile(!editing.current);setName(profile.display_name);setBio(profile.bio??'');setAvatarMode('keep');setAvatar(null);discardPhoto();setUploadPending(false);}}/><Action label="팔로잉 관리" onPress={()=>props.onOverlay({kind:'people',people:'following'})}/><IconAction icon="bell" label="알림" onPress={()=>props.onOverlay({kind:'notifications'})}/></View>:<View style={[s.row,{flexWrap:'wrap'}]}><Action label={profile.following?'팔로잉 취소':'팔로우'} primary={!profile.following} disabled={busy} onPress={()=>props.owner?void run(async()=>{await props.api.rpc('social_set_follow',{target_id:props.target,enabled:!profile.following});if(live.current)props.onChanged();}):props.onLogin()}/><Action label="신고 및 차단" onPress={()=>props.owner?props.onOverlay({kind:'report',target:'profile',id:props.target}):props.onLogin()}/></View>}
+ {edit&&<View style={[s.section,{gap:12}]}>
+   <TextInput accessibilityLabel="프로필 이름" value={name} onChangeText={setName} maxLength={30} editable={!busy} style={s.input}/>
+   <TextInput accessibilityLabel="프로필 소개" value={bio} onChangeText={setBio} maxLength={150} multiline editable={!busy} style={s.input}/>
+   <Text style={s.muted}>{bio.length} / 150</Text>
+   <Action label="프로필 사진 선택" disabled={busy} onPress={()=>void run(pick)}/>
+   {uploadPending&&<Action label="사진 업로드 다시 시도" disabled={busy} onPress={()=>void run(sendUpload)}/>}
+   {avatarMode==='upload'&&<Text style={s.muted}>새 사진을 준비했어요. 저장하면 적용됩니다.</Text>}
+   <View style={[s.row,{flexWrap:'wrap'}]}>
+    <Action label="기본 사진" disabled={busy} onPress={()=>{setAvatarMode('none');discardPhoto();setUploadPending(false);}}/>
+   <Action label="Google 사진" disabled={busy||!props.googlePhoto} onPress={()=>{setAvatarMode('google');discardPhoto();setUploadPending(false);}}/>
+   </View>
+   <Action label="미리보기" disabled={busy||uploadPending||!name.trim()} onPress={()=>setPreview(true)}/>
+   <Action label="프로필 저장" primary disabled={busy||uploadPending||!name.trim()} onPress={save}/>
+   <Action label="편집 취소" disabled={busy} onPress={()=>{editProfile(false);setAvatar(null);setAvatarMode('keep');discardPhoto();setUploadPending(false);}}/>
+ </View>}
  <View style={[s.row,{borderTopWidth:1,borderColor:'#E7E8EA',paddingTop:12}]}><JournalIcon name="grid" size={17}/><Text accessibilityRole="header" style={[s.text,{fontWeight:'600'}]}>{own?'나의 여행일기':'공개 여행일기'}</Text></View><View style={[s.grid,{gap:0,marginHorizontal:-16}]}>{page.items.map(r=><Pressable key={r.id} accessibilityRole="button" accessibilityLabel={`${r.title||'여행 기록'} ${r.start_date}`} accessibilityHint={r.visibility==='private'?'나만 보는 기록':undefined} disabled={props.disabled} onPress={()=>props.onOpen(r)} style={{width:'33.33333%',padding:1,aspectRatio:1}}><SocialPhoto api={props.api} id={r.cover_photo_id} label={r.title||'여행 사진'} style={{width:'100%',height:'100%'}}/>{r.visibility==='private'&&<View style={{position:'absolute',bottom:4,right:4,backgroundColor:'#fff',padding:3,borderRadius:4}}><JournalIcon name="lock" size={12}/></View>}</Pressable>)}</View>{own&&props.onCreate&&!page.items.length&&!page.loading&&!page.error?<View style={{alignItems:'center',paddingVertical:32,gap:14}}><JournalIcon name="album" size={32}/><Text style={s.heading}>첫 여행 사진을 남겨보세요</Text><Action primary label="여행 기록 만들기" onPress={props.onCreate}/></View>:<PageTail page={page}/>}
  </>}{props.children}</View>;
 }

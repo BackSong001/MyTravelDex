@@ -1,3 +1,4 @@
+import LegalLink from './LegalLink';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {Animated,Modal,Platform,Pressable as Backdrop,ScrollView,StyleSheet,useWindowDimensions,View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -72,11 +73,14 @@ export default function AppSettings({owner,tab,onTab,onCreate,onAccount,onLogout
       <ScrollView ref={scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
        {open&&pane==='menu'&&<>
         {section('여행 즐기기',<>{row(titles.discovery,'destination',()=>changePane('discovery'))}{row('스탬프 도감','bookmark',()=>leave(onStamps))}</>)}
-        {section('설정',<>{row(titles.account,'account',()=>owner?changePane('account'):leave(onAccount))}{row('개인정보 및 공개 범위','lock',()=>leave(onPrivacy))}</>)}
+        {section('설정',<>{row(titles.account,'account',()=>changePane('account'))}{row('개인정보 및 공개 범위','lock',()=>leave(onPrivacy))}</>)}
         {section('고객 지원',row(titles.about,'feed',()=>changePane('about')))}
        </>}
-       {open&&pane==='account'&&<View style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>{row('내 프로필 관리','account',()=>leave(onAccount),busy)}{row('로그아웃','next',()=>leave(onLogout),busy)}</View>}
-       {open&&pane==='about'&&<View style={[s.card,{padding:20,gap:8,backgroundColor:c.sheet,borderColor:c.line}]}><Text style={[s.title,{color:c.ink}]}>{expo.name}</Text><Text style={{color:c.muted}}>MyTravelDex</Text><Text style={{color:c.ink}}>버전 {expo.version}</Text></View>}
+       {open&&pane==='account'&&<View style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>
+        {owner?<>{row('내 프로필 관리','account',()=>leave(onAccount),busy)}{row('로그아웃','next',()=>leave(onLogout),busy)}</>:row('로그인','account',()=>leave(onAccount))}
+        <LegalLink deletion/>
+       </View>}
+       {open&&pane==='about'&&<View style={[s.card,{padding:20,gap:8,backgroundColor:c.sheet,borderColor:c.line}]}><Text style={[s.title,{color:c.ink}]}>{expo.name}</Text><Text style={{color:c.muted}}>MyTravelDex</Text><Text style={{color:c.ink}}>버전 {expo.version}</Text><LegalLink/></View>}
        {open&&full&&<DestinationDraw owner={owner} onDrawStart={()=>scroll.current?.scrollTo({y:0,animated:false})} visited={visits} stamps={owner?visited:null} failed={failed} onRegion={district=>leave(()=>onRegion(district))} onAlbum={onAlbum?id=>leave(()=>onAlbum(id)):undefined}/>}
       </ScrollView>
       {full&&<JournalNav tab={tab} onTab={next=>leave(()=>onTab(next))} onCreate={()=>leave(onCreate)}/>}

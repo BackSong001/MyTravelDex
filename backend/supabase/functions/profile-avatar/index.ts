@@ -23,7 +23,7 @@ Deno.serve(async req=>{
   if(!reserved.ok)return reply({error:'Avatar unavailable or upload ID conflict'},reserved.status===400?409:reserved.status);
   const row=await reserved.json();
   if(!row.verified){
-   const stored=await fetch(`${base}/storage/v1/object/profile-avatars/${row.path}`,{method:'POST',headers:{...headers,'Content-Type':'image/jpeg'},body:jpeg});
+   const stored=await fetch(`${base}/storage/v1/object/profile-avatars/${row.path}`,{method:'POST',headers:{...headers,'Content-Type':'image/jpeg'},body:new Uint8Array(jpeg)});
    // 같은 UUID/hash 예약만 같은 경로를 사용하므로 기존 파일은 재시도로 확인한다.
    if(!stored.ok&&stored.status!==400&&stored.status!==409)return reply({error:'Avatar upload failed'},503);
    if(!stored.ok){const existing=await fetch(`${base}/storage/v1/object/profile-avatars/${row.path}`,{headers});if(!existing.ok)return reply({error:'Avatar upload failed'},503);}

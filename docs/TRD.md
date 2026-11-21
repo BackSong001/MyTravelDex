@@ -2,7 +2,7 @@
 
 ## 2026-11-21 공통 햄버거 메뉴
 
-FR-MENU-001은 공통 React Native Modal과 기존 화면 전환을 사용한다. StampCatalog는 본인 완료 기록의 ownGroups를 재사용한다. 계정은 기존 프로필과 로그아웃, 공개 범위는 본인 여행도감의 기록별 전환을 사용한다. 앱 버전은 Expo 설정을 참조한다.
+FR-MENU-001은 공통 React Native Modal과 기존 화면 전환을 사용한다. StampCatalog는 본인 완료 기록의 ownGroups를 재사용한다. 계정은 기존 프로필과 로그아웃, 공개 범위는 본인 여행도감의 기록별 전환을 사용한다. 앱 버전은 Expo 설정을 참조한다. 앱 정보와 계정 관리는 기존 LegalLink로 각각 공개 약관 허브와 삭제 요청 안내를 연다.
 
 ## 실제 Figma 자산 공통 UI (2026-11-09)
 
@@ -1095,3 +1095,7 @@ TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정�
 osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
 
 FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
+
+Photon 전용 호스팅은 Supabase Edge Secret `PHOTON_BASE_URL`로 연결한다. 앱의 입력으로 호스트를 바꿀 수 없으며, 전달받은 Supabase 인증정보를 Photon으로 보내지 않는다. 전용 주소 설정 시 공개 데모로 우회하지 않는다. 운영 확인은 로그인 검색과 원좌표 역조회 각각의 실제 200 응답을 기준으로 한다.
+
+FR-LEGAL-001. 약관은 서버리스 정적 HTML로 제공한다. 앱은 고정 HTTPS 주소만 열며 계정·토큰·현재 화면을 전달하지 않는다. 열람과 동의 기록을 구분한다. 정적 배포 원본은 legal/이다.

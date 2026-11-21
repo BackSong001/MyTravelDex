@@ -2,6 +2,7 @@ import {regions} from './regions';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import TravelerAvatar from './Avatar';
+import ProfilePreview from './ProfilePreview';
 import {JournalIcon} from './Journal';
 import React, {useEffect, useRef, useState} from 'react';
 import Text from './FontText';
@@ -100,6 +101,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
   const [editing,setEditing]=useState(firstSetup);
+  const [preview,setPreview]=useState(false);
   const [snapshot,setSnapshot]=useState<{name:string;avatar:string|null;enabled:boolean}|null>(null);
   const owner = session.user.id as string;
   const identity = useUserId(owner);
@@ -148,7 +150,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
       setName(rows[0].display_name ?? displayName);
       setAvatar(rows[0].avatar_url ?? null);
       setSnapshot({name:rows[0].display_name??displayName,avatar:rows[0].avatar_url??null,enabled:rows[0].public_profile_enabled===true});
-      if(!firstSetup)setEditing(false);setSuccess('프로필을 저장했어요.');
+      setPreview(false);if(!firstSetup)setEditing(false);setSuccess('프로필을 저장했어요.');
       onChanged?.();
     } catch (error) {if (active.current) setError(message(error));}
     finally {savingRef.current = false; if (active.current) setSaving(false);}
@@ -158,6 +160,12 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
   if(showStamps&&!editing)return <>{children}</>;
   const profileName=snapshot?.name||(loading?'불러오는 중…':error?'확인 필요':'여행자');
   const visitLabel=visits===null?(visitsFailed?'확인 필요':'확인 중'):`${visits} / ${regions.length}`;
+  if(editing&&preview)return <ProfilePreview busy={saving} error={error} onEdit={()=>setPreview(false)} onSave={()=>void save()} saveLabel={firstSetup?'프로필 저장하고 시작':'프로필 저장'}>
+    <View style={s.profileIdentity}><TravelerAvatar url={avatar} size={76}/><View style={s.flex}>
+      <Text accessibilityRole="header" style={s.profileName}>{name.trim()}</Text>
+      <Text selectable style={s.profileSmall}>{identity.code}</Text>
+    </View></View>
+  </ProfilePreview>;
   if(!editing)return <View style={s.profilePage}>
     <View style={s.profileCard}>
       <View style={s.profileHeading}><Text accessibilityRole="header" style={s.profileTitle}>나의 프로필</Text><Button compact label="프로필 수정" disabled={disabled} onPress={()=>{setError('');setSuccess('');setEditing(true);}} secondary/></View>
@@ -198,6 +206,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
     {!!error && <Notice error>{error}</Notice>}
     {!!success && <Notice>{success}</Notice>}
     {!loaded && !loading && <Button label="프로필 다시 불러오기" onPress={() => setAttempt(value => value + 1)} secondary/>}
+    <Button label="미리보기" secondary disabled={disabled||!name.trim()||Array.from(name.trim()).length>30} onPress={()=>setPreview(true)}/>
     <Button label={saving ? '저장 중…' : firstSetup?'프로필 저장하고 시작':'프로필 저장'} onPress={() => void save()} disabled={disabled}/>
     {!firstSetup&&<Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);}setError('');setSuccess('');setEditing(false);}} secondary/>}
   </View>;

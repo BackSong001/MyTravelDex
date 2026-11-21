@@ -53,5 +53,5 @@ test('TC-MENU-001 게스트 계정 진입과 닫기',async({page})=>{
  await fixture(page,false);await openMenu(page);
  await button(page,'어디로 가봥?').click();await button(page,'여행지 뽑기').click();await expect(page.getByTestId('destination-result')).toBeVisible();
  await button(page,'설정 닫기').click();await openMenu(page);
- await button(page,'계정 관리').click();await expect(button(page,'Google 로그인')).toBeVisible();
+ await button(page,'계정 관리').click();await button(page,'로그인').click();await expect(button(page,'Google 로그인')).toBeVisible();
 });
