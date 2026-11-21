@@ -1,5 +1,9 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 2026-11-21 공통 햄버거 메뉴
+
+FR-MENU-001은 공통 React Native Modal과 기존 화면 전환을 사용한다. StampCatalog는 본인 완료 기록의 ownGroups를 재사용한다. 계정은 기존 프로필과 로그아웃, 공개 범위는 본인 여행도감의 기록별 전환을 사용한다. 앱 버전은 Expo 설정을 참조한다.
+
 ## 실제 Figma 자산 공통 UI (2026-11-09)
 
 FR-FIGMA-001/002의 런타임 자산은 frontend/assets/ui의 로컬 PNG와 공통 source registry로 제공한다. 원격 아바타는 기존 검증된 URL/실패 경로를 유지하고 기본 곰만 대체한다. 원본/선택본·Figma node·SHA256으로 추적하며 사용하지 않는 보드 PNG는 번들에 포함하지 않는다. 후속 바다 PNG 적용은 두 플랫폼에서 같은 이미지/기존 좌표·줌/보정 숨김 계약을 사용하며, 17A에서는 기존 SVG 바다 장식을 유지한다. 공통 메뉴는 32/54 이미지와 선택 표시를 갖되 실제 터치 영역은 min50·compact/안전영역/큰 글꼴을 유지한다. 새 의존성·DB/API/환경변수 없음. 후속 테마/새 기능 계약은 FIGMA_IMPLEMENTATION을 따른다.

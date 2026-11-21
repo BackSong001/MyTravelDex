@@ -74,7 +74,7 @@ test('TC-SNS-004 same-owner SDK token refresh keeps unsaved profile input mounte
  await page.addScriptTag({content:script});const profile=page.waitForResponse(r=>new URL(r.url()).pathname==='/rest/v1/rpc/social_profile');
  expect(await page.evaluate(async({url,key})=>(window as any).refreshSessionForTest(url,key),{url:status.API_URL,key:status.ANON_KEY})).toBe(true);await profile;await expect.poll(()=>pending).toBe(true);expect(await input!.evaluate(node=>node.isConnected)).toBe(true);const failed=page.waitForResponse(r=>new URL(r.url()).pathname==='/rest/v1/rpc/social_capabilities');release();await failed;await expect(page.getByText('소셜 서버 상태를 확인하지 못했어요. 입력을 유지한 채 다시 확인할 수 있어요.',{exact:true})).toBeVisible();
  await expect(page.getByLabel('프로필 이름',{exact:true})).toHaveValue('아직 저장하지 않은 이름');await expect(page.getByLabel('프로필 소개',{exact:true})).toHaveValue('새로고침이 지우면 안 되는 소개');expect(await input!.evaluate(node=>node.isConnected)).toBe(true);await page.getByRole('button',{name:'사진 업로드 다시 시도',exact:true}).click();await expect(page.getByText('새 사진을 준비했어요. 저장하면 적용됩니다.')).toBeVisible();expect(uploads).toHaveLength(2);expect(uploads[0]).toBe(uploads[1]);
- await page.getByRole('button',{name:'설정',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByLabel('프로필 이름',{exact:true})).toHaveCount(0);await page.unroute('**/rest/v1/rpc/social_capabilities');await login(page,author);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('heading',{name:'소셜 여행자',exact:true})).toBeVisible();await expect(page.getByLabel('프로필 이름',{exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'설정',exact:true}).click();await page.getByRole('button',{name:'계정 관리',exact:true}).click();await page.getByLabel('설정과 여행 도구',{exact:true}).getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByLabel('프로필 이름',{exact:true})).toHaveCount(0);await page.unroute('**/rest/v1/rpc/social_capabilities');await login(page,author);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('heading',{name:'소셜 여행자',exact:true})).toBeVisible();await expect(page.getByLabel('프로필 이름',{exact:true})).toHaveCount(0);
 });
 
 test('TC-SNS-002 a late reaction from an unmounted card still refreshes the same owner feed',async({page})=>{
@@ -129,7 +129,7 @@ test('TC-SOCIAL-PHOTO-UI-001 photo paging, My thumbnails and desktop navigation'
  await page.getByRole('button',{name:'지도·위치 정보 출처'}).click();
  await expect(page.getByRole('button',{name:'지도 오픈소스 고지'})).toBeVisible();
  await page.getByRole('button',{name:'설정',exact:true}).click();
- await expect(page.getByRole('button',{name:'친구 관리'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'계정 관리'})).toBeVisible();
  await page.getByRole('button',{name:'설정 닫기'}).click();
  await page.setViewportSize({width:1280,height:850});
  const rail=page.getByRole('tablist',{name:'주요 탐색'});
