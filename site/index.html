@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>여행가봥 — 나의 여행 지도</title>
+  <meta name="description" content="사진으로 여행을 기록하고, 지도에서 그날을 다시 만나세요. 다녀온 곳마다 나만의 여행 퍼즐이 채워져요.">
+  <meta name="theme-color" content="#f3efff">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="여행가봥 — 나의 여행 지도">
+  <meta property="og:description" content="여행 사진을 기록하고, 지도와 지역 퍼즐에 추억을 모아 보세요.">
+  <link rel="icon" href="assets/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <header class="top wrap">
+    <a class="brand" href="./"><img src="assets/icon.png" width="42" height="42" alt="">여행가봥</a>
+    <nav aria-label="페이지 메뉴">
+      <a href="#features">기능 둘러보기</a>
+      <a class="header-cta" href="https://my-travel-dex-seven.vercel.app/">웹앱 열기</a>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner wrap">
+        <div class="hero-copy">
+          <h1 id="hero-title">사진 한 장으로,<br>나만의 여행 지도</h1>
+          <p>사진 속 날짜와 장소로 여행을 기록해 보세요. 지난 여행이 지도 위에 하나씩 쌓여요.</p>
+          <div class="actions">
+            <a class="button" href="https://my-travel-dex-seven.vercel.app/">웹에서 시작하기</a>
+            <a class="quiet" href="#features">앱 화면 보기</a>
+          </div>
+        </div>
+        <figure class="hero-visual">
+          <div class="phone"><img src="assets/map.webp" width="780" height="1480" alt="대한민국 지도에 전주 여행 사진 핀이 표시된 여행가봥 지도 탭" fetchpriority="high"></div>
+          <img class="mascot" src="assets/mascot.webp" width="334" height="307" alt="여행 모자와 카메라를 든 안경 다람쥐">
+          <figcaption>여행가봥 모바일 웹앱 화면 · 예시 여행</figcaption>
+        </figure>
+      </div>
+    </section>
+    <section id="features" class="features wrap" aria-labelledby="features-title">
+      <h2 id="features-title">여행이 끝난 뒤에도</h2>
+      <article class="feature">
+        <div class="feature-copy">
+          <h3>사진으로 기록하기</h3>
+          <p>여행 사진을 고르면 사진 속 날짜와 위치를 읽어 기록에 제안해요. 사진에 정보가 없어도 장소와 날짜를 직접 넣을 수 있어요.</p>
+        </div>
+        <figure class="screen-panel photo-panel">
+          <div class="phone"><img src="assets/compose.webp" width="780" height="1480" alt="전주 한옥마을 사진을 선택한 새 여행 기록 화면" loading="lazy" decoding="async"></div>
+        </figure>
+      </article>
+      <article class="feature reverse">
+        <div class="feature-copy">
+          <h3>지도에서 다시 보기</h3>
+          <p>내가 다녀온 곳을 사진 핀으로 찾아보세요. 지도에서 사진을 누르면 그날의 기록을 다시 만날 수 있어요.</p>
+        </div>
+        <figure class="screen-panel map-panel">
+          <img src="assets/map-detail.webp" width="520" height="700" alt="전주 여행 사진 핀이 표시된 대한민국 지도 화면 일부" loading="lazy" decoding="async">
+        </figure>
+      </article>
+      <article class="feature">
+        <div class="feature-copy">
+          <h3>지역 퍼즐 모으기</h3>
+          <p>여행을 기록하면 다녀온 곳의 퍼즐 조각이 채워져요. 여행도감에서 한 조각씩 모아 완성해 보세요.</p>
+        </div>
+        <figure class="screen-panel puzzle-panel">
+          <div class="phone"><img src="assets/puzzle.webp" width="780" height="1480" alt="여행도감에서 전북의 퍼즐 조각 하나를 모은 화면" loading="lazy" decoding="async"></div>
+        </figure>
+      </article>
+    </section>
+    <section class="closing wrap" aria-labelledby="closing-title">
+      <img src="assets/icon.png" width="78" height="78" alt="">
+      <h2 id="closing-title">다음 여행을 지도에 남겨 보세요</h2>
+      <a class="button" href="https://my-travel-dex-seven.vercel.app/">웹에서 시작하기</a>
+    </section>
+  </main>
+  <footer class="footer wrap">
+    <div><strong>여행가봥</strong> <a href="https://backsong001.github.io/MyTravelDex/">약관정보</a></div>
+    <p>예시 사진 <a href="https://commons.wikimedia.org/wiki/File:Jeonju_Hanok_Village_20230408_008.jpg">Mobius6, 전주 한옥마을</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> · 크기 조정</p>
+    <p>지도 © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap 기여자</a></p>
+  </footer>
+</body>
+</html>
