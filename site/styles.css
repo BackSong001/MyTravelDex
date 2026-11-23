@@ -61,7 +61,7 @@ h3 { font-size: clamp(1.55rem, 3vw, 2.5rem); letter-spacing: -.06em; line-height
 .closing { display: grid; justify-items: center; text-align: center; gap: 1.25rem; padding: 2.5rem 1rem 3rem; background: var(--lavender); border-radius: 1.6rem; }
 .closing h2 { word-break: keep-all; }
 .footer { padding-block: 2.8rem; color: var(--muted); font-size: .875rem; }
-.footer div { display: flex; gap: 1.2rem; margin-bottom: .65rem; }
+.footer div { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; margin-bottom: .65rem; }
 
 @media (max-width: 740px) {
   .wrap { width: calc(100% - 2rem); }
