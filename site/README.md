@@ -8,6 +8,12 @@ python3 -m http.server 8090 --bind 127.0.0.1 --directory site
 
 [http://127.0.0.1:8090](http://127.0.0.1:8090)에서 연다. 별도 정적 호스팅에서는 `site/`를 공개 디렉터리로 선택한다. 첫 화면 버튼은 운영 웹앱으로 연결한다. Google Play 공개 등록정보가 생기면 설치 링크를 추가한다.
 
+## Google OAuth 브랜딩 링크
+
+공개 홍보 사이트에서 홈페이지는 `/`, 개인정보처리방침은 `/legal/privacy.html`, 서비스 이용약관은 `/legal/terms.html`을 사용한다. 하나의 공개 HTTPS 호스트를 사용하고 Google Search Console에서 소유권을 확인한다. 개인정보처리방침 주소는 홍보 사이트 하단 링크와 콘솔 입력값을 일치시킨다. [Google OAuth 브랜딩 요구사항](https://support.google.com/cloud/answer/15549049?hl=ko)
+
+`legal/`의 원본을 갱신하면 이 사이트의 `site/legal/`에도 반영한다. 개인정보처리방침의 호스팅 안내는 실제 배포처에 맞춘다.
+
 ## 이미지 출처
 
 - 앱 아이콘은 `frontend/public/lavender-backpack.png`를 정사각형 PNG로 변환했다.
