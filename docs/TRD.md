@@ -1128,3 +1128,9 @@ FR-LEGAL-001. 약관은 서버리스 정적 HTML로 제공한다. 앱은 고정 
 ### OSM 상세 타일 부분 복구
 
 웹에서 벡터 타일 오류는 해당 XYZ 재시도 큐가 소유한다. 경계 타일이 빠지면 기존 world 소스의 국내 육지를 상세 레이어들 아래에 임시 표시한다. 정상 MapLibre 프레임을 불투명한 SVG로 차폐하지 않는다.
+
+## 발견 피드와 관계 관리 (2026-11-24)
+
+조회 가능 글만 대상으로 작성자별 created_at DESC, id ASC 순번을 매기고 순번·서울 작성일 내림차순·seed 기반 작성자 키·id 순으로 20건씩 읽는다. 팔로잉 및 이미 발급된 구형 커서는 기존 순서를 따른다.
+
+기존 public_profile_enabled는 DB에서 항상 참이다. 새 directory_listed는 기본 false이며 MY에서 본인만 social_set_directory_listing(enabled)으로 변경한다. 공개 글·닉네임·정확 ID 검색과 목록 동의를 분리한다. 빈 검색의 공개 목록은 listed_travelers의 최소 필드와 기존 reader 권한을 사용한다.

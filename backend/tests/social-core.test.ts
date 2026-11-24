@@ -3,11 +3,11 @@ import {readFileSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {afterAll,beforeAll,expect,test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
-let admin:TravelApi,guest:TravelApi;const users:{id:string;api:TravelApi;code:string}[]=[],records:string[]=[],locations:string[]=[],objects:string[]=[];
+let localAnonKey:string;let admin:TravelApi,guest:TravelApi;const users:{id:string;api:TravelApi;code:string}[]=[],records:string[]=[],locations:string[]=[],objects:string[]=[];
 beforeAll(async()=>{
  const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','/tmp/mytraveldex-sns-local','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
  if(status.API_URL!=='http://127.0.0.1:55321')throw new Error('Only isolated SNS Local is allowed');
- admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;guest=new TravelApi(status.API_URL,status.ANON_KEY);
+ localAnonKey=status.ANON_KEY;admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;guest=new TravelApi(status.API_URL,status.ANON_KEY);
  for(let i=0;i<3;i++){const email=`sns-${randomUUID()}@example.test`,password=randomUUID()+'Aa1!',u=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true}),api=new TravelApi(status.API_URL,status.ANON_KEY);await api.login(email,password);users.push({id:u.id,api,code:(await api.request('/rest/v1/profiles?id=eq.'+u.id))[0].user_code});}
 });
 afterAll(async()=>{
@@ -77,25 +77,31 @@ test('TC-SNS-002 server-filtered cursor returns every public record and follows 
  expect((await b.api.rpc('social_feed',{mode:'following'})).items).toHaveLength(20);
  await expect(guest.rpc('social_feed',{mode:'following'})).rejects.toMatchObject({status:401});
 });
-test('ranked feed rotates authors by posting day and keeps a seeded cursor across pages',async()=>{
- const writers=users.slice(0,2);
- const ids:string[]=[];
- for(let i=0;i<22;i++)ids.push(await record('public',writers[i%2]));
- const old=await record();
- await admin.request('/rest/v1/travel_records?id=eq.'+old,'PATCH',{created_at:'2020-01-01T10:00:00Z'});
- const hidden=await record('private');
- async function read(seed:string){
-  const items:any[]=[];let cursor=null;
-  do{const page=await guest.rankedFeed({mode:'public',seed},cursor);items.push(...page.items);cursor=page.next_cursor;}while(cursor);
-  return items;
+test('discovery rotates all eligible authors before showing second posts across pages',async()=>{
+ const ids=new Set<string>(), seed=randomUUID();
+ for(let i=0;i<21;i++){
+  const email=`writer-${randomUUID()}@example.test`,password=randomUUID()+'Aa1!';
+  const u=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});
+  const api=new TravelApi(guest.url,localAnonKey);
+  await api.login(email,password);
+  const writer={id:u.id,api,code:''};
+  users.push(writer);
+  const id=await record('public',writer);
+  ids.add(id);
+  await admin.request('/rest/v1/travel_records?id=eq.'+id,'PATCH',{created_at:'2020-01-01T10:00:00Z'});
  }
- const seed=randomUUID(),rows=await read(seed),ordered=rows.map(r=>r.id);
- expect(new Set(ordered).size).toBe(rows.length);expect(ordered).not.toContain(hidden);
- expect(ids.every(id=>ordered.indexOf(id)>=0&&ordered.indexOf(id)<ordered.indexOf(old))).toBe(true);
- const own=rows.filter(r=>ids.includes(r.id));
- for(let i=1;i<own.length;i++)expect(own[i].owner_id).not.toBe(own[i-1].owner_id);
- expect((await read(seed)).map(r=>r.id)).toEqual(ordered);
- expect((await read(randomUUID())).map(r=>r.id)).not.toEqual(ordered);
+ const first=await record(),second=await record(),hidden=await record('private');
+ const viewer=users[2].api,rows:any[]=[];let cursor=null;
+ do{
+  const page=await viewer.rankedFeed({mode:'public',seed},cursor);
+  rows.push(...page.items);cursor=page.next_cursor;
+ }while(cursor);
+ const order=rows.map(r=>r.id);
+ expect(new Set(order).size).toBe(order.length);
+ expect(order).not.toContain(hidden);
+ expect(order).toContain(second);
+ for(const id of ids){expect(order).toContain(id);expect(order.indexOf(id)).toBeLessThan(order.indexOf(first));}
+ expect((await viewer.rankedFeed({mode:'public',seed},null)).items.map((r:any)=>r.id)).toEqual(order.slice(0,20));
  await expect(guest.rankedFeed({mode:'following',seed},null)).rejects.toMatchObject({status:401});
 });
 test('TC-SNS-003 notification body and unread count are recipient-only and disappear on privacy change',async()=>{
@@ -168,6 +174,23 @@ test('TC-SNS-003 moderation is service-only, audited and immediately enforced ac
  expect((await a.api.request('/rest/v1/travel_records?id=eq.'+id))[0].visibility).toBe('private');
  await admin.rpc('social_moderate',{report_id:profileReport,decision:'resolved',action:'restore_account',note:'복구',operator:'test'});
  expect(await a.api.request('/rest/v1/profiles?id=eq.'+a.id,'PATCH',{display_name:'복구된 여행자'})).toMatchObject([{display_name:'복구된 여행자'}]);
+});
+test('directory lists consenting travelers without requiring a post and respects blocks',async()=>{
+ const [a,b]=users;
+ const listed=async()=>{const ids:string[]=[];let cursor=null;
+  do{const page=await b.api.rpc('social_people',{kind:'directory',cursor_id:cursor});ids.push(...page.items.map((p:any)=>p.id));cursor=page.next_cursor;}while(cursor);
+  return ids;
+ };
+ await a.api.rpc('social_set_directory_listing',{enabled:false});
+ expect(await listed()).not.toContain(a.id);
+ await a.api.rpc('social_set_directory_listing',{enabled:true});
+ expect(await listed()).toContain(a.id);expect(await listed()).not.toContain(b.id);
+ expect(await b.api.request('/rest/v1/listed_travelers?id=eq.'+a.id)).toHaveLength(1);
+ await a.api.rpc('social_set_block',{target_id:b.id,enabled:true});
+ expect(await listed()).not.toContain(a.id);
+ expect(await b.api.request('/rest/v1/listed_travelers?id=eq.'+a.id)).toEqual([]);
+ await a.api.rpc('social_set_block',{target_id:b.id,enabled:false});
+ await expect(guest.rpc('social_people',{kind:'directory'})).rejects.toMatchObject({status:401});
 });
 test('TC-SNS-004 profile projection, literal search, owner-only lists and saved cursor use current permissions',async()=>{
  const a=users[0],b=users[1],id=await record();

@@ -80,6 +80,9 @@ export class TravelApi {
     // 이전 서버가 반환한 시간 커서는 끝까지 같은 피드에서 사용한다.
     return this.rpc('social_feed',{mode:args.mode,...(cursor?{cursor_time:cursor.created_at,cursor_id:cursor.id}:{})});
   }
+  setFollow(targetId:string,enabled:boolean) {
+    return this.rpc('social_set_follow',{target_id:targetId,enabled});
+  }
   rpc(name: string, body: unknown) { return this.request(`/rest/v1/rpc/${name}`, 'POST', body); }
   async photoUrl(id: string, variant = 'thumbnail') {
     const data = await this.request('/functions/v1/photo-url','POST',{ photo_id:id,variant });

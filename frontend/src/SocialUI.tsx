@@ -45,12 +45,13 @@ export function useSocialPage(api:TravelApi,name:string|null,args:Record<string,
   if(!more&&!keepFeed){setItems([]);setCursor(null);}
   try{let after=more?cursor:null,next:any[]=more?items:[],page:any;
    do{page=name==='social_ranked_feed'?await api.rankedFeed(args,after):await api.rpc(name,{...args,...(after?(typeof after==='string'?{cursor_id:after}:{cursor_time:after.created_at,cursor_id:after.id}):{})});if(version!==generation.current)return;
-    if(api.token&&page.items.length&&(name==='social_saved'||name==='social_ranked_feed')){
-     const authors=[...new Set(page.items.map((item:any)=>item.owner_id))];
+    const people=name==='social_search'||(name==='social_people'&&args.kind!=='blocked');
+    if(api.token&&page.items.length&&(people||name==='social_saved'||name==='social_ranked_feed')){
+     const authors=[...new Set(page.items.map((item:any)=>people?item.id:item.owner_id))];
      try{
       const relations=await api.request('/rest/v1/follows?'+new URLSearchParams({select:'followee_id',followee_id:'in.('+authors.join(',')+')'}));
       const followed=new Set(relations.map((r:any)=>r.followee_id));
-      page.items=page.items.map((item:any)=>({...item,following:followed.has(item.owner_id)}));
+      page.items=page.items.map((item:any)=>({...item,following:followed.has(people?item.id:item.owner_id)}));
      }catch(e){if(version===generation.current)setError(failure(e));}
      if(version!==generation.current)return;
     }
@@ -63,4 +64,4 @@ export function useSocialPage(api:TravelApi,name:string|null,args:Record<string,
  useEffect(()=>{busy.current=false;void load();return()=>{generation.current++;busy.current=false;};},[api,name,identity,revision]);
  return {items,cursor,loading,background,refreshing:loading&&!appending&&!background,appending,error,load,unread};
 }
-export function PageTail({page,automatic=false}:{page:ReturnType<typeof useSocialPage>;automatic?:boolean}){return <View style={{padding:16,gap:12}}>{page.loading&&!page.background&&<ActivityIndicator accessibilityLabel="목록 불러오는 중"/>}{page.error&&<Notice message={page.error} retry={()=>void page.load(automatic&&page.appending&&!!page.cursor)}/>} {!page.loading&&!page.error&&!page.items.length&&<Text style={socialStyles.muted}>아직 표시할 내용이 없어요.</Text>}{!automatic&&page.cursor&&!page.loading&&<Action label="더 보기" onPress={()=>void page.load(true)}/>}</View>;}
+export function PageTail({page,automatic=false}:{page:ReturnType<typeof useSocialPage>;automatic?:boolean}){return <View style={{padding:16,gap:12}}>{page.loading&&!page.background&&<ActivityIndicator accessibilityLabel="목록 불러오는 중"/>}{!!page.error&&<Notice message={page.error} retry={()=>void page.load(automatic&&page.appending&&!!page.cursor)}/>}{!page.loading&&!page.error&&!page.items.length&&<Text style={socialStyles.muted}>아직 표시할 내용이 없어요.</Text>}{!automatic&&page.cursor&&!page.loading&&<Action label="더 보기" onPress={()=>void page.load(true)}/>}</View>;}

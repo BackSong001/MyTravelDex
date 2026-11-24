@@ -22,7 +22,7 @@ async function record(user:any,title:string,visibility:string,photoCount=1){
 test.beforeEach(async({page})=>{page.on('pageerror',error=>console.log('Web runtime:',error.name,error.message.replace(/https?:\/\/\S+/g,'[URL]')));records=[];locations=[];files=[];author=await account('소셜 여행자');viewer=await account('나의 일기');publicRecord=await record(author,'함께 보는 서울','public');privateRecord=await record(author,'비공개 서울','private');ownRecord=await record(viewer,'나만의 서울','private');});
 test.afterEach(async()=>{for(const id of records)await admin.request('/rest/v1/travel_records?id=eq.'+id,'DELETE');if(files.length)await admin.request('/storage/v1/object/travel-photos','DELETE',{prefixes:files});for(const id of locations)await admin.request('/rest/v1/locations?id=eq.'+id,'DELETE');for(const u of [author,viewer])if(u)await admin.request('/auth/v1/admin/users/'+u.id,'DELETE');await admin.request('/functions/v1/cleanup-avatars','POST',{});});
 async function login(page:Page,user=viewer){await page.route('**/auth/v1/**',route=>new URL(route.request().url()).origin===status.API_URL?route.continue():route.abort());await page.goto('/');await page.getByLabel('이메일',{exact:true}).fill(user.email);await page.getByLabel('비밀번호',{exact:true}).fill(user.password);const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/v1/token');await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();const logged=await response;expect(new URL(logged.url()).origin).toBe(status.API_URL);expect(logged.status()).toBe(200);await expect(page.getByRole('button',{name:'새 여행 기록',exact:true})).toBeVisible();await expect(page.getByText('프로필 설정 확인 중',{exact:true})).toHaveCount(0);}
-async function feed(page:Page){await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+publicRecord.id)).toBeVisible();await expect.poll(()=>page.getByTestId('feed-record-'+publicRecord.id).locator('img').evaluateAll(images=>images.some(image=>image instanceof HTMLImageElement&&image.src.includes('/storage/')&&image.complete&&image.naturalWidth>0))).toBe(true);}
+async function feed(page:Page,firstId=publicRecord.id){await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+firstId)).toBeVisible();await expect.poll(()=>page.getByTestId('feed-record-'+firstId).locator('img').evaluateAll(images=>images.some(image=>image instanceof HTMLImageElement&&image.src.includes('/storage/')&&image.complete&&image.naturalWidth>0))).toBe(true);}
 async function startPhotoInfo(page:Page){
  const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'사진 목록',exact:true}).click();
  await(await chooser).setFiles('frontend/e2e/fixtures/social-thumbnail.jpg');
@@ -332,9 +332,10 @@ test('로그인 후 요청한 My로 복귀하고 로그아웃 후에는 내 도�
 });
 
 test('피드에서 도감으로 이동한 뒤 브라우저 뒤로 가면 읽던 위치가 복원된다', async ({page}) => {
- for(let index=0;index<4;index++)await record(author,'돌아볼 여행 '+index,'public');
+ let newest=publicRecord;
+ for(let index=0;index<4;index++)newest=await record(author,'돌아볼 여행 '+index,'public');
  await login(page);
- await feed(page);
+ await feed(page,newest.id);
  const list=page.getByTestId('social-feed');
  await list.evaluate(element=>{element.scrollTop=360;});
  await expect.poll(()=>list.evaluate(element=>element.scrollTop)).toBe(360);
@@ -343,4 +344,39 @@ test('피드에서 도감으로 이동한 뒤 브라우저 뒤로 가면 읽던 
  await page.goBack();
  await expect(page).toHaveURL(/\/feed$/);
  await expect.poll(()=>list.evaluate(element=>element.scrollTop)).toBe(360);
+});
+
+test('follow a traveler without public posts and manage the friendship independently',async({page})=>{
+ await viewer.api.rpc('social_set_directory_listing',{enabled:true});
+ await viewer.api.request('/rest/v1/friend_requests','POST',{requester_id:viewer.id,recipient_id:author.id});
+ await login(page,author);
+ await page.getByRole('tab',{name:'피드',exact:true}).click();
+ await page.getByRole('button',{name:'여행자 찾기',exact:true}).click();
+ const row=page.getByRole('button',{name:'나의 일기 프로필',exact:true}).locator('..');
+ await row.getByRole('button',{name:'팔로우',exact:true}).click();
+ await expect(row.getByRole('button',{name:'팔로우 해제'})).toBeVisible();
+ await page.getByRole('button',{name:'닫기',exact:true}).click();
+ await page.getByRole('tab',{name:'My',exact:true}).click();
+ await page.getByRole('button',{name:'여행자 둘러보기에 내 프로필 표시',exact:true}).click();
+ await expect(page.getByRole('button',{name:'여행자 둘러보기에서 내 프로필 숨기기',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'팔로잉 1명',exact:true}).click();
+ await expect(page.getByRole('button',{name:'나의 일기 프로필'})).toBeVisible();
+ await page.getByRole('button',{name:'닫기',exact:true}).click();
+ await page.getByRole('button',{name:'설정',exact:true}).click();
+ await page.getByRole('button',{name:'친구 관리',exact:true}).click();
+ await expect(page).toHaveURL(/\/friends$/);
+ const friend=page.getByLabel('친구와 요청 목록',{exact:true}).getByTestId('friend-person-'+viewer.id);
+ await friend.getByRole('button',{name:'친구 수락',exact:true}).click();
+ await friend.getByRole('button',{name:'친구 삭제',exact:true}).click();
+ await expect(friend).toHaveCount(0);
+ await expect(page.getByLabel('팔로잉 목록',{exact:true}).getByTestId('friend-person-'+viewer.id)).toBeVisible();
+ await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();
+ await page.getByTestId('friend-person-'+viewer.id).getByRole('button',{name:'친구 요청',exact:true}).click();
+ await page.getByRole('tab',{name:/^팔로잉/}).click();
+ await friend.getByRole('button',{name:'요청 취소',exact:true}).click();
+ await expect(friend).toHaveCount(0);
+ await viewer.api.request('/rest/v1/friend_requests','POST',{requester_id:viewer.id,recipient_id:author.id});
+ await page.getByRole('button',{name:'목록 새로고침',exact:true}).click();
+ await friend.getByRole('button',{name:'친구 거절',exact:true}).click();
+ await expect(friend).toHaveCount(0);
 });

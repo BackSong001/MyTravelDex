@@ -73,7 +73,7 @@ export default function AppSettings({routePane,onRoutePane,owner,tab,onTab,onCre
       </View>
       <ScrollView ref={scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
        {open&&pane==='menu'&&<>
-        {section('여행 즐기기',<>{row(titles.discovery,'destination',()=>changePane('discovery'))}{row('스탬프 도감','bookmark',()=>leave(onStamps))}</>)}
+        {section('여행 즐기기',<>{row(titles.discovery,'destination',()=>changePane('discovery'))}{row('친구 관리','friends',()=>leave(()=>onTab('friends')))}{row('스탬프 도감','bookmark',()=>leave(onStamps))}</>)}
         {section('설정',<>{row(titles.account,'account',()=>changePane('account'))}{row('개인정보 및 공개 범위','lock',()=>leave(onPrivacy))}</>)}
         {section('고객 지원',row(titles.about,'feed',()=>changePane('about')))}
        </>}

@@ -417,7 +417,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  {screen==='list'&&tab==='album'&&!puzzleOpen&&session&&button(drafts?'완료된 여행 보기':'임시저장 복구',()=>setDrafts(!drafts),true)}
  {screen==='detail'&&selected?.status==='draft'&&selected.owner_id===session?.user?.id&&button('이 초안 이어서 작성',()=>recoverDraft(selected),true)}
  {screen==='create'&&!!pending?.existing&&<Text style={s.description}>이미 등록된 사진 {pending.existing}장과 선택한 사진을 함께 저장합니다.</Text>}
- {screen==='list'&&tab==='friends'&&<Friends session={session} inviteCode={inviteCode} onInviteHandled={dismissInvite} onChanged={()=>{void perform(()=>load());}} onMap={selectMapOwner}/>}
+ {screen==='list'&&tab==='friends'&&<Friends session={session} inviteCode={inviteCode} onInviteHandled={dismissInvite} onChanged={socialChanged} onMap={selectMapOwner}/>}
  {screen==='account'&&capabilityError&&<Notice message={capabilityError} retry={()=>setCapabilityAttempt(x=>x+1)}/>}
  {screen==='account'&&socialSupported===null&&!capabilityError&&<ActivityIndicator accessibilityLabel="소셜 기능 확인 중"/>}
  {screen==='account'&&myStamps&&<StampCatalog records={ownRows} failed={!!listError} groups={ownGroups} confirmed={ownLoaded&&!loading&&!listError} onBack={()=>{setMyStamps(false);scroll.current?.scrollTo({y:0,animated:false});}}/>}

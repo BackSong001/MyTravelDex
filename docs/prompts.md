@@ -2515,3 +2515,17 @@ osm-test의 OSM 단일 MapLibre 지도·본인 방문색과 Photon 검색/역조
 - 요청 원문: 아 머야. 이건 별로야. 그냥 처음처럼 해줘
 - 결과: 선택 직후 간선도로 미리보기를 제거하고 16px 여백의 본토 맞춤으로 복귀했다. 동네 상세 지도는 유지했고 로컬 웹을 이전 버전으로 복원했다.
 - 변경 파일: 직전 시·도 선택 배율 작업의 제품·검사·문서 및 생성 자산, `backend/tests/osm-photon.test.ts`.
+
+### 2026-11-24 18:27 KST
+
+> main 브랜치를 refactor에 푸쉬하고, 아래의 수정사항 적용해줘.
+> 1. 모든 유저의 게시물이 발견 피드에 보이게 수정. (현재 안보임)
+> 2. 모든 유저 팔로우 추가할 수 있는 기능 추가.
+> 3. 팔로우 창 추가.
+> 4. 친구 관리기능
+>
+> Implement the plan.
+
+작성자별 발견 순번과 목록 공개 설정, 팔로우 창, 친구 관리를 구현하고 격리 DB·웹·Android 에뮬레이터에서 확인했다.
+
+변경 파일 — `AGENTS.md`, `backend/supabase/migrations/20261124020000_discovery_and_people.sql`, `backend/tests/social-core.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/screens/AppWorkspace.tsx`, `frontend/src/AppSettings.tsx`, `frontend/src/Social.tsx`, `frontend/src/SocialSpace.tsx`, `frontend/src/SocialUI.tsx`, `frontend/src/api.ts`

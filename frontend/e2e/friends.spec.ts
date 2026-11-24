@@ -8,7 +8,7 @@ test.beforeAll(async()=>{
  for(let index=0;index<2;index++){
   const email=`friend-ui-${randomUUID()}@example.test`,password=`${randomUUID()}Aa1!`;
   const user=await admin('/auth/v1/admin/users','POST',{email,password,email_confirm:true});accounts.push({id:user.id,email,password,code:(await admin(`/rest/v1/profiles?id=eq.${user.id}&select=user_code`))[0].user_code});
-  await admin(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:'같은 이름',public_profile_enabled:true});
+  await admin(`/rest/v1/profiles?id=eq.${user.id}`,'PATCH',{display_name:'같은 이름',public_profile_enabled:true,directory_listed:true});
  }
 });
 test.beforeEach(async()=>{for(const account of accounts)await admin(`/rest/v1/friend_requests?requester_id=eq.${account.id}`,'DELETE');});
@@ -17,7 +17,7 @@ test.afterAll(async()=>{for(const account of accounts){await cleanRecords(accoun
 async function friends(page:Page,index:number){
  await page.route('**/functions/v1/geocode-location',route=>route.fulfill({json:[]}));
  await login(page,accounts[index].email,accounts[index].password);
- await page.getByRole('tab',{name:'친구',exact:true}).click();
+ await page.goto('/friends');
  await expect(page.getByRole('button',{name:'목록 새로고침',exact:true})).toBeEnabled();
 }
 async function search(page:Page,index:number){
@@ -78,7 +78,7 @@ test('TC-FRIEND-005: invite opens guest search and requires explicit login and r
  await page.getByTestId(`friend-person-${accounts[1].id}`).first().getByRole('button',{name:'친구 요청',exact:true}).first().click();
  await expect(page.getByRole('button',{name:'초대 검색 닫기',exact:true})).toHaveCount(0);
  await page.reload();
- await page.getByRole('tab',{name:'친구',exact:true}).click();
+ await page.goto('/friends');
  await expect(page.getByRole('button',{name:'초대 검색 닫기',exact:true})).toHaveCount(0);
 });
 
@@ -94,12 +94,12 @@ test('TC-FRIEND-009: directory refresh and failure retain candidates and search 
  await friends(page,0);await page.getByRole('tab',{name:'여행자 찾기',exact:true}).click();const section=page.getByLabel('전체 여행자 목록',{exact:true});
  await expect(section.getByTestId(`friend-person-${accounts[1].id}`)).toBeVisible();
  await page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true}).fill('입력 유지');
- let calls=0;await page.route('**/rest/v1/user_directory?*',async route=>{calls++;await route.abort();});
+ let calls=0;await page.route('**/rest/v1/listed_travelers?*',async route=>{calls++;await route.abort();});
  await section.getByRole('button',{name:'여행자 목록 새로고침',exact:true}).click();
  await expect(section.getByRole('alert')).toContainText('연결을 확인');
  await expect(section.getByTestId(`friend-person-${accounts[1].id}`)).toBeVisible();
  await expect(page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true})).toHaveValue('입력 유지');expect(calls).toBe(1);
- await page.unroute('**/rest/v1/user_directory?*');await section.getByRole('button',{name:'여행자 목록 새로고침',exact:true}).click();await expect(section.getByRole('alert')).toHaveCount(0);
+ await page.unroute('**/rest/v1/listed_travelers?*');await section.getByRole('button',{name:'여행자 목록 새로고침',exact:true}).click();await expect(section.getByRole('alert')).toHaveCount(0);
 });
 
 test('TC-FRIEND-007: new accounts upload actual photos, connect by ID, accept and see only public friend photos',async({page,browser})=>{
@@ -111,7 +111,7 @@ test('TC-FRIEND-007: new accounts upload actual photos, connect by ID, accept an
  try{
   await friends(other,1);await search(other,0);await other.getByRole('button',{name:'친구 요청',exact:true}).first().click();
   await expect(other.getByRole('button',{name:'요청 취소',exact:true}).first()).toBeVisible();
-  await page.getByRole('tab',{name:'친구',exact:true}).click();await page.getByRole('button',{name:'친구 수락',exact:true}).first().click();await expect(page.getByRole('button',{name:'친구 삭제',exact:true}).first()).toBeVisible();
+  await page.goto('/friends');await page.getByRole('button',{name:'친구 수락',exact:true}).first().click();await expect(page.getByRole('button',{name:'친구 삭제',exact:true}).first()).toBeVisible();
   await other.getByRole('button',{name:'목록 새로고침',exact:true}).click();await expect(other.getByRole('button',{name:'친구 삭제',exact:true}).first()).toBeVisible();
   await other.getByRole('tab',{name:'여행도감',exact:true}).click();await other.getByRole('button',{name:'친구 여행',exact:true}).click();
   const visible=other.getByRole('button',{name:/^친구에게 보여줄 여행,/});await expect(visible).toBeVisible();await expect(other.getByRole('button',{name:/^나만의 비공개 여행,/})).toHaveCount(0);
@@ -179,7 +179,7 @@ test('TC-FRIEND-008: identity lookup failure keeps profile editable and retries 
 test('TC-USER-ID-001: numeric alias invites resolve the new user ID and are consumed on request',async({page})=>{
  const oldCode='999998';
  await admin(`/rest/v1/profiles?id=eq.${accounts[1].id}`,'DELETE');
- const [profile]=await admin('/rest/v1/profiles','POST',{id:accounts[1].id,display_name:'같은 이름',public_profile_enabled:true,friend_code:oldCode});accounts[1].code=profile.user_code;
+ const [profile]=await admin('/rest/v1/profiles','POST',{id:accounts[1].id,display_name:'같은 이름',public_profile_enabled:true,directory_listed:true,friend_code:oldCode});accounts[1].code=profile.user_code;
  await login(page,accounts[0].email,accounts[0].password);await page.goto(`/?friend=${oldCode}`);
  const target=page.getByTestId(`friend-person-${accounts[1].id}`).first();await expect(target).toContainText(profile.user_code);
  await expect(page.getByLabel('공개 여행자 닉네임 또는 유저 ID',{exact:true})).toHaveValue(oldCode);

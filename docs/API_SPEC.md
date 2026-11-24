@@ -555,3 +555,9 @@ social_ranked_feed(mode,seed,after_cursor?)는 기존 공개 항목과 불투명
 ### OSM 상세 타일 부분 복구
 
 기존 regions·neighborhood 벡터 타일 주소와 줌 구간, Photon 및 여행 데이터 API를 유지한다.
+
+## 발견 피드와 관계 관리 (2026-11-24)
+
+social_ranked_feed(public)의 신규 커서는 v=2를 포함한다. social_people(kind=directory)는 로그인 사용자에게 공개 목록 동의·관계 허용 계정을 20명씩 제공한다. 팔로워·팔로잉은 본인만 읽으며 친구 관계는 별도로 관리한다.
+
+본인 social_profile 응답에는 directory_listed가 포함된다. social_set_directory_listing(enabled boolean)은 활성 로그인 계정의 설정을 변경하고 최종 boolean을 반환한다. listed_travelers는 빈 검색에 사용하는 공개 동의 목록이다.
