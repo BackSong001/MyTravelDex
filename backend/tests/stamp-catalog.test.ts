@@ -1,19 +1,19 @@
 import {expect,test,vi} from 'vitest';
 import React from '../../frontend/node_modules/react';
 import {renderToStaticMarkup} from '../../frontend/node_modules/react-dom/server';
-vi.mock('../../frontend/node_modules/react-native',()=>({Platform:{OS:'android'},useWindowDimensions:()=>({fontScale:1}),View:({children}:any)=>React.createElement('div',null,children),Text:({children}:any)=>React.createElement('span',null,children),Image:({accessibilityLabel}:any)=>React.createElement('img',{alt:accessibilityLabel}),ActivityIndicator:()=>null,Linking:{openURL:()=>{}},StyleSheet:{create:(s:any)=>s}}));
+vi.mock('../../frontend/node_modules/react-native',()=>({Platform:{OS:'android'},useWindowDimensions:()=>({fontScale:1}),View:({children}:any)=>React.createElement('div',null,children),Text:({children}:any)=>React.createElement('span',null,children),Image:({accessibilityLabel,source}:any)=>React.createElement('img',{alt:accessibilityLabel,'data-source':source}),ActivityIndicator:()=>null,Linking:{openURL:()=>{}},StyleSheet:{create:(s:any)=>s}}));
 vi.mock('../../frontend/src/Feedback',()=>({default:({children}:any)=>React.createElement('button',null,children)}));
-vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{stamps:{},districtStamps:{
+vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{stamps:{'KR-11':11},stampPreviews:{'KR-11':111,'48170':170,'48310':310},districtStamps:{
  '48170':{name:'진주',source:1},
  '48310':{name:'거제',source:2},
 }}}));
-vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:({viewBox,children}:any)=>React.createElement('svg',{viewBox},children),G:({transform,children}:any)=>React.createElement('g',{transform},children),Path:({d}:any)=>React.createElement('path',{d})}));
+vi.mock('../../frontend/node_modules/react-native-svg',()=>({default:({testID,viewBox,children}:any)=>React.createElement('svg',{'data-testid':testID,viewBox},children),G:({transform,children}:any)=>React.createElement('g',{transform},children),Path:({d}:any)=>React.createElement('path',{d})}));
 import {REGION_DATE} from '../../frontend/src/regions';
 import StampCatalog from '../../frontend/src/StampCatalog';
 import {provinceFeatures,polygons} from '../../frontend/src/provinces';
 test('TC-FIGMA-STAMP-001: every original geographic ring keeps its shape inside the local viewport',()=>{
  const markup=renderToStaticMarkup(React.createElement(StampCatalog,{groups:{},confirmed:true,failed:false,onBack:()=>{}}));
- const regions=[...markup.matchAll(/<svg viewBox="([^"]+)"><path d="([^"]+)"/g)];expect(regions).toHaveLength(provinceFeatures.length+1);
+ const regions=[...markup.matchAll(/<svg data-testid="stamp-geography" viewBox="([^"]+)"><path d="([^"]+)"/g)];expect(regions).toHaveLength(provinceFeatures.length+1);
  regions.forEach((region,index)=>{
   const [left,top,width,height]=region[1].split(' ').map(Number),numbers=region[2].match(/-?\d+(?:\.\d+)?/g)!.map(Number);
   if(index<provinceFeatures.length){const rings=polygons(provinceFeatures[index].geometry).flatMap(polygon=>polygon);
@@ -30,9 +30,19 @@ test('경남에서 방문한 진주와 거제의 스탬프만 각각 한 번 표
   groups:{'KR-48':records},confirmed,failed:false,onBack:()=>{},
  }));
  expect(render([geoje])).toContain('거제 여행 스탬프');
- expect(render([geoje])).not.toContain('진주 여행 스탬프');
+ expect(render([geoje])).toContain('진주 여행 스탬프, 미획득');
+ expect(render([geoje])).toContain('data-source="170"');
+ expect(render([geoje])).not.toContain('data-source="310"');
  const both=render([jinju,geoje,geoje]);
  expect(both).toContain('진주 여행 스탬프');
  expect(both.match(/거제 여행 스탬프/g)).toHaveLength(1);
  expect(render([geoje],false)).not.toContain('거제 여행 스탬프');
+});
+
+test('regional artwork uses the gray preview only for confirmed uncollected stamps',()=>{
+ const render=(groups:Record<string,any[]>,confirmed:boolean)=>renderToStaticMarkup(React.createElement(StampCatalog,{groups,confirmed,failed:!confirmed,onBack:()=>{}}));
+ expect(render({},true)).toContain('data-source="111"');
+ expect(render({'KR-11':[{}]},true)).toContain('data-source="11"');
+ expect(render({'KR-11':[{}]},true)).not.toContain('data-source="111"');
+ expect(render({},false)).not.toContain('data-source="111"');
 });

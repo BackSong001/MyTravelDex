@@ -33,6 +33,14 @@ test('TC-SNS-001 five tabs, dashboard, regional stamps and map compose preserve 
  await expect(page.getByTestId('travel-squirrel')).toBeVisible();
  await page.getByRole('button',{name:'지역 스탬프 보기',exact:true}).click();
  await expect(page.getByTestId('stamp-total')).toBeVisible();
+ const seoul=page.getByTestId('region-stamp').filter({has:page.getByText('서울',{exact:true})});
+ const busan=page.getByTestId('region-stamp').filter({has:page.getByText('부산',{exact:true})});
+ await expect.poll(()=>seoul.locator('img').evaluate((img:HTMLImageElement)=>img.naturalWidth)).toBeGreaterThan(216);
+ await expect.poll(()=>busan.locator('img').evaluate((img:HTMLImageElement)=>img.naturalWidth)).toBe(216);
+ await expect(busan.getByText('미획득',{exact:true})).toBeVisible();
+ await page.getByRole('tab',{name:/모은 스탬프/}).click();
+ await expect(seoul).toBeVisible();
+ await expect(busan).toHaveCount(0);
  await page.getByRole('tab',{name:'지도',exact:true}).click();await expect(page.getByTestId('svg-map-canvas')).toBeVisible();await expect(page.getByRole('button',{name:'지도 확대',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'설정',exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'여행 기록 추가',exact:true}).click();await startPhotoInfo(page);await page.getByLabel('여행 이름',{exact:true}).fill('이어 쓰는 일기');await page.getByRole('button',{name:'잠시 접기',exact:true}).click();await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();await expect(page.getByLabel('여행 이름',{exact:true})).toHaveValue('이어 쓰는 일기');
 });

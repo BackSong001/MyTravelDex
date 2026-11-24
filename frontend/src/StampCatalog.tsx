@@ -37,10 +37,30 @@ export default function StampCatalog({groups,confirmed,failed,onBack,records=[]}
    const districtCodes=visited&&region.id==='KR-48'
     ? new Set(groups[region.id].map(({locations})=>recordRegion(locations)?.properties.code))
     : new Set();
-   const districtStamps=Object.entries(uiAssets.districtStamps).filter(([code])=>districtCodes.has(code));
+   const districtStamps=region.id==='KR-48'&&confirmed
+    ?Object.entries(uiAssets.districtStamps).filter(([code])=>!collected||districtCodes.has(code)):[];
+   const preview=uiAssets.stampPreviews[region.id as keyof typeof uiAssets.stampPreviews];
+   const status=!confirmed?t('확인 전'):visited?t('✓ 내 여행 스탬프'):t('미획득');
+   let art:React.ReactNode;
+   if(districtStamps.length){
+    art=districtStamps.map(([code,stamp])=>{
+     const earned=districtCodes.has(code);
+     const label=msg`${stamp.name} 여행 스탬프`;
+     return <View key={code} style={s.cityStamp}>
+      <Image source={earned?stamp.source:uiAssets.stampPreviews[code as keyof typeof uiAssets.districtStamps]} accessible accessibilityLabel={earned?label:label+', '+t('미획득')} resizeMode="contain" style={s.art}/>
+      <Text style={s.small}>{stamp.name} · {earned?t('획득'):t('미획득')}</Text>
+     </View>;
+    });
+   }else if(confirmed&&(visited?source:preview)){
+    art=<Image source={visited?source:preview} accessible={false} resizeMode="contain" style={s.art}/>;
+   }else if(confirmed){
+    art=<Svg width={108} height={94} viewBox="0 0 163 94" accessible={false}><Path d={region.path} fill={visited?'#388477':'#848484'} fillRule="evenodd"/></Svg>;
+   }else{
+    art=<View style={s.placeholder}><Text style={s.small}>{t('확인 전')}</Text></View>;
+   }
    return <View key={region.id} testID="region-stamp" accessibilityLabel={`${name}, ${!confirmed?t('확인 전'):visited?t('방문 완료'):t('미획득')}`} style={s.row}>
-    <View style={s.region}><Svg width="100%" height={94} viewBox="0 0 163 94" preserveAspectRatio="xMidYMid meet" accessible={false}><Path d={region.path} fill={c.tint} stroke={c.accent} strokeWidth={1} fillRule="evenodd"/></Svg><Text style={s.regionName}>{name}</Text></View>
-    <View style={s.region}>{districtStamps.length>0?districtStamps.map(([code,stamp])=><Image key={code} source={stamp.source} accessibilityLabel={msg`${stamp.name} 여행 스탬프`} resizeMode="contain" style={s.art}/>):visited&&source?<Image source={source} accessible={false} resizeMode="contain" style={s.art}/>:<View style={[s.placeholder,visited&&{borderColor:c.accent}]}><Text style={[s.small,{textAlign:'center'}]}>{!confirmed?t('확인 전'):visited?msg`${name}\n내 방문`:t("새 여행을\n기다려요")}</Text></View>}<Text style={s.small}>{!confirmed?t('확인 전'):visited?t('✓ 내 여행 스탬프'):t('미획득')}</Text></View>
+    <View style={s.region}><Svg testID="stamp-geography" width="100%" height={94} viewBox="0 0 163 94" preserveAspectRatio="xMidYMid meet" accessible={false}><Path d={region.path} fill={c.tint} stroke={c.accent} strokeWidth={1} fillRule="evenodd"/></Svg><Text style={s.regionName}>{name}</Text></View>
+    <View style={s.region}>{art}<Text style={s.small}>{status}</Text></View>
    </View>;
  }
  return <View style={s.page}>
@@ -60,6 +80,6 @@ export default function StampCatalog({groups,confirmed,failed,onBack,records=[]}
   <Pressable accessibilityRole="link" accessibilityLabel={t("스탬프 지리 데이터 출처")} onPress={()=>void Linking.openURL(MAP_SOURCE_URL)} style={s.back}><Text style={s.small}>{MAP_ATTRIBUTION}</Text></Pressable>
  </View>;
 }
-const makeStyles=(c: ThemeColors['profile'])=>StyleSheet.create({page:{backgroundColor:c.paper},heading:{flexDirection:'row',alignItems:'center',gap:12,backgroundColor:c.sheet},back:{padding:12},title:{fontSize:18,lineHeight:27,fontWeight:'700',color:c.ink,flexShrink:1},link:{fontSize:14,lineHeight:21,color:c.accent},scope:{padding:20,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12,backgroundColor:c.sheet},small:{fontSize:11,lineHeight:17,color:c.muted,flexShrink:1},tabs:{flexDirection:'row',backgroundColor:c.tint},tab:{flex:1,padding:12,alignItems:'center',justifyContent:'center'},selected:{backgroundColor:c.accent},tabText:{fontSize:12,lineHeight:18,color:c.accent,fontWeight:'700'},row:{padding:20,paddingVertical:14,flexDirection:'row',gap:24,alignItems:'center',backgroundColor:c.sheet,borderBottomWidth:1,borderColor:c.line},region:{flex:1,minWidth:0,alignItems:'center',gap:5},regionName:{fontSize:16,lineHeight:24,color:c.ink,fontWeight:'700'},art:{width:108,height:108,maxWidth:'100%'},placeholder:{width:96,minHeight:96,maxWidth:'100%',padding:12,borderWidth:1,borderStyle:'dashed',borderColor:c.line,backgroundColor:c.paper,alignItems:'center',justifyContent:'center'},empty:{padding:20,color:c.muted,fontSize:14,lineHeight:22}});
+const makeStyles=(c: ThemeColors['profile'])=>StyleSheet.create({page:{backgroundColor:c.paper},heading:{flexDirection:'row',alignItems:'center',gap:12,backgroundColor:c.sheet},back:{padding:12},title:{fontSize:18,lineHeight:27,fontWeight:'700',color:c.ink,flexShrink:1},link:{fontSize:14,lineHeight:21,color:c.accent},scope:{padding:20,flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12,backgroundColor:c.sheet},small:{fontSize:11,lineHeight:17,color:c.muted,flexShrink:1},tabs:{flexDirection:'row',backgroundColor:c.tint},tab:{flex:1,padding:12,alignItems:'center',justifyContent:'center'},selected:{backgroundColor:c.accent},tabText:{fontSize:12,lineHeight:18,color:c.accent,fontWeight:'700'},row:{padding:20,paddingVertical:14,flexDirection:'row',gap:24,alignItems:'center',backgroundColor:c.sheet,borderBottomWidth:1,borderColor:c.line},region:{flex:1,minWidth:0,alignItems:'center',gap:5},regionName:{fontSize:16,lineHeight:24,color:c.ink,fontWeight:'700'},cityStamp:{width:'100%',alignItems:'center',gap:4},art:{width:108,height:108,maxWidth:'100%'},placeholder:{width:96,minHeight:96,maxWidth:'100%',padding:12,borderWidth:1,borderStyle:'dashed',borderColor:c.line,backgroundColor:c.paper,alignItems:'center',justifyContent:'center'},empty:{padding:20,color:c.muted,fontSize:14,lineHeight:22}});
 
 const makeCatalogStyles=(colors:ThemeColors)=>makeStyles(colors.profile);

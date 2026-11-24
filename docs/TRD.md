@@ -1136,3 +1136,5 @@ FR-LEGAL-001. 약관은 서버리스 정적 HTML로 제공한다. 앱은 고정 
 로그인한 계정의 둘러보기·검색·팔로우는 과거 directory_listed 값이나 공개 기록 유무를 조건으로 사용하지 않는다. social_visible_owner와 social_pair_allowed로 양방향 차단·정지를 검사하고, 여행기록은 별도로 social_record_visible을 적용한다. 기존 public_profile_enabled는 DB 제약으로 항상 참이다. 친구 화면의 listed_travelers는 제한된 reader와 기존 최소 필드를 사용하며 로그인하지 않은 사용자의 기존 조회 범위를 넓히지 않는다.
 
 도감·편집·온보딩의 최신 기준은 docs/JOURNAL_UPDATE.md의 FR-JOURNAL-REFRESH-01~05를 따른다. 이전 퍼즐·단일 테마·별도 미리보기 버튼 정책을 대체한다.
+
+미획득 전용 그림은 원본에서 추출한 중성 회색 도안을 투명 배경으로 표시한다. 전용 그림이 없는 지역은 같은 윤곽을 미획득 시 회색, 획득 시 청록색으로 표시한다. 조회 중·실패는 확인 전 상태를 유지한다.
