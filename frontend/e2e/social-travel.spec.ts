@@ -48,27 +48,34 @@ test('discover includes unfollowed authors and card follow updates the following
  await expect(page.getByTestId('feed-record-'+privateRecord.id)).toHaveCount(0);
 });
 test('scrolling the feed appends one page at a time and stops at the end',async({page})=>{
- const ids=Array.from({length:6},()=>randomUUID());
+ const ids=Array.from({length:9},()=>randomUUID());
  const rows=ids.map((id,index)=>({id,owner_id:author.id,author:{display_name:'여행자'},title:'여행 '+index,created_at:new Date().toISOString()}));
  let calls=0,release!:()=>void;
  const pending=new Promise<void>(resolve=>{release=resolve;});
  await page.route('**/rpc/social_ranked_feed',async route=>{
   calls++;
-  const more=route.request().postDataJSON().after_cursor;
-  if(more)await pending;
-  await route.fulfill({json:{items:more?rows.slice(3):rows.slice(0,3),next_cursor:more?null:{page:2}}});
+  const batch=route.request().postDataJSON().after_cursor?.page??0;
+  if(batch===1)await pending;
+  await route.fulfill({json:{items:rows.slice(batch*3,batch*3+3),next_cursor:batch<2?{page:batch+1}:null}});
  });
  await login(page);await page.getByRole('tab',{name:'피드',exact:true}).click();
  const list=page.getByTestId('social-feed');
  await expect(page.getByTestId('feed-record-'+ids[0])).toBeVisible();
- await expect(list.getByRole('button',{name:'더 보기',exact:true})).toHaveCount(0);
- await list.hover();await page.mouse.wheel(0,2400);
+ await expect(list.getByRole('button',{name:/^더 ?보기$/})).toHaveCount(0);
+ await list.hover();
+ const almostEnd=await list.evaluate(el=>el.scrollHeight-el.clientHeight-100);
+ await page.mouse.wheel(0,almostEnd);
+ await expect.poll(()=>list.evaluate(el=>el.scrollTop)).toBeCloseTo(almostEnd,0);
+ expect(calls).toBe(1);
+ await page.mouse.wheel(0,200);
  await expect.poll(()=>calls).toBe(2);
  const before=await list.evaluate(e=>e.scrollTop);expect(before).toBeGreaterThan(0);
  release();await expect(page.getByTestId('feed-record-'+ids[3])).toBeAttached();
  expect(await list.evaluate(e=>e.scrollTop)).toBeGreaterThanOrEqual(before-1);
- await page.mouse.wheel(0,3000);await expect(page.getByTestId('feed-record-'+ids[5])).toBeInViewport();
- expect(calls).toBe(2);
+ await page.mouse.wheel(0,3000);await expect.poll(()=>calls).toBe(3);
+ await expect(page.getByTestId('feed-record-'+ids[6])).toBeAttached();
+ await page.mouse.wheel(0,3000);await expect(page.getByTestId('feed-record-'+ids[8])).toBeInViewport();
+ expect(calls).toBe(3);
 });
 test('pulling the feed from its top requests a new order and keeps trip dates separate',async({page})=>{
  const seeds:string[]=[];

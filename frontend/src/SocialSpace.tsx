@@ -58,7 +58,7 @@ export default function SocialFeed(props:Props&{seed:React.MutableRefObject<stri
    scrollY.current=contentOffset.y;
    if(!page.refreshing&&props.snapshot.current)props.snapshot.current.offset=contentOffset.y;
    const remaining=contentSize.height-contentOffset.y-layoutMeasurement.height;
-   if(remaining<=layoutMeasurement.height*0.6&&page.cursor&&!page.loading&&!page.error)void page.load(true);
+   if(remaining<=1&&page.cursor&&!page.loading&&!page.error)void page.load(true);
   }} scrollEventThrottle={100} keyboardShouldPersistTaps="handled" refreshing={page.refreshing} onRefresh={refresh} renderItem={({item})=><FeedCard {...props} now={now} record={item} onOverlay={setOverlay} onError={setActionError}/>} ListFooterComponent={<PageTail page={page} automatic/>}/>
   {overlay&&<SocialOverlay {...props} overlay={overlay} onClose={()=>setOverlay(null)} onOverlay={setOverlay}/>}
  </View>;
@@ -84,7 +84,7 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
   <View style={[s.row,{paddingHorizontal:12,paddingVertical:4}]}>
    <Pressable accessibilityRole="button" accessibilityLabel={`${record.author?.display_name||'여행자'} 프로필`} onPress={()=>props.onOverlay({kind:'profile',id:record.owner_id})} style={[s.row,{flex:1}]}>
     <SocialAvatar api={api} author={record.author} size={36}/><View style={{flex:1}}><View style={{flexDirection:'row',alignItems:'baseline',flexWrap:'wrap',columnGap:6}}><Text style={[s.text,{fontWeight:'700'}]}>{record.author?.display_name||'여행자'}</Text>{!!record.created_at&&<Text style={s.muted}>· {feedTimestamp(record.created_at,props.now)}</Text>}</View><Text style={s.muted}>여행 {record.start_date}{record.end_date!==record.start_date&&' — '+record.end_date}</Text></View>
-   </Pressable>{record.owner_id!==props.owner&&<Pressable accessibilityRole="button" accessibilityLabel={record.following?'팔로우 취소':'팔로우'} disabled={busy||(!!props.owner&&record.following===undefined)} onPress={()=>void reaction('follow')} style={{minHeight:48,justifyContent:'center',paddingHorizontal:4}}><Text style={{fontSize:14,fontWeight:'600',color:record.following?'#62666B':'#146C80'}}>{record.following?'팔로잉':'팔로우'}</Text></Pressable>}<IconAction icon="more" label="더보기" onPress={()=>props.owner?props.onOverlay({kind:'report',id:record.id,target:'record',record}):props.onLogin()}/>
+   </Pressable>{record.owner_id!==props.owner&&<Pressable accessibilityRole="button" accessibilityLabel={record.following?'팔로우 취소':'팔로우'} disabled={busy||(!!props.owner&&record.following===undefined)} onPress={()=>void reaction('follow')} style={{minHeight:48,justifyContent:'center',paddingHorizontal:4}}><Text style={{fontSize:14,fontWeight:'600',color:record.following?'#62666B':'#146C80'}}>{record.following?'팔로잉':'팔로우'}</Text></Pressable>}<IconAction icon="more" label="신고 및 차단" onPress={()=>props.owner?props.onOverlay({kind:'report',id:record.id,target:'record',record}):props.onLogin()}/>
   </View>
   <View onLayout={e=>{const w=e.nativeEvent.layout.width;if(w>0)setWidth(w);}} style={{width:'100%',aspectRatio:4/5,overflow:'hidden'}}>
    <ScrollView horizontal pagingEnabled ref={strip} showsHorizontalScrollIndicator={false} scrollEventThrottle={32}
