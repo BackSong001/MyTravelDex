@@ -51,3 +51,15 @@ verify_jwt = false
 
 [analytics]
 enabled = false
+
+[functions.profile-avatar]
+verify_jwt = false
+
+[functions.profile-avatar-url]
+verify_jwt = false
+
+[functions.cleanup-avatars]
+verify_jwt = false
+
+[functions.photon-location]
+verify_jwt = false

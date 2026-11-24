@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {createHash} from 'node:crypto';
+test.use({baseURL:process.env.OAUTH_TEST_BASE_URL || 'http://127.0.0.1:8082'});
 const user={id:'00000000-0000-4000-8000-000000000031',email:'oauth-fixture@example.test',aud:'authenticated',role:'authenticated',app_metadata:{provider:'google'},user_metadata:{},created_at:'2026-01-01T00:00:00Z'};
 const token=[{alg:'HS256',typ:'JWT'},{sub:user.id,role:'authenticated',aud:'authenticated',exp:Math.floor(Date.now()/1000)+3600},{fixture:true}].map(value=>Buffer.from(JSON.stringify(value)).toString('base64url')).join('.');
 test.beforeEach(async({page})=>{
@@ -8,19 +9,49 @@ test.beforeEach(async({page})=>{
  await page.route('**/auth/v1/settings',route=>route.fulfill({json:{external:{google:true}}}));
  await page.route('**/auth/v1/user',route=>route.fulfill({json:user}));
 });
+test('짧은 로그인 화면에서 보라색 여행 배낭과 지도 진입 버튼을 표시한다',async({page})=>{
+ await page.setViewportSize({width:320,height:568});
+ await page.goto('/');
+ const backpack=page.getByRole('img',{name:'보라색 여행 배낭'});
+ const title=page.getByRole('heading',{name:'여행가봥',exact:true});
+ await expect(page.getByTestId('login-layout').getByRole('heading',{name:'여행가봥',exact:true})).toBeVisible();
+ await expect(page.getByText('여행가봥',{exact:true})).toHaveCount(1);
+ await expect(title).toBeInViewport({ratio:1});
+ await expect(page.getByText('여행 사진을 지도에 담고, 지역 스탬프를 모아보세요.',{exact:true})).toBeVisible();
+ await expect(backpack).toBeInViewport({ratio:1});
+ await expect.poll(()=>backpack.evaluate(node=>{const image=node.matches('img')?node:node.querySelector('img');return (image as HTMLImageElement|null)?.naturalWidth??0;})).toBeGreaterThan(0);
+ const google=page.getByRole('button',{name:'Google 로그인',exact:true});
+ const explore=page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true});
+ await expect(google).toBeInViewport({ratio:1});
+ await expect(explore).toBeInViewport({ratio:1});
+ const settings=page.getByRole('button',{name:'설정',exact:true});
+ await settings.click();
+ await expect(page.getByRole('heading',{name:'설정',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'설정 닫기',exact:true}).click();
+ await explore.click();
+ await expect(page.getByRole('button',{name:'대한민국',exact:true})).toBeVisible();
+});
 test('TC-WEB-OAUTH-001: installed SDK persists PKCE, exchanges at the same origin and restores the session on reload',async({page})=>{
+ async function expectSignedIn() {
+  await page.getByRole('tab',{name:'My',exact:true}).click();
+  await page.getByRole('button',{name:'설정',exact:true}).click();
+  await page.getByRole('button',{name:'계정 관리',exact:true}).click();
+  await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'설정 닫기',exact:true}).click();
+  await expect(page).toHaveURL(/\/my$/);
+ }
  let challenge='',exchanges=0,redirectOrigin='';
  await page.route('**/auth/v1/authorize?**',async route=>{
-  const url=new URL(route.request().url());expect(url.origin).toBe('http://127.0.0.1:54321');challenge=url.searchParams.get('code_challenge')!;expect(challenge).toBeTruthy();
+  const url=new URL(route.request().url());expect(['http://127.0.0.1:54321','http://127.0.0.1:55321']).toContain(url.origin);expect(url.searchParams.get('provider')).toBe('google');challenge=url.searchParams.get('code_challenge')!;expect(challenge).toBeTruthy();
   const callback=new URL(url.searchParams.get('redirect_to')!);redirectOrigin=callback.origin;expect(callback.pathname).toBe('/auth/callback');callback.searchParams.set('code','fixture-oauth-code');await route.fulfill({status:302,headers:{location:callback.href}});
  });
  await page.route('**/auth/v1/token?grant_type=pkce',async route=>{
   exchanges++;const body=route.request().postDataJSON();expect(body.auth_code).toBe('fixture-oauth-code');expect(createHash('sha256').update(body.code_verifier).digest('base64url')).toBe(challenge);
   await route.fulfill({json:{access_token:token,refresh_token:'fixture-refresh-token',token_type:'bearer',expires_in:3600,user}});
  });
- await page.goto('/');await page.getByRole('button',{name:'Google 로그인',exact:true}).click();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();expect(exchanges).toBe(1);expect(new URL(page.url()).origin).toBe(redirectOrigin);expect(new URL(page.url()).search).toBe('');
- await page.reload();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();expect(exchanges).toBe(1);
- await page.goto('/auth/callback?code=already-used-fixture');await expect(page.getByRole('alert')).toContainText('같은 브라우저');await expect(page.getByText('기존 로그인은 유지됩니다',{exact:true})).toBeVisible();await page.getByRole('button',{name:'앱으로 돌아가기',exact:true}).click();expect(new URL(page.url()).search).toBe('');await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();expect(exchanges).toBe(1);
+ await page.goto('/');await page.getByRole('button',{name:'Google 로그인',exact:true}).click();await expectSignedIn();expect(exchanges).toBe(1);expect(new URL(page.url()).origin).toBe(redirectOrigin);expect(new URL(page.url()).search).toBe('');
+ await page.reload();await expectSignedIn();expect(exchanges).toBe(1);
+ await page.goto('/auth/callback?code=already-used-fixture');await expect(page.getByRole('alert')).toContainText('같은 브라우저');await expect(page.getByText('기존 로그인은 유지됩니다',{exact:true})).toBeVisible();await page.getByRole('button',{name:'앱으로 돌아가기',exact:true}).click();expect(new URL(page.url()).search).toBe('');await expectSignedIn();expect(exchanges).toBe(1);
 });
 test('TC-WEB-OAUTH-002: cancellation and missing verifier expose no raw error and return without old query',async({page})=>{
  await page.goto('/auth/callback?error=access_denied&error_description=private-provider-diagnostic');await expect(page.getByRole('alert')).toContainText('취소');await expect(page.getByText('private-provider-diagnostic')).toHaveCount(0);await page.getByRole('button',{name:'로그인 화면으로',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();expect(new URL(page.url()).search).toBe('');
@@ -29,7 +60,10 @@ test('TC-WEB-OAUTH-002: cancellation and missing verifier expose no raw error an
 test('TC-WEB-DESIGN-001: desktop and 320px login remain readable with keyboard targets and no tilted tile',async({page})=>{
  for(const width of [320,390,1440]){await page.setViewportSize({width,height:900});await page.goto('/');const layout=page.getByTestId('login-layout');await expect(layout).toBeVisible();const box=(await layout.boundingBox())!;expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);
   const button=page.getByRole('button',{name:'Google 로그인',exact:true}),target=(await button.boundingBox())!;expect(target.width).toBeGreaterThanOrEqual(48);expect(target.height).toBeGreaterThanOrEqual(48);expect(target.width).toBeLessThanOrEqual(400);await button.focus();await expect(button).toBeFocused();
-  expect(await layout.evaluate(node=>getComputedStyle(node).flexDirection)).toBe(width>=760?'row':'column');
+  for(const item of [layout.getByRole('img',{name:'보라색 여행 배낭'}),layout.getByRole('heading'),button]){
+   const bounds=(await item.boundingBox())!;
+   expect(Math.abs(bounds.x+bounds.width/2-width/2)).toBeLessThan(2);
+  }
  }
  await page.screenshot({path:'/tmp/mytraveldex-web-review/after-login-desktop.png'});await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/mytraveldex-web-review/after-login-mobile.png'});
 });

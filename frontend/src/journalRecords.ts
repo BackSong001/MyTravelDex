@@ -1,4 +1,5 @@
-import {provinceAt,provinceLabels} from './provinces';
+import {recordRegion,legacyCodes} from './regions';
+import {provinceLabels} from './provinces';
 
 export const journalOrders = [
   ['start_desc','시작일 내림차순'],['start_asc','시작일 오름차순'],
@@ -8,7 +9,7 @@ export type JournalOrder = typeof journalOrders[number][0];
 type Record = {id:string;start_date:string;title?:string|null;content?:string|null;
  locations?:{latitude?:number;longitude?:number;region_name?:string|null;city_name?:string|null;place_name?:string|null}|null};
 export function journalRegion(record:Record){
- const place=record.locations,province=place?.latitude!=null&&place.longitude!=null?provinceAt(Number(place.latitude),Number(place.longitude)):undefined;
+ const place=record.locations,parent=recordRegion(place)?.properties.parentCode,province=parent&&legacyCodes[parent];
  return (province?provinceLabels[province].name:place?.region_name?.trim()||'기타').normalize('NFC');
 }
 export function journalRecords<T extends Record>(records:T[],order:JournalOrder='region_asc',query=''):T[]{

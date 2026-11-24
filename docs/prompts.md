@@ -1,454 +1,4 @@
 # MyTravelDex 프롬프트·작업 이력
-
-## 2026-11-07 14:12 KST — 밝은 파스텔 UI 개편 구현
-
-프롬프트 원문:
-
-> 기능확인이 끝났으면 이제 디자인적으로 업데이트를 하고 싶어.
-> 아래의 요구사항대로 디자인을 계획하고 진행해줘.
-> 단, 기존에 통과한 기능은 유지되어야해.
->
-> 1. 불필요한 버튼은 줄이고, 가독성이 좋아야한다.
-> 2. 지도에 지역 이름에 흰박스를 지우고 글자만 회색으로 표시한다.
-> 3. 확대 축소에 맞게 글자크기가 변하며, 기본적으로 글자 비중이 많게 하지는 않는다.
-> 4. 반응형 디자인 효과를 극대화하며, UI적으로 유저가 사용했을 때, 계속 사용할 수 있게 만든다.
-> 5. 아래 하단 메뉴를 지도 테마처럼 밝은 느낌으로 바꾼다.
-> 6. 다른 배경 자체도 종이질감 색깔이 아닌, 아기자기한 색깔
-> 7. 지도에 그림자 효과를 추가하고 지역마다 레이어를 추가해서 구분.
-> 8. 여행 기록을 클릭했을 때, 썸내일이 크게 나오고, 날짜는 작게 여행이름 작게, 한줄평 나오게 하기. 썸네일을 넘기면서 다른 사진도 볼 수 있게 하기
-> 9. 디자인적으로 다른 예시를 웹 검색하여 적용해주기
-> 10. 현재 내 발자국 0/17 메뉴는 없애기
-> 11. 유저 아이콘 이미지 만들어주고, 여행기록 밑에 이름은 없애고 아이콘만 표시
->
-> 현재 마음에 드는 메뉴
-> 1. 홈 지도 화면 (통과)
-> 2. 여행 도감 (개선)
-> 3. 친구(개선)
-> 4. My(개선)
-> 5. 리플래쉬 화면(개선)
->
-> 전체적이로 아기자기한 밝은 느낌으로 리팩토링해주고, 반응형 효과를 극대화해서 기술적인 효과를 넣어주게 리팩토링.
-> report-prompt로 저장하고 플랜모드가 끝나면 문서 업데이트하고, 커밋 푸쉬해줘
-
-실행 요청 원문:
-
-> Implement the plan.
-
-확정 선택: 하늘·민트·코랄, 기존 프로필 사진+기본 여행 캐릭터, 앱 시작 스플래시, 지도 아래 사진 패널, 단일 범위 선택기.
-
-답변·결과 요약: frontend-design으로 밝은 공통 테마·하단 메뉴·시작 배경·도감·친구·My를 개편하고 회색 무상자 줌 라벨·얕은 경계 그림자·로컬 캐릭터를 적용했다. 홈 배지만 제거하고 My 집계·작성자 접근성·기존 권한을 유지했다. 공통 가로 갤러리·지도 사진 패널·접힌 관리 동작을 연결하고 URL 갱신·지연 응답·반응형 회귀를 확인했다. 자동 검사 182 passed/1 skipped, TypeScript·웹 export·최종 APK build 성공. Android 실제 사진 패널을 확인하고 재연결 후 최종 설치·글꼴 1.5/2.0 홈/메뉴·가로 도감을 확인했으며 기본 설정을 복원했다. 네이티브 다중 사진/모든 큰 글꼴 화면 등 미검증 범위는 TEST_CASE에 구분했다. 비밀값·diff 범위를 확인한 뒤 사용자 요청대로 커밋·푸시하며 실제 결과는 Git 상태로 확인한다. 원본 storyboard.png는 제외한다.
-
-변경 파일: `AGENTS.md`, `backend/tests/design.test.ts`, `backend/tests/maps-native.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/index.tsx`, `frontend/e2e/design.spec.ts`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/src/Avatar.tsx`, `frontend/src/Journal.tsx`, `frontend/src/PhotoGallery.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/RecordPreview.tsx`, `frontend/src/Social.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/avatarAsset.ts`, `frontend/src/gallery.ts`, `frontend/src/mapStyle.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`.
-
-추가 화면 증거: `docs/design/verification/pastel-photo-panel-20261107.png` (공개 라이선스 샘플만 포함).
-
-## 2026-11-07 12:02 KST — 커밋·푸시 요청
-
-프롬프트 원문:
-
-> 커밋 푸쉬
-
-답변·결과 요약: 파란 바다 지도 장식·별도 위치 검색/후보 비교 창·실제 사진 지도 표시 검증 및 문서를 main 커밋과 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 175 passed/1 skipped와 웹·Android 빌드 결과를 유지하고 이번에는 변경 범위·비밀값·diff 형식을 확인했다. 원본 storyboard.png는 제외하며 실제 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 변경 파일(커밋 대상).
-
-## 2026-11-07 00:37 KST — 파란 바다 지도·위치 비교 창·실제 사진 검증
-
-프롬프트 원문:
-
-> 지도 배경은 파란색에 파도 물결이 나 비랭기같은 조형도 그려주고, 실제 사진을 추가했을때, 지도 UI에 표시되는 것 까지 확인하고 싶어.
-> [Image #1]
-> 그리고 위치를 검색을 할때는 새로운 창을 띄워서 검색할 결과를 지도와 대조해서 보여줘. 실제 주소 검색엔진 기반으로
-
-참고 이미지: [사용자 위치 선택 참고](design/location-selection-reference.png).
-
-답변·결과 요약: frontend-design으로 파란 바다·물결/구름/배/비행기를 구현하고 실제 Geoapify 검색·주소·후보 지도 비교·명시 확정을 별도 창에 연결했다. 취소/오류/지연 응답의 기존 입력 보존과 근접 후보의 정확한 단일 핀을 검증했다. 실제 공개 라이선스 전주 사진을 에뮬레이터에서 압축·Supabase 저장하고 홈 썸네일을 확인했으며 비공개 샘플 1개를 남겼다. 자동 검사 175 passed/1 skipped, TypeScript·웹 export·APK build/install을 통과했다. 글꼴 2배 라벨 겹침·실기기 등 한계는 TEST_CASE에 명시하고 기본 글꼴 홈으로 복원했다. 문서·화면 증거·사진 출처를 동기화했으며 커밋·푸시는 하지 않았다.
-
-변경 파일: `AGENTS.md`, `backend/tests/map-ocean.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/provinces.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/design/location-selection-reference.png`, `docs/design/verification/location-picker-20261107.png`, `docs/design/verification/ocean-home-20261107.png`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/e2e/fixtures/README.md`, `frontend/e2e/fixtures/jeonju.jpg`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/src/LocationPicker.tsx`, `frontend/src/MapOrnament.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/mapStyle.ts`, `frontend/src/provinces.ts`.
-
-## 2026-11-07 00:04 KST — 커밋·푸시 요청
-
-프롬프트 원문:
-
-> 커밋 푸쉬해줘
-
-답변·결과 요약: 직전 MapLibre·Geoapify 지도 전환, Google 포토 사진 선택, 지도 빈 화면·갱신 안정성 수정과 동기화 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 자동 검사 166 passed/1 skipped와 웹·Android 빌드 결과를 유지하고 이번 요청에서는 변경 범위·비밀값·diff 형식을 확인한다. 기존 원본 storyboard.png는 제외하며 실제 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 전체 변경 파일(커밋 대상).
-
-## 2026-11-06 23:53 KST — MapLibre 전환·Google 포토 및 빈 지도 화면 보완
-
-프롬프트 원문:
-
-> Implement the plan.
-
-추가 요청 원문:
-
-> 이어서 진행해줘. 현재 UI가 불안정해
-
-증상 설명 원문:
-
-> 지도 ui가 정확하지않고, 빈화면이 많음
-
-답변·결과 요약: frontend-design으로 본토·제주를 크게 보여주는 파스텔 GeoJSON 지도, MapLibre Native/Web·실제 좌표 썸네일/작성자 마커·줌·영역 선택을 구현했다. 지도 전체 스타일 재로딩을 레이어 갱신으로 바꾸고 확대 후 지역명 소실과 웹 import.meta/worker 빈 화면·Android 비트맵 마커 누락을 보완했다. Geoapify 검색·서버 장소 확인·주소/출처 저장과 기존 Google 위치 재확인 경로를 추가했다. 사용자가 로컬에 설정한 서버 키로 실제 검색을 검증하고 dry-run 후 원격 migration·Secret·함수를 반영했다. 시스템 Google 포토 선택기→사진 압축/저장→실제 좌표 마커→미리보기/상세→삭제를 Android에서 확인했고 테스트 데이터만 정리했다. 자동 검사 166 passed/1 skipped, TypeScript·웹 export·APK build/install을 통과했다. 전주한옥마을 자체의 정확한 이름 결과·클라우드 전용 사진·실기기 등 한계는 TEST_CASE에 구분했다. 커밋·푸시는 하지 않았다.
-
-변경 파일: `.env.example`, `.gitignore`, `AGENTS.md`, `README.local.md`, `README.md`, `backend/supabase/functions/_shared/geoapify.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/supabase/migrations/20261106164000_geoapify_locations.sql`, `backend/tests/geocode-vnext.test.ts`, `backend/tests/maplibre.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/photos-client.test.ts`, `backend/tests/photos-picker.test.ts`, `backend/tests/provinces.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/app.config.ts`, `frontend/app/index.tsx`, `frontend/babel.config.js`, `frontend/e2e/helpers.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/MapAttribution.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/mapStyle.ts`, `frontend/src/photos.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`, `scripts/check-geoapify-live.mjs`, `scripts/configured.mjs`, `scripts/configured.test.mjs`, `scripts/prepare-maplibre.mjs`
-
-## 2026-11-06 23:07 KST — 커밋·푸시 요청
-
-프롬프트 원문:
-
-> 커밋 푸쉬
-
-답변·결과 요약: 직전 여행가봥 UI·소셜 구현, 관련 테스트와 동기화된 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 검증 결과는 자동 검사 142개 통과·1개 skipped이며 이번 요청에서는 코드 변경 없이 변경 범위·비밀값·diff 형식을 확인한다. 기존 미추적 원본 storyboard.png는 제외하고 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 전체 변경 파일(커밋 대상).
-
-## 2026-11-06 22:47 KST — 여행가봥 UI·소셜 구현
-
-프롬프트 원문:
-
-> 요구사항대로 구현해줘. 디자인은 frontend-design 으로 만들어줘
-
-답변·결과 요약: frontend-design으로 스토리보드·원본 팔레트 기반 지도/사진·작성자 마커, 하단 유지 작성 패널, 도감 필터, 친구/공개 프로필, My 스탬프와 스플래시를 구현했다. opt-in·관계 RLS/view·장소 ID 상세 API를 추가하고 로컬 검증/원격 dry-run 후 해당 migration·함수를 적용했다. 기존 저장/압축/권한/초안/UUID 재시도를 유지하고 초안 교체 확인·수동값 보존·저장 편집 잠금·상세 URL 갱신·오류 포커스·늦은 응답 탐색 보호·대표사진/제목 수정 후 목록/지도 갱신을 보완했다. 최종 Vitest 88 passed/1 skipped, Playwright 50 passed, 설정 4 passed이며 TypeScript·웹 export·자체 APK 빌드/설치와 실제 합성 사진 저장·Places 검색/ID 상세·Android 화면/글꼴 조합을 검증했다. 지도 패키지 Fabric 호환·비동기 마커 다시 그리기를 실제 APK에서 확인했다. 원격 시험 기록/파일/정리 작업/위치만 정리하고 기기 설정을 복원했다. 실기기·실제 음성 스크린리더·production 서명/정리 스케줄 등 미검증 조건은 TEST_CASE에 구분했다. 커밋·푸시는 하지 않았다.
-
-변경 파일:
-
-- 문서·이력: `AGENTS.md`, `README.local.md`, `README.md`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/planning.md`, `docs/prompts.md`
-- 백엔드: `backend/supabase/functions/_shared/google.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/supabase/migrations/20261106163000_vnext_social.sql`, `backend/tests/geocode-vnext.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/photo.test.ts`, `backend/tests/provinces.test.ts`, `backend/tests/vnext.test.ts`
-- 프론트엔드: `frontend/app.config.ts`, `frontend/app.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/assets/splash.png`, `frontend/e2e/helpers.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/ComposerSheet.tsx`, `frontend/src/Journal.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/Social.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/api.ts`, `frontend/src/domain.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`
-- 실행기·검사: `scripts/configured.mjs`, `scripts/configured.test.mjs`
-
-## 2026-11-06 21:08 KST — 커밋·푸시 요청
-
-프롬프트 원문:
-
-> 커밋 푸쉬
-
-답변·결과 요약: 여행가봥 재설계 초안·요구사항/API/테스트 계획과 컬러·스토리보드 참조 자산을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 문서 diff·자산 원본 해시·커밋 범위·비밀값 포함 여부를 확인하며 앱 코드/DB 구현이나 기능 테스트 재실행은 하지 않는다. 루트 storyboard.png 원본은 제외하고 docs/design의 참조 사본만 포함한다. 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 문서·디자인 자산 정리 작업의 변경 파일 전체(커밋 대상)
-
-## 2026-11-06 21:05 KST — 여행가봥 디자인 계획의 문서·자산 반영
-
-디자인 요청 원문(Plan Mode에서는 파일을 변경하지 않았고, 아래 실행 지시를 받은 뒤 기록):
-
-```text
-기능 구현이 끝났으면 디자인은 완전히 수정할 거야. @storyboard.png 사진을 참고해서 ui 윤곽을 잡아주고 아래의 요구사항을 검증해줘.
-디자인 컬러는 @colors.json 파일을 참고해줘.
-## 프론트 엔드
-1. 아래의 하단은 홈, 여행도감, +, 친구, My
-2. 앱이름은 "여행가봥"
-3. 지도화면은 확대 축소가 가능하며, 실제 위치를 기반으로 함.
-4. 사진을 추가하면 여행지도에 썸네일 기반으로 지도에 마크가 있어야함.
-5. 프로필을 만들어서 추가된 사진 밑에 작게 표시하여, 누가 올린 사진인지 알아야함.
-6. 친구로 등록한 사진은 지도에 표시됨.
-7. 사진 추가 시, 페이지 전환이 아닌 추가페이지가 아래서부터 위로 올라오는 방식이며, 아래의 하단버튼은 위지되어야함.
-위도 경도는 백엔드에서 확인하므로 넣을 필요없음. 위치를 수동으로 입력 시, 구글 맵 검색 기능으로 처리. (예. 전주한옥마을이라면 한옥마을을 검색하고, 검색된 실제주소로 위도 경도를 계산함.)
-8. 여행도감 필터 기능은 상단 가로한줄로 간편하게 표기함.
-9. 스플래시 화면 추가
-10. 반응형 디자인
-11. 지도 맵 UI는 디자인이 있어야하므로, 실제 위치기반으로 하되 색깔별로 도 구역이 나눠지며, 축소했을때, 핵심지역만 나와야함.
-
-## 디자인 효과
-1. 반응형 디자인
-- Android 기기의 다양한 화면 크기에 대응한다.
-- 화면 크기에 따라 요소가 잘리거나 겹치지 않도록 한다.
-- 시스템 글꼴 크기 변경과 화면 여백을 고려한다.
-
-2. 인터랙션 디자인
-- 지도에서 지역을 선택하면 선택한 지역을 시각적으로 강조한다.
-- 지도 마커를 누르면 여행 기록 미리보기를 표시한다.
-- 사진 추가 버튼을 누르면 터치 피드백 후 사진 선택 화면으로 이동한다.
-- 여행도감의 지역을 선택하면 해당 지역의 여행 기록을 표시한다.
-- 화면 이동 시 자연스러운 전환 효과를 적용한다.
-
-3. 마이크로 인터랙션
-- 버튼 터치 시 짧은 크기 변화 또는 색상 변화
-- 화면 전환 시 부드러운 애니메이션
-- 여행 기록 저장 성공 시 간결한 완료 피드백
-- 데이터 로딩 중에는 적절한 로딩 상태 표시
-- 입력 오류 발생 시 명확한 시각적 피드백
-
-4. 애니메이션 원칙
-- 과도한 효과를 사용하지 않는다.
-- 자연스럽고 가벼운 움직임을 우선한다.
-- 사용자의 터치에 즉각적으로 반응한다.
-- 애니메이션으로 인해 실제 기능 실행이 지연되지 않도록 한다.
-- 기기의 애니메이션 감소 설정을 존중한다.
-- 성능이 낮은 기기에서도 부드럽게 동작하도록 구현한다.
-
-5. 디자인 결정 제한
-기존 기능 요구사항을 변경하지 않는다.
-
-## 사용자 스토리
-사용자는 사진으로 여행 기록을 간편하게 추가·관리하고, 지도에서 방문한 지역을 한눈에 확인하며, 여행도감에서 추억과 스탬프를 수집하고, 친구의 여행 기록을 구경하며, 직관적이고 깔끔한 UI로 여행의 즐거움을 느낄 수 있다.
-
-실제 코드구현은 하지말고, 플랜모드로 진행하여 문서를 업데이트해줘. 현재 구현된 UI는 확정이 아닌 프론트엔드이며, UI디자인은 변경할거야
-끝나면 자동으로 report-prompt 스킬로 저장해주고, colors.json 파일을 프로젝트가 참고할만한 위치에 넣어줘.
-```
-
-선택 답변 원문:
-
-```text
-일방 팔로우
-기록별 대표사진 (Recommended)
-전체 계약까지 기획 (Recommended)
-닉네임·기본 아바타 (Recommended)
-방문 지역 자동 스탬프 (Recommended)
-검색 후 핀 보정 유지 (Recommended)
-조합·보조 토큰 조정 (Recommended)
-내 기록+팔로잉 (Recommended)
-```
-
-실행 지시 원문:
-
-> Implement the plan.
-
-답변·결과 요약: 확정된 계획의 실행 범위인 문서·참고 자산만 반영했다. DISAN을 여행가봥 UI 재설계 초안으로 교체하고 요구사항 11개와 프로필·팔로우·스탬프 수용 기준, PRD 흐름, additive 데이터/RLS·API, 후속 TDD 시나리오를 동기화했다. 현재 UI는 기능 검증용 프로토타입이며 신규 기능·테스트는 미구현/미실행으로 명시했다. 기존 저장·공개/비공개·압축·초안 복구·검증 이력을 보존했다. 컬러를 frontend/src/design/colors.json으로 내용 변경 없이 이동하고 스토리보드 사본을 docs/design/storyboard.png에 두되 루트 원본은 유지했다. 팔레트 대비 미달을 의미 토큰으로 보완하도록 문서화했다. 앱 코드·migration·환경변수·원격 설정·기존 테스트 코드는 변경하지 않고 기능 테스트는 재실행하지 않았다. 상대 문서 링크 24개, 중복 없는 요구사항 행 45개, UI 11개 매핑·계획 TC 19개, 색상 51개 형식·원본 해시·diff 범위를 검증했다. 환경변수 추가가 없어 .env.example은 유지했다. 커밋·푸시는 수행하지 않았다.
-
-변경 파일: `AGENTS.md`, `README.md`, `README.local.md`, `docs/DISAN.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/src/design/colors.json`(루트 colors.json에서 이동), `docs/design/storyboard.png`(참조 사본)
-
-## 2026-11-06 20:29 KST — 커밋·푸시 요청
-
-프롬프트 원문:
-
-> 커밋 푸쉬해줘
-
-답변·결과 요약: 저장 응답 유실 시 중복 기록 방지 수정, 추가 백엔드·웹·실 API 검사와 실행 기록을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 자동 106개·별도 실 API 4개 통과와 Android 검증 기록을 확인하고 diff·비밀값·변경 범위를 검사했다. 이번 요청에서는 테스트를 재실행하지 않는다. colors.json·storyboard.png와 환경 파일·생성 APK는 제외한다. 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 추가 검증·복구 수정 작업의 변경 파일 전체(커밋 대상)
-
-## 2026-11-06 20:26 KST — 남은 테스트 케이스 진행
-
-프롬프트 원문:
-
-> 그럼 남은 테스트 케이스 진행해줘
-
-실기기 연결 여부에 대한 추가 답변 원문:
-
-> 지금은 에뮬레이터로만 진행
-
-답변·결과 요약: 실제 로컬 Storage 장애의 1·5·30·60분 backoff/lease 복구와 정상 서명 만료 JWT의 refresh/revoke·재인증, 웹 대표사진 교체·비로그인 공개 조회·비공개 차단·키보드/접근성 트리·저장 단계별 응답 유실/요청 미도달 검사를 추가했다. 기록 생성 응답 유실 시 새 UUID로 중복 draft를 만드는 Red를 확인하고 요청 전 UUID 보존·같은 UUID 조회/재개로 수정했다. Vitest 전체 71 passed/외부 OAuth 자동 1 skipped, Playwright 전체 32 passed, 설정 3 passed로 자동 106개와 TypeScript·수정 APK build를 통과했다. 별도 Google 실제 Places/Geocoding 정상·잘못된 키 검사 4개가 통과했으며 실제 쿼터 소진은 하지 않았다. Android에서 사진 권한 거부·제한·설정 이동·입력 유지, 비행기/Wi-Fi 단절·복귀, 20장 업로드 중 첫 장 등록 후 force-stop·같은 서버 초안 복구·미등록 19장 재선택·같은 UUID 20장 완료를 확인했다. 별도 PKCE 흐름의 실제 Google 동의 취소·Supabase callback·앱 복귀/오류·기존 로그인 유지·여행 미생성도 확인했다. 시험 기록·파일 41개·알려진 미참조 위치·해당 정리 작업과 추가 합성 원본 20개만 정리했고 권한 flag·네트워크를 복원했다. 운영 정리 스케줄·production 키 제한/서명·실제 스크린리더 음성은 별도 증거가 필요하며 실기기는 사용자 지정으로 제외했다. 기존 colors.json·storyboard.png 및 미커밋 확인 이력을 유지했고 커밋·푸시는 수행하지 않았다.
-
-변경 파일: `backend/tests/auth.test.ts`, `backend/tests/photo.test.ts`, `frontend/e2e/travel.spec.ts`, `frontend/app/index.tsx`, `scripts/check-google-live.mjs`, `docs/TRD.md`, `docs/TEST_CASE.md`, `README.local.md`, `docs/prompts.md`
-
-## 2026-11-06 19:51 KST — 기능 테스트 완료 여부 확인
-
-프롬프트 원문:
-
-> 현재 테스트케이스 기반으로 기능테스트가 끝났는지 확인해줘
-
-답변·결과 요약: 커밋 4a8392a의 TEST_CASE 명세 59개 TC ID를 테스트 소스와 대조하고 기존 Vitest 69 passed/외부 OAuth 자동 1 skipped·Playwright 21 passed·실행 설정 3 passed 및 Android 실제 검증 기록을 확인했다. TC ID 연결은 모두 있으나 수용 조건 전체 완료는 아니며 실제 OAuth 취소/만료, Android 권한 거부/제한·실기기, 웹 대표사진 교체/비로그인 공개조회/키보드·스크린리더, 단계별 업로드 응답 유실·프로세스 종료 복구, Storage 장애 backoff/lease 및 운영 스케줄, Places/Geocoding 실 API·플랫폼 키/쿼터 검증이 남아 있다고 판정했다. 자동 검사 수를 TC 전체 수용률로 환산하지 않았다. 이번 작업은 소스·명세·기존 실행 결과 확인이며 테스트 재실행·구현 수정·커밋·푸시는 수행하지 않았다.
-
-변경 파일: `docs/prompts.md`
-
-## 2026-11-06 19:49 KST — 커밋·푸시 요청
-
-프롬프트 원문:
-
-> 커밋 푸쉬해줘
-
-답변·결과 요약: Android 자체 APK·Google 로그인·사진 권한/EXIF·압축본 저장과 관련 문서·테스트 변경을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 Vitest 69개·Playwright 21개·실행 설정 3개 통과 및 Android 실제 검증 기록을 확인했다. 이번 요청에서는 구현 변경이나 테스트 재실행 없이 diff·비밀값 포함 여부·커밋 범위를 확인한다. storyboard.png와 환경 파일·생성 APK는 제외한다. 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 Android 구현 작업의 기록된 변경 파일 전체(커밋 대상)
-
-## 2026-11-06 19:37 KST — Android 자체 APK·사진 메타데이터·압축 저장
-
-프롬프트 원문:
-
-> 안드로이드 에뮬레이터에서 테스트 할 수 있게 구현해줘.
-> 1. 구글 로그인 구현
-> 2. 사진 선택 및 권한 동의 구현
-> 3. 사진의 데이터로 위치 및 기간 데이터 파싱하여 적용
-> 4. 사진 압축하여 저장
-
-추가 답변 원문:
-
-> 압축된 사진만 저장
-
-자동 검증 조작 여부에 대한 추가 답변 원문:
-
-> 자동 검증을 계속해 주세요
-
-답변·결과 요약: 실제 환경값을 내장한 Android 자체 테스트 APK를 빌드·설치하고 Google 로그인·앱 복귀·재실행 세션 유지 및 실제 Google provider를 확인했다. 사진/메타데이터 권한, Android 문서 선택기와 MediaStore EXIF, 기간·첫 사진 위치 제안, JPEG 압축 본문/썸네일 업로드를 구현했다. GPS 마스킹을 0도 좌표로 오인하는 문제와 Android 축소 크기 조회로 본문이 2400px로 남는 문제를 Red 테스트 후 수정했다. 합성 사진 두 장으로 2026-11-01~03·제주 위치 자동 입력, 실제 원격 complete/private 기록·압축 JPEG 2048×1365 및 썸네일 512×341·EXIF 제거·DB 일치를 확인한 뒤 임시 여행 기록과 해당 파일 네 개만 삭제했다. 합성 선택 사진은 에뮬레이터에 남겼다. Metro의 CMake 임시 파일 감시 오류를 수정하고 Vitest 69 passed/외부 OAuth 자동 1 skipped, Playwright 21 passed, 실행 설정 3 passed, TypeScript·APK build·diff 검사를 통과했다. 자동 93개와 실제 Android 실행 증거는 구분한다. 실기기·실제 OAuth 취소/만료 전체 조합·권한 거부/제한 전체 조합·배포 서명은 미검증이다. 사용자 storyboard.png는 유지했고 커밋·푸시는 요청되지 않아 수행하지 않았다.
-
-변경 파일: `.gitignore`, `AGENTS.md`, `README.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/metro.config.js`, `frontend/app/index.tsx`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/src/photos.ts`, `frontend/e2e/travel.spec.ts`, `backend/tests/oauth.test.ts`, `backend/tests/photo.test.ts`, `backend/tests/photos-client.test.ts`, `scripts/configured.mjs`, `scripts/configured.test.mjs`
-
-이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
-
-## 2026-11-06 18:59 KST — 커밋 요청
-
-프롬프트 원문:
-
-> 커밋 푸쉬해줘
-
-답변·결과 요약: 로그인 오류 재현·Expo 개발 환경값 우선순위 원인·--no-dev 실행 검증 이력을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 이번 변경은 문서 이력뿐이며 제품 코드 수정이나 테스트 재실행은 없다. 서버 실행 옵션은 Git 변경에 포함되지 않고 storyboard.png는 그대로 유지한다. 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: `docs/prompts.md`
-
-## 2026-11-06 18:59 KST
-
-프롬프트 원문:
-
-> 너가 직접 테스트해줘
-
-답변·결과 요약: 실제 UI에서 Google 로그인 버튼을 눌러 Android Expo Go 및 웹 8082·8083 개발 모드의 동일 오류를 재현했다. 기존 8083 서버 프로세스에는 원격 환경값이 있었지만 Expo 개발용 virtual env가 frontend/.env.local 값을 우선 병합해 브라우저 요청은 Local API 54321·google false였다. 제품 코드·환경 파일 수정 없이 직접 실행한 8083 서버만 --no-dev로 재시작한 뒤 원격 Auth settings HTTP 200·google true 및 Google 계정 입력 화면 진입을 실제 테스트 브라우저로 확인했다. 이전에 8083이 원격에 연결되었다고 안내한 확인 범위가 부족했음을 정정했다. 실제 Google 계정 입력·동의·복귀 완료는 미검증이며 Android 기존 로컬 실행은 그대로다.
-
-변경 파일: `docs/prompts.md`만 테스트 이력으로 갱신했다. 제품 코드·Supabase 설정·실제 .env·frontend/.env.local·사용자 storyboard.png는 수정하지 않았다. 화면 증거는 /tmp/google-login-local-error.png 및 /tmp/google-login-configured-no-dev.png에 저장했다. 서버 실행 옵션만 변경했으며 Git 커밋·푸시는 수행하지 않았다.
-
-## 2026-11-06 18:46 KST
-
-프롬프트 원문:
-
-> 커밋 푸쉬해줘
-
-답변·결과 요약: Edge Function 공통 CORS 응답·preflight·회귀 검사와 Supabase 실제 연결 검증 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 84개 통과 결과를 유지하며 이번 요청에서는 테스트를 재실행하지 않았다. 실제 Google 계정 로그인·동의 완료는 여전히 미검증이다. 비밀값·연결 메타데이터·환경변수 파일과 작업 범위 밖 `storyboard.png`는 커밋하지 않는다. 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며 커밋 범위는 기존 CORS 함수·검사 및 관련 API·설계·검증 문서다.
-
-## 2026-11-06 18:43 KST
-
-프롬프트 원문:
-
-> 내 웹 브라우저 권환으로 너가 직접 확인해줄순없어? 아니면 supabase cli 로그인은 했는데, 연결시켜줘
-
-답변·결과 요약: 현재 .env 프로젝트 접근·CLI link를 확인하고 검토/dry-run 후 기존 migration 8개와 필수 Edge Function 3개를 적용했다. Google Provider에 등록된 Android Client ID를 Web Client ID로 교정하고 앱 복귀 URL을 등록해 Google 계정 입력 화면 진입을 확인했다. 실제 원격 사진 저장·완료·signed 이미지·anon 차단을 임시 fixture로 검증하고 생성 데이터만 정리했다. 원격 CORS 누락을 수정·배포했으며 회귀 자동 검사 84개가 통과했다. 사용자 브라우저 연결 세션은 없으므로 실제 Google 계정 로그인·동의 완료는 미검증이다. 실제 환경 웹은 localhost:8083에서 실행 중이며 실제 .env·로컬 테스트 환경·사용자 기존 파일은 변경하지 않았다.
-
-변경 파일: `backend/supabase/functions/_shared/http.ts`, `backend/supabase/functions/photo-url/index.ts`, `backend/supabase/functions/cleanup-storage/index.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/tests/cors.test.ts`, `docs/API_SPEC.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`. CLI 연결 메타데이터는 Git 제외 `backend/supabase/.temp/`에 저장된다. 원격 설정·스키마·함수 배포는 본문 결과에 기록했으며 비밀값은 기록하지 않았다.
-
-## 2026-11-06 18:09 KST
-
-프롬프트 원문:
-
-> 커밋 푸쉬해줘
-
-답변·결과 요약: 전체 시·도 지도·하단 + 진입점·실제 프로젝트 설정 진단 도구·경계 데이터와 출처·회귀 테스트·관련 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 83개 통과 결과를 유지하며 이번 요청에서는 테스트를 재실행하지 않았다. 실제 Google 인증은 Provider·스키마·대상 관리 권한 설정 대기 상태로 유지한다. 환경변수·비밀값·생성 산출물은 제외하고 커밋·푸시 결과는 Git 상태로 확인한다.
-
-변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며 커밋 범위는 앞서 작성한 지도·설정 진단 코드·데이터·테스트·관련 문서다.
-
-## 2026-11-06 18:07 KST
-
-프롬프트 원문:
-
-> supabase 문제를 해결해서 google 로그인이 제대로 되는지 확인하고 다시 구현해줘.
-> 그리고 홈 화면에는 지도 화면으로 가득차고, 사진을 추가할때는 하단의 + 버튼을 눌러서 구현해야해.
->
-> 그리고 구글 맵 UI가 너무 별로인데, [Image #1] 의 지도화면처럼 꾸며주고 안되면 GeoJSON + 지도 렌더러 기술스펙으로 지도화면을 구현해줘.
-> 일단은 지도 전체화면에 도 기준으로 나누어줘.
-
-설정 확인 응답 원문:
-
-> 현재 .env 프로젝트를 사용할게. 설정·CLI 로그인 확인할게
-
-답변·결과 요약: 홈·지도 탭을 KOSTAT 2018 GeoJSON + SVG의 전체 시·도 지도로 구현하고 사진 추가 진입점을 하단 +로 통합했다. 17개 지역 선택·완료 기록 집계·지역 기록 상세 이동과 기존 사진/CRUD/복구를 검증했으며 Vitest 60·웹 21·설정 보안 2개 총 83개가 통과했다. 실제 .env용 실행·진단을 로컬 회귀 환경과 분리하고 서버 key 전달을 차단했다. 초기 원천의 광주 좌표 오분류는 KOSTAT 원천으로 교체해 해결했다. 현재 Supabase 주소는 연결되지만 Google Provider 비활성·앱 테이블 4개 404·대상 CLI 접근 부재로 실제 Google 동의 및 원격 사진 저장은 미완료이며 사용자의 설정 확인을 기다린다. 원격 설정·DB·실제 .env와 비밀값은 변경하지 않았다.
-
-변경 파일: `AGENTS.md`, `README.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/src/Journal.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/provinces.ts`, `frontend/src/data/korea-provinces.json`, `frontend/src/data/README.md`, `frontend/e2e/travel.spec.ts`, `frontend/package.json`, `backend/tests/provinces.test.ts`, `scripts/configured.mjs`, `scripts/configured.test.mjs`
-
-## 2026-11-06 17:39 KST
-
-프롬프트 원문:
-
-> git 커밋 푸쉬해줘
-
-답변·결과 요약: 여행가방 디자인 문서·UI·OAuth 조정·지도 스타일·회귀 테스트와 원본 디자인 참고 이미지를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 검증은 자동 검사 75개 통과·실제 OAuth 1개 보류이며 이번 요청에서는 테스트를 재실행하지 않았다. 비밀값·환경변수 파일·생성 산출물은 제외하고 커밋·푸시 결과를 Git 상태로 확인한다.
-
-변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며, 커밋에는 앞서 작성한 프론트엔드·검증 코드·관련 문서와 `ui_inital.png`를 포함한다.
-
-## 2026-11-06 17:37 KST
-
-프롬프트 원문:
-
-> [Image #1] 를 확인해서 docs/DISAN.md 를 만들어주고, 프론트엔드 초안을 만들어줘. 현재 요구사항은 아래와 같아.
-> 1. 실제 구글 로그인
-> 2. 사진 추가 가능 (supabase 에 사진 저장)
-> 3. 구글 맵 UI 변경
->
-> 단, 현재 구현된 기능은 통과되어야해
-
-답변·결과 요약: 첨부 `ui_inital.png`의 크림색·코랄색 여행 스크랩북 디자인을 DISAN에 정의하고 백팩 로고·로그인 소개·대표사진 도감·하단 탐색·실제 Google 지도 스타일을 구현했다. 기존 Storage 업로드·RLS·CRUD·초안 복구를 유지했고 기존 69개 검사 및 추가 OAuth 단위 2개·UI 4개가 통과했다(Vitest 56, 웹 19; 실제 OAuth 1개 보류). TypeScript·웹 export·Android 화면·네이티브 지도·자체 빌드 Maps key 설정 전달도 확인했다. 루트 .env의 Supabase 주소가 DNS ENOTFOUND여서 실제 Google 동의와 원격 Storage 검증은 완료하지 못했으며 설정 확인을 요청했다. 비밀값·원격 DB·기존 로컬 테스트 환경은 변경하지 않았다.
-
-변경 파일: `docs/DISAN.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`, `AGENTS.md`, `README.md`, `frontend/app/index.tsx`, `frontend/app/auth/callback.tsx`, `frontend/app.config.ts`, `frontend/src/Journal.tsx`, `frontend/src/theme.ts`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/e2e/travel.spec.ts`, `backend/tests/oauth.test.ts`, `backend/tests/photo.test.ts`。첨부 파일 `ui_inital.png`는 수정하지 않았다.
-
-## 2026-11-06 16:48 KST
-
-프롬프트 원문:
-
-> 커밋하고 푸쉬해줘
-
-답변·결과 요약: 앞서 구현한 백엔드·Expo 프로토타입·테스트·관련 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 검증은 자동 검사 69개 통과·실제 OAuth 1개 보류이며 이번 요청에서 제품 코드를 추가 수정하거나 테스트를 재실행하지 않았다. 환경변수 파일과 생성 산출물은 제외한다. 커밋·푸시 결과는 Git 상태로 별도 확인한다.
-
-변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며, 커밋 범위는 기존 백엔드 migration·Edge Functions·테스트, `frontend/`, 루트 테스트 설정·의존성·관련 문서 변경이다.
-
-## 2026-11-06 16:33 KST
-
-프롬프트 원문:
-
-> 모든 테스트케이스 명세 구현해주고, 안드로이드 스튜디오에 화면을 띄워줘
-
-답변·결과 요약: 명세 59개 TC ID에 자동 검사를 연결하고 공개 조회·삭제·대표사진·공유 위치·Expo Android/Web 프로토타입과 초안 복구를 구현했다. Vitest 54개 및 웹 15개 검사(전체 14개 실행과 추가 1개 실행)가 통과했고 실제 OAuth 1개는 보류했다. TypeScript·웹 export·서버 키 비노출을 확인하고 Android Studio 에뮬레이터에 실제 홈과 Google 지도를 띄웠다. 실제 Google 동의·실기기·Storage 장애 후 복구·운영 설정 등 남은 수용 증거를 TEST_CASE에 명시했다. 전체 수용 완료나 배포 가능으로 판정하지 않았으며 커밋·푸시는 하지 않았다.
-
-변경 파일: `.gitignore`, `AGENTS.md`, `README.md`, `package.json`, `package-lock.json`, `vitest.config.ts`, `playwright.config.ts`, `backend/supabase/config.toml`, `backend/supabase/migrations/20261106162000_record_lifecycle.sql`, `backend/supabase/migrations/20261106162100_location_visibility.sql`, `backend/supabase/functions/_shared/google.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/tests/photo.test.ts`, `backend/tests/external.test.ts`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/app.json`, `frontend/tsconfig.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/app/auth/callback.tsx`, `frontend/src/api.ts`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/src/runtime.ts`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/e2e/travel.spec.ts`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
-
-## 2026-11-06 16:06 KST
-
-프롬프트 원문:
-
-> 현재 테스트 케이스 모두 green 으로 되게끔 구현해줘.
-> 이어서 계속 진행해줘
-
-답변·결과 요약: 사진 Storage·메타데이터 검증·URL 발급·고아 파일 정리를 구현하고 현재 실행 가능한 테스트 전체 16개를 통과시켰으며, 24시간 정리 todo도 실제 테스트로 전환했다. 미작성 명세 46개와 운영 스케줄 설정은 남아 있다.
-
-변경 파일: `backend/supabase/config.toml`, `backend/supabase/migrations/20261106160000_photo_storage.sql`, `backend/supabase/migrations/20261106160500_storage_preflight.sql`, `backend/supabase/migrations/20261106160600_storage_preflight_size.sql`, `backend/supabase/migrations/20261106160700_cleanup_registration_guard.sql`, `backend/supabase/migrations/20261106160800_photo_auth_guard.sql`, `backend/supabase/functions/photo-url/index.ts`, `backend/supabase/functions/cleanup-storage/index.ts`, `backend/tests/photo.test.ts`, `README.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
-
-## 2026-11-06 15:50 KST
-
-프롬프트 원문:
-
-> 다음 단계 테스트 진행해줘. red 먼저 구현해줘
-
-답변·결과 요약: TC-PHOTO-001~009의 로컬 Storage·DB Red 테스트를 작성해 9개 모두 버킷 부재로 정상 원본 업로드에서 실패했으며, 24시간 고아 파일 정리는 별도 todo로 남겼다. 인증 회귀 6개는 통과했고 제품 Green 코드는 구현하지 않았다.
-
-변경 파일: `backend/tests/photo.test.ts`, `README.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
-
-## 2026-11-06 15:45 KST
-
-프롬프트 원문:
-
-> 실패한 red테스트를 green 으로 동작하게끔 구현해줘
-
-답변·결과 요약: 로컬 초기 migration에 프로필 자동 생성·RLS와 인증 테스트에 필요한 기초 관계를 구현하고 인증 4개 및 추가 회귀 2개를 통과시켰다. 사진·Storage 등 후속 기능은 미완성이며 사진 쓰기는 차단했다.
-
-변경 파일: `backend/supabase/migrations/20261106155000_auth_profiles.sql`, `backend/tests/auth.test.ts`, `README.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
-
-## 2026-11-06 15:41 KST
-
-프롬프트 원문:
-
-> 현재 테스트 케이스 순서대로 테스트를 진행해줘. red 먼저 구현해줘.
-> 그리고 실패한 이유랑 해결방법도 알려줘
-
-답변·결과 요약: 로컬 전용 Vitest·Supabase 실행 기반과 TC-AUTH-001~004를 작성·실행했고 4개 모두 profiles 조회의 404/PGRST205에서 실패했다. TC-AUTH-001의 기능 부재 Red와 후속 권한 검증의 선행 조건 실패를 구분해 원인·Green 해결 순서를 기록했으며 도메인 구현은 하지 않았다.
-
-변경 파일: `.gitignore`, `package.json`, `package-lock.json`, `backend/supabase/.gitignore`, `backend/supabase/config.toml`, `backend/tests/auth.test.ts`, `AGENTS.md`, `README.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
-
-## 2026-11-06 15:12 KST
-
-프롬프트 원문:
-
-> Implement the plan.
-
-승인된 계획의 요청 원문:
-
-> 해당 내용으로 AGENTS.md, PRD.md, REQUIREMENT.md, TRD.md 를 수정해주고, API_SPEC.md도 검증해주고, TEST_CASE.md를 백엔드 -> 프론트엔드 HTTP 통신 -> 프론트엔드 프로토타입 구현 단계로 TDD 방식의 red -> green -> refoctor 방식으로 개발하게끔 수정해줘.
-> 코드는 구현하지마
-
-답변·결과 요약: 문서의 공개 권한·완료/삭제 원자성·파일 정리·날짜/제한값 계약을 보완하고 API를 공식 계약과 대조했으며, 기존 TC ID를 유지해 백엔드→HTTP 통신→프로토타입의 단계별 Red→Green→Refactor 명세와 추적표로 재구성했다. 실제 구현·테스트 실행은 하지 않았다.
-
-변경 파일: `AGENTS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
-
-| 2026-11-06 14:56 KST | 현재 작성된 모든 문서랑 요구사항을 파악하고 ponytail을 이용해서 보완해줘 | 전체 문서의 MVP 계약을 대조하고 `draft → complete` 상태 전이, 공개 응답 개인정보 제한, 문서 간 링크·테스트 계약을 보완했다. | 변경 파일: `AGENTS.md`, `README.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/planning.md`, `docs/prompts.md` |
-
 ## 2026-10-27 14:01 KST
 
 프롬프트 원문:
@@ -916,6 +466,454 @@
 
 변경 파일: `docs/prompts.md`
 
+## 2026-11-06 23:53 KST — MapLibre 전환·Google 포토 및 빈 지도 화면 보완
+
+프롬프트 원문:
+
+> Implement the plan.
+
+추가 요청 원문:
+
+> 이어서 진행해줘. 현재 UI가 불안정해
+
+증상 설명 원문:
+
+> 지도 ui가 정확하지않고, 빈화면이 많음
+
+답변·결과 요약: frontend-design으로 본토·제주를 크게 보여주는 파스텔 GeoJSON 지도, MapLibre Native/Web·실제 좌표 썸네일/작성자 마커·줌·영역 선택을 구현했다. 지도 전체 스타일 재로딩을 레이어 갱신으로 바꾸고 확대 후 지역명 소실과 웹 import.meta/worker 빈 화면·Android 비트맵 마커 누락을 보완했다. Geoapify 검색·서버 장소 확인·주소/출처 저장과 기존 Google 위치 재확인 경로를 추가했다. 사용자가 로컬에 설정한 서버 키로 실제 검색을 검증하고 dry-run 후 원격 migration·Secret·함수를 반영했다. 시스템 Google 포토 선택기→사진 압축/저장→실제 좌표 마커→미리보기/상세→삭제를 Android에서 확인했고 테스트 데이터만 정리했다. 자동 검사 166 passed/1 skipped, TypeScript·웹 export·APK build/install을 통과했다. 전주한옥마을 자체의 정확한 이름 결과·클라우드 전용 사진·실기기 등 한계는 TEST_CASE에 구분했다. 커밋·푸시는 하지 않았다.
+
+변경 파일: `.env.example`, `.gitignore`, `AGENTS.md`, `README.local.md`, `README.md`, `backend/supabase/functions/_shared/geoapify.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/supabase/migrations/20261106164000_geoapify_locations.sql`, `backend/tests/geocode-vnext.test.ts`, `backend/tests/maplibre.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/photos-client.test.ts`, `backend/tests/photos-picker.test.ts`, `backend/tests/provinces.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/app.config.ts`, `frontend/app/index.tsx`, `frontend/babel.config.js`, `frontend/e2e/helpers.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/MapAttribution.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/mapStyle.ts`, `frontend/src/photos.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`, `scripts/check-geoapify-live.mjs`, `scripts/configured.mjs`, `scripts/configured.test.mjs`, `scripts/prepare-maplibre.mjs`
+
+## 2026-11-06 23:07 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬
+
+답변·결과 요약: 직전 여행가봥 UI·소셜 구현, 관련 테스트와 동기화된 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 검증 결과는 자동 검사 142개 통과·1개 skipped이며 이번 요청에서는 코드 변경 없이 변경 범위·비밀값·diff 형식을 확인한다. 기존 미추적 원본 storyboard.png는 제외하고 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 전체 변경 파일(커밋 대상).
+
+## 2026-11-06 22:47 KST — 여행가봥 UI·소셜 구현
+
+프롬프트 원문:
+
+> 요구사항대로 구현해줘. 디자인은 frontend-design 으로 만들어줘
+
+답변·결과 요약: frontend-design으로 스토리보드·원본 팔레트 기반 지도/사진·작성자 마커, 하단 유지 작성 패널, 도감 필터, 친구/공개 프로필, My 스탬프와 스플래시를 구현했다. opt-in·관계 RLS/view·장소 ID 상세 API를 추가하고 로컬 검증/원격 dry-run 후 해당 migration·함수를 적용했다. 기존 저장/압축/권한/초안/UUID 재시도를 유지하고 초안 교체 확인·수동값 보존·저장 편집 잠금·상세 URL 갱신·오류 포커스·늦은 응답 탐색 보호·대표사진/제목 수정 후 목록/지도 갱신을 보완했다. 최종 Vitest 88 passed/1 skipped, Playwright 50 passed, 설정 4 passed이며 TypeScript·웹 export·자체 APK 빌드/설치와 실제 합성 사진 저장·Places 검색/ID 상세·Android 화면/글꼴 조합을 검증했다. 지도 패키지 Fabric 호환·비동기 마커 다시 그리기를 실제 APK에서 확인했다. 원격 시험 기록/파일/정리 작업/위치만 정리하고 기기 설정을 복원했다. 실기기·실제 음성 스크린리더·production 서명/정리 스케줄 등 미검증 조건은 TEST_CASE에 구분했다. 커밋·푸시는 하지 않았다.
+
+변경 파일:
+
+- 문서·이력: `AGENTS.md`, `README.local.md`, `README.md`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/planning.md`, `docs/prompts.md`
+- 백엔드: `backend/supabase/functions/_shared/google.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/supabase/migrations/20261106163000_vnext_social.sql`, `backend/tests/geocode-vnext.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/photo.test.ts`, `backend/tests/provinces.test.ts`, `backend/tests/vnext.test.ts`
+- 프론트엔드: `frontend/app.config.ts`, `frontend/app.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/assets/splash.png`, `frontend/e2e/helpers.ts`, `frontend/e2e/maps.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/package-lock.json`, `frontend/package.json`, `frontend/src/ComposerSheet.tsx`, `frontend/src/Journal.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/Social.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/api.ts`, `frontend/src/domain.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`
+- 실행기·검사: `scripts/configured.mjs`, `scripts/configured.test.mjs`
+
+## 2026-11-06 21:08 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬
+
+답변·결과 요약: 여행가봥 재설계 초안·요구사항/API/테스트 계획과 컬러·스토리보드 참조 자산을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 문서 diff·자산 원본 해시·커밋 범위·비밀값 포함 여부를 확인하며 앱 코드/DB 구현이나 기능 테스트 재실행은 하지 않는다. 루트 storyboard.png 원본은 제외하고 docs/design의 참조 사본만 포함한다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 문서·디자인 자산 정리 작업의 변경 파일 전체(커밋 대상)
+
+## 2026-11-06 21:05 KST — 여행가봥 디자인 계획의 문서·자산 반영
+
+디자인 요청 원문(Plan Mode에서는 파일을 변경하지 않았고, 아래 실행 지시를 받은 뒤 기록):
+
+```text
+기능 구현이 끝났으면 디자인은 완전히 수정할 거야. @storyboard.png 사진을 참고해서 ui 윤곽을 잡아주고 아래의 요구사항을 검증해줘.
+디자인 컬러는 @colors.json 파일을 참고해줘.
+## 프론트 엔드
+1. 아래의 하단은 홈, 여행도감, +, 친구, My
+2. 앱이름은 "여행가봥"
+3. 지도화면은 확대 축소가 가능하며, 실제 위치를 기반으로 함.
+4. 사진을 추가하면 여행지도에 썸네일 기반으로 지도에 마크가 있어야함.
+5. 프로필을 만들어서 추가된 사진 밑에 작게 표시하여, 누가 올린 사진인지 알아야함.
+6. 친구로 등록한 사진은 지도에 표시됨.
+7. 사진 추가 시, 페이지 전환이 아닌 추가페이지가 아래서부터 위로 올라오는 방식이며, 아래의 하단버튼은 위지되어야함.
+위도 경도는 백엔드에서 확인하므로 넣을 필요없음. 위치를 수동으로 입력 시, 구글 맵 검색 기능으로 처리. (예. 전주한옥마을이라면 한옥마을을 검색하고, 검색된 실제주소로 위도 경도를 계산함.)
+8. 여행도감 필터 기능은 상단 가로한줄로 간편하게 표기함.
+9. 스플래시 화면 추가
+10. 반응형 디자인
+11. 지도 맵 UI는 디자인이 있어야하므로, 실제 위치기반으로 하되 색깔별로 도 구역이 나눠지며, 축소했을때, 핵심지역만 나와야함.
+
+## 디자인 효과
+1. 반응형 디자인
+- Android 기기의 다양한 화면 크기에 대응한다.
+- 화면 크기에 따라 요소가 잘리거나 겹치지 않도록 한다.
+- 시스템 글꼴 크기 변경과 화면 여백을 고려한다.
+
+2. 인터랙션 디자인
+- 지도에서 지역을 선택하면 선택한 지역을 시각적으로 강조한다.
+- 지도 마커를 누르면 여행 기록 미리보기를 표시한다.
+- 사진 추가 버튼을 누르면 터치 피드백 후 사진 선택 화면으로 이동한다.
+- 여행도감의 지역을 선택하면 해당 지역의 여행 기록을 표시한다.
+- 화면 이동 시 자연스러운 전환 효과를 적용한다.
+
+3. 마이크로 인터랙션
+- 버튼 터치 시 짧은 크기 변화 또는 색상 변화
+- 화면 전환 시 부드러운 애니메이션
+- 여행 기록 저장 성공 시 간결한 완료 피드백
+- 데이터 로딩 중에는 적절한 로딩 상태 표시
+- 입력 오류 발생 시 명확한 시각적 피드백
+
+4. 애니메이션 원칙
+- 과도한 효과를 사용하지 않는다.
+- 자연스럽고 가벼운 움직임을 우선한다.
+- 사용자의 터치에 즉각적으로 반응한다.
+- 애니메이션으로 인해 실제 기능 실행이 지연되지 않도록 한다.
+- 기기의 애니메이션 감소 설정을 존중한다.
+- 성능이 낮은 기기에서도 부드럽게 동작하도록 구현한다.
+
+5. 디자인 결정 제한
+기존 기능 요구사항을 변경하지 않는다.
+
+## 사용자 스토리
+사용자는 사진으로 여행 기록을 간편하게 추가·관리하고, 지도에서 방문한 지역을 한눈에 확인하며, 여행도감에서 추억과 스탬프를 수집하고, 친구의 여행 기록을 구경하며, 직관적이고 깔끔한 UI로 여행의 즐거움을 느낄 수 있다.
+
+실제 코드구현은 하지말고, 플랜모드로 진행하여 문서를 업데이트해줘. 현재 구현된 UI는 확정이 아닌 프론트엔드이며, UI디자인은 변경할거야
+끝나면 자동으로 report-prompt 스킬로 저장해주고, colors.json 파일을 프로젝트가 참고할만한 위치에 넣어줘.
+```
+
+선택 답변 원문:
+
+```text
+일방 팔로우
+기록별 대표사진 (Recommended)
+전체 계약까지 기획 (Recommended)
+닉네임·기본 아바타 (Recommended)
+방문 지역 자동 스탬프 (Recommended)
+검색 후 핀 보정 유지 (Recommended)
+조합·보조 토큰 조정 (Recommended)
+내 기록+팔로잉 (Recommended)
+```
+
+실행 지시 원문:
+
+> Implement the plan.
+
+답변·결과 요약: 확정된 계획의 실행 범위인 문서·참고 자산만 반영했다. DISAN을 여행가봥 UI 재설계 초안으로 교체하고 요구사항 11개와 프로필·팔로우·스탬프 수용 기준, PRD 흐름, additive 데이터/RLS·API, 후속 TDD 시나리오를 동기화했다. 현재 UI는 기능 검증용 프로토타입이며 신규 기능·테스트는 미구현/미실행으로 명시했다. 기존 저장·공개/비공개·압축·초안 복구·검증 이력을 보존했다. 컬러를 frontend/src/design/colors.json으로 내용 변경 없이 이동하고 스토리보드 사본을 docs/design/storyboard.png에 두되 루트 원본은 유지했다. 팔레트 대비 미달을 의미 토큰으로 보완하도록 문서화했다. 앱 코드·migration·환경변수·원격 설정·기존 테스트 코드는 변경하지 않고 기능 테스트는 재실행하지 않았다. 상대 문서 링크 24개, 중복 없는 요구사항 행 45개, UI 11개 매핑·계획 TC 19개, 색상 51개 형식·원본 해시·diff 범위를 검증했다. 환경변수 추가가 없어 .env.example은 유지했다. 커밋·푸시는 수행하지 않았다.
+
+변경 파일: `AGENTS.md`, `README.md`, `README.local.md`, `docs/DISAN.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/src/design/colors.json`(루트 colors.json에서 이동), `docs/design/storyboard.png`(참조 사본)
+
+## 2026-11-06 20:29 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 저장 응답 유실 시 중복 기록 방지 수정, 추가 백엔드·웹·실 API 검사와 실행 기록을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 자동 106개·별도 실 API 4개 통과와 Android 검증 기록을 확인하고 diff·비밀값·변경 범위를 검사했다. 이번 요청에서는 테스트를 재실행하지 않는다. colors.json·storyboard.png와 환경 파일·생성 APK는 제외한다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 추가 검증·복구 수정 작업의 변경 파일 전체(커밋 대상)
+
+## 2026-11-06 20:26 KST — 남은 테스트 케이스 진행
+
+프롬프트 원문:
+
+> 그럼 남은 테스트 케이스 진행해줘
+
+실기기 연결 여부에 대한 추가 답변 원문:
+
+> 지금은 에뮬레이터로만 진행
+
+답변·결과 요약: 실제 로컬 Storage 장애의 1·5·30·60분 backoff/lease 복구와 정상 서명 만료 JWT의 refresh/revoke·재인증, 웹 대표사진 교체·비로그인 공개 조회·비공개 차단·키보드/접근성 트리·저장 단계별 응답 유실/요청 미도달 검사를 추가했다. 기록 생성 응답 유실 시 새 UUID로 중복 draft를 만드는 Red를 확인하고 요청 전 UUID 보존·같은 UUID 조회/재개로 수정했다. Vitest 전체 71 passed/외부 OAuth 자동 1 skipped, Playwright 전체 32 passed, 설정 3 passed로 자동 106개와 TypeScript·수정 APK build를 통과했다. 별도 Google 실제 Places/Geocoding 정상·잘못된 키 검사 4개가 통과했으며 실제 쿼터 소진은 하지 않았다. Android에서 사진 권한 거부·제한·설정 이동·입력 유지, 비행기/Wi-Fi 단절·복귀, 20장 업로드 중 첫 장 등록 후 force-stop·같은 서버 초안 복구·미등록 19장 재선택·같은 UUID 20장 완료를 확인했다. 별도 PKCE 흐름의 실제 Google 동의 취소·Supabase callback·앱 복귀/오류·기존 로그인 유지·여행 미생성도 확인했다. 시험 기록·파일 41개·알려진 미참조 위치·해당 정리 작업과 추가 합성 원본 20개만 정리했고 권한 flag·네트워크를 복원했다. 운영 정리 스케줄·production 키 제한/서명·실제 스크린리더 음성은 별도 증거가 필요하며 실기기는 사용자 지정으로 제외했다. 기존 colors.json·storyboard.png 및 미커밋 확인 이력을 유지했고 커밋·푸시는 수행하지 않았다.
+
+변경 파일: `backend/tests/auth.test.ts`, `backend/tests/photo.test.ts`, `frontend/e2e/travel.spec.ts`, `frontend/app/index.tsx`, `scripts/check-google-live.mjs`, `docs/TRD.md`, `docs/TEST_CASE.md`, `README.local.md`, `docs/prompts.md`
+
+## 2026-11-06 19:51 KST — 기능 테스트 완료 여부 확인
+
+프롬프트 원문:
+
+> 현재 테스트케이스 기반으로 기능테스트가 끝났는지 확인해줘
+
+답변·결과 요약: 커밋 4a8392a의 TEST_CASE 명세 59개 TC ID를 테스트 소스와 대조하고 기존 Vitest 69 passed/외부 OAuth 자동 1 skipped·Playwright 21 passed·실행 설정 3 passed 및 Android 실제 검증 기록을 확인했다. TC ID 연결은 모두 있으나 수용 조건 전체 완료는 아니며 실제 OAuth 취소/만료, Android 권한 거부/제한·실기기, 웹 대표사진 교체/비로그인 공개조회/키보드·스크린리더, 단계별 업로드 응답 유실·프로세스 종료 복구, Storage 장애 backoff/lease 및 운영 스케줄, Places/Geocoding 실 API·플랫폼 키/쿼터 검증이 남아 있다고 판정했다. 자동 검사 수를 TC 전체 수용률로 환산하지 않았다. 이번 작업은 소스·명세·기존 실행 결과 확인이며 테스트 재실행·구현 수정·커밋·푸시는 수행하지 않았다.
+
+변경 파일: `docs/prompts.md`
+
+## 2026-11-06 19:49 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: Android 자체 APK·Google 로그인·사진 권한/EXIF·압축본 저장과 관련 문서·테스트 변경을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 Vitest 69개·Playwright 21개·실행 설정 3개 통과 및 Android 실제 검증 기록을 확인했다. 이번 요청에서는 구현 변경이나 테스트 재실행 없이 diff·비밀값 포함 여부·커밋 범위를 확인한다. storyboard.png와 환경 파일·생성 APK는 제외한다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 Android 구현 작업의 기록된 변경 파일 전체(커밋 대상)
+
+## 2026-11-06 19:37 KST — Android 자체 APK·사진 메타데이터·압축 저장
+
+프롬프트 원문:
+
+> 안드로이드 에뮬레이터에서 테스트 할 수 있게 구현해줘.
+> 1. 구글 로그인 구현
+> 2. 사진 선택 및 권한 동의 구현
+> 3. 사진의 데이터로 위치 및 기간 데이터 파싱하여 적용
+> 4. 사진 압축하여 저장
+
+추가 답변 원문:
+
+> 압축된 사진만 저장
+
+자동 검증 조작 여부에 대한 추가 답변 원문:
+
+> 자동 검증을 계속해 주세요
+
+답변·결과 요약: 실제 환경값을 내장한 Android 자체 테스트 APK를 빌드·설치하고 Google 로그인·앱 복귀·재실행 세션 유지 및 실제 Google provider를 확인했다. 사진/메타데이터 권한, Android 문서 선택기와 MediaStore EXIF, 기간·첫 사진 위치 제안, JPEG 압축 본문/썸네일 업로드를 구현했다. GPS 마스킹을 0도 좌표로 오인하는 문제와 Android 축소 크기 조회로 본문이 2400px로 남는 문제를 Red 테스트 후 수정했다. 합성 사진 두 장으로 2026-11-01~03·제주 위치 자동 입력, 실제 원격 complete/private 기록·압축 JPEG 2048×1365 및 썸네일 512×341·EXIF 제거·DB 일치를 확인한 뒤 임시 여행 기록과 해당 파일 네 개만 삭제했다. 합성 선택 사진은 에뮬레이터에 남겼다. Metro의 CMake 임시 파일 감시 오류를 수정하고 Vitest 69 passed/외부 OAuth 자동 1 skipped, Playwright 21 passed, 실행 설정 3 passed, TypeScript·APK build·diff 검사를 통과했다. 자동 93개와 실제 Android 실행 증거는 구분한다. 실기기·실제 OAuth 취소/만료 전체 조합·권한 거부/제한 전체 조합·배포 서명은 미검증이다. 사용자 storyboard.png는 유지했고 커밋·푸시는 요청되지 않아 수행하지 않았다.
+
+변경 파일: `.gitignore`, `AGENTS.md`, `README.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/planning.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/metro.config.js`, `frontend/app/index.tsx`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/src/photos.ts`, `frontend/e2e/travel.spec.ts`, `backend/tests/oauth.test.ts`, `backend/tests/photo.test.ts`, `backend/tests/photos-client.test.ts`, `scripts/configured.mjs`, `scripts/configured.test.mjs`
+
+이 문서는 현재 대화에서 확인 가능한 사용자의 프롬프트를 원문 중심으로 기록한다. 답변·결과와 변경 파일은 요약한다. 날짜와 시간은 `Asia/Seoul` 기준이며, Git 이력으로 정확한 시각을 확인할 수 없는 항목은 `시간 미확인`으로 표시한다. 비밀값·토큰·OAuth secret·API key 값·개인정보는 기록하지 않는다.
+
+## 2026-11-06 18:59 KST — 커밋 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 로그인 오류 재현·Expo 개발 환경값 우선순위 원인·--no-dev 실행 검증 이력을 main 커밋 및 origin/main 푸시 대상으로 정리했다. 이번 변경은 문서 이력뿐이며 제품 코드 수정이나 테스트 재실행은 없다. 서버 실행 옵션은 Git 변경에 포함되지 않고 storyboard.png는 그대로 유지한다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`
+
+## 2026-11-06 18:59 KST
+
+프롬프트 원문:
+
+> 너가 직접 테스트해줘
+
+답변·결과 요약: 실제 UI에서 Google 로그인 버튼을 눌러 Android Expo Go 및 웹 8082·8083 개발 모드의 동일 오류를 재현했다. 기존 8083 서버 프로세스에는 원격 환경값이 있었지만 Expo 개발용 virtual env가 frontend/.env.local 값을 우선 병합해 브라우저 요청은 Local API 54321·google false였다. 제품 코드·환경 파일 수정 없이 직접 실행한 8083 서버만 --no-dev로 재시작한 뒤 원격 Auth settings HTTP 200·google true 및 Google 계정 입력 화면 진입을 실제 테스트 브라우저로 확인했다. 이전에 8083이 원격에 연결되었다고 안내한 확인 범위가 부족했음을 정정했다. 실제 Google 계정 입력·동의·복귀 완료는 미검증이며 Android 기존 로컬 실행은 그대로다.
+
+변경 파일: `docs/prompts.md`만 테스트 이력으로 갱신했다. 제품 코드·Supabase 설정·실제 .env·frontend/.env.local·사용자 storyboard.png는 수정하지 않았다. 화면 증거는 /tmp/google-login-local-error.png 및 /tmp/google-login-configured-no-dev.png에 저장했다. 서버 실행 옵션만 변경했으며 Git 커밋·푸시는 수행하지 않았다.
+
+## 2026-11-06 18:46 KST
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: Edge Function 공통 CORS 응답·preflight·회귀 검사와 Supabase 실제 연결 검증 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 84개 통과 결과를 유지하며 이번 요청에서는 테스트를 재실행하지 않았다. 실제 Google 계정 로그인·동의 완료는 여전히 미검증이다. 비밀값·연결 메타데이터·환경변수 파일과 작업 범위 밖 `storyboard.png`는 커밋하지 않는다. 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며 커밋 범위는 기존 CORS 함수·검사 및 관련 API·설계·검증 문서다.
+
+## 2026-11-06 18:43 KST
+
+프롬프트 원문:
+
+> 내 웹 브라우저 권환으로 너가 직접 확인해줄순없어? 아니면 supabase cli 로그인은 했는데, 연결시켜줘
+
+답변·결과 요약: 현재 .env 프로젝트 접근·CLI link를 확인하고 검토/dry-run 후 기존 migration 8개와 필수 Edge Function 3개를 적용했다. Google Provider에 등록된 Android Client ID를 Web Client ID로 교정하고 앱 복귀 URL을 등록해 Google 계정 입력 화면 진입을 확인했다. 실제 원격 사진 저장·완료·signed 이미지·anon 차단을 임시 fixture로 검증하고 생성 데이터만 정리했다. 원격 CORS 누락을 수정·배포했으며 회귀 자동 검사 84개가 통과했다. 사용자 브라우저 연결 세션은 없으므로 실제 Google 계정 로그인·동의 완료는 미검증이다. 실제 환경 웹은 localhost:8083에서 실행 중이며 실제 .env·로컬 테스트 환경·사용자 기존 파일은 변경하지 않았다.
+
+변경 파일: `backend/supabase/functions/_shared/http.ts`, `backend/supabase/functions/photo-url/index.ts`, `backend/supabase/functions/cleanup-storage/index.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/tests/cors.test.ts`, `docs/API_SPEC.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`. CLI 연결 메타데이터는 Git 제외 `backend/supabase/.temp/`에 저장된다. 원격 설정·스키마·함수 배포는 본문 결과에 기록했으며 비밀값은 기록하지 않았다.
+
+## 2026-11-06 18:09 KST
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 전체 시·도 지도·하단 + 진입점·실제 프로젝트 설정 진단 도구·경계 데이터와 출처·회귀 테스트·관련 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 83개 통과 결과를 유지하며 이번 요청에서는 테스트를 재실행하지 않았다. 실제 Google 인증은 Provider·스키마·대상 관리 권한 설정 대기 상태로 유지한다. 환경변수·비밀값·생성 산출물은 제외하고 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며 커밋 범위는 앞서 작성한 지도·설정 진단 코드·데이터·테스트·관련 문서다.
+
+## 2026-11-06 18:07 KST
+
+프롬프트 원문:
+
+> supabase 문제를 해결해서 google 로그인이 제대로 되는지 확인하고 다시 구현해줘.
+> 그리고 홈 화면에는 지도 화면으로 가득차고, 사진을 추가할때는 하단의 + 버튼을 눌러서 구현해야해.
+>
+> 그리고 구글 맵 UI가 너무 별로인데, [Image #1] 의 지도화면처럼 꾸며주고 안되면 GeoJSON + 지도 렌더러 기술스펙으로 지도화면을 구현해줘.
+> 일단은 지도 전체화면에 도 기준으로 나누어줘.
+
+설정 확인 응답 원문:
+
+> 현재 .env 프로젝트를 사용할게. 설정·CLI 로그인 확인할게
+
+답변·결과 요약: 홈·지도 탭을 KOSTAT 2018 GeoJSON + SVG의 전체 시·도 지도로 구현하고 사진 추가 진입점을 하단 +로 통합했다. 17개 지역 선택·완료 기록 집계·지역 기록 상세 이동과 기존 사진/CRUD/복구를 검증했으며 Vitest 60·웹 21·설정 보안 2개 총 83개가 통과했다. 실제 .env용 실행·진단을 로컬 회귀 환경과 분리하고 서버 key 전달을 차단했다. 초기 원천의 광주 좌표 오분류는 KOSTAT 원천으로 교체해 해결했다. 현재 Supabase 주소는 연결되지만 Google Provider 비활성·앱 테이블 4개 404·대상 CLI 접근 부재로 실제 Google 동의 및 원격 사진 저장은 미완료이며 사용자의 설정 확인을 기다린다. 원격 설정·DB·실제 .env와 비밀값은 변경하지 않았다.
+
+변경 파일: `AGENTS.md`, `README.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/DISAN.md`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/src/Journal.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/provinces.ts`, `frontend/src/data/korea-provinces.json`, `frontend/src/data/README.md`, `frontend/e2e/travel.spec.ts`, `frontend/package.json`, `backend/tests/provinces.test.ts`, `scripts/configured.mjs`, `scripts/configured.test.mjs`
+
+## 2026-11-06 17:39 KST
+
+프롬프트 원문:
+
+> git 커밋 푸쉬해줘
+
+답변·결과 요약: 여행가방 디자인 문서·UI·OAuth 조정·지도 스타일·회귀 테스트와 원본 디자인 참고 이미지를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 직전 검증은 자동 검사 75개 통과·실제 OAuth 1개 보류이며 이번 요청에서는 테스트를 재실행하지 않았다. 비밀값·환경변수 파일·생성 산출물은 제외하고 커밋·푸시 결과를 Git 상태로 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며, 커밋에는 앞서 작성한 프론트엔드·검증 코드·관련 문서와 `ui_inital.png`를 포함한다.
+
+## 2026-11-06 17:37 KST
+
+프롬프트 원문:
+
+> [Image #1] 를 확인해서 docs/DISAN.md 를 만들어주고, 프론트엔드 초안을 만들어줘. 현재 요구사항은 아래와 같아.
+> 1. 실제 구글 로그인
+> 2. 사진 추가 가능 (supabase 에 사진 저장)
+> 3. 구글 맵 UI 변경
+>
+> 단, 현재 구현된 기능은 통과되어야해
+
+답변·결과 요약: 첨부 `ui_inital.png`의 크림색·코랄색 여행 스크랩북 디자인을 DISAN에 정의하고 백팩 로고·로그인 소개·대표사진 도감·하단 탐색·실제 Google 지도 스타일을 구현했다. 기존 Storage 업로드·RLS·CRUD·초안 복구를 유지했고 기존 69개 검사 및 추가 OAuth 단위 2개·UI 4개가 통과했다(Vitest 56, 웹 19; 실제 OAuth 1개 보류). TypeScript·웹 export·Android 화면·네이티브 지도·자체 빌드 Maps key 설정 전달도 확인했다. 루트 .env의 Supabase 주소가 DNS ENOTFOUND여서 실제 Google 동의와 원격 Storage 검증은 완료하지 못했으며 설정 확인을 요청했다. 비밀값·원격 DB·기존 로컬 테스트 환경은 변경하지 않았다.
+
+변경 파일: `docs/DISAN.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`, `AGENTS.md`, `README.md`, `frontend/app/index.tsx`, `frontend/app/auth/callback.tsx`, `frontend/app.config.ts`, `frontend/src/Journal.tsx`, `frontend/src/theme.ts`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/e2e/travel.spec.ts`, `backend/tests/oauth.test.ts`, `backend/tests/photo.test.ts`。첨부 파일 `ui_inital.png`는 수정하지 않았다.
+
+## 2026-11-06 16:48 KST
+
+프롬프트 원문:
+
+> 커밋하고 푸쉬해줘
+
+답변·결과 요약: 앞서 구현한 백엔드·Expo 프로토타입·테스트·관련 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 검증은 자동 검사 69개 통과·실제 OAuth 1개 보류이며 이번 요청에서 제품 코드를 추가 수정하거나 테스트를 재실행하지 않았다. 환경변수 파일과 생성 산출물은 제외한다. 커밋·푸시 결과는 Git 상태로 별도 확인한다.
+
+변경 파일: 이번 요청의 추가 수정은 `docs/prompts.md`이며, 커밋 범위는 기존 백엔드 migration·Edge Functions·테스트, `frontend/`, 루트 테스트 설정·의존성·관련 문서 변경이다.
+
+## 2026-11-06 16:33 KST
+
+프롬프트 원문:
+
+> 모든 테스트케이스 명세 구현해주고, 안드로이드 스튜디오에 화면을 띄워줘
+
+답변·결과 요약: 명세 59개 TC ID에 자동 검사를 연결하고 공개 조회·삭제·대표사진·공유 위치·Expo Android/Web 프로토타입과 초안 복구를 구현했다. Vitest 54개 및 웹 15개 검사(전체 14개 실행과 추가 1개 실행)가 통과했고 실제 OAuth 1개는 보류했다. TypeScript·웹 export·서버 키 비노출을 확인하고 Android Studio 에뮬레이터에 실제 홈과 Google 지도를 띄웠다. 실제 Google 동의·실기기·Storage 장애 후 복구·운영 설정 등 남은 수용 증거를 TEST_CASE에 명시했다. 전체 수용 완료나 배포 가능으로 판정하지 않았으며 커밋·푸시는 하지 않았다.
+
+변경 파일: `.gitignore`, `AGENTS.md`, `README.md`, `package.json`, `package-lock.json`, `vitest.config.ts`, `playwright.config.ts`, `backend/supabase/config.toml`, `backend/supabase/migrations/20261106162000_record_lifecycle.sql`, `backend/supabase/migrations/20261106162100_location_visibility.sql`, `backend/supabase/functions/_shared/google.ts`, `backend/supabase/functions/geocode-location/index.ts`, `backend/tests/photo.test.ts`, `backend/tests/external.test.ts`, `frontend/package.json`, `frontend/package-lock.json`, `frontend/app.json`, `frontend/tsconfig.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/app/auth/callback.tsx`, `frontend/src/api.ts`, `frontend/src/auth.ts`, `frontend/src/domain.ts`, `frontend/src/runtime.ts`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/e2e/travel.spec.ts`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+## 2026-11-06 16:06 KST
+
+프롬프트 원문:
+
+> 현재 테스트 케이스 모두 green 으로 되게끔 구현해줘.
+> 이어서 계속 진행해줘
+
+답변·결과 요약: 사진 Storage·메타데이터 검증·URL 발급·고아 파일 정리를 구현하고 현재 실행 가능한 테스트 전체 16개를 통과시켰으며, 24시간 정리 todo도 실제 테스트로 전환했다. 미작성 명세 46개와 운영 스케줄 설정은 남아 있다.
+
+변경 파일: `backend/supabase/config.toml`, `backend/supabase/migrations/20261106160000_photo_storage.sql`, `backend/supabase/migrations/20261106160500_storage_preflight.sql`, `backend/supabase/migrations/20261106160600_storage_preflight_size.sql`, `backend/supabase/migrations/20261106160700_cleanup_registration_guard.sql`, `backend/supabase/migrations/20261106160800_photo_auth_guard.sql`, `backend/supabase/functions/photo-url/index.ts`, `backend/supabase/functions/cleanup-storage/index.ts`, `backend/tests/photo.test.ts`, `README.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+## 2026-11-06 15:50 KST
+
+프롬프트 원문:
+
+> 다음 단계 테스트 진행해줘. red 먼저 구현해줘
+
+답변·결과 요약: TC-PHOTO-001~009의 로컬 Storage·DB Red 테스트를 작성해 9개 모두 버킷 부재로 정상 원본 업로드에서 실패했으며, 24시간 고아 파일 정리는 별도 todo로 남겼다. 인증 회귀 6개는 통과했고 제품 Green 코드는 구현하지 않았다.
+
+변경 파일: `backend/tests/photo.test.ts`, `README.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+## 2026-11-06 15:45 KST
+
+프롬프트 원문:
+
+> 실패한 red테스트를 green 으로 동작하게끔 구현해줘
+
+답변·결과 요약: 로컬 초기 migration에 프로필 자동 생성·RLS와 인증 테스트에 필요한 기초 관계를 구현하고 인증 4개 및 추가 회귀 2개를 통과시켰다. 사진·Storage 등 후속 기능은 미완성이며 사진 쓰기는 차단했다.
+
+변경 파일: `backend/supabase/migrations/20261106155000_auth_profiles.sql`, `backend/tests/auth.test.ts`, `README.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+## 2026-11-06 15:41 KST
+
+프롬프트 원문:
+
+> 현재 테스트 케이스 순서대로 테스트를 진행해줘. red 먼저 구현해줘.
+> 그리고 실패한 이유랑 해결방법도 알려줘
+
+답변·결과 요약: 로컬 전용 Vitest·Supabase 실행 기반과 TC-AUTH-001~004를 작성·실행했고 4개 모두 profiles 조회의 404/PGRST205에서 실패했다. TC-AUTH-001의 기능 부재 Red와 후속 권한 검증의 선행 조건 실패를 구분해 원인·Green 해결 순서를 기록했으며 도메인 구현은 하지 않았다.
+
+변경 파일: `.gitignore`, `package.json`, `package-lock.json`, `backend/supabase/.gitignore`, `backend/supabase/config.toml`, `backend/tests/auth.test.ts`, `AGENTS.md`, `README.md`, `docs/TRD.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+## 2026-11-06 15:12 KST
+
+프롬프트 원문:
+
+> Implement the plan.
+
+승인된 계획의 요청 원문:
+
+> 해당 내용으로 AGENTS.md, PRD.md, REQUIREMENT.md, TRD.md 를 수정해주고, API_SPEC.md도 검증해주고, TEST_CASE.md를 백엔드 -> 프론트엔드 HTTP 통신 -> 프론트엔드 프로토타입 구현 단계로 TDD 방식의 red -> green -> refoctor 방식으로 개발하게끔 수정해줘.
+> 코드는 구현하지마
+
+답변·결과 요약: 문서의 공개 권한·완료/삭제 원자성·파일 정리·날짜/제한값 계약을 보완하고 API를 공식 계약과 대조했으며, 기존 TC ID를 유지해 백엔드→HTTP 통신→프로토타입의 단계별 Red→Green→Refactor 명세와 추적표로 재구성했다. 실제 구현·테스트 실행은 하지 않았다.
+
+변경 파일: `AGENTS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`
+
+| 2026-11-06 14:56 KST | 현재 작성된 모든 문서랑 요구사항을 파악하고 ponytail을 이용해서 보완해줘 | 전체 문서의 MVP 계약을 대조하고 `draft → complete` 상태 전이, 공개 응답 개인정보 제한, 문서 간 링크·테스트 계약을 보완했다. | 변경 파일: `AGENTS.md`, `README.md`, `README.local.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/planning.md`, `docs/prompts.md` |
+
+## 2026-11-07 14:12 KST — 밝은 파스텔 UI 개편 구현
+
+프롬프트 원문:
+
+> 기능확인이 끝났으면 이제 디자인적으로 업데이트를 하고 싶어.
+> 아래의 요구사항대로 디자인을 계획하고 진행해줘.
+> 단, 기존에 통과한 기능은 유지되어야해.
+>
+> 1. 불필요한 버튼은 줄이고, 가독성이 좋아야한다.
+> 2. 지도에 지역 이름에 흰박스를 지우고 글자만 회색으로 표시한다.
+> 3. 확대 축소에 맞게 글자크기가 변하며, 기본적으로 글자 비중이 많게 하지는 않는다.
+> 4. 반응형 디자인 효과를 극대화하며, UI적으로 유저가 사용했을 때, 계속 사용할 수 있게 만든다.
+> 5. 아래 하단 메뉴를 지도 테마처럼 밝은 느낌으로 바꾼다.
+> 6. 다른 배경 자체도 종이질감 색깔이 아닌, 아기자기한 색깔
+> 7. 지도에 그림자 효과를 추가하고 지역마다 레이어를 추가해서 구분.
+> 8. 여행 기록을 클릭했을 때, 썸내일이 크게 나오고, 날짜는 작게 여행이름 작게, 한줄평 나오게 하기. 썸네일을 넘기면서 다른 사진도 볼 수 있게 하기
+> 9. 디자인적으로 다른 예시를 웹 검색하여 적용해주기
+> 10. 현재 내 발자국 0/17 메뉴는 없애기
+> 11. 유저 아이콘 이미지 만들어주고, 여행기록 밑에 이름은 없애고 아이콘만 표시
+>
+> 현재 마음에 드는 메뉴
+> 1. 홈 지도 화면 (통과)
+> 2. 여행 도감 (개선)
+> 3. 친구(개선)
+> 4. My(개선)
+> 5. 리플래쉬 화면(개선)
+>
+> 전체적이로 아기자기한 밝은 느낌으로 리팩토링해주고, 반응형 효과를 극대화해서 기술적인 효과를 넣어주게 리팩토링.
+> report-prompt로 저장하고 플랜모드가 끝나면 문서 업데이트하고, 커밋 푸쉬해줘
+
+실행 요청 원문:
+
+> Implement the plan.
+
+확정 선택: 하늘·민트·코랄, 기존 프로필 사진+기본 여행 캐릭터, 앱 시작 스플래시, 지도 아래 사진 패널, 단일 범위 선택기.
+
+답변·결과 요약: frontend-design으로 밝은 공통 테마·하단 메뉴·시작 배경·도감·친구·My를 개편하고 회색 무상자 줌 라벨·얕은 경계 그림자·로컬 캐릭터를 적용했다. 홈 배지만 제거하고 My 집계·작성자 접근성·기존 권한을 유지했다. 공통 가로 갤러리·지도 사진 패널·접힌 관리 동작을 연결하고 URL 갱신·지연 응답·반응형 회귀를 확인했다. 자동 검사 182 passed/1 skipped, TypeScript·웹 export·최종 APK build 성공. Android 실제 사진 패널을 확인하고 재연결 후 최종 설치·글꼴 1.5/2.0 홈/메뉴·가로 도감을 확인했으며 기본 설정을 복원했다. 네이티브 다중 사진/모든 큰 글꼴 화면 등 미검증 범위는 TEST_CASE에 구분했다. 비밀값·diff 범위를 확인한 뒤 사용자 요청대로 커밋·푸시하며 실제 결과는 Git 상태로 확인한다. 원본 storyboard.png는 제외한다.
+
+변경 파일: `AGENTS.md`, `backend/tests/design.test.ts`, `backend/tests/maps-native.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/index.tsx`, `frontend/e2e/design.spec.ts`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/travel.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/src/Avatar.tsx`, `frontend/src/Journal.tsx`, `frontend/src/PhotoGallery.tsx`, `frontend/src/ProvinceMap.tsx`, `frontend/src/RecordPreview.tsx`, `frontend/src/Social.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/avatarAsset.ts`, `frontend/src/gallery.ts`, `frontend/src/mapStyle.ts`, `frontend/src/provinces.ts`, `frontend/src/theme.ts`.
+
+추가 화면 증거: `docs/design/verification/pastel-photo-panel-20261107.png` (공개 라이선스 샘플만 포함).
+
+## 2026-11-07 00:04 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬해줘
+
+답변·결과 요약: 직전 MapLibre·Geoapify 지도 전환, Google 포토 사진 선택, 지도 빈 화면·갱신 안정성 수정과 동기화 문서를 main 커밋 및 origin/main 푸시 대상으로 정리했다. 기존 자동 검사 166 passed/1 skipped와 웹·Android 빌드 결과를 유지하고 이번 요청에서는 변경 범위·비밀값·diff 형식을 확인한다. 기존 원본 storyboard.png는 제외하며 실제 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 전체 변경 파일(커밋 대상).
+
+## 2026-11-07 00:37 KST — 파란 바다 지도·위치 비교 창·실제 사진 검증
+
+프롬프트 원문:
+
+> 지도 배경은 파란색에 파도 물결이 나 비랭기같은 조형도 그려주고, 실제 사진을 추가했을때, 지도 UI에 표시되는 것 까지 확인하고 싶어.
+> [Image #1]
+> 그리고 위치를 검색을 할때는 새로운 창을 띄워서 검색할 결과를 지도와 대조해서 보여줘. 실제 주소 검색엔진 기반으로
+
+참고 이미지: [사용자 위치 선택 참고](design/location-selection-reference.png).
+
+답변·결과 요약: frontend-design으로 파란 바다·물결/구름/배/비행기를 구현하고 실제 Geoapify 검색·주소·후보 지도 비교·명시 확정을 별도 창에 연결했다. 취소/오류/지연 응답의 기존 입력 보존과 근접 후보의 정확한 단일 핀을 검증했다. 실제 공개 라이선스 전주 사진을 에뮬레이터에서 압축·Supabase 저장하고 홈 썸네일을 확인했으며 비공개 샘플 1개를 남겼다. 자동 검사 175 passed/1 skipped, TypeScript·웹 export·APK build/install을 통과했다. 글꼴 2배 라벨 겹침·실기기 등 한계는 TEST_CASE에 명시하고 기본 글꼴 홈으로 복원했다. 문서·화면 증거·사진 출처를 동기화했으며 커밋·푸시는 하지 않았다.
+
+변경 파일: `AGENTS.md`, `backend/tests/map-ocean.test.ts`, `backend/tests/maps-native.test.ts`, `backend/tests/provinces.test.ts`, `docs/API_SPEC.md`, `docs/DISAN.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/design/location-selection-reference.png`, `docs/design/verification/location-picker-20261107.png`, `docs/design/verification/ocean-home-20261107.png`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/e2e/fixtures/README.md`, `frontend/e2e/fixtures/jeonju.jpg`, `frontend/e2e/helpers.ts`, `frontend/e2e/location-picker.spec.ts`, `frontend/e2e/vnext.spec.ts`, `frontend/src/LocationPicker.tsx`, `frontend/src/MapOrnament.tsx`, `frontend/src/TravelMap.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/mapStyle.ts`, `frontend/src/provinces.ts`.
+
+## 2026-11-07 12:02 KST — 커밋·푸시 요청
+
+프롬프트 원문:
+
+> 커밋 푸쉬
+
+답변·결과 요약: 파란 바다 지도 장식·별도 위치 검색/후보 비교 창·실제 사진 지도 표시 검증 및 문서를 main 커밋과 origin/main 푸시 대상으로 정리했다. 직전 자동 검사 175 passed/1 skipped와 웹·Android 빌드 결과를 유지하고 이번에는 변경 범위·비밀값·diff 형식을 확인했다. 원본 storyboard.png는 제외하며 실제 커밋·푸시 결과는 Git 상태로 확인한다.
+
+변경 파일: `docs/prompts.md`(이번 요청 이력), 직전 구현 이력에 명시된 변경 파일(커밋 대상).
 
 ## 2026-11-07 22:36 KST — t12 지속 개발 시작
 
@@ -1776,3 +1774,744 @@ t9d 는 터미널을 닫아서 리뷰를 받지않아도 되고, t14에게만 �
 결과: mapLabels의17매핑과표시문자열선택만보강해약칭기준폭/충돌배치를적용했다. t14명세/제품정적승인, Red1fail/2pass→관련단위/SSR9pass·types0·Web7pass·실제앱대역2pass. 바다배경과같은refactor/svg-map-redesign브랜치에커밋/푸시한다. 새APK/production export/실기기/실배포는수행하지않았으며기존Native이동성능제한을유지한다.
 
 변경파일: frontend/src/mapLabels.ts; backend/tests/map-labels.test.ts,maps-native.test.ts; frontend/e2e/svg-map.spec.ts,svg-app.spec.ts; docs/SVG_MAP_LABELS_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 기존root package/lock/storyboard/tsconfig변경은제외한다.
+
+
+## 2026-11-13 16:39 KST — 팀원 공유용 공개 환경 설정
+
+사용자 프롬프트 원문:
+
+> 예시값 말고, 현재 깃허브 브랜치를 나눠서 협업중인데, .env 에 전체 값을 공유 할 순 없지만, github에 올려도되고, 공유되는 키가 있다면, .env.extemple 에 작성하고 팀원들에게 공유하고싶어.
+
+결과: .env.example에 실제 Supabase URL/공개 publishable 키와 Google Web/Android OAuth Client ID만 반영했다. 나머지 값은 기존 예시를 유지하고 공유 프로젝트 연결 주의사항과 공개값 예외 정책을 AGENTS/TRD에 동기화했다. 허용목록 4개 일치·나머지 설정 불변·서버 비밀값 미포함·기존 publicConfiguration 검증 통과. 실제 키 값은 이력에 기록하지 않았다. 원격 RLS/API 제한은 재검증하지 않았고 커밋/푸시는 수행하지 않았다.
+
+변경 파일: .env.example, AGENTS.md, docs/TRD.md, docs/prompts.md. 기존 package/lock 및 untracked 파일은 보존.
+
+
+## 2026-11-13 16:43 KST — main 공개 환경 파일 단독 반영
+
+사용자 프롬프트 원문:
+
+> 현재 협업중인 팀원들 브랜치에 해당 .env.extemple 내용만 병합 하게 하고싶어. main에 .env.extemple 내용만 업데이트 해주고, 각자 브랜치에 .env.extemple 내용을 쓸 수 있게 프롬프트를 짜줘. 추가로 해당 브랜치에서는 .env.extemple 을 쓰라고 명시해줘. 간단하게 프롬프트 작성
+
+결과: 별도 임시 worktree에서 origin/main 기준 .env.example만 커밋 dc5cb5d 후 main에 푸시하고 원격 HEAD 일치를 확인했다. 현재 브랜치와 기존 변경은 보존했다. 팀원용 프롬프트는 main 전체 병합 없이 파일만 가져오고 해당 브랜치의 공개 설정 기준으로 사용하며 기존 .env 비밀값 보존/커밋 제외를 명시한다.
+
+main 변경 파일: .env.example만. 로컬 이력: docs/prompts.md(이번 main 커밋에 포함하지 않음).
+
+## 2026-11-13 사진 중심 연속 지도 구현
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+
+결과: jhyun에서 승인된 PHOTO_MAP_EXPLORATION_SPEC에 따라 내 여행 기본/선택 친구 한 명 조회, 동일 SVG 카메라의 지역 확대, 대표사진·군집·요약 시트와 복귀 상태, 동작 줄이기/press/시작 화면, 좁고 짧은 보조 패널 스크롤을 연결했다. t14 정적 지적을 보강했으며 제품 범위 밖 환경변수/루트 의존성 변경은 보존했다. Web15·관련 단위/LocalHTTP/NativeSSR16·types 통과와 최종 Local QA APK의 실제 사진/군집/요약/상세·복귀/drag/pinch 관측을 각각 기록한다. production export 및 정적산출물3 통과. 320px 경기 확대의 실제 라벨 겹침7쌍은 기존 최소화면 예외로 기록하고, Native warm 이동 지연/높은 PSS는 남아 성능 미수용이며 실휴대폰/iOS/원격배포·전체E2E 성공을 주장하지 않는다. QA자료 정리 및 사용자 APK 복원 완료, 커밋/푸시는 하지 않았다. 기존 SVG 회귀의 최종 결과는 TEST_CASE 최신 기록을 따른다.
+
+변경 파일: AGENTS.md, docs/PHOTO_MAP_EXPLORATION_SPEC.md, docs/SVG_MAP_LABELS_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, docs/prompts.md; frontend/app/index.tsx, frontend/app/_layout.tsx; frontend/src/api.ts, Social.tsx, SvgTravelMap.tsx, PhotoSummarySheet.tsx, photoMap.ts, mapLabels.ts, provinces.ts, Feedback.tsx; frontend/e2e/photo-map.spec.ts, photo-scope.spec.ts, svg-app.spec.ts, svg-map.spec.ts, static-web.spec.ts; backend/tests/photo-map.test.ts, maps-native.test.ts, friends.test.ts. 기존 .env.example·루트 package/lock·스토리보드/tsconfig 변경은 이번 구현 변경 목록에서 제외한다.
+
+## 2026-11-13 19:41 KST — 지도 중심 홈 개편
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+>
+> /feedback 커밋 푸쉬도 해줘
+
+결과: 승인된 차분한 해안 지도, 홈 전용 고정 글자/최소배율/탐색bounds, 전국사진→시도fit→요약, 원형 친구 선택을 기존 조회/시트에 연결했다. t14 사전·제품 P2 보강 승인. 관련 Web/단위/types와 중간실패는 TEST_CASE에 분리했다. Local QA APK에서 실제사진3기록의 두단계선택/요약/상세복귀/drag를 확인했고 실제서버연결 x86_64 APK 설치·Local자료정리를 마쳤으며 에뮬레이터는 유지했다. production export 및 해당artifact static3pass. Native warm 지도이동 지연/높은PSS는 남아 성능 미수용이며 전체E2E·실휴대폰/iOS·실배포는 미검증이다. 관련 변경을 jhyun 커밋·푸시 대상으로 확정하며 별도 .env.example·root package/lock·storyboard·tsconfig 변경은 포함하지 않는다.
+
+변경 파일: frontend/app/index.tsx, frontend/src/SvgTravelMap.tsx,Social.tsx,mapLabels.ts,provinces.ts,theme.ts, frontend/assets/maps/ocean-depth.png, frontend/src/data/maps/korea-ocean.json, scripts/build-ocean.py, backend/tests/map-labels.test.ts,maps-native.test.ts, frontend/e2e/photo-map.spec.ts,photo-scope.spec.ts,svg-app.spec.ts,svg-map.spec.ts,static-web.spec.ts, docs/MAP_FIRST_HOME_SPEC.md,SVG_OCEAN_SPEC.md 및 canonical6. 이전 미커밋 사진지도 코드·검사·명세는 의존 구현으로 함께 포함한다.
+
+
+## 2026-11-13 20:12 KST — 홈 선택 강조와 복귀 버튼
+
+사용자 프롬프트 원문:
+
+> 전국지도 스케일에서 사진이나 도나 특별시를 선택해서 이동하면, 파란테두리와 투명한 파란색으로 범위를 특정해줬으면 좋겠어. 그리고 그냥 지역찾기 버튼은 없애주고, + - 홈 버튼만 한글자 크기로 만들어주고, 홈을 누르면 전국지도 디폴트 스케일로 돌아오고, 선택 테두리와 색도 지워줘. 대한민국 버튼을 눌러도 마찬가지
+
+결과: 기존선택province의정확한SVGpath로파랑강조를홈에만추가하고,지역찾기버튼제거/+·−·홈한글자표시와공통country초기화를연결했다. 키보드/접근성목록대안·요약focus소유권과비홈/data를유지한다. t14리뷰및Web rolebutton후보실패를거쳐DOMidentity보존방식으로보강했다. 관련Web19pass·후속집중검사2pass, 최신export/static3pass·SSR4pass·최종types0을확인했다. 최신에뮬레이터APK에서사진/지역파랑강조와두전국복귀를확인했으나이동후도구글자미표시와기존Native성능제한은남아전체수용으로표시하지않는다. jhyun관련변경만커밋·푸시하며원격배포는하지않는다.
+
+변경파일: frontend/app/index.tsx,frontend/src/SvgTravelMap.tsx; backend/tests/maps-native.test.ts; frontend/e2e/photo-map.spec.ts,svg-app.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.
+
+
+## 2026-11-13 21:10 KST — 경기도 지도 간소화와 전국 복귀 모션
+
+사용자 프롬프트 원문:
+
+> /home/jh-mac/Pictures/스크린샷/스크린샷 2026-11-13 19-58-37.png
+> 경기도 쪽 지역을 확대하면 너무 구가 많이 나눠져있어서 가독성이 불편한데, 조금 러프하게 나눠줘. 그리고 지역이름은 약간 회색으로 표시해줘.
+> 추가로 홈 버튼이나 대한민국 버튼 눌러서 전국지도 스케일로 돌아갈때도 천천히 이동하는 효과를 줘.
+
+결과: 홈 경기도8시의기존구union표시를중간확대에적용하고깊은확대에는원래구를유지한다. SVG지역명을회색으로바꾸고두전국복귀도구는기존350ms fly/취소세대/완료camera=null을재사용한다. 원본행정코드·DB·기록/사진/권한·비홈흐름은보존한다. t14리뷰후제품/검사취소경계를보강했다. 단위·SSR9pass/관련Web19pass/보강후500ms회귀2pass/types0/최신export·static3pass를각실행으로확인했다. 새에뮬레이터APK에서시단위·구확대·회색·두전국복귀를관찰했으며기존버튼문자소실/Native성능제한은남아있다. jhyun관련변경만커밋·푸시하고원격배포/DB변경은하지않는다.
+
+변경파일: frontend/src/SvgTravelMap.tsx,regions.ts,theme.ts,data/maps/gyeonggi-cities.json,data/maps/README.md; scripts/build-map-cities.py; backend/tests/map-cities.test.ts; frontend/e2e/photo-map.spec.ts,static-web.spec.ts; docs/MAP_FIRST_HOME_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 별도환경변수/루트의존성/스토리보드/tsconfig변경제외.
+
+
+## 2026-11-16 16:06 KST — 단순 홈 사진지도 구현
+
+사용자 프롬프트 원문:
+
+> Implement the plan.
+
+환경 준비 답변 원문:
+
+> .env 에 EXPO_PUBLIC_GEOAPIFY_MAP_KEY로 추가함
+
+결과: 승인된 SIMPLE_PHOTO_MAP_SPEC에 따라 홈만 MapLibre/Geoapify 실제 벡터타일과 단색바다·시도선·단계별 소수라벨·기록수 사진군집으로 바꿨다. 기존 입력/카메라/요약 소유권, 비홈SVG·DB/RLS·사진/원좌표·계정세대를 유지하고 무키/렌더실패SVG대체·타일오류안내·공개키분리/지문·출처를 연결했다. t14 지정리뷰 후 Native실패/준비경계·중간줌도시·단일기록모션·큰시도2차선택을 보강했다. 지정Web실타일/오류/투영·후속3pass, 최종순수/SSR11pass/types0/export/static3pass와 최신에뮬레이터 실제사진/요약/상세복귀·도로/수계/pinch를 각각 확인했다. Native jank49.09%/PSS1008007KiB는 성능미수용이고 pinch 뒤 일부 도구글자 미표시도 관측했으며 Local앱2회귀는 타프로젝트포트점유로 미실행이다. 사용자데이터변경·원격배포·커밋/푸시 없이 최신APK와에뮬레이터를 유지한다.
+
+변경 파일: frontend/src/{SvgTravelMap,MapAttribution,TileSurface,TileSurface.web,TileSurface.types,TileBoundary,simpleMapStyle,simpleMapRegions,simpleMapLabels,tileCamera,usePhotoGroupMotion}; frontend/package.json·package-lock.json·app.config.ts·plugins/withBundleEnvironment.cjs·public/index.html; scripts/{configured.mjs,configured.test.mjs,export-web.test.mjs,bundle-environment.test.mjs,prepare-maplibre.mjs}; backend/tests/{simple-map.test.ts,maps-native.test.ts}; frontend/e2e/{simple-map,photo-map,svg-map,svg-app,static-web}.spec.ts; docs/{SIMPLE_PHOTO_MAP_SPEC,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md; AGENTS.md·README.local.md·.gitignore·.env.example의 지도키 placeholder 추가. 기존 .env.example 공개값 공유 변경·루트 package/lock·sample/스토리보드/tsconfig 변경은 이번 작업 범위에서 제외한다. 실제키·토큰·개인사진/이름은 기록하지 않았다.
+
+
+## 2026-11-16 16:23 KST — 선택 직후 지형 확대
+
+사용자 프롬프트 원문:
+
+> 사진이나 특별시/도 클릭해서 줌인되면 바로 바다/실제 지형 타일/소수 지역명이 보이게 해줘. 너무 줌인 레벨이 낮은 거 같아
+
+추가 프롬프트 원문:
+
+> /feedback 커밋 푸쉬도 해줘
+
+결과: 홈 선택의 최소줌10.1을 기존choose/fly에 적용하고, 전국사진은 대표기록 원좌표 중심·지역은 기존fit 화면중심으로 이동한다. 비홈·홈초기화·DB/API는 유지한다. 명세/제품은 t14 지정 정적 승인, 선택2case Red를 확인했다. 기존 경기검사의 화면밖 수원구는 새확대 화면안 원본고양구41281로 보정하며 제품조건은 완화하지 않았다. 최종 지정Web10pass(2.0분)/types0·APK1분38초 성공, 에뮬레이터에서 전국사진과 강원영역1회선택의 실제지형 확대를 확인했다. 후보없는 강원중심의 지도라벨0과 기존Native 일부도구문자미표시·성능미수용은 유지한다. 상세 실행/빌드 결과는 TEST_CASE 최신절을 따른다. 앞선 단순지도 관련 변경과 함께 현재 jaehyun/desgin에 커밋·푸시하며, 기존 공개환경공유/루트의존성/원본sample·스토리보드·tsconfig 변경은 제외한다.
+
+변경 파일: frontend/src/SvgTravelMap.tsx; frontend/e2e/photo-map.spec.ts,simple-map.spec.ts; docs/SIMPLE_PHOTO_MAP_SPEC.md,REQUIREMENT.md,PRD.md,TRD.md,API_SPEC.md,TEST_CASE.md,prompts.md; AGENTS.md. 커밋에는 앞선 단순지도 구현의 관련 의존성·설정·검사도 포함한다.
+
+
+## 2026-11-16 16:49 KST — 카카오 Local API 실제 연결 확인
+
+사용자 프롬프트 원문:
+
+> 카카오 API가 .env에 있는데, 정상 작동하는지 테스트 먼저 진행해줘
+
+결과: .env의 KAKAO_REST_API_KEY만 메모리에서 읽어 공식 dapi.kakao.com으로 장소검색(공개관광지)과 주소→좌표(공공기관) GET2회를 실행했다. 모두 HTTP403/NotAuthorizedError, OPEN_MAP_AND_LOCAL service 비활성 응답이었다. 주소조회 실패로 좌표→주소 왕복은 실행하지 않았다. Admin 키는 사용하지 않았고 실제키·토큰·응답의 개인정보는 기록하지 않았다. 공식 카카오맵 문서의 앱→카카오맵→사용설정ON 경로를 안내한다. 제품코드/기존Geoapify/DB/원격설정 변경·커밋/푸시는 하지 않았다.
+
+변경 파일: docs/prompts.md (실행 이력만 추가).
+
+
+## 2026-11-16 16:53 KST — 카카오 활성화 후 재검증
+
+사용자 프롬프트 원문:
+
+> 활성화 했어. 다시 테스트
+
+결과: KAKAO_REST_API_KEY로 공식 Local API GET3회를 재실행해 모두HTTP200/내용검증통과. 공개관광지 장소검색5결과에서 일치이름·유효좌표·장소ID 확인, 공공기관 주소검색1결과와 반환좌표의 역주소1결과에서 원래도로명/건물번호일치 확인. 이전403은별도이력으로보존한다. 키값/개인정보는출력하지않고Admin키미사용. 지도SDK/앱연동/실기기검증은아니며제품·DB·원격설정변경/커밋·푸시없음.
+
+변경 파일: docs/prompts.md (실행 이력만 추가).
+
+| 2026-11-16 18:06 KST | 현재 구성을 유지한채로 지도에 저작권표시를 최소화하는 방식으로 개선해줘 | Geoapify 구성 유지, 필수 출처 링크를 10px 줄바꿈 띠로 통합하고 My 라이선스 보완. 단위1pass/types0, 실기기 미검증. | 변경 파일: `frontend/src/MapAttribution.tsx`, `backend/tests/map-attribution.test.ts`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `AGENTS.md`, `docs/prompts.md` |
+
+## 2026-11-17 선택 시도 전체 맞춤
+사용자 요청: 사진 클릭했을 때, 부산에 있는 사진이라면 부산 전체를 보여주면서 그 줌인 영역에 타일이 표시되어한다는 의미였어.
+그리고 저작권 표시도 처음 로그인 화면에 짧게 표시하고, 지도에는 표시안하는 방향으로 해줘
+결과: 사진/시도 모두 전체fit으로 복원하고 기본지형 minzoom0. 로그인단독 출처는 제공자허용 미확인으로 미적용. 변경: SvgTravelMap.tsx, simpleMapStyle.ts, simple-map.test.ts, simple-map.spec.ts, photo-map.spec.ts, SIMPLE_PHOTO_MAP_SPEC 및 canonical6, 본 이력. Native/부산 실제기기 미검증.
+
+| 2026-11-17 13:13 KST | 웹은 적용이 안됬나? 웹 이랑 앱에 적용하고 웹사이트 켜줘 | 최신 configured 웹8083 실행/실부산 전체fit·타일 확인, x86_64 APK 빌드·에뮬레이터 업데이트 설치·실행. Vercel 미배포. | `docs/TEST_CASE.md`, `docs/prompts.md` |
+| 2026-11-17 13:13 KST | /feedback 웹 배경이나 타일이 하나도 안바뀌었는데 | 실제 localhost guest 부산 선택에서 전체경계/도로·녹지·수계 및 PBF200 확인, 스크린샷 전달. 기존 배포주소와 로컬을 구분. | `docs/TEST_CASE.md`, `docs/prompts.md` |
+
+| 2026-11-17 13:19 KST | 이렇게 보인다니까 | 첨부는 SVG fallback으로 식별. 홈 옛Ocean 제외·단색대체/키없음 및 renderer실패 안내·수동retry 보강. Web1/SSR5/types 통과·t14승인. 사용자브라우저 원인과 실제복구 미확정. | `frontend/src/SvgTravelMap.tsx`, `frontend/e2e/simple-map.spec.ts`, `backend/tests/maps-native.test.ts`, `docs/SIMPLE_PHOTO_MAP_SPEC.md`, canonical6, `docs/prompts.md` |
+
+
+## 2026-11-17 14:07 KST — OpenFreeMap 전국/상세 전환
+사용자 프롬프트 원문:
+> 웹과 안드로이드 어플에서 보이는 지도구성을 통일 해야하고, 우선적으로 웹에서 먼저 테스트하고 구현한 다음에 안드로이드에 적용시켜줘.
+> 현재 지도의 타일구성을 기존 전국 행정구역 지도는 그대로 유지하고, 일정 수준 이상 확대하면 OpenFreeMap의 Positron 지도로 전환하는 방식으로 하고싶어. 깔끔한 지도 형태로 MapLibre GL JS + OpenFreeMap 조합으로 구현 하고싶어
+> 추가 기능적인 요구사항은 아래의 내용을 구현해줘.
+> 1. 줌인을 안한 디폴트 상태에서는 특별시/도 구분선 외에는 타일이나 글자가 없음
+> 2. 사진을 클릭하면, 해당 지역이 전체적으로 보이는 줌인 스케일이어야하고, 타일이 보여야함.
+> 3. 지역을 줌인한 상태에서 다른 지역의 사진을 누르면 해당 지역으로 이동을 한다음에 사진을 보여줘야함.
+>
+> 다른 지도서비스(구글맵, 카카오맵, 네이버맵)의 줌인 레벨을 참고해서 적용시켜줘.
+> 현재는 대한민국만 표기할 거 야.
+>
+> Implement the plan.
+> /feedback 커밋 푸쉬도 해줘
+> 지금 조작하지 않음 — 검증 진행
+
+결과: 홈을 OpenFreeMap Positron으로 전환하고 전국 SVG커버/명시전체fit/시도별사진/단일카메라 snapshot·줌 hysteresis 및 한국영토 밖 차폐를 연결했다. 검색Geoapify/비홈SVG/DB·원좌표는 보존했다. 고지 전문을 My에 번들 제공하고 obsolete지도키 전달을 제거했다. t14 지정 정적승인, unit15/Node10/types/export 통과. Web·이전회귀·후속focused와 Native 한정관측은 TEST_CASE 실행별 기록을 따르며 전체수용으로 합산하지 않는다. Native 도구글자/성능·실휴대폰 미수용. 커밋/푸시 대상은 지도 관련 변경이며 외부 루트의존성·공개환경공유 변경은 제외한다.
+변경 파일: frontend/src/{SvgTravelMap,simpleMapStyle,photoMap,provinces,MapAttribution} 및 data/maps 고정자료·고지, frontend/e2e/{simple-map,photo-map}.spec.ts, frontend/plugins/withBundleEnvironment.cjs, backend/tests 지도검사4개, scripts/build-map-exterior.py 및 환경전달/검사, docs/OPENFREEMAP_SPEC.md·SIMPLE_PHOTO_MAP_SPEC.md·canonical6·README.local.md·.env.example 지도설명·본 이력.
+
+
+## 2026-11-17 15:49 KST — 지도 가독성·먼섬 탐색 구현
+
+### 사용자 프롬프트 원문
+
+```text
+# 수정사항
+1. 현재 글씨가 지도에서 잘리는 현상이 있음. 확대영역에서 글자부분이 잘리거나 가독성 나쁜부분 수정
+2. 섬은 특별시/도에 포함은 하되, 따로 클릭해야 보여주는걸로. 특별시/도를 클릭했을 때, 섬까지 확대에서 보여주지않음.
+3. 시 군 구 나 대로 및 하천 지역 확대범위를 늘려서 전체적으로 보았을 때, 너무 글자가 많이 보이지않게 수정
+4. 공원, 산 하천 등등 파스텔 색깔을 넣어서 @sample/map_zoom_in_ui.jpg 처럼 수정 가능한지
+
+구현 후, 커밋 푸쉬
+```
+
+```text
+Implement the plan.
+```
+
+### 결과 요약
+
+홈 본토/먼섬 표시타깃·사진/geometry/목록 소속을 공통원본에서 분리하고, 선택후무라벨/사용자확대 이름단계·파스텔지형/국내이름필터를 구현했다. Native within Layer.filter 크래시와 기존root/window 터치측정혼용은 기존SDK/API 경계에서 보강했다. t14 정적검토, 관련단위19·Web10(보강전clock포함)/보강대상2·좌표회귀3·types/export·최종APK 실제울릉도/경북/부산·glyph/사진요약을 분리기록했다. 기존Native 도구글자/성능·실휴대폰/iOS/전체E2E는미수용이며 원격DB/실배포는하지않았다. 현재브랜치 관련변경만커밋/푸시한다.
+
+### 변경 파일
+
+AGENTS.md의최신작업절, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md의최신작업절, docs/API_SPEC.md, docs/TEST_CASE.md, docs/prompts.md의본이력, scripts/build-map-areas.py, frontend/src/homeMapAreas.ts, frontend/src/data/maps/home-map-areas.json, frontend/src/data/maps/label-land.json, frontend/src/data/maps/README.md, frontend/src/SvgTravelMap.tsx, frontend/src/provinces.ts, frontend/src/simpleMapStyle.ts, frontend/src/TileSurface.tsx, frontend/src/TileSurface.web.tsx, frontend/src/TileSurface.types.ts, frontend/src/usePhotoGroupMotion.ts, frontend/e2e/simple-map.spec.ts, backend/tests/map-readability.test.ts, backend/tests/openfreemap.test.ts, backend/tests/maps-native.test.ts. 기존.env.example/환경공유정책/루트package·lock/기타미추적파일은제외.
+
+## 2026-11-17 선택 시도명 구현
+- 요청 원문: 특별시/도 선택했을 때, 그 지역 이름은 보여줬으면 해. 예를 들어 경상남도 지역이나 그 지역 사진을 클릭하면 연한 회색글씨로 경상남도 이름은 보여주면 좋겠다
+- 결과: 홈 선택시도 정식명 하나를 연회색 SVG로 표시하고 전국/먼섬에서는 숨김. 기존 약칭/타일이름 공개조건 보존. unit/SSR10pass/types·export/APK 성공, Web2pass+기존Escape실패 후 실제닫기준비조건 대상1pass, Native 경북/경남 실제표시 확인. Escape 및 실폰/iOS/성능 수용은 별도.
+- 변경 파일: frontend/src/mapLabels.ts, frontend/src/SvgTravelMap.tsx, backend/tests/map-labels.test.ts, backend/tests/maps-native.test.ts, frontend/e2e/simple-map.spec.ts, docs/MAP_READABILITY_SPEC.md, docs/REQUIREMENT.md, docs/PRD.md, docs/TRD.md, docs/API_SPEC.md, docs/TEST_CASE.md, AGENTS.md, docs/prompts.md.
+
+## 2026-11-18 10:57 KST — SNS 구현 및 수명 보강
+
+- 사용자 프롬프트 원문: 그럼 모든 권한을 줄테니, 요구사항대로 완벽하게 구현해줘
+- 결과: 승인된 SNS 명세에 따라 서버 권한/차단·반응·댓글/알림·신고/제재·avatar lifecycle, 5탭 대시보드/피드/지도/도감 퍼즐/My를 구현했다. t14의 서버 경합·클라이언트 입력/복귀 지적을 보강했다. 격리 Local28pass, 최신 집중Web10pass, frontend 타입0, Web export/Android release build 성공 및 Android 지정흐름을 확인했다. 앞선 실패·포인터 미확정·Native 전체/성능 미수용·원격 미적용은 TEST_CASE에 분리했다.
+- 변경 파일: backend/supabase/migrations/20261117~20261118 SNS migration, backend/supabase/functions/{photo-url,profile-avatar,profile-avatar-url,cleanup-avatars,_shared/avatar.ts}, backend/supabase/config.toml, backend/tests SNS 검사, frontend/app/index.tsx, frontend/src/{SocialUI,SocialSpace,TravelDashboard,travelPuzzles,puzzleArtwork,Journal,SvgTravelMap,api}, frontend/assets/ui/puzzles, frontend/e2e/social-travel.spec.ts 및 fixture, scripts/{sns-local-setup,sns-local-web,social-moderation}.mjs, SNS 테스트 config, docs/{SOCIAL_TRAVEL_SPEC,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md, AGENTS.md.
+
+## 2026-11-18 12:37 KST
+
+> Implement the plan.
+
+흰 배경의 사진 중심 홈·피드·My와 모바일/데스크톱 탐색을 구현했다. Local SNS 웹 11개 시나리오, 단위 검사 5개, 타입 검사, 웹 export와 Android 빌드를 통과했고 에뮬레이터로 주요 화면을 확인했다.
+
+변경 파일은 `AGENTS.md`, `docs/SOCIAL_TRAVEL_SPEC.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`, `docs/prompts.md`, `frontend/app/index.tsx`, `frontend/src/theme.ts`, `frontend/src/AppSettings.tsx`, `frontend/src/Journal.tsx`, `frontend/src/MapAttribution.tsx`, `frontend/src/Social.tsx`, `frontend/src/SocialSpace.tsx`, `frontend/src/SocialUI.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/e2e/social-travel.spec.ts`이다.
+
+## 2026-11-18 15:51 KST
+
+> 현재 이전에 작성했던 지도 디자인이랑 버튼등이 여행기록 추가나, 도감에서 여행기록 지역을 볼 때, 그대로 남아있는데, 해당 이전 디자인 지도를 삭제하고 최신 지도 모형으로 변경해줘
+
+작성·위치 선택·도감 상세에서 지도 탭과 같은 전국 경계, 상세 Positron 지도, 지도 도구를 사용하도록 통합했다. 모바일 웹에서 실제 기록과 위치 선택 흐름을 확인했다. 저장 핀과 실제 타일의 좌표 정렬, 해외 좌표 보정, 접근성 도구와 복귀를 각각 확인했다.
+
+변경 파일은 frontend/src/{SvgTravelMap.tsx,OceanBackground.tsx,uiAssets.ts}, frontend/e2e/{map-fixture.ts,photo-map.spec.ts,svg-map.spec.ts,simple-map.spec.ts,social-travel.spec.ts}, backend/tests/maps-native.test.ts, AGENTS.md와 docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md이다.
+
+## 2026-11-18 20:11 KST
+
+> Implement the plan.
+
+사진 두 단계 작성과 EXIF 확인, 세계 지도 개요·간소화된 국내 타일, 홈 여행 다람쥐와 지도 출처를 구현했다. 후속 기능과 사업 모델은 검토 명세에 기록했고, 격리 Local 웹·Android에서 작성 흐름을 검증했다.
+
+변경 파일은 `AGENTS.md`, `backend/tests/photos-picker.test.ts`, `backend/tests/travel-studio.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRAVEL_ROADMAP.md`, `docs/TRAVEL_STUDIO.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/plugins/withPhotoMetadata.cjs`, `frontend/src/MapAttribution.tsx`, `frontend/src/PhotoTray.tsx`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/src/TravelerSquirrel.tsx`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/README.md`, `frontend/src/data/maps/world-overview.json`, `frontend/src/photoCity.ts`, `frontend/src/photos.ts`, `frontend/src/simpleMapStyle.ts`, `frontend/src/studioDates.ts`이다.
+
+## 2026-11-18 21:53 KST
+
+> # 여행가봥 프로젝트 기획 회의 정리
+>
+> ## 1. 회의 핵심 요약
+>
+> 이번 회의에서는 **여행가봥 앱의 홈 화면 개편, 여행 콘텐츠 확장, 태그 기반 분류 시스템, 캐릭터 브랜딩, 출시 전략**을 중심으로 논의했다.
+>
+> 핵심 방향은 기존 지도 기반 여행 기록 기능을 유지하면서 피드와 스토리텔링 기능을 추가하고, 게임형 이벤트와 브랜드 캐릭터를 통해 사용자 참여도를 높이는 것이다.
+>
+> ## 2. 주요 논의 사항
+>
+> | 구분 | 주요 내용 |
+> |---|---|
+> | 홈 화면 개편 | 지도 중심 구조 유지 및 피드 기능 도입 검토 |
+> | UI/UX 개선 | 지도, 피드, 마이페이지의 효율적인 배치 및 타 서비스 사례 참고 |
+> | 여행 기록 | 지도 기반 여행 기록 통합 관리 및 스토리텔링 기능 추가 |
+> | 콘텐츠 기획 | 전국 산·바다를 활용한 게임형 이벤트, 온천·낚시 등 테마 확장 |
+> | 태그 시스템 | 사전 정의된 태그와 사용자 입력 태그를 활용한 사진 분류 |
+> | AI 기능 | 사진 분석을 통한 자동 태그 생성 및 맞춤형 콘텐츠 추천 검토 |
+> | 캐릭터 브랜딩 | 다람쥐, 수달, 카피바라 등 캐릭터 후보 및 이름 선정 |
+> | 튜토리얼 | 캐릭터를 활용한 앱 사용법 안내 및 온보딩 구성 |
+> | 개발 방향 | PWA 기반 개발 방향 논의 |
+> | 출시 전략 | 약 14일의 앱 검토 기간을 고려한 조기 출시 추진 |
+> | 홍보 및 발표 | 워크샵 발표 자료, 캐릭터 홍보 전략, 스타트업 보고서 준비 |
+>
+> ## 3. 핵심 기획 방향
+>
+> ### ① 홈 화면 및 사용자 경험 개선
+>
+> - 기존 지도 기반 여행 기록 기능 유지
+> - 홈 화면에 피드 기능 추가 검토
+> - 지도와 마이페이지의 역할 및 배치 재정립
+> - 여행 기록에 스토리텔링 요소 도입
+> - 타 여행 플랫폼 사례를 참고해 간결한 인터페이스 설계
+>
+> ### ② 여행 콘텐츠 및 이벤트 확장
+>
+> - 전국 산과 바다를 활용한 게임형 여행 이벤트 기획
+> - 온천, 낚시 등 다양한 여행 테마 추가 검토
+> - 여행 기록과 이벤트 참여를 연결하는 방식 논의
+> - 사용자 참여와 지속적인 앱 이용을 유도하는 콘텐츠 개발
+>
+> ### ③ 태그 기반 콘텐츠 분류
+>
+> - 여행 테마별 기본 태그 목록 사전 정의
+> - 태그별 아이콘 제작
+> - 사용자 직접 입력 태그 지원
+> - AI 기반 사진 자동 태그 생성 검토
+> - 태그를 활용한 여행 기록 검색, 필터링 및 추천 기능 구현
+>
+> ### ④ 브랜드 캐릭터 및 홍보
+>
+> - 다람쥐, 수달, 카피바라 등 캐릭터 후보 검토
+> - '가랑이', '사랑이' 등 캐릭터 이름 논의
+> - 순우리말의 의미와 어원을 고려한 작명
+> - AI 특유의 인위적인 느낌을 줄인 자연스럽고 귀여운 디자인 추구
+> - 캐릭터를 튜토리얼, 앱 안내, 홍보 콘텐츠에 활용
+>
+> ### ⑤ 개발 및 출시 전략
+>
+> - PWA 기반 개발 방향 논의
+> - 홈 화면 개편과 피드 기능 도입 계획
+> - 앱 검토 기간 약 14일을 고려한 조기 출시 추진
+> - 워크샵 발표 및 프로젝트 진행 상황 점검
+> - 광고 배포 여부와 홍보 일정 추가 검토
+>
+> ### 6 스플래시 화면
+> - 처음 실행 할 때, 스플래시 화면을 띄워서 앱 화면이 준비 되면 디스플레이
+> - 지도 화면으로 전환할 때, 렉이 조금 있으므로 그때도 스플래시 화면을 디스플레이
+> - 스플래시 화면은 가운데에 가방을 두고 밑에 앱 이름인 "여행가봥"을 띄우고, 로딩을 기다리는 화면
+> - 스플래시 화면의 가방은 움직임이 있고 역동적이어야함. 가방이 나타나는 장면을 애니메이션처럼 구성
+>
+> ## 4. 향후 진행 과제
+>
+> ### 1차 우선순위
+> - [ ] 홈 화면 구조 확정 (지도·피드·마이페이지)
+> - [ ] 기존 기능 유지 범위 및 출시 MVP 확정
+> - [ ] 앱 출시 일정 및 워크샵 발표 자료 준비
+> - [ ] 스플래시 화면
+>
+> ### 2차 우선순위
+> - [ ] 태그 목록 및 분류 체계 설계
+> - [ ] 캐릭터 디자인 및 이름 선정
+> - [ ] 캐릭터 기반 튜토리얼 기획
+>
+> ### 3차 우선순위
+> - [ ] AI 자동 태그 및 추천 기능 검토
+> - [ ] 산·바다 등 테마형 이벤트 구체화
+>
+> ## 5. 최종 정리
+>
+> **여행가봥의 핵심 방향은 단순한 여행 기록 앱에서 여행 기록·공유·수집·탐색을 결합한 참여형 여행 플랫폼으로 발전시키는 것이다.**
+>
+> 단기적으로는 홈 화면 개편, 피드 도입 여부 결정, 캐릭터 브랜딩, 앱 출시 준비에 집중하고, 중장기적으로 AI 태그 분류, 맞춤형 추천, 테마별 게임형 이벤트를 확장하는 방향이다.
+>
+> > **확인 필요:** 이번 회의 내용에는 확정된 결정과 검토 단계의 아이디어가 혼재되어 있으므로 홈 화면 구조, 캐릭터, PWA 전환 여부, 출시 범위는 최종 확정이 필요하다.
+>
+> 현재 브랜치를 jhyun/plan 으로 생성하고 스위치하여 구현.
+> 기존에 홈화면 개편, 피드, 마이페이지는 변경했지만, 요구사항에 구현하지 못한 부분이 있다면 구현.
+> 추가로, 현재 웹화면인 지도 화면이 [Image #1] 처럼 산 부분이 삐쭉삐죽 튀어나온 부분인데, 너무 디자인이 별로라서 해결하거나, 안된다면 초록 부분 색깔은 빼줘.
+> 그리고 세계지도가 너무 지도 윤곽이 안잡혀있어서, 지도 모양은 잡아주고 안에 세부적인 지역명은 넣지말고 지역마다 구분선은 넣어줘. 그리고 대표적인 지역명만 표시하는 방향으로
+> 작업이 끝나면 커밋푸쉬도해줘
+
+태그 범위 확인 답변: “분류 체계·아이콘 설계까지. 실제 저장·검색은 후속 작업”. 앱 시작·지도 전환에 가방을 표시하고 다람쥐 안내를 실제 화면과 연결했다. 국내 산 면 채색을 걷고 해외 해안선·국경·광역 경계를 보강했다.
+
+변경 파일은 `AGENTS.md`, `backend/tests/map-readability.test.ts`, `docs/API_SPEC.md`, `docs/PLAN_MVP.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/design/travel-theme-icons.svg`, `docs/prompts.md`, `frontend/app.json`, `frontend/app/_layout.tsx`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/public/index.html`, `frontend/public/travel-splash.png`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/TravelDashboard.tsx`, `frontend/src/TravelSplash.tsx`, `frontend/src/TravelerSquirrel.tsx`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/README.md`, `frontend/src/data/maps/world-overview.json`, `frontend/src/provinces.ts`, `frontend/src/simpleMapStyle.ts`, `scripts/build-world-overview.py`이다.
+
+## 2026-11-19 13:40 KST
+
+> 광고 계획을 따로 명세서를 만들고, AGENTS.md에서 참조하는 식으로 만들어주고, 커밋 푸쉬해줘
+
+Android 공개 피드의 광고 배치, Expo·AdMob 설정, 동의 및 출시 검증을 별도 명세로 작성하고 AGENTS.md에서 연결했다.
+
+변경 파일은 `docs/ADMOB_PLAN.md`, `AGENTS.md`, `docs/prompts.md`이다.
+
+# 2026-11-18 17:42 KST — 행정구역 최신화
+
+## 프롬프트 원문
+
+```text
+# 여행가봥 — 대한민국 행정구역 지도 데이터 최신화 (2026년 기준)
+
+## 1. 개발 목표
+
+현재 여행가봥(MyTravelDex) 프로젝트에서 사용 중인 **2018년 기준 대한민국 행정구역 데이터를 2026년 11월 기준으로 확인 가능한 최신 공식 데이터로 교체**해 줘.
+
+이번 작업은 단순히 GeoJSON 파일만 변경하는 것이 아니라, 최신 행정구역 개편 사항을 지도·여행 기록·여행도감·스탬프·여행지 뽑기 기능에 일관되게 반영하는 것이 목표야.
+
+기존 UI/UX, 디자인, 사용자 기록 및 주요 기능은 최대한 유지해야 해.
+
+## 2. 작업 전 기존 프로젝트 분석
+
+코드를 수정하기 전에 다음 사항을 확인해 줘.
+
+1. 현재 사용 중인 GeoJSON 및 행정구역 경계 파일과 기준 연도
+2. SVG/GeoJSON/d3-geo 지도 렌더링 구조
+3. 시·도 및 시·군·구의 행정구역 코드와 명칭
+4. 지역별 방문 기록 및 여행도감 데이터 구조
+5. Supabase에 저장된 지역 코드와 위치 정보
+6. 스탬프 획득 및 지역별 수집률 계산 방식
+7. '어디로 가봥?' 여행지 랜덤 뽑기 후보 생성 방식
+8. 지도 마커, 지역명 라벨, 확대·축소 및 클릭 기능
+
+기존 구조를 분석하고 수정 범위를 정한 다음 작업을 진행해 줘.
+
+## 3. 최신 공식 행정구역 데이터 확보
+
+2026년 11월 18일까지 시행된 변경사항을 기준으로 최신 자료를 확인하고 적용해 줘.
+
+### 3.1 지도 경계 데이터
+
+우선 사용할 데이터:
+
+**재난안전데이터 공유플랫폼 — 시군구법정경계**
+
+- URL: [https://www.safetydata.go.kr/disaster-data/view?dataSn=900](https://www.safetydata.go.kr/disaster-data/view?dataSn=900)
+- 제공 기관: 한국지역정보개발원
+- 확인된 갱신일: 2026년 11월 6일
+- 형식: SHP, SHX, DBF
+
+가능하면 위 공식 데이터를 직접 다운로드해 사용한다.
+
+자료에 포함된 실제 행정구역 기준일과 갱신일을 구분해 확인한다.
+
+자료가 최신 행정구역 개편을 완전히 반영하지 못했다면, 추가 공식 자료를 대조해 누락된 경계를 보완한다.
+
+### 3.2 행정구역 코드 및 명칭
+
+행정안전부의 최신 행정구역 코드 변경내역을 확인한다.
+
+- URL: [https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000052](https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardList.do?bbsId=BBSMSTR_000000000052)
+
+2026년 10월 30일 기준 코드 변경내역을 포함해, 작업 시점에 확인 가능한 최신 자료를 사용한다.
+
+법정동 코드와 행정기관 코드를 구분하고, 기존 프로젝트에서 사용하는 코드 체계와 정확히 매핑한다.
+
+### 3.3 데이터 변환 및 최적화
+
+- SHP 데이터를 GeoJSON으로 변환
+- 원본 좌표계를 확인하고 WGS84(EPSG:4326)로 변환
+- 한글 인코딩 정상 처리
+- Polygon/MultiPolygon 유효성 검증
+- 도서 지역 및 해안선 보존
+- 지도 렌더링 성능을 고려한 경계 단순화
+- 최신 시·군·구 경계를 기준으로 상위 시·도 경계 생성
+- 데이터 원본, 기준일, 변환 과정 기록
+
+지도 경계가 중복되거나 해안선이 이중으로 표시되지 않도록 기존 경계 레이어 구조도 확인한다.
+
+## 4. 2026년 행정구역 개편 반영
+
+### 4.1 전남광주통합특별시
+
+2026년 7월 1일 출범한 전남광주통합특별시를 반영한다.
+
+- 기존 광주광역시와 전라남도의 통합
+- 새로운 광역 행정구역 명칭 및 코드 반영
+- 기존 광주·전남 지역의 하위 행정구역 유지 및 최신 코드 매핑
+- 지도 경계와 지역명 라벨 수정
+- 기존 광주·전남 여행 기록의 지역 매핑 보존
+
+광주 도심과 전남의 시·군을 여행지 뽑기에서 어떻게 구분할지도 기존 확정 규칙에 맞춰 처리한다.
+
+### 4.2 인천광역시 행정체제 개편
+
+2026년 7월 1일 시행된 행정구역 개편을 반영한다.
+
+- 기존 중구·동구 관할 지역을 제물포구·영종구로 재편
+- 기존 서구 관할 지역을 서해구·검단구로 재편
+- 변경된 경계와 최신 행정구역 코드 반영
+- 기존 사용자 기록을 실제 위치에 따라 새 행정구역에 매핑
+
+이름만 교체하지 말고 실제 경계 변경사항을 반영해야 한다.
+
+### 4.3 기타 변경사항
+
+2018년 이후 2026년 11월 18일까지 발생한 행정구역 신설, 폐지, 분할, 통합, 명칭 변경 등을 공식 자료와 대조해 반영한다.
+
+변경 사항을 임의로 추측하지 않으며, 공식 자료로 검증된 내용만 적용한다.
+
+광역 행정구역 개편으로 전국 시·도 개수가 변경됐다면 기존 코드에 고정된 시·도 개수 역시 수정한다.
+
+## 5. 기존 지도 시스템 유지 및 개선
+
+기존 React/SVG/GeoJSON/d3-geo 지도 구현 방식을 유지한다.
+
+다음 기능은 정상적으로 동작해야 한다.
+
+- 전국 시·도 지도 표시
+- 시·군·구 상세 지도 표시
+- 지도 확대·축소 및 이동
+- 지역 클릭 및 선택
+- 방문 지역 색상 표시
+- 여행 기록 사진 마커
+- 지역명 라벨
+- 기존 바다 및 배경 디자인
+- 모바일 및 웹 반응형 UI
+
+기존 색상 및 디자인 스타일을 변경하지 않는다.
+
+행정구역 명칭은 최신 공식 명칭을 사용하되, 지도 라벨에서는 기존의 간결한 표시 규칙을 유지한다.
+
+## 6. '어디로 가봥?' 여행지 뽑기 연동
+
+현재 구현된 여행지 랜덤 뽑기 기능을 최신 행정구역 데이터와 연동해 줘.
+
+기존에 확정한 여행지 추첨 규칙을 유지한다.
+
+- 일반 시·군은 독립적인 추첨 후보
+- 일반 시의 구는 상위 시로 통합
+- 특별시·광역시의 자치구는 상위 도시로 통합
+- 특별시·광역시의 군은 독립적인 추첨 후보
+- 세종시는 하나의 추첨 후보
+- 제주도는 제주시·서귀포시로 구분
+
+전남광주통합특별시는 광주 도심의 자치구를 하나의 '광주' 여행지로 묶되, 기존 전남 지역의 시·군은 각각 독립적인 여행지로 유지한다.
+
+이는 공식 행정계층과 별도로 적용하는 여행가봥의 여행 목적지 분류 규칙이다.
+
+통합된 여행지 목록을 기준으로 균등 랜덤 추첨한다.
+
+기존 하이라이트 애니메이션, 추첨 모드, 결과 카드 및 다시 뽑기 기능은 유지한다.
+
+## 7. 기존 사용자 데이터 보존
+
+이번 작업에서 가장 중요한 요구사항이다.
+
+**Supabase에 저장된 기존 사용자 기록을 삭제하거나 초기화하면 안 된다.**
+
+보존 대상:
+
+- 사용자 여행 기록
+- 사진 및 사진 저장 경로
+- GPS 좌표
+- 지역별 방문 정보
+- 여행도감 수집 기록
+- 스탬프 획득 내역
+- 친구 관련 데이터
+
+### 7.1 행정구역 코드 매핑
+
+2018년 기준 지역 코드와 최신 지역 코드를 비교해 변경 매핑 테이블을 생성한다.
+
+- 명칭만 변경된 지역
+- 경계가 변경된 지역
+- 새로 생성된 지역
+- 폐지된 지역
+- 분할 또는 통합된 지역
+
+각 유형에 맞는 마이그레이션 규칙을 적용한다.
+
+GPS 좌표가 있는 기존 여행 기록은 최신 경계에 대한 공간 판정으로 새 행정구역을 결정할 수 있도록 한다.
+
+GPS가 없거나 위치가 모호한 기록은 임의로 다른 지역에 배정하지 않는다.
+
+### 7.2 스탬프 및 방문 기록
+
+기존에 획득한 스탬프를 임의로 회수하지 않는다.
+
+지역 개편 때문에 스탬프나 수집률이 변경될 수 있다면 기존 데이터와 새 기준의 차이를 검증한다.
+
+필요한 경우 기존 스탬프 기록과 최신 행정구역 기준 수집 상태를 분리해서 관리한다.
+
+### 7.3 데이터베이스 변경 안전성
+
+- 변경 전 데이터 백업 방안 마련
+- 마이그레이션 스크립트 작성
+- 재실행 가능한 마이그레이션 설계
+- 기존 데이터 변경 전후 비교
+- 실패 시 롤백 방안 준비
+
+운영 DB에 파괴적인 변경을 수행하기 전에 변경 영향과 필요한 승인 사항을 보고한다.
+
+## 8. 데이터 관리 구조 개선
+
+향후 2027년 이후 행정구역 데이터도 쉽게 교체할 수 있도록 구조를 개선한다.
+
+- 행정구역 데이터 기준일 및 출처 관리
+- 지도 경계 데이터와 행정구역 코드 매핑 분리
+- 행정구역 변경 이력 관리
+- GeoJSON 변환 스크립트 재사용
+- 데이터 버전 관리
+- 구버전과 신버전 비교 검증
+
+앱 실행 시 매번 공공 API를 호출하지 말고 검증된 정적 GeoJSON 파일을 우선 사용한다.
+
+외부 API 키가 필요하다면 필요한 설정만 별도로 안내한다.
+
+## 9. 필수 테스트
+
+1. 최신 광역자치단체 목록과 지도 표시 일치
+2. 전남광주통합특별시 경계 및 하위 행정구역 정상 표시
+3. 인천 개편 지역 경계와 이름 정상 표시
+4. 전국 시·군·구 중복 또는 누락 여부 확인
+5. 지도 지역명 라벨 및 클릭 기능 정상 작동
+6. 기존 여행 기록 마커 위치 유지
+7. 방문 지역 및 스탬프 데이터 유지
+8. 여행지 랜덤 뽑기 최신 후보 목록 적용
+9. 통합 여행지 하이라이트 정상 동작
+10. 지도 확대·축소 및 모바일 UI 정상 동작
+11. 행정구역 코드 마이그레이션 결과 검증
+12. 기존 데이터와 신규 데이터 간 불일치 확인
+
+가능하면 자동화 테스트를 작성한다.
+
+## 10. 개발 방식 및 완료 보고
+
+작업 순서:
+
+1. 기존 프로젝트 분석
+2. 최신 공식 데이터 확보
+3. 2018년 데이터와 최신 데이터 비교
+4. GeoJSON 변환 및 데이터 검증
+5. 기존 지도에 최신 경계 적용
+6. 행정구역 코드 및 사용자 데이터 매핑
+7. 여행지 뽑기 기능 연동
+8. 전체 기능 및 회귀 테스트
+9. 오류 수정
+10. 변경 사항 보고
+
+직접 수행 가능한 패키지 설치, 데이터 변환, 코드 수정, 테스트는 모두 진행한다.
+
+사용자 권한이나 인증이 필요한 작업만 별도로 요청한다.
+
+최종 보고에는 다음 내용을 포함한다.
+
+- 적용 데이터 기준일 및 공식 출처
+- 변경된 행정구역 목록
+- 새롭게 생성된 GeoJSON 파일
+- 수정된 코드 및 컴포넌트
+- Supabase 마이그레이션 내용
+- 테스트 성공 및 실패 결과
+- 남아 있는 문제점
+
+**최종 목표: 2026년 11월 기준 최신 대한민국 행정구역을 여행가봥 지도에 반영하면서 기존 여행 기록, 지도 디자인, 여행지 뽑기 및 스탬프 기능을 안전하게 유지하는 것이다.**
+```
+
+## 결과 요약
+
+공식 SHP의 불완전성을 확인하고 2026-10-01 SGIS 가공 경계를 11월11일 공식 코드와 대조해 16시도/256시군구·167추첨 후보로 연결했다. 이전 스탬프 경계 보존, 코드 후보표·변경 목록·변환 스크립트와 명세를 추가했다. 관련 Vitest45/Python4/지도Web11/타입/웹export 통과. 전체 Local HTTP·Android·완전한 공식 SHP 대조는 미완료이며 DB/운영 변경·커밋·푸시 없음.
+
+변경 파일: `.gitignore`, `AGENTS.md`, `docs/{ADMIN_REGIONS_2026,API_SPEC,PRD,REQUIREMENT,TEST_CASE,TRD,prompts}.md`, `frontend/app/index.tsx`, `frontend/src/{DestinationScreen,MapAttribution,Social,StampCatalog}.tsx`, `frontend/src/{destinationDraw,destinationUnits,mapLabels,provinces,regions}.ts`, `frontend/src/data/maps/{README.md,manifest.json,korea-sido.json,korea-sigungu.json,korea-exterior.json,korea-ocean.json,gyeonggi-cities.json,home-map-areas.json,label-land.json,legacy-stamp-sido-20260401.json,legacy-code-crosswalk.json,changes-20260401-20261001.json}`, `frontend/assets/maps/ocean-depth.png`, `scripts/{prepare-admin-regions,convert-admin-shp,compare-admin-regions,test-admin-regions,build-map-areas,build-map-cities,build-map-exterior,build-ocean}.py`, `scripts/requirements-admin.txt`, `backend/tests/{admin-regions-2026,destination-draw,map-attribution,map-cities,map-labels,map-readability,maps-native,ocean,provinces,simple-map,stamp-catalog,svg-regions}.test.ts`, `frontend/e2e/{profile-stamps,profile,svg-map}.spec.ts`.
+
+---
+
+## 2026-11-19 12:08 KST — 공식 전국 경계 추가 확보·감사 및 Windows 테스트 보완
+
+### 사용자 프롬프트 원문
+
+> 최신 공식 전국 경계 데이터를 추가로 확보해서 남은 대조·검증도 계속 진행해 줘. 기존 사용자 데이터는 그대로 보존하고, 테스트 환경 문제도 해결 가능한 범위에서 마무리해 줘.
+
+로그인 요청에 대한 사용자 응답: `로그인했어`
+
+### 결과 요약
+
+브이월드 로그인 후 11월9일 전국 전체본과 10·12·16일 변동 ZIP을 확보하고 PRJ/CPG/hash 및 코드·명칭·기하를 감사했다. SIG 16시도/256시군구 코드는 앱과 일치하지만 명칭17개 불일치·원본 도형3개 오류·감사용 유효화 후 겹침519쌍이 있어 앱 채택은 보류했다. 감사 전용 GeoJSON/전국 비교 보고서를 만들고 원본을 Git 제외 artifacts에 보존했다. Supabase Windows 실행 경로와 오류 비밀값 노출을 수정(신규10개 Red→Green)했으며 전체 Vitest129개 통과/3개 환경 실패/86개 보류, 지도Web11개·Python5개·타입검사 통과. Docker/Local HTTP 및 Native 수용은 미완료. 사용자 DB/사진/AVD 초기화·운영 변경·커밋·푸시 없음.
+
+### 이번 후속 작업 변경 파일
+
+- `.gitignore`, `AGENTS.md`, `docs/{ADMIN_REGIONS_2026,TRD,TEST_CASE,prompts}.md`, `docs/admin-boundary-source-audit.json`, `docs/admin-boundary-comparison-20261109.json`, `frontend/src/data/maps/README.md`
+- `scripts/{audit-official-boundaries,test-audit-official}.py`, `scripts/local-supabase.mjs`
+- `backend/tests/{auth,badges,contact-id,cors,external,friend-codes,friends,geocode-vnext,onboarding,photo,profile-public,vnext,local-supabase}.test.ts`, `frontend/e2e/helpers.ts`
+- Git 제외 산출물: `artifacts/admin-boundaries/2026-11-09/` 원본 ZIP4개, 법정코드, 감사 보고서 및 `audit/official-sigungu-candidate.geojson`(운영 미승인 후보).
+
+기존 첫 작업의 지도/추첨/스탬프 코드와 경계 변경은 보존했으며 이번 후속 작업에서 추가로 교체하지 않았다.
+
+## 2026-11-19 12:48 KST
+
+### 사용자 프롬프트 원문
+
+> 공식 경계의 도형 오류와 겹침을 추가 공식 자료로 대조해서 안전하게 보정 가능한 부분은 처리하고, 최신 경계 적용까지 계속 진행해 줘. 기존 사용자 기록은 그대로 보존해 줘.
+
+### 결과 요약
+
+국토지리정보원 비교용 공식 자료를 추가 다운로드하고 최신 공식 EMD와 일치한 겹침 부분만 보정했다. 원본 도형 오류3개·재투영 미세 오류37개를 유효화하고 232개 지역 쌍의 중복 부분 약0.22㎢를 제거했다. 최신 확보 SIG 2026-11-09 경계를 앱에 적용(16시도/256시군구/167목적지)했으나 514쌍의 겹침은 근거 부족으로 보존하고 다중 GPS 귀속은 미확정으로 유지한다. 미확정 기록의 마커·상세 접근, 과거 스탬프 해시, 원본 사용자 DB/사진/GPS 보존. 전체 Vitest132통과/3개 환경실패/86보류, Python9개 및 설치 자산검증·8GB 한도 TypeScript·웹 export 통과. 웹 JS92.8MB로 모바일 성능/Android와 Docker Local HTTP 수용은 미완료. 커밋·푸시·운영 DB 변경·배포 없음.
+
+### 이번 작업 변경 파일
+
+- 신규: `scripts/prepare-official-regions.py`, `scripts/test-official-corrections.py`, `scripts/verify-official-regions.py`, `frontend/src/mapDataVersion.ts`, `docs/admin-boundary-corrections-20261109.json`, `frontend/src/data/maps/changes-20260401-20261109.json`.
+- 갱신: `AGENTS.md`, `docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,ADMIN_REGIONS_2026,prompts}.md`, `docs/admin-boundary-source-audit.json`.
+- 앱: `frontend/src/{regions,mapLabels,destinationDraw,MapAttribution,DestinationScreen,StampCatalog,SvgTravelMap}.tsx 또는 .ts`, `frontend/src/data/maps/{README.md,manifest.json,korea-sido.json,korea-sigungu.json,gyeonggi-cities.json,korea-exterior.json,home-map-areas.json,label-land.json,korea-ocean.json}`, `frontend/assets/maps/ocean-depth.png`.
+- 생성기: `scripts/{build-map-cities,build-map-areas,compare-admin-regions}.py`. 기존 exterior/ocean 생성기로 파생 자산 재생성.
+- 검증: `backend/tests/{admin-regions-2026,map-attribution,map-readability,ocean,svg-regions}.test.ts`, `frontend/e2e/svg-map.spec.ts`. 기존 Native/스탬프 테스트 실패는 assertion 완화 없이 링 방향 구현 수정으로 해결했다.
+- Git 제외: 추가 공식 원본/정의서 `artifacts/admin-boundaries/ngii-2025/`, 보정 후보 및 이전 정적 지도 백업, 검증 산출물. 기존 미커밋 변경은 보존했다.
+
+브라우저 후속 결과: 지도 전체11개 통과, 공식 경계에서 육지로 바뀐 구버전 수역 fixture1개 수정 후 대상 재실행 통과(종합12개 시나리오). 390px 전국 지도 이미지 확인 및 최종 웹 export 성공. 실패를 assertion 완화로 처리하지 않고 공식 union의 실제 내부 수역점으로 검증을 유지했다.
+
+최종 파생 지도 재현 검사(build-map-areas.py --check)와 git diff --check 통과. home-map-areas/label-land 내용 일치·36개 도서 그룹·공식 원본 해시 불변 확인.
+
+## 2026-11-19 14:21 KST
+
+### 사용자 프롬프트 원문
+
+> 웹 번들 92.8MB를 줄이고 모바일 성능 최적화까지 계속 진행해 줘. 공식 경계 판정 정확도와 기존 사용자 기록은 보존하고, 지도 표시·여행지 뽑기·스탬프 기능 회귀 테스트도 진행해 줘.
+
+### 결과 요약
+
+공식/과거 스탬프 좌표를 Float64 무손실 압축 자산으로 분리하고 geometry 지연 복원·정확한 bbox/링 캐시·추첨 경로 지연 생성·보이는 시군구만 경로 생성/캐시·웹 측정 전 중복 생성 방지를 적용했다. 최종 웹 JS92.8MB→34,446,178bytes(약63% 감소), gzip24,249,395bytes. 좌표 단순화 시안은 최종 채택하지 않았으며 원본6종 hash/모든 값 복원·544개 위치판정 동일성·과거 기록 보존을 검증했다. Vitest135통과/3개 Docker환경실패/86보류, 기본 메모리 TypeScript·웹 export 통과. CPU4배 모바일viewport에서 준비24~25초, 확대/홈복귀0.56~1.5초, GC후힙약98MB; 최초 로딩 및 실제Android 성능 수용은 미완료다. 사용자 DB/사진/GPS·스탬프/친구 변경, 커밋·푸시·운영 배포 없음.
+
+### 이번 작업 변경 파일
+
+- 신규: `scripts/pack-map-data.mjs`, `frontend/src/packedMapData.ts`, `frontend/src/data/maps/packed/`의6종 JSON 및manifest, `backend/tests/{packed-map,map-performance}.test.ts`.
+- 수정: `frontend/package.json`, `frontend/package-lock.json`, `frontend/src/{regions,provinces,simpleMapStyle,destinationDraw,destinationUnits}.ts`, `frontend/src/{SvgTravelMap,DestinationScreen}.tsx`, `frontend/e2e/svg-map.spec.ts`, `frontend/src/data/maps/{README.md,map-notices.json}`.
+- 문서: `AGENTS.md`, `docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,ADMIN_REGIONS_2026,prompts}.md`.
+- Git 제외 측정 결과: `artifacts/admin-boundaries/{predicate-performance,mobile-map-performance,vitest-performance-final}.json`, 브라우저/Android export 결과. 이전 미커밋 변경 및 공식 원본 GeoJSON은 보존했다.
+
+Android Hermes 정적 export37.4MB 성공 및390px 전국 지도 이미지 확인. APK/AAB 설치 또는 실기기 성능 완료로 간주하지 않는다.
+
+최종 지도 Playwright 전체13/13 통과(2.7분), 압축 재생성 --check 및 git diff --check 통과. 사용자 요청 범위의 변경 파일을 확인했고 기존 변경은 보존했다.
+
+## 2026-11-19 15:36 KST
+
+### 사용자 프롬프트 원문
+
+> 최초 지도 로딩 24\~25초도 더 줄여 줘. 공식 경계 판정 정확도와 기존 사용자 기록은 유지하면서, 첫 화면이 빨리 뜨도록 최적화하고 회귀 테스트도 진행해 줘.
+
+### 결과 요약
+
+332개 표시 bounds/anchor·16개SVG를 빌드 시 사전 계산하고 최초 표시에서 정확한 위치 geometry 복원을 피했다. 스탬프 윤곽/시도/본토·섬 geometry를 지연하고, 홈에서 숨겨진 MapLibre 시작을 첫 상세 진입으로 미뤘다. 준비 전 SVG를 유지하고 오류·재시도·카메라·기록 접근을 보존했다. 동일 CPU4배 harness 준비25,266→15,326ms(약39% 감소), GC후힙약98→64MB. 실제 정적 웹은 첫화면4.8~6.5초·지도선택후1.3~1.7초, 초기타일요청0; 서로 다른 측정을 혼합하지 않았다. 표시 캐시로웹37.7MB/Android HBC40.7MB로 증가했다. 공식/과거 스탬프 원본좌표·hash·판정/사용자DB/사진/GPS/친구 데이터는 유지한다. 지도13·실제타일3·정적웹4개 Playwright 통과, 전체Vitest137통과/3Docker환경실패/86보류 후 추가1개를 포함한대상18개통과, 타입·웹/Android정적빌드·캐시재현 통과. 실기기/WAN/대량 로그인 기록 성능은 미검증이며 배포·커밋·푸시 없음.
+
+### 이번 작업 변경 파일
+
+- 신규: `scripts/build-map-display.mjs`, `frontend/src/{displayCache,svgPath}.ts`, `frontend/src/data/maps/{display-metadata,display-paths}.json`, `backend/tests/display-cache.test.ts`.
+- 앱: `frontend/src/{regions,homeMapAreas,mapLabels,provinces,packedMapData}.ts`, `frontend/src/{SvgTravelMap,OceanBackground,StampCatalog,TileSurface,TileSurface.web}.tsx`, `frontend/src/TileSurface.types.ts`.
+- 검증: `backend/tests/{maps-native,map-attribution}.test.ts`, `frontend/e2e/{svg-map,simple-map,static-web}.spec.ts`.
+- 문서: `AGENTS.md`, `docs/{REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,ADMIN_REGIONS_2026,prompts}.md`, `frontend/src/data/maps/README.md`.
+- Git 제외: `artifacts/admin-boundaries/`의 캐시 생성 도구 산출물, 성능/테스트 JSON, 실제 정적 웹/Android시험 export 및 이미지. 기존 미커밋 변경을 보존했다. 실제 .env는 읽거나 수정하지 않고, 정적 실행 측정에만 비밀이 아닌 placeholder 공개 설정을 프로세스에 사용했다.
+
+| 2026-11-19 16:09 KST | 상세 지도 눌렀을 때 한 쪽 부분이 하늘 색이 되는 문제가 있어 이거 왜 그런지 점검하고 고쳐봐 | 대형 바다 차폐 도형의 타일 렌더링 육지 침범을 재현하고 표시 차폐를 52개 셀로 분할. 공식 판정/스탬프 경계와 사용자 DB 보존. 단위23·웹24 검증, 타입·웹 빌드 성공, 실제 경상북도 화면 정상 확인. Android 실기기 미검증. | 변경 파일: scripts/build-map-exterior.py; frontend/src/simpleMapStyle.ts; frontend/src/data/maps/korea-exterior.json; frontend/src/data/maps/packed/korea-exterior.json; frontend/src/data/maps/packed/manifest.json; frontend/src/data/maps/README.md; frontend/e2e/exterior-mask.spec.ts; frontend/e2e/simple-map.spec.ts; AGENTS.md; docs/REQUIREMENT.md; docs/PRD.md; docs/TRD.md; docs/API_SPEC.md; docs/TEST_CASE.md; docs/ADMIN_REGIONS_2026.md; docs/prompts.md |
+
+| 2026-11-19 17:13 KST | 다른 지역 상세 지도에서도 같은 문제가 없는지 전국 시·도와 모바일 화면까지 점검해 줘. 기존 사용자 기록과 경계 판정 정확도는 유지해 줘. | 전국16시도·36도서·252화면 대조에서 해안 누락을 추가 발견해 차폐 2673개/홀128/tolerance0으로 보정. 최종495872샘플 불일치0, UI48조건·웹20·단위20·타입·웹빌드 통과. 판정/스탬프 원본 해시 및 사용자 데이터 보존. 모바일웹 검증이며 실기기 미실행. | 변경 파일: scripts/build-map-exterior.py; scripts/check-nationwide-mask.py; frontend/src/simpleMapStyle.ts; frontend/src/data/maps/korea-exterior.json; frontend/src/data/maps/packed/korea-exterior.json; frontend/src/data/maps/packed/manifest.json; frontend/src/data/maps/README.md; frontend/e2e/nationwide-mask.spec.ts; frontend/e2e/simple-map.spec.ts; backend/tests/simple-map.test.ts; AGENTS.md; docs/REQUIREMENT.md; docs/PRD.md; docs/TRD.md; docs/API_SPEC.md; docs/TEST_CASE.md; docs/ADMIN_REGIONS_2026.md; docs/NATIONWIDE_MAP_QA_20261119.md; docs/prompts.md |
+
+| 2026-11-19 17:17 KST | git에 커밋하고 푸쉬해줘 | jsj 브랜치의 지도 최신화·무손실 압축·초기 표시 최적화·전국 해안 보정 및 회귀/문서 114개 파일을 검토하여 커밋·origin/jsj 푸시 대상으로 확정. 기존 검증 결과를 확인하고 비밀 설정/실제 비밀값 및 테스트 산출물 제외를 검사했다. | 변경 파일: docs/prompts.md (이력 추가), 기존 작업 변경 파일은 커밋에 포함 |
+
+커밋 검증 보완: Git 줄바꿈 정규화로 label-land.json의 SHA256이 달라지는 것을 확인하여 `.gitattributes`에 지도 JSON 바이트 보존 규칙을 추가했다. 원본 좌표와 파일 내용은 변경하지 않고 staged 원본 해시와 manifest를 대조한다. 추가 변경 파일: `.gitattributes`, `frontend/src/data/maps/README.md`, `docs/prompts.md`.
+
+## 2026-11-19 20:34 KST
+
+> Implement the plan.
+
+osm-test의 OSM 단일 MapLibre 지도·본인 방문색과 Photon 검색/역조회를 구현했다. Local HTTP·Chromium·Android 게스트를 검증했다. 웹 첫 선택과 첫 화면의 비용 차이 및 에뮬레이터 jank는 TEST_CASE 최신절에 기록했다.
+
+변경 파일은 `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`, `AGENTS.md`, `.env.example`, `backend/supabase/{config.toml,functions/_shared/photon.ts,functions/photon-location/index.ts,migrations/20261119020000_photon_locations.sql}`, `backend/tests/{osm-photon.test.ts,photon.local.test.mjs,map-attribution.test.ts,maps-native.test.ts}`, `scripts/build-osm-regions.py`, `frontend/scripts/build-osm-tiles.mjs`, `frontend/public/boundary-tiles/`, `frontend/src/data/maps/osm-*.json`, `frontend/src/{osmMapStyle,simpleMapStyle,tileCamera,TileSurface.types}.ts`, `frontend/src/{TileSurface,TileSurface.web,SvgTravelMap,MapAttribution,LocationPicker}.tsx`, `frontend/app/index.tsx`, `frontend/e2e/{helpers,map-fixture,location-picker.spec,simple-map.spec}.ts`다.
+
+## 2026-11-19 21:00 KST
+
+> 다녀간 지역 색깔은 안칠해도되고, 너무 사실적인 세부 타일은 안넣어도돼. 그리고 전국지도가 아닌 세계지도는 아예 타일을 안넣어도되고 구분선만 넣으면 되.
+> 세부타일이 동글동글한 모양이었으면 좋겠어 [Image #1] 만약 안된다면 초록색은 빼줘.
+> Photon 검색을 사용하기위해 마이그레이션과 함수배포는 해도돼
+
+국내 공원·수계를 도식화하고 국외에는 내장 경계만 그린다. 선택 강조와 사진 동작을 유지하고 방문 면 채색을 제거했다. 지정된 Photon migration/Edge를 연결된 프로젝트에 적용하고 검색·역조회·비로그인 제한을 검증했다.
+
+변경 파일은 `scripts/build-{outline-world,osm-detail,osm-regions}.py`, `frontend/scripts/build-osm-tiles.mjs`, `frontend/public/boundary-tiles/`, `frontend/src/data/maps/{outline-world,osm-version,osm-audit}.json`, `frontend/src/{osmMapStyle.ts,WorldOverview.tsx,SvgTravelMap.tsx,TileSurface.tsx,TileSurface.web.tsx,MapAttribution.tsx}`, `frontend/app/index.tsx`, `frontend/e2e/simple-map.spec.ts`, `backend/tests/{maps-native,osm-photon}.test.ts`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`, `AGENTS.md`다.
+
+## 2026-11-19 21:14 KST
+
+> [Image #1] 근데 이거봐바. 강이 삐죽삐죽 튀어나온게 너무 이상하지않아? 아니면 확대해서 강이 정상적으로 보일때까지 보이지않게 해야하나?
+> 동글동글하고 쓸데없는 세부 정보는 빼고 보기 편안하게 변경할 수는 없을까?
+
+경남을 같은 배율로 전후 비교하고, 내륙 수계를 광역 생략·대표 본류·지류와 수면의 세 단계로 나눴다. 중심선의 급한 꺾임과 수면의 좁은 홈을 둥글게 처리하고 로컬 웹 프리뷰에 반영했다.
+
+변경 파일은 `scripts/build-osm-detail.py`, `frontend/scripts/build-osm-tiles.mjs`, `frontend/src/osmMapStyle.ts`, `frontend/src/data/maps/osm-version.json`, `frontend/public/boundary-tiles/`, `frontend/e2e/simple-map.spec.ts`, `AGENTS.md`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`다.
+
+## 2026-11-19 21:35 KST — 국내 일반지도와 해외 해안선
+
+- 사용자 요청 원문
+
+  > 세계지도는 구분선도 안넣는게 나은 거 같아. 그리고 실제 지도의 타일이나 건물정도는 표현해줘. 고속도로같은건 표현안해도돼. 기준은 카카오맵 처럼
+
+  > /feedback 네이버 지도가 openStreetMap을 사용중인데, 그냥 고속도로만 지우고 네이버맵 타일기준 참고해서 구현해줘
+
+- 결과: 네이버 일반지도를 참고해 국내 OSM 도로·건물·역을 배율별로 표시하고 고속도로와 연결로를 제외했다. 해외 국경·행정 경계를 녹여 해안선만 표시했다.
+- 변경 파일: `scripts/build-osm-neighborhood.py`, `scripts/build-outline-world.py`, `frontend/src/osmMapStyle.ts`, `frontend/src/WorldOverview.tsx`, `frontend/src/data/maps/{osm-neighborhood-version,outline-world}.json`, `frontend/public/boundary-tiles/blocks-9e47c9076a67/`, `backend/tests/osm-photon.test.ts`, `frontend/e2e/{map-fixture,simple-map.spec}.ts`, `AGENTS.md`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`.
+
+## 2026-11-19 21:43 KST — 시·도 선택 배율
+
+- 요청 원문: 어 지금 너무 좋아. 특별시/도 선택했을때, 살짝 타일이 보였으면 좋겠어. 줌인 범위를 조금 좁혀줘.
+- 결과: 지도 탭에서 시·도를 선택하면 5px 여백으로 본토에 맞추고 저배율에서도 해당 시·도의 주요 일반도로를 최대 세 노선 보여준다. 기존 상세 타일로 이어지는 Web 렌더와 Android 에뮬레이터의 부산 선택을 확인했다.
+- 변경 파일: `frontend/src/{SvgTravelMap.tsx,regions.ts,osmMapStyle.ts,data/maps/osm-road-preview.json}`, `scripts/build-osm-road-preview.py`, `frontend/e2e/{photo-map,simple-map}.spec.ts`, `AGENTS.md`, `docs/{OSM_TEST,REQUIREMENT,PRD,TRD,API_SPEC,TEST_CASE,prompts}.md`.
+
+## 2026-11-19 21:46 KST — 이전 시·도 선택 지도 복원
+
+- 요청 원문: 아 머야. 이건 별로야. 그냥 처음처럼 해줘
+- 결과: 선택 직후 간선도로 미리보기를 제거하고 16px 여백의 본토 맞춤으로 복귀했다. 동네 상세 지도는 유지했고 로컬 웹을 이전 버전으로 복원했다.
+- 변경 파일: 직전 시·도 선택 배율 작업의 제품·검사·문서 및 생성 자산, `backend/tests/osm-photon.test.ts`.

@@ -1,5 +1,9 @@
 # MyTravelDex API 명세서
 
+## 2026-11-21 공통 햄버거 메뉴
+
+FR-MENU-001은 기존 인증·프로필·여행 기록 조회와 공개 범위 변경 계약을 사용한다. 드로어는 badge_inventory·draw_badge를 호출하지 않는다. 기존 배지 RPC·소유권·데이터는 보존한다.
+
 ## Figma 공통 자산 17A (2026-11-09)
 
 UI 자산 적용은 기존 Auth/사진 URL·업로드·프로필/친구·목록 API와 RLS를 변경하지 않는다. Figma 가상 데이터/임시 다운로드 URL을 API 응답이나 실제 사용자 사진으로 주입하지 않는다. 후속 여행 도구 서버 계약은 구현 전 이 문서에 별도 정의한다.
@@ -373,3 +377,181 @@ FR-SVG-OCEAN-001 / TC-SVG-OCEAN-001은 [바다 배경 명세](SVG_OCEAN_SPEC.md)
 ## 2026-11-12 전국 지도 약칭
 
 FR-SVG-MAP-LABEL-002 / TC-SVG-MAP-LABEL-002는 [지역명 명세](SVG_MAP_LABELS_SPEC.md)의17개코드매핑을따른다. 전국SVG라벨의표시문자열과그문자열기준배치만변경한다. 시군구·상단/목록·접근성이름·원본GeoJSON·DB/행정코드·클릭/방문/전환·바다배경은유지하며새API/의존성은없다. 단위/SSR·웹반응형회귀와실Android수용은구분한다.
+
+
+## 2026-11-13 사진 중심 연속 지도
+
+FR-PHOTO-MAP-001 / TC-PHOTO-MAP-001은 `docs/PHOTO_MAP_EXPLORATION_SPEC.md`를 따른다. 내여행 기본/선택 친구·팔로우 한 명/공개탐색 UI 제거(서버권한 유지), 등록일 대표사진·기록수·단일카메라 연속확대·사진군집·요약시트·동작줄이기를 기존 SVG/사진/권한 경계에 연결한다. 이전 시도별 화면교체와 사진핀 종료 계약은 이 범위에서 대체한다. jhyun/t14 리뷰, 단위·Web·Android 실제수용을 구분하고 원격배포하지 않는다.
+
+
+## 2026-11-13 지도 중심 홈
+FR-MAP-HOME-002 / TC-MAP-HOME-002는 docs/MAP_FIRST_HOME_SPEC.md를 따른다. 홈 도구축소/차분한해안색/방문색제거/기본12×fontScale(배치도동일)/홈전용탐색bounds124~132·32~40/최소전국fit/전국사진우선확대/원형친구선택을 적용한다. 기존 scope권한·집계·작성/보정은 유지하며 DB/API변경없음. jhyun 관련변경만 검증후커밋·푸시한다.
+
+
+## 2026-11-13 홈 선택 범위와 복귀 도구
+FR-MAP-HOME-003 / TC-MAP-HOME-003은 docs/MAP_FIRST_HOME_SPEC.md의 최신 절을 따른다. 홈 선택시도만 정확한파란테두리/18%색으로 강조하고 +/−/홈 한글자표시(48px입력),지역찾기버튼제거·지도키보드/스크린리더목록대안을 연결한다. 홈/대한민국은선택·요약·진행중이동을해제하고현재전국fit으로복귀한다. 비홈·기존데이터·권한/API/DB는유지하며Web/Native실행증거를구분한다.
+
+
+## 2026-11-13 경기도 표시 간소화와 전국 복귀 모션
+FR-MAP-HOME-004 / TC-MAP-HOME-004는 docs/MAP_FIRST_HOME_SPEC.md 최신 절을 따른다. 홈 경기도 중간확대8개시 union/31시군 표시·깊은확대 원래구 복원, 회색지도라벨,350ms전국복귀·완료camera=null/reduced즉시·중단보호를 적용한다. 원본행정코드/DB/API/권한/기록·비홈경계를 유지하고Web/Native수용은분리한다.
+
+
+## 2026-11-16 홈 단순 사진지도
+FR-MAP-SIMPLE-001 / TC-MAP-SIMPLE-001은 docs/SIMPLE_PHOTO_MAP_SPEC.md의 사용자 승인 계획을 따른다. 홈만 MapLibre/실제Geoapify타일·단색바다·시도선·단계라벨/기록수마커로 대체하고 비홈SVG/원본geometry/DB/API/권한/사진·상태보호는 유지한다. 별도 공개지도키와 서버검색비밀키를 분리하며 t14/실Web/Native수용·무료quota·원격배포를 구분한다. 이전 홈 SVG 전용/바다그라데이션/시군구선 계약은 이 범위에서 대체된다. 제품 구현과 지정 Web·에뮬레이터 기능 확인을 마쳤다. 전체 E2E·실휴대폰·Native 성능 수용은 완료되지 않았으며 실행별 결과와 환경 차단은 TEST_CASE 최신 이력을 따른다.
+
+2026-11-16 추가: FR-MAP-SIMPLE-001/TC-MAP-SIMPLE-001의 홈 선택은 최소zoom10.1로 지형을 표시한다. 사진은 대표기록 원좌표 중심, 지역은 기존fit 중심이며 비홈/DB/API와 전국복귀는 유지한다. 상세계약은 SIMPLE_PHOTO_MAP_SPEC 마지막 절을 따른다.
+
+
+## 2026-11-16 지도 출처 간소화 (FR-MAP-CREDITS-001 / TC-MAP-CREDITS-001)
+현재 Geoapify 검색·타일/MapLibre/SVG·DB/API는 유지한다. 지도에는 줄바꿈 가능한 10px 출처 띠로 SGIS·vuski 경계 출처 링크와 필요한 Powered by Geoapify·© OpenStreetMap contributors·© OpenMapTiles 링크를 표시한다. 원본 attribution 추가 문구는 삭제하지 않는다. My 하단에는 기준일2026-04-01/CC BY4.0·원자료·라이선스 링크와 제공자 출처를 유지·보완한다. 자동숨김/시작화면 대체/글자크기 추가축소는 적용하지 않는다. 정적 렌더에서 타일/검색/추가출처와 링크를 검증하며 실기기·법률검토 완료로 확대하지 않는다.
+
+
+## 2026-11-17 선택 시도 전체 맞춤 정정
+FR-MAP-SIMPLE-001은 사진/시도 선택 시 기존 fitProjection의 전체 시도 경계+16px 여백을 사용한다. 11월16일 최소zoom10.1/사진좌표 중심 강제 계약을 대체한다. 지형의 수계·녹지·주요도로는 minzoom0으로 제공자 데이터가 있는 배율부터 표시하고 세부도로13/건물16은 유지한다. 원좌표/군집/요약/350ms 모션은 유지한다. 로그인 화면에만 출처를 표시하는 요청은 Geoapify 제공자 허용이 확인되지 않아 미적용이며 현재 최소 출처를 유지한다.
+
+
+## 2026-11-17 홈 타일 실패 표시 보강
+FR-MAP-SIMPLE-001: 홈 키없음/렌더러실패 SVG도 단색하늘색/연한시도선/기존육지를 표시하며 과거 OceanBackground는 비홈에만 유지한다. 렌더러 실패는 사용자에게 알리고 수동 재시도로 TileSurface만 재생성한다. camera/선택/요약/기록/owner는 유지한다. 키없음 안내와 실패 안내를 구분하고 비밀값/전체요청URL은 표시하지 않는다. 실제 사용자 브라우저의 실패원인은 별도 확인하며 대역 contextloss를 동일원인 증거로 해석하지 않는다.
+
+
+## 2026-11-17 OpenFreeMap 홈 지도 전환
+FR-MAP-OFM-001 / TC-MAP-OFM-001은 docs/OPENFREEMAP_SPEC.md를 따른다. 이전 Geoapify 홈타일/지도키·홈SVG라벨 계약을 대체하고 전국행정지도↔Positron 단계·시도전체fit/타지역사진먼저이동·국내외차폐를 Web→Android 순으로 검증한다. Geoapify 검색/비홈SVG/DB/API/RLS/기록원좌표는 유지한다. 구현·실타일·Native 수용은 실행결과로 구분한다.
+
+
+## 2026-11-17 홈 지도 가독성·섬 탐색
+FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md를 따른다. 이전 홈 전체시도fit은 본토+30km이내 연안섬fit/먼섬10km그룹 별도선택으로 대체한다. 원본행정경계·DB/좌표/비홈은보존한다. 선택직후무라벨→사용자확대11/13/14/16 이름단계, 파스텔실지형/국외지형차폐와국내글자분리, 사진대상분할/복귀를Web→Android로검증한다. t14검토·관련커밋/푸시와실배포/전체수용을구분한다.
+
+
+## 2026-11-17 선택 시도 이름 표시 보강
+FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.
+
+
+## 2026-11-17 사진 일기 SNS 개편
+FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭·모바일우선 SNS/개인퍼즐·차단우선/공개관계count와본인명단·512px공개사진 계약을 적용한다. 이전 홈지도는지도탭으로이관하며 원본기록/EXIF/초안/원좌표/기존ID를보존한다. 구현/실행/원격적용을구분하고현재전체수용미완료다.
+
+### SNS 1단계 RPC (POST /rest/v1/rpc/)
+- social_feed(mode='public'|'following',cursor_time timestamptz|null,cursor_id uuid|null): {items:[id,owner_id,title,content,start_date,end_date,created_at,author:{id,user_code,display_name,avatar_url},photo_count,cover_photo_id,like_count,comment_count,liked,saved],next_cursor:{created_at,id}|null,has_more}. 공개읽기허용,following인증필수. 소유자/비공개EXIF·Storage경로없음.
+- social_set_reaction(record_id uuid,kind='like'|'save',enabled bool): {enabled}. 인증필수,현재public complete권한; 설정상태동일재시도는중복과금/알림없음.
+- social_comments(record_id uuid,cursor_time timestamptz|null,cursor_id uuid|null): 서버가시댓글20개/next_cursor/has_more. parent_id/삭제tombstone/작성자최소정보만반환. 본문1000자.
+- social_create_comment(comment_id uuid,record_id uuid,body text,parent_id uuid|null): {id,record_id,parent_id,body,created_at,deleted}; UUID동일payload재시도멱등,다른payload거절.
+- social_edit_comment(comment_id uuid,body text): 본인만, {id,body}; 삭제된댓글수정거절.
+- social_delete_comment(comment_id uuid): 작성자또는기록주인, {deleted:true}; soft삭제본문null/답글유지.
+- social_set_block(target_id uuid,enabled bool): {blocked}. 인증본인만, 자기차단불가; 활성차단관계일방존재로양쪽제한.
+- social_notifications(cursor_time,cursor_id): 본인유효알림20개·next_cursor·has_more·unread_count. 조회시대상권한을재검사한다.
+- social_read_notifications(notification_ids uuid[]): 최대100개본인행만read_at설정, {read_count}.
+직접신규테이블쓰기/익명mutation/GET mutation은거부한다. 404미지원만새소셜화면을닫고기존Auth/기록작성은유지한다.
+
+## SNS 서버 2단계 API — 2026-11-18
+POST RPC: social_capabilities({})→{version:1}; social_profile({target_id}); social_people({kind:'following'|'followers'|'blocked',cursor_id:null|uuid}); social_search({query,cursor_id}); social_set_follow({target_id,enabled}); social_record_item({record_id}); social_saved({cursor_time,cursor_id}); social_profile_records({target_id,cursor_time,cursor_id}). 목록은20개/has_more/next_cursor, 사람cursor는UUID, 기록cursor는created_at/id다. 검색·관계·저장·신고는로그인필수, 공개프로필/공개기록은guest가능.
+POST social_report({report_id,target_kind:'record'|'comment'|'profile',target_id,reason})→{id,status}. service-only social_moderate({report_id,decision,action,note,operator})와감사조회는운영명령에서만사용. 오류는core계약을재사용하고UUIDpayload충돌22023/현재대상없음PT404/제한P0001이다.
+POST profile-avatar(raw image/jpeg|image/png, X-Upload-ID UUID, bearer)→{avatar_id}. GET이아닌POST profile-avatar-url({owner_id})→{signed_url,expires_at}. POST social_update_profile({display_name,bio,avatar_mode:'keep'|'none'|'google'|'upload',avatar_id:null|uuid})→현재social_profile. asset필드는원본경로를공개하지않는다. 서버검증/고아정리/동시성은TRD2단계계약을따른다.
+profile-avatar는`?upload_id=<UUID>`로동일한업로드ID를받는다. raw본문/서버5MiB·20MP검증/최종JPEG512px·512KiB는그대로다. 새로운서버전용cleanup-avatars는service bearer만받고삭제큐실패는남겨재시도한다.
+
+### Avatar 정리 경합 보강 (2026-11-18)
+`social_avatar_cleanup()`은 service 전용이다. 미참조 후보를 LIMIT 100 전에 선별하고 profile→asset 잠금 뒤 재검사한다. 퇴역 asset은 `retired_at`/`cleanup_queued=true`로 남으며 동일 UUID의 reserve는400(Edge 업로드409), verify와 연결은404로 거절한다. 정리 job ack는 tombstone을 삭제하지 않는다. 새 UUID 업로드/연결은 기존 경로를 사용한다. 활성 avatar는 후보에서 제외하며 계정삭제 cascade 외에 퇴역 metadata를 삭제하지 않는다.
+후속 `20261118050000_avatar_reclaim.sql`부터 ack된 tombstone도 `cleanup_requested_at NULLS FIRST, owner_id, id` 순으로 batch100 재수거한다. 활성 참조 제외/잠금 재검사는 유지하고 같은 경로를 반복 DELETE할 수 있다. 이는 늦은 POST 및 verify 전 Edge 중단 이후 잔존 객체를 후속 service cleanup 호출에서 회수하기 위한 경계이며 자동 스케줄러 배포를 의미하지 않는다.
+
+## 사진 중심 소셜 UI
+
+사진 중심 화면은 기존 공개 사진 projection, 서명 URL, 프로필 및 반응 RPC를 사용한다. 새 응답 필드는 필요하지 않다.
+
+## 여행기록 지도 통합
+
+지도 표현 통합은 기존 좌표·검색·기록 조회 API와 공개 권한을 유지한다.
+
+## 사진 여행 스튜디오
+최신 작성·지도·홈 계약은 `docs/TRAVEL_STUDIO.md`, 검토 전용 기능·BM은 `docs/TRAVEL_ROADMAP.md`를 따른다. 서버 API·RLS·기존 기록 상한을 유지하고 신규 UI 5장, 월말 날짜 확인, 도시 선택, 세계지도와 국내 상세 전환을 검사한다.
+
+## 워크숍 출시 후보
+
+스플래시·동아시아 경계·캐릭터 놀이는 로컬 표시다. 서버 요청·권한과 저장 좌표는 기존 계약을 사용한다. 상세 범위는 [워크숍 계획](PLAN_MVP.md)을 따른다.
+
+## 어디로 가봥? (2026-11-17)
+
+FR-DRAW-001 · 기존 본인 완료 기록의 대표 좌표와 로컬 경계를 읽어 방문 여부를 계산한다. 추첨·지도 이동은 클라이언트 동작이며 서버 쓰기나 스탬프 지급을 발생시키지 않는다.
+
+
+## 홈 추첨 아이콘 (2026-11-18)
+
+FR-DRAW-001 홈 아이콘은 기존 클라이언트 화면 진입 콜백을 호출한다. API 요청·응답 계약은 동일하다.
+
+
+## 2026-11-18 여행지 추첨 단위 통합
+
+여행지 통합은 클라이언트 변환이다. 기존 여행 기록의 owner_id/status/대표 좌표와 기존 스탬프 응답만 사용하며 새 endpoint·저장 데이터·통합 도시 스탬프를 추가하지 않는다.
+
+
+## 2026-11-18 행정구역 갱신 검증
+
+FR-ADMIN-2026-001~002 / TC-ADMIN-2026-001~002는 [행정구역 갱신 검증](ADMIN_REGIONS_2026.md)을 따른다. 공식 갱신일과 경계 기준일을 구분하며 전국 완전성·코드·기하 검증 전에는 기존 자산을 교체하지 않는다. 기존 기록/좌표/사진/권한은 보존하며 과거 스탬프와 최신 수집 상태를 분리한다. 2026-10-01 경계(16시도/256시군구)를 최신 법정 코드와 대조해 로컬 앱에 연결했다. 전체 수용·운영 배포 완료와 구분하며 실행 결과는 TEST_CASE 및 상세 명세를 따른다. API/환경변수 변경과 원격 migration은 없다.
+
+## 2026-11-19 공식 경계 보정·적용 계약
+
+최신 공식 SIG(2026-11-09)를 기본 경계로 사용하며 기준일과 11월18일 변경자료 확인 범위를 구분한다. 명칭은 행안부 KIKcd_B.20261111을 따른다. 도형의 퇴화/자기교차는 make_valid로 보정하고 비면 요소·면적 차이를 로그에 남긴다. 공식 EMD와 국토지리정보원 비교본이 동시에 같은 지역을 뒷받침하는 겹침 부분만 제거하며, 변경자료가 있는 하위 지역과 근거 부족/불일치 부분은 제외한다. 국토지리정보원2025 자료는 독립적인 비교 근거일 뿐 최신 경계 자체로 교체하지 않는다.
+
+보정 전후 전국 육지 union 보존과 신규 겹침 증가 방지, 16/256 코드 완전성·명칭·도형 유효성을 검증한다. 남는 겹침은 공식 원본 그대로 보존하고 GPS 다중 일치는 미확정으로 처리한다. 무근거의 지역 우선순위·buffer 확대·최근접 배정은 금지한다. 남은 불확실성을 숨기거나 전국 무오류/법적 관할 확정이라고 표시하지 않는다. 지도 렌더링/클릭·마커·여행지167개·광주 통합목적지·이전 스탬프 보존·DB 불변을 회귀 검증한 뒤 정적 경계와 파생 자산을 함께 전환한다. 기존 여행/사진/GPS/친구/획득기록을 UPDATE/DELETE하지 않으며 원격 migration은 없다. 배포는 별도 작업이다.
+
+## 2026-11-19 경계 번들·모바일 성능 최적화 계약
+
+FR-ADMIN-2026-002의 공식 좌표·미확정 다중 귀속·이전 스탬프 보존은 유지한다. 배포용 경계는 원본 JSON과 별도로 무손실 Float64 압축 자산을 생성하며 모든 숫자/링/코드/속성의 복원 일치를 검증한다. 공식 원본 파일과 hash는 변경하지 않는다. geometry 지연 복원·반복 위치 판정의 보수적 bounds 캐시·추첨 표시 경로 지연 생성을 허용하되 표시/선택/추첨 확률/스탬프 정책을 바꾸지 않는다. 원격 API·DB·Storage 변경 및 사용자 데이터 migration은 없다.
+
+TC-ADMIN-PERF-001: 원본 전체 좌표 및 속성 복원 동일성, 경계/내부/hole/겹침 GPS 판정 동등성, 압축 자산 재생성·원본 해시 불변, 번들 크기 전후 및 모바일 viewport 성능 측정, 지도/추첨/스탬프 회귀를 검증한다. 환경 차단과 Android 실기기 미측정은 구분한다. 기본 TypeScript 메모리 한도와 웹 export를 재검증하며 성능을 위해 정확도를 낮추지 않는다.
+
+표시 성능 보완: 4배 CPU 제한의 첫 검사에서 확대 조작이60초 제한을 넘겼다. 최종 구현은 경계를 단순화하지 않는다. 화면 밖 후보 판정에 공식 원본을 감싸는 사각형을 사용하고, 실제 보이는 시군구만 원래 좌표로 SVG 경로를 생성한다. 사각형은 GPS/스탬프 판정에 사용하지 않는다. 상세·라벨·도서·추첨 하이라이트 회귀 및 CPU 제한을 재검증한다.
+
+## 2026-11-19 최초 지도 표시 사전 계산 계약
+
+TC-ADMIN-PERF-002/FR-ADMIN-2026-002: 공식 좌표·기존 사용자 기록·판정 알고리즘을 유지하고 표시용 Mercator bounds/라벨 anchor/전국 SVG 경로를 빌드 시 계산한다. 원본 hash와 직접 계산한 투영/anchor/링 보존을 대조한다. 표시 캐시는 GPS/스탬프 획득 판정에 쓰지 않는다. 미등록/사용자 지정 도형은 기존 계산으로 fallback한다. 첫 화면에 필요 없는 스탬프 윤곽·지역 도형 복원은 지연하며 지도/도서/클릭/추첨/스탬프 회귀와 동일 CPU4배 조건의 준비시간을 측정한다. 표시 경로는 원본 정점을 유지하며 단순화하지 않는다. DB/Storage/API 계약과 환경변수 변경은 없다.
+
+홈 첫 화면에서는 SVG 전국 지도를 먼저 표시하고 숨겨진 MapLibre 인스턴스/대용량 스타일 직렬화를 시작하지 않는다. 첫 상세 진입에 MapLibre를 만들고 스타일 준비 전에는 기존 SVG를 유지한다. 한 번 열린 지도는 홈 복귀 시 유지하여 반복 초기화를 방지한다. 오류·재시도·사진/선택 표시를 회귀 검증한다. 사전 계산 SVG는 기존 화면 좌표 반올림보다 세밀한 정밀도를 쓰고, 동일 좌표의 연속 L 명령만 제거하며 M/Z·링 순서를 유지한다.
+
+
+## 2026-11-19 상세 지도 바다 차폐 보정
+
+TC-MAP-EXTERIOR-001: 경상북도 상세 배율(8.3976)에서 바다 차폐의 대형 다중 홀 도형이 타일 렌더링 중 육지를 직선으로 덮는 문제를 수정한다. 표시 전용 차폐를 작은 셀로 분할하고, 분할 전후 합집합의 대칭차 면적 및 육지 교차 면적을 검증한다. 공식 위치 판정 경계·여행 기록·스탬프·API 및 기존 색상은 유지한다. 육지/바다 픽셀과 여러 확대 배율에서 회귀 검증한다.
+
+
+2026-11-19 전국 상세 추가 검증: TC-MAP-EXTERIOR-002에서 1도 차폐 셀의 일부 해안·도서 누락을 재현했다. 표시 셀을 0.25도로 세분화하여 공식 육지 합집합과 동등성을 재검증한다. 원본 행정구역 판정·스탬프 경계 및 사용자 DB는 보존한다. 전체 252개 화면의 픽셀 대조와 48개 실제 시도 선택 흐름으로 검증한다.
+
+
+TC-MAP-EXTERIOR-002 보완: 0.25도 기본 셀의 해안 부분은 최대 0.0625도까지 추가 분할하며, 폴리곤 홀 수가 128개를 넘으면 더 분할한다. 차폐의 실제 영역 및 공식 판정/기록 보존 계약은 동일하다.
+
+TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정하여 인접 분할 셀의 타일 단순화로 인한 1px 틈을 방지한다. 판정용 원본 및 사용자 데이터는 변경하지 않는다.
+
+## 2026년 지도 경량화
+
+기존 locations(*)에 district_code, boundary_date, island_code, legacy_stamp_name이 추가된다. 모두 DB 파생 필드이며 클라이언트 입력은 판정에 사용하지 않는다. 경계 원본은 PostgREST에 공개하지 않는다.
+
+## 국내 경계 벡터 타일
+
+FR-MAP-TILES-001. 상세 렌더러는 정적 /boundary-tiles/<버전>/{z}/{x}/{y}.pbf 및 표시 이름 필터용 자산을 읽는다. Native는 동일 타일을 번들 자산에서 읽는다. 사용자 데이터·키·DB 호출은 필요하지 않다.
+
+osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
+
+`POST /functions/v1/photon-location`은 로그인 bearer를 요구한다. `{query}`는 최대 200자, 최대 5개이며 각 후보에 `id`·`provider_place_id`(OSM N/W/R:id), `name`, `latitude`, `longitude`, `address`, `provider/source=photon`, `attribution`을 반환한다. 선택 후 이 후보를 명시 확정한다. `{latitude,longitude}`는 검색 후보의 주소를 원래 좌표에 보완한다. 미인증 401, 잘못된 입력 400, 공급자 제한 429, 그 외 외부 실패 502. 공개 Photon 서비스로 검색어 또는 역조회 좌표가 전달된다. 키 추가는 없다. 운영 사용 전 locations.source 확장 migration과 새 Edge Function을 함께 배포해야 한다.
+
+FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
+
+2026-11-19 연결된 Supabase 프로젝트에 `20261119020000_photon_locations.sql`과 `photon-location`을 적용했다. 인증된 서울역 검색·역조회 각 HTTP 200, 미인증 요청 HTTP 401을 확인했다. 별도 정밀경계 migration `20261119010000_location_regions.sql`은 이번 배포에서 제외했다.
+
+`photon-location`은 Supabase 서버 환경변수 `PHOTON_BASE_URL`에서 운영자가 지정한 HTTPS Photon 서버를 읽는다. 경로 접두어를 허용하며 검색과 역조회 모두 해당 서버로만 전송한다. 미설정 환경은 기존 공개 데모 주소를 사용한다. 502의 선택적 `reason`은 공급자 HTTP 상태 또는 전송·형식 오류 분류만 포함한다.
+
+FR-LEGAL-001은 공개 정적 GET이다. 약관 허브, 개인정보처리방침, 삭제 안내는 인증 없이 열리며, 페이지 열람이나 이메일 링크 클릭만으로 데이터 삭제 또는 동의가 실행되지 않는다.
+
+### 피드 작성일·작성자 순환
+
+social_ranked_feed(mode,seed,after_cursor?)는 기존 공개 항목과 불투명 JSON next_cursor를 반환한다. 이전 social_feed RPC는 구버전용으로 유지한다.
+
+피드 한 페이지에 있는 작성자들의 팔로우 상태는 로그인한 사용자의 follows RLS 조회로 확인한다. 버튼은 기존 social_set_follow(target_id,enabled)를 사용한다.
+
+### 홍보 검색과 웹 화면 주소
+공개 홍보 HTML·sitemap은 site/에만 제공하고 웹앱은 noindex를 사용한다. 웹 주소는 홈·피드·지도·도감·My·설정·작성·기록·지역·친구·여행 추첨·로그인을 구분한다. 기존 Auth/RLS와 Native 화면을 유지하고 배포 전 두 Preview에서 주소 왕복, 크롤러 응답, 초기 번들을 검사한다.
+주소의 기록 UUID는 기존 travel_records 조회 권한을 그대로 따르며 공유 URL은 서명 사진 URL이나 세션 정보를 포함하지 않는다. 대시보드에서는 표시할 사진이 없어 대표사진 발급 및 작성자 목록을 요청하지 않는다. 계정 초기 확인 뒤 소셜 지원 여부를 조회한다.
+
+### 지도 배경 자동 복구
+
+기존 OSM 타일 주소를 재사용하며 여행 데이터·사진 조회 권한과 서버 API는 유지한다.
+
+### OSM 상세 타일 부분 복구
+
+기존 regions·neighborhood 벡터 타일 주소와 줌 구간, Photon 및 여행 데이터 API를 유지한다.

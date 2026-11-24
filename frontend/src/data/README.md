@@ -11,3 +11,7 @@
 초기 후보인 geoBoundaries/Natural Earth의 광주 경계가 실제 광주 시청 좌표를 제외해 검증에 실패했다. 테스트 좌표를 옮기지 않고 KOSTAT 원천으로 교체했으며 서울·광주·대구·부산·제주 대표 좌표를 검증한다.
 
 대략적인 여행도감 표시에 사용한다. 최신 법정 경계·길 안내·측량에 사용하지 않는다. 과거 경계에서 행정구역이 달라진 인접 지점은 현재 행정구역 명칭과 다르게 집계될 수 있다.
+
+## 시·군·구 추첨 경계
+
+`korea-districts.json`은 같은 [KOSTAT 2018 배포 자료](https://github.com/southkorea/southkorea-maps/tree/master/kostat/2018/json)의 `skorea-municipalities-2018-topo-simple.json`에서 만들었다. 위와 같은 출처·이용 조건을 따른다. Mapshaper 0.6.113의 `-simplify 12% keep-shapes -o format=geojson precision=0.0001`로 단순화하고 코드와 한글 이름을 보존했다. 지도 이동점은 가장 큰 폴리곤 내부에서 가로 단면이 넓은 점이다. 250개 경계에는 일반구·세종시·제주 행정시가 포함된다. 행정구역 개편과 단순화 때문에 오늘날의 주소, 해안 및 경계 인접 좌표와 차이가 날 수 있다.

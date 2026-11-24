@@ -1,13 +1,15 @@
 import {geoArea,geoCentroid,type GeoProjection} from 'd3-geo';
 import {containsRegion,renderFeature,type Region} from './regions';
+import {cachedDisplay} from './displayCache';
 
 type Point=[number,number];
 const provinceLabelNames:Record<string,string>={
- '11':'서울','26':'부산','27':'대구','28':'인천','29':'광주','30':'대전','31':'울산','36':'세종',
+ '12':'전남광주','11':'서울','26':'부산','27':'대구','28':'인천','29':'광주','30':'대전','31':'울산','36':'세종',
  '41':'경기','43':'충북','44':'충남','46':'전남','47':'경북','48':'경남','50':'제주','51':'강원','52':'전북',
 };
 const anchors=new WeakMap<Region,{point:Point;area:number}>();
 export function regionLabelAnchor(region:Region){
+ const prepared=cachedDisplay(region);if(prepared)return prepared.anchor;
  const cached=anchors.get(region);if(cached)return cached;
  const polygons=region.geometry.type==='Polygon'?[region.geometry.coordinates]:region.geometry.coordinates;
  const parts=polygons.map(coordinates=>{const feature={...region,geometry:{type:'Polygon' as const,coordinates}};return {feature:renderFeature(feature),area:Math.min(geoArea(feature),4*Math.PI-geoArea(feature))};});
@@ -16,7 +18,9 @@ export function regionLabelAnchor(region:Region){
  if(!containsRegion(feature.geometry,point)){
   // 오목한 해안이나 hole의 중심은 가장 큰 섬/육지의 내부 수평구간으로 옮긴다.
   const rings=feature.geometry.type==='Polygon'?feature.geometry.coordinates:feature.geometry.coordinates[0];
-  const ys=rings[0].map(p=>p[1]),y=(Math.min(...ys)+Math.max(...ys))/2,xs:number[]=[];
+  let minY=Infinity,maxY=-Infinity;
+  for(const [,y] of rings[0]){minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
+  const y=(minY+maxY)/2,xs:number[]=[];
   for(const ring of rings)for(let i=1;i<ring.length;i++){
    const [ax,ay]=ring[i-1],[bx,by]=ring[i];
    if((ay>y)!==(by>y))xs.push(ax+(y-ay)*(bx-ax)/(by-ay));
@@ -38,12 +42,12 @@ for(let x=-16;x<=16;x++)for(let y=-16;y<=16;y++)offsets.push([x*6,y*6]);
 offsets.sort((a,b)=>a[0]**2+a[1]**2-b[0]**2-b[1]**2||a[1]-b[1]||a[0]-b[0]);
 type Box={x:number;y:number;width:number;height:number};
 const overlap=(a:Box,b:Box)=>Math.max(0,(a.width+b.width)/2+3-Math.abs(a.x-b.x))*Math.max(0,(a.height+b.height)/2+3-Math.abs(a.y-b.y));
-export function layoutMapLabels(features:Region[],projection:GeoProjection,width:number,height:number){
- const placed:Box[]=[];
+export function layoutMapLabels(features:Region[],projection:GeoProjection,width:number,height:number,obstacles:Box[]=[],fixedFontSize?:number,abbreviateProvince=true){
+ const placed:Box[]=[...obstacles];
  return features.map(feature=>{
   const {point,area}=regionLabelAnchor(feature),anchor=projection(point)!;
-  const fontSize=Math.round(Math.max(10,Math.min(14,Math.sqrt(area)*projection.scale()/Math.cos(point[1]*Math.PI/180)/10)));
-  const lines=nameLines(feature.properties.level==='province'?(provinceLabelNames[feature.properties.code]??feature.properties.name):feature.properties.name);
+  const fontSize=fixedFontSize??Math.round(Math.max(10,Math.min(14,Math.sqrt(area)*projection.scale()/Math.cos(point[1]*Math.PI/180)/10)));
+  const lines=nameLines(abbreviateProvince&&feature.properties.level==='province'?(provinceLabelNames[feature.properties.code]??feature.properties.name):feature.properties.name);
   return {code:feature.properties.code,name:feature.properties.name,anchor,area,lines,fontSize,width:Math.max(...lines.map(l=>l.length))*fontSize+4,height:lines.length*(fontSize+2)+4};
  }).sort((a,b)=>a.area-b.area||a.code.localeCompare(b.code)).map(label=>{
   const [ax,ay]=label.anchor;

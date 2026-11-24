@@ -53,27 +53,18 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
     const request = version.current;
     setBusy('장소를 찾고 있어요.');
     try {
-      const places = await api.request('/functions/v1/geocode-location', 'POST', {query: query.trim()});
+      const places = await api.request('/functions/v1/photon-location', 'POST', {query: query.trim()});
       if (!current(request)) return;
-      if (!Array.isArray(places) || places.some(place => !validPlace(place) || place.provider !== 'geoapify' || typeof place.id !== 'string' || !place.id.trim())) throw new Error('EXTERNAL_SERVICE_ERROR');
+      if (!Array.isArray(places) || places.some(place => !validPlace(place) || place.provider !== 'photon' || typeof place.id !== 'string' || !place.id.trim())) throw new Error('EXTERNAL_SERVICE_ERROR');
       setResults(places); setSearched(true);
     } catch (error) {
       if (current(request)) setMessage(`장소 검색에 실패했어요. ${error instanceof Error ? error.message : 'EXTERNAL_SERVICE_ERROR'}`);
     } finally {if (current(request)) setBusy('');}
   }
-  async function selectPlace(place: any) {
-    invalidate(); Keyboard.dismiss(); setCandidate(null); setSelectedId(place.id); setMessage('');
-    const request = version.current;
-    setBusy('장소 상세를 확인하고 있어요.');
-    try {
-      const detail = await api.request('/functions/v1/geocode-location', 'POST', {provider: 'geoapify', place_id: place.id});
-      if (!current(request)) return;
-      if (!validPlace(detail)) throw new Error('EXTERNAL_SERVICE_ERROR');
-      setCandidate(detail);
-      scroll.current?.scrollTo({y: mapY.current, animated: false});
-    } catch (error) {
-      if (current(request)) setMessage(`장소 상세를 확인하지 못했어요. 다시 선택해 주세요. ${error instanceof Error ? error.message : 'EXTERNAL_SERVICE_ERROR'}`);
-    } finally {if (current(request)) setBusy('');}
+  function selectPlace(place: any) {
+    invalidate(); Keyboard.dismiss(); setSelectedId(place.id); setMessage('');
+    setCandidate(place);
+    scroll.current?.scrollTo({y: mapY.current, animated: false});
   }
   async function selectCoordinate(latitude: number, longitude: number, source = 'manual') {
     if (!validPlace({latitude, longitude})) return;
@@ -81,7 +72,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
     const request = version.current;
     setBusy('선택한 좌표의 주소를 확인하고 있어요.');
     try {
-      const detail = await api.request('/functions/v1/geocode-location', 'POST', {latitude, longitude});
+      const detail = await api.request('/functions/v1/photon-location', 'POST', {latitude, longitude});
       if (!current(request)) return;
       if (!validPlace(detail)) throw new Error('EXTERNAL_SERVICE_ERROR');
       setCandidate({...detail, latitude, longitude, source});
@@ -148,7 +139,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
           {results.map(place => <Pressable key={place.id} accessibilityRole="button" accessibilityLabel={`${place.name} ${place.address}`} accessibilityState={{selected: selectedId === place.id}} onPress={() => void selectPlace(place)} style={[s.result, selectedId === place.id && s.activeTab]}>
             <Text style={s.text}>{place.name}</Text><Text style={s.description}>{place.address}</Text>
           </Pressable>)}
-          {(results.length > 0 || candidate?.attribution) && <Text style={s.description}>{candidate?.attribution || 'Powered by Geoapify · © OpenStreetMap contributors'}</Text>}
+          {(results.length > 0 || candidate?.attribution) && <Text style={s.description}>{candidate?.attribution || '© OpenStreetMap'}</Text>}
         </ScrollView>
         <Pressable accessibilityRole="button" accessibilityLabel="이 위치로 선택" accessibilityState={{disabled: !candidate || !!busy}} disabled={!candidate || !!busy} onPress={() => {
           if (!alive.current || !candidate || busy) return;

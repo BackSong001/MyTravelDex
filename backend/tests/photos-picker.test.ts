@@ -158,18 +158,18 @@ test('TC-PHOTO-METADATA-004: Downloads msf document identity reuses selected Med
 
 
 test('Web always uses a generic file chooser and keeps the original File',async()=>{
- platform.OS='web';const file={size:123,arrayBuffer:vi.fn(),slice:()=>({arrayBuffer:async()=>Uint8Array.from([255,216,255]).buffer})},asset={uri:'blob:original',name:'original.jpg',mimeType:'image/jpeg',size:999,file};
+ platform.OS='web';const file={type:'image/jpeg',size:123,arrayBuffer:vi.fn(),slice:()=>({arrayBuffer:async()=>Uint8Array.from([255,216,255]).buffer})},asset={uri:'blob:original',name:'original.jpg',mimeType:'image/jpeg',size:999,file};
  document.mockResolvedValue({canceled:false,assets:[asset]});
  for(const source of ['system','original'] as const){
   const result=await photos.pickPhotos(false,source);
   expect(result.assets?.[0]).toMatchObject({uri:asset.uri,file,fileName:'original.jpg',fileSize:123,width:2400,height:1600});
   expect(result.assets?.[0].file).toBe(file);
  }
- expect(document).toHaveBeenCalledWith({type:'*/*',multiple:true,base64:false});expect(library).not.toHaveBeenCalled();expect(info).not.toHaveBeenCalled();
+ expect(document).toHaveBeenCalledWith({type:'image/*',multiple:true,base64:false});expect(document).toHaveBeenCalledWith({type:'*/*',multiple:true,base64:false});expect(library).not.toHaveBeenCalled();expect(info).not.toHaveBeenCalled();
 });
 test('Web isolates invalid or unreadable files and revokes only their object URLs',async()=>{
  platform.OS='web';const revoke=vi.spyOn(URL,'revokeObjectURL').mockImplementation(()=>{});
- const asset=(uri:string,mimeType='image/jpeg',length=123)=>({uri,name:'photo.jpg',mimeType,file:{size:length,slice:()=>({arrayBuffer:async()=>Uint8Array.from([255,216,255]).buffer})}});
+ const asset=(uri:string,mimeType='image/jpeg',length=123)=>({uri,name:'photo.jpg',mimeType,file:{type:mimeType,size:length,slice:()=>({arrayBuffer:async()=>Uint8Array.from([255,216,255]).buffer})}});
  document.mockResolvedValue({canceled:false,assets:[asset('blob:ok'),asset('blob:text','text/plain'),asset('blob:large','image/jpeg',20971521),asset('blob:broken')]});
  size.mockImplementationOnce((_uri,success)=>{success(2,3);}).mockImplementationOnce((_uri,_success,failure)=>{failure(new Error('decode'));});
  try{const result=await photos.pickPhotos(false);expect(result.assets).toHaveLength(1);expect(result.rejectedCount).toBe(3);expect(size).toHaveBeenCalledTimes(2);expect(revoke.mock.calls.map(call=>call[0])).toEqual(['blob:text','blob:large','blob:broken']);}finally{revoke.mockRestore();}

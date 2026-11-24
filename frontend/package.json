@@ -2,7 +2,7 @@
   "name": "mytraveldex-app",
   "version": "1.0.0",
   "private": true,
-  "main": "expo-router/entry",
+  "main": "entry.js",
   "scripts": {
     "android:bundle": "node ../scripts/android-bundle.mjs",
     "android:configured": "node ../scripts/configured.mjs --native-android",
@@ -10,9 +10,11 @@
     "start": "expo start",
     "web": "expo start --web",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "postinstall": "node ../scripts/prepare-maplibre.mjs"
   },
   "dependencies": {
+    "@maplibre/maplibre-react-native": "11.5.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",
     "@supabase/supabase-js": "^2.119.0",
@@ -32,6 +34,8 @@
     "expo-router": "~6.0.24",
     "expo-status-bar": "~3.0.9",
     "expo-web-browser": "~15.0.11",
+    "fflate": "0.8.3",
+    "maplibre-gl": "6.16.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
@@ -41,6 +45,8 @@
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {
+    "@maplibre/geojson-vt": "6.3.1",
+    "@maplibre/vt-pbf": "4.3.3",
     "@types/d3-geo": "3.1.0",
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"

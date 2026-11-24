@@ -3,6 +3,7 @@ import {build} from 'esbuild';
 import path from 'node:path';
 
 let bundle='';
+test.beforeEach(({page})=>{page.on('pageerror',error=>{throw error;});});
 test.beforeAll(async()=>{
  const root=path.resolve('.'),react=path.resolve('frontend/node_modules/react/index.js');
  const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};
@@ -12,7 +13,7 @@ test.beforeAll(async()=>{
   '../src/Feedback':`export {Pressable as default} from 'react-native';`,
   'react-native':`import React from '${react}';
    const container=tag=>React.forwardRef(({children,onPress,accessibilityLabel},ref)=>React.createElement(tag,{ref,onClick:onPress,'aria-label':accessibilityLabel},children));
-   export const View=container('div'),Text=container('span'),TextInput=container('input'),Pressable=container('button'),ScrollView=container('div'),Image=container('img'),ActivityIndicator=container('span');
+   export const Modal=({visible,children})=>visible?children:null,Vibration={vibrate(){}},View=container('div'),Text=container('span'),TextInput=container('input'),Pressable=container('button'),ScrollView=container('div'),Image=container('img'),ActivityIndicator=container('span');
    export const useWindowDimensions=()=>({width:390,height:844,fontScale:1});export const Platform={OS:'android'},Linking={},AppState={addEventListener:()=>({remove(){}})},AccessibilityInfo={},findNodeHandle=()=>null,StyleSheet={create:x=>x};`,
   'react-native-safe-area-context':`export {View as SafeAreaView} from 'react-native';`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({friend:'22222222-2222-4222-8222-222222222222'});`,
@@ -20,24 +21,32 @@ test.beforeAll(async()=>{
   '../src/photos':`export const photoPermission=()=>{},photoMetadata=()=>{},compressPhoto=()=>{},pickPhotos=()=>{},cleanupPickedPhotos=()=>{};`,
   'expo-crypto':`export const randomUUID=()=>'';`,
   '../src/runtime':`const passwordLogin=async()=>{await new Promise(resolve=>window.finishPasswordLogin=resolve);return ${JSON.stringify(session)};};export const api={list:async()=>[],following:async()=>[],login:passwordLogin,request:async path=>path.startsWith('/auth/v1/token')?passwordLogin():[],token:null};`,
-  '../src/api':`export class ApiError extends Error {}`,
+  '../src/api':`export class ApiError extends Error {} export class TravelApi { async rpc(){return true;} }`,
   '../src/MyTrips':`export default ()=>null;`,
   '../src/Social':`import React from '${react}';export const isUserId=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=({session})=>React.createElement('div',{'data-testid':'friends'},React.createElement('span',{'data-testid':'session-owner'},session?.user.id??'guest'));export const ProfileSetupGate=()=>null;export const ProfileEditor=()=>null;`,
-  '../src/StampCatalog':`export default ()=>null;`,
+  '../src/TravelMap':`export default ()=>null;export const preloadMap=undefined;`,
+  '../src/DeferredScreens':`export const SocialFeed=()=>null,SocialAccount=()=>null,TravelDashboard=()=>null,TravelPuzzle=()=>null,StampCatalog=()=>null,LocationPicker=()=>null;`,
+  '../src/SocialUI':`export const Notice=()=>null;`,
+  '../src/regions':`export const districts=[],recordRegion=()=>null,legacyCodes={};`,
+  '../src/regionalAssets':`export const exactLocation=async()=>null;`,
+  '../src/TravelSplash':`export const ScreenEntrance=({children})=>children(()=>{});`,
+  '../src/studioDates':`export const spansCalendarMonth=()=>false;`,
+  '../src/photoCity':`export const photoCity=()=>null;`,
+  '../src/PhotoTray':`export default ()=>null;export const SlidePage=({children})=>children;`,
   '../src/provinces':`export const groupProvinceRecords=()=>({}),provinceLabels={};`,
   '../src/auth':`export const auth={auth:{onAuthStateChange:f=>{window.authEvent=f;return {data:{subscription:{unsubscribe(){}}}}},setSession:async()=>{window.sdkSets=(window.sdkSets??0)+1;const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);return {data:{session},error:null};},getSession:async()=>({data:{session:null}})}};
    export const googleLogin=async()=>{const session=${JSON.stringify(session)};window.authEvent('SIGNED_IN',session);await new Promise(resolve=>window.finishGoogle=resolve);return session;};`,
-  '../src/Journal':`import React from '${react}';export const Author=()=>null,JournalIcon=()=>null,Backpack=()=>null,Collection=()=>null,Welcome=({children})=>React.createElement(React.Fragment,null,children);
+  '../src/Journal':`import React from '${react}';export const AddPhotoIcon=()=>null,Author=()=>null,JournalIcon=()=>null,Backpack=()=>null,Collection=()=>null,Welcome=({children})=>React.createElement(React.Fragment,null,children);
    export const JournalNav=({tab,onTab})=>React.createElement('nav',null,React.createElement('span',{'data-testid':'current-tab'},tab),React.createElement('button',{onClick:()=>onTab('account')},'account'));`,
  };
- const compiled=await build({stdin:{resolveDir:root,contents:`import React from './frontend/node_modules/react/index.js';import {createRoot} from './frontend/node_modules/react-dom/client.js';import Home from './frontend/app/index.tsx';createRoot(document.getElementById('root')).render(React.createElement(Home));`,loader:'js'},
-  bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"'},plugins:[{name:'native-boundaries',setup(builder){
+ const compiled=await build({stdin:{resolveDir:root,contents:`import React from './frontend/node_modules/react/index.js';import {createRoot} from './frontend/node_modules/react-dom/client.js';import Home from './frontend/screens/AppWorkspace.tsx';createRoot(document.getElementById('root')).render(React.createElement(Home));`,loader:'js'},
+  bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"','process.env.EXPO_PUBLIC_SUPABASE_URL':'"http://127.0.0.1:54321"','process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY':'""'},plugins:[{name:'native-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
     if(args.path==='../src/FontText')return {path:path.resolve('frontend/src/FontText.tsx'),namespace:'file'};
     if(['../src/useAppViewport','../src/journalRecords','../src/domain','../src/recordCovers','../src/ThemeContext'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};
-    if(args.importer.endsWith('/frontend/app/index.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
+    if(args.importer.endsWith('/frontend/screens/AppWorkspace.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
    });
    builder.onLoad({filter:/.*/,namespace:'boundary'},args=>({contents:stubs[args.path],loader:'js'}));
    builder.onLoad({filter:/.*/,namespace:'empty'},()=>({contents:'export default ()=>null;',loader:'js'}));

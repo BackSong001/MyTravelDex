@@ -1,6 +1,8 @@
+import {regions} from './regions';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import TravelerAvatar from './Avatar';
+import ProfilePreview from './ProfilePreview';
 import {JournalIcon} from './Journal';
 import React, {useEffect, useRef, useState} from 'react';
 import Text from './FontText';
@@ -99,6 +101,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
   const [editing,setEditing]=useState(firstSetup);
+  const [preview,setPreview]=useState(false);
   const [snapshot,setSnapshot]=useState<{name:string;avatar:string|null;enabled:boolean}|null>(null);
   const owner = session.user.id as string;
   const identity = useUserId(owner);
@@ -147,7 +150,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
       setName(rows[0].display_name ?? displayName);
       setAvatar(rows[0].avatar_url ?? null);
       setSnapshot({name:rows[0].display_name??displayName,avatar:rows[0].avatar_url??null,enabled:rows[0].public_profile_enabled===true});
-      if(!firstSetup)setEditing(false);setSuccess('프로필을 저장했어요.');
+      setPreview(false);if(!firstSetup)setEditing(false);setSuccess('프로필을 저장했어요.');
       onChanged?.();
     } catch (error) {if (active.current) setError(message(error));}
     finally {savingRef.current = false; if (active.current) setSaving(false);}
@@ -156,12 +159,18 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
   const disabled = loading || saving || !loaded;
   if(showStamps&&!editing)return <>{children}</>;
   const profileName=snapshot?.name||(loading?'불러오는 중…':error?'확인 필요':'여행자');
-  const visitLabel=visits===null?(visitsFailed?'확인 필요':'확인 중'):`${visits} / 17`;
+  const visitLabel=visits===null?(visitsFailed?'확인 필요':'확인 중'):`${visits} / ${regions.length}`;
+  if(editing&&preview)return <ProfilePreview busy={saving} error={error} onEdit={()=>setPreview(false)} onSave={()=>void save()} saveLabel={firstSetup?'프로필 저장하고 시작':'프로필 저장'}>
+    <View style={s.profileIdentity}><TravelerAvatar url={avatar} size={76}/><View style={s.flex}>
+      <Text accessibilityRole="header" style={s.profileName}>{name.trim()}</Text>
+      <Text selectable style={s.profileSmall}>{identity.code}</Text>
+    </View></View>
+  </ProfilePreview>;
   if(!editing)return <View style={s.profilePage}>
     <View style={s.profileCard}>
       <View style={s.profileHeading}><Text accessibilityRole="header" style={s.profileTitle}>나의 프로필</Text><Button compact label="프로필 수정" disabled={disabled} onPress={()=>{setError('');setSuccess('');setEditing(true);}} secondary/></View>
       {loading&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}
-      <View style={s.profileIdentity}><TravelerAvatar url={snapshot?.avatar} portrait/><View style={s.flex}>
+      <View style={s.profileIdentity}><TravelerAvatar url={snapshot?.avatar} size={76}/><View style={s.flex}>
         <Text testID="profile-name" accessibilityLabel={`내 프로필 이름 · ${profileName}`} style={s.profileName}>{profileName}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel={`여행 스탬프 보기 · ${visitLabel}`} onPress={onStamps} style={s.visitLink}>
           <View style={s.visitBadge}><Text testID="profile-visits" accessibilityLabel={`내 방문 지역 수 · ${visitLabel}`} style={s.visitNumber}>{visitLabel}</Text><Text style={s.profileSmall}>지역</Text></View>
@@ -197,6 +206,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
     {!!error && <Notice error>{error}</Notice>}
     {!!success && <Notice>{success}</Notice>}
     {!loaded && !loading && <Button label="프로필 다시 불러오기" onPress={() => setAttempt(value => value + 1)} secondary/>}
+    <Button label="미리보기" secondary disabled={disabled||!name.trim()||Array.from(name.trim()).length>30} onPress={()=>setPreview(true)}/>
     <Button label={saving ? '저장 중…' : firstSetup?'프로필 저장하고 시작':'프로필 저장'} onPress={() => void save()} disabled={disabled}/>
     {!firstSetup&&<Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);}setError('');setSuccess('');setEditing(false);}} secondary/>}
   </View>;
@@ -216,12 +226,12 @@ export function ProfileSetupGate({session,onLogout}:{session:any;onLogout:()=>Pr
  </View></ScrollView></Modal>;
 }
 
-type FriendsProps = Props & {onMap?: (ownerId: string) => void; inviteCode?: string; onInviteHandled?: () => void};
+type FriendsProps = Props & {mapOnly?:boolean; selectedOwner?:string;onMap?: (ownerId: string, name?:string) => void; inviteCode?: string; onInviteHandled?: () => void};
 export function Friends(props: FriendsProps) {
   return <FriendsList key={props.session?.user?.id ?? 'guest'} {...props}/>;
 }
 
-function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: FriendsProps) {
+function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,mapOnly=false,selectedOwner}: FriendsProps) {
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
   const owner = session?.user?.id as string | undefined;
@@ -278,12 +288,12 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
   useEffect(() => {
     active.current = true;
     void loadFollows();
-    if (!isUserId(inviteCode)) void search('');
+    if (!mapOnly&&!isUserId(inviteCode)) void search('');
     return () => {active.current = false; searchRequest.current++; listRequest.current++;};
-  }, [owner]);
+  }, [owner,mapOnly]);
 
   useEffect(() => {
-    if (isUserId(inviteCode)) {setPane('search');setQuery(inviteCode); void search(inviteCode);}
+    if (!mapOnly&&isUserId(inviteCode)) {setPane('search');setQuery(inviteCode); void search(inviteCode);}
   }, [inviteCode]);
 
   async function search(value: string, page = 0) {
@@ -366,7 +376,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     const mapLabel=current?.status==='accepted'?'친구 지도 보기':'지도 보기';
     const identity=<>{profile?<Avatar url={profile.avatar_url} size={48}/>:<View style={s.anonymousAvatar}><JournalIcon name="account" size={32}/></View>}<View style={s.flex}><Text numberOfLines={2} style={s.friendName}>{name}</Text><Text selectable style={s.friendIdentifier}>{code}</Text>{!profile&&<Text style={s.friendHint}>공개 프로필을 사용하지 않는 여행자</Text>}{canMap&&<Text style={s.mapLink}>공개 여행 지도 ›</Text>}</View></>;
     return <View key={id} testID={`friend-person-${id}`} style={s.person}>
-      {canMap?<Pressable accessibilityRole="button" accessibilityLabel={`${mapLabel} · ${name} · ${code}`} disabled={loading||busy!==null} onPress={()=>onMap?.(id)} style={({pressed})=>[s.identity,pressed&&{backgroundColor:c.warm}]}>{identity}</Pressable>:<View style={s.identity}>{identity}</View>}
+      {canMap?<Pressable accessibilityRole="button" accessibilityLabel={`${mapLabel} · ${name} · ${code}`} disabled={loading||busy!==null} onPress={()=>onMap?.(id,name)} style={({pressed})=>[s.identity,pressed&&{backgroundColor:c.warm}]}>{identity}</Pressable>:<View style={s.identity}>{identity}</View>}
       <View style={s.friendActions}>
         {relationActions&&connectionControls(id,profile?.contact_code)}
         {id===owner?<Text style={s.friendHint}>내 프로필</Text>:<Button compact label={busy===id?'처리 중…':followed?'팔로우 해제':owner?'팔로우':'로그인 후 팔로우'} disabled={!owner||!loaded||loading||busy!==null} onPress={()=>void toggle(id,followed)} secondary={followed}/>}
@@ -374,6 +384,14 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
     </View>;
   }
 
+  if(mapOnly){
+    const ids=[...new Set([...follows.map(f=>f.followee_id),...connections.filter(r=>r.status==='accepted').map(r=>r.requester_id===owner?r.recipient_id:r.requester_id)])];
+    return <View style={{gap:12}}>
+      {(loading||!loaded&&!listError)&&<ActivityIndicator accessibilityLabel="친구 목록 불러오는 중" color={c.sea}/>}
+      {!!listError&&<><Notice error>{listError}</Notice><Button label="친구 목록 다시 불러오기" onPress={()=>void loadFollows()} disabled={loading} secondary/></>}
+      {loaded&&!loading&&!listError&&<><View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{ids.map(id=><Pressable key={id} accessibilityRole="button" accessibilityLabel={`${authors[id]?.display_name||'여행자'} 지도 선택 · ${authors[id]?.user_code||id}`} accessibilityState={{selected:selectedOwner===id}} onPress={()=>onMap?.(id,authors[id]?.display_name||'여행자')} style={{width:80,alignItems:'center',gap:6,padding:4}}><View style={{borderRadius:28,padding:3,borderWidth:2,borderColor:selectedOwner===id?c.primary:'transparent'}}><Avatar url={authors[id]?.avatar_url} size={48}/></View><Text numberOfLines={2} style={{textAlign:'center',color:c.ink,fontSize:13}}>{authors[id]?.display_name||'여행자'}</Text></Pressable>)}</View>{!ids.length&&<Notice>친구나 팔로우한 여행자가 없어요. 친구 탭에서 추가해 주세요.</Notice>}<Button label="친구 목록 새로고침" onPress={()=>void loadFollows()} secondary/></>}
+    </View>;
+  }
   return <View style={s.container}>
     <View style={s.friendHeading}><Text accessibilityRole="header" style={s.friendTitle}>친구</Text>{owner&&<View><Text style={s.friendHint}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.friendIdentifier}>{identity.code||(identity.error?'확인 필요':'불러오는 중…')}</Text></View>}</View>
     <View accessibilityRole="tablist" accessibilityLabel="친구 메뉴" style={s.friendTabs}>
@@ -412,16 +430,16 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled}: F
 
 const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   profilePage:{gap:16},
-  profileCard:{backgroundColor:c.profile.sheet,padding:20,gap:12},
+  profileCard:{backgroundColor:c.profile.sheet,paddingVertical:8,gap:10},
   profileHeading:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',gap:12},
   profileTitle:{fontSize:20,lineHeight:28,fontWeight:'700',color:c.profile.ink,flexShrink:1},
   profileIdentity:{flexDirection:'row',alignItems:'center',gap:20},
-  profileName:{fontSize:30,lineHeight:42,fontWeight:'700',color:c.profile.ink},
+  profileName:{fontSize:19,lineHeight:26,fontWeight:'700',color:c.profile.ink},
   profileSmall:{fontSize:12,lineHeight:18,color:c.profile.muted,flexShrink:1},
   profileIdentifier:{fontSize:14,lineHeight:21,color:c.profile.ink},
   profileLink:{fontSize:11,lineHeight:17,color:c.profile.accent,flexShrink:1},
   visitLink:{flexDirection:'row',alignItems:'center',gap:8,paddingVertical:8},
-  visitBadge:{width:72,minHeight:64,borderWidth:1,borderStyle:'dashed',borderRadius:36,borderColor:c.profile.accent,backgroundColor:c.profile.tint,alignItems:'center',justifyContent:'center',padding:4},
+  visitBadge:{minWidth:60,minHeight:38,borderRadius:6,borderColor:c.profile.accent,backgroundColor:c.profile.tint,alignItems:'center',justifyContent:'center',padding:4},
   visitNumber:{fontSize:16,lineHeight:24,color:c.profile.accent,textAlign:'center'},
   compactButton: {paddingHorizontal:8,paddingVertical:8,borderRadius:10},
   compactButtonText: {fontSize:12,lineHeight:18},

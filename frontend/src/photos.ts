@@ -41,31 +41,36 @@ export function cleanupPickedPhotos(assets: readonly {uri:string}[]) {
   }
 }
 
-export async function pickPhotos(fullAccess: boolean, source: 'system' | 'original' = 'system') {
+export async function pickPhotos(fullAccess: boolean, source: 'system' | 'original' | 'camera' = 'system', capacity=20) {
+  if(source==='camera'){
+    if(Platform.OS!=='web' && !(await ImagePicker.requestCameraPermissionsAsync()).granted)throw new Error('카메라 권한을 허용하거나 사진 목록을 이용해 주세요.');
+    const result=await ImagePicker.launchCameraAsync({mediaTypes:['images'],exif:true,quality:1});
+    if(Platform.OS!=='web'||result.canceled)return result;
+    const asset=result.assets[0],file=asset?.file;
+    if(!file||!await validWebPhoto(file)){cleanupPickedPhotos(result.assets);throw new RecordValidationError('photos','JPEG 또는 PNG 사진을 확인해 주세요.');}
+    return result;
+  }
   if(Platform.OS==='web'){
-    const result=await DocumentPicker.getDocumentAsync({type:'*/*',multiple:true,base64:false});
+    const result=await DocumentPicker.getDocumentAsync({type:source==='original'?'*/*':'image/*',multiple:true,base64:false});
     if(result.canceled)return {canceled:true as const,assets:null};
-    if(result.assets.length>20){cleanupPickedPhotos(result.assets);throw new RecordValidationError('photos','사진은 20장까지 선택할 수 있습니다.');}
-    const assets:ImagePicker.ImagePickerAsset[]= [];let rejectedCount=0;
+    if(capacity===20&&result.assets.length>20){cleanupPickedPhotos(result.assets);throw new RecordValidationError('photos','사진은 20장까지 선택할 수 있습니다.');}
+    const assets:ImagePicker.ImagePickerAsset[]= [];let rejectedCount=0,overflow=0;
     for(const document of result.assets){
       try{
+        if(assets.length>=capacity){overflow++;cleanupPickedPhotos([document]);continue;}
         const file=document.file;
-        if(!file||!['image/jpeg','image/png'].includes(document.mimeType??'')||!Number.isSafeInteger(file.size)||file.size<=0||file.size>MAX_PHOTO_BYTES)throw new Error('Invalid photo');
-        const signature=new Uint8Array(await file.slice(0,8).arrayBuffer());
-        const jpeg=signature[0]===255&&signature[1]===216&&signature[2]===255;
-        const png=[137,80,78,71,13,10,26,10].every((byte,index)=>signature[index]===byte);
-        if(document.mimeType==='image/jpeg'?!jpeg:!png)throw new Error('Invalid photo format');
+        if(!file||!await validWebPhoto(file)||document.mimeType!==file.type)throw new Error('Invalid photo');
         const dimensions=await new Promise<{width:number;height:number}>((resolve,reject)=>Image.getSize(document.uri,(width,height)=>resolve({width,height}),reject));
         if(!dimensions.width||!dimensions.height||dimensions.width*dimensions.height>40000000)throw new Error('Invalid photo dimensions');
         assets.push({uri:document.uri,file,fileName:document.name,fileSize:file.size,mimeType:document.mimeType,type:'image',...dimensions});
       }catch{rejectedCount++;cleanupPickedPhotos([document]);}
     }
     if(!assets.length)throw new RecordValidationError('photos','선택한 사진을 읽을 수 없습니다. JPEG·PNG, 20 MiB·40메가픽셀 이하 사진을 선택해 주세요.');
-    return {canceled:false as const,assets,rejectedCount};
+    return {canceled:false as const,assets,rejectedCount,overflow};
   }
   if (source !== 'original' || Platform.OS !== 'android' || !fullAccess) {
     const result = await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsMultipleSelection:true,selectionLimit:20,exif:true,...(Platform.OS==='android'&&fullAccess?{legacy:true}:{})});
-    if (!result.canceled && result.assets.length > 20) {
+    if (capacity===20 && !result.canceled && result.assets.length > 20) {
       cleanupPickedPhotos(result.assets);
       throw new Error('사진은 20장까지 선택할 수 있습니다.');
     }
@@ -103,6 +108,12 @@ export async function pickPhotos(fullAccess: boolean, source: 'system' | 'origin
   return {canceled:false as const,assets,rejectedCount};
 }
 
+async function validWebPhoto(file:globalThis.File){
+ if(!Number.isSafeInteger(file.size)||file.size<=0||file.size>MAX_PHOTO_BYTES)return false;
+ const bytes=new Uint8Array(await file.slice(0,8).arrayBuffer());
+ return file.type==='image/jpeg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:
+   file.type==='image/png'&&[137,80,78,71,13,10,26,10].every((v,i)=>bytes[i]===v);
+}
 const MAX_PHOTO_BYTES=20*1024*1024;
 async function selectedFileMetadata(asset:ImagePicker.ImagePickerAsset){
   try{

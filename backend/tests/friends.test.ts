@@ -1,4 +1,4 @@
-import {execFileSync} from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import {randomUUID} from 'node:crypto';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {TravelApi} from '../../frontend/src/api';
@@ -13,7 +13,7 @@ const send=(from=0,to=1)=>users[from].api.request('/rest/v1/friend_requests','PO
 const accept=(from=0,to=1)=>users[to].api.request(requestPath(from,to),'PATCH',{status:'accepted'});
 
 beforeAll(async()=>{
- const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--workdir','backend','-o','json'],{encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+ const status=localSupabaseStatus();
  if(status.API_URL!==base)throw new Error('Only local Supabase is allowed');
  admin=new TravelApi(base,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;
  localAnon=status.ANON_KEY;guest=new TravelApi(base,localAnon);
@@ -74,6 +74,8 @@ test('TC-FRIEND-003: accepted friends add only public complete records to the ex
  const visible=await record(1,'public');await record(1,'private');await record(1,'public',false);await record(2,'public');
  expect((await users[0].api.following()).map((r:any)=>r.id)).toEqual([visible]);
  expect(await users[2].api.following()).toEqual([]);
+ expect((await users[0].api.following(undefined,undefined,undefined,users[1].id)).map((r:any)=>r.id)).toEqual([visible]);
+ expect(await users[0].api.following(undefined,undefined,undefined,users[2].id)).toEqual([]);
  expect(await users[0].api.request(`/rest/v1/photos?owner_id=eq.${users[1].id}`)).toEqual([]);
  await expect(users[1].api.request(`/rest/v1/profiles?id=eq.${users[1].id}`,'PATCH',{public_profile_enabled:false})).rejects.toMatchObject({status:400});
  expect((await users[0].api.following()).map((r:any)=>r.id)).toEqual([visible]);

@@ -26,7 +26,8 @@ export function publicConfiguration(source) {
 }
 
 async function main() {
-  const config = publicConfiguration(parseEnv(readFileSync(new URL('../.env', import.meta.url), 'utf8')));
+  const source = parseEnv(readFileSync(new URL('../.env', import.meta.url), 'utf8'));
+  const config = publicConfiguration(source);
   const headers = {apikey: config.EXPO_PUBLIC_SUPABASE_ANON_KEY};
   let ready = true;
   const settings = await fetch(new URL('/auth/v1/settings', config.EXPO_PUBLIC_SUPABASE_URL), {headers, signal: AbortSignal.timeout(10000)});

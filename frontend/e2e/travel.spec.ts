@@ -62,12 +62,12 @@ test('TC-UI-008 손상된 이미지와 지원하지 않는 형식 거부',async(
  expect(await admin(`/rest/v1/travel_records?owner_id=eq.${userId}`)).toHaveLength(0);
 });
 test('UI-JOURNAL-001 로그인 소개와 미리보기',async({page})=>{
- await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveCount(0);
- await expect(page.getByRole('heading',{name:'나만의 여행도감',exact:true})).toBeVisible();
+ await page.getByRole('tab',{name:'My',exact:true}).click();await page.getByRole('button',{name:'설정',exact:true}).click();await page.getByRole('button',{name:'계정 관리',exact:true}).click();await page.getByLabel('설정과 여행 도구',{exact:true}).getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByRole('tab',{name:'My',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'여행가봥',exact:true})).toBeVisible();
  await page.screenshot({path:'test-results/journal-login.png',fullPage:true});
- await page.getByRole('button',{name:'공개 여행 둘러보기',exact:true}).click();
+ await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();
  await expect(page.getByRole('tab',{name:'홈',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'기록 만들기',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'여행 기록 추가',exact:true}).click();await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
 });
 test('UI-JOURNAL-002 하단 도감과 지도 및 MY 탐색',async({page})=>{
  await page.getByRole('tab',{name:'여행도감',exact:true}).click();await expect(page.getByRole('tab',{name:'여행도감',exact:true})).toHaveAttribute('aria-selected','true');
@@ -99,7 +99,7 @@ test('UI-MAP-001 홈은 전체 지도이며 사진 추가 진입은 하단 + 하
 });
 test('UI-MAP-002 저장한 제주 기록을 지역 지도에서 선택하고 상세 조회',async({page})=>{
  await draft(page);await save(page);await page.getByRole('tab',{name:'홈',exact:true}).click();
- await expect(page.getByText('내 발자국 1 / 17',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('1 / 17');await page.getByRole('tab',{name:'홈',exact:true}).click();
+ await expect(page.getByText('내 발자국 1 / 16',{exact:true})).toHaveCount(0);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-visits')).toHaveText('1 / 16');await page.getByRole('tab',{name:'홈',exact:true}).click();
  await page.getByRole('button',{name:'제주특별자치도 · 1개',exact:true}).click();
  await page.getByRole('button',{name:'제주시 · 1개',exact:true}).click();
  await page.getByRole('button',{name:'제주 여행 상세 보기',exact:true}).click();await page.getByRole('button',{name:'여행 관리',exact:true}).click();await expect(page.getByLabel('제목 수정',{exact:true})).toBeVisible();

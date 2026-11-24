@@ -1,5 +1,21 @@
 # MyTravelDex 단계별 TDD 테스트 케이스
 
+## 2026-11-21 공통 햄버거 메뉴
+
+TC-MENU-001은 홈·MY 메뉴 구성, 드로어 닫기, 게스트 로그인 연결, 앱 버전, 여행도감·메뉴의 스탬프 일치와 기존 추첨 동작을 검증한다. 이전 배지·스타일 UI 수용 항목은 이 개편으로 대체한다.
+
+실행 결과(2026-11-21) — TypeScript 통과. Vitest 대상 5파일 18건(지역 집계·추첨·여행도감·스탬프·배지 호환)과 Chromium Playwright 12건 통과. Expo Web에서 320px 기본 프로필과 1280px 소셜 프로필, 본인 완료 여행 1건의 스탬프 수집 수, 공개 범위 변경, 메뉴·지도 양쪽의 추첨을 확인했다. 메뉴 테스트의 Auth 세션과 PostgREST 응답은 합성 데이터다. 전체 Supabase 통합 및 Android 기기 검증은 이번 실행 범위 밖이다.
+
+후속 Android 실행 — Medium_Phone_API_37.0(x86_64)에 현재 작업본의 자체 APK를 설치하고 사용자가 Google 로그인한 세션에서 확인했다. 홈·MY의 햄버거를 각각 눌러 동일한 3개 영역·5개 항목과 배지·스타일 메뉴 제거를 확인했다. 홈·MY·여행도감에서 스탬프 도감을 열어 세 경로의 방문 지역 수가 일치했다. 양쪽 드로어에서 계정 관리의 로그아웃 항목과 내 프로필 관리 → 프로필 편집, 개인정보 및 공개 범위 → 내 여행 기록으로 이동했고 기록별 공개 스위치 표시를 확인했다. 공개 상태 변경·로그아웃은 실행하지 않았다. 종료 화면은 홈이다.
+
+정책 링크 병합 검증 — 게스트가 앱 정보 → 약관정보, 계정 관리 → 계정 및 데이터 삭제 요청에서 각각 올바른 주소를 새 탭으로 여는지 확인했다. Chromium 메뉴·링크 5건 및 TypeScript 통과. 두 공개 주소도 직접 조회해 HTTP 200과 해당 문서 제목을 확인했다.
+
+TC-LEGAL-001 Android 후속 실행 — 원격 main 병합 커밋 `b707940`과 동일한 소스로 자체 APK를 다시 빌드하고 Medium_Phone_API_37.0(x86_64)에 설치했다. 로그인된 앱에서 앱 정보 → 약관정보를 누르면 Chrome에서 `https://backsong001.github.io/MyTravelDex/`와 제목 ‘약관정보 · 여행가봥’을 확인했다. 앱으로 복귀해 계정 관리 → 계정 및 데이터 삭제 요청을 누르면 `https://backsong001.github.io/MyTravelDex/deletion.html`과 제목 ‘계정 및 데이터 삭제 요청 · 여행가봥’이 표시됐다. 두 문서 모두 뒤로 가기로 앱에 복귀했다. 삭제 요청은 제출하지 않았다.
+
+프로필 사진 방향 회귀(TC-SNS-004)는 비대칭 JPEG와 PNG에 EXIF 방향 1~8을 각각 넣고 Storage에 보낼 JPEG를 다시 디코딩해 가로·세로, 네 모서리 색, EXIF 제거를 확인한다. 태그가 없거나 유효하지 않은 사진은 원래 방향을 유지해야 한다.
+
+2026-11-20 실행에서 수정 전 Orientation 6 입력은 두 형식 모두 512×256으로 출력됐다(기대 256×512). 수정 후 각 형식의 방향 8종·태그 없음·범위 밖 값 등 총 20개 입력과 기존 헤더 검증이 통과했다. 검증 대상은 ImageScript 1.3.0의 실제 인코딩 결과이며, Supabase Storage 왕복과 Android 실기기 표시는 미검증이다.
+
 ## Figma 17A 수용 계획 (2026-11-09)
 
 TC-FIGMA-ASSET-001 ↔ FR-FIGMA-001: 실제 이미지·원본 SHA256·로컬 경로/디코딩·비어 있지 않은 크기를 확인한다. 17A는 백팩/기본 곰/5개 메뉴7개가 대응하는 Figma 슬롯에 있으며 사용자 원격사진 성공/실패 fallback을 유지한다. 바다4종 PNG는 후속 지도 단계에서 해안 비가림·크기까지 검증하며 현재 SVG 바다 장식 회귀는 유지한다.
@@ -1348,3 +1364,565 @@ FR-SVG-MAP-LABEL-002 / TC-SVG-MAP-LABEL-002는 [지역명 명세](SVG_MAP_LABELS
 - Web 공통SVG7pass(1.1분): 전국320/390/1440의17약칭·bbox겹침0/가시성·10~14px, 전체시도상세원문/320서울25·경기전체·제주라벨위클릭·줌/핀치/방문색/복귀/바다배경픽셀을 유지한다. 320px스크린샷에서육지·바다/약칭배치를직접확인했다.
 - 실제 configured no-dev8083 + 공개REST대역2pass(10.1초):320/390/844/1440 및17/25라벨·서울/충북약칭·도감지역필터/상세복귀·바다PNG실decode 확인. 실제계정/DB쓰기없음.
 - 원본GeoJSON/DB/행정코드/상단·목록명칭/바다자산·제스처는변경없음. 이번에는새APK/production export·실휴대폰/iOS/실배포를수행하지않았다. 이전바다작업의빌드/Native시각결과를새약칭실기기수용으로합산하지않으며기존Native이동성능제한도유지한다.
+
+
+## 2026-11-13 사진 중심 연속 지도
+
+FR-PHOTO-MAP-001 / TC-PHOTO-MAP-001은 `docs/PHOTO_MAP_EXPLORATION_SPEC.md`를 따른다. 내여행 기본/선택 친구·팔로우 한 명/공개탐색 UI 제거(서버권한 유지), 등록일 대표사진·기록수·단일카메라 연속확대·사진군집·요약시트·동작줄이기를 기존 SVG/사진/권한 경계에 연결한다. 이전 시도별 화면교체와 사진핀 종료 계약은 이 범위에서 대체한다. jhyun/t14 리뷰, 단위·Web·Android 실제수용을 구분하고 원격배포하지 않는다.
+
+### 사진 지도 실행 이력 — 2026-11-13 (진행/최종 결과 분리)
+
+- t14 명세 및 제품 경계 정적 승인: 같은 대상 재선택, 최신 ID payload, count/own 방문색, 요약 복귀 snapshot, geometry bounds culling, 동일좌표 fit, 동작 줄이기, 해외·미배정 필터, 유효 viewport(각 변32px 제외) 85/65% 임계, press/그림자, wide/narrow 보조 스크롤. 리뷰는 읽기만이며 아래 실행은 t12다.
+- 새 단위 파일의 초기 module-not-found는 환경/미구현 오류로 행동 Red로 세지 않는다. 초기에 요약 버튼 role 누락, sheet drag 실패, 조건부 구목록으로 인한 canvas/base 변경, 상세 임계 미진입을 각각 관찰하고 보강했다. 기존 focused2/4/6 실행을 최종 전체 수치로 합산하지 않는다.
+- 짧은 지도 회귀 첫 구성(root280)은 실제 canvas258px여서 준비조건 실패(8pass/1fail). root200 구성은 보조 목록 높이가0에 가까워 버튼 접근 timeout(10pass/1fail). host maxHeight180의 독립 임계 검사1pass(12.8초)와 wide 전체 보조 스크롤 제품 보강을 분리했다. 후속 실제 root200 접근 검사를 유지한다.
+- press/MotionProvider/짧은 wide 보강 후 공통SVG·scope13pass(2.1분). 설치 SDK 모션 provider, actual photo hit/drag, reduced 변경, CDP1→2→1, 같은 mine/friend 재진입 및 owner 서버조건을 검사했다. 실제 GeoJSON/공통 컴포넌트와 Local Auth·대역 기록을 사용하며 Android 증거가 아니다.
+- 최초 새 export는 빌드 성공이지만 static2pass/1fail: 320px 보조 영역 수축으로 지역 버튼에 출처/줌 도구가 겹쳐 실제 클릭이 차단됐다. narrow 외부 세로 ScrollView와 사진56/지역64 자연 높이로 수정했다. 새 artifact 재검증 전 성공으로 합산하지 않는다.
+- svg-app 성숙계정 준비에서 잘못 만든 boolean status 대역이 오류 Modal을 띄워2fail. 별도 추적 재실행은 동시에 다른 Playwright가 같은 출력폴더를 사용해 trace 저장 ENOENT도 발생했으므로 독립 증거로 쓰지 않는다. 실제 Local status RPC를 통과시키고 Gate 확인중/재시도 부재를 기다리도록 수정했다. 제품 Gate·강제 클릭·허용오차를 완화하지 않았다.
+- 최신 제품 기준 Web **15pass(2.4분)**: photo-map11 + photo-scope2 + 실제앱 svg-app2. 320/390/844/1440, 동일 GeoJSON 카메라/보정좌표, 핀치, count/미방문색, 삭제 payload, 요약 확대·재마운트 복귀, 국내선택 전후 other handoff, 실제<=213 canvas와 짧은 wide 스크롤, press/reduced/Escape, mine/friend 재선택, 시군구 도감필터/상세·홈복귀. 실제앱 fixture는 Local Auth/profile RPC와 대역 기록을 분리한다.
+- 최신 관련 단위/Local 관계 HTTP/Native SSR **5files16pass(11.10초)** 및 frontend types exit0, diff check 통과. SSR은 Native 화면 렌더/제스처 수용이 아니다. 전체 E2E를 새 전체Green으로 선언하지 않는다.
+- Android 첫후보 build2분28초는 빌드 중 후속변경으로 최종artifact에서 제외. 후속후보 build2분21초/430tasks 성공, 휴식 후 설치하고 Local 임시계정/실제 Storage JPEG3건의 전국 대표사진·등록일 정렬/3건요약·확대·개별상세/갤러리와 홈복귀 시 요약확대를 확인했다. narrow 최종 보강 이전 후보 증거다. 테스트 입력은 ADB 한글 IME 변환 때문에 실패하여 UiAutomator2 실제 입력으로 보정했고 앱 인증 실패와 구분한다.
+- Native 비교 기준은 기존 PNG+벡터 SVG APK의 같은 에뮬레이터 전국지도/각1초 pan2회:12frames/jank100%/P50 350ms/P90 1150ms/PSS445577KiB. 이는 단발 환경 관측이며 이전 날짜의 성능 측정과 합산하지 않는다. 최종 APK 성능·실휴대폰/iOS·원격배포는 후속 결과 전 미수용이다.
+- 최종 narrow APK build **2분22초/430tasks(15실행)** 성공 후 휴식/설치. 같은 Local 임시3기록/실제Storage사진에서 전국 대표3·요약확대·개별상세→홈 확대요약 복원·안정된 핸들 아래drag닫기·서울fit의1건/동일좌표2건 군집·pinch를 관찰했다. 재시작 후 stale Appium을 새 noReset 세션으로 재연결한 것은 앱데이터 reset이 아니다. 최종 Native에서 선택친구 실제계정 왕복/짧은 가로 화면은 별도 미검증이다.
+- Native 성능은 표본을 분리한다. 기존 baseline12frames/jank100%/P50 350ms/P90 1150ms/PSS445577KiB, 최신 cold guest18frames/jank16.67%/P50 16ms/P90 250ms/P95 350ms/PSS312876KiB, 여러 화면을 거친 뒤 로그아웃한 warm37frames/jank56.76%/P50 150ms/P90 250ms/PSS879804KiB. 같은 에뮬레이터/전국/1초pan2회지만 표본의 로그인·온도·사진 이력이 완전히 동일하다고 보장하지 않으므로 일반 개선율/무회귀·메모리누수를 단정하지 않는다. **Native 연속 이동 성능은 계속 미수용**이다.
+- 최종 APK 시험 후 QA계정/여행/위치/Storage만 정리하고 사용자 원래APK를 데이터초기화 없이 복원했다. 원격DB/배포/사용자자료 변경은 없다. APK `/tmp/photo-map-native/accepted-candidate.apk`는 Local QA 연결 시험본이며 production 배포본이 아니다.
+- 최신 production export exit0(2026-11-13T09:36:53Z). 산출물 수용 검사는 별도다. 기존 svg-map 회귀의 화면교체·구목록·조건부차폐 기대는 t14 방향검토 후 연속지도/실제자녀ID·이름/사진요약/고정도감 연결로 보정하며 제품은 추가변경하지 않는다.
+- 최신 실제 export(entry-423cd07f7c83e67108f10fb6b916a8ab.js)의 static3은 HTML/JS/PNG MIME·바이트/누락404·production callback·비로그인320px지도/공개feed요청0으로 통과했다. 실제Vercel/OAuth완료와 구분한다.
+- 기존 SVG 회귀+static 실행은 **9pass/1fail(1.6분)**이다. 선택서울25의 정확code/name은 통과했지만 기존 모든라벨 가시성이 화면밖 인접경기41430까지 강제해 실패했다. 선택자녀 가시성으로 보정한 대상1 실행은 **1fail(22.6초)**:320 경기fit에서 실제 화면내bbox7쌍 겹침을 검출했다. 진단 재실행도 같은 실패를 보존하며 해결로 합산하지 않는다.
+- 단발 계측은 실제320x250.8 canvas/10px 글자/겹침 위치를 확인했으나 배치 최적성·공간상 불가피성을 증명하지 않는다. t14의 기존 최소화면 예외 승인에 따라 320 서울0/경기7은 bbox attachment로 남기고, 선택자녀별code/name·전체개수/가시성/10~14px·전국3viewport와desktop각시도겹침0·제주 실제클릭/줌은 유지한다. 이전 명세의320겹침0은 사진지도전환전 이력으로 한정했다. 최소화면 예외 검사의 후속 통과를 겹침 해소로 표현하지 않는다.
+- 최종 지역명 대상 **1pass(21.2초)**: 최소화면 예외의 실제 충돌 attachment와 나머지 정확이름/가시성/입력 계약 통과. 앞선9pass/1fail을 새전체10Green으로 합산하지 않는다. 이전 Web15/단위HTTP·SSR16 및 이 별도 회귀들만 실행했으며 전체E2E는 실행하지 않았다. 최종 diff check/types exit0. Native 성능·320경기 잔여겹침·실휴대폰/iOS·선택친구 Native 실제계정왕복·원격배포는 제한/미검증으로 남긴다.
+
+
+## 2026-11-13 지도 중심 홈
+FR-MAP-HOME-002 / TC-MAP-HOME-002는 docs/MAP_FIRST_HOME_SPEC.md를 따른다. 홈 도구축소/차분한해안색/방문색제거/기본12×fontScale(배치도동일)/홈전용탐색bounds124~132·32~40/최소전국fit/전국사진우선확대/원형친구선택을 적용한다. 기존 scope권한·집계·작성/보정은 유지하며 DB/API변경없음. jhyun 관련변경만 검증후커밋·푸시한다.
+
+
+### TC-MAP-HOME-002 실행 이력
+- 사전 t14 P2: 12×fontScale/홈 탐색bounds124~132·32~40 명확화 후 승인. 제품 P2: 전역버튼 .975복원·homeMap 전환 layout effect로 fly종료 후 승인.
+- Red 홈 도구 제거 전 map-region-options1로 실패. 구현 후 기존 photo-map11pass/홈1fail은 Web SVG font가 HTML attribute 대신 CSS인 전제 차이였으며 실제CSS12px 검사로 보정했다. 홈두단계/모드전환·해외보정 focused2pass(22.5초).
+- 관련 단위4파일10pass 및 Native fontScale2/홈 무방문색 SSR 추가3pass. frontend tsc exit0. 잘못된 루트 tsc 실행의 Deno/외부root설정 오류는 frontend 검증과 구분한다.
+- 실제 no-dev 앱/친구/기존SVG 회귀는 10개통과 후 process143 종료되어 전체11Green으로 기록하지 않는다. 미완료 snapshot/ownerreset 대상1은 별도pass. 실제 Local 인증·친구/나 동일대상·서버owner조건·지역도감/상세복귀·320/390/844/1440·해안 실픽셀/섬/hole을 확인했다.
+- 추가 viewport/wheel/pan은 RNWeb 기본margin0 전제 보정과 역투영40.00000000000001(약1e-14) 비교에1e-9 부동소수 허용을 적용한 후1pass(12.3초). 실제 화면/배율 조건은 유지했다. 한계 없는 카메라를 허용하는 변경이 아니다.
+- 최신 PNG351,422bytes/2048²/계산상RGBA16MiB, 원본GeoJSON hash불변. 실제기기 총PSS/이동성능 개선을 의미하지 않는다.
+- 최종 Local QA APK build2분27초/430tasks20실행 성공. mytrveldex 에뮬레이터의 임시계정/실제Storage3기록으로 전국사진→서울fit(요약없음)→동일좌표2건요약→실제상세→홈요약복원→핸들drag닫기를 관찰했다. 친구 Modal의 나/빈관계 안내·pan/pinch도 확인했다. 실제 친구계정 Native 왕복은 미검증이다. 초기 ADB 한글IME/화면 전환·stale 좌표 시도는 성공 수에 합산하지 않고 최신 화면/명시session에서 다시 확인했다.
+- 최신 warm Native 표본(여러 화면/요약 후)은27frames/jank100%/P50 550ms/P90 650ms/PSS1,073,644KiB/swapPSS19,684KiB다. 이전 baseline/cold와 조건이 같지 않으므로 일반 개선율·회귀율·메모리누수 원인을 단정하지 않는다. **Native 지도 이동 성능은 미수용**이며 기능 확인과 분리한다.
+- 실제 서버 연결 x86_64 APK build1분33초/430tasks15실행 성공. `/tmp/map-first-home/mytraveldex-jhyun.apk`를 사용자 데이터 초기화 없이 설치하고 설치본SHA256 일치/프로세스 실행을 확인했다. 휴대폰용 universal/Play 제출본은 아니다. Local QA자료만 정리(cleaned=true), functions 종료, 에뮬레이터는 사용자 확인용으로 유지했다. 실제서버의 로그인/CRUD를 이번 QA 성공으로 계산하지 않는다.
+- 최종 production export exit0(2026-11-13T10:53:36Z), entry-8020cd762eae9198eedd3c3a9c1d4005.js. 해당 산출물 static **3pass(7.9초)**: HTML/JS/PNG 실바이트·MIME/누락404, callback취소·비밀번호UI없음,320px guest지역찾기/확대/전국복귀·공개feed요청0·pageerror0. 실제Vercel 배포/OAuth완료는 별도다. 전체E2E·실휴대폰/iOS·Native 성능 수용은 선언하지 않는다.
+- 최종 frontend `tsc --noEmit` exit0. 검증 결과는 위 실행별 범위로만 기록한다.
+
+
+## 2026-11-13 홈 선택 범위와 복귀 도구
+FR-MAP-HOME-003 / TC-MAP-HOME-003은 docs/MAP_FIRST_HOME_SPEC.md의 최신 절을 따른다. 홈 선택시도만 정확한파란테두리/18%색으로 강조하고 +/−/홈 한글자표시(48px입력),지역찾기버튼제거·지도키보드/스크린리더목록대안을 연결한다. 홈/대한민국은선택·요약·진행중이동을해제하고현재전국fit으로복귀한다. 비홈·기존데이터·권한/API/DB는유지하며Web/Native실행증거를구분한다.
+
+### TC-MAP-HOME-003 실행 이력
+- t14 사전 P2는 지도에 남고 다른Modal없을때만focus복귀로 한정해 보강했다. 제품 P1 Web 접근성 합성click(detail0) 연결을 추가했고 Native activate/실pointer경로를 분리했다. 정적 승인과 실제실행을 구분한다.
+- Red1fail: 기존 지역찾기버튼1개가 남아 실패. 최초focused2pass/2fail은 실제pointer 선택실패와 공통Feedback 최소50px를48px정확값으로검사한 전제였다. 버튼은공통50px를유지하고 최소48~50 범위를검사한다. mousedown focus가원인이라는추정과preventDefault후보는 폐기했다.
+- 실제계측: Web rolebutton이기존div를button으로교체해 host높이678/viewBox337을남겼다. Web roleapplication/tabIndex로같은div를유지하고Nativebutton을분리했다. 임의offset/강제key변경없음. 보강후홈사진/모드/resize/접근성4pass,새TC1fail은이동된서울label좌표가인천geometry에닿은기대오류였다. 실제부산WGS84좌표를기존fitProjection으로투영한pointer검사로바꾸며제품좌표는그대로유지했다.
+- Native공통SSR4pass 및 frontend types exit0. 실제Android글자/파랑/터치·스크린리더의독립수용을뜻하지않는다. 관련19개Web/최신export/Native는각후속완료결과로구분한다.
+- 최종관련Web **19pass(3.2분)**: 사진지도17+실제no-dev앱2. 정확province파랑path/district뒤·라벨앞·사진선택보존,홈/대한민국선택해제·전국transform복구,부산실좌표click,합성click/키보드목록·summaryfocus,fly중reset450ms·DOMidentity/host-viewBox오차1px미만 및기존도감/상세·보정/pinch를확인했다. 전체E2E성공은아니다.
+- RNWeb의accessibilityHint는DOM전달되지않아Web label의Enter/Space안내와aria-keyshortcuts를명시했다. 해당최종DOM/focus집중검사 **1pass(10.8초)**. 실제스크린리더앱/Native접근성수용과분리한다.
+- 최초actual x86_64 APK build1분28초/430tasks15실행 성공. 설치후기존보유사진→부산fit의파란경계/18%영역·지역명/사진과홈복귀를관찰했다. 자료생성/수정/삭제·로그아웃은하지않았다. 이후overlay문자미표시를관측해이전actualAPK로동일부산선택을비교했고기존대한민국/친구문자도사라짐을확인했다. 원인/누수/전체Native수용을단정하지않는다.
+- 새버튼helper의alignItems:center 후보는원래stretch로복원하고Text.textAlign:center로표시정렬만한정했다. Web해당선택/reset/접근성 **2pass(19.9초)**. 최종APK재검증과이전후보를구분한다.
+- textAlign보강candidate도이동후도구문자미표시가남아해결로계산하지않았다. 홈overlay두wrapper zIndex1/친구zIndex2를명시하는표시순서보강은t14정적승인후적용했으며 해당Web **2pass(19.8초)**. 공통Feedback/좌표/API변경없음. 최종Nativeartifact실행으로효과를별도판정한다.
+- 최종zIndex artifact build1분30초/430tasks15실행 성공. 실제서버연결 x86_64 APK에서 보유사진→부산강조,홈→전국/강조제거,직접강원선택→강조,대한민국→전국/강조제거를관찰했다. Native도구글자미표시는선택화면에서여전히관측되어zIndex를해결증거로계산하지않는다(전국복귀후다시표시). 사용자자료/계정/원격DB변경없음,최신APK설치와에뮬레이터유지. 실제스크린리더/실휴대폰/iOS·기존Native성능과이표시제한은미수용이다.
+- 최신 production Web export exit0 (2026-11-13T11:34:34.582Z), entry-5631aef5bc07215f9d780c3e1e7331ef.js. 최종 artifact 검사 **3pass(8.9초)**: MIME/실제bytes·OAuth취소callback·320px guest 지도에서 키보드목록→서울파랑강조→홈/대한민국 각각초기화, 공개feed요청0/콘솔pageerror0. 최종frontend types exit0. Native표시제한과전체E2E/실배포미검증은유지한다.
+
+
+## 2026-11-13 경기도 표시 간소화와 전국 복귀 모션
+FR-MAP-HOME-004 / TC-MAP-HOME-004는 docs/MAP_FIRST_HOME_SPEC.md 최신 절을 따른다. 홈 경기도 중간확대8개시 union/31시군 표시·깊은확대 원래구 복원, 회색지도라벨,350ms전국복귀·완료camera=null/reduced즉시·중단보호를 적용한다. 원본행정코드/DB/API/권한/기록·비홈경계를 유지하고Web/Native수용은분리한다.
+
+### TC-MAP-HOME-004 실행 이력
+- 수정전 Red2fail: 중간확대 수원시 표시없음·전국복귀가 즉시camera=null이라 중간모션 없음. 환경오류가아닌제품행동실패다.
+- Shapely2.2.0으로원본hash고정8city union을생성했다(317240bytes). 원본구47/표시중간31·원본255판정/8city anchor·원문·hash불변 및기존라벨/Native공통SSR **9pass(5.75초)**. 런타임Native수용과구분한다.
+- 신규Web **3pass(35.1초)**: 경기시단위→구확대·회색·1440/390화면, 두전국복귀350ms의중간카메라/최종null, 복귀도중zoom후늦은초기화없음·기존canvas유지. 실제스크린샷에서시내부구선제거/라벨집계를확인했다. 전체회귀/Android는후속결과로분리한다.
+- 관련사진지도Web **19pass(3.3분)** 및frontend types exit0. 이후t14가country이동중finder사진요약/other선택의취소누락P2를발견했다. 이19pass를해당경계수용으로확대하지않고별도Red/보강회귀로기록한다.
+- t14 P2의finder사진/other선택 취소누락은각선택진입에기존stopAnimation을추가했다. 해당Red2fail→보강후 **2pass(21.8초)**: country도중키보드목록선택뒤40RAF camera고정/nonnull과요약·other선택보존. 앞선19pass와후속2pass를새전체21pass로합산하지않는다.
+- 추가검사의40RAF가120Hz에서350ms보다짧을수있다는t14검사의견을반영해performance.now기준500ms관찰로보강했다. 앞선2pass는40RAF후보증거로유지하고최종시간기반회귀와분리한다. 제품선택취소2곳은t14정적승인이다.
+- 최종Android x86_64 APK build **1분31초/430tasks15실행 exit0** (2026-11-13T12:16:08.613Z). 생성성공은실제표시/모션수용과분리한다.
+- 최신APK를기존mytrveldex에뮬레이터에데이터보존설치했다. 실제홈에서경기도선택→고양/수원/성남/용인등시단위경계·회색라벨,실좌표탭→용인시기흥구세부경계/원문,홈·대한민국전국복귀/강조제거를관찰했다. 화면녹화에복귀중간투영이보이며최종전국fit은별도스크린샷으로확인했다. 일정FPS/350ms실측성능을보증하지않는다. 이동후기존버튼문자미표시는잔존하고전국복귀후다시표시됐다. 기존기록/계정/원격DB변경없이최신APK전국화면과에뮬레이터를유지했다. 실휴대폰/iOS/실스크린리더·Native성능은미검증이다.
+- 최종시간기준500ms취소회귀 **2pass(22.2초)** 및frontend types exit0. 이전40RAF후보의통과와구분하며프레임레이트에의존하지않고country완료기한이후camera고정/nonnull·요약/other를확인했다.
+- 최신Web production export exit0 (2026-11-13T12:21:41.692Z), entry-13259bcbaba7a51ea037fe9c958adcb8.js 19.9MB. 배포전산출물생성증거이며실배포는하지않았다.
+- 최신artifact static **3pass(10.8초)**: MIME/bytes·callback 및320px guest의서울강조/두복귀도구·경기수원시union/회색·홈복귀후전국서울라벨복원·공개feed요청0/pageerror0. 전체E2E/실배포성공으로확대하지않는다.
+
+
+## 2026-11-16 홈 단순 사진지도
+FR-MAP-SIMPLE-001 / TC-MAP-SIMPLE-001은 docs/SIMPLE_PHOTO_MAP_SPEC.md의 사용자 승인 계획을 따른다. 홈만 MapLibre/실제Geoapify타일·단색바다·시도선·단계라벨/기록수마커로 대체하고 비홈SVG/원본geometry/DB/API/권한/사진·상태보호는 유지한다. 별도 공개지도키와 서버검색비밀키를 분리하며 t14/실Web/Native수용·무료quota·원격배포를 구분한다. 이전 홈 SVG 전용/바다그라데이션/시군구선 계약은 이 범위에서 대체된다. 제품 구현과 지정 Web·에뮬레이터 기능 확인을 마쳤다. 전체 E2E·실휴대폰·Native 성능 수용은 완료되지 않았으며 실행별 결과와 환경 차단은 TEST_CASE 최신 이력을 따른다.
+
+### TC-MAP-SIMPLE-001 중간 검증 (2026-11-16)
+- 환경 Red: 공개지도키 전달/지문/서버검색키 동일값 거부의 실패를 확인한 뒤 관련 Node 검사15통과. map plugin 재등록 이후 부분11통과는 별도 실행. 실제값은 출력/문서화하지 않았다.
+- 순수/Native SSR11통과(7.50초): 스타일 단계,512zoom↔scale,중간줌 시union명,라벨상한/사진회피,키없는SVG와Native실패callback. SSR은 실제Android 렌더가 아니다.
+- Web23개 실행22통과/1실패(4.6분). 실패는 깊은줌 화면밖 수원구를 찾던 준비조건이며 전국→경기도 복귀 후 실제구목록 선택으로 보정. 후속focused3통과(40.5초)는 새전체23Green으로 합산하지 않는다. 실제PBF200/도로·수계queryRenderedFeatures/tilesLoaded와 renderer.project↔사진SVG resize오차1px미만,403안내/contextloss camera·요약유지를 확인했다.
+- 단일기록의 전국anchor↔실좌표 전환에서 ID만 같으면 이동이 생략되는 Red1(8.6초) 후 모드signature 추가, 동일 RAF 중간좌표회귀1통과(11.7초). 새전체/Native모션수용은 별도다.
+- APK1m34초 빌드는 Native style문자열memo 이전후보이며 최종Native 수용으로 계산하지 않는다. 최신APK/실기기/성능/export는 아직 후속 검증 대상이다.
+
+- 전국 단일기록 모드전환1pass 후 count 회귀1pass(13.5초):3기록 집계→실좌표2+1·동일좌표2개요약·전국3복귀. 후속 Native에서 큰경남fit이 전국상한이하인 경우 두번째사진이fit만반복함을 발견했고 Web Red1로 재현. 선택시도만 좌표군집 예외 추가 후 단일전환/count/경남요약3통과(31.2초).
+- 실제 no-dev Web 배포 export/static3통과(10.0초)는 큰시도 예외 전 artifact다. 최종후속export는 별도로 기록한다.
+- Native 중간후보 비교(동일 mytrveldex API37.2/6CPU/8192MiB/hostGPU·같은기존계정8기록, 확대3→좌우pan6→홈): 설치기존 APK30frames/jank66.67%/p50 500ms/p90 950ms/PSS988534KiB, 새중간 APK164frames/jank46.95%/p50 32ms/p90 69ms/PSS352548KiB. 단발표본이며 사진/타일캐시·온도와별도GL프레임 비용은 통제하지 않아 일반개선율·전체성능수용으로 사용하지 않는다.
+- 기존앱첫종료는 emulator WebView package update로관측했으며 재진입후 같은계정/기록을유지했다. app data reset/로그아웃/원격데이터변경은하지않았다. Native최초camera의reactTag오류1관측→style준비후명령으로보강. 큰시도후보Gradle1m41성공/상위wrapper143과 준비보강후빌드1m39/exit0을구분한다. 실제최종동작은후속확인한다.
+
+
+### TC-MAP-SIMPLE-001 최종 지정 검증 (2026-11-16)
+- 최종 readiness/큰시도 예외 포함 소스의 frontend types exit0, 순수·Native SSR **11pass(8.40초)**. Native SSR은 기기 동작과 구분한다.
+- 최신 production export exit0, `entry-40132171e47a6a8ef77829f75da7410b.js`; 해당 artifact static **3pass(8.7초)**. MIME/실제bytes·OAuth callback·guest 지도와 공개feed 요청0을 확인했다. 앞선 PBF/렌더features 검사 및 focused3과 별도 실행이며 전체 E2E 성공으로 합산하지 않는다.
+- 준비 guard 포함 최종 x86_64 APK build **1분39초/exit0**를 mytrveldex(API37.2,6CPU,8192MiB,hostGPU)에 데이터 보존 설치했다. 기존 실제 계정8기록의 전국 집계(4/3/단일), 경남 선택 뒤 좌표군집3+단일, 3개 요약→개별 사진 상세→목록 복귀 시 같은 지역/요약, 핸들 아래drag닫기, 홈 전국복귀를 관찰했다. 확대 뒤 실제 도로·하천·녹지와 pinch 축척변화도 스크린샷으로 확인했다. 개인 사진/이름/원본 파일명은 저장소 기록에 포함하지 않았다.
+- 최신 앱 process에서 초기 진입·상세 재마운트 뒤 `reactTag`, `FATAL EXCEPTION`, `TypeError`, `ReferenceError`가 각각0이었다. 이전 후보의 최초camera 오류와 Gradle성공/래퍼143을 이 결과로 덮지 않는다. 실제스크린리더·실휴대폰·iOS·권한거절/새계정·선택친구 실제계정 왕복은 이번 Native 관측에 포함하지 않는다.
+- 최종 Native 동일 조작(전국→확대3→좌우pan6→홈) 표본: **165frames, jank49.09%(legacy74.55%), p50 32ms/p90 81ms/p95 101ms/p99 133ms, PSS1008007KiB**. 기존/중간/최종은 서로 다른 표본이며 캐시·온도·앱 사용 누적 및 별도GL 비용을 통제하지 않았다. 일반 개선율/무회귀/메모리누수 원인으로 해석하지 않으며 **Native 성능은 미수용**이다.
+- `svg-app.spec.ts`의 폐기된 홈SVG 기대를 현재 타일/선택/라벨상한 계약으로 정리했지만 실제 Local 앱2case 재실행은 환경 차단으로 미실행이다. MyTravelDex Local은 중지 상태였고 시작 시 다른 프로젝트 `dsu-notifier`가54321/54322를 점유했다. 다른 프로젝트를 중지하거나 해당DB에서 fixture를 만들지 않았으며, 이 상태를 제품 Red 또는 통과로 계산하지 않는다. 데이터 reset/원격DB변경/배포/커밋·푸시는 수행하지 않았다.
+
+- Native 깊은확대 뒤 pinch 스크린샷에서는 우하단 흰 도구 배경은 남고 일부 +/−/홈 글자가 보이지 않는 기존 표시 제한도 관측했다. 홈 동작/전국복귀 확인과 구분하며, 도구 글자의 모든 이동 상태 정상표시나 Native 전체 UI 수용을 주장하지 않는다.
+
+2026-11-16 추가: FR-MAP-SIMPLE-001/TC-MAP-SIMPLE-001의 홈 선택은 최소zoom10.1로 지형을 표시한다. 사진은 대표기록 원좌표 중심, 지역은 기존fit 중심이며 비홈/DB/API와 전국복귀는 유지한다. 상세계약은 SIMPLE_PHOTO_MAP_SPEC 마지막 절을 따른다.
+
+
+### TC-MAP-SIMPLE-001 선택 직후 지형 확대 (2026-11-16)
+- 기존큰도 선택의 낮은줌을 지역/사진 두경로 Red2로 확인했다. 홈만 최소zoom10.1+지역fit중심/사진대표원좌표를 적용하고 비홈fit/기존fly/country를 유지했다. t14 명세·제품 지정 정적 승인.
+- 최초 관련8개 실행7pass/1fail은 새zoom10.1 경기화면밖의 수원구를 찾던 기대였다. 실제가시 원본고양시덕양구41281 선택으로 보정했으며 시군구선0/각줌라벨상한·색/원본code검사는 유지했다.
+- 보강후 지정 **10pass(2.0분)**: 전국기록수/동일좌표/단일모션, 큰도요약, 사진·지역 첫선택최소줌/각중심/홈초기화, 비홈원래fit, 각첫선택의실PBF200·도로/수계렌더·resize투영,403/contextloss카메라·요약유지. 전체E2E가 아니며 Native는 별도이다.
+
+- 최종frontend types exit0, x86_64 APK **BUILD SUCCESSFUL 1분38초/469tasks15실행**. 기존에뮬레이터 데이터보존설치후 전국사진1회선택→대표원좌표쪽 실제도로/녹지/바다·거제시라벨/3기록군집, 홈복귀→강원도 실제영역1회선택→도로·수계·녹지 확대를 관찰했다. 강원중심화면은 지역명후보가없어 별도라벨0이며 상단선택명은유지했다. 최신process reactTag/FATAL EXCEPTION/TypeError/ReferenceError 각각0. 기존Native 일부도구글자미표시는잔존하고이번수정에서해결하지않았다. 성능재측정·실휴대폰/iOS·전체E2E·이후Webexport/실배포는미실행이며 앞선artifact결과와구분한다.
+
+
+## 2026-11-16 지도 출처 간소화 (FR-MAP-CREDITS-001 / TC-MAP-CREDITS-001)
+현재 Geoapify 검색·타일/MapLibre/SVG·DB/API는 유지한다. 지도에는 줄바꿈 가능한 10px 출처 띠로 SGIS·vuski 경계 출처 링크와 필요한 Powered by Geoapify·© OpenStreetMap contributors·© OpenMapTiles 링크를 표시한다. 원본 attribution 추가 문구는 삭제하지 않는다. My 하단에는 기준일2026-04-01/CC BY4.0·원자료·라이선스 링크와 제공자 출처를 유지·보완한다. 자동숨김/시작화면 대체/글자크기 추가축소는 적용하지 않는다. 정적 렌더에서 타일/검색/추가출처와 링크를 검증하며 실기기·법률검토 완료로 확대하지 않는다.
+
+검증: `npx vitest run backend/tests/map-attribution.test.ts` 1pass(타일/검색/로컬 분기·중복 표준문구·추가출처·실제href·My 상세라이선스), `npx tsc --noEmit -p frontend/tsconfig.json` exit0. 브라우저/실기기 시각·터치 및 별도 법률 검토는 미실행.
+
+
+## 2026-11-17 선택 시도 전체 맞춤 정정
+FR-MAP-SIMPLE-001은 사진/시도 선택 시 기존 fitProjection의 전체 시도 경계+16px 여백을 사용한다. 11월16일 최소zoom10.1/사진좌표 중심 강제 계약을 대체한다. 지형의 수계·녹지·주요도로는 minzoom0으로 제공자 데이터가 있는 배율부터 표시하고 세부도로13/건물16은 유지한다. 원좌표/군집/요약/350ms 모션은 유지한다. 로그인 화면에만 출처를 표시하는 요청은 Geoapify 제공자 허용이 확인되지 않아 미적용이며 현재 최소 출처를 유지한다.
+
+실행: simple-map 단위6pass, TypeScript exit0, 실제서울타일 Web2pass(25.9s), 경남전체fit/비홈 중간3pass(30.5s). 최종 라벨0/상한 보강2건은 별도 결과로 기록. Native 재빌드/실기기·부산 실제 선택은 미검증.
+최종 라벨0/상한 포함 경남 photo/province 2pass(19.9s).
+
+2026-11-17 실제 configured Web 8083 실행 확인: HTTP200/933 modules 번들. 실제 guest→지역목록→부산 선택에서 부산전체 파란경계와 도로/녹지/수계 렌더를 /tmp/map-busan-current.png로 확인, Geoapify data.json 및 z9 PBF3개 HTTP200. 별도 Chromium 관측이며 실배포(Vercel) 갱신은 미수행.
+
+최신 실제환경 APK: x86_64 assembleRelease BUILD SUCCESSFUL 5m,469 tasks. adb install -r 성공/2026-11-17 13:12:11 업데이트·MainActivity 실행 및 pid 확인. 기존 데이터 reset 없음. 첫 device serial을 Expo 이름으로 전달한 실패와 전체ABI 빌드 중단은 별도 이력. 실휴대폰용 ARM APK/전체Native회귀·성능은 미검증.
+
+
+## 2026-11-17 홈 타일 실패 표시 보강
+FR-MAP-SIMPLE-001: 홈 키없음/렌더러실패 SVG도 단색하늘색/연한시도선/기존육지를 표시하며 과거 OceanBackground는 비홈에만 유지한다. 렌더러 실패는 사용자에게 알리고 수동 재시도로 TileSurface만 재생성한다. camera/선택/요약/기록/owner는 유지한다. 키없음 안내와 실패 안내를 구분하고 비밀값/전체요청URL은 표시하지 않는다. 실제 사용자 브라우저의 실패원인은 별도 확인하며 대역 contextloss를 동일원인 증거로 해석하지 않는다.
+
+홈fallback 보강 검증: contextloss Red(svg-ocean expected0/actual1)→Web1pass19.2s, Native SSR5pass6.16s, types exit0, t14 지정정적승인. 사용자 실제주소localhost8083 확인. 사용자브라우저 원인/수동retry 실제타일 수신은 미확정. 직전APK에는 이번후속fallback보강 미포함.
+
+
+## 2026-11-17 OpenFreeMap 홈 지도 전환
+FR-MAP-OFM-001 / TC-MAP-OFM-001은 docs/OPENFREEMAP_SPEC.md를 따른다. 이전 Geoapify 홈타일/지도키·홈SVG라벨 계약을 대체하고 전국행정지도↔Positron 단계·시도전체fit/타지역사진먼저이동·국내외차폐를 Web→Android 순으로 검증한다. Geoapify 검색/비홈SVG/DB/API/RLS/기록원좌표는 유지한다. 구현·실타일·Native 수용은 실행결과로 구분한다.
+
+
+### OpenFreeMap 실행 결과 — 2026-11-17 14:07 KST
+- 순수/SSR: openfreemap·simple-map·maps-native·map-attribution 4파일15pass(11.70s). 환경/번들 Node10pass. 최종 TypeScript exit0. git diff --check의 유일 경고는 원문을 보존한 POSITRON_LICENSE.md의 Markdown hard-break 공백3곳이며 제품 공백오류는 없다.
+- 실제 OpenFreeMap Web: 초기3pass, 확장5pass1fail(렌더러 재마운트 준비조건) 후 해당차폐1pass. 최종7개는 실제타일/카메라/차폐6pass + 고지 aria-expanded1fail(2.3m). Web aria-expanded 연결 후 고지 펼침·전문·접기 대상 통과. PBF200/실제 도로·수계·한글symbol, 부산·경남·경기·제주 전체fit, 타시도사진→이동→같은시도요약, 상세snapshot·오래된ID제거, 저배율확대/축소, 쓰시마/북한 물색과 국내섬 픽셀을 검사했다.
+- 기존 photo-map27개: 24pass3fail(6.3m), 이전 폐기된 SVG육지/요약 기대와 입력pixel rounding 확인. 첫 보정focused4fail은 별도 유지. 다음focused5는4pass1fail(2.1m): 해외 실제 mouseup→역투영/두 Modal선택 clock취소/고지펼침 통과, 부산 숨은육지 locator만 잔존. 마지막 부산 포함 선택강조 대상1pass(19.4s). 전체27 재실행 성공으로 합산하지 않는다.
+- 실제 configured localhost8083: guest 부산전체 선택에서 OpenFreeMap 타일HTTP200/실제도로·수계153개/zoom9.952959 관측. Web export dist 성공, JS에 고지본문/CartoDB/PaulNorman 및 OpenFreeMap 포함 확인. 외부서비스 캐시/네트워크에 따라 최초표시 지연은 가능하다.
+- Android: mytrveldex 기존AVD를 데이터reset 없이 실행, x86_64 assembleRelease 성공(1m18s,469tasks), install-r 및 실제 앱 실행. 전국 무라벨·행정커버, 경남 전체선택 파란경계와 실제 Positron 도로·수계·한글, 홈 복귀 전국커버를 확인했다. APK Hermes 번들에 두 원문 고지의 전문이 UTF-16LE로 포함된다. 빌드 이후 Web전용 aria-expanded 연결은 Native 동작 변경이 아니며 설치 APK에서 Native 고지펼침을 실증한 것은 아니다.
+- Native 간헐 도구글자 소실은 남아 있다. Native 실제사진계정 왕복/타지역사진·접근성/성능, 실휴대폰/iOS/전체E2E·Vercel배포는 미수용이다. Web통과를 이 범위에 확대하지 않는다. 기존성능 한계 원인/개선율을 새로 주장하지 않는다. 에뮬레이터/웹8083은 직접확인을 위해 유지한다.
+
+
+## 2026-11-17 홈 지도 가독성·섬 탐색
+FR-MAP-READABILITY-001 / TC-MAP-READABILITY-001은 docs/MAP_READABILITY_SPEC.md를 따른다. 이전 홈 전체시도fit은 본토+30km이내 연안섬fit/먼섬10km그룹 별도선택으로 대체한다. 원본행정경계·DB/좌표/비홈은보존한다. 선택직후무라벨→사용자확대11/13/14/16 이름단계, 파스텔실지형/국외지형차폐와국내글자분리, 사진대상분할/복귀를Web→Android로검증한다. t14검토·관련커밋/푸시와실배포/전체수용을구분한다.
+
+### TC-MAP-READABILITY-001 실행 이력 (2026-11-17)
+- 사전 명세/제품 t14 정적 검토와 실제 실행을 구분한다. 명시선택 라벨false·사용자확대/fit초과, 공통섬소속·30km직접/10km연결요소, 250m/100m 표시필터를 명시했다. 원본/DB/RLS/검색·비홈은 변경하지 않았다.
+- 초기 스타일 Red1fail→보강 후 관련 단위15pass, SSR 옛색상 기대1fail은 새팔레트로 보정했다. 최종 관련5파일 **19pass(5.85초)**에는 원본경계/hole/동률·섬타깃·250m필터 정상도시포함/외국제외·500KB예산을 포함한다. TypeScript0, generator `--check` 재생성 일치/원본불변·임계/유효성/외부누출0 통과.
+- 표시필터 25m/10m 후보1.85MB/style31.8MB는 미채택. 250m/100m asset453402bytes/style15013067문자로 감소했지만 Native 직렬화/평가 비용이 없어지는 것은 아니다. 경계250m·작은섬 이름 생략은 남는 절충이다.
+- Web 초기 섬1pass/라벨1fail 뒤 `isStyleLoaded` 토글 차단을 `getLayer` 준비 기준으로 수정했다. 후속 제주0 실패는 전체섬fit 중심 확대에서 도시후보가 화면밖, 다음 pan시작점은 header에 걸린 fixture 문제였다. 최종 canvas중앙 실제pan 후 focused1pass24.5초. 제품 이름을 생성하거나 조건을 약화하지 않았다.
+- 관련 Web **10pass(2.6분)**: 실제 PBF/지형, 사진·지역fit, 다른시도/섬 이동·동일대상요약, 섬geometry/목록/재마운트, country, 외국차폐, fallback/contextloss, 고지, 이름단계. 이 실행의 마지막clock은 install-only 후보였으므로 이동중 취소 수용증거로 쓰지 않는다.
+- t14 지적 후 고정시각install→pauseAt,48ms camera!=fit을 추가했다. 해당clock 및 이름2대상 **2pass(39.6초)**. pan취소450ms 뒤camera불변/재마운트false/완료false/확대true·축소false 유지. 새 전체10회 실행으로 합산하지 않는다. 이름 fixture만 records=[]로 시각관찰하고 별도 사진회귀는 유지한다. 실제서울특별시/부산광역시/제주시 글자와해안·파스텔은 symbol>0 자동검사와별도로스크린샷관찰했다.
+- Web production export 성공. 전체E2E·실휴대폰/iOS·제공자약관 전체 법적 검증은 수행하지 않았다.
+- Native 첫 configured 실행은 Expo device명에serial을넘겨설치단계진입전중단; prebuild완료 후 직접동일공개환경/x86_64 Gradle build1분17초성공/install-r성공. 실제실행은 MLRNLayer.filter Java변환의 within Feature→Polygon Null coordinates로 종료되어 **Native 실패**로 기록한다. symbol/filter를고정style JSON으로옮기고동일ID기존SDK Layer는visibility만전달하도록보강했으며 이첫APK를수용증거로사용하지않는다.
+- Native 두번째 APK build1분2초/install-r: 기존고정style parser+동일ID visibility Layer로 시작크래시소멸, 전국→부산사진fit 무라벨·타일/파스텔→사용자확대 실제 부산광역시glyph→대한민국초기화를 관찰했다. 여러이동후PSS544104KiB/RSS694868KiB 단발표본이며 baseline동등성/성능해소 증거가 아니다. 기존 도구글자 간헐소실은 계속 관측됐다.
+- 작은섬실입력에서 원래울릉도중심tap미선택/63px위tap섬선택을관측했다. RN Fabric `measureInWindow` viewport offset과 touch.pageXY root기준혼용을설치소스로확인, Native `measure` pageXY로측정소유층만보강했다. 임의offset/epsilon/행정·저장좌표는변경하지않았다. 이이전APK의offset tap은정상섬hit 수용증거가아니다.
+- 보강후 Web 해외보정/모드취소·resize/wheel/pan·비홈fit **3pass45.8초**, Native공통SSR/표시단위 **8pass6.46초**, types0·최종Webexport성공. Native 최종재빌드1분4초/install-r성공과후속실행결과는별도기록한다.
+- 최종 APK(Android17/mytrveldex/emulator-5554/x86_64)는 원래전국울릉도화면중심906,792에서 `울릉군 섬 지역 1`으로진입하고 섬fit/무라벨을관찰했다. 핀치1.5+pan뒤 실제울릉읍glyph·해안/지형표시를확인했다. 홈복귀후원래603,962 본토tap은경상북도(이전대구오선택해소)이며먼섬을포함하지않는본토fit/무라벨을확인했다. 부산사진첫fit→같은실제사진hit 요약(photo-summary-list 존재)→닫기·추가확대부산광역시glyph도최종artifact에서확인했다. 마지막process의AndroidRuntime/ReactNativeJS/MLRN error출력없음. 원격데이터/사진/계정은수정하지않았다.
+- Native 접근성섬목록·비홈수동보정실입력/회전후재측정·실휴대폰/iOS·전체E2E·정량frame/jank 무회귀는이번수용에포함하지않는다. 기존Native도구글자간헐소실과성능제한은남아있다. Web 대역/실타일과이Native관찰을각각기록하며전체플랫폼완료로확대하지않는다.
+
+
+## 2026-11-17 선택 시도 이름 표시 보강
+FR-MAP-READABILITY-002 / TC-MAP-READABILITY-002: 홈에서 시도 또는 그 사진을 선택하면 해당 시도의 정식 이름 하나를 연한 회색 SVG로 표시한다. 기존 본토 내부anchor·공통투영/사진충돌배치·12px×fontScale·입력비간섭을 재사용하고 약칭하지 않는다. 전국복귀/대상해제 시 지우며 먼섬전용선택은 기존 상단명칭을 유지한다. 선택직후 다른 타일이름 숨김/추가확대 공개는 유지하고 비홈·DB/API/원본경계는 변경하지 않는다. 이전 무라벨은 선택한 시도 이름 하나의 예외로 대체한다.
+
+### 선택 시도명 실행 결과 (2026-11-17)
+약칭→정식명 Red1 확인 후 unit/Native SSR10pass·types0. 실타일Web 지역/사진선택2pass, 섬case는 이름0/snapshot 후 Escape 미닫힘으로1fail; 실제닫기버튼+sheet0 준비조건 보정후 대상1pass(18.0초). 전체E2E 성공으로 합산하지 않는다. Escape 원인/키보드수용은 미확정이다.
+Web export 및 x86_64 release APK build 성공. 에뮬레이터 새APK에서 경상북도 영역선택/경상남도 사진선택의 정식회색이름·선택지형을 실제 확인했다. 실폰/iOS/전체접근성·기존 Native 성능/간헐도구글자 제한은 미검증/잔존이다.
+
+
+## 2026-11-17 사진 일기 SNS 개편
+FR-SNS-001~005 / TC-SNS-001~005는 docs/SOCIAL_TRAVEL_SPEC.md를 따른다. 5탭·모바일우선 SNS/개인퍼즐·차단우선/공개관계count와본인명단·512px공개사진 계약을 적용한다. 이전 홈지도는지도탭으로이관하며 원본기록/EXIF/초안/원좌표/기존ID를보존한다. 구현/실행/원격적용을구분하고현재전체수용미완료다.
+
+### TC-SNS-002/003 서버 1단계 Red→Green 수용
+실Local 새3계정/guest에서private·draft미노출, 최소projection,20개keyset/중간비공개/동률UUID/서버차단필터,좋아요·저장멱등/동시성·guest거절을검사한다.
+댓글최초UUID동일재시도/다른payload·수정후재시도,같은record1단부모·타인수정/작성자및기록주인삭제·부모tombstone/답글유지를검사한다.
+양방향차단→읽기/쓰기/exactID/관계/URL거절·차단해제과거반응재표시/관계미복원,차단과쓰기동시완료뒤남은관계/알림0을검사한다. private/삭제후알림/count/deeplink미노출·수신자외읽기/표쓰기거절을검사한다. 서버rate boundary는DB시각기준이며재시도/거절로남의counter를변경하지않는다.
+아직실행결과가아니다. 각SQL/HTTP/Web/Native를별도기록한다.
+
+### SNS core 초기 실행 이력 — 2026-11-17
+기본Local54321/54322는다른프로젝트가사용중이므로중단/초기화하지않았다. /tmp/mytraveldex-sns-local의mytraveldex-sns-test(55321/55322)에기존migration복사후별도Local을기동했다. 이포트충돌은기능Red가아니다.
+social-core 실제HTTP Red3(RPC없음)→첫SQL후RLS재귀/변수모호/PT404매핑실패→보강3pass→피드·알림·동시성6pass→사진URL/서버rate포함8pass(5.34초). 이는서버첫단계부분검증이고신고/avatar/전체서버·Web/Native수용아니다.
+첫RLS재귀는location restrictive정책의직접record하위조회가기존record→location검증을다시탐색해서발생했다. 현재viewer location판정을security definer함수로소유시켜해소했다. 신규미존재는실HTTP404의PT404를사용한다. 날짜키/이름/비밀/실제파일은로그에기록하지않는다.
+
+### SNS core photo-url 검사 실패 분류 보강 (2026-11-17)
+- 권한 RPC의 network throw / invalid JSON / non-boolean 응답은 503, 유효 false는 404, true만 Storage 서명으로 진행한다. 소유자 original은 해당 공개권한 RPC를 호출하지 않는다.
+- `photo-url-gate.test.ts`: 보강 전 3 failed / 4 passed (network·JSON 400, non-boolean 404); 보강 후 7 passed. 각 경로의 서명 호출 0/1 및 소유자 gate 0을 확인했다.
+- 격리 `mytraveldex-sns-test`에 전체 migration 새 재생성 성공 후 `social-core.test.ts` 실제 Local HTTP 8 passed (5.62초). 기존 프로젝트/원격 DB에는 적용하지 않았다.
+- 단위 대역·격리 HTTP 결과이며 동시성의 실제 대기/commit 증명, 신고·avatar 후속 단계와 Web/Android/원격 수용을 의미하지 않는다.
+
+### SNS 서버 2단계 예정 검증 — 2026-11-18
+TC-SNS-003: 신고UUID 동일/상이payload·중복·5일제한이아닌5회/일·service권한·숨김/복구/계정정지→feed/comments/count/URL/쓰기 반영·감사원자성. 실제두TX profile잠금 대기→block commit→쓰기실패와정리상태를검사한다.
+TC-SNS-004: public최소profile/count·명단본인전용·검색길이/literal·서버cursor·차단누락; avatar실bytes/MIME/픽셀/용량/동일UUID충돌·소유권·Googleidentity·연결실패이전사진·교체/24h청소·서명권한.
+TC-SNS-001/002: capability404가기존로그인/지도/작성/도감차단으로번지지않음, request세대/refresh오류와0분리. 이후mobileWeb→Android는별도gate다. 이절은실행결과가아니다.
+SNS 모바일UI검사는실Local신규계정/실Storage사진으로5탭·private/public피드·like/comment/reply/save/follow/block·알림·프로필파일·퍼즐/필터·기존작성/지도복귀를연결한다. 피드URL은기존512px/300초만사용하며실UI데이터실패와미지원서버안내를구분한다. 서버2단계최초HTTP10pass는avatar이전이고추가avatar첫실행Function not found는서버기동누락환경오류로기능Red와구분한다.
+
+### Avatar cleanup P1/P2 보강 — 2026-11-18
+`20261118040000_avatar_retirement.sql`은 퇴역 UUID/경로 tombstone을 보존하고 현재 참조 중인 asset을 LIMIT100 전에 제외한다. `avatar-cleanup-race.test.ts`는 실제 격리 Local RPC/Storage와 실제 cleanup handler를 연결하되 Storage DELETE만 두 worker의 gate에서 보류한다. 보류 중 reserve/verify/connect 거절, 첫 worker ack 뒤에도 reserve/connect 거절, 다른 신규 UUID의 연결 성공 및 두 번째 늦은 DELETE 뒤 파일 생존을 확인한다. 별도 rollback fixture의 old active 100개 뒤 unreferenced 1개도 실제 cleanup 후보로 반환된다.
+최신 보강 실행 2 passed (2.83초). 후속 worker 시작 순서 비의존 보정은 완료 순서를 Promise.race로 관찰한다. Edge 전체 Deno 네트워크를 두 worker로 직접 실행한 증거와 구분하며, 기존 단일 Deno 실파일 HTTP와 합산해 전체 수용으로 보고하지 않는다. 원격은 변경하지 않았다.
+
+### Avatar 늦은 POST 재수거 — 2026-11-18
+24h 이상 미참조 예약 재시도에서 Storage POST만 보류→실제 cleanup/ack→POST 성공→verify/연결 거부를 확인했다. 이전 queued-only에서는 다음 cleanup 뒤에도 Storage GET이200인 기능 Red1이었다. `20261118050000`의 tombstone 순환 재수거 후 같은 검사에서 파일 소멸/별도 활성 UUID 파일200을 확인했다. 세 회귀(중복 DELETE/100 active/늦은 POST) 최신3pass(3.06초), 별도 앞선 서버 묶음24pass(8.69초)는 해당 후속 migration 이전 실행이다. 원격·전체SNS·클라이언트 UI 수용과 구분한다.
+
+### Avatar cleanup 잠금순서 보강 — 2026-11-18
+역 owner 순 timestamp 후보 두 개로 관계 TX가 A profile을 보유한 상태에서 cleanup의 실제 pg_blocking_pids 대기를 관찰하고, 관계 TX가 A→B follow를 수행했다. 후보 순서대로 잠근 이전 SQL은 실제 deadlock detected/cleanup exit3으로 실패했다. 후보100개는 timestamp 순으로 고정하되 외부 처리 루프 owner_id,id 정렬 후 두 TX exit0/commit을 확인했다. 최신 avatar 회귀4pass(3.76초). t14 지정 정적 재검토 승인. 자동 정리 스케줄러 배포/운영비용·전체 SNS/Native 수용으로 확대하지 않는다.
+
+### SNS 클라이언트 입력·복귀 수명 보강 — 2026-11-18
+같은 owner의 SDK token refresh는 capability 지원 상태와 편집 컴포넌트를 유지한다. 404/PGRST202만 미지원 fallback이며 503은 Notice/재시도다. 지연 profile 응답은 응답 시점 editing ref로 초안 동기화를 판단한다. 병렬 카드 mutation의 서버 성공은 카드 unmount와 분리해 Home sessionEpoch가 같을 때 재조회한다. My snapshot은 본문/cursor 없이 RPC+args identity/count/offset만 보존하며 revision마다 기존 count 또는 서버 끝까지 최신 페이지를 읽은 후 스크롤을 복구한다. owner 교체는 폐기하고 사용자 직접 스크롤은 늦은 복원을 취소한다. t14 지정 정적 보강 승인.
+격리 서버 최종 묶음은 `vitest.sns.config.ts` 6 files/28 passed(15.58초). Web 집중10 최초 실행은9passed/1failed(2.6분): My40 검사가 상세의 '여행 관리' pointer click 뒤 입력이 나타나지 않아 복귀 검사 전에 중단됐다. 포인터 원인은 미확정이며 fixture 오류/제품 해결로 판정하지 않는다. 실제 focus→toBeFocused→Enter 관리 진입으로 분리한 My40 수정/2페이지 재조회/복귀·수동스크롤 취소 대상은1passed(31.5초). 이 결과는 포인터 정상 수용이 아니다. 새 전체 집중10 및 최신 Native 빌드는 별도 진행하며 합산하지 않는다.
+기본 테스트 config와 격리 SNS config를 분리했다. `vitest.sns.config.ts`/`playwright.sns.config.ts`는 55321/8086 전용이며 기존 Local/원격으로 자동 대체하지 않는다. Android·전체 기존 E2E·원격 migration/배포·정리 스케줄러 운영과 기존 Native 성능/도구 글자 제한은 별도 수용 대상이다.
+후속 동일 집중10 재실행은 **10 passed(1.8분)** 이다. 앞선9pass/1fail과 별도 실행이며 My는 키보드 관리 진입 경로다. 타입 검사 오류0, 최종 SNS Local APK assembleRelease **BUILD SUCCESSFUL(1분24초)**. 빌드 성공은 Android 기능 수용과 별개다.
+
+### SNS 최종 artifact와 Android 좁은 실행 — 2026-11-18
+Web export(`/tmp/sns-web-export`) 성공. 타입은 `tsc --noEmit -p frontend/tsconfig.json` 오류0으로 확인했다. 앞선 루트 cwd의 npm exec tsc는 별도 루트 tsconfig가 Deno 함수를 일반TS로 포함해 실패한 실행이며 제품 타입0 증거가 아니다.
+최신 x86_64 release APK/기존 mytrveldex 에뮬레이터, Local55321 신규2계정/실Storage3기록으로 로그인→5탭 대시보드/최근 실제사진, 공개피드 좋아요 상태변경·댓글 저장/본문, My 소개 저장, 지도 헤더/+/- 제거·작성 아이콘 존재, 도감 퍼즐 서울25경계/획득1조각의 실제 이미지를 관찰했다. 실제 OS 키보드를 열어 댓글 입력/전송 버튼의 노출을 확인했다. 이는 지정 emulator/fixture 실행이며 Native custom-avatar 파일 선택·SDK token refresh/40개 복귀·차단 동시성 UI·실폰/iOS/성능 전체 수용을 뜻하지 않는다. 지도 전환 직후 즉시 locator 조회가 준비 전에 실패한 시도는 후속 source 관찰과 구분한다.
+Web 포인터 관리진입 미확정과 기존 Native 성능/도구 글자 제한은 남아 있다. 원격 migration/함수/서비스 scheduler·스토어 배포는 수행하지 않았다.
+추가 Native 지도 작성 아이콘→여행 제목 입력→잠시 접기→아이콘 재진입에서 같은 제목 유지도 확인했다. 테스트 후 기존 설치 APK를 데이터 reset 없이 복원하고, 생성한 Local2계정/3기록 및 해당 Storage 객체만 정리한다. 새 SNS QA APK는 build 출력에 보존한다.
+정리 결과: 기존 APK 재설치 Success, SNS fixture removed를 확인했다. SNS Local setup 스크립트도 기존 격리 DB에서 reset 없이 재실행 성공했다. 외부 root package/lock 및 공개환경 문서 선행 변경은 SNS 커밋에서 제외한다.
+
+## 사진 중심 소셜 UI
+
+TC-SOCIAL-PHOTO-UI-001. 모바일 홈·피드 첫 사진 위치, 피드 4:5와 실제 Storage 사진, 5탭·데스크톱 탐색, 프로필 사진·편집·상세 복귀를 확인한다.
+
+390×844 모바일 피드의 첫 사진 시작 위치는 변경 전 268px, 변경 후 109px였다. 실제 Local Storage 사진으로 4:5 비율과 320px에서 두 장 넘기기·저장 버튼, 데스크톱 레일, My 그리드와 출처·설정 접근을 확인했다. 최종 SNS Playwright 단독 실행 11/11. 빌드와 겹친 이전 실행은 10통과·공유 링크 갤러리 대기 시간 초과 1건이었다. 타입 검사와 테마·퍼즐·지도 출처 단위 검사 5개, Web export 및 Local Android release 빌드가 통과했다. Android 에뮬레이터의 분리 설치본으로 홈 사진·피드·My·출처 펼침과 계정 메뉴를 확인했다. 마지막 320px 도구 여백 조정은 Web과 빌드에서 검사했다. 실기기·운영 배포는 미검증이다.
+
+## 여행기록 지도 통합
+
+작성 배경의 전국 경계와 이전 범례·바다 장식 제거, 도감 상세의 Positron과 저장 핀, 보정의 후보 선택·해외 좌표 역투영을 확인한다.
+
+- 격리 Local 계정의 모바일 웹에서 작성 → 지도 위치 선택·확정 → 도감 기록 상세 → 저장 핀 확인·전국 복귀가 통과했다. 별도 WebGL 검사에서 OpenFreeMap 도로·수계가 실제로 렌더되고 서울 기록의 SVG 핀과 MapLibre 투영 간 오차가 1px 미만임을 확인했다.
+- 지도 조작·복귀 대상 Web 17개 및 시도 강조 Web 1개 통과. 초기 대역의 about:blank에서는 MapLibre worker 상대 경로가 실패한 검사 2개가 있었고, 공통 HTTP fixture에서 실제 번들 worker를 제공해 재검증했다. Android 공통 렌더·지도 계약 단위 11개 및 TypeScript 통과. 실기기 터치·성능은 미측정이다.
+
+## 사진 여행 스튜디오
+최신 작성·지도·홈 계약은 `docs/TRAVEL_STUDIO.md`, 검토 전용 기능·BM은 `docs/TRAVEL_ROADMAP.md`를 따른다. 서버 API·RLS·기존 기록 상한을 유지하고 신규 UI 5장, 월말 날짜 확인, 도시 선택, 세계지도와 국내 상세 전환을 검사한다.
+
+- 격리 Local Supabase와 Expo Web에서 SNS Playwright 13개가 통과했다. 사진을 두 번에 나눠 추가하고 5장 초과 안내·삭제, 촬영일 간격 확인, 다른 도시 선택, 공개 게시와 피드 재조회를 확인했다. 위치 검색 주소는 대역, 저장된 좌표·공개 상태·사진 개수는 실제 Local 응답으로 검사했다.
+- 별도 WebGL 브라우저 검사 3개가 통과했다. 시도 선택 시 국내 지형 타일 수신·전국 복귀, 기록 상세의 서울 저장 핀과 지형 정렬, 도쿄 기록의 간략 지도·핀과 국내 복귀를 확인했다.
+- 사진 선택·날짜·도시·지도·출처 관련 Vitest 7개 파일 45개 검사와 Android 권한 플러그인 Node 검사 3개, TypeScript, Expo Web 정적 export와 Android release 빌드가 통과했다.
+- Android 에뮬레이터의 격리 설치본에서 카메라 촬영 후 시스템 사진 선택기로 한 장 추가해 2/5, 여행 정보 진입을 확인했다. 최종 재빌드에서도 시스템 사진 선택 → 1/5 미리보기 → 여행 정보 진입을 재확인했다. 실제 클라우드 제공자의 GPS 보존, 실휴대폰 진동·iOS는 미검증이다.
+
+## 워크숍 출시 후보
+
+앱 준비 및 지도 탭 재진입, 동작 줄이기, 홈 안내의 실제 목적지, 한국 면 채색 제외 및 해외 경계·대표 지명·기록 핀을 확인한다. 상세 범위는 [워크숍 계획](PLAN_MVP.md)을 따른다.
+
+- 격리 Local SNS 웹 14개가 통과했다. 홈 다람쥐에서 작성·피드·지도 진입, 지도 준비 화면 표시 후 실제 캔버스 진입을 포함한다. 배포 형식의 정적 웹에서 JS 수신을 보류해도 가방 이미지가 디코딩되고 동작 줄이기가 적용되며, JS 수신 뒤 앱 화면이 표시됨을 확인했다.
+- 지도·작성 단위 검사 5개 파일 19건 및 TypeScript가 통과했다. 세계 육지의 모든 폴리곤 방향, 날짜변경선 부근 러시아 섬 때문에 동해가 육지로 채워지지 않는지 검사한다.
+- Expo Web export 및 Android 격리 release 빌드가 성공했다. 에뮬레이터에서 다람쥐 안내 → 가방 스플래시 → 조작 가능한 전국 지도를 확인했다. 보강 전에는 러시아의 뒤집힌 링이 바다를 덮었다. 최종 APK의 전국 화면에서는 바다색이 캡처 픽셀의 약 57%였다. 이는 특정 화면의 표시 확인이며 기기별 프레임 성능 측정은 아니다.
+- 전체 simple-map 웹 13개가 최종 소스에서 통과했다. 지리산 수계·도로와 숲 채색 제외, 대마도·북한 육지 및 동해 바다 픽셀, 도쿄 광역선·대표 지명·저장 핀, 광역선의 축소 단계 해제, 제주 지명과 전국 복귀를 포함한다. 중간 실행의 10통과·3실패는 이전 전국 중심 fixture, 닫힌 지역 목록의 지연 스크롤, 제주시 지점까지의 테스트 드래그를 보강하기 전 결과다.
+
+### FR-PLAN-003 홈 마스코트 상호작용
+
+모바일 크기 Chromium에서 비회원 홈에 진입해 인사로 사용 안내를 열고 닫기, 키보드로 카메라를 눈높이로 올리기, 점프하기, 반응 바꾸기를 확인했다. Playwright 2건이 통과했다. 일반 모션에서는 점프 중 여러 프레임의 몸 위치가 달랐고, 동작 줄이기에서는 같은 정지 자세를 유지했다. TypeScript와 Android용 Expo 번들 생성도 통과했다. 이 변경의 Android 기기 렌더링·터치는 미검증이다.
+
+흰 배경과 네 캐릭터 선택을 적용한 뒤 같은 웹 검사 2건과 교체 검사 1건이 통과했다. 교체 검사는 키보드로 네 초상화를 차례로 선택해 실제 얼굴 도형·인사 안내·사진과 점프 반응을 확인하고, 새로고침 후 마지막으로 고른 고양이가 복원되는지 확인한다. TypeScript와 Android 번들 생성도 통과했다.
+
+### FR-PLAN-002·003 동아시아 탐색과 홈 마스코트
+
+이전의 세계 전체 표시와 마스코트 안내 열기 기대를 대체한다. 경계 반복 생성의 SHA256이 같았고, 지도 단위 검사 5건이 통과했다. 세 가지 화면 비율에서 최대 축소·가장자리 이동 후 네 모서리가 지정 범위에 남는지 검사했다. 모바일 웹 마스코트 3건, 동아시아 개요·도쿄 기록 2건, 국내 사진 선택·실타일과 주변국 육지 픽셀 2건, 범위 밖 장소 보정 1건이 통과했다. TypeScript와 Android용 Expo 번들 생성을 확인했다. 이 변경의 Android 기기 터치는 미검증이다.
+
+황해도 서해안 확대에서 기존 0.035도 단순화로 만과 곶 두 지점의 육지·바다 픽셀이 원자료와 반대로 표시되는 것을 재현했다. 주변국 해안·국경과 광역 경계를 0.002도 매개변수로 재생성한 뒤 동일 카메라에서 두 지점의 색을 확인했다. 북한·중국·일본 도형의 유효성을 검사했고, 관련 웹 4건·지도 단위 5건·TypeScript·Android 번들 생성을 통과했다. Android 실기기 표시는 미검증이다.
+
+전국에서 부산 실제 좌표를 클릭한 웹 검사에서 기존 전환은 96ms에 로그 확대량의 약 58%를 진행했다. 520ms 가속·감속 전환으로 보강 후 96ms에는 20% 미만, 384ms에는 65~95%, 576ms에는 목표 배율에 도달했다. 기존 복귀 중단 검사는 화면에서 사라진 확대 버튼 대신 지도 키보드 확대 입력으로 검증했다. 최종 관련 웹 7건·TypeScript·Android 번들 생성 통과. 실기기 프레임 시간은 측정하지 않았다.
+
+## 어디로 가봥? (2026-11-17)
+
+TC-DRAW-001 · 250개 코드의 고유성·균등 구간·권역 분할·좌표 방문 판정·감속 시간을 검증한다. 화면에서 결과·재추첨·미확인 상태·홈 지도 복귀를 확인한다.
+
+2026-11-17 실행 결과
+
+- TypeScript 통과. Vitest 대상 8개 파일 29건 통과. 전국 250개 코드마다 균등 구간과 경계 내부 표시점을 검사했다.
+- Playwright 추첨·설정 7건과 지도 회귀 14건 통과. 320px Expo Web에서 홈 진입, 제주권 재추첨, 결과와 홈 지도 표시 일치를 확인했다. 브라우저 컴포넌트 테스트에서 미방문 후보 소진, 시군구 미방문과 시도 스탬프 획득의 공존, 움직임 감소, 이탈·재진입, 최종 강조와 확대를 확인했다.
+- 로그인 사용자 방문 기록은 테스트 데이터로 검증했다. Docker CLI가 없어 Supabase Local 실제 HTTP 회귀를 실행하지 못했고 연결된 Android 기기가 없어 네이티브 화면·성능은 미검증이다.
+
+### PR #1 리뷰 보정 (2026-11-18)
+
+- TC-DRAW-002 · 서울 지역 패널을 연 뒤 당첨 목적지 제주로 이동할 때 기존 선택 패널이 남는 실패를 재현했다. Web·Native·SVG 대체 지도에서 목적지 변경 시 이전 지역·군집 선택을 해제한다.
+- TC-DRAW-003 · Web 홈에서 당첨 위치 focus를 제거해도 전국 맞춤이 실행되지 않는 실패를 재현했다. focus 해제도 전체 맞춤 효과의 실행 조건에 포함했다.
+- TC-DRAW-004 · 완료 후 움직임 감소 설정 변경으로 결과 카드가 사라지는 실패를 재현했다. 완료 결과는 유지하고 진행 중 감소 설정을 켜면 미리 고른 결과로 즉시 완료한다.
+- 신규 실패 3건을 먼저 확인한 뒤 수정하여 통과했다. 추가로 진행 중 움직임 감소 전환을 검증한다. Native 화면·성능과 실제 Supabase Local HTTP는 이번 리뷰에서도 미검증이다.
+- 최종 검증 결과는 TypeScript 통과, Vitest 8개 파일 29건 통과, Playwright 추첨·설정 8건과 지도 16건(합계 24건) 통과다.
+
+### PR #1 main 충돌 해결 검증 (2026-11-18)
+
+최신 공통 SvgTravelMap·단일 테마·홈 탐색과 통합했다. TypeScript 통과, Vitest 4개 파일 18건, Playwright 추첨 상태·공통 SVG 지도 16건 통과. 320px 실제 Expo Web 진입·권역·재추첨·홈 지도 당첨 이름 확인도 통과했다. 이전 MapLibre 전용 회귀는 SVG 지도 회귀로 옮겼다. 실제 Android 및 Local HTTP는 미검증이다.
+
+
+## 홈 추첨 아이콘 (2026-11-18)
+
+TC-DRAW-005 홈 아이콘의 접근성 이름, 텍스트 미표시, 전용 화면 진입과 제목, 지도 조작·하단 내비게이션 간 비중첩을 320px 웹에서 확인한다.
+- 실행 결과 — TypeScript와 기존 Playwright 진입 회귀 통과. 320px에서 아이콘 내부 텍스트 없음, 48px 터치 영역, 확대·축소·홈 버튼 및 하단 내비게이션 비중첩, 접근성 이름과 전용 화면 제목, 재추첨·지도 복귀를 확인했다. 실제 Android 화면은 미검증이다.
+
+### PR #2 리뷰 (2026-11-18)
+
+- TC-DRAW-006 · 높이 280px의 지도 컨테이너에서 아이콘 상단이 -12px로 벗어나는 실패를 재현했다. 세로 조작 묶음에 추가한 아이콘이 지도 마커 영역을 덮는 구조도 확인했다.
+- 아이콘을 지도 캔버스 아래 출처 옆으로 옮겨 48px 전용 공간을 확보했다. 작은 화면에서 버튼이 화면 안에 있고 대한민국·확대·축소·홈 조작과 겹치지 않으며 지도 내용 아래에 놓이는지 검증했다. 클릭 콜백도 통과했다.
+- 지도 하단 공간이 늘어난 만큼 캔버스 가용 높이가 줄어들고 기존 투영 맞춤이 새 크기에 반응한다. 실제 Android 화면·터치 검증은 남아 있다.
+- 최종 TypeScript 통과, Playwright 10건(실제 웹 진입 1건·SVG 지도 9건) 통과. git diff --check 통과.
+
+
+## 2026-11-18 여행지 추첨 단위 통합
+
+TC-DRAW-007 · 250개 원본의 누락/중복 없는 소속, 구 독립 후보 금지, 수원·창원·서울·부산 통합, 광역시 군 분리, 세종·제주, 후보별 동일 난수 구간, 권역 분할, 모든 하위 지역 방문 완료와 부분 방문 미완료를 검증한다. TC-DRAW-008 · 통합 path와 bounds, 결과 전체 이름 및 지도 전체 범위 맞춤을 검증하고 기존 추첨 상태·감속·스탬프 표시·지도 회귀를 실행한다.
+
+### 2026-11-18 실행 결과
+
+- 추첨 원본 250개를 167개 후보로 통합했다. 구 독립 후보 0개이며 모든 원본 코드가 정확히 한 후보에 속한다. 단위 테스트의 신규 그룹 계약이 구현 전 실패하고 구현 후 통과했다.
+- Vitest 대상 6개 파일(destination-draw, provinces, svg-regions, stamp-catalog, journal, photo-map)의 23개 테스트 통과. TypeScript `tsc --project frontend --noEmit` 및 `git diff --check` 통과.
+- Playwright discovery-state·svg-map·discovery-update의 고유 20개 케이스가 통과했다(최초 18개 통과 + 잘못된 테스트 selector를 수정한 bounds 케이스 1개 재실행 통과 + 실제 Expo 진입 1개 통과). 통합 서울·부산·수원·창원 및 기장군 강조 path, 방문 진행도, 기존 스탬프, 감소 모션, 모드 전환/취소, 홈 아이콘, 사진·지도 조작을 포함한다. 전체 bounds 맞춤은 320px/1200px에서 부산·수원·창원·인천을 확인했다.
+- 실제 Expo Web은 기존 설정의 8082 서버를 캐시 초기화 후 재시작하여 전체 이름·재추첨·홈 지도 복귀를 검증했다. 초기 서버가 이전 번들을 제공한 이름 불일치는 재시작 후 해소됐다.
+- Native maps-native 테스트는 `SyntaxError: Unexpected token 'typeof'`로 수집 단계에서 중단됐다. HEAD 지도 소스로도 같은 오류를 재현했으며 Native/Android 수용 성공으로 집계하지 않는다. 원격 DB 쓰기·migration·배포는 수행하지 않았다.
+- 예외: 원본은 KOSTAT 2018이다. 군위군은 경상북도 소속으로 유지하며 이후 행정구역 개편을 적용하지 않는다. 추첨의 2018 세부 방문 판정과 최신 여행도감 경계는 별도 유지한다. 강화군·옹진군·울주군도 기장군·달성군과 같이 독립 후보이며 상위 도시 완료 판정에서 제외된다.
+
+변경 파일:
+- 변환/추첨: `frontend/src/destinationUnits.ts`, `frontend/src/destinationDraw.ts`
+- 화면/지도 연결: `frontend/src/DestinationScreen.tsx`, `frontend/src/AppSettings.tsx`, `frontend/app/index.tsx`, `frontend/src/provinces.ts`, `frontend/src/SvgTravelMap.tsx`
+- 검증: `backend/tests/destination-draw.test.ts`, `frontend/e2e/discovery-state.spec.ts`, `frontend/e2e/discovery-update.spec.ts`, `frontend/e2e/svg-map.spec.ts`
+- 계약/기록: `AGENTS.md`, `docs/REQUIREMENT.md`, `docs/PRD.md`, `docs/TRD.md`, `docs/API_SPEC.md`, `docs/TEST_CASE.md`
+
+
+### 2026-11-18 PR #3 리뷰 보완
+
+TC-DRAW-009: 통합 목적지 이동 후 확대 및 홈 복귀하고 화면 폭을 바꿔도 사용자 camera/detail이 유지되는지 검증한다. TC-DRAW-010: 24/25 방문 도시 결과에 첫 여행 안내 대신 남은 지역 안내가 표시되는지 검증한다.
+
+리뷰 재현: TC-DRAW-009는 부산으로 이동해 확대한 뒤 창 폭을 390→500px로 변경했을 때 camera scale이 70877에서 62449로 덮어써져 실패했다. TC-DRAW-010은 서울 24/25 방문 상태에 부분 방문 안내가 없어 실패했다. 마지막 자동 맞춤 상태를 추적해 사용자 조작 이후 재맞춤을 막고, 기존 방문 개수로 부분 방문 안내를 분리했다. 후보 목록·당첨 확률·미방문 필터·스탬프 조건은 변경하지 않았다.
+
+검증 결과: 신규 회귀 2건의 Red를 확인한 뒤, 대상 Playwright 12개와 Vitest 6개 파일 23개 및 TypeScript 검사가 통과했다. `git diff --check` 통과. Android 실기기와 원격 배포는 이번 리뷰 범위에서 검증하지 않았다. API_SPEC·AGENTS·환경변수 계약은 변경 영향이 없어 유지한다.
+
+
+## 2026-11-18 행정구역 갱신 검증
+
+FR-ADMIN-2026-001~002 / TC-ADMIN-2026-001~002는 [행정구역 갱신 검증](ADMIN_REGIONS_2026.md)을 따른다. 공식 갱신일과 경계 기준일을 구분하며 전국 완전성·코드·기하 검증 전에는 기존 자산을 교체하지 않는다. 기존 기록/좌표/사진/권한은 보존하며 과거 스탬프와 최신 수집 상태를 분리한다. 2026-10-01 경계(16시도/256시군구)를 최신 법정 코드와 대조해 로컬 앱에 연결했다. 전체 수용·운영 배포 완료와 구분하며 실행 결과는 TEST_CASE 및 상세 명세를 따른다. API/환경변수 변경과 원격 migration은 없다.
+
+### TC-ADMIN-2026-001~002 실행 (2026-11-18)
+신규 Red 2건 확인 후 관련 Vitest 13파일45개, Python 변환 방어4개, 지도 Playwright11개(9개 최초 통과+2개 수정 후 재실행), TypeScript, Expo Web export 통과. 파생 본토/섬 재생성 --check 통과. 전체 DB/HTTP suite는 Supabase 실행 경로·Docker 부재로 환경 차단, Android SDK/adb 미확인으로 Native 실기기 미실행. 상세 결과·원자료 한계는 ADMIN_REGIONS_2026.md 참조. 원격 변경 및 배포 없음.
+## 2026-11-19 추가 검증 계획
+
+Windows/Unix 공통 Supabase 상태 조회의 Node 실행, 로컬 주소 제한, 실패/잘못된 JSON의 비밀값 비노출을 단위 테스트한다. 실제 Local HTTP는 Docker 실행 가능 여부와 구분한다. 공식 전국 전체본/변동본은 기준일과 게시일을 분리하고 인증 필요 시 미확보로 기록한다. 사용자 DB reset/원격 migration 없이 검증한다.
+
+### 실행 결과
+
+- 로컬 CLI 안전 실행: 기존 동작 Red 10개 → Green 10개. 실제 설치된 Windows CLI 2.122.1 실행 확인. 원본 키/상태 JSON 저장 없이 정제된 환경 오류만 출력했다.
+- 전체 Vitest: 29파일 통과/12파일 실패, 129개 통과/3개 실패/86개 보류. 10개 suite 초기화 및 3개 테스트는 Docker/로컬 Supabase 환경 차단이다. 테스트를 skip으로 바꿔 통과 처리하지 않았다.
+- TypeScript 통과. Python 변환 방어 4개 및 공식 감사의 겹침/오탈자/CRS/앱 불변 검증 1개 통과.
+- 지도 Playwright 11개를 이번 실행에서 전부 통과: 해안·섬·라벨·클릭·줌·보정·목적지 하이라이트·짧은 화면 포함.
+- 공식 전국본/변동본 다운로드 완료. SIG 256개 코드 완전성/중복 통과, 공식 코드 명칭 17개 불일치, 원본 도형3개 오류, 감사용 유효화 후 519쌍 겹침을 확인했다. 공식본 전환 수용은 실패하였으며 현재 앱 경계는 유지한다. 상세 근거는 ADMIN_REGIONS_2026 및 비교 JSON 참조.
+- Android SDK/adb/WHPX 사용 가능을 추가 확인했다. 연결 기기0개·현 체크아웃 APK 없음으로 Native 수용 미실행이다. 이전의 SDK 미확인과 구분한다. DB/사진/AVD 초기화·운영 변경 없음.
+
+## 2026-11-19 공식 경계 보정·적용 계약
+
+최신 공식 SIG(2026-11-09)를 기본 경계로 사용하며 기준일과 11월18일 변경자료 확인 범위를 구분한다. 명칭은 행안부 KIKcd_B.20261111을 따른다. 도형의 퇴화/자기교차는 make_valid로 보정하고 비면 요소·면적 차이를 로그에 남긴다. 공식 EMD와 국토지리정보원 비교본이 동시에 같은 지역을 뒷받침하는 겹침 부분만 제거하며, 변경자료가 있는 하위 지역과 근거 부족/불일치 부분은 제외한다. 국토지리정보원2025 자료는 독립적인 비교 근거일 뿐 최신 경계 자체로 교체하지 않는다.
+
+보정 전후 전국 육지 union 보존과 신규 겹침 증가 방지, 16/256 코드 완전성·명칭·도형 유효성을 검증한다. 남는 겹침은 공식 원본 그대로 보존하고 GPS 다중 일치는 미확정으로 처리한다. 무근거의 지역 우선순위·buffer 확대·최근접 배정은 금지한다. 남은 불확실성을 숨기거나 전국 무오류/법적 관할 확정이라고 표시하지 않는다. 지도 렌더링/클릭·마커·여행지167개·광주 통합목적지·이전 스탬프 보존·DB 불변을 회귀 검증한 뒤 정적 경계와 파생 자산을 함께 전환한다. 기존 여행/사진/GPS/친구/획득기록을 UPDATE/DELETE하지 않으며 원격 migration은 없다. 배포는 별도 작업이다.
+
+TC-ADMIN-2026-003 ↔ FR-ADMIN-2026-002: 최신 경계에서 지역을 결정할 수 없는 GPS도 전국/홈 지도에서 원래 좌표의 사진 마커와 기록 상세 접근을 유지한다. 지역 미확정은 기록 삭제나 좌표 변경으로 처리하지 않는다. 현재 수집률 자동 배정은 제외하고 이전 스탬프 판정은 보존한다. 지역 미확정 fixture에서 마커가 없던 기존 동작을 브라우저 Red로 확인했다.
+
+### 공식 경계 적용 후 검증 (2026-11-19)
+
+Python9개와 설치 경계16/256·유일 anchor256개·미확정20개·과거 스탬프 해시 검증 통과. 전체 Vitest132통과/3실패/86보류(29파일통과/12파일실패). 실패는 Docker/Local Supabase 환경이며 실제 동작 Red와 구분한다. mixed-winding 도형의 잘못된 세계 영역 렌더링은 각 링 방향 정규화로 수정해 기존 Native SSR/스탬프6검사와 추가 회귀를 통과했다. TypeScript 기본4GB OOM은 8GB 한도로 해결했다. 웹 export 성공(92.8MB JS), Android 실기기 메모리/시작시간은 미검증이다. 공식 경계/보정 수치와 DB 불변 범위는 ADMIN_REGIONS_2026 최신 결과 절을 따른다.
+
+지도 Playwright 결과: 전체 실행11개 통과/1개 실패 후, 실패한 바다 내부 수역 fixture만 최신 공식 union의 최대 내부 ring 대표점(126.59163907821693,35.81657837267625)으로 갱신해 대상 재실행1개 통과. 종합12개 시나리오 통과이며 최종 전체 재실행 성공으로 표기하지 않는다. 이전 fixture는 새 공식 자료에서 육지에 포함되므로 육지 차폐 동작을 실패로 오인했다. 390px 전국 및320px 상세 라벨·클릭, 줌·보정·추첨/리사이즈·미확정 GPS 기록 상세·배경 픽셀 검증 포함. esbuild minify로 브라우저 DevTools100MB pipe 한도를 해결했다. 390px 전국 스크린샷도 확인했다.
+
+파생 자산 재현 검사: scripts/build-map-areas.py --check 통과. home-map-areas 및 label-land가 현재 공식 원본에서 재생성한 내용과 일치하며, 도서 그룹36개·원본 hash 불변을 확인했다. 최종 git diff --check 통과.
+
+## 2026-11-19 경계 번들·모바일 성능 최적화 계약
+
+FR-ADMIN-2026-002의 공식 좌표·미확정 다중 귀속·이전 스탬프 보존은 유지한다. 배포용 경계는 원본 JSON과 별도로 무손실 Float64 압축 자산을 생성하며 모든 숫자/링/코드/속성의 복원 일치를 검증한다. 공식 원본 파일과 hash는 변경하지 않는다. geometry 지연 복원·반복 위치 판정의 보수적 bounds 캐시·추첨 표시 경로 지연 생성을 허용하되 표시/선택/추첨 확률/스탬프 정책을 바꾸지 않는다. 원격 API·DB·Storage 변경 및 사용자 데이터 migration은 없다.
+
+TC-ADMIN-PERF-001: 원본 전체 좌표 및 속성 복원 동일성, 경계/내부/hole/겹침 GPS 판정 동등성, 압축 자산 재생성·원본 해시 불변, 번들 크기 전후 및 모바일 viewport 성능 측정, 지도/추첨/스탬프 회귀를 검증한다. 환경 차단과 Android 실기기 미측정은 구분한다. 기본 TypeScript 메모리 한도와 웹 export를 재검증하며 성능을 위해 정확도를 낮추지 않는다.
+
+표시 성능 보완: 4배 CPU 제한의 첫 검사에서 확대 조작이60초 제한을 넘겼다. 최종 구현은 경계를 단순화하지 않는다. 화면 밖 후보 판정에 공식 원본을 감싸는 사각형을 사용하고, 실제 보이는 시군구만 원래 좌표로 SVG 경로를 생성한다. 사각형은 GPS/스탬프 판정에 사용하지 않는다. 상세·라벨·도서·추첨 하이라이트 회귀 및 CPU 제한을 재검증한다.
+
+### TC-ADMIN-PERF-001 실행 결과
+
+압축6종 전체 값 복원/원본 hash/재생성 통과. collection date/sourceHash 보존 누락을 Red로 확인 후 복원 metadata 유지로 수정했다. 544개 GPS 판정 및 hole 경계가 기존 알고리즘과 일치했다. 최종 전체 Vitest135통과/3환경실패/86보류, 기본 메모리 TypeScript와 웹 export 통과. CPU4배390×844: 준비24,193ms, 확대·홈복귀558ms, 강제GC후JS힙97,980,208bytes. 네트워크/실제Android/최대메모리는 미측정이다. 초기 렌더24초는 성능 한계로 기록한다. 종전60초 조작 실패는 보이는 경로만 생성하는 구현으로 수정했다. 상세 근거는 ADMIN_REGIONS_2026 최신 절 및 artifacts/admin-boundaries/*performance*.json.
+
+최종 캐시 보완 후 전체 실행의 CPU4배 표본은 준비25,266ms/확대·홈복귀1,500ms/GC후JS힙97,982,540bytes였다. 독립 표본과 함께 기록하며 단일 최고값을 대표 성능으로 주장하지 않는다.
+
+Android 정적 export도 성공: Hermes entry.hbc 약37.4MB. APK/AAB 설치·기기 실행·GPS/OAuth/MapLibre Native 실측과 구분한다. 웹390px 전국 지도 스크린샷에서 기존 바다/라벨/사진 마커 디자인을 확인했다.
+
+최종 지도 Playwright 전체 재실행13/13 통과(2.7분). CPU4배·미확정GPS사진·해안/섬/hole픽셀·전국/상세라벨·클릭·키보드·핀치·줌·위치보정·도감연결·추첨하이라이트/복귀·리사이즈를 검증했다. 원본 hash 및 git diff --check도 통과.
+
+## 2026-11-19 최초 지도 표시 사전 계산 계약
+
+TC-ADMIN-PERF-002/FR-ADMIN-2026-002: 공식 좌표·기존 사용자 기록·판정 알고리즘을 유지하고 표시용 Mercator bounds/라벨 anchor/전국 SVG 경로를 빌드 시 계산한다. 원본 hash와 직접 계산한 투영/anchor/링 보존을 대조한다. 표시 캐시는 GPS/스탬프 획득 판정에 쓰지 않는다. 미등록/사용자 지정 도형은 기존 계산으로 fallback한다. 첫 화면에 필요 없는 스탬프 윤곽·지역 도형 복원은 지연하며 지도/도서/클릭/추첨/스탬프 회귀와 동일 CPU4배 조건의 준비시간을 측정한다. 표시 경로는 원본 정점을 유지하며 단순화하지 않는다. DB/Storage/API 계약과 환경변수 변경은 없다.
+
+홈 첫 화면에서는 SVG 전국 지도를 먼저 표시하고 숨겨진 MapLibre 인스턴스/대용량 스타일 직렬화를 시작하지 않는다. 첫 상세 진입에 MapLibre를 만들고 스타일 준비 전에는 기존 SVG를 유지한다. 한 번 열린 지도는 홈 복귀 시 유지하여 반복 초기화를 방지한다. 오류·재시도·사진/선택 표시를 회귀 검증한다. 사전 계산 SVG는 기존 화면 좌표 반올림보다 세밀한 정밀도를 쓰고, 동일 좌표의 연속 L 명령만 제거하며 M/Z·링 순서를 유지한다.
+
+### TC-ADMIN-PERF-002 최종 실행 (2026-11-19)
+
+표시 캐시332개 bounds/anchor·원본 hash·16개SVG d3 경로/링 대조와 첫 표시의 geometry 비복원 검증 통과. 전체 Vitest137통과/3 Docker환경실패/86보류, 이후 추가1개를 포함한 대상6파일18개 통과. 최종 TypeScript·웹/Android Hermes export 통과. 지도/추첨13개, 실제 타일/선택/오류복구3개, 실제 정적 최초화면1개 Playwright 통과. 초기 localhost/타일 접근은 sandbox network denied였고 허용된 실행 환경에서 재검증했다.
+
+동일 CPU4배 harness 준비25,266→15,326ms(스크립트 주입6,177ms 포함), 확대/홈626ms, GC후힙64,091,488bytes. 실제 정적 웹은 첫 화면6,529ms + 지도 버튼부터1,710ms, 타일 초기 요청0건. 두 측정의 범위를 혼합하지 않는다. 테스트용 공개 placeholder 설정만 사용하고 운영 계정/DB/환경은 변경하지 않았다. 실제Android/WAN/대량 로그인 기록 성능은 미검증이다. 상세 tradeoff와 생성 순서는 ADMIN_REGIONS_2026 최신 절 참조.
+
+최종 정적 웹4/4 통과(13.5초). 마지막 CPU4배 표본 첫화면4,813ms·지도선택후1,255ms·타일초기요청0. 지도13+실제타일3+정적웹4=20개 브라우저 시나리오 통과. 표본 간 변동과 WAN/실기기 미측정은 유지한다.
+
+
+## 2026-11-19 상세 지도 바다 차폐 보정
+
+TC-MAP-EXTERIOR-001: 경상북도 상세 배율(8.3976)에서 바다 차폐의 대형 다중 홀 도형이 타일 렌더링 중 육지를 직선으로 덮는 문제를 수정한다. 표시 전용 차폐를 작은 셀로 분할하고, 분할 전후 합집합의 대칭차 면적 및 육지 교차 면적을 검증한다. 공식 위치 판정 경계·여행 기록·스탬프·API 및 기존 색상은 유지한다. 육지/바다 픽셀과 여러 확대 배율에서 회귀 검증한다.
+
+
+### 상세 지도 차폐 수정 검증 결과
+
+- Red: zoom 8.3976의 육지 [127.8,36.5]가 기대 #F5F3ED 대신 #A9D7EE로 표시됨. Green: 표시 차폐를 52개 셀로 분할한 후 데스크톱/모바일 7조건 통과.
+- Vitest 7파일 23개 통과: 행정구역, 무손실 좌표, 판정 동등성, 여행지 추첨, 스탬프, 지도 스타일/라벨.
+- Playwright: SVG/여행지 추첨 13개, 최종 상세 지도 전체 10개, 신규 차폐 픽셀 1개 통과(총 24개).
+- 첫 확대 회귀 21통과/2실패. 라벨 테스트 초기 지형 준비 전제와 제주 이동 입력을 보완한 뒤 상세 지도 전체 10개 재실행 통과. 터치 이동은 목표 좌표 도달도 검증한다.
+- TypeScript, Expo Web export(37.8MB), packed --check, 기본 git diff --check 통과. configured 브라우저 8085 경상북도 지형 로딩 후 정상 표시 확인.
+- 원격 DB/Storage·사용자 기록 변경 없음. Android 실기기와 데스크톱 mouse 드래그의 제주 미도달 원인은 이번 수정의 수용 범위에 포함하지 않는다.
+
+
+## 2026-11-19 전국 상세 차폐 회귀 확대
+
+TC-MAP-EXTERIOR-002: 공식 16개 시도 상세 fit 카메라를 1100×974, 390×844, 320×640에서 검사한다. fit 및 추가 확대 1·2단계의 실제 픽셀을 원본 sido의 독립 공간 판정과 대조하며, 경계 주변 3px 불안정 샘플은 별도 집계한다. 36개 도서 그룹 fit도 검사한다. 실제 UI 선택·홈 복귀와 사진 마커 접근, 판정/스탬프 원본 해시를 함께 확인한다. 운영 DB를 읽거나 변경하지 않는 합성 기록 fixture만 사용한다.
+
+
+2026-11-19 전국 상세 추가 검증: TC-MAP-EXTERIOR-002에서 1도 차폐 셀의 일부 해안·도서 누락을 재현했다. 표시 셀을 0.25도로 세분화하여 공식 육지 합집합과 동등성을 재검증한다. 원본 행정구역 판정·스탬프 경계 및 사용자 DB는 보존한다. 전체 252개 화면의 픽셀 대조와 48개 실제 시도 선택 흐름으로 검증한다.
+
+
+TC-MAP-EXTERIOR-002 보완: 0.25도 기본 셀의 해안 부분은 최대 0.0625도까지 추가 분할하며, 폴리곤 홀 수가 128개를 넘으면 더 분할한다. 차폐의 실제 영역 및 공식 판정/기록 보존 계약은 동일하다.
+
+TC-MAP-EXTERIOR-002의 표시 차폐 GeoJSON 소스는 tolerance=0으로 설정하여 인접 분할 셀의 타일 단순화로 인한 1px 틈을 방지한다. 판정용 원본 및 사용자 데이터는 변경하지 않는다.
+
+
+## 2026-11-19 전국 상세 지도 최종 검증
+
+[전국 점검 보고서](NATIONWIDE_MAP_QA_20261119.md): 16시도·36도서·252화면, 495,872개 픽셀 샘플 불일치 0. 표시 차폐 2,673개/홀128 상한/tolerance=0 적용. 실제 선택 48조건, Playwright20·Vitest20·타입·웹 export(38.5MB) 통과. 공식 판정/과거 스탬프 원본 해시 및 운영 기록 보존. 모바일 웹만 검증, Android 실기기 미실행.
+
+## 2026년 지도 경량화
+
+TC-MAP-LIGHT-001. 원본 해시·256개 대표점·겹침·국외·기존 스탬프, 위조 필드 무시, 신규/기존 위치와 권한, 지역 변경 후 늦은 표시 자산 도착, 웹 번들과 지역 선택/추첨을 검사한다.
+
+격리 Local PostGIS에서 정밀 경계 309개 모두 유효하며 테이블·인덱스 포함 18,784,256바이트였다. 실제 인증 HTTP로 시군구 대표점 256개 전체의 코드, 입력 코드 무시, 모호한 겹침, 울릉도, 광주의 종전 스탬프, 해외 좌표로 변경, 비소유 익명 읽기 차단을 확인했다. 별도 시험 DB의 기존 위치 2개는 같은 트랜잭션에서 보완됐고 동일 입력 재적재에서 위치 갱신은 0건이었다.
+
+지도 관련 Vitest 14파일 55건과 frontend TypeScript 통과. Chromium에서 상세 해안 차폐 픽셀, 서울 사진 선택 후 실타일/좌표 정렬·전국 복귀, 지연 서울 응답 이후 부산 유지 3건을 확인했다. 최종 Expo Web export를 정적 제공한 320px 제주권 추첨→지도 이동 회귀 1건도 통과했다. 처음 별도 테스트 설정에서 발생한 DOM 준비·초기 viewport 실패 2건은 실제 지도 생성 및 기존 390px 시작 조건을 적용한 재실행과 구분한다.
+
+동일 Expo Web 게스트 진입 JS는 39,216,046→7,675,086바이트, 같은 Python gzip 레벨 6은 27,400,395→3,910,065바이트였다. 시도 경로로 교체한 추첨 전국 SVG 경로 문자열은 종전 시군구 합산 약 1,224만 자에서 약 198만 자로 줄었다. 시도별 상세 스타일 직렬화 결과는 서울 9.42MB·부산 9.35MB·전남광주 13.99MB(이전 전국 스타일 54.35MB)였다. Android release APK에 지역 자산 33개가 포함됐다. 읽기 전용 mytrveldex 에뮬레이터에서 게스트 전국 지도→경상북도 선택→도로·수계와 강조 경계 표시→홈 복귀를 확인했다. 실휴대폰 프레임·PSS와 운영 배포는 이 측정 범위 밖이다.
+
+## 국내 경계 벡터 타일
+
+TC-MAP-TILES-001. 생성된 MVT의 버전·범위·레이어를 검사하고 웹에서 최초 전국 경계 요청 0, 부산 선택의 화면 타일·원격 지형·육지/바다 픽셀과 재선택을 검증한다. Android APK의 자산과 에뮬레이터 표시를 웹과 구분한다.
+
+2026-11-19 국내 표시 타일 전환 후 Chromium 390×844 회귀에서 최초 전국 경계 요청은 0건이었다. 동작 줄이기 환경에서 부산 첫 선택은 2개 파일(100,928바이트)로 선택한 시도의 경계가 보였고, 같은 화면에서 전국 복귀 후 부산 재선택은 추가 요청 0건이었다. 위 바이트는 요청 파일의 합이며 압축 전송량이나 외부 지형 타일 사용량을 포함하지 않는다. 이 실행의 클릭 시도~경계 확인 관찰은 각각 594ms·185ms로, 프레임 벤치마크가 아니다. 이름 공개 전 국내 상세 Native 스타일 문자열은 14,489바이트였다. 이전 부산 9.35MB는 스타일 문자열 측정이다.
+
+타입 검사, 지도 Vitest 8개 파일 34건, 격리 Local HTTP 위치 판정(256개 대표점 포함)이 통과했다. Chromium 집중 7건에서 내륙/바다 픽셀, 서울 실제 지형과 지명, 국외/섬, 부산 타일 재사용, 지연 서울 응답 후 부산 유지, 렌더 실패·재시도를 확인했다. 별도 320px 정적 export 여행지 추첨 회귀가 통과했다. 초기 별도 보조 회귀에서 미마운트 canvas 접근과 카메라 이동 도중 확대 입력으로 2건이 실패해 화면/시도 fit 완료를 기다리도록 고쳤다.
+
+웹 정적 export 및 Android release APK에 같은 타일 2,709개(원시 파일 합계 6,804,173바이트)가 포함됐다. 에뮬레이터에서 게스트 전국 화면, 경남·부산 선택과 해안·도로 배경을 확인했다. 이 변경에 따른 운영 DB 적재·서비스 배포, Android 실기기 프레임 측정은 수행하지 않았다.
+
+현재 실행 중인 localhost:8083 게스트 화면에서도 최초 전국 경계 요청 0건, 부산 경계 타일 HTTP 200 두 건과 상세 표시를 확인했다. 별도 Chromium 4건(섬 사진/선택, 이동 취소 후 이름 공개, 도감 좌표 상세, 산 지역 도로·수계)도 통과했다.
+
+osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도·Photon 계약을 따른다.
+
+### osm-test 실행 결과 (2026-11-19 KST)
+
+- OSM 원자료 기준 2026-11-18 21:21:02 UTC. 기존 16개 시도·256개 시군구 코드 전수 대응, 누락 0. 표시 면은 OSM 해안선과 교차한다. Supabase에는 파생 지도 면이나 XYZ를 추가 저장하지 않는다.
+- Vitest 지도/출처/Photon 11 통과. 격리 Supabase Local 55321에서 실제 HTTP 2 통과. 전 지역 DB 판정과 소유권, Photon 실검색·역조회·원좌표·로그인·저장 검증. Edge는 같은 Local Auth를 사용하는 Deno 핸들러로 실행했다.
+- Chromium 집중 14 통과. 전국·부산 동일 renderer, 선택/홈, 사진·요약, 본인 완료 방문색, 줌/핀, 한글 실제 symbol, 해안 픽셀, 타일 403·소스 503·WebGL context loss·지연 응답을 포함한다. 지명 필터에서 state_capital이 빠진 제주 검사와 TileJSON 503 대체 실패를 각각 수정한 후의 결과다. 전체 E2E 결과와 구분한다.
+- TypeScript, Deno check, Expo Web export, Android x86_64 release 조립 성공. APK에 새 버전 XYZ 2711개, 이전 버전 XYZ 0개. 안드로이드 게스트에서 부산 터치·파란선·선택명·지형·전국 복귀 동선을 실행했다. 실계정 여행사진과 방문색은 안드로이드에서 독립 측정하지 않았다.
+
+모바일 Chromium 390×844, 동작 줄이기, 별도 정적 export·새 브라우저 세션, 각 1회. 선택 완료·MapLibre 스타일/타일 준비 및 요청 정지 250ms까지 계측했다. 기준판 전국은 SVG 준비를 사용한다. 용량은 완료 응답의 압축 해제 본문 크기다.
+
+| 동작 | merge d72aa46 시간 / 요청 / 바이트 | osm-test 시간 / 요청 / 바이트 |
+|---|---|---|
+| 전국 진입 | 739ms / 0 / 0 | 1108ms / 5 / 645247 |
+| 부산 첫 선택 | 1648ms / 5 / 521364 | 716ms / 4 / 873409 |
+| 부산 pan | 505ms / 0 / 0 | 1022ms / 0 / 0 |
+| 전국 복귀 후 부산 재선택 | 256ms / 0 / 0 | 351ms / 2 / 80566 |
+
+동일 read-only AVD의 소프트웨어 GPU, 게스트·부산 터치·두 번 pan·홈 복귀 1회 표본. 기준판 PSS 243648 KiB·jank 24/25, 실험판 178280 KiB·38/38. 첫 선택 시간과 메모리는 낮아졌고 초기 웹 요청량과 Native 프레임 비용은 남는다. 기기 전체 성능이나 서비스 가용성의 수용 근거로 사용하지 않는다.
+
+후속 섬 집중 2건 통과. 대마도 표본은 OSM 해안선에서 충분히 떨어진 남쪽 섬 내부점으로 잡고 울릉도·제주·본토·해상의 실제 픽셀도 함께 확인했다. 먼섬 사진/geometry 동일 선택·요약·복귀를 별도로 실행했다.
+
+FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
+
+2026-11-19 도식 지도에서 실제 서울숲의 둥근 공원·한강과 도쿄 기록의 해외 배경 타일 요청 0건을 Chromium에서 확인했다. 첫 실행의 서울숲 검사는 공원 표시 배율까지 확대하지 않아 실패했다. 실제 줌 입력으로 14 이상에서 검사해 통과했다. 봉우리 국외 필터 보강 전 지도 회귀 20건과 전국 시도 선택 3개 화면 크기(각 16개 시도) 검사를 별도 실행해 모두 통과했다. 부산 첫 선택은 해당 실행에서 로컬 타일 2개/188,844바이트였다.
+
+연결된 Supabase에서 로그인 사용자로 서울역 검색 결과 5건과 입력 좌표를 보존한 역조회를 확인했다(각 HTTP 200). 비로그인은 HTTP 401, 사용한 시험 계정은 삭제했다. 이번 원격 DB 변경은 locations.source에 photon 허용만 적용했다.
+
+국외 봉우리 52개 제외 후 최종 자산 osm-0710aeff708e에서 북한 람미봉 미포함, 도쿄 핀/무타일, 서울숲 공원·한강, 서울·부산·제주 확대 후 지명을 검사한 Web 4건과 단위/SSR 11건, TypeScript, Web export, Android release 빌드가 통과했다. Web·APK에 같은 버전 XYZ 2,692개가 포함됐다. localhost:8083 실제 export에서 게스트 부산 선택과 해당 타일 HTTP 200을 확인했다. x86_64 에뮬레이터에서 최종 APK의 부산 선택·pan·전국 복귀를 확인했다. 소프트웨어 GPU 단일 표본에서 jank 39/44, PSS 193504 KiB로 실기기 성능은 미검증이다.
+
+2026-11-19 수계 가독성 보강. 경남 중심 128.19/35.19, 줌 9의 기존 Chromium 화면에서 지류와 저수지를 재현했다. 최종 자산 `osm-4e4c48c701f3`에서 같은 화면의 내륙 수계 0건, 줌 11.5 남강 본류, 줌 14 판문천과 수면을 실제 렌더 결과로 확인했다. 해안·사진 선택·외국 기록 등 포함 최종 Web 집중 10건, 관련 도메인/SSR 9건과 타입 검사 통과. 부산 첫 선택의 타일 2개는 80,566바이트였다. 줌 8~9 전체 정적 타일 합계는 1,991,844에서 1,012,045바이트로 줄었다. Web export·Android release APK에 같은 버전 2,692개 타일이 포함되며, 실제 로컬 웹 게스트에서 부산 선택/최신 타일 HTTP 200을 확인했다.
+동일 최종 APK로 읽기 전용 x86_64 에뮬레이터에서 게스트 부산 선택·화면 이동·대한민국 복귀를 확인했다. 실휴대폰 프레임 성능은 측정하지 않았다.
+
+2026-11-19 국내 일반지도. 지역·동네 타일을 사용하는 Web 집중 회귀 9건과 경부고속도로 본선·진출입로 별도 회귀 1건이 통과했다. 강남역 줌 16에서 건물·일반도로·역이 동시에 렌더링되고, 축소하면 건물이 사라졌다. 경부고속도로 분당 구간의 실제 본선·연결로 좌표에서 도로선이 없으며 같은 시야의 다른 도로가 남는 것을 검사했다. 도쿄 여행 핀·해외 무타일, 황해도 해안, 부산 선택/복귀, 렌더러 실패 대체 회귀도 포함한다. 도메인·SSR 11건 및 frontend 타입 검사 통과. 실제 게스트 웹 8083에서 부산 선택·확대 후 두 버전의 XYZ HTTP 200 확인. Web export와 x86_64 Android release APK 안에 지역 타일 2,692개와 동네 타일 10,326개가 각각 들어 있다.
+읽기 전용 Android 에뮬레이터에 이 APK를 설치했다. 게스트 부산 선택·팬·전국 복귀와 재선택 후 실제 두 손가락 확대에서 파란 선택색 위로 일반도로와 건물 평면이 보이는 것을 확인했다. 소프트웨어 GPU로 지도 선택·복귀를 측정한 단일 표본에서 38프레임 중 36프레임이 지연되어 실휴대폰 성능은 확인이 필요하다.
+
+이후 철회한 시·도 맞춤 여백·일반도로 미리보기 후보의 실행 이력. 변경 전 경남 선택의 실제 도로 미리보기 검사가 실패했다. 변경 후 Web 지도 집중 6건과 시도/사진/비홈 배율 별도 3건, 단위·SSR 12건, TypeScript 검사와 두 플랫폼 빌드가 통과했다. 390px 화면의 경남 본토 최소 여백은 5px이며 줌 10 미만에서 경남의 도로만, 이후 기존 상세 타일의 간선도로를 확인했다. 이전 사진 fixture는 초기 위치 판정이 끝나기 전 새 기록을 렌더하고, 본토와 먼섬을 합친 중심 및 대체 SVG를 기대해 실패했다. 최초 로딩 완료, 본토 기준 배율 및 실제 MapLibre 선택 레이어를 검사하도록 수정 후 재실행했다. localhost:8083 경남 선택과 x86_64 에뮬레이터의 부산 선택·간선도로·전국 복귀를 확인했다. 실휴대폰 성능은 미측정이다.
+
+사용자 요청으로 저배율 도로 미리보기와 5px 맞춤을 철회했다. 복원한 16px 맞춤, 시·도·사진 선택, 비홈 맞춤, 확대 후 실제 건물·도로·역 표시를 Chromium 4건으로 확인했다. OSM/Photon 단위 4건 및 프런트 타입 검사 통과. 실제 localhost:8083 게스트에서 부산 선택 및 상세 타일 HTTP 200을 확인했다.
+
+2026-11-20 TC-MAP-OSM-001 장소 검색 복구 검증. osm-photon.test.ts 7개 통과, Deno 타입 검사 통과. 격리 Local의 로그인 검색·역조회·원좌표 보존 및 장소 저장 통합 검사 1개 통과. 별도 HTTPS 주소의 검색·역조회 경로는 fetch 대역으로 검증했다. 운영 Edge 재배포 뒤 임시 QA 계정의 서울역·부산 검색과 역조회는 모두 502, 공급자 상태는 PHOTON_HTTP_403이었다. QA 계정은 정리했다. 실제 전용 호스트 연결 및 운영 검색 복구는 미확인이다.
+
+2026-11-20 전용 Photon 연결 후 재검증. 서울역·부산역 직접 검색은 각각 후보 3개를 반환했다. 서울역 원좌표의 역조회에서 OSM ID가 없는 합성 우편번호를 재현했고, 우편번호 제외 조건을 적용한 뒤 서울역 주소를 받았다. 단위 7개, Deno 타입 검사, 전용 서버를 호출하는 격리 Local 통합 검사 1개(로그인 검색·역조회·장소 저장)가 통과했다. 운영 PHOTON_BASE_URL 설정 및 photon-location 배포 후 로그인 검색은 두 역 각각 HTTP 200·후보 5개, 같은 좌표의 역조회는 HTTP 200·서울역·원좌표 일치, 미인증 401이었다. 임시 QA 계정을 삭제했다. 웹·Android UI 조작은 이번 검증에 포함하지 않았다.
+
+2026-11-20 paki 운영 배포 확인. profile-avatar의 Storage 요청 본문에서 발생한 Deno TS2769를 수정한 뒤 Deno 타입 검사 및 아바타 검증·방향 테스트 3건이 통과했다. 해당 함수만 배포한 뒤 운영 익명 업로드 401, 임시 계정 JPEG 업로드 200, EXIF 방향 6인 640×320 이미지의 실제 저장본 256×512를 확인하고 시험 파일·계정·정리 작업을 제거했다. 운영 DB의 일반 dry-run은 이전 순번의 20261119010000 누락으로 실패했다. 승인 후 --include-all dry-run에 표시된 location_regions 스키마 1건만 적용했고, 일반 dry-run은 대기 0건이다. locations 열 4개·활성 트리거·유효한 공간 인덱스를 확인했다. 위치 행 수는 적용 전후 25건이며 경계와 활성 버전은 각 0건이다.
+
+TC-SNS-004 프로필 미리보기. 모바일 크기의 Chromium에서 실제 파일 선택 후 초안 사진의 디코딩·편집 이름과 소개 표시, 편집 복귀, 기본 사진으로 변경, 명시 저장까지 확인했다. 서버 응답을 대역으로 사용한 UI 검사에서 미리보기 동안 프로필 저장 요청 0건, 명시 저장 1건이었다. 기존 My 편집 화면의 미리보기·취소 후 기존 이름 유지도 확인했다.
+
+2026-11-20 피드 연결 회귀. 변경 전 실제 설정 웹(8083)에서 로컬 Supabase로 보낸 소셜 기능·피드 요청이 404였다. 공개 환경별 Metro 캐시를 분리한 뒤 Chromium에서 8083 비로그인 피드 두 요청의 운영 HTTP 200과 게시물 표시를 확인했다. 별도 로컬 SNS(55321)에 연결한 웹(8086)에서는 임시 계정으로 로그인해 본인 토큰의 피드와 My 프로필 HTTP 200을 확인했다. 환경별 캐시 키 회귀는 수정 전 실패, 수정 후 통과했다.
+
+TC-LEGAL-001. 로그인 전과 설정 메뉴의 링크, 정적 허브에서 각 문서로의 이동, 개인정보·삭제 안내 직접 접속, 접근 가능한 삭제 요청 메일 링크를 확인한다. 페이지 조회는 로그인이나 동의·삭제 요청을 발생시키지 않는다.
+
+TC-LEGAL-001 실행: 링크 추가 전 Chromium에서 로그인 화면의 약관정보 링크 부재로 실패했다. 변경 후 약관·로그인/OAuth 웹 검사 5건과 frontend TypeScript 검사를 통과했다. 실제 localhost:8083의 설정 메뉴에서 공개 Pages 허브를 연 뒤 모바일 뷰포트에서 문서 4개의 제목과 삭제 메일 수신 링크를 확인했다. 공개 주소는 인증 없이 HTTP 200이었다. 이메일 수신·삭제 처리, Android 실기기, Play Console 제출은 이 검사 범위 밖이다.
+
+전국 시·도 선택은 기존 520ms, 상세 선택과 전국 복귀는 350ms를 적용한다. 홈 통계와 퍼즐은 첫 응답 전에도 진입할 수 있고, 본인 기록 조회 성공 직후 집계한다. 대표사진·작성자 응답을 기다리지 않으며 조회 실패를 0건으로 표시하지 않는다.
+
+홈·지도 전환 시 덮개가 표시된 동안 대시보드와 지도 캔버스가 각각 마운트되고, 최소 표시시간 이후 조작 가능해지는지 확인한다. 빠른 탭 왕복은 새 진입의 표시 시간을 사용한다.
+
+전국 합계·선택 타일 회귀는 다른 시도의 지도 대표사진 두 장→전국에서 지역별 표시→부산 선택→중국·일본까지 사용자 축소→대표사진 위 숫자 2→사진 선택→전국 기본 배율과 지역별 사진 복원 순서를 검사한다. 별도로 시·도·사진 선택에서 줌 10 이상의 실제 도로 타일과 선택 경계, 비홈 및 먼 섬 선택의 기존 범위를 확인한다.
+
+동아시아 사진 묶음 중앙·접경 육지 보정 — Chromium 390px/1280px에서 사진 묶음과 캔버스 중심 일치, 요약 열기 및 전국 복귀를 확인했다. 지역 확대 화면에서 남북 접경 내륙 두 지점의 육지색과 황해도 해안의 육지·바다 픽셀을 확인했다. 대상 Playwright 4개 및 frontend 타입 검사 통과. Android 실기기는 미검증.
+
+사진 묶음 기준점 변경 후 Chromium 390px·1280px에서 대한민국 전국 맞춤 중심의 투영 좌표와 마커 위치 일치, 포인터·키보드 선택 후 기본 카메라 및 지역별 사진 복귀를 확인했다. 대상 2개와 타입 검사 통과.
+
+### 피드 작성일·작성자 순환
+
+같은 날의 작성자 순환, 날짜 우선순위, seed 고정 페이지 완주, 새로고침 재추첨 및 3개월 경계의 작성일 표시를 검증한다.
+
+격리 Supabase에서 두 작성자의 같은 날 공개 글 22건과 과거·비공개 기록을 사용해 날짜 우선순위, 작성자 순환, 여러 페이지의 중복·누락, 같은 seed 재조회 및 새 seed 재정렬을 검증했다. Chromium 모바일 너비에서 실제 마우스 드래그와 터치 당기기가 각각 새 seed로 재조회하고 상단 작성 시각과 여행 기간이 별도로 표시됨을 확인했다. Android 실기기는 미검증이다.
+
+미팔로우 작성자의 공개 글이 발견에 표시되고 카드에서 팔로우한 뒤 팔로잉에 나타나는지, 취소 후 발견에서는 계속 보이는지 확인한다.
+
+피드에서 스크롤만으로 다음 페이지 요청, 로딩 중 위치 보존, 마지막 페이지의 요청 종료를 확인한다.
+
+공유 Supabase에서 social_ranked_feed 부재(PGRST202)를 확인한 뒤 dry-run에 표시된 마이그레이션 한 건을 승인 후 적용했다. 공개 조회에서 같은 seed의 순서 유지와 다른 seed의 순서 변경, 첫 20건·다음 5건 간 중복 없음을 확인했다. 8003 웹에서 실제 스크롤로 두 번째 페이지가 로드되고 마지막 커서가 null임을 확인했다. 격리 Chromium에서 지연 응답 중 스크롤 위치와 마지막 페이지 요청 종료를 확인했다. Android 실기기 검증은 별도다.
+
+발견 피드에서 하단 100px 전까지 다음 요청이 없고, 하단 도달만으로 세 페이지가 차례로 이어지는지 Chromium에서 확인했다. 다음 페이지 응답을 기다리는 동안 스크롤 위치를 보존하고 마지막 페이지에서는 추가 요청을 보내지 않았다. 목록 안에 ‘더 보기’ 버튼이 없고 상단 당겨 새로고침도 동작했다.
+
+좋아요와 4분 정기 조회 응답을 각각 보류한 상태에서 기존 카드와 선택 사진이 계속 보이는지, 응답 뒤 반응 및 공개 상태 변경이 반영되는지 검사한다.
+
+격리 웹에서 좋아요 직후 카드 DOM이 제거되는 실패를 재현했다. 수정 후 좋아요·4분 타이머의 지연 응답 동안 동일 카드와 두 번째 사진 선택 유지, 최신 응답의 비공개 글 제거, 동시 좋아요 반영, 무한 스크롤 및 당겨 새로고침을 검증했다. 대상 Chromium 4개와 frontend 타입 검사 통과.
+
+### 홍보 검색과 웹 화면 주소
+공개 홍보 HTML·sitemap은 site/에만 제공하고 웹앱은 noindex를 사용한다. 웹 주소는 홈·피드·지도·도감·My·설정·작성·기록·지역·친구·여행 추첨·로그인을 구분한다. 기존 Auth/RLS와 Native 화면을 유지하고 배포 전 두 Preview에서 주소 왕복, 크롤러 응답, 초기 번들을 검사한다.
+
+2026-11-24 실행. 홍보 사이트 Preview에서 sitemap의 공개 URL 13개, URL별 canonical·공유 메타·JSON-LD·h1, 인증 파일 3개, 6개 봇 User-Agent의 FAQ HTTP 200, 없는 경로 404를 확인했다. Chromium에서 JS를 끈 320·390·1440px 각 5개 페이지와 키보드 접근을 확인했다. GA4는 시험 ID와 대역으로 동의·웹앱 열기·철회를 검사했다. 실제 색인이나 운영 GA4 수집 결과는 각 서비스의 별도 관측 대상이다.
+
+Expo 웹 라우팅 Preview 5건 통과. 직접 접속, 새로고침, 같은 문서에서 탭·뒤로·앞으로, 미등록 경로, 권한 없는 공유 기록, 첫 스크립트 1회 재시도, 서울 지도 카메라 복귀를 검사했다. 격리 Supabase/Chromium 5건에서 작성 중 초안·퍼즐·로그인·로그아웃·공개와 비공개 상세·피드 반응·MY 복귀를 확인했다. 별도 피드 검사에서 탭을 떠난 뒤 도착한 scroll 이벤트가 360px을 0으로 덮는 실패를 재현했다. 목록 ref 해제 뒤 이벤트를 무시한 후 위치 복원·무한 스크롤·좋아요 중 화면 유지 3건 통과. OAuth 콜백 2건은 제공자 응답 대역, Android x86_64 release 에뮬레이터는 설치·지도→도감 경로를 확인했다. 실제 Google 계정 동의와 실휴대폰은 별도다.
+
+성능 비교는 같은 머신의 Chromium 390×844, 동일한 로그인 버튼 표시 및 스플래시 종료 조건으로 기존 공개 빌드 bc262e1과 새 Preview b752fe8을 교대로 5회 열었다. 캐시 없는 초기 JS 전송 중앙값은 4,093,805→3,318,301바이트, 압축 해제 후 8,028,584→5,643,597바이트였다. 첫 이용 가능 시점은 2,527→2,217ms, 캐시가 있는 재방문은 1,929→1,878ms였다. 문서 load 이벤트 중앙값은 콜드 590→898ms였다. 방문자 실사용 통계가 아닌 이 조건의 표본이다. 비로그인 API 요청은 양쪽 1회였다. 동일한 본인 기록 1건의 인증 응답 대역으로 로그인 홈 요청을 집계했을 때 9회에서 4회로 줄었다. 마지막 피드 변경은 이 계측 후 지연 로딩 화면에 적용했다.
+
+### 지도 배경 자동 복구
+
+Chromium에서 일시적인 타일 HTTP 503 뒤 실제 지형이 같은 렌더러에 표시되는지, 컨텍스트 손실 뒤 버튼 없이 로컬 육지에서 WebGL로 복귀하며 카메라·사진을 유지하는지 확인한다.
+
+기존 Chromium 지도는 HTTP 503을 정상 응답으로 돌려도 동일 위치에서 30초간 지형을 복구하지 못했다. 보강 후 Chromium 4건에서 시도/사진 선택, 같은 renderer의 타일 복구, 오프라인·WebGL 손실 뒤 자동 복귀, WebGL 재생성 연속 실패 뒤 복구를 확인했다. 프론트엔드 타입 검사와 Native SSR·콜백 5건 통과. Android 실기기의 네트워크·그래픽 장애는 별도다.
+
+### OSM 상세 타일 부분 복구
+
+경계 타일 1개만 503으로 유지한 상태에서 정상 OSM 도로가 SVG에 가려지지 않는지, 건물 줌에서 실제 건물과 생활도로가 그려지는지, 재수신 후 임시 육지만 사라지는지 검사한다.
+
+운영 이전 버전에서 서울 경계 1개만 막고 동네 타일 6개가 HTTP 200이어도 화면 전체 SVG가 남는 것을 재현했다. 동일 조건의 Chromium 회귀는 수정 전 실패, 수정 후 정상 도로·경계 복구·깊은 줌의 건물/생활도로를 확인했다. 시도·사진 선택 및 WebGL 재시도를 포함해 5건 통과, 타입 검사와 OSM/Native 관련 단위 검사 12건 통과.

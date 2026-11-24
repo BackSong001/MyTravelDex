@@ -5,14 +5,15 @@
     "scheme": "mytraveldex",
     "version": "1.0.0",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./public/lavender-backpack.png",
       "resizeMode": "contain",
-      "backgroundColor": "#EFFAFF"
+      "backgroundColor": "#FFFFFF"
     },
     "orientation": "default",
     "userInterfaceStyle": "light",
     "android": {
       "package": "com.mytraveldex.app",
+      "permissions": ["android.permission.CAMERA"],
       "versionCode": 1
     },
     "web": {
@@ -25,7 +26,7 @@
         "expo-image-picker",
         {
           "photosPermission": "여행 사진을 선택해 기록에 추가합니다.",
-          "cameraPermission": false,
+          "cameraPermission": "포토 버튼을 눌렀을 때 여행 사진을 촬영합니다.",
           "microphonePermission": false
         }
       ],

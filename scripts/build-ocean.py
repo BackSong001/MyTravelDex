@@ -13,9 +13,9 @@ assert pillow_version == '10.2.0', 'Use Pillow 10.2.0 for reproducible decoratio
 root = Path(__file__).resolve().parents[1]
 source = root / 'frontend/src/data/maps/korea-sido.json'
 source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
-assert source_hash == '76b47436a96ee9837fb22d792d4c98260133cae747a446207647304873375535'
-features = json.loads(source.read_text())['features']
-assert len(features) == 17
+assert source_hash == json.loads((source.parent / 'manifest.json').read_text(encoding='utf-8'))['files']['korea-sido.json']
+features = json.loads(source.read_text(encoding='utf-8'))['features']
+assert len(features) == json.loads((source.parent / 'manifest.json').read_text(encoding='utf-8'))['provinceCount']
 land = unary_union([shape(f['geometry']) for f in features])
 assert land.is_valid
 # d3 geoMercator().scale(1000).translate([0,0])와 같은 화면 좌표다.
@@ -35,7 +35,7 @@ for i in range(128):
     layers.append((progress, display))
     previous = distance
 layers.reverse()
-palette = ['#BDEFE5', '#91DDD9', '#70BFD9', '#438DBD', '#245783']
+palette = ['#DCE9E7', '#C7DCDE', '#ADC9D1', '#8EAFBF', '#7294AA']
 x0, y0, x1, y1 = band.bounds
 x0, y0, x1, y1 = x0 - 2, y0 - 2, x1 + 2, y1 + 2
 width, height = x1 - x0, y1 - y0
@@ -61,11 +61,11 @@ asset = root / 'frontend/assets/maps/ocean-depth.png'
 asset.parent.mkdir(parents=True, exist_ok=True)
 image.filter(ImageFilter.GaussianBlur(1)).save(asset, optimize=True)
 output = root / 'frontend/src/data/maps/korea-ocean.json'
-output.write_text(json.dumps({'sourceSha256': source_hash, 'date': '2026-04-01',
+output.write_text(json.dumps({'sourceSha256': source_hash, 'date': json.loads((source.parent / 'manifest.json').read_text(encoding='utf-8'))['boundaryDate'],
     'scale': 1000, 'simplifyTolerance': .06, 'layerCount': len(layers),
     'palette': palette, 'x': x0, 'y': y0, 'width': width, 'height': height,
     'pixelWidth': size, 'pixelHeight': size,
-    'assetSha256': hashlib.sha256(asset.read_bytes()).hexdigest()}, separators=(',', ':')))
+    'assetSha256': hashlib.sha256(asset.read_bytes()).hexdigest()}, separators=(',', ':')), encoding='utf-8')
 assert source_hash == hashlib.sha256(source.read_bytes()).hexdigest()
 print(json.dumps({'layers': len(layers), 'bytes': asset.stat().st_size,
                   'decodedBytes': size * size * 4, 'sourceUnchanged': True}))

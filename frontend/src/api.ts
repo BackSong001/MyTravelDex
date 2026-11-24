@@ -1,3 +1,4 @@
+import {resolveLocationRows} from './regionalAssets';
 export class ApiError extends Error {
   serverCode?: string;
   constructor(public code: string, public status: number, message: string) { super(message); }
@@ -16,7 +17,8 @@ export class TravelApi {
         body: body === undefined ? undefined : mime === 'application/json' ? JSON.stringify(body) : body as BodyInit,
       });
     } catch { throw new ApiError('NETWORK_ERROR', 0, '연결을 확인하고 다시 시도해 주세요.'); }
-    const data = await response.json();
+    const data = response.status === 204 ? null : await response.json().catch(() => ({error: response.ok ? 'Invalid server response' : 'Request failed'}));
+    if (response.ok && data?.error === 'Invalid server response') throw new ApiError('INCOMPLETE_RESPONSE',502,'서버 응답을 확인하지 못했습니다. 다시 시도해 주세요.');
     if (!response.ok) {
       const code = response.status === 401 || (path === '/auth/v1/user' && response.status === 403) ? 'UNAUTHENTICATED' : response.status === 403 ? 'FORBIDDEN' : response.status === 404 || ['P0002','PGRST116'].includes(data.code) ? 'NOT_FOUND' : data.error === 'EXTERNAL_SERVICE_ERROR' ? 'EXTERNAL_SERVICE_ERROR' : path.startsWith('/storage/') ? 'UPLOAD_FAILED' : response.status === 400 || String(data.code).startsWith('23') ? 'VALIDATION_ERROR' : 'INTERNAL_ERROR';
       const error=new ApiError(code, response.status, data.message || data.error || '요청을 처리하지 못했습니다.'); error.serverCode=data.code; throw error;
@@ -49,23 +51,34 @@ export class TravelApi {
     if (start) q.set('end_date', `gte.${start}`);
     if (end) q.set('start_date', `lte.${end}`);
     if (region) q.set('locations.region_name', `eq.${region}`);
-    return this.listPages(`/rest/v1/travel_records?${q}`);
+    return this.listPages(`/rest/v1/travel_records?${q}`).then(resolveLocationRows);
   }
-  following(start?: string, end?: string, region?: string) {
+  following(start?: string, end?: string, region?: string, owner?: string) {
     const q = new URLSearchParams({select:`*,locations${region?'!inner':''}(*)`,order:'start_date.desc,id.asc'});
+    if(owner)q.set('owner_id',`eq.${owner}`);
     if(start)q.set('end_date',`gte.${start}`);
     if(end)q.set('start_date',`lte.${end}`);
     if(region)q.set('locations.region_name',`eq.${region}`);
-    return this.listPages(`/rest/v1/following_travel_records?${q}`);
+    return this.listPages(`/rest/v1/following_travel_records?${q}`).then(resolveLocationRows);
   }
   drafts(owner:string) {
     const q=new URLSearchParams({owner_id:`eq.${owner}`,status:'eq.draft',select:'*,locations(*)',order:'created_at.desc,id.asc'});
-    return this.listPages(`/rest/v1/travel_records?${q}`);
+    return this.listPages(`/rest/v1/travel_records?${q}`).then(resolveLocationRows);
   }
   async update(id: string, values: unknown) {
     const rows = await this.request(`/rest/v1/travel_records?id=eq.${id}`, 'PATCH', values);
     if (!rows.length) throw new ApiError('NOT_FOUND',404,'기록을 찾을 수 없습니다.');
     return rows[0];
+  }
+  async rankedFeed(args:Record<string,unknown>,cursor:any) {
+    if (!cursor?.created_at) {
+      try { return await this.rpc('social_ranked_feed',{...args,after_cursor:cursor}); }
+      catch (error) {
+        if (!(error instanceof ApiError) || error.serverCode!=='PGRST202' || cursor) throw error;
+      }
+    }
+    // 이전 서버가 반환한 시간 커서는 끝까지 같은 피드에서 사용한다.
+    return this.rpc('social_feed',{mode:args.mode,...(cursor?{cursor_time:cursor.created_at,cursor_id:cursor.id}:{})});
   }
   rpc(name: string, body: unknown) { return this.request(`/rest/v1/rpc/${name}`, 'POST', body); }
   async photoUrl(id: string, variant = 'thumbnail') {

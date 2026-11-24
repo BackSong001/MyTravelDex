@@ -1,0 +1,8 @@
+User-agent: GPTBot
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://mytraveldex.pages.dev/sitemap.xml

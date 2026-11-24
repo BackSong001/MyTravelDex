@@ -1,7 +1,19 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {publicConfiguration,expoArguments} from './configured.mjs';
 import appConfig from '../frontend/app.config.ts';
+
+test('Metro reuses transforms only for matching public bundle settings', () => {
+  const target = {EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',EXPO_PUBLIC_APP_ENV:'development'};
+  const version = overrides => execFileSync(process.execPath, ['-p', "require('./metro.config').cacheVersion"], {
+    cwd: new URL('../frontend/', import.meta.url), env: {...process.env, ...target, ...overrides}, encoding: 'utf8',
+  }).trim();
+  const configured = version({});
+  assert.equal(version({}), configured);
+  for (const [name, value] of Object.entries(target)) assert.notEqual(version({[name]: value + '-other'}), configured);
+  assert.ok(!configured.includes(target.EXPO_PUBLIC_SUPABASE_ANON_KEY));
+});
 
 test('configured web avoids development env override and Android embeds a standalone bundle',()=>{
   assert.deepEqual(expoArguments(['--web','--port','8083']),['start','--web','--port','8083','--no-dev']);
@@ -20,10 +32,16 @@ test('secret/service role keys cannot become client credentials', () => {
   }
 });
 
-test('native prebuild keeps package/scheme and uses SVG without map keys',()=>{
+test('native prebuild keeps package/scheme and registers the home tile renderer',()=>{
   const result=appConfig({config:{name:'previous',slug:'mytraveldex',scheme:'mytraveldex',android:{package:'com.mytraveldex.app'},plugins:['expo-router']}});
   assert.equal(result.name,'여행가봥');assert.equal(result.scheme,'mytraveldex');assert.equal(result.android.package,'com.mytraveldex.app');
-  assert.deepEqual(result.plugins,['expo-router','./plugins/withBundleEnvironment.cjs','./plugins/withFontScale.cjs','./plugins/withPhotoMetadata.cjs']);
+  assert.deepEqual(result.plugins,['expo-router','./plugins/withBundleEnvironment.cjs','./plugins/withFontScale.cjs','./plugins/withPhotoMetadata.cjs','@maplibre/maplibre-react-native']);
   const publicEnv=publicConfiguration({EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',GEOAPIFY_API_KEY:'private-fixture',EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY:'obsolete-map-key'});
   assert.equal(publicEnv.GEOAPIFY_API_KEY,undefined);assert.equal(publicEnv.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,undefined);
+});
+
+test('OpenFreeMap needs no public map key and does not forward legacy or search credentials', () => {
+ const source={EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',EXPO_PUBLIC_GEOAPIFY_MAP_KEY:'old-map-fixture',GEOAPIFY_API_KEY:'private-search-fixture'};
+ assert.equal(publicConfiguration(source).EXPO_PUBLIC_GEOAPIFY_MAP_KEY,undefined);
+ assert.equal(publicConfiguration(source).GEOAPIFY_API_KEY,undefined);
 });

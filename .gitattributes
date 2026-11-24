@@ -1,0 +1,13 @@
+# 검증 해시와 생성 결과 재현을 위해 지도 자산의 바이트를 보존한다.
+frontend/src/data/maps/korea-sido.json -text whitespace=cr-at-eol
+frontend/src/data/maps/korea-sigungu.json -text whitespace=cr-at-eol
+frontend/src/data/maps/gyeonggi-cities.json -text whitespace=cr-at-eol
+frontend/src/data/maps/korea-exterior.json -text whitespace=cr-at-eol
+frontend/src/data/maps/label-land.json -text whitespace=cr-at-eol
+frontend/src/data/maps/legacy-stamp-sido-20260401.json -text whitespace=cr-at-eol
+frontend/src/data/maps/home-map-areas.json -text whitespace=cr-at-eol
+frontend/src/data/maps/display-metadata.json -text whitespace=cr-at-eol
+frontend/src/data/maps/display-paths.json -text whitespace=cr-at-eol
+frontend/src/data/maps/packed/*.json -text whitespace=cr-at-eol
+
+frontend/public/boundary-tiles/**/*.pbf binary

@@ -2,8 +2,8 @@ import {expect,test} from 'vitest';
 import {districts,regions,regionAt,containsRegion,fitProjection,renderFeature} from '../../frontend/src/regions';
 import {geoPath} from '../../frontend/node_modules/d3-geo/src/index.js';
 test('TC-SVG-MAP-001: real same-date boundaries and stable parent codes',()=>{
- expect(regions).toHaveLength(17);expect(districts).toHaveLength(255);
- expect(new Set(districts.map(f=>f.properties.code)).size).toBe(255);
+ expect(regions).toHaveLength(16);expect(districts).toHaveLength(256);
+ expect(new Set(districts.map(f=>f.properties.code)).size).toBe(256);
  for(const d of districts)expect(regions.some(p=>p.properties.code===d.properties.parentCode)).toBe(true);
  expect(regionAt(37.5665,126.978)?.properties.parentCode).toBe('11');
  expect(regionAt(33.4996,126.5312)?.properties.parentCode).toBe('50');
@@ -14,7 +14,7 @@ test('TC-SVG-MAP-001: holes, boundary inclusion and deterministic overlap',()=>{
  expect(containsRegion(g,[4,5])).toBe(true);expect(containsRegion(g,[5,5])).toBe(false);
  expect(containsRegion(g,[0,5])).toBe(true);expect(containsRegion(g,[-.0001,5])).toBe(false);
  const f=(code:string)=>({type:'Feature',properties:{code,parentCode:'00',name:code,level:'district'},geometry:g}) as any;
- expect(regionAt(2,2,[f('02'),f('01')])?.properties.code).toBe('01');
+ expect(regionAt(2,2,[f('02'),f('01')])).toBeUndefined();
 });
 test('TC-SVG-MAP-001: projection roundtrip and finite country/detail paths',()=>{
  for(const size of [[320,260],[900,650]]){
@@ -22,4 +22,15 @@ test('TC-SVG-MAP-001: projection roundtrip and finite country/detail paths',()=>
  expect(back[0]).toBeCloseTo(126.978,8);expect(back[1]).toBeCloseTo(37.5665,8);
  for(const f of regions){const path=geoPath(p)(renderFeature(f));expect(path).toMatch(/^M/);expect(path).not.toMatch(/NaN|Infinity/);}
  }
+});
+
+test('TC-ADMIN-2026-003: mixed polygon winding renders locally without changing source rings',()=>{
+ const a=[[126,36],[127,36],[127,37],[126,37],[126,36]];
+ const b=[[128,36],[129,36],[129,37],[128,37],[128,36]].reverse();
+ const f:any={type:'Feature',properties:{code:'fixture'},geometry:{type:'MultiPolygon',coordinates:[[a],[b]]}};
+ const before=JSON.stringify(f),p=fitProjection([f],320,260),path=geoPath(p)(renderFeature(f))!;
+ expect(path.match(/Z/g)).toHaveLength(2);
+ const bounds=geoPath(p).bounds(renderFeature(f));
+ expect(bounds[0][0]).toBeGreaterThanOrEqual(15);expect(bounds[1][0]).toBeLessThanOrEqual(305);
+ expect(JSON.stringify(f)).toBe(before);
 });

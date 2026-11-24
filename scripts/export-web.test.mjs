@@ -13,3 +13,7 @@ test('Vercel serves existing exports before the SPA callback fallback',()=>{
  assert.equal(config.outputDirectory,'frontend/dist');assert.deepEqual(config.routes,[{handle:'filesystem'},{src:'/auth/callback/?',dest:'/index.html'}]);
  assert.equal(JSON.parse(readFileSync(new URL('../frontend/app.json',import.meta.url),'utf8')).expo.web.output,'single');
 });
+test('production export omits obsolete map and search credentials',()=>{
+ const value=productionWebConfiguration({EXPO_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',EXPO_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_fixture',EXPO_PUBLIC_GEOAPIFY_MAP_KEY:'map-fixture',GEOAPIFY_API_KEY:'server-fixture'});
+ assert.equal(value.EXPO_PUBLIC_GEOAPIFY_MAP_KEY,undefined);assert.equal(value.GEOAPIFY_API_KEY,undefined);
+});

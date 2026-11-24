@@ -1,6 +1,5 @@
 // Figma 개별 원본과 SHA256은 assets/ui/manifest.json에서 추적한다.
 export const uiAssets = {
- oceanDepth: require('../assets/maps/ocean-depth.png'),
  backpack: require('../assets/ui/backpack-v1.png'),
  defaultAvatar: require('../assets/ui/avatar-bear-v1.png'),
  stamps: {
@@ -11,6 +10,9 @@ export const uiAssets = {
   'KR-31': require('../assets/ui/ulsan-whale-stamp.png'),
   'KR-45': require('../assets/ui/jeonju-bibimbap-stamp.png'),
   'KR-49': require('../assets/ui/jeju-stamp.png'),
+  'KR-28': require('../assets/ui/incheon-seal-stamp-v1.png'),
+  'KR-50': require('../assets/ui/sejong-bells-stamp-v1.png'),
+  '41280': require('../assets/ui/goyang-cat-stamp-v1.png'),
  },
  districtStamps: {
   '48170': {name: '진주', source: require('../assets/ui/jinju-otter-stamp.png')},

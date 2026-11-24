@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import { randomUUID,createHmac } from 'node:crypto';
 import { afterAll, beforeAll, expect, test } from 'vitest';
 import {createClient} from '../../frontend/node_modules/@supabase/supabase-js';
@@ -43,9 +43,7 @@ function expectDenied(result: Awaited<ReturnType<typeof request>>) {
 beforeAll(async () => {
   let status: Record<string, string>;
   try {
-    status = JSON.parse(execFileSync('node_modules/.bin/supabase',
-      ['status', '--workdir', 'backend', '-o', 'json'],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 15_000 }));
+    status = localSupabaseStatus();
   } catch {
     throw new Error('Local test environment unavailable. Run npm run backend:start. This is not a TDD Red result.');
   }

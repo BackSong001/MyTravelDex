@@ -1,3 +1,4 @@
+import {localSupabaseStatus} from '../../scripts/local-supabase.mjs';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { afterAll, afterEach, beforeAll, beforeEach, expect, test } from 'vitest';
@@ -71,9 +72,7 @@ async function stored(path: string) {
 beforeAll(async () => {
   let status: Record<string, string>;
   try {
-    status = JSON.parse(execFileSync('node_modules/.bin/supabase', ['status', '--workdir', 'backend', '-o', 'json'], {
-      encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 15_000,
-    }));
+    status = localSupabaseStatus();
   } catch {
     throw new Error('Local test environment unavailable. Run npm run backend:start. This is not a TDD Red result.');
   }
