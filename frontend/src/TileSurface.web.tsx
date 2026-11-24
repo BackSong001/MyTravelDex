@@ -21,9 +21,22 @@ export default function TileSurface(props:TileSurfaceProps){
    type TileId={x:number;y:number;z:number};
    const missing=new Map<string,Map<string,TileId>>();
    let cancelRetry:(()=>void)|undefined,attempt=0;
-   const ready=()=>{if(active&&!cancelRetry){attempt=0;live.current.onReady?.();}};
-   instance.once('load',()=>{clearTimeout(startup);ready();});
-   instance.on('idle',ready);
+   const backdrop='province-tile-backdrop';
+   const showBackdrop=(visible:boolean)=>{
+    const value=visible?'visible':'none';
+    if(instance.getLayer(backdrop)&&instance.getLayoutProperty(backdrop,'visibility')!==value)
+     instance.setLayoutProperty(backdrop,'visibility',value);
+   };
+   instance.once('load',()=>{
+    clearTimeout(startup);
+    if(active)live.current.onReady?.();
+   });
+   instance.on('idle',()=>{
+    if(active&&!cancelRetry){
+     attempt=0;
+     showBackdrop(false);
+    }
+   });
    instance.on('error',event=>{
     if(!active)return;
     const {sourceId,tile}=event as typeof event & {sourceId?:string;tile?:{tileID:{canonical:TileId}}};
@@ -32,7 +45,7 @@ export default function TileSurface(props:TileSurfaceProps){
     const {x,y,z}=tile.tileID.canonical;
     const tiles=missing.get(sourceId)??new Map<string,TileId>();
     tiles.set(z+'/'+x+'/'+y,{z,x,y});missing.set(sourceId,tiles);
-    if(sourceId==='regions')live.current.onTileError();
+    if(sourceId==='regions')showBackdrop(true);
     if(!cancelRetry)cancelRetry=scheduleMapRetry(attempt++,()=>{
      cancelRetry=undefined;
      if(!active)return;

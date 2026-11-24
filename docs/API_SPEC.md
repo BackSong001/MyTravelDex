@@ -551,3 +551,7 @@ social_ranked_feed(mode,seed,after_cursor?)는 기존 공개 항목과 불투명
 ### 지도 배경 자동 복구
 
 기존 OSM 타일 주소를 재사용하며 여행 데이터·사진 조회 권한과 서버 API는 유지한다.
+
+### OSM 상세 타일 부분 복구
+
+기존 regions·neighborhood 벡터 타일 주소와 줌 구간, Photon 및 여행 데이터 API를 유지한다.

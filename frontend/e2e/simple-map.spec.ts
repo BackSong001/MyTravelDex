@@ -77,6 +77,32 @@ test('TC-MAP-SIMPLE-001 자동 복구가 실패한 타일과 WebGL 지도를 현
  await expect(page.getByRole('button',{name:'서울 기록 자세히 보기',exact:true})).toBeVisible();
 });
 
+test('경계 타일 하나가 실패해도 OSM 상세 도로와 건물을 계속 볼 수 있다',async({page})=>{
+ let fail=true,blocked=0;
+ const tile='**/osm-*/10/873/396.pbf';
+ await page.route(tile,route=>{
+  if(!fail)return route.fallback();
+  blocked++;return route.fulfill({status:503,body:'Unavailable'});
+ });
+ const canvas=page.getByTestId('svg-map-canvas');
+ await canvas.press('Enter');
+ await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
+ const count=(id:string)=>page.evaluate(layer=>{
+  const map=(window as any).renderer;
+  return map.getLayer(layer)?map.queryRenderedFeatures({layers:[layer]}).length:0;
+ },id);
+ await expect.poll(()=>blocked).toBeGreaterThan(0);
+ await expect.poll(()=>count('arterials'),{timeout:20000}).toBeGreaterThan(0);
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+ await expect.poll(()=>count('province-tile-backdrop')).toBeGreaterThan(0);
+ const recovered=page.waitForResponse(r=>r.url().endsWith('/10/873/396.pbf')&&r.url().includes('/osm-')&&r.status()===200);
+ fail=false;await recovered;
+ await expect.poll(()=>count('province-tile-backdrop'),{timeout:20000}).toBe(0);
+ for(let step=0;step<10;step++)await canvas.press('+');
+ for(const id of ['buildings','streets'])await expect.poll(()=>count(id),{timeout:20000}).toBeGreaterThan(0);
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+});
+
 test('WebGL 초기화가 다시 실패해도 로컬 지도를 유지하고 자동 복구한다',async({page})=>{
  const surface=page.getByTestId('tile-surface');
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0,{timeout:20000});

@@ -64,6 +64,7 @@ export function osmMapStyle(): StyleSpecification {
       {id:'ocean', type:'background', paint:{'background-color':sea}},
       {id:'world-land', source:'world', type:'fill', filter:['all',['==','$type','Polygon'],['!has','level']], paint:{'fill-color':paper}},
       {id:'province-overview', ...low, type:'fill', filter:['==','level','province'], paint:{'fill-color':paper,'fill-outline-color':border}},
+      {id:'province-tile-backdrop',source:'world',minzoom:detailZoom,type:'fill',filter:['==','level','province'],layout:{visibility:'none'},paint:{'fill-color':paper}},
       {id:'domestic-land', ...high, type:'fill', 'source-layer':'province', paint:{'fill-color':paper}},
       {id:'parks', ...high, minzoom:11, type:'fill', 'source-layer':'detail', filter:['==','kind','park'], paint:{'fill-color':'#C9DDB6'}},
       riverLine('river',10,'in',2),

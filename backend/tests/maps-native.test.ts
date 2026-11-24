@@ -49,10 +49,10 @@ test('TC-MAP-SIMPLE-001 Native map initialization failure calls the fatal SVG fa
  });
  try{
   const {default:TileSurface}=await vi.importActual<typeof import('../../frontend/src/TileSurface')>('../../frontend/src/TileSurface');
-  const failure=vi.fn(),tileError=vi.fn(),ready=vi.fn();
-  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onTileError:tileError,onReady:ready}));
+  const failure=vi.fn(),ready=vi.fn();
+  renderToStaticMarkup(React.createElement(TileSurface,{style:{version:8,sources:{},layers:[]},camera:{center:[126.978,37.5665],zoom:11},onFailure:failure,onReady:ready}));
   expect(typeof nativeProps.mapStyle).toBe('string');expect(JSON.parse(nativeProps.mapStyle)).toEqual({version:8,sources:{},layers:[]});
-  nativeProps.onDidFailLoadingMap();expect(failure).toHaveBeenCalledOnce();expect(tileError).not.toHaveBeenCalled();
+  nativeProps.onDidFailLoadingMap();expect(failure).toHaveBeenCalledOnce();
   expect(ready).not.toHaveBeenCalled();nativeProps.onDidFinishRenderingMapFully();expect(ready).toHaveBeenCalledOnce();
  }finally{spy.mockRestore();}
 });
