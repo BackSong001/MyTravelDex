@@ -16,18 +16,19 @@ type Props={
  owner?:string; tab:JournalTab; onTab:(tab:JournalTab)=>void; onCreate:()=>void;
  onAccount:()=>void; onLogout:()=>void; onStamps:()=>void; onPrivacy:()=>void; busy?:boolean;
  visited?:string[]|null; records?:Parameters<typeof visitedDistricts>[0]; failed?:boolean;
- drawRequest?:number; onAlbum?:(id:string)=>void; onRegion:(district:Destination)=>void; hideTrigger?:boolean;
+ routePane?:'menu'|'discovery'|null; onRoutePane?:(pane:'menu'|'discovery'|null)=>void; drawRequest?:number; onAlbum?:(id:string)=>void; onRegion:(district:Destination)=>void; hideTrigger?:boolean;
 };
 
-export default function AppSettings({owner,tab,onTab,onCreate,onAccount,onLogout,onStamps,onPrivacy,busy,visited=null,records,failed,drawRequest=0,onRegion,onAlbum,hideTrigger}:Props){
+export default function AppSettings({routePane,onRoutePane,owner,tab,onTab,onCreate,onAccount,onLogout,onStamps,onPrivacy,busy,visited=null,records,failed,drawRequest=0,onRegion,onAlbum,hideTrigger}:Props){
  const c=useThemeColors(),reduced=useReducedMotion(),{width}=useWindowDimensions();
  const [open,setOpen]=useState(false),[pane,setPane]=useState<Pane>('menu');
  const trigger=useRef<React.ElementRef<typeof Pressable>>(null),scroll=useRef<ScrollView>(null);
  const lastRequest=useRef(drawRequest),direct=useRef(false),slide=useRef(new Animated.Value(1)).current;
+ useEffect(()=>{if(routePane===undefined)return;setOpen(!!routePane);if(routePane)setPane(routePane);},[routePane]);
  const drawerWidth=Math.min(392,width*.89);
  useEffect(()=>{
   if(drawRequest===lastRequest.current)return;
-  lastRequest.current=drawRequest;direct.current=true;setPane('discovery');setOpen(true);
+  lastRequest.current=drawRequest;direct.current=true;setPane('discovery');setOpen(true);onRoutePane?.('discovery');
  },[drawRequest]);
  useEffect(()=>{
   if(!open)return;
@@ -36,7 +37,7 @@ export default function AppSettings({owner,tab,onTab,onCreate,onAccount,onLogout
  },[open,reduced,slide]);
  const visits=useMemo(()=>pane==='discovery'&&owner&&visited!==null&&records?visitedDistricts(records,owner):null,[owner,visited,records,pane]);
  function dismiss(){
-  direct.current=false;setOpen(false);setPane('menu');slide.setValue(1);
+  direct.current=false;onRoutePane?.(null);setOpen(false);setPane('menu');slide.setValue(1);
   if(Platform.OS==='web')requestAnimationFrame(()=>trigger.current?.focus());
  }
  function close(){
@@ -44,7 +45,7 @@ export default function AppSettings({owner,tab,onTab,onCreate,onAccount,onLogout
   Animated.timing(slide,{toValue:1,duration:160,useNativeDriver:true}).start(({finished})=>{if(finished)dismiss();});
  }
  function leave(action:()=>void){dismiss();action();}
- function changePane(next:Pane){setPane(next);scroll.current?.scrollTo({y:0,animated:false});}
+ function changePane(next:Pane){if(next==='discovery'||next==='menu')onRoutePane?.(next);setPane(next);scroll.current?.scrollTo({y:0,animated:false});}
  function row(label:string,icon:string,action:()=>void,disabled=false){
   return <Pressable accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={action}
    style={[s.row,{opacity:disabled?.55:1,borderColor:c.line}]}>
@@ -58,7 +59,7 @@ export default function AppSettings({owner,tab,onTab,onCreate,onAccount,onLogout
  }
  const full=pane==='discovery';
  return <>
-  {!hideTrigger&&<Pressable ref={trigger} accessibilityRole="button" accessibilityLabel="설정" accessibilityState={{expanded:open}} onPress={()=>setOpen(true)} style={s.control}>
+  {!hideTrigger&&<Pressable ref={trigger} accessibilityRole="button" accessibilityLabel="설정" accessibilityState={{expanded:open}} onPress={()=>{setOpen(true);onRoutePane?.('menu');}} style={s.control}>
    {[0,1,2].map(i=><View key={i} style={{height:2,width:22,borderRadius:2,backgroundColor:c.ink}}/>)}</Pressable>}
   <Modal visible={open} transparent animationType="none" onRequestClose={close}>
    <View style={{flex:1,alignItems:'flex-end'}}>

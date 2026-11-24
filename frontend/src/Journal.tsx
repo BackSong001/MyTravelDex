@@ -97,13 +97,13 @@ const tabs = [
   {id:'album', label:'도감', icon:require('../assets/ui/navigation/book.png')},
   {id:'account', label:'My', icon:require('../assets/ui/navigation/id-card.png')},
 ] as const;
-export function JournalNav({tab,onTab,rail=false}: {tab:JournalTab;onTab:(tab:JournalTab)=>void;onCreate:()=>void;rail?:boolean}){
+export function JournalNav({tab,onTab,onMapFocus,rail=false}: {tab:JournalTab;onTab:(tab:JournalTab)=>void;onCreate:()=>void;onMapFocus?:()=>void;rail?:boolean}){
  const c=useThemeColors(),insets=useSafeAreaInsets();
  return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={rail
    ?{position:'absolute',top:0,bottom:0,left:0,width:184,paddingHorizontal:16,paddingTop:30,backgroundColor:c.paper,borderRightWidth:1,borderColor:c.line,gap:6}
    :{flexDirection:'row',justifyContent:'space-evenly',paddingBottom:Math.max(4,insets.bottom),borderTopWidth:1,borderColor:c.line,backgroundColor:c.paper}}>
    {rail&&<Text style={{fontSize:23,fontWeight:'800',letterSpacing:-1.2,marginBottom:28,marginLeft:12,color:c.ink}}>여행가봥</Text>}
-   {tabs.map(item=><Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onPress={()=>onTab(item.id)}
+   {tabs.map(item=><Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onFocus={item.id==='map'?onMapFocus:undefined} onPress={()=>onTab(item.id)}
     style={{flex:rail?undefined:1,minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,gap:14,borderRadius:10,backgroundColor:rail&&tab===item.id?c.warm:c.paper}}>
      <Image source={item.icon} accessible={false} resizeMode="contain" style={{width:32,height:32}}/>
      {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===item.id?'700':'400'}}>{item.label}</Text>}

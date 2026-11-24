@@ -543,3 +543,6 @@ FR-LEGAL-001은 공개 정적 GET이다. 약관 허브, 개인정보처리방침
 social_ranked_feed(mode,seed,after_cursor?)는 기존 공개 항목과 불투명 JSON next_cursor를 반환한다. 이전 social_feed RPC는 구버전용으로 유지한다.
 
 피드 한 페이지에 있는 작성자들의 팔로우 상태는 로그인한 사용자의 follows RLS 조회로 확인한다. 버튼은 기존 social_set_follow(target_id,enabled)를 사용한다.
+
+### 홍보 검색과 웹 화면 주소
+공개 홍보 HTML·sitemap은 site/에만 제공하고 웹앱은 noindex를 사용한다. 웹 주소는 홈·피드·지도·도감·My·설정·작성·기록·지역·친구·여행 추첨·로그인을 구분한다. 기존 Auth/RLS와 Native 화면을 유지하고 배포 전 두 Preview에서 주소 왕복, 크롤러 응답, 초기 번들을 검사한다.
