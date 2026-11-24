@@ -772,3 +772,7 @@ FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해
 
 ## 홍보 사이트와 웹앱의 공개 주소
 홍보 콘텐츠는 `site/generate.py`와 생성된 정적 HTML을 함께 관리한다. Cloudflare Pages 운영 홍보 사이트의 sitemap과 인증 파일을 보존하고, 웹앱은 모든 경로에 noindex를 적용한다. 웹 경로 회귀는 `ROUTING_BASE_URL`에 Expo Web 정적 결과 또는 Pages Preview 주소를 지정해 `npx playwright test workspace-routes`로 실행한다. 인증 상태를 바꾸는 시험은 격리된 Local에서 실행한다.
+
+### 지도 배경 자동 복구
+
+지도 장애는 기존 여행 상태를 유지한 채 자동으로 복구한다. 재시도 검증은 docs/TEST_CASE.md의 지도 배경 자동 복구 절을 따른다.

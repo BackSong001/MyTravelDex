@@ -22,7 +22,7 @@ for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 live terrain after one $
  await page.getByRole('button',{name:photo?'서울 기록 · 1개 지역 확대':'서울특별시 · 1개',exact:true}).click();
  await expect(page.getByTestId('tile-surface').locator('canvas')).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer,n=(window as any).navigation.current.camera;return n?Math.abs(r.getZoom()-Math.log2(2*Math.PI*n.scale/512)):100;})).toBeLessThan(.001);
- const alignment=()=>page.evaluate(()=>{const marker=document.querySelector('[data-testid="map-photo-one"] rect')!,point=(window as any).renderer.project([126.978,37.5665]);return Math.hypot(Number(marker.getAttribute('x'))+27-point.x,Number(marker.getAttribute('y'))+24-point.y);});
+ const alignment=()=>page.evaluate(()=>{const marker=document.querySelector('[data-testid="map-photo-one"] rect');if(!marker)return Infinity;const point=(window as any).renderer.project([126.978,37.5665]);return Math.hypot(Number(marker.getAttribute('x'))+27-point.x,Number(marker.getAttribute('y'))+24-point.y);});
  await expect.poll(alignment).toBeLessThan(1);
  await page.setViewportSize({width:430,height:844});await expect.poll(alignment).toBeLessThan(1);
  await page.setViewportSize({width:390,height:844});await expect.poll(alignment).toBeLessThan(1);
@@ -45,27 +45,56 @@ for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 live terrain after one $
  await expect.poll(()=>page.getByTestId('map-photo-one').getAttribute('opacity')).toBe('1');
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);await page.screenshot({path:'/tmp/simple-map-country.png'});
 });
-test('TC-MAP-SIMPLE-001 failed terrain keeps records, and context loss preserves the SVG camera',async({page})=>{
- await page.route('**/boundary-tiles/**/*.pbf',route=>route.fulfill({status:403,body:'Unavailable'}));
- await page.reload();await page.addScriptTag({content:bundle});
- const canvas=page.getByTestId('svg-map-canvas');await canvas.focus();await page.keyboard.press('Enter');
+test('TC-MAP-SIMPLE-001 자동 복구가 실패한 타일과 WebGL 지도를 현재 위치에서 다시 그린다',async({page})=>{
+ let available=false,failed=0;
+ await page.route('**/boundary-tiles/**/*.pbf',route=>{
+  if(available)return route.fallback();
+  failed++;
+  return route.fulfill({status:503,body:'Unavailable'});
+ });
+ const canvas=page.getByTestId('svg-map-canvas');
+ await canvas.press('Enter');
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
- await expect(page.getByText('배경 지도를 불러오지 못했습니다. 기록은 계속 확인할 수 있습니다.')).toBeVisible();
+ await expect.poll(()=>failed).toBeGreaterThan(0);
  await expect.poll(()=>page.evaluate(()=>{const n=(window as any).navigation.current;return Math.abs((n.camera?.scale??0)-n.fitScale);})).toBeLessThan(.1);
- await canvas.press('+');
- const before=await page.evaluate(()=>(window as any).navigation.current.camera);
+ const before=await page.evaluate(()=>{const w=window as any;w.firstRenderer=w.renderer;return w.navigation.current.camera;});
+ const terrain=()=>page.evaluate(()=>{const r=(window as any).renderer;return r.getLayer('selected-detail-fill')&&r.queryRenderedFeatures({layers:['selected-detail-fill']}).length>0;});
+ available=true;
+ await expect.poll(terrain,{timeout:30000}).toBe(true);
+ expect(await page.evaluate(()=>(window as any).firstRenderer===(window as any).renderer)).toBe(true);
+ await page.context().setOffline(true);
  await page.getByTestId('tile-surface').locator('canvas').dispatchEvent('webglcontextlost');
- await expect(page.getByTestId('tile-surface')).toHaveCount(0);
- await expect(page.getByTestId('svg-ocean')).toHaveCount(0);
- await expect(page.getByText('배경 지도 표시를 시작하지 못했습니다. 기본 지도로 표시합니다.')).toBeVisible();
- await expect(page.locator('[data-testid^="map-region-"]')).not.toHaveCount(0);
+ await expect(page.getByTestId('map-overview-cover')).toBeVisible();
+ await expect(page.getByTestId('map-region-11')).toBeVisible();
+ await expect(page.getByRole('button',{name:'지도 다시 불러오기'})).toHaveCount(0);
+ await page.context().setOffline(false);
+ await expect(page.getByTestId('tile-surface').locator('canvas')).toBeVisible({timeout:15000});
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0,{timeout:20000});
+ await expect.poll(terrain,{timeout:30000}).toBe(true);
  expect(await page.evaluate(()=>(window as any).navigation.current.camera)).toEqual(before);
- await page.getByRole('button',{name:'지도 다시 불러오기',exact:true}).click();
- await expect(page.getByTestId('tile-surface').locator('canvas')).toBeVisible();
- expect(await page.evaluate(()=>(window as any).navigation.current.camera)).toEqual(before);
- await canvas.focus();await page.keyboard.press('Enter');
+ await canvas.press('Enter');
  await page.getByRole('button',{name:'서울 기록 · 1개 요약',exact:true}).click();
  await expect(page.getByRole('button',{name:'서울 기록 자세히 보기',exact:true})).toBeVisible();
+});
+
+test('WebGL 초기화가 다시 실패해도 로컬 지도를 유지하고 자동 복구한다',async({page})=>{
+ const surface=page.getByTestId('tile-surface');
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0,{timeout:20000});
+ await page.evaluate(()=>{
+  const getContext=HTMLCanvasElement.prototype.getContext;
+  (window as any).blockedContexts=0;
+  HTMLCanvasElement.prototype.getContext=function(this:HTMLCanvasElement,type:string,...args:any[]){
+   if(type.startsWith('webgl')&&!(window as any).allowGraphics){(window as any).blockedContexts++;return null;}
+   return (getContext as Function).call(this,type,...args);
+  } as typeof getContext;
+ });
+ await surface.locator('canvas').dispatchEvent('webglcontextlost');
+ await expect.poll(()=>page.evaluate(()=>(window as any).blockedContexts),{timeout:10000}).toBeGreaterThan(0);
+ await expect(page.getByTestId('map-region-11')).toBeVisible();
+ await expect(page.getByRole('button',{name:'지도 다시 불러오기'})).toHaveCount(0);
+ await page.evaluate(()=>{(window as any).allowGraphics=true;});
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0,{timeout:20000});
+ await expect(surface.locator('canvas')).toBeVisible();
 });
 
 test('TC-MAP-OFM-001 province fits, other photo navigation and snapshot preserve the shared detail mode',async({page})=>{
