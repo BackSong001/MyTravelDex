@@ -8,21 +8,32 @@
     <link rel="icon" type="image/png" href="/backpack-icon.png" />
     <link rel="stylesheet" href="/vendor/maplibre/maplibre-gl.css" />
     <title>%WEB_TITLE%</title>
+    <script>
+      // 최초 번들 전송이 끊겨도 시작 화면에서 복구할 수 있다.
+      window.addEventListener('error', function (event) {
+        const script = event.target;
+        if (!(script instanceof HTMLScriptElement) || !script.src.includes('/_expo/static/js/')) return;
+        const retry = document.getElementById('boot-retry');
+        if (retry) retry.hidden = false;
+      }, true);
+    </script>
     <style id="expo-reset">
       html, body { height: 100%; margin: 0; }
       body { overflow: hidden; }
       #root { display: flex; height: 100%; flex: 1; }
       .boot { margin:auto; width:150px; text-align:center; font:700 26px system-ui,sans-serif; color:#352e27; }
+      .boot button { min-height:48px; margin-top:12px; }
       .boot span { display:block; height:150px; margin-bottom:6px; }
       .boot img { width:150px; height:150px; }
       @media (prefers-reduced-motion:no-preference) {
-        .boot span { animation: arrive .52s ease-out both; }
+        .boot button { min-height:48px; margin-top:12px; }
+      .boot span { animation: arrive .52s ease-out both; }
         @keyframes arrive { from { transform:translateY(-28px) rotate(-12deg) scale(.82); } 72% { transform:translateY(3px) rotate(2deg); } }
       }
     </style>
   </head>
   <body>
     <noscript>여행가봥을 사용하려면 JavaScript를 켜 주세요.</noscript>
-    <div id="root"><div class="boot" role="status" aria-label="여행가봥 시작 중"><span><img src="/travel-splash.png" alt=""></span>여행가봥</div></div>
+    <div id="root"><div class="boot" role="status" aria-label="여행가봥 시작 중"><span><img src="/travel-splash.png" alt=""></span>여행가봥<button hidden id="boot-retry" onclick="location.reload()">연결 후 다시 열기</button></div></div>
   </body>
 </html>

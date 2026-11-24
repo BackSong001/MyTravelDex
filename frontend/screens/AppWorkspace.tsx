@@ -14,7 +14,7 @@ import React,{useEffect,useState,useRef,useMemo} from 'react';
 import Text from '../src/FontText';
 import {View,Modal,TextInput,ScrollView,Image,StyleSheet,ActivityIndicator,Vibration,Platform,Linking,AppState,AccessibilityInfo,findNodeHandle} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {router,useLocalSearchParams} from 'expo-router';
+import {router,useLocalSearchParams,type Href} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {ImagePickerAsset} from 'expo-image-picker';
 import {photoPermission,photoMetadata,compressPhoto,pickPhotos,cleanupPickedPhotos} from '../src/photos';
@@ -35,6 +35,18 @@ import {groupProvinceRecords,provinceLabels,type MapNavigation} from '../src/pro
 import {googleLogin,auth} from '../src/auth';
 import {AddPhotoIcon, Author, Backpack, Collection, JournalNav, JournalIcon, Welcome, JournalTab} from '../src/Journal';
 import {journalRecords, journalRegion, journalOrders, type JournalOrder} from '../src/journalRecords';
+
+const tabPaths: Record<JournalTab,string> = {
+ home:'/home', feed:'/feed', map:'/map', album:'/dex', account:'/my', friends:'/friends',
+};
+const recordIdPattern = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+const returnPathKey = 'travel-return-path';
+function isProtectedPath(path:string|null){return path==='/record/new'||path==='/my';}
+function takeReturnPath(){
+ const path=sessionStorage.getItem(returnPathKey);
+ sessionStorage.removeItem(returnPathKey);
+ return isProtectedPath(path)?path:null;
+}
 
 class ListLoadError extends Error {}
 
@@ -78,7 +90,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const feedSeed=useRef('');
  const feedSnapshot=useRef<PageSnapshot|null>(null),accountSnapshot=useRef<PageSnapshot|null>(null),tabScroll=useRef<Record<string,number>>({});
  const socialApi=useMemo(()=>{const client=new TravelApi(process.env.EXPO_PUBLIC_SUPABASE_URL??'http://127.0.0.1:54321',process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY??'');client.token=session?.access_token??null;return client;},[session?.access_token]);
- useEffect(()=>{let current=true;setCapabilityError('');void socialApi.rpc('social_capabilities',{}).then(()=>{if(current)setSocialSupported(true);}).catch(e=>{if(!current)return;if(e.status===404||e.serverCode==='PGRST202')setSocialSupported(false);else setCapabilityError('소셜 서버 상태를 확인하지 못했어요. 입력을 유지한 채 다시 확인할 수 있어요.');});return()=>{current=false;};},[socialApi,capabilityAttempt]);
+ useEffect(()=>{if(!authReady)return;let current=true;setCapabilityError('');void socialApi.rpc('social_capabilities',{}).then(()=>{if(current)setSocialSupported(true);}).catch(e=>{if(!current)return;if(e.status===404||e.serverCode==='PGRST202')setSocialSupported(false);else setCapabilityError('소셜 서버 상태를 확인하지 못했어요. 입력을 유지한 채 다시 확인할 수 있어요.');});return()=>{current=false;};},[authReady,socialApi,capabilityAttempt]);
  const socialEpoch=sessionEpoch.current;
  function socialChanged(discardFeed=false){if(socialEpoch!==sessionEpoch.current)return;if(discardFeed)feedSnapshot.current=null;setSocialRevision(x=>x+1);void latestLoad.current().catch(()=>{});}
  const googleIdentity=session?.user?.identities?.find((identity:{provider:string})=>identity.provider==='google')?.identity_data;
@@ -424,11 +436,10 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const sectionTitle=screen==='account'?'My':rail&&screen==='list'&&tab==='home'?'나의 여행일기':'여행가봥';
 
  const [drawerRoute,setDrawerRoute]=useState<'menu'|'discovery'|null>(null);
- const pathForTab:Record<JournalTab,string>={home:'/home',feed:'/feed',map:'/map',album:'/dex',account:'/my',friends:'/friends'};
  const regionPath=tab==='album'&&(districtFilter||provinceFilter);
  const viewPath=drawerRoute==='menu'?'/settings':drawerRoute==='discovery'?'/explore/random':
   screen==='unavailable'?pathname:screen==='login'?'/login':screen==='account'?'/my':screen==='create'?'/record/new':
-  (screen==='detail'||screen==='confirm')&&selected?'/record/'+selected.id:regionPath?'/dex/'+regionPath:pathForTab[tab];
+  (screen==='detail'||screen==='confirm')&&selected?'/record/'+selected.id:regionPath?'/dex/'+regionPath:tabPaths[tab];
  const lastAddress=useRef<string|null>(null),sentAddress=useRef<string|null>(null),lastView=useRef(''),returnOwner=useRef<string|null>(null);
  useEffect(()=>{
   if(!pathname||!authReady)return;
@@ -438,16 +449,15 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
    lastAddress.current=pathname;lastView.current=viewPath;
    if(sentAddress.current===pathname){sentAddress.current=null;return;}
    sentAddress.current=null;
-   const replace=(next:string)=>{router.replace(next as never);};
+   const replace=(next:string)=>router.replace(next as Href);
    if(pathname==='/'){
-    if(typeof sharedRecord==='string'){replace('/record/'+encodeURIComponent(sharedRecord));return;}
+    if(sharedRecord){replace(typeof sharedRecord==='string'&&recordIdPattern.test(sharedRecord)?'/record/'+sharedRecord:'/not-found');return;}
     if(isUserId(friend)){replace('/friends?friend='+encodeURIComponent(friend!));return;}
-    const requested=owner?sessionStorage.getItem('travel-return-path'):null;
-    if(owner)sessionStorage.removeItem('travel-return-path');
-    replace(inviteCode?'/friends':requested&&['/record/new','/my','/friends'].includes(requested)?requested:owner?'/home':'/login');return;
+    const requested=owner?takeReturnPath():null;
+    replace(inviteCode?'/friends':requested??(owner?'/home':'/login'));return;
    }
-   if(!owner&&['/my','/record/new'].includes(pathname)){
-    sessionStorage.setItem('travel-return-path',pathname);replace('/login');return;
+   if(!owner&&isProtectedPath(pathname)){
+    sessionStorage.setItem(returnPathKey,pathname);replace('/login');return;
    }
    if(pathname==='/settings'||pathname==='/explore/random'){
     if(screen!=='list'||!['map','home'].includes(tab))navigate('home');
@@ -456,7 +466,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
    setDrawerRoute(null);
    if(pathname==='/login'){cancelDetailRead();if(owner)replace('/home');else setScreen('login');return;}
    if(pathname==='/record/new'){startCreate();return;}
-   if(/^\/record\/[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(pathname)){
+   if(pathname.startsWith('/record/')&&recordIdPattern.test(pathname.slice(8))){
     lastView.current='/feed';setTab('feed');setScreen('list');readDetail({id:pathname.slice(8)},'feed');return;
    }
    if(pathname.startsWith('/dex/')){
@@ -465,7 +475,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
      navigate('album');setProvinceFilter(district?legacyCodes[district.properties.parentCode!]??'':provinceLabels[code]?code:'');setDistrictFilter(district||code==='other'?code:'');return;
     }
    }
-   const next=(Object.keys(pathForTab) as JournalTab[]).find(t=>pathForTab[t]===pathname);
+   const next=(Object.keys(tabPaths) as JournalTab[]).find(t=>tabPaths[t]===pathname);
    if(next){
     if(screen==='detail'&&next===detailOrigin.current.screen)returnFromDetail();else navigate(next);
     if(next==='album'){setProvinceFilter('');setDistrictFilter('');}
@@ -476,8 +486,11 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   lastView.current=viewPath;
   if(viewPath!==pathname){
    sentAddress.current=viewPath;
-   if(ownerChanged&&owner){const requested=sessionStorage.getItem('travel-return-path');sessionStorage.removeItem('travel-return-path');if(requested==='/record/new'||requested==='/my'){sentAddress.current=null;router.replace(requested as never);return;}}
-   if(ownerChanged||screen==='login')router.replace(viewPath as never);else router.push(viewPath as never);
+   if(ownerChanged&&owner){
+    const requested=takeReturnPath();
+    if(requested){sentAddress.current=null;router.replace(requested as Href);return;}
+   }
+   if(ownerChanged||screen==='login')router.replace(viewPath as Href);else router.push(viewPath as Href);
   }
  },[pathname,viewPath,authReady,session?.user.id]);
  const settings=<AppSettings routePane={Platform.OS==='web'?drawerRoute:undefined} onRoutePane={Platform.OS==='web'?setDrawerRoute:undefined} key={session?.user.id??'guest'} hideTrigger={mapHome} drawRequest={drawRequest} records={ownRows} failed={!!listError}

@@ -162,9 +162,15 @@ test('feed stays visible while likes and periodic visibility checks are pending'
    await expect.poll(()=>pending).toBe(true);
    expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
    await expect(card.getByText('2 / 2')).toBeVisible();
+   const photosChecked=reason==='like'?page.waitForResponse(response=>{
+    const url=new URL(response.url());
+    return url.pathname==='/rest/v1/public_photos'&&url.searchParams.get('travel_record_id')==='eq.'+trip.id;
+   }):null;
    release();
-   if(reason==='like')await expect(card.getByRole('button',{name:'좋아요 취소'})).toBeVisible();
-   else await expect(card).toHaveCount(0);
+   if(photosChecked){
+    expect((await (await photosChecked).json()).length).toBe(2);
+    await expect(card.getByRole('button',{name:'좋아요 취소'})).toBeVisible();
+   }else await expect(card).toHaveCount(0);
   }finally{release();await page.unroute(path);}
  }
 });
@@ -300,4 +306,27 @@ test('home shortcuts open real destinations and each map entry shows the backpac
   else {await expect(page.getByRole('button',{name:'사진 목록',exact:true})).toBeVisible();break;}
   await page.getByRole('tab',{name:'홈',exact:true}).click();
  }
+});
+
+test('로그인 후 요청한 My로 복귀하고 로그아웃 후에는 내 도감 기록을 지운다',async({page})=>{
+ await page.goto('/my');
+ await expect(page).toHaveURL(/\/login$/);
+ await page.getByLabel('이메일',{exact:true}).fill(viewer.email);
+ await page.getByLabel('비밀번호',{exact:true}).fill(viewer.password);
+ await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();
+ await expect(page).toHaveURL(/\/my$/);
+ await expect(page.getByRole('button',{name:'프로필 편집',exact:true})).toBeVisible();
+ await page.reload();
+ await expect(page.getByRole('button',{name:'프로필 편집',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'설정',exact:true}).click();
+ await expect(page).toHaveURL(/\/settings$/);
+ await page.getByRole('button',{name:'스탬프 도감',exact:true}).click();
+ await expect(page.getByTestId('stamp-total')).toBeVisible();
+ await page.goto('/settings');
+ await page.getByRole('button',{name:'계정 관리',exact:true}).click();
+ await page.getByRole('button',{name:'로그아웃',exact:true}).click();
+ await expect(page).toHaveURL(/\/login$/);
+ await page.goto('/record/'+ownRecord.id);
+ await expect(page.getByText('기록을 찾을 수 없습니다.').first()).toBeVisible();
+ await expect(page.getByText(ownRecord.title,{exact:true})).toHaveCount(0);
 });

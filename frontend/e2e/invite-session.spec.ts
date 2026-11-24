@@ -3,6 +3,7 @@ import {build} from 'esbuild';
 import path from 'node:path';
 
 let bundle='';
+test.beforeEach(({page})=>{page.on('pageerror',error=>{throw error;});});
 test.beforeAll(async()=>{
  const root=path.resolve('.'),react=path.resolve('frontend/node_modules/react/index.js');
  const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};
@@ -12,7 +13,7 @@ test.beforeAll(async()=>{
   '../src/Feedback':`export {Pressable as default} from 'react-native';`,
   'react-native':`import React from '${react}';
    const container=tag=>React.forwardRef(({children,onPress,accessibilityLabel},ref)=>React.createElement(tag,{ref,onClick:onPress,'aria-label':accessibilityLabel},children));
-   export const View=container('div'),Text=container('span'),TextInput=container('input'),Pressable=container('button'),ScrollView=container('div'),Image=container('img'),ActivityIndicator=container('span');
+   export const Modal=({visible,children})=>visible?children:null,Vibration={vibrate(){}},View=container('div'),Text=container('span'),TextInput=container('input'),Pressable=container('button'),ScrollView=container('div'),Image=container('img'),ActivityIndicator=container('span');
    export const useWindowDimensions=()=>({width:390,height:844,fontScale:1});export const Platform={OS:'android'},Linking={},AppState={addEventListener:()=>({remove(){}})},AccessibilityInfo={},findNodeHandle=()=>null,StyleSheet={create:x=>x};`,
   'react-native-safe-area-context':`export {View as SafeAreaView} from 'react-native';`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({friend:'22222222-2222-4222-8222-222222222222'});`,
@@ -39,7 +40,7 @@ test.beforeAll(async()=>{
    export const JournalNav=({tab,onTab})=>React.createElement('nav',null,React.createElement('span',{'data-testid':'current-tab'},tab),React.createElement('button',{onClick:()=>onTab('account')},'account'));`,
  };
  const compiled=await build({stdin:{resolveDir:root,contents:`import React from './frontend/node_modules/react/index.js';import {createRoot} from './frontend/node_modules/react-dom/client.js';import Home from './frontend/screens/AppWorkspace.tsx';createRoot(document.getElementById('root')).render(React.createElement(Home));`,loader:'js'},
-  bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"'},plugins:[{name:'native-boundaries',setup(builder){
+  bundle:true,write:false,format:'iife',platform:'browser',define:{'process.env.EXPO_PUBLIC_APP_ENV':'"local"','process.env.EXPO_PUBLIC_SUPABASE_URL':'"http://127.0.0.1:54321"','process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY':'""'},plugins:[{name:'native-boundaries',setup(builder){
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
     if(args.path==='../src/FontText')return {path:path.resolve('frontend/src/FontText.tsx'),namespace:'file'};

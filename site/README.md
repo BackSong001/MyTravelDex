@@ -28,3 +28,5 @@ python3 -m http.server 8090 --bind 127.0.0.1 --directory site
 Google Search Console과 Bing Webmaster Tools에서 진행 중인 확인 상태를 확인한다. 기존 등록한 네이버 서치어드바이저를 포함하여 세 콘솔에 https://mytraveldex.pages.dev/sitemap.xml 을 제출한다. 인증 파일 이름과 본문을 유지한다. Pages Preview와 운영에서 봇 차단·챌린지가 발생하면 Cloudflare의 AI Crawl Control/WAF를 확인한다.
 
 GA4를 시작할 때 운영자의 웹 데이터 스트림에서 공개 G- 측정 ID를 analytics.js에 설정한다. Google Signals와 자동 외부 링크 측정은 사용하지 않고 동의 후 DebugView에서 web_app_open을 확인한다. 스토어 배포 시 검증한 링크를 추가하고 store_download_click을 따로 확인한다.
+
+robots.txt의 기본 허용 그룹은 Googlebot·Yeti·bingbot·OAI-SearchBot·Claude-SearchBot에 적용된다. GPTBot과 ClaudeBot은 별도로 제한한다. Google-Extended는 Gemini의 답변 근거 제공에도 쓰여 허용했다. 웹앱의 모든 화면에는 별도로 noindex가 적용된다. 홍보 사이트의 사이트맵에는 사용자 기록 URL이 들어가지 않는다.

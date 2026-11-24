@@ -769,3 +769,6 @@ osm-test의 FR-MAP-OSM-001 / TC-MAP-OSM-001은 docs/OSM_TEST.md의 단일 지도
 FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해외 육지 윤곽 표시는 [OSM 지도 계약](docs/OSM_TEST.md)을 따른다. Photon 서버 권한·요청 계약은 유지한다.
 
 약관 공개 문서는 legal/에서 관리한다. 공개 연락처와 서비스 실제 동작을 대조하고 [대한민국 스토어 등록 가이드](docs/STORE_RELEASE_KR.md)에 따라 데이터 보안·로그인 심사·삭제 경로를 확인한다. 심사 계정의 비밀번호는 문서에 기록하지 않는다.
+
+## 홍보 사이트와 웹앱의 공개 주소
+홍보 콘텐츠는 `site/generate.py`와 생성된 정적 HTML을 함께 관리한다. Cloudflare Pages 운영 홍보 사이트의 sitemap과 인증 파일을 보존하고, 웹앱은 모든 경로에 noindex를 적용한다. 웹 경로 회귀는 `ROUTING_BASE_URL`에 Expo Web 정적 결과 또는 Pages Preview 주소를 지정해 `npx playwright test workspace-routes`로 실행한다. 인증 상태를 바꾸는 시험은 격리된 Local에서 실행한다.

@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {createHash} from 'node:crypto';
+test.use({baseURL:process.env.OAUTH_TEST_BASE_URL || 'http://127.0.0.1:8082'});
 const user={id:'00000000-0000-4000-8000-000000000031',email:'oauth-fixture@example.test',aud:'authenticated',role:'authenticated',app_metadata:{provider:'google'},user_metadata:{},created_at:'2026-01-01T00:00:00Z'};
 const token=[{alg:'HS256',typ:'JWT'},{sub:user.id,role:'authenticated',aud:'authenticated',exp:Math.floor(Date.now()/1000)+3600},{fixture:true}].map(value=>Buffer.from(JSON.stringify(value)).toString('base64url')).join('.');
 test.beforeEach(async({page})=>{
@@ -34,11 +35,14 @@ test('TC-WEB-OAUTH-001: installed SDK persists PKCE, exchanges at the same origi
  async function expectSignedIn() {
   await page.getByRole('tab',{name:'My',exact:true}).click();
   await page.getByRole('button',{name:'설정',exact:true}).click();
+  await page.getByRole('button',{name:'계정 관리',exact:true}).click();
   await expect(page.getByRole('button',{name:'로그아웃',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'설정 닫기',exact:true}).click();
+  await expect(page).toHaveURL(/\/my$/);
  }
  let challenge='',exchanges=0,redirectOrigin='';
  await page.route('**/auth/v1/authorize?**',async route=>{
-  const url=new URL(route.request().url());expect(url.origin).toBe('http://127.0.0.1:54321');expect(url.searchParams.get('provider')).toBe('google');challenge=url.searchParams.get('code_challenge')!;expect(challenge).toBeTruthy();
+  const url=new URL(route.request().url());expect(['http://127.0.0.1:54321','http://127.0.0.1:55321']).toContain(url.origin);expect(url.searchParams.get('provider')).toBe('google');challenge=url.searchParams.get('code_challenge')!;expect(challenge).toBeTruthy();
   const callback=new URL(url.searchParams.get('redirect_to')!);redirectOrigin=callback.origin;expect(callback.pathname).toBe('/auth/callback');callback.searchParams.set('code','fixture-oauth-code');await route.fulfill({status:302,headers:{location:callback.href}});
  });
  await page.route('**/auth/v1/token?grant_type=pkce',async route=>{
