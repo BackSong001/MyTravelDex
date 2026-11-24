@@ -6,6 +6,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import {File} from 'expo-file-system';
 import Text from './FontText';
 import Avatar from './Avatar';
+import {feedTimestamp} from './feedTimestamp';
 import ProfilePreview from './ProfilePreview';
 import {JournalIcon} from './Journal';
 import Pressable from './Feedback';
@@ -13,11 +14,35 @@ import type {TravelApi} from './api';
 import {Action,IconAction,Notice,PageTail,SocialAvatar,SocialModal,SocialPhoto,failure,socialStyles as s,useSocialPage,type PageSnapshot} from './SocialUI';
 type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:()=>void;onLogin:()=>void;onOpen:(record:any)=>void};
 type Overlay={kind:'comments'|'profile'|'report'|'search'|'notifications'|'people';id?:string;record?:any;target?:'record'|'comment'|'profile';people?:string};
-export default function SocialFeed(props:Props&{snapshot:React.MutableRefObject<PageSnapshot|null>}){
+export default function SocialFeed(props:Props&{seed:React.MutableRefObject<string>;snapshot:React.MutableRefObject<PageSnapshot|null>}){
  const [mode,setMode]=useState(props.snapshot.current?.key?.includes('social_saved')?'saved':props.snapshot.current?.key?.includes('following')?'following':'public'),[overlay,setOverlay]=useState<Overlay|null>(null),[actionError,setActionError]=useState('');
- const page=useSocialPage(props.api,mode==='saved'?'social_saved':'social_feed',mode==='saved'?{}:{mode},props.revision,props.snapshot);
+ const [seed,setSeed]=useState(()=>props.seed.current||(props.seed.current=Crypto.randomUUID()));
+ const page=useSocialPage(props.api,mode==='saved'?'social_saved':'social_ranked_feed',mode==='saved'?{}:{mode,seed},props.revision,props.snapshot);
+ const scrollY=useRef(0),pull=useRef<{x:number;y:number}|null>(null);
+ function refresh(){
+  if(page.loading)return;
+  props.snapshot.current=null;
+  if(mode==='saved'){void page.load();return;}
+  props.seed.current=Crypto.randomUUID();
+  setSeed(props.seed.current);
+ }
+ function startPull(x:number,y:number){pull.current=scrollY.current<=1&&!page.loading?{x,y}:null;}
+ function endPull(x:number,y:number){
+  const start=pull.current;pull.current=null;
+  if(start&&scrollY.current<=1&&y-start.y>=72&&y-start.y>Math.abs(x-start.x)*1.5)refresh();
+ }
+ const webPull=Platform.OS==='web'?{
+  onTouchStart:(e:any)=>{const t=e.nativeEvent.touches;if(t.length===1)startPull(t[0].pageX,t[0].pageY);else pull.current=null;},
+  onTouchEnd:(e:any)=>{const t=e.nativeEvent.changedTouches[0];if(t)endPull(t.pageX,t.pageY);},
+  onTouchCancel:()=>{pull.current=null;},
+  onMouseDown:(e:any)=>{if(e.nativeEvent.button===0)startPull(e.nativeEvent.pageX,e.nativeEvent.pageY);},
+  onMouseUp:(e:any)=>endPull(e.nativeEvent.pageX,e.nativeEvent.pageY),
+  onMouseLeave:()=>{pull.current=null;},
+ }:{};
+ const [now,setNow]=useState(()=>new Date());
+ useEffect(()=>{const timer=setInterval(()=>setNow(new Date()),60000);return()=>clearInterval(timer);},[]);
  const list=useRef<FlatList>(null);
- useEffect(()=>{if(!page.loading&&page.items.length)list.current?.scrollToOffset({offset:props.snapshot.current?.offset??0,animated:false});},[page.loading]);
+ useEffect(()=>{if(!page.refreshing&&page.items.length)list.current?.scrollToOffset({offset:props.snapshot.current?.offset??0,animated:false});},[page.refreshing]);
  return <View style={{flex:1,width:'100%',maxWidth:512,alignSelf:'center',backgroundColor:'#fff'}}>
   <View style={[s.row,{paddingHorizontal:8,gap:0,borderBottomWidth:1,borderColor:'#E7E8EA'}]}>
    {([['public','발견'],['following','팔로잉'],['saved','저장됨']] as const).map(([value,label])=><Pressable key={value} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:mode===value}}
@@ -28,11 +53,17 @@ export default function SocialFeed(props:Props&{snapshot:React.MutableRefObject<
    <View style={{flex:1}}/><IconAction icon="search" label="검색" onPress={()=>props.owner?setOverlay({kind:'search'}):props.onLogin()}/><IconAction icon="bell" label="알림" onPress={()=>props.owner?setOverlay({kind:'notifications'}):props.onLogin()}/>
   </View>
   {!!actionError&&<Notice message={actionError}/>}
-  <FlatList ref={list} testID="social-feed" data={page.items} keyExtractor={r=>r.id} initialNumToRender={3} maxToRenderPerBatch={3} windowSize={5} onScroll={e=>{if(!page.loading&&props.snapshot.current)props.snapshot.current.offset=e.nativeEvent.contentOffset.y;}} scrollEventThrottle={100} keyboardShouldPersistTaps="handled" refreshing={page.loading} onRefresh={()=>{props.onChanged();}} renderItem={({item})=><FeedCard {...props} record={item} onOverlay={setOverlay} onError={setActionError}/>} ListFooterComponent={<PageTail page={page}/>}/>
+  <FlatList {...webPull} style={Platform.OS==='web'?{overscrollBehaviorY:'contain'} as any:undefined} ref={list} testID="social-feed" data={page.items} keyExtractor={r=>r.id} initialNumToRender={3} maxToRenderPerBatch={3} windowSize={5} onScroll={e=>{
+   const {contentOffset,contentSize,layoutMeasurement}=e.nativeEvent;
+   scrollY.current=contentOffset.y;
+   if(!page.refreshing&&props.snapshot.current)props.snapshot.current.offset=contentOffset.y;
+   const remaining=contentSize.height-contentOffset.y-layoutMeasurement.height;
+   if(remaining<=layoutMeasurement.height*0.6&&page.cursor&&!page.loading&&!page.error)void page.load(true);
+  }} scrollEventThrottle={100} keyboardShouldPersistTaps="handled" refreshing={page.refreshing} onRefresh={refresh} renderItem={({item})=><FeedCard {...props} now={now} record={item} onOverlay={setOverlay} onError={setActionError}/>} ListFooterComponent={<PageTail page={page} automatic/>}/>
   {overlay&&<SocialOverlay {...props} overlay={overlay} onClose={()=>setOverlay(null)} onOverlay={setOverlay}/>}
  </View>;
 }
-function FeedCard(props:Props&{record:any;onOverlay:(v:Overlay)=>void;onError:(s:string)=>void}){
+function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;onError:(s:string)=>void}){
  const {record,api}=props,[photos,setPhotos]=useState<any[]>([]),[photoIndex,setPhotoIndex]=useState(0),[expanded,setExpanded]=useState(false),[busy,setBusy]=useState(false),guard=useRef(false),alive=useRef(true);
  const initialWidth=useWindowDimensions().width;
  const [width,setWidth]=useState(Math.min(initialWidth,512));
@@ -41,15 +72,19 @@ function FeedCard(props:Props&{record:any;onOverlay:(v:Overlay)=>void;onError:(s
  function showPhoto(index:number){strip.current?.scrollTo({x:index*width,animated:false});setPhotoIndex(index);}
  useEffect(()=>{strip.current?.scrollTo({x:photoIndex*width,animated:false});},[width]);
  useEffect(()=>{alive.current=true;setPhotos([]);setPhotoIndex(0);let active=true;void api.request('/rest/v1/public_photos?'+new URLSearchParams({travel_record_id:`eq.${record.id}`,select:'id,is_cover,display_order',order:'is_cover.desc,display_order.asc,id.asc'})).then(rows=>{if(active)setPhotos(rows);}).catch(e=>{if(active)props.onError(failure(e));});return()=>{active=false;alive.current=false;};},[api,record.id,props.revision]);
- async function reaction(kind:'like'|'save'){
+ async function reaction(kind:'like'|'save'|'follow'){
   if(!props.owner){props.onLogin();return;}if(guard.current)return;guard.current=true;setBusy(true);props.onError('');
-  try{await api.rpc('social_set_reaction',{record_id:record.id,kind,enabled:!(kind==='like'?record.liked:record.saved)});props.onChanged();}catch(e){if(alive.current)props.onError(failure(e));}finally{if(alive.current)setBusy(false);guard.current=false;}
+  try{
+   if(kind==='follow')await api.rpc('social_set_follow',{target_id:record.owner_id,enabled:!record.following});
+   else await api.rpc('social_set_reaction',{record_id:record.id,kind,enabled:!(kind==='like'?record.liked:record.saved)});
+   props.onChanged();
+  }catch(e){if(alive.current)props.onError(failure(e));}finally{if(alive.current)setBusy(false);guard.current=false;}
  }
  return <View testID={`feed-record-${record.id}`} style={{borderBottomWidth:1,borderColor:'#E7E8EA',paddingBottom:10}}>
   <View style={[s.row,{paddingHorizontal:12,paddingVertical:4}]}>
    <Pressable accessibilityRole="button" accessibilityLabel={`${record.author?.display_name||'여행자'} 프로필`} onPress={()=>props.onOverlay({kind:'profile',id:record.owner_id})} style={[s.row,{flex:1}]}>
-    <SocialAvatar api={api} author={record.author} size={36}/><View style={{flex:1}}><Text style={[s.text,{fontWeight:'700'}]}>{record.author?.display_name||'여행자'}</Text><Text style={s.muted}>{record.start_date}{record.end_date!==record.start_date&&' — '+record.end_date}</Text></View>
-   </Pressable><IconAction icon="more" label="더보기" onPress={()=>props.owner?props.onOverlay({kind:'report',id:record.id,target:'record',record}):props.onLogin()}/>
+    <SocialAvatar api={api} author={record.author} size={36}/><View style={{flex:1}}><View style={{flexDirection:'row',alignItems:'baseline',flexWrap:'wrap',columnGap:6}}><Text style={[s.text,{fontWeight:'700'}]}>{record.author?.display_name||'여행자'}</Text>{!!record.created_at&&<Text style={s.muted}>· {feedTimestamp(record.created_at,props.now)}</Text>}</View><Text style={s.muted}>여행 {record.start_date}{record.end_date!==record.start_date&&' — '+record.end_date}</Text></View>
+   </Pressable>{record.owner_id!==props.owner&&<Pressable accessibilityRole="button" accessibilityLabel={record.following?'팔로우 취소':'팔로우'} disabled={busy||(!!props.owner&&record.following===undefined)} onPress={()=>void reaction('follow')} style={{minHeight:48,justifyContent:'center',paddingHorizontal:4}}><Text style={{fontSize:14,fontWeight:'600',color:record.following?'#62666B':'#146C80'}}>{record.following?'팔로잉':'팔로우'}</Text></Pressable>}<IconAction icon="more" label="더보기" onPress={()=>props.owner?props.onOverlay({kind:'report',id:record.id,target:'record',record}):props.onLogin()}/>
   </View>
   <View onLayout={e=>{const w=e.nativeEvent.layout.width;if(w>0)setWidth(w);}} style={{width:'100%',aspectRatio:4/5,overflow:'hidden'}}>
    <ScrollView horizontal pagingEnabled ref={strip} showsHorizontalScrollIndicator={false} scrollEventThrottle={32}

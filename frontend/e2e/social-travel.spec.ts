@@ -35,6 +35,65 @@ test('TC-SNS-001 five tabs, dashboard, private puzzle and map compose preserve t
  await page.getByRole('tab',{name:'지도',exact:true}).click();await expect(page.getByTestId('svg-map-canvas')).toBeVisible();await expect(page.getByRole('button',{name:'지도 확대',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'설정',exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'여행 기록 추가',exact:true}).click();await startPhotoInfo(page);await page.getByLabel('여행 이름',{exact:true}).fill('이어 쓰는 일기');await page.getByRole('button',{name:'잠시 접기',exact:true}).click();await page.getByRole('tab',{name:'홈',exact:true}).click();await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();await expect(page.getByLabel('여행 이름',{exact:true})).toHaveValue('이어 쓰는 일기');
 });
+test('discover includes unfollowed authors and card follow updates the following feed',async({page})=>{
+ await login(page);await page.getByRole('tab',{name:'피드',exact:true}).click();
+ const card=page.getByTestId('feed-record-'+publicRecord.id);
+ await card.getByRole('button',{name:'팔로우',exact:true}).click();
+ await expect(card.getByRole('button',{name:'팔로우 취소'})).toBeVisible();
+ await page.getByRole('button',{name:'팔로잉',exact:true}).click();
+ await card.getByRole('button',{name:'팔로우 취소'}).click();
+ await expect(card).toHaveCount(0);
+ await page.getByRole('button',{name:'발견',exact:true}).click();
+ await expect(card.getByRole('button',{name:'팔로우',exact:true})).toBeVisible();
+ await expect(page.getByTestId('feed-record-'+privateRecord.id)).toHaveCount(0);
+});
+test('scrolling the feed appends one page at a time and stops at the end',async({page})=>{
+ const ids=Array.from({length:6},()=>randomUUID());
+ const rows=ids.map((id,index)=>({id,owner_id:author.id,author:{display_name:'여행자'},title:'여행 '+index,created_at:new Date().toISOString()}));
+ let calls=0,release!:()=>void;
+ const pending=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/rpc/social_ranked_feed',async route=>{
+  calls++;
+  const more=route.request().postDataJSON().after_cursor;
+  if(more)await pending;
+  await route.fulfill({json:{items:more?rows.slice(3):rows.slice(0,3),next_cursor:more?null:{page:2}}});
+ });
+ await login(page);await page.getByRole('tab',{name:'피드',exact:true}).click();
+ const list=page.getByTestId('social-feed');
+ await expect(page.getByTestId('feed-record-'+ids[0])).toBeVisible();
+ await expect(list.getByRole('button',{name:'더 보기',exact:true})).toHaveCount(0);
+ await list.hover();await page.mouse.wheel(0,2400);
+ await expect.poll(()=>calls).toBe(2);
+ const before=await list.evaluate(e=>e.scrollTop);expect(before).toBeGreaterThan(0);
+ release();await expect(page.getByTestId('feed-record-'+ids[3])).toBeAttached();
+ expect(await list.evaluate(e=>e.scrollTop)).toBeGreaterThanOrEqual(before-1);
+ await page.mouse.wheel(0,3000);await expect(page.getByTestId('feed-record-'+ids[5])).toBeInViewport();
+ expect(calls).toBe(2);
+});
+test('pulling the feed from its top requests a new order and keeps trip dates separate',async({page})=>{
+ const seeds:string[]=[];
+ page.on('request',r=>{if(r.url().endsWith('/rpc/social_ranked_feed'))seeds.push(r.postDataJSON().seed);});
+ await login(page);
+ await page.getByRole('tab',{name:'피드',exact:true}).click();
+ const card=page.getByTestId('feed-record-'+publicRecord.id);
+ await expect(card.getByText('· 방금 전')).toBeVisible();
+ await expect(card.getByText('여행 2026-11-01 — 2026-11-02')).toBeVisible();
+ const box=(await page.getByTestId('social-feed').boundingBox())!;
+ const before=seeds.at(-1);
+ await page.mouse.move(box.x+4,box.y+8);await page.mouse.down();
+ await page.mouse.move(box.x+5,box.y+108,{steps:8});await page.mouse.up();
+ await expect.poll(()=>seeds.at(-1)).not.toBe(before);
+ await expect(card).toBeVisible();
+ const afterMouse=seeds.at(-1);
+ const touch=await page.context().newCDPSession(page);
+ await touch.send('Emulation.setTouchEmulationEnabled',{enabled:true});
+ const point={x:Math.round(box.x+4),y:Math.round(box.y+8)};
+ await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});
+ await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...point,y:point.y+100}]});
+ await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ await expect.poll(()=>seeds.at(-1)).not.toBe(afterMouse);
+ await expect(card).toBeVisible();
+});
 test('TC-SNS-002 live public feed, like/save, comments and reply survive refresh without private leaks',async({page})=>{
  await login(page);await feed(page);await expect(page.getByTestId('social-feed')).toHaveCount(1);const photo=page.getByTestId('feed-record-'+publicRecord.id).getByRole('button',{name:'함께 보는 서울 상세 보기',exact:true}).first();const frame=await photo.boundingBox();expect(frame!.y).toBeLessThanOrEqual(150);expect(frame!.height/frame!.width).toBeCloseTo(1.25,1);await page.screenshot({path:'/tmp/sns-feed-mobile.png'});await expect(page.getByText('비공개 서울',{exact:true})).toHaveCount(0);const card=page.getByTestId('feed-record-'+publicRecord.id);
  await card.getByRole('button',{name:'좋아요',exact:true}).click();await expect(card.getByRole('button',{name:'좋아요 취소',exact:true})).toBeVisible();await expect(page.getByTestId('social-feed')).toHaveCount(1);await card.getByRole('button',{name:'저장',exact:true}).click();await expect(card.getByRole('button',{name:'저장 취소',exact:true})).toBeVisible();

@@ -26,7 +26,7 @@ for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 live terrain after one $
  await expect.poll(alignment).toBeLessThan(1);
  await page.setViewportSize({width:430,height:844});await expect.poll(alignment).toBeLessThan(1);
  await page.setViewportSize({width:390,height:844});await expect.poll(alignment).toBeLessThan(1);
- await expect.poll(()=>page.evaluate(()=>{const b=(window as any).areaBounds(),h=document.querySelector('[data-testid=svg-map-canvas]')!.getBoundingClientRect();return Math.max(-b[0],-b[1],b[2]-h.width,b[3]-h.height);})).toBeLessThan(1);
+ await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
  await terrain.catch(async e=>{await test.info().attach('terrain-status',{body:JSON.stringify(responses),contentType:'application/json'});throw e;});
  await expect.poll(()=>page.evaluate(()=>(window as any).renderer.queryRenderedFeatures({layers:['water','river','province-overview','domestic-land']}).length)).toBeGreaterThan(0);
  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return !!r?.getStyle()?.sources?.world&&r.isStyleLoaded()&&r.areTilesLoaded();}),{timeout:30000}).toBe(true);
@@ -76,14 +76,20 @@ test('TC-MAP-OFM-001 province fits, other photo navigation and snapshot preserve
  const finder=async()=>{await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');};
  for(const name of ['부산광역시','경상남도','경기도','제주특별자치도']){
   await finder();await page.getByRole('button',{name:new RegExp('^'+name+' ·')}).click();
-  await expect.poll(()=>page.evaluate(()=>{const a=(window as any).areaBounds(),b=document.querySelector('[data-testid=svg-map-canvas]')!.getBoundingClientRect();return Math.max(-a[0],a[2]-b.width,-a[1],a[3]-b.height);})).toBeLessThan(1);
+ await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
   await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
   await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return !!r?.getStyle()?.sources?.world&&r.isStyleLoaded()&&r.areTilesLoaded();}),{timeout:30000}).toBe(true);
   await expect.poll(()=>page.evaluate(()=>(window as any).renderer.queryRenderedFeatures({layers:['water','river','province-overview','domestic-land']}).length)).toBeGreaterThan(0);
  }
- // 경남 전체 보기에서 보이는 부산 사진은 최초 선택 때 요약 대신 부산 전체로 이동한다.
+ // 경남 선택을 유지하고 부산 사진이 보이는 위치까지 이동한다.
  await finder();await page.getByRole('button',{name:'경상남도 · 1개',exact:true}).click();
  await expect(page.getByTestId('map-region-name')).toHaveText('경상남도');
+ const box=(await page.getByTestId('svg-map-canvas').boundingBox())!;
+ for(let i=0;i<30&&!await page.getByTestId('map-photo-busan').count();i++){
+  const offset=await page.evaluate(()=>{const r=(window as any).renderer,p=r.project([129.0756,35.1796]);return [r.getCanvas().clientWidth/2-p.x,r.getCanvas().clientHeight/2-p.y];});
+  const x=box.x+box.width/2,y=box.y+box.height/2;
+  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+Math.max(-140,Math.min(140,offset[0])),y+Math.max(-180,Math.min(180,offset[1])),{steps:2});await page.mouse.up();
+ }
  await finder();await page.getByRole('button',{name:'부산 기록 · 1개 지역 확대',exact:true}).click();
  await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
  await expect(page.getByTestId('map-region-name')).toHaveText('부산광역시');
@@ -146,6 +152,7 @@ test('TC-MAP-READABILITY-001 remote island photos and geometry share targets, sn
  await finder();await page.getByRole('button',{name:'섬 기록 · 1개 요약',exact:true}).click();await expect(page.getByRole('button',{name:'섬 기록 자세히 보기',exact:true})).toBeVisible();
  const snapshot=await page.evaluate(()=>(window as any).navigation.current);await page.evaluate(()=>(window as any).hide());await expect(canvas).toHaveCount(0);await page.evaluate(()=>(window as any).update({}));await expect(page.getByRole('button',{name:'섬 기록 자세히 보기',exact:true})).toBeVisible();expect(await page.evaluate(()=>(window as any).navigation.current)).toEqual(snapshot);
  await page.getByRole('button',{name:'닫기',exact:true}).click();await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();expect(await page.evaluate(()=>(window as any).navigation.current.island)).toBeNull();
+ await page.evaluate(()=>(window as any).update({records:[{id:'ulleung',title:'섬 기록',status:'complete',locations:{latitude:37.4845,longitude:130.9057}}]}));
  const photo=await page.getByTestId('map-photo-ulleung').boundingBox();await page.mouse.click(photo!.x+photo!.width/2,photo!.y+photo!.height/2);await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.island)).toBe(island.code);await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();
  await page.evaluate(()=>(window as any).update({records:[]}));const point=await page.evaluate(()=>(window as any).renderer.project([130.9057,37.4845]));const b=await canvas.boundingBox();await page.mouse.click(b!.x+point.x,b!.y+point.y);await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.island)).toBe(island.code);
@@ -186,7 +193,7 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  await expect.poll(()=>page.evaluate(()=>!!(window as any).renderer?.getLayer('district-names'))).toBe(true);
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
  const time=new Date('2026-11-17T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
- await choose('서울특별시');await page.clock.runFor(1056);await canvas.press('+');
+ await choose('서울특별시');await page.clock.runFor(600);await canvas.press('+');
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await choose('경상남도');await page.clock.runFor(48);
  expect(await page.evaluate(()=>{const n=(window as any).navigation.current;return Math.abs(n.camera.scale-n.fitScale);})).toBeGreaterThan(1);
@@ -198,7 +205,7 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  expect(await page.evaluate(()=>(window as any).navigation.current)).toEqual(state);
  await page.evaluate(()=>(window as any).hide());await expect(canvas).toHaveCount(0);await page.evaluate(()=>(window as any).update({}));
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
- await choose('경상남도');await page.clock.runFor(1056);
+ await choose('경상남도');await page.clock.runFor(600);
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
  await canvas.press('+');expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await canvas.press('-');expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
@@ -332,27 +339,30 @@ test('zooming out stops at the East Asia overview and keeps the foreign land sil
  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r.isSourceLoaded('world')&&!r.getLayer('world-borders')&&r.queryRenderedFeatures({layers:['world-land','province-overview']}).length>0;})).toBe(true);
 });
 
-test('Hwanghae coast retains its bays and headlands at a regional zoom',async({page},info)=>{
+for(const view of [
+ {name:'Hwanghae coast retains its bays and headlands',center:[126.08,38.42],samples:[[125.4114,37.8673],[125.1155,37.9802]],sea:true},
+ {name:'Korean border seam is filled on land',center:[127.49,38.22],samples:[[126.92633,38.12969],[128.07101,38.31211]],sea:false},
+])test(view.name+' at a regional zoom',async({page},info)=>{
  await page.setViewportSize({width:548,height:430});
- await page.evaluate(()=>{
+ await page.evaluate(center=>{
   const w=window as any;
   w.hide();
   document.getElementById('root')!.style.height='430px';
-  w.navigation.current={province:null,selected:null,detail:false,camera:{center:[126.08,38.42],scale:14400}};
- });
+  w.navigation.current={province:null,selected:null,detail:false,camera:{center,scale:14400}};
+ },view.center);
  await expect(page.getByTestId('svg-map-canvas')).toHaveCount(0);
  await page.evaluate(()=>(window as any).update({records:[]}));
  const host=page.getByTestId('svg-map-canvas');
  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r?.isStyleLoaded()&&r.areTilesLoaded();})).toBe(true);
- const points=await page.evaluate(()=>[[125.4114,37.8673],[125.1155,37.9802]].map(c=>{const p=(window as any).renderer.project(c);return [Math.round(p.x),Math.round(p.y)];}));
- const image=await host.screenshot({path:info.outputPath('hwanghae-coast.png')});
+ const points=await page.evaluate(samples=>samples.map(c=>{const p=(window as any).renderer.project(c);return [Math.round(p.x),Math.round(p.y)];}),view.samples);
+ const image=await host.screenshot({path:info.outputPath('land-and-sea.png')});
  const pixels=await page.evaluate(async({data,points})=>{
   const img=new Image();img.src='data:image/png;base64,'+data;await img.decode();
   const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
   const ctx=canvas.getContext('2d')!;ctx.drawImage(img,0,0);
   return points.map(([x,y])=>Array.from(ctx.getImageData(x,y,1,1).data).slice(0,3));
  },{data:image.toString('base64'),points});
- expect(pixels[0]).toEqual([242,239,231]);expect([[174,217,236],[182,220,240]]).toContainEqual(pixels[1]);
+ expect(pixels[0]).toEqual([242,239,231]);expect(view.sea?[[174,217,236],[182,220,240]]:[[242,239,231]]).toContainEqual(pixels[1]);
 });
 
 
@@ -372,7 +382,7 @@ for(const [width,height] of [[1100,974],[390,844],[320,640]])test(`TC-MAP-EXTERI
   await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r?.isStyleLoaded()&&r.areTilesLoaded();}),{timeout:30000}).toBe(true);
   await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
   await expect.poll(()=>page.evaluate(()=>{const w=window as any;return w.renderer.queryRenderedFeatures({layers:['selected-fill','selected-detail-fill']}).some((f:any)=>f.properties.code===w.navigation.current.province);})).toBe(true);
-  await expect.poll(()=>page.evaluate(()=>{const a=(window as any).areaBounds(),b=document.querySelector('[data-testid=svg-map-canvas]')!.getBoundingClientRect();return Math.max(-a[0],a[2]-b.width,-a[1],a[3]-b.height);})).toBeLessThan(1);
+ await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
   await canvas.screenshot({path:`${directory}/${province.code}-${width}.png`});
   await page.getByRole('button',{name:'지도 홈',exact:true}).click();
   await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
@@ -482,4 +492,36 @@ test('Renderer failure preserves local province selection and photo summaries',a
  await canvas.focus();await canvas.press('Enter');
  await page.getByRole('button',{name:'서울 기록 · 1개 요약',exact:true}).click();
  await expect(page.getByRole('button',{name:'서울 기록 자세히 보기',exact:true})).toBeVisible();
+});
+
+for(const width of [390,1280])test('East Asia photo stack preserves regional covers at national fit on width '+width,async({page})=>{
+ await page.setViewportSize({width,height:800});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.evaluate(cover=>(window as any).update({covers:{north:cover,south:cover},records:[
+  {id:'north',status:'complete',title:'서울 사진',locations:{latitude:37.5665,longitude:126.978}},
+  {id:'south',status:'complete',title:'부산 사진',locations:{latitude:35.1796,longitude:129.0756}},
+ ]}),'data:image/jpeg;base64,'+readFileSync('frontend/e2e/fixtures/social-thumbnail.jpg').toString('base64'));
+ const markers=page.locator('[data-testid^="map-photo-"]'),canvas=page.getByTestId('svg-map-canvas');
+ await expect(markers).toHaveCount(2);await expect(markers.locator('image')).toHaveCount(2);
+ await canvas.press('Enter');await page.getByRole('button',{name:'부산광역시 · 1개',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
+ await expect(page.getByTestId('map-photo-south')).toBeVisible();
+ for(let i=0;i<16&&await markers.locator('text').allTextContents().then(t=>!t.includes('2'));i++)await canvas.press('-');
+ await expect(markers).toHaveCount(1);await expect(markers.locator('text')).toHaveText('2');
+ await expect(markers.locator('image')).toHaveCount(1);
+ const inView=await page.evaluate(()=>{const r=(window as any).renderer,c=r.getCanvas();return [[120.38,36.07],[130.4,33.59]].every(ll=>{const p=r.project(ll);return p.x>=0&&p.y>=0&&p.x<=c.clientWidth&&p.y<=c.clientHeight;});});
+ expect(inView).toBe(true);
+ const frame=(await canvas.boundingBox())!,button=(await markers.boundingBox())!;
+ const center=await page.evaluate(()=>{const w=window as any,r=w.renderer,c=r.getCanvas();const point=r.project(w.countryProjection().invert([c.clientWidth/2,c.clientHeight/2]));return [point.x,point.y];});
+ expect(Math.abs(button.x+button.width/2-frame.x-center[0])).toBeLessThan(2);
+ expect(Math.abs(button.y+button.height/2-frame.y-center[1])).toBeLessThan(3);
+ if(width===390)await page.mouse.click(button.x+button.width/2,button.y+button.height/2);
+ else {
+  await canvas.press('Enter');
+  await page.getByRole('button',{name:'전체 여행 · 2개 · 대한민국 전국 보기',exact:true}).press('Enter');
+ }
+ await expect(markers).toHaveCount(2);
+ await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();
+ await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
+
 });

@@ -70,6 +70,16 @@ export class TravelApi {
     if (!rows.length) throw new ApiError('NOT_FOUND',404,'기록을 찾을 수 없습니다.');
     return rows[0];
   }
+  async rankedFeed(args:Record<string,unknown>,cursor:any) {
+    if (!cursor?.created_at) {
+      try { return await this.rpc('social_ranked_feed',{...args,after_cursor:cursor}); }
+      catch (error) {
+        if (!(error instanceof ApiError) || error.serverCode!=='PGRST202' || cursor) throw error;
+      }
+    }
+    // 이전 서버가 반환한 시간 커서는 끝까지 같은 피드에서 사용한다.
+    return this.rpc('social_feed',{mode:args.mode,...(cursor?{cursor_time:cursor.created_at,cursor_id:cursor.id}:{})});
+  }
   rpc(name: string, body: unknown) { return this.request(`/rest/v1/rpc/${name}`, 'POST', body); }
   async photoUrl(id: string, variant = 'thumbnail') {
     const data = await this.request('/functions/v1/photo-url','POST',{ photo_id:id,variant });

@@ -13,10 +13,18 @@ if hashlib.sha256(raw).hexdigest() != '239eec57ac17f100a11e2536cffc56752c318b50a
     raise ValueError('Expected Natural Earth ne_10m_admin_0_countries.geojson')
 parts = []
 for f in json.loads(raw)['features']:
-    if f['properties']['ADM0_A3'] == 'KOR':
-        continue
     geom = make_valid(shape(f['geometry']))
+    code = f['properties']['ADM0_A3']
+    if code == 'KOR':
+        korea = geom
+        continue
+    if code == 'PRK':
+        north_korea = geom
     parts.extend(p for p in getattr(geom,'geoms',[geom]) if p.geom_type in ('MultiPolygon','Polygon'))
+# 국내 행정 경계와 배경 원자료 사이의 틈은 접경 육지에서만 메운다.
+border = korea.boundary.intersection(north_korea.boundary)
+assert border.length > 0
+parts.append(korea.intersection(border.buffer(.08)))
 land = union_all(parts)
 asia = box(118,29,146,45)
 # 한반도 주변의 섬과 만만 세밀하게 유지하고 국경은 두 배율 모두에서 제거한다.

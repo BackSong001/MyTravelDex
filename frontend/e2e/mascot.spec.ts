@@ -71,3 +71,29 @@ test('white mascot stage switches between all four sketches and remembers the co
   await enterHome();
   await expect(page.getByRole('button',{name:'배낭 고양이에게 인사하기'})).toBeVisible();
 });
+
+test('home and map prepare under the timed splash, including a quick return', async ({page}) => {
+  await page.goto('/');
+  await page.getByRole('button', {name:'대한민국 지도 둘러보기'}).click();
+  await page.getByRole('tab', {name:'피드',exact:true}).click();
+  const time = new Date('2026-11-24T00:00:00Z');
+  await page.clock.install({time});
+  await page.clock.pauseAt(new Date(time.getTime()+1000));
+  const home = page.getByRole('tab',{name:'홈',exact:true});
+  await home.click();
+  await expect(page.getByLabel('홈 준비 중',{exact:true})).toBeVisible();
+  await expect(page.getByTestId('mascot-stage')).toBeAttached();
+  await page.clock.runFor(800);
+  await page.getByRole('tab',{name:'지도',exact:true}).click();
+  await expect(page.getByTestId('svg-map-canvas')).toBeAttached();
+  await page.clock.runFor(1100);
+  await expect(page.getByLabel('지도 준비 중',{exact:true})).toBeVisible();
+  await page.clock.runFor(120);
+  await expect(page.getByLabel('지도 준비 중',{exact:true})).toHaveCount(0);
+  await home.click();
+  await page.clock.runFor(1100);
+  await expect(page.getByLabel('홈 준비 중',{exact:true})).toBeVisible();
+  await page.clock.runFor(120);
+  await expect(page.getByRole('button',{name:'퍼즐 보기',exact:true})).toBeVisible();
+  await expect(page.getByLabel('홈 준비 중',{exact:true})).toHaveCount(0);
+});

@@ -13,7 +13,7 @@ import {homeMainlands,homeIslands,homeArea,homeAreaAt} from './homeMapAreas';
 import {mapRecords,type TravelMapProps,type MapNavigation} from './provinces';
 import osmOutlines from './data/maps/osm-provinces.json';
 import type {Region} from './regions';
-import {osmMapStyle,osmFilters} from './osmMapStyle';
+import {osmMapStyle,osmFilters,neighborhoodZoom} from './osmMapStyle';
 import MapAttribution from './MapAttribution';
 import TileSurface from './TileSurface';
 import WorldOverview from './WorldOverview';
@@ -26,6 +26,7 @@ import {regionLabelAnchor,layoutMapLabels} from './mapLabels';
 
 const osmProvinces=osmOutlines as Region[];
 type Point=[number,number];
+const eastAsiaCoasts:Point[]=[[120.38,36.07],[130.4,33.59]]; // 칭다오와 후쿠오카
 type Touch={identifier:string|number;pageX:number;pageY:number};
 type Gesture={base:GeoProjection;latest:GeoProjection;points:Point[];ids:string;moved:boolean};
 const emptyNavigation=():MapNavigation=>({province:null,selected:null,camera:null,detail:false,island:null,fitScale:null,labelRevealed:false,regionOffset:0,recordOffset:0});
@@ -98,8 +99,18 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   }
   return districts.filter(f=>detailCodes.current.has(f.properties.parentCode!)&&intersects(f.properties.code));
  },[finder,geometryBounds,ratio,tx,ty,size,moving]);
+ // 전국 맞춤 화면에서는 가로로 넓은 기기도 지역별 사진을 유지한다.
+ const eastAsiaOverview=homeMap&&measured&&ratio<=0.75&&regions.every(region=>{
+  const b=geometryBounds.get(region.properties.code)!;
+  return b[0][0]*ratio+tx>=-0.5&&b[0][1]*ratio+ty>=-0.5&&
+   b[1][0]*ratio+tx<=size.width+0.5&&b[1][1]*ratio+ty<=size.height+0.5;
+ })&&eastAsiaCoasts.every(coordinate=>{
+  const point=p(coordinate);
+  return point&&point[0]>=0&&point[1]>=0&&point[0]<=size.width&&point[1]<=size.height;
+ });
+ const countryRecords=useMemo(()=>eastAsiaOverview?latestRecords(entries):[],[eastAsiaOverview,entries]);
  const overviewGroups=useMemo(()=>{
-  if(!national||onCoordinate||!fullScreen)return [];
+  if(eastAsiaOverview||!national||onCoordinate||!fullScreen)return [];
   return [...homeMainlands,...homeIslands].flatMap(feature=>{
    const isIsland=feature.properties.level==='island';
    const provinceCode=isIsland?feature.properties.parentCode!:feature.properties.code;
@@ -107,16 +118,20 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
    const records=latestRecords(indexed.filter(x=>x.region?.properties.parentCode===provinceCode&&(x.island?.properties.code??null)===islandCode).map(x=>x.record));
    return records.length?[{provinceCode,islandCode,records,anchor:regionLabelAnchor(feature).point}]:[];
   });
- },[national,onCoordinate,fullScreen,indexed]);
- const targetPhotoGroups=useMemo<{x:number;y:number;records:any[];provinceCode?:string;islandCode?:string|null}[]>(()=>{
+ },[eastAsiaOverview,national,onCoordinate,fullScreen,indexed]);
+ const targetPhotoGroups=useMemo<{x:number;y:number;records:any[];provinceCode?:string;islandCode?:string|null;country?:boolean}[]>(()=>{
   if(!measured||onCoordinate||!fullScreen)return [];
+  if(countryRecords.length){
+   const [x,y]=p(base.invert!([size.width/2,size.height/2])!)!;
+   return [{country:true,x,y,records:countryRecords}];
+  }
   const overview=overviewGroups.flatMap(({anchor,...group})=>{
    const point=p(anchor);
    return point?[{...group,x:point[0],y:point[1]}]:[];
   });
   const points=indexed.filter(x=>!x.region||!national).map(({record,region,island})=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)])!;return {...record,mapArea:island?.properties.code??region?.properties.parentCode??'world',x:point[0],y:point[1]};});
   return [...overview,...clusterPhotos(points,64,r=>r.mapArea!)].filter(g=>g.x>=0&&g.y>=0&&g.x<=size.width&&g.y<=size.height);
- },[overviewGroups,indexed,p,size,onCoordinate,fullScreen,national,measured]);
+ },[countryRecords,overviewGroups,indexed,p,base,size,onCoordinate,fullScreen,national,measured]);
  const photoGroups=usePhotoGroupMotion(targetPhotoGroups,reduced);
  const labels=useMemo(()=>{
   const feature=province&&!island?homeArea(province):undefined;
@@ -142,7 +157,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   }
   current.current.p=projection;change({...patch,camera:{center,scale:projection.scale()}});
  };
- const fly=(target:GeoProjection,{provinceFlight=false,onComplete}:{provinceFlight?:boolean;onComplete?:()=>void}={})=>{
+ const fly=(target:GeoProjection,{overviewProvince=false,onComplete}:{overviewProvince?:boolean;onComplete?:()=>void}={})=>{
   stopAnimation();
   if(reduced){saveCamera(target);onComplete?.();return;}
   const version=animationVersion.current,start=current.current.p;
@@ -150,9 +165,9 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   const from=start.invert!(midpoint)!,to=target.invert!(midpoint)!;
   const startScale=start.scale(),scaleRatio=target.scale()/startScale;
   const intermediate=geoMercator().translate(midpoint);
-  const duration=provinceFlight?1000:350;
+  const duration=overviewProvince?520:350;
   // 상세 레이어를 준비한 시간이 전국→시도 전환의 첫 프레임을 건너뛰지 않도록 한다.
-  let begun=provinceFlight?undefined:performance.now();
+  let begun=overviewProvince?undefined:performance.now();
   setMoving(true);
   const frame=()=>{
    if(version!==animationVersion.current)return;
@@ -162,20 +177,23 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
    if(t===1){
     saveCamera(target);animation.current=null;setMoving(false);onComplete?.();return;
    }
-   const progress=provinceFlight?t*t*(3-2*t):1-Math.pow(1-t,3);
+   const progress=overviewProvince?t*t*(3-2*t):1-Math.pow(1-t,3);
    const center:Point=[from[0]+(to[0]-from[0])*progress,from[1]+(to[1]-from[1])*progress];
    saveCamera(intermediate.center(center).scale(startScale*Math.pow(scaleRatio,progress)));
    animation.current=requestAnimationFrame(frame);
   };
   animation.current=requestAnimationFrame(frame);
  };
- const choose=(code:string)=>{
+ const choose=(code:string,photoCenter?:Point)=>{
   const feature=[...regions,...districts,...homeIslands].find(f=>f.properties.code===code);if(!feature)return;
   const isIsland=feature.properties.level==='island',provinceCode=feature.properties.level==='province'?code:feature.properties.parentCode;
   const fitFeature=feature.properties.level==='province'?homeArea(code)!:feature;
   const target=fitProjection([fitFeature],size.width,size.height);
+  if(homeMap&&feature.properties.level==='province'&&target.scale()<zoomToScale(neighborhoodZoom)){
+   target.center(photoCenter??regionLabelAnchor(fitFeature).point).scale(zoomToScale(neighborhoodZoom)).translate([size.width/2,size.height/2]);
+  }
   change({province:provinceCode,selected:feature.properties.level==='district'?code:null,island:isIsland?code:null,recordOffset:0,detail:true,fitScale:target.scale(),labelRevealed:false});
-  fly(target,{provinceFlight:feature.properties.level==='province'});
+  fly(target,{overviewProvince:national&&feature.properties.level==='province'});
  };
  const updateGesture=(touches:readonly Touch[])=>{
   const g=gesture.current;if(!g||!touches.length)return;
@@ -191,8 +209,9 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  };
  const photoProvince=(group:typeof photoGroups[number])=>group.provinceCode??indexed.find(x=>x.record.id===group.records[0].id)?.region?.properties.parentCode;
  const photoIsland=(group:typeof photoGroups[number])=>group.islandCode??indexed.find(x=>x.record.id===group.records[0].id)?.island?.properties.code??null;
+ const country=()=>{stopAnimation();gesture.current=null;setPressedPhoto(null);setFinder(false);setSummary([]);const start=live.current.camera;change({...emptyNavigation(),camera:start});fly(base,{onComplete:()=>change({camera:null})});regionList.current?.scrollTo({x:0,y:0,animated:false});};
  const photoMoves=(group:typeof photoGroups[number])=>!!photoProvince(group)&&(national||photoProvince(group)!==province||photoIsland(group)!==(island??null));
- const activatePhoto=(group:typeof photoGroups[number])=>{stopAnimation();setFinder(false);if(photoMoves(group)){setSummary([]);choose(photoIsland(group)??photoProvince(group)!);}else setSummary(group.records.map(r=>r.id));};
+ const activatePhoto=(group:typeof photoGroups[number])=>{if(group.country){country();return;}stopAnimation();setFinder(false);if(photoMoves(group)){setSummary([]);const location=group.records[0].locations;choose(photoIsland(group)??photoProvince(group)!,[Number(location.longitude),Number(location.latitude)]);}else setSummary(group.records.map(r=>r.id));};
  const handlers=useRef({updateGesture,choose,saveCamera,activatePhoto});handlers.current={updateGesture,choose,saveCamera,activatePhoto};
  const responder=useMemo(()=>PanResponder.create({
   onStartShouldSetPanResponder:()=>true,onMoveShouldSetPanResponder:()=>true,
@@ -238,7 +257,6 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   }
  },[lat,lng,!!onCoordinate,destination,homeMap,destination?.bounds?size.width:0,destination?.bounds?size.height:0]);
  const destinationPoint=destination?p([destination.longitude,destination.latitude]):null;
- const country=()=>{stopAnimation();gesture.current=null;setPressedPhoto(null);setFinder(false);setSummary([]);const start=live.current.camera;change({...emptyNavigation(),camera:start});fly(base,{onComplete:()=>change({camera:null})});regionList.current?.scrollTo({x:0,y:0,animated:false});};
  const zoom=(factor:number)=>{stopAnimation();const center=p.invert!([size.width/2,size.height/2])!;saveCamera(geoMercator().center(center).scale(Math.max(30,Math.min(zoomToScale(18),p.scale()*factor))).translate([size.width/2,size.height/2]),true);};
  const activeName=island?homeIslands.find(f=>f.properties.code===island)?.properties.name:selected==='other'?'해외·지역 미배정':selected?districts.find(d=>d.properties.code===selected)?.properties.name:province?regions.find(r=>r.properties.code===province)?.properties.name:'대한민국';
  const button=(label:string,action:()=>void,active=false,display=label)=><Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:active}} onPress={action} style={{minWidth:48,minHeight:48,padding:10,borderRadius:10,justifyContent:'center',backgroundColor:active?c.primary:c.surface,borderWidth:1,borderColor:c.line}}><Text style={{color:active?c.onPrimary:c.ink,fontSize:13,textAlign:'center'}}>{display}</Text></Pressable>;
@@ -249,7 +267,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  const panel=finder&&<>
     <View style={{flexDirection:'row',alignItems:'center',gap:6,padding:6}}>{button('지도 확대',()=>zoom(1.5),false,'＋')}{button('지도 축소',()=>zoom(1/1.5),false,'−')}<Text style={{flex:1,color:c.muted,fontSize:11}}>{onCoordinate?'지도를 눌러 위치 선택':'지역이나 사진을 선택하세요'}</Text></View>
     {!onCoordinate&&<>
-     <ScrollView horizontal style={{height:56,flexGrow:0,flexShrink:0}}>{photoGroups.map(g=><React.Fragment key={g.records[0].id}>{button(`${g.records[0].title||'여행'} · ${g.records.length}개 ${photoMoves(g)?'지역 확대':'요약'}`,()=>activatePhoto(g))}</React.Fragment>)}</ScrollView>
+     <ScrollView horizontal style={{height:56,flexGrow:0,flexShrink:0}}>{photoGroups.map(g=><React.Fragment key={g.records[0].id}>{button(g.country?`전체 여행 · ${g.records.length}개 · 대한민국 전국 보기`:`${g.records[0].title||'여행'} · ${g.records.length}개 ${photoMoves(g)?'지역 확대':'요약'}`,()=>activatePhoto(g))}</React.Fragment>)}</ScrollView>
      <View style={{gap:6,padding:6}}>{regionItems}</View>
      <View style={{minHeight:50,paddingHorizontal:6}}>{onRegion&&<Pressable accessibilityRole="button" accessibilityLabel="선택한 지역 도감에서 보기" disabled={!province&&selected!=='other'} onPress={()=>{setFinder(false);if(selected==='other')onRegion('','해외·지역 미배정','other');else if(province)onRegion(legacyCodes[province],activeName??'',selected??undefined);}}><Text style={{color:province?c.ink:c.muted}}>선택한 지역 도감에서 보기</Text></Pressable>}</View>
     </>}

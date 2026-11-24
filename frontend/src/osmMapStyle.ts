@@ -10,6 +10,7 @@ const paper = '#F2EFE7';
 const sea = '#AED9EC';
 const border = '#BAC2C1';
 const detailZoom = 8;
+export const neighborhoodZoom = 10;
 const inlandWater = '#B7D9E8';
 // 광역 화면에서 이어서 보여줄 본류의 OSM 표기명.
 const mainRivers = ['한강', '북한강', '남한강', '낙동강', '금강', '영산강', '섬진강', '남강'];
@@ -57,7 +58,7 @@ export function osmMapStyle(): StyleSpecification {
     sources: {
       world: {type:'geojson', data: atlas, tolerance:.25},
       regions: {type:'vector', tiles:[boundaryTileRoot()+version+'/{z}/{x}/{y}.pbf'], minzoom:8, maxzoom:11, bounds:[124,33,132,39]},
-      neighborhood:{type:'vector',tiles:[boundaryTileRoot()+neighborhoodVersion+'/{z}/{x}/{y}.pbf'],minzoom:10,maxzoom:12,bounds:[124,33,132,39]},
+      neighborhood:{type:'vector',tiles:[boundaryTileRoot()+neighborhoodVersion+'/{z}/{x}/{y}.pbf'],minzoom:neighborhoodZoom,maxzoom:12,bounds:[124,33,132,39]},
     },
     layers: [
       {id:'ocean', type:'background', paint:{'background-color':sea}},
@@ -74,8 +75,8 @@ export function osmMapStyle(): StyleSpecification {
       road('lanes','lane',15,'#FAF9F5',1.2),
       road('streets','street',13,'#FFFFFF',1.7),
       road('collectors','collector',11,'#FFFFFF',2),
-      road('arterial-edge','arterial',10,'#DCCEA9',1.7),
-      road('arterials','arterial',10,'#FAE8B4',1.2),
+      road('arterial-edge','arterial',neighborhoodZoom,'#DCCEA9',1.7),
+      road('arterials','arterial',neighborhoodZoom,'#FAE8B4',1.2),
       {id:'railways', ...neighborhood, minzoom:13, type:'line', filter:['==','kind','rail'],
         paint:{'line-color':'#ABA9A7','line-width':1.4,'line-dasharray':[3,2]}},
       {id:'province-boundaries', ...high, 'source-layer':'province-line', ...stroke(border,.85)},

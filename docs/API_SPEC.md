@@ -537,3 +537,9 @@ FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해
 `photon-location`은 Supabase 서버 환경변수 `PHOTON_BASE_URL`에서 운영자가 지정한 HTTPS Photon 서버를 읽는다. 경로 접두어를 허용하며 검색과 역조회 모두 해당 서버로만 전송한다. 미설정 환경은 기존 공개 데모 주소를 사용한다. 502의 선택적 `reason`은 공급자 HTTP 상태 또는 전송·형식 오류 분류만 포함한다.
 
 FR-LEGAL-001은 공개 정적 GET이다. 약관 허브, 개인정보처리방침, 삭제 안내는 인증 없이 열리며, 페이지 열람이나 이메일 링크 클릭만으로 데이터 삭제 또는 동의가 실행되지 않는다.
+
+### 피드 작성일·작성자 순환
+
+social_ranked_feed(mode,seed,after_cursor?)는 기존 공개 항목과 불투명 JSON next_cursor를 반환한다. 이전 social_feed RPC는 구버전용으로 유지한다.
+
+피드 한 페이지에 있는 작성자들의 팔로우 상태는 로그인한 사용자의 follows RLS 조회로 확인한다. 버튼은 기존 social_set_follow(target_id,enabled)를 사용한다.

@@ -1,8 +1,8 @@
 import {useLayoutEffect,useRef,useState} from 'react';
-type Group={x:number;y:number;records:{id:string}[];provinceCode?:string;islandCode?:string|null};
+type Group={x:number;y:number;records:{id:string}[];country?:boolean;provinceCode?:string;islandCode?:string|null};
 // 새 payload만 그리며 기존 위치만 이어받는다. 삭제된 기록·사진은 전환 중에도 남기지 않는다.
 export function usePhotoGroupMotion<T extends Group>(groups:T[],reduced:boolean){
- const signature=groups.map(g=>(g.islandCode??g.provinceCode??'coordinate')+':'+g.records.map(r=>r.id).join(',')).join('|');
+ const signature=groups.map(g=>(g.country?'country':g.islandCode??g.provinceCode??'coordinate')+':'+g.records.map(r=>r.id).join(',')).join('|');
  const previous=useRef(new Map<string,{x:number;y:number}>()),origins=useRef(new Map<string,{x:number;y:number}>());
  const [progress,setProgress]=useState(1),lastSignature=useRef(signature);
  useLayoutEffect(()=>{

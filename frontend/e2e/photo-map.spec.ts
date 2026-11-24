@@ -214,7 +214,7 @@ test('TC-MAP-HOME-003 selected province has a blue overlay and both country cont
   const photo=await page.getByTestId('map-photo-one').boundingBox();await page.mouse.click(photo!.x+photo!.width/2,photo!.y+photo!.height/2);
   await expect.poll(async()=>await highlight.getAttribute('d')===await page.evaluate(()=>(window as any).regionPath('11'))).toBe(true);
   await expect(highlight).toHaveAttribute('fill','#3B82F6');await expect(highlight).toHaveAttribute('fill-opacity','0.18');await expect(highlight).toHaveAttribute('stroke','#2563EB');
-  await expect.poll(()=>page.evaluate(()=>Math.abs((window as any).navigation.current.camera.scale-(window as any).regionScale('11')))).toBeLessThan(.01);
+  await expect.poll(()=>page.evaluate(()=>Math.abs((window as any).navigation.current.camera.scale-Math.max((window as any).regionScale('11'),512*2**10/(2*Math.PI))))).toBeLessThan(.01);
   expect(await highlight.evaluate(n=>!!(n.compareDocumentPosition(document.querySelector('[data-testid="map-photo-one"]')!)&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
   const detail=await page.getByTestId('map-photo-one').boundingBox();await page.mouse.click(detail!.x+detail!.width/2,detail!.y+detail!.height/2);await expect(page.getByTestId('photo-summary-list')).toBeVisible();await page.keyboard.press('Escape');
   await page.getByRole('button',{name,exact:true}).click();await expect(highlight).toHaveCount(0);await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.getByTestId('map-region-11').locator('..')).toHaveAttribute('transform',initial!);
@@ -266,11 +266,11 @@ test('TC-MAP-SIMPLE-001 Gyeonggi has no district outlines at any zoom and caps l
 test('TC-MAP-HOME-004 both country controls animate and interrupted return never resets a new camera',async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>(window as any).update({homeMap:true}));const canvas=page.getByTestId('svg-map-canvas');
  for(const control of ['지도 홈','대한민국']){
-  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect.poll(()=>page.evaluate(()=>Math.abs((window as any).navigation.current.camera.scale-(window as any).regionScale('11')))).toBeLessThan(.01);
+  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect.poll(()=>page.evaluate(()=>Math.abs((window as any).navigation.current.camera.scale-Math.max((window as any).regionScale('11'),512*2**10/(2*Math.PI))))).toBeLessThan(.01);
   const samples=await page.evaluate(control=>new Promise<any[]>(resolve=>{const rows:any[]=[];const start=performance.now();(document.querySelector('[aria-label="'+control+'"]') as HTMLElement).click();const frame=()=>{const v=(window as any).navigation.current;rows.push({time:performance.now()-start,camera:v.camera,province:v.province});if(performance.now()-start<500)requestAnimationFrame(frame);else resolve(rows);};requestAnimationFrame(frame);}),control);
   expect(samples.some(x=>x.time<300&&x.camera!==null)).toBe(true);expect(new Set(samples.filter(x=>x.camera).map(x=>x.camera.scale)).size).toBeGreaterThan(2);expect(samples.every(x=>x.province===null)).toBe(true);expect(samples.at(-1).camera).toBeNull();
  }
- await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect.poll(()=>page.evaluate(()=>Math.abs((window as any).navigation.current.camera.scale-(window as any).regionScale('11')))).toBeLessThan(.01);
+ await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await expect.poll(()=>page.evaluate(()=>Math.abs((window as any).navigation.current.camera.scale-Math.max((window as any).regionScale('11'),512*2**10/(2*Math.PI))))).toBeLessThan(.01);
  const time=new Date('2026-11-19T00:00:00Z');
  await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await page.clock.runFor(112);
@@ -283,16 +283,16 @@ test('TC-MAP-HOME-004 both country controls animate and interrupted return never
 for(const target of ['서울 기록 · 1개 지역 확대','해외·지역 미배정'])test('TC-MAP-HOME-004 modal selection cancels country completion: '+target,async({page})=>{
  const time=new Date('2026-11-17T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
  await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>(window as any).update({homeMap:true}));const canvas=page.getByTestId('svg-map-canvas');
- await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await page.clock.runFor(1056);
+ await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await page.clock.runFor(600);
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await page.clock.runFor(32);
  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:target,exact:true}).click();
  const selected=await page.evaluate(()=>(window as any).navigation.current.camera);expect(selected).not.toBeNull();
- await page.clock.runFor(1056);
+ await page.clock.runFor(600);
  const n=await page.evaluate(()=>(window as any).navigation.current);expect(n.camera).not.toBeNull();
  if(target.startsWith('서울')){
   await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);expect(n.province).toBe('11');expect(n.detail).toBe(true);
-  expect(n.camera.scale).toBeCloseTo(await page.evaluate(()=>(window as any).regionScale('11')),6);
-  const expected=await page.evaluate(()=>(window as any).regionCenter('11'));n.camera.center.forEach((v:number,i:number)=>expect(v).toBeCloseTo(expected[i],8));
+  expect(n.camera.scale).toBeCloseTo(await page.evaluate(()=>Math.max((window as any).regionScale('11'),512*2**10/(2*Math.PI))),6);
+  const expected=await page.evaluate(()=>(window as any).regionScale('11')<512*2**10/(2*Math.PI)?[126.978,37.5665]:(window as any).regionCenter('11'));n.camera.center.forEach((v:number,i:number)=>expect(v).toBeCloseTo(expected[i],8));
  }else {expect(n.selected).toBe('other');expect(n.camera).toEqual(selected);}
 });
 
@@ -319,21 +319,21 @@ test('TC-MAP-SIMPLE-001 fitting a large province still makes its photo open the 
  await canvas.focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'경남 기록 · 1개 요약',exact:true})).toBeVisible();await page.getByRole('button',{name:'경남 기록 · 1개 요약',exact:true}).click();await expect(page.getByRole('button',{name:'경남 기록 자세히 보기',exact:true})).toBeVisible();
 });
 
-for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 one ${photo?'photo':'province'} selection fits the entire province`,async({page})=>{
+for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 one ${photo?'photo':'province'} selection shows neighborhood tiles`,async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});
  await page.evaluate(()=>(window as any).update({homeMap:true,records:[{id:'gyeongnam',status:'complete',title:'경남 기록',created_at:'2026-01-01',locations:{source:'manual',latitude:35.18,longitude:128.107}}]}));
  const canvas=page.getByTestId('svg-map-canvas');await canvas.focus();await page.keyboard.press('Enter');
  await page.getByRole('button',{name:photo?'경남 기록 · 1개 지역 확대':'경상남도 · 1개',exact:true}).click();
  const result=await page.evaluate(()=>({camera:(window as any).navigation.current.camera,scale:(window as any).regionScale('48'),center:(window as any).regionCenter('48')}));
- expect(result.camera.scale).toBeCloseTo(result.scale,8);result.camera.center.forEach((n:number,i:number)=>expect(n).toBeCloseTo(result.center[i],8));
+ expect(result.camera.scale).toBeCloseTo(Math.max(result.scale,512*2**10/(2*Math.PI)),8);
+ if(photo)expect(result.camera.center).toEqual([128.107,expect.closeTo(35.18,6)]);
  await expect.poll(()=>page.evaluate(()=>{
   const r=(window as any).renderer;
   return r?.isStyleLoaded()&&r.areTilesLoaded()&&r.queryRenderedFeatures({layers:['selected-fill','selected-detail-fill']}).some((f:any)=>f.properties.code==='48');
  })).toBe(true);
- const margins=await page.evaluate(()=>(window as any).mainlandMargins('48'));
- expect(Math.min(...margins)).toBeCloseTo(16,1);
+ await expect.poll(()=>page.evaluate(()=>(window as any).renderer.queryRenderedFeatures({layers:['arterials']}).length)).toBeGreaterThan(0);
  const labels=page.locator('[data-testid^="map-label-"]');
- await expect(labels).toHaveCount(1);await expect(labels).toHaveText('경상남도');
+ if(!photo){await expect(labels).toHaveCount(1);await expect(labels).toHaveText('경상남도');}
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();await expect(labels).toHaveCount(0);
 });
 
@@ -346,7 +346,7 @@ test('TC-MAP-SIMPLE-001 nonhome region selection keeps the original fit',async({
  expect(result.camera.scale).toBeCloseTo(result.scale,8);result.camera.center.forEach((n:number,i:number)=>expect(n).toBeCloseTo(result.center[i],8));
 });
 
-test('overview province tap eases into the fit and settles after one second',async({page})=>{
+test('overview province tap eases into the fit and settles after half a second',async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.evaluate(()=>(window as any).update({homeMap:true}));
  const canvas=page.getByTestId('svg-map-canvas');
@@ -363,8 +363,7 @@ test('overview province tap eases into the fit and settles after one second',asy
  },start);
  await page.clock.runFor(96);
  const early=await progress();expect(early).toBeGreaterThan(0);expect(early).toBeLessThan(.2);
- await page.clock.runFor(640);
+ await page.clock.runFor(288);
  const later=await progress();expect(later).toBeGreaterThan(.65);expect(later).toBeLessThan(.95);
- await page.clock.runFor(248);expect(await progress()).toBeLessThan(1);
- await page.clock.runFor(48);expect(await progress()).toBeCloseTo(1,8);
+ await page.clock.runFor(192);expect(await progress()).toBeCloseTo(1,8);
 });

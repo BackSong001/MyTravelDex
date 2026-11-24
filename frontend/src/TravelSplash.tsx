@@ -1,4 +1,4 @@
-import React,{useEffect,useRef,useState} from 'react';
+import React,{useCallback,useEffect,useRef,useState} from 'react';
 import {Animated,Image,Platform,StyleSheet,View} from 'react-native';
 import Text from './FontText';
 import {useReducedMotion} from './Feedback';
@@ -19,22 +19,31 @@ export function TravelSplash({label}:{label:string}){
    {rotate:progress.interpolate({inputRange:[0,1],outputRange:['-13deg','0deg']})},
    {scale:progress.interpolate({inputRange:[0,1],outputRange:[.8,1]})}
   ]}}>
-   <Image accessible={false} source={Platform.OS==='web'?{uri:'/backpack-icon.png'}:require('../public/backpack-icon.png')} resizeMode="contain" style={styles.logo}/>
+   <Image accessible={false} source={Platform.OS==='web'?{uri:'/travel-splash.png'}:require('../public/travel-splash.png')} resizeMode="contain" style={styles.logo}/>
   </Animated.View>
   <Text style={styles.brand}>여행가봥</Text>
  </View>;
 }
 
-// 첫 페인트 뒤 지도를 마운트하고 실제 캔버스 크기가 정해진 커밋에서 덮개를 닫는다.
-export function MapEntrance({children}:{children:(onReady:()=>void)=>React.ReactNode}){
- const [mount,setMount]=useState(false),[ready,setReady]=useState(false);
+export function useSplashMinimumElapsed(){
+ const [elapsed,setElapsed]=useState(false);
  useEffect(()=>{
-  let frame=requestAnimationFrame(()=>{frame=requestAnimationFrame(()=>setMount(true));});
-  return ()=>cancelAnimationFrame(frame);
+  const timer=setTimeout(()=>setElapsed(true),1200);
+  return ()=>clearTimeout(timer);
  },[]);
+ return elapsed;
+}
+
+export function ScreenEntrance({label,children}:{label:string;children:(onReady:()=>void)=>React.ReactNode}){
+ const elapsed=useSplashMinimumElapsed();
+ const [ready,setReady]=useState(false);
+ const onReady=useCallback(()=>setReady(true),[]);
+ const covered=!ready||!elapsed;
  return <View style={{flex:1}}>
-  {mount&&<View style={{flex:1}} accessibilityElementsHidden={!ready} importantForAccessibility={ready?'auto':'no-hide-descendants'}>{children(()=>setReady(true))}</View>}
-  {!ready&&<TravelSplash label="지도 준비 중"/>}
+  <View style={{flex:1}} {...(Platform.OS==='web'?{inert:covered}:{})}
+   pointerEvents={covered?'none':'auto'} accessibilityElementsHidden={covered}
+   importantForAccessibility={covered?'no-hide-descendants':'auto'}>{children(onReady)}</View>
+  {covered&&<TravelSplash label={label}/>}
  </View>;
 }
 

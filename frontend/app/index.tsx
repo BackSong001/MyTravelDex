@@ -24,7 +24,7 @@ import * as Crypto from 'expo-crypto';
 import {api} from '../src/runtime';
 import {ApiError} from '../src/api';
 import {suggestRecord,validateRecord,validCoordinates,RecordValidationError} from '../src/domain';
-import {MapEntrance} from '../src/TravelSplash';
+import {ScreenEntrance} from '../src/TravelSplash';
 import TravelMap from '../src/TravelMap';
 import PhotoTray,{SlidePage} from '../src/PhotoTray';
 import {spansCalendarMonth} from '../src/studioDates';
@@ -77,6 +77,7 @@ export default function Home(){
  const [destination,setDestination]=useState<{latitude:number;longitude:number;label:string;bounds:number[]}>();
  const mapHome=screen==='list'&&tab==='map';
  const [socialRevision,setSocialRevision]=useState(0),[socialSupported,setSocialSupported]=useState<boolean|null>(null),[capabilityError,setCapabilityError]=useState(''),[capabilityAttempt,setCapabilityAttempt]=useState(0),[puzzleOpen,setPuzzleOpen]=useState(false);
+ const feedSeed=useRef('');
  const feedSnapshot=useRef<PageSnapshot|null>(null),accountSnapshot=useRef<PageSnapshot|null>(null),tabScroll=useRef<Record<string,number>>({});
  const socialApi=useMemo(()=>{const client=new TravelApi(process.env.EXPO_PUBLIC_SUPABASE_URL??'http://127.0.0.1:54321',process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY??'');client.token=session?.access_token??null;return client;},[session?.access_token]);
  useEffect(()=>{let current=true;setCapabilityError('');void socialApi.rpc('social_capabilities',{}).then(()=>{if(current)setSocialSupported(true);}).catch(e=>{if(!current)return;if(e.status===404||e.serverCode==='PGRST202')setSocialSupported(false);else setCapabilityError('소셜 서버 상태를 확인하지 못했어요. 입력을 유지한 채 다시 확인할 수 있어요.');});return()=>{current=false;};},[socialApi,capabilityAttempt]);
@@ -161,10 +162,12 @@ export default function Home(){
  }
 
  async function load(current=session){
+  let ownReceived=false;
   const request=++listRequest.current;setLoading(true);setListError('');
   try{
   const own=current?await api.list(current.user.id):[];
   if(request!==listRequest.current)return;
+  ownReceived=true;setOwnRows(own);setOwnLoaded(!!current);
   let result:any[];
   if(drafts&&current)result=await api.drafts(current.user.id);
   else if(!current)result=[];
@@ -182,7 +185,6 @@ export default function Home(){
   if(provinceFilter&&!drafts)result=groupProvinceRecords(result)[provinceFilter]??[];
   if(districtFilter&&!drafts)result=result.filter(record=>{const region=recordRegion(record.locations);return districtFilter==='other'?!region:region?.properties.code===districtFilter;});
   setRows(result);
-  setOwnRows(own);setOwnLoaded(!!current);
   const next=await recordCovers(api,result,current?.user.id,()=>request===listRequest.current);if(!next)return;
   const ids=[...new Set(result.map(r=>r.owner_id))],profiles:any[]=[];
   for(let index=0;index<ids.length;index+=40){
@@ -190,7 +192,7 @@ export default function Home(){
    profiles.push(...await api.listPages(`/rest/v1/public_profiles?select=id,display_name,avatar_url&id=in.(${ids.slice(index,index+40).join(',')})&order=id.asc`));
   }
   if(request===listRequest.current){setCovers(next);setAuthors(Object.fromEntries(profiles.map((p:any)=>[p.id,p])));}
-  }catch(error){const message=error instanceof Error?error.message:'목록을 불러오지 못했습니다.';if(request===listRequest.current){setRows([]);setCovers({});setListError(message);}throw new ListLoadError(message,{cause:error});}
+  }catch(error){const message=error instanceof Error?error.message:'목록을 불러오지 못했습니다.';if(request===listRequest.current){if(!ownReceived)setOwnLoaded(false);setRows([]);setCovers({});setListError(message);}throw new ListLoadError(message,{cause:error});}
   finally{if(request===listRequest.current)setLoading(false);}
  }
 
@@ -202,7 +204,7 @@ export default function Home(){
   albumScroll.current=0;sessionEpoch.current++;operationVersion.current++;busyRef.current=false;detailRead.current=false;setBusy(false);visibilityBusyRef.current.clear();setVisibilityBusy(new Set());setVisibilityErrors({});
   // 이전 사용자의 진행 중 응답은 개인 상태를 다시 채울 수 없다.
   navigationVersion.current++;listRequest.current++;selectedRef.current=null;screenRef.current=next?'list':'login';
-  setSocialSupported(null);setCapabilityError('');accountSnapshot.current=null;feedSnapshot.current=null;tabScroll.current={};setPuzzleOpen(false);setSocialRevision(x=>x+1);setDestination(undefined);setSelected(null);setUrls({});setRows([]);setOwnRows([]);setOwnLoaded(false);setMyStamps(false);accountScroll.current=0;pendingAccountScroll.current=null;detailOrigin.current={screen:'album',offset:0};setCovers({});setAuthors({});
+  setSocialSupported(null);setCapabilityError('');accountSnapshot.current=null;feedSnapshot.current=null;feedSeed.current='';tabScroll.current={};setPuzzleOpen(false);setSocialRevision(x=>x+1);setDestination(undefined);setSelected(null);setUrls({});setRows([]);setOwnRows([]);setOwnLoaded(false);setMyStamps(false);accountScroll.current=0;pendingAccountScroll.current=null;detailOrigin.current={screen:'album',offset:0};setCovers({});setAuthors({});
   setComposer(false);setPending(null);setPhotos([]);setPlaceInfo(null);setLatitude('');setLongitude('');
   setTitle('');setContent('');setStart('');setEnd('');setEditTitle('');setEditContent('');setVisibility('private');
   setDiscard(false);setReplacement(null);setManage(false);setLocationOpen(false);setInvalidField('');setPhotoNotice('');
@@ -367,7 +369,7 @@ export default function Home(){
  function renderContent(){return <>
  {replacement&&<View accessibilityRole="alert" style={s.error}><Text style={s.sectionTitle}>작성 중인 입력을 바꿀까요?</Text><Text style={s.description}>현재 선택한 사진과 입력은 지워집니다. 서버에 등록한 초안은 임시저장 복구에 남아요.</Text>{button('기존 입력 버리고 초안 복구',()=>recoverDraft(replacement,true))}{button('기존 작성 유지',()=>setReplacement(null),true)}</View>}
 
- {screen==='list'&&tab==='home'&&<TravelDashboard key={session?.user.id??'guest'} owner={session?.user.id} api={socialApi} records={ownRows} covers={covers} ready={ownLoaded&&!loading} error={listError} onJournal={()=>ownJournal()} onPuzzle={()=>ownJournal(true)} onMap={()=>navigate('map')} onFeed={()=>navigate('feed')} onDrafts={()=>{ownJournal();setDrafts(true);}}/>}
+ {screen==='list'&&tab==='home'&&<TravelDashboard key={session?.user.id??'guest'} owner={session?.user.id} api={socialApi} records={ownRows} ready={ownLoaded} error={ownLoaded?'':listError} onJournal={()=>ownJournal()} onPuzzle={()=>ownJournal(true)} onMap={()=>navigate('map')} onFeed={()=>navigate('feed')} onDrafts={()=>{ownJournal();setDrafts(true);}}/>}
  {screen==='list'&&tab==='album'&&<View style={{flexDirection:'row',marginBottom:16,borderBottomWidth:1,borderColor:c.line}}>{['여행 기록','여행 퍼즐'].map((label,index)=><Pressable key={label} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:Number(puzzleOpen)===index}} onPress={()=>setPuzzleOpen(index===1)} style={{flex:1,alignItems:'center',justifyContent:'center',borderBottomWidth:2,borderColor:Number(puzzleOpen)===index?c.ink:'transparent'}}><Text style={{color:Number(puzzleOpen)===index?c.ink:c.muted,fontWeight:Number(puzzleOpen)===index?'700':'400'}}>{label}</Text></Pressable>)}<Pressable accessibilityRole="button" accessibilityLabel="스탬프 도감" onPress={openStamps} style={{flex:1,alignItems:'center',justifyContent:'center'}}><Text style={{color:c.ink}}>스탬프 도감</Text></Pressable></View>}
  {screen==='list'&&tab==='album'&&puzzleOpen&&<TravelPuzzle owner={session?.user.id} records={ownRows} ready={ownLoaded&&!loading&&!listError} error={listError} onRegion={code=>{setPuzzleOpen(false);setFriendOwner('');setScope('mine');setDrafts(false);setProvinceFilter('');setDistrictFilter(code);}}/>}
  {screen==='list'&&tab==='album'&&!puzzleOpen&&<>
@@ -424,15 +426,16 @@ export default function Home(){
   onAccount={()=>navigate('account')} onPrivacy={()=>{if(session){setJournalQuery('');ownJournal();}else navigate('account');}}
   onLogout={()=>perform(async()=>{const result=await auth.auth.signOut();if(result.error)throw result.error;})} visited={ownLoaded&&!loading&&!listError?Object.keys(ownGroups):null} onRegion={district=>{navigate('map');setDestination({latitude:district.point[1],longitude:district.point[0],label:district.label,bounds:district.bounds});}} onAlbum={id=>{setDistrictFilter('');setProvinceFilter(id);navigate('album');}}/>;
  const tools=<View style={{flexDirection:'row',alignItems:'center'}}>{(screen==='list'||screen==='account')&&<Pressable accessibilityRole="button" accessibilityLabel="새 여행 기록" onPress={startCreate} style={{alignItems:'center',justifyContent:'center'}}><AddPhotoIcon size={30}/></Pressable>}{settings}</View>;
+ const renderScroll=(onReady?:()=>void)=><ScrollView onLayout={onReady} testID="content-scroll" ref={scroll} scrollEventThrottle={16} onTouchStart={cancelAccountRestore} onScrollBeginDrag={cancelAccountRestore} {...(Platform.OS==='web'?{onWheel:cancelAccountRestore,onKeyDown:cancelAccountRestore}:{})} onScroll={event=>{if(screen==='list')tabScroll.current[tab]=event.nativeEvent.contentOffset.y;if(screen==='list'&&tab==='album')albumScroll.current=event.nativeEvent.contentOffset.y;if(screen==='account'&&pendingAccountScroll.current===null)accountScroll.current=event.nativeEvent.contentOffset.y;}} contentContainerStyle={[s.page,screen==='list'&&tab==='home'&&{paddingTop:6,paddingHorizontal:14},compact&&{padding:12,paddingBottom:24},narrowPage&&{maxWidth:640,padding:16,paddingTop:12,paddingBottom:32}]} keyboardShouldPersistTaps="handled">
+{renderContent()}
+ </ScrollView>;
  return <SafeAreaView testID="app-shell" edges={['top','left','right']} style={[s.safe,rail&&{paddingLeft:184}]}>
  {screen!=='create'&&!mapHome&&!feedScreen&&!socialMy&&<View style={[s.top,{maxWidth:720,paddingVertical:0,minHeight:52,paddingHorizontal:16},screen==='login'&&{justifyContent:'flex-end'}]}>{screen!=='login'&&<Text accessibilityRole="header" style={s.brand}>{sectionTitle}</Text>}{tools}</View>}
- {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot}/>:mapHome?<MapEntrance>{onReady=><View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}>{settings}<TravelMap focus={destination} onDraw={()=>setDrawRequest(n=>n+1)} onCanvasReady={onReady} fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
+ {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot} seed={feedSeed}/>:mapHome?<ScreenEntrance key="map" label="지도 준비 중">{onReady=><View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}>{settings}<TravelMap focus={destination} onDraw={()=>setDrawRequest(n=>n+1)} onCanvasReady={onReady} fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
  <Pressable accessibilityRole="button" accessibilityLabel="여행 기록 추가" onPress={startCreate} style={{position:'absolute',bottom:0,right:58,zIndex:2,width:48,height:48,borderRadius:24,backgroundColor:c.surface,alignItems:'center',justifyContent:'center'}}><AddPhotoIcon/></Pressable>
  <Pressable accessibilityRole="button" accessibilityLabel="친구" accessibilityState={{expanded:scopeOpen}} onPress={()=>session?setScopeOpen(true):setScreen('login')} style={{position:'absolute',zIndex:2,top:10,right:10,width:48,height:48,borderRadius:24,backgroundColor:c.surface,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:friendOwner?c.primary:c.line}}><Text style={{fontSize:13,color:c.ink}}>친구</Text></Pressable>
  <Modal visible={scopeOpen} transparent animationType="none" onRequestClose={()=>setScopeOpen(false)}><View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'#102B3540',padding:16}}><View accessibilityViewIsModal style={{width:'100%',maxWidth:360,maxHeight:'80%',borderRadius:20,backgroundColor:c.surface,padding:16}}><View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}><Text accessibilityRole="header">누구의 여행을 볼까요?</Text>{button('닫기',()=>setScopeOpen(false),true)}</View><ScrollView keyboardShouldPersistTaps="handled"><Pressable accessibilityRole="button" accessibilityLabel="나의 지도 선택" accessibilityState={{selected:!friendOwner}} onPress={()=>selectMapOwner('')} style={{width:80,alignItems:'center',padding:4,gap:6}}><View style={{width:56,height:56,borderRadius:28,backgroundColor:c.warm,borderWidth:2,borderColor:friendOwner?'transparent':c.primary,alignItems:'center',justifyContent:'center'}}><Text>나</Text></View><Text style={{fontSize:13}}>내 여행</Text></Pressable>{session&&<Friends mapOnly selectedOwner={friendOwner} session={session} onMap={selectMapOwner}/>}</ScrollView></View></View></Modal>
- </>}</View>}</MapEntrance>:<ScrollView testID="content-scroll" ref={scroll} scrollEventThrottle={16} onTouchStart={cancelAccountRestore} onScrollBeginDrag={cancelAccountRestore} {...(Platform.OS==='web'?{onWheel:cancelAccountRestore,onKeyDown:cancelAccountRestore}:{})} onScroll={event=>{if(screen==='list')tabScroll.current[tab]=event.nativeEvent.contentOffset.y;if(screen==='list'&&tab==='album')albumScroll.current=event.nativeEvent.contentOffset.y;if(screen==='account'&&pendingAccountScroll.current===null)accountScroll.current=event.nativeEvent.contentOffset.y;}} contentContainerStyle={[s.page,screen==='list'&&tab==='home'&&{paddingTop:6,paddingHorizontal:14},compact&&{padding:12,paddingBottom:24},narrowPage&&{maxWidth:640,padding:16,paddingTop:12,paddingBottom:32}]} keyboardShouldPersistTaps="handled">
-{renderContent()}
- </ScrollView>}{mapHome&&(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" style={{position:'absolute',top:90,alignSelf:'center'}}/>}{mapHome&&!!saved&&<View pointerEvents="none" style={[s.error,{position:'absolute',bottom:120,left:16,right:16}]}><Text accessibilityRole="alert" style={{color:c.ink}}>{saved}</Text></View>}{mapHome&&!!(error||listError)&&<View accessibilityRole="alert" style={[s.error,{position:'absolute',bottom:92,left:16,right:16}]}>
+ </>}</View>}</ScreenEntrance>:screen==='list'&&tab==='home'?<ScreenEntrance key="home" label="홈 준비 중">{renderScroll}</ScreenEntrance>:renderScroll()}{mapHome&&(busy||loading)&&<ActivityIndicator accessibilityLabel="처리 중" style={{position:'absolute',top:90,alignSelf:'center'}}/>}{mapHome&&!!saved&&<View pointerEvents="none" style={[s.error,{position:'absolute',bottom:120,left:16,right:16}]}><Text accessibilityRole="alert" style={{color:c.ink}}>{saved}</Text></View>}{mapHome&&!!(error||listError)&&<View accessibilityRole="alert" style={[s.error,{position:'absolute',bottom:92,left:16,right:16}]}>
  {!!error&&<><Text style={{color:c.error}}>{error}</Text><Pressable accessibilityRole="button" onPress={()=>setError('')} style={{padding:12}}><Text style={{color:c.ink}}>안내 닫기</Text></Pressable></>}
  {!!listError&&<><Text style={{color:c.error}}>{listError}</Text>{button('목록 다시 불러오기',()=>perform(()=>load()),true)}</>}
  </View>}{showNav&&<JournalNav rail={rail} tab={screen==='account'?'account':tab} onTab={next=>next==='album'?ownJournal():navigate(next)} onCreate={startCreate}/>}{locationOpen&&<LocationPicker initialPlace={latitude&&longitude?{...placeInfo,latitude:Number(latitude),longitude:Number(longitude)}:null} onClose={()=>setLocationOpen(false)} onConfirm={applyPlace} footer={<JournalNav tab={tab} onTab={next=>next==='album'?ownJournal():navigate(next)} onCreate={startCreate}/>}/>}{session&&<ProfileSetupGate key={session.user.id} session={session} onLogout={async()=>{const result=await auth.auth.signOut();if(result.error)throw result.error;}}/>}</SafeAreaView>;

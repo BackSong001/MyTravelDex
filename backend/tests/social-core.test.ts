@@ -16,8 +16,8 @@ afterAll(async()=>{
  for(const id of locations)await admin.request('/rest/v1/locations?id=eq.'+id,'DELETE');
  for(const u of users)await admin.request('/auth/v1/admin/users/'+u.id,'DELETE');
 });
-async function record(visibility='public'){
- const u=users[0],l=(await u.api.request('/rest/v1/locations','POST',{owner_id:u.id,latitude:37.56,longitude:126.97,source:'manual'}))[0];locations.push(l.id);
+async function record(visibility='public',u=users[0]){
+ const l=(await u.api.request('/rest/v1/locations','POST',{owner_id:u.id,latitude:37.56,longitude:126.97,source:'manual'}))[0];locations.push(l.id);
  const r=(await u.api.request('/rest/v1/travel_records','POST',{owner_id:u.id,location_id:l.id,start_date:'2026-11-01',end_date:'2026-11-02',visibility}))[0];records.push(r.id);
  const id=randomUUID(),prefix=`${u.id}/${r.id}/${id}`;
  for(const file of ['original.jpg','thumbnail.jpg']){await u.api.request('/storage/v1/object/travel-photos/'+prefix+'/'+file,'POST',new Uint8Array([255,216,255,217]),'image/jpeg');objects.push(prefix+'/'+file);}
@@ -76,6 +76,27 @@ test('TC-SNS-002 server-filtered cursor returns every public record and follows 
  await b.api.request('/rest/v1/follows','POST',{follower_id:b.id,followee_id:users[0].id});
  expect((await b.api.rpc('social_feed',{mode:'following'})).items).toHaveLength(20);
  await expect(guest.rpc('social_feed',{mode:'following'})).rejects.toMatchObject({status:401});
+});
+test('ranked feed rotates authors by posting day and keeps a seeded cursor across pages',async()=>{
+ const writers=users.slice(0,2);
+ const ids:string[]=[];
+ for(let i=0;i<22;i++)ids.push(await record('public',writers[i%2]));
+ const old=await record();
+ await admin.request('/rest/v1/travel_records?id=eq.'+old,'PATCH',{created_at:'2020-01-01T10:00:00Z'});
+ const hidden=await record('private');
+ async function read(seed:string){
+  const items:any[]=[];let cursor=null;
+  do{const page=await guest.rankedFeed({mode:'public',seed},cursor);items.push(...page.items);cursor=page.next_cursor;}while(cursor);
+  return items;
+ }
+ const seed=randomUUID(),rows=await read(seed),ordered=rows.map(r=>r.id);
+ expect(new Set(ordered).size).toBe(rows.length);expect(ordered).not.toContain(hidden);
+ expect(ids.every(id=>ordered.indexOf(id)>=0&&ordered.indexOf(id)<ordered.indexOf(old))).toBe(true);
+ const own=rows.filter(r=>ids.includes(r.id));
+ for(let i=1;i<own.length;i++)expect(own[i].owner_id).not.toBe(own[i-1].owner_id);
+ expect((await read(seed)).map(r=>r.id)).toEqual(ordered);
+ expect((await read(randomUUID())).map(r=>r.id)).not.toEqual(ordered);
+ await expect(guest.rankedFeed({mode:'following',seed},null)).rejects.toMatchObject({status:401});
 });
 test('TC-SNS-003 notification body and unread count are recipient-only and disappear on privacy change',async()=>{
  const id=await record(),a=users[0],b=users[1],comment_id=randomUUID();
