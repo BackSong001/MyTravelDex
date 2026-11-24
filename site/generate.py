@@ -41,7 +41,8 @@ def decorate(html, path, title, desc):
     graph = [{'@type':'WebPage','@id':url,'name':title,'isPartOf':{'@id':origin+'/#website'}}]
     if path=='/':
         graph += [{'@type':'WebSite','@id':origin+'/#website','url':url,'name':'여행가봥','alternateName':'MyTravelDex'},
-                  {'@type':'SoftwareApplication','name':'여행가봥','url':app,'applicationCategory':'TravelApplication','operatingSystem':'Web, Android'}]
+                  {'@type':'Brand','@id':origin+'/#brand','name':'여행가봥','alternateName':'MyTravelDex','logo':origin+'/assets/icon.png'},
+                  {'@type':'SoftwareApplication','@id':origin+'/#app','name':'여행가봥','brand':{'@id':origin+'/#brand'},'url':app,'applicationCategory':'TravelApplication','operatingSystem':'Web, Android'}]
     if path=='/blog/first-trip/':
         graph += [{'@type':'BlogPosting','headline':title,'mainEntityOfPage':url,'inLanguage':'ko'}]
     tags=f'<link rel="canonical" href="{url}"><meta name="description" content="{desc}">'
@@ -51,7 +52,10 @@ def decorate(html, path, title, desc):
     return re.sub(r'(?m)^[ \t]+$', '', html).replace('</head>','<!-- seo -->'+tags+'<!-- /seo --></head>')
 home=root/'index.html'
 s=home.read_text()
-if 'class="wrap resources"' not in s:s=s.replace('<footer',nav+'\n<footer').replace('</footer>',consent+'</footer>')
+if 'aria-label="서비스 안내"' in s:
+    s = re.sub(r'<nav aria-label="서비스 안내".*?</nav>', nav, s, count=1, flags=re.S)
+else:
+    s = s.replace('<footer', nav+'\n<footer', 1).replace('</footer>',consent+'</footer>',1)
 home.write_text(decorate(s,'/','여행가봥 — 나의 여행 지도','사진으로 여행을 기록하고 지도에서 다시 만나세요. 지역 퍼즐과 여행 피드를 함께 즐겨 보세요.'))
 paths=['/']
 for slug,(name,desc,sections) in pages.items():

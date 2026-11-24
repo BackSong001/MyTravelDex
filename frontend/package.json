@@ -2,7 +2,7 @@
   "name": "mytraveldex-app",
   "version": "1.0.0",
   "private": true,
-  "main": "expo-router/entry",
+  "main": "entry.js",
   "scripts": {
     "android:bundle": "node ../scripts/android-bundle.mjs",
     "android:configured": "node ../scripts/configured.mjs --native-android",

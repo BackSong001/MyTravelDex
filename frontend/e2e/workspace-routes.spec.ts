@@ -68,3 +68,23 @@ test('최초 번들 전송이 실패해도 같은 주소에서 다시 열 수 �
   await retry.click();
   await expect(page.getByText('서울 지역 선택됨')).toBeVisible({timeout:20000});
 });
+
+test('지역 선택과 지도 카메라가 도감 탭을 거쳐 뒤로 돌아와도 유지된다',async({page})=>{
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/map');
+  const canvas=page.getByTestId('svg-map-canvas');
+  await expect(canvas).toBeVisible({timeout:20000});
+  await expect(page.getByLabel('지도 준비 중',{exact:true})).toHaveCount(0);
+  await canvas.press('Enter');
+  await page.getByRole('button',{name:'서울특별시 · 0개',exact:true}).click();
+  const name=page.getByTestId('map-region-name');
+  const camera=canvas.locator('svg > g[transform]').first();
+  await expect(name).toHaveText('서울특별시');
+  const transform=await camera.getAttribute('transform');
+  expect(transform).toBeTruthy();
+  await page.getByRole('tab',{name:'도감',exact:true}).click();
+  await expect(page).toHaveURL(/\/dex$/);
+  await page.goBack();
+  await expect(name).toHaveText('서울특별시');
+  await expect(camera).toHaveAttribute('transform',transform!);
+});

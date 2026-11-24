@@ -1,45 +1,9 @@
-import {useThemeColors,useThemeStyles,type ThemeColors} from '../src/ThemeContext';
-import React, {useEffect, useState} from 'react';
-import {Platform,StyleSheet, View} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {SplashScreen, Stack} from 'expo-router';
-import {StatusBar} from 'expo-status-bar';
-import {TravelSplash,useSplashMinimumElapsed} from '../src/TravelSplash';
-import {api} from '../src/runtime';
-import {contrastRatio} from '../src/themes';
-import useAppViewport from '../src/useAppViewport';
-import {MotionProvider} from '../src/Feedback';
+import {Platform} from 'react-native';
+import {Slot,Stack} from 'expo-router';
+import AppFrame from '../src/AppFrame';
+import {useThemeColors} from '../src/ThemeContext';
 
-void SplashScreen.preventAutoHideAsync().catch(() => {});
-
-export default function Layout() {
- const c=useThemeColors(),viewport=useAppViewport();
- const s=useThemeStyles(makeStyles);
-  const [localReady, setLocalReady] = useState(false);
-  const [laidOut, setLaidOut] = useState(false);
-  const elapsed = useSplashMinimumElapsed();
-  const ready = localReady && laidOut && elapsed;
-  useEffect(() => {
-    let active = true;
-    // 로컬 저장소만 준비한다. 세션 갱신·지도·목록 요청은 화면에서 처리한다.
-    const storageKey = `sb-${new URL(api.url).hostname.split('.')[0]}-auth-token`;
-    void AsyncStorage.getItem(storageKey).catch(() => null).finally(() => {
-      if (active) setLocalReady(true);
-    });
-    return () => {active = false;};
-  }, []);
-  useEffect(() => {
-    if (laidOut) void SplashScreen.hideAsync().catch(() => {});
-  }, [laidOut]);
-  return <MotionProvider><View testID="viewport-frame" style={[s.root,Platform.OS==='web'&&{position:'absolute',top:viewport.top??0,left:viewport.left??0,width:viewport.width,maxWidth:'100%',height:viewport.height}]} onLayout={() => setLaidOut(true)}>
-    <StatusBar style={contrastRatio('#FFFFFF',c.paper)>contrastRatio('#000000',c.paper)?'light':'dark'}/>
-    <View style={s.root} {...(Platform.OS==='web'?{inert:!ready}:{})} pointerEvents={ready?'auto':'none'} accessibilityElementsHidden={!ready} importantForAccessibility={ready ? 'auto' : 'no-hide-descendants'}>
-      <Stack screenOptions={{headerShown: false, contentStyle: {backgroundColor: c.paper}}}/>
-    </View>
-    {!ready && <TravelSplash label="여행가봥 시작 중"/>}
-  </View></MotionProvider>;
+export default function Layout(){
+ const c=useThemeColors();
+ return Platform.OS==='web'?<Slot/>:<AppFrame><Stack screenOptions={{headerShown:false,contentStyle:{backgroundColor:c.paper}}}/></AppFrame>;
 }
-
-const makeStyles=(c: ThemeColors)=>StyleSheet.create({
-  root: {flex: 1, backgroundColor: c.paper},
-});
