@@ -561,3 +561,7 @@ social_ranked_feed(mode,seed,after_cursor?)는 기존 공개 항목과 불투명
 social_ranked_feed(public)의 신규 커서는 v=2를 포함한다. social_people(kind=directory)는 로그인 사용자에게 본인을 제외한 활동 가능·미차단 계정을 20명씩 제공한다. 팔로워·팔로잉은 본인만 읽으며 친구 관계는 별도로 관리한다.
 
 social_profile은 directory_listed를 반환하지 않으며 social_set_directory_listing RPC는 종료한다. 친구 화면은 listed_travelers에서 로그인하면 다른 활성·미차단 계정을 조회하고, 익명 접근은 이전 공개 목록 범위만 유지한다. social_search와 social_set_follow는 기존 차단 검사와 호출 권한을 유지한다.
+
+도감·편집·온보딩의 최신 기준은 docs/JOURNAL_UPDATE.md의 FR-JOURNAL-REFRESH-01~05를 따른다. 이전 퍼즐·단일 테마·별도 미리보기 버튼 정책을 대체한다.
+
+`POST /rest/v1/rpc/edit_journal_record`는 인증 사용자의 완료 기록을 편집한다. 본문은 `record_id`(UUID), `fields`(title, content, start_date, end_date, visibility), 선택 `place`(작성 화면과 같은 대표 위치 필드)다. place를 생략하거나 null로 보내면 기존 location_id를 유지한다. 동일한 위치를 재전송해도 위치 행을 추가하지 않는다. 성공 응답에는 반환 데이터가 없다. 권한 밖의 기록이나 초안은 수정할 수 없으며 날짜·위치 제약 위반 시 전체 트랜잭션을 취소한다. 서버에 RPC가 준비되기 전에 배포한 클라이언트는 저장 오류를 표시하고 편집 입력을 보존한다. 배포 순서는 DB 마이그레이션 후 클라이언트다.

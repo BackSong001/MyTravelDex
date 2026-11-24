@@ -1,3 +1,5 @@
+import {t} from './translate';
+import {setPreference,usePreferences} from './preferences';
 import LegalLink from './LegalLink';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {Animated,Modal,Platform,Pressable as Backdrop,ScrollView,StyleSheet,useWindowDimensions,View} from 'react-native';
@@ -14,12 +16,13 @@ const titles={menu:'여행가봥',discovery:'어디로 가봥?',account:'계정 
 type Pane=keyof typeof titles;
 type Props={
  owner?:string; tab:JournalTab; onTab:(tab:JournalTab)=>void; onCreate:()=>void;
- onAccount:()=>void; onLogout:()=>void; onStamps:()=>void; onPrivacy:()=>void; busy?:boolean;
+ onGuide?:()=>void;onAccount:()=>void; onLogout:()=>void; onStamps:()=>void; onPrivacy:()=>void; busy?:boolean;
  visited?:string[]|null; records?:Parameters<typeof visitedDistricts>[0]; failed?:boolean;
  routePane?:'menu'|'discovery'|null; onRoutePane?:(pane:'menu'|'discovery'|null)=>void; drawRequest?:number; onAlbum?:(id:string)=>void; onRegion:(district:Destination)=>void; hideTrigger?:boolean;
 };
 
-export default function AppSettings({routePane,onRoutePane,owner,tab,onTab,onCreate,onAccount,onLogout,onStamps,onPrivacy,busy,visited=null,records,failed,drawRequest=0,onRegion,onAlbum,hideTrigger}:Props){
+export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onTab,onCreate,onAccount,onLogout,onStamps,onPrivacy,busy,visited=null,records,failed,drawRequest=0,onRegion,onAlbum,hideTrigger}:Props){
+ const prefs=usePreferences();
  const c=useThemeColors(),reduced=useReducedMotion(),{width}=useWindowDimensions();
  const [open,setOpen]=useState(false),[pane,setPane]=useState<Pane>('menu');
  const trigger=useRef<React.ElementRef<typeof Pressable>>(null),scroll=useRef<ScrollView>(null);
@@ -59,29 +62,34 @@ export default function AppSettings({routePane,onRoutePane,owner,tab,onTab,onCre
  }
  const full=pane==='discovery';
  return <>
-  {!hideTrigger&&<Pressable ref={trigger} accessibilityRole="button" accessibilityLabel="설정" accessibilityState={{expanded:open}} onPress={()=>{setOpen(true);onRoutePane?.('menu');}} style={s.control}>
+  {!hideTrigger&&<Pressable ref={trigger} accessibilityRole="button" accessibilityLabel={t("설정")} accessibilityState={{expanded:open}} onPress={()=>{setOpen(true);onRoutePane?.('menu');}} style={s.control}>
    {[0,1,2].map(i=><View key={i} style={{height:2,width:22,borderRadius:2,backgroundColor:c.ink}}/>)}</Pressable>}
   <Modal visible={open} transparent animationType="none" onRequestClose={close}>
    <View style={{flex:1,alignItems:'flex-end'}}>
     {!full&&<Backdrop accessible={false} testID="menu-backdrop" onPress={close} style={[StyleSheet.absoluteFill,{backgroundColor:'#102B3552'}]}/>}
     <Animated.View style={{flex:1,width:full?'100%':drawerWidth,backgroundColor:c.paper,borderTopLeftRadius:full?0:24,borderBottomLeftRadius:full?0:24,overflow:'hidden',transform:[{translateX:full?0:slide.interpolate({inputRange:[0,1],outputRange:[0,drawerWidth]})}]}}>
-     <SafeAreaView accessibilityViewIsModal accessibilityLabel="설정과 여행 도구" style={{flex:1}}>
+     <SafeAreaView accessibilityViewIsModal accessibilityLabel={t("설정과 여행 도구")} style={{flex:1}}>
       <View style={[s.header,{borderColor:c.line}]}>
-       {pane!=='menu'&&<Pressable accessibilityRole="button" accessibilityLabel="여행 도구 뒤로" onPress={()=>direct.current?close():changePane('menu')} style={s.control}><JournalIcon name="back" size={20}/></Pressable>}
-       <Text accessibilityRole="header" style={[s.title,{color:c.ink}]}>{titles[pane]}</Text>
-       <Pressable accessibilityRole="button" accessibilityLabel="설정 닫기" onPress={close} style={s.control}><JournalIcon name="close" size={20}/></Pressable>
+       {pane!=='menu'&&<Pressable accessibilityRole="button" accessibilityLabel={t("여행 도구 뒤로")} onPress={()=>direct.current?close():changePane('menu')} style={s.control}><JournalIcon name="back" size={20}/></Pressable>}
+       <Text accessibilityRole="header" style={[s.title,{color:c.ink}]}>{t(titles[pane])}</Text>
+       <Pressable accessibilityRole="button" accessibilityLabel={t("설정 닫기")} onPress={close} style={s.control}><JournalIcon name="close" size={20}/></Pressable>
       </View>
       <ScrollView ref={scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
        {open&&pane==='menu'&&<>
-        {section('여행 즐기기',<>{row(titles.discovery,'destination',()=>changePane('discovery'))}{row('친구 관리','friends',()=>leave(()=>onTab('friends')))}{row('스탬프 도감','bookmark',()=>leave(onStamps))}</>)}
-        {section('설정',<>{row(titles.account,'account',()=>changePane('account'))}{row('개인정보 및 공개 범위','lock',()=>leave(onPrivacy))}</>)}
-        {section('고객 지원',row(titles.about,'feed',()=>changePane('about')))}
+        {section(t('화면 설정'),<>
+         {owner&&onGuide&&row(t('튜토리얼 다시 보기'),'home',()=>leave(onGuide))}
+         {row(prefs.language==='ko'?t('언어 · English'):t('Language · 한국어'),'account',()=>setPreference('language',prefs.language==='ko'?'en':'ko'))}
+         {row(prefs.theme==='light'?t('다크 테마'):t('화이트 테마'),'grid',()=>setPreference('theme',prefs.theme==='light'?'dark':'light'))}
+         </>)}
+        {section(t('여행 즐기기'),<>{row(t(titles.discovery),'destination',()=>changePane('discovery'))}{row(t('친구 관리'),'friends',()=>leave(()=>onTab('friends')))}{row(t('스탬프 도감'),'bookmark',()=>leave(onStamps))}</>)}
+        {section(t('설정'),<>{row(t(titles.account),'account',()=>changePane('account'))}{row(t('개인정보 및 공개 범위'),'lock',()=>leave(onPrivacy))}</>)}
+        {section(t('고객 지원'),row(t(titles.about),'feed',()=>changePane('about')))}
        </>}
        {open&&pane==='account'&&<View style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>
-        {owner?<>{row('내 프로필 관리','account',()=>leave(onAccount),busy)}{row('로그아웃','next',()=>leave(onLogout),busy)}</>:row('로그인','account',()=>leave(onAccount))}
+        {owner?<>{row(t('내 프로필 관리'),'account',()=>leave(onAccount),busy)}{row(t('로그아웃'),'next',()=>leave(onLogout),busy)}</>:row(t('로그인'),'account',()=>leave(onAccount))}
         <LegalLink deletion/>
        </View>}
-       {open&&pane==='about'&&<View style={[s.card,{padding:20,gap:8,backgroundColor:c.sheet,borderColor:c.line}]}><Text style={[s.title,{color:c.ink}]}>{expo.name}</Text><Text style={{color:c.muted}}>MyTravelDex</Text><Text style={{color:c.ink}}>버전 {expo.version}</Text><LegalLink/></View>}
+       {open&&pane==='about'&&<View style={[s.card,{padding:20,gap:8,backgroundColor:c.sheet,borderColor:c.line}]}><Text style={[s.title,{color:c.ink}]}>{expo.name}</Text><Text style={{color:c.muted}}>MyTravelDex</Text><Text style={{color:c.ink}}>{t("버전")} {expo.version}</Text><LegalLink/></View>}
        {open&&full&&<DestinationDraw owner={owner} onDrawStart={()=>scroll.current?.scrollTo({y:0,animated:false})} visited={visits} stamps={owner?visited:null} failed={failed} onRegion={district=>leave(()=>onRegion(district))} onAlbum={onAlbum?id=>leave(()=>onAlbum(id)):undefined}/>}
       </ScrollView>
       {full&&<JournalNav tab={tab} onTab={next=>leave(()=>onTab(next))} onCreate={()=>leave(onCreate)}/>}

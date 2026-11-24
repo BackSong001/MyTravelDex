@@ -17,7 +17,7 @@ python3 -m http.server 8090 --bind 127.0.0.1 --directory site
 ## 이미지 출처
 
 - 앱 아이콘은 `frontend/public/lavender-backpack.png`를 정사각형 PNG로 변환했다.
-- 마스코트는 여행가봥 홈의 안경 다람쥐를 캡처했다. 지도, 기록 작성, 퍼즐은 390px 모바일 뷰포트에서 현재 Expo 웹앱을 실행해 캡처했다. 예시 계정과 여행은 브라우저의 테스트 응답으로 구성했다. 지도 확대 컷은 같은 지도 화면을 잘라 썼다.
+- 마스코트는 여행가봥 홈의 안경 다람쥐를 캡처했다. 지도와 기록 작성 화면은 390px 모바일 뷰포트에서 현재 Expo 웹앱을 실행해 캡처했다. 예시 계정과 여행은 브라우저의 테스트 응답으로 구성했다. 지도 확대 컷은 같은 지도 화면을 잘라 썼다.
 - 예시 사진은 Mobius6의 [Jeonju Hanok Village 20230408 008.jpg](https://commons.wikimedia.org/wiki/File:Jeonju_Hanok_Village_20230408_008.jpg)를 축소한 앱 테스트 이미지다. 사진과 화면에 포함된 사진의 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 조건을 유지한다.
 - 지도 © [OpenStreetMap 기여자](https://www.openstreetmap.org/copyright).
 

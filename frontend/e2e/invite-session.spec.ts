@@ -9,6 +9,8 @@ test.beforeAll(async()=>{
  const session={user:{id:'11111111-1111-4111-8111-111111111111'},access_token:'fixture'};
  // 실제 Home 상태를 실행하고 네이티브 UI·라우터·외부 로그인 경계만 대체한다.
  const stubs:Record<string,string>={
+  '../src/TravelGuide':`export const guideSteps=[],TravelGuide=()=>null;`,
+  '../src/MascotArt':`export const companions={};`,
   '../src/MapAttribution':`export const ProfileMapCredits=()=>null;`,
   '../src/Feedback':`export {Pressable as default} from 'react-native';`,
   'react-native':`import React from '${react}';
@@ -17,7 +19,7 @@ test.beforeAll(async()=>{
    export const useWindowDimensions=()=>({width:390,height:844,fontScale:1});export const Platform={OS:'android'},Linking={},AppState={addEventListener:()=>({remove(){}})},AccessibilityInfo={},findNodeHandle=()=>null,StyleSheet={create:x=>x};`,
   'react-native-safe-area-context':`export {View as SafeAreaView} from 'react-native';`,
   'expo-router':`export const router={setParams(){}};export const useLocalSearchParams=()=>({friend:'22222222-2222-4222-8222-222222222222'});`,
-  '@react-native-async-storage/async-storage':`export default {getItem:async()=>null,setItem:async()=>{},removeItem:async()=>{}};`,
+  '@react-native-async-storage/async-storage':`export default {getItem:async()=>null,multiGet:async()=>[],setItem:async()=>{},removeItem:async()=>{}};`,
   '../src/photos':`export const photoPermission=()=>{},photoMetadata=()=>{},compressPhoto=()=>{},pickPhotos=()=>{},cleanupPickedPhotos=()=>{};`,
   'expo-crypto':`export const randomUUID=()=>'';`,
   '../src/runtime':`const passwordLogin=async()=>{await new Promise(resolve=>window.finishPasswordLogin=resolve);return ${JSON.stringify(session)};};export const api={list:async()=>[],following:async()=>[],login:passwordLogin,request:async path=>path.startsWith('/auth/v1/token')?passwordLogin():[],token:null};`,
@@ -25,7 +27,7 @@ test.beforeAll(async()=>{
   '../src/MyTrips':`export default ()=>null;`,
   '../src/Social':`import React from '${react}';export const isUserId=x=>typeof x==='string'&&/^[0-9a-f-]{36}$/.test(x);export const Friends=({session})=>React.createElement('div',{'data-testid':'friends'},React.createElement('span',{'data-testid':'session-owner'},session?.user.id??'guest'));export const ProfileSetupGate=()=>null;export const ProfileEditor=()=>null;`,
   '../src/TravelMap':`export default ()=>null;export const preloadMap=undefined;`,
-  '../src/DeferredScreens':`export const SocialFeed=()=>null,SocialAccount=()=>null,TravelDashboard=()=>null,TravelPuzzle=()=>null,StampCatalog=()=>null,LocationPicker=()=>null;`,
+  '../src/DeferredScreens':`export const SocialFeed=()=>null,SocialAccount=()=>null,TravelDashboard=()=>null,StampCatalog=()=>null,LocationPicker=()=>null;`,
   '../src/SocialUI':`export const Notice=()=>null;`,
   '../src/regions':`export const districts=[],recordRegion=()=>null,legacyCodes={};`,
   '../src/regionalAssets':`export const exactLocation=async()=>null;`,
@@ -44,7 +46,7 @@ test.beforeAll(async()=>{
    builder.onResolve({filter:/.*/},args=>{
     if(args.path.startsWith(root+'/'))return {path:args.path,namespace:'file'};
     if(args.path==='../src/FontText')return {path:path.resolve('frontend/src/FontText.tsx'),namespace:'file'};
-    if(['../src/useAppViewport','../src/journalRecords','../src/domain','../src/recordCovers','../src/ThemeContext'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
+    if(['../src/translate','../src/useAppViewport','../src/journalRecords','../src/domain','../src/recordCovers','../src/ThemeContext'].includes(args.path))return {path:path.resolve('frontend/src/'+args.path.split('/').at(-1)+'.ts'),namespace:'file'};
     if(args.path in stubs)return {path:args.path,namespace:'boundary'};
     if(args.importer.endsWith('/frontend/screens/AppWorkspace.tsx')&&args.path.startsWith('../src/'))return {path:args.path,namespace:'empty'};
    });

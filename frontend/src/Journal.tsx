@@ -1,3 +1,5 @@
+import {usePreferences} from './preferences';
+import {t,msg} from './translate';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import React from 'react';
@@ -41,9 +43,9 @@ export function Welcome({children}:{children?:React.ReactNode}) {
  const iconSize=compact?120:160;
  return <View testID="login-layout" style={{width:'100%',maxWidth:400,alignSelf:'center',alignItems:'center',gap:compact?16:24,paddingVertical:compact?4:24}}>
   <View style={{width:'100%',alignItems:'center',gap:8}}>
-   <Image source={Platform.OS==='web'?{uri:'/backpack-icon.png'}:require('../public/backpack-icon.png')} accessible accessibilityLabel="보라색 여행 배낭" resizeMode="contain" style={{width:iconSize,height:iconSize}}/>
-   <Text accessibilityRole="header" style={{color:c.ink,fontSize:36,lineHeight:46,fontWeight:'700',textAlign:'center'}}>여행가봥</Text>
-   <Text style={{color:c.muted,fontSize:16,lineHeight:25,textAlign:'center'}}>여행 사진을 지도에 담고,{width<440?'\n':' '}지역 스탬프를 모아보세요.</Text>
+   <Image source={Platform.OS==='web'?{uri:'/backpack-icon.png'}:require('../public/backpack-icon.png')} accessible accessibilityLabel={t("보라색 여행 배낭")} resizeMode="contain" style={{width:iconSize,height:iconSize}}/>
+   <Text accessibilityRole="header" style={{color:c.ink,fontSize:36,lineHeight:46,fontWeight:'700',textAlign:'center'}}>{t("여행가봥")}</Text>
+   <Text style={{color:c.muted,fontSize:16,lineHeight:25,textAlign:'center'}}>{t("여행 사진을 지도에 담고,")}{width<440?'\n':' '}{t("지역 스탬프를 모아보세요.")}</Text>
   </View>
   {children&&<View style={{width:'100%',gap:8}}>{children}</View>}
  </View>;
@@ -55,38 +57,40 @@ export type JournalTab = 'home' | 'feed' | 'map' | 'album' | 'friends' | 'accoun
 export type PublicAuthor = {display_name?: string | null; avatar_url?: string | null};
 export function Author({author,size=28}: {author?: PublicAuthor | null;size?:number}) {
  const s=useThemeStyles(makeStyles);
-  const name = author?.display_name?.trim() || '여행자';
-  return <View accessible accessibilityLabel={`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url} size={size}/></View>;
+  const name = author?.display_name?.trim() || t('여행자');
+  return <View accessible accessibilityLabel={msg`작성자 ${name}`} style={s.author}><Avatar url={author?.avatar_url} size={size}/></View>;
 }
 
-export function Collection({records,covers,onOpen,authors={},emptySearch=false,disabled=false,loading=false,failed=false,children,profile=false,total=records.length,onCoverError,groupBy,owner,onVisibilityChange,visibilityBusy,visibilityErrors={}}:{
+export function Collection({records,covers,onOpen,authors={},emptySearch=false,disabled=false,loading=false,failed=false,children,profile=false,total=records.length,onCoverError,groupBy,owner,onManage,onVisibilityChange,visibilityBusy,visibilityErrors={}}:{
  records:any[];covers:Record<string,string>;onOpen:(record:any)=>void;emptySearch?:boolean;disabled?:boolean;loading?:boolean;failed?:boolean;profile?:boolean;total?:number;onCoverError?:(id:string,url:string)=>void;authors?:Record<string,PublicAuthor|null>;children?:React.ReactNode;
- groupBy?:(record:any)=>string;owner?:string;onVisibilityChange?:(record:any,target:'private'|'public')=>void;visibilityBusy?:ReadonlySet<string>;visibilityErrors?:Record<string,{target:'private'|'public';message:string}>;
+ onManage?:(record:any,intent:'edit'|'delete')=>void;groupBy?:(record:any)=>string;owner?:string;onVisibilityChange?:(record:any,target:'private'|'public')=>void;visibilityBusy?:ReadonlySet<string>;visibilityErrors?:Record<string,{target:'private'|'public';message:string}>;
 }){
- const c=useThemeColors(),s=useThemeStyles(makeStyles),{height}=useWindowDimensions();
- const countLabel=loading?'불러오는 중':failed?'확인 필요':profile?`전체 ${total}개 중 최근 ${records.length}개`:`${records.length}개`;
+ const c=useThemeColors(),s=useThemeStyles(makeStyles),{height,width}=useWindowDimensions();
+ const [menu,setMenu]=React.useState<string|null>(null);
+ const countLabel=loading?t('불러오는 중'):failed?t('확인 필요'):profile?msg`전체 ${total}개 중 최근 ${records.length}개`:msg`${records.length}개`;
  return <>
-  <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={[s.title,profile&&s.profileTitle]}>{profile?'나의 여행':'여행도감'}</Text><Text testID={profile?'profile-trip-count':undefined} accessibilityLabel={profile?`나의 여행 기록 · ${countLabel}`:loading?'여행 기록 불러오는 중':undefined} style={[s.subtitle,profile&&s.profileSubtitle]}>{countLabel}</Text></View>
+  <View style={[s.titleRow,height<500&&{marginTop:0,marginBottom:12}]}><Text accessibilityRole="header" style={[s.title,profile&&s.profileTitle]}>{profile?t('나의 여행'):t('여행도감')}</Text><Text testID={profile?'profile-trip-count':undefined} accessibilityLabel={profile?msg`나의 여행 기록 · ${countLabel}`:loading?t('여행 기록 불러오는 중'):undefined} style={[s.subtitle,profile&&s.profileSubtitle]}>{countLabel}</Text></View>
   {children}
-  {!loading&&!failed&&!records.length&&<View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?'검색 결과가 없어요':'첫 번째 여행을 펼쳐보세요'}</Text><Text style={s.subtitle}>{emptySearch?'다른 검색어를 입력하거나 검색어를 지워보세요.':'갤러리의 사진 한 장이면 시작할 수 있어요.'}</Text></View>}
+  {!loading&&!failed&&!records.length&&<View style={s.empty}><Backpack size={60}/><Text style={s.emptyTitle}>{emptySearch?t('검색 결과가 없어요'):t('첫 번째 여행을 펼쳐보세요')}</Text><Text style={s.subtitle}>{emptySearch?t('다른 검색어를 입력하거나 검색어를 지워보세요.'):t('갤러리의 사진 한 장이면 시작할 수 있어요.')}</Text></View>}
   <View style={[s.list,profile&&{flexDirection:'row',flexWrap:'wrap',marginHorizontal:0}]}>{records.map((record,index)=>{
-   const author=authors[record.owner_id],title=record.title||'제목 없는 여행',place=record.locations?.place_name||record.locations?.region_name||'지도에 남긴 여행';
-   const recordLabel=`${title}, ${record.start_date} ~ ${record.end_date}, ${place}, ${index+1}번째 기록`;
-   const visibility=record.status==='draft'?'작성 중':record.visibility==='private'?'나만 보기':'공개 여행';
+   const author=authors[record.owner_id],title=record.title||t('제목 없는 여행'),place=record.locations?.place_name||record.locations?.region_name||t('지도에 남긴 여행');
+   const recordLabel=msg`${title}, ${record.start_date} ~ ${record.end_date}, ${place}, ${index+1}번째 기록`;
+   const visibility=record.status==='draft'?t('작성 중'):record.visibility==='private'?t('나만 보기'):t('공개 여행');
    const canChange=!profile&&!!owner&&owner===record.owner_id&&record.status==='complete'&&!!onVisibilityChange,pending=visibilityBusy?.has(record.id),failure=visibilityErrors[record.id];
+   const desktop=!profile&&width>=900;
    const content=<>
-    <View style={{position:'relative'}}>{covers[record.id]?<Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={`${title} 대표사진`} source={{uri:covers[record.id]}} onError={onCoverError?()=>onCoverError(record.id,covers[record.id]):undefined} style={[s.listPhoto,profile&&s.profilePhoto]}/>:<View style={[s.photoPlaceholder,s.listPhoto,profile&&s.profilePhoto]}><JournalIcon name="album" size={30}/></View>}{!profile&&<View style={{position:'absolute',bottom:3,right:3}}><Author author={author} size={20}/></View>}</View>
-    <View style={s.rowBody}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text><View style={[s.placeStatus,(profile||canChange)&&{flexDirection:'column'}]}><Text numberOfLines={2} style={[s.cardPlace,profile?{minWidth:0}:canChange?{minWidth:0}:{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
-    {!profile&&<View style={s.rowTrailing}><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>}
+    <View style={{position:'relative'}}>{covers[record.id]?<Image accessible accessibilityRole={Platform.OS==='web'?undefined:'image'} accessibilityLabel={msg`${title} 대표사진`} source={{uri:covers[record.id]}} onError={onCoverError?()=>onCoverError(record.id,covers[record.id]):undefined} style={[s.listPhoto,profile&&s.profilePhoto]}/>:<View style={[s.photoPlaceholder,s.listPhoto,profile&&s.profilePhoto]}><JournalIcon name="album" size={30}/></View>}{!profile&&<View style={{position:'absolute',bottom:3,right:3}}><Author author={author} size={20}/></View>}</View>
+    <View style={[s.rowBody,desktop&&{flexDirection:'row',alignItems:'center',gap:12}]}><View style={desktop?{flex:1,minWidth:0}:undefined}><Text numberOfLines={2} style={s.cardTitle}>{title}</Text><Text style={s.cardDate}>{record.start_date===record.end_date?record.start_date:`${record.start_date} ~ ${record.end_date}`}</Text></View><View style={[s.placeStatus,desktop&&{width:120},(profile||canChange)&&{flexDirection:'column'}]}><Text numberOfLines={2} style={[s.cardPlace,profile?{minWidth:0}:canChange?{minWidth:0}:{flex:1,minWidth:0}]}>{place}</Text><Text style={[s.cardPlace,{flexShrink:0}]}>{visibility}</Text></View>{profile&&!!record.content&&<Text numberOfLines={1} style={s.cardPlace}>{record.content}</Text>}</View>
+    {!profile&&!onManage&&<View style={s.rowTrailing}><Text accessible={false} aria-hidden style={s.chevron}>›</Text></View>}
    </>;
-   const row=<Pressable disabled={disabled||pending} accessibilityRole="button" accessibilityLabel={`${title}, ${profile?'내 여행':author?.display_name?.trim()||'여행자'}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={()=>onOpen(record)} style={({pressed})=>[profile?[s.listRow,s.profileRow]:s.rowContent,pressed&&s.cardPressed]}>{content}</Pressable>;
+   const row=<Pressable disabled={disabled||pending} accessibilityRole="button" accessibilityLabel={`${title}, ${profile?t('내 여행'):author?.display_name?.trim()||t('여행자')}, ${record.start_date} ~ ${record.end_date}, ${place}, ${visibility}`} onPress={()=>onOpen(record)} style={({pressed})=>[profile?[s.listRow,s.profileRow]:s.rowContent,pressed&&s.cardPressed]}>{content}</Pressable>;
    return <React.Fragment key={record.id}>
     {!profile&&groupBy&&(index===0||groupBy(records[index-1])!==groupBy(record))&&<Text accessibilityRole="header" style={s.regionHeading}>{groupBy(record)}</Text>}
-    {profile?row:<View style={s.listRow}>{row}{canChange&&<View style={{alignItems:'center',width:52}}><Switch accessibilityLabel={`${recordLabel} 공개`} accessibilityState={{busy:!!pending}} value={record.visibility==='public'} disabled={disabled||pending} onValueChange={value=>onVisibilityChange?.(record,value?'public':'private')} thumbColor={record.visibility==='public'?c.onPrimary:c.ink} trackColor={{false:c.warm,true:c.coral}} style={{minWidth:50,minHeight:50}}/><Text style={{fontSize:11,color:c.ink}}>{pending?'저장 중':record.visibility==='public'?'공개':'비공개'}</Text></View>}</View>}
-    {canChange&&failure&&<View style={{padding:16,gap:8,backgroundColor:c.errorSurface}}><Text accessibilityRole="alert" style={{color:c.error}}>{failure.message}</Text><Pressable accessibilityRole="button" accessibilityLabel={`${recordLabel} 공개 범위 다시 시도`} disabled={disabled||pending} onPress={()=>onVisibilityChange?.(record,failure.target)} style={{padding:12}}><Text style={{color:c.ink}}>다시 시도</Text></Pressable></View>}
-   </React.Fragment>;
+    {profile?row:<View style={s.listRow}>{row}{onManage&&owner===record.owner_id&&<Pressable accessibilityRole="button" accessibilityLabel={title+t(" 관리")} accessibilityState={{expanded:menu===record.id}} disabled={disabled} onPress={()=>setMenu(menu===record.id?null:record.id)} style={{padding:12,minWidth:48}}><Text style={{color:c.ink,fontSize:22}}>⋯</Text></Pressable>}{canChange&&<View style={{alignItems:'center',width:52}}><Switch accessibilityLabel={msg`${recordLabel} 공개`} accessibilityState={{busy:!!pending}} value={record.visibility==='public'} disabled={disabled||pending} onValueChange={value=>onVisibilityChange?.(record,value?'public':'private')} thumbColor={record.visibility==='public'?c.onPrimary:c.ink} trackColor={{false:c.warm,true:c.coral}} style={{minWidth:50,minHeight:50}}/><Text style={{fontSize:11,color:c.ink}}>{pending?t('저장 중'):record.visibility==='public'?t('공개'):t('비공개')}</Text></View>}</View>}
+    {canChange&&failure&&<View style={{padding:16,gap:8,backgroundColor:c.errorSurface}}><Text accessibilityRole="alert" style={{color:c.error}}>{failure.message}</Text><Pressable accessibilityRole="button" accessibilityLabel={msg`${recordLabel} 공개 범위 다시 시도`} disabled={disabled||pending} onPress={()=>onVisibilityChange?.(record,failure.target)} style={{padding:12}}><Text style={{color:c.ink}}>{t("다시 시도")}</Text></Pressable></View>}
+   {menu===record.id&&onManage&&owner===record.owner_id&&<View style={{flexDirection:'row',justifyContent:'flex-end',gap:8}}>{(['edit','delete'] as const).map(action=><Pressable key={action} accessibilityRole="button" disabled={disabled} onPress={()=>{setMenu(null);onManage(record,action);}} style={{padding:14}}><Text style={{color:action==='delete'?c.error:c.ink}}>{action==='delete'?t('기록 삭제'):t('기록 수정')}</Text></Pressable>)}</View>}</React.Fragment>;
   })}</View>
-  {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>{profile?`최근 ${records.length}개를 표시해요. 전체 ${total}개는 내 여행 보기에서 확인해요.`:`불러온 ${records.length}개의 여행 기록`}</Text>}
+  {!loading&&!failed&&!!records.length&&<Text style={s.listEnd}>{profile?msg`최근 ${records.length}개를 표시해요. 전체 ${total}개는 내 여행 보기에서 확인해요.`:msg`불러온 ${records.length}개의 여행 기록`}</Text>}
  </>;
 }
 
@@ -97,16 +101,17 @@ const tabs = [
   {id:'album', label:'도감', icon:require('../assets/ui/navigation/book.png')},
   {id:'account', label:'My', icon:require('../assets/ui/navigation/id-card.png')},
 ] as const;
-export function JournalNav({tab,onTab,onMapFocus,rail=false}: {tab:JournalTab;onTab:(tab:JournalTab)=>void;onCreate:()=>void;onMapFocus?:()=>void;rail?:boolean}){
+export function JournalNav({tab,onTab,onMapFocus,anchors,rail=false}: {tab:JournalTab;onTab:(tab:JournalTab)=>void;onCreate:()=>void;onMapFocus?:()=>void;anchors?:import('./TravelGuide').GuideAnchors;rail?:boolean}){
  const c=useThemeColors(),insets=useSafeAreaInsets();
- return <View accessibilityRole="tablist" accessibilityLabel="주요 탐색" style={rail
+ const {theme}=usePreferences();
+ return <View accessibilityRole="tablist" accessibilityLabel={t("주요 탐색")} style={rail
    ?{position:'absolute',top:0,bottom:0,left:0,width:184,paddingHorizontal:16,paddingTop:30,backgroundColor:c.paper,borderRightWidth:1,borderColor:c.line,gap:6}
    :{flexDirection:'row',justifyContent:'space-evenly',paddingBottom:Math.max(4,insets.bottom),borderTopWidth:1,borderColor:c.line,backgroundColor:c.paper}}>
-   {rail&&<Text style={{fontSize:23,fontWeight:'800',letterSpacing:-1.2,marginBottom:28,marginLeft:12,color:c.ink}}>여행가봥</Text>}
-   {tabs.map(item=><Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onFocus={item.id==='map'?onMapFocus:undefined} onPress={()=>onTab(item.id)}
+   {rail&&<Text style={{fontSize:23,fontWeight:'800',letterSpacing:-1.2,marginBottom:28,marginLeft:12,color:c.ink}}>{t("여행가봥")}</Text>}
+   {tabs.map(item=><Pressable key={item.id} ref={node=>{if(anchors)anchors[item.id]=node;}} accessibilityRole="tab" accessibilityLabel={t(item.label)} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onFocus={item.id==='map'?onMapFocus:undefined} onPress={()=>onTab(item.id)}
     style={{flex:rail?undefined:1,minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,gap:14,borderRadius:10,backgroundColor:rail&&tab===item.id?c.warm:c.paper}}>
-     <Image source={item.icon} accessible={false} resizeMode="contain" style={{width:32,height:32}}/>
-     {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===item.id?'700':'400'}}>{item.label}</Text>}
+     <Image source={item.icon} accessible={false} resizeMode="contain" style={[{width:32,height:32},theme==='dark'&&{backgroundColor:'#F6F6F5',borderRadius:7}]}/>
+     {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===item.id?'700':'400'}}>{t(item.label)}</Text>}
      {tab===item.id&&<View testID="nav-selection" style={{position:'absolute',bottom:4,width:5,height:5,borderRadius:3,backgroundColor:rail?'transparent':c.ink}}/>}
    </Pressable>)}
  </View>;
@@ -134,7 +139,7 @@ const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   cardTitle: {fontSize:15,lineHeight:22,fontWeight:'700',color:c.ink},
   cardDate: {fontSize:12,lineHeight:18,color:c.muted},
   placeStatus: {flexDirection:'row',alignItems:'flex-start',gap:6},
-  cardPlace: {fontSize:11,lineHeight:16,color:c.muted},
+  cardPlace: {fontSize:13,lineHeight:19,color:c.muted},
   chevron: {fontSize:18,lineHeight:22,color:c.muted},
   listEnd: {padding:18,textAlign:'center',fontSize:11,color:c.muted},
   author: {flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 2},

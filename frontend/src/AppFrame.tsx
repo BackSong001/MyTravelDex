@@ -1,3 +1,4 @@
+import {t} from './translate';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import React, {useEffect, useState} from 'react';
 import {Platform,StyleSheet, View} from 'react-native';
@@ -36,7 +37,7 @@ export default function AppFrame({children}:React.PropsWithChildren) {
     <View style={s.root} {...(Platform.OS==='web'?{inert:!ready}:{})} pointerEvents={ready?'auto':'none'} accessibilityElementsHidden={!ready} importantForAccessibility={ready ? 'auto' : 'no-hide-descendants'}>
       {children}
     </View>
-    {!ready && <TravelSplash label="여행가봥 시작 중"/>}
+    {!ready && <TravelSplash label={t("여행가봥 시작 중")}/>}
   </View></MotionProvider>;
 }
 

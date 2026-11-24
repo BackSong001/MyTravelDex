@@ -51,7 +51,7 @@ test('white mascot stage switches between all four sketches and remembers the co
   await enterHome();
   await expect(page.getByTestId('mascot-stage')).toHaveCSS('background-color','rgb(255, 255, 255)');
   const faces = new Set<string>();
-  for (const name of ['안경 다람쥐','볼빵 다람쥐','탐험 수달','배낭 고양이']) {
+  for (const name of ['안경 다람쥐','여행 비버','탐험 수달','배낭 고양이']) {
     const choice = page.getByRole('button',{name:name+' 선택', exact:true});
     await choice.focus();
     await page.keyboard.press('Enter');
@@ -94,6 +94,6 @@ test('home and map prepare under the timed splash, including a quick return', as
   await page.clock.runFor(1100);
   await expect(page.getByLabel('홈 준비 중',{exact:true})).toBeVisible();
   await page.clock.runFor(120);
-  await expect(page.getByRole('button',{name:'퍼즐 보기',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'지역 스탬프 보기',exact:true})).toBeVisible();
   await expect(page.getByLabel('홈 준비 중',{exact:true})).toHaveCount(0);
 });

@@ -1,8 +1,8 @@
+import {t,msg} from './translate';
 import {regions} from './regions';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
 import TravelerAvatar from './Avatar';
-import ProfilePreview from './ProfilePreview';
 import {JournalIcon} from './Journal';
 import React, {useEffect, useRef, useState} from 'react';
 import Text from './FontText';
@@ -40,7 +40,7 @@ function useUserId(owner?: string) {
       if (!current) return;
       if (!userIdPattern.test(rows[0]?.user_code ?? '')) throw new Error('Missing user ID');
       setCode(rows[0].user_code);
-    }).catch(() => {if (current) setError('유저 ID를 불러오지 못했어요. 다시 시도해 주세요.');});
+    }).catch(() => {if (current) setError(t('유저 ID를 불러오지 못했어요. 다시 시도해 주세요.'));});
     return () => {current = false;};
   }, [owner, attempt]);
   return {code, error, retry:() => setAttempt(value => value + 1)};
@@ -48,18 +48,18 @@ function useUserId(owner?: string) {
 
 function nickname(value: string) {
   const trimmed = value.trim();
-  if (!trimmed || Array.from(trimmed).length > 30) throw new Error('닉네임은 앞뒤 공백을 제외한 1~30자로 입력해 주세요.');
+  if (!trimmed || Array.from(trimmed).length > 30) throw new Error(t('닉네임은 앞뒤 공백을 제외한 1~30자로 입력해 주세요.'));
   return trimmed;
 }
 
 async function changeFollow(owner: string, target: string, remove: boolean) {
-  if (!uuid.test(owner) || !uuid.test(target) || owner === target) throw new Error('팔로우 대상을 확인해 주세요.');
+  if (!uuid.test(owner) || !uuid.test(target) || owner === target) throw new Error(t('팔로우 대상을 확인해 주세요.'));
   await api.setFollow(target,!remove);
 }
 
 function message(error: unknown) {
-  if(error instanceof ApiError&&error.status===404&&error.serverCode==='PGRST202')return '서버 업데이트가 필요해요. 잠시 후 다시 확인해 주세요.';
-  return error instanceof Error ? error.message : '요청을 처리하지 못했습니다. 다시 시도해 주세요.';
+  if(error instanceof ApiError&&error.status===404&&error.serverCode==='PGRST202')return t('서버 업데이트가 필요해요. 잠시 후 다시 확인해 주세요.');
+  return error instanceof Error ? t(error.message) : t('요청을 처리하지 못했습니다. 다시 시도해 주세요.');
 }
 
 function Button({label, onPress, disabled = false, secondary = false, compact=false}: {label: string; onPress: () => void; disabled?: boolean; secondary?: boolean; compact?:boolean}) {
@@ -82,14 +82,13 @@ type ProfileProps=Props & {onSummaryReady?:()=>void;visits?:number|null;visitsFa
 export function ProfileEditor(props: ProfileProps) {
  const s=useThemeStyles(makeStyles);
   return props.session?.user?.id ? <ProfileForm key={props.session.user.id} {...props}/>
-    : <View style={s.sheet}><Text accessibilityRole="header" style={s.title}>나의 프로필</Text><Notice>로그인하면 닉네임과 공개 프로필을 설정할 수 있어요. My에서 로그인해 주세요.</Notice></View>;
+    : <View style={s.sheet}><Text accessibilityRole="header" style={s.title}>{t("나의 프로필")}</Text><Notice>{t("로그인하면 닉네임과 공개 프로필을 설정할 수 있어요. My에서 로그인해 주세요.")}</Notice></View>;
 }
 
 function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps=()=>{},onFollowing=()=>{},showStamps=false,children,onSummaryReady,firstSetup=false}: ProfileProps) {
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
   const [editing,setEditing]=useState(firstSetup);
-  const [preview,setPreview]=useState(false);
   const [snapshot,setSnapshot]=useState<{name:string;avatar:string|null;enabled:boolean}|null>(null);
   const owner = session.user.id as string;
   const identity = useUserId(owner);
@@ -111,7 +110,7 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
     setLoading(true); setError('');
     api.request(path('profiles', {id: `eq.${owner}`, select: 'display_name,avatar_url,public_profile_enabled'})).then(rows => {
       if (!current) return;
-      if (!rows.length) throw new Error('프로필을 찾을 수 없습니다. 다시 로그인해 주세요.');
+      if (!rows.length) throw new Error(t('프로필을 찾을 수 없습니다. 다시 로그인해 주세요.'));
       setName(rows[0].display_name ?? '');
       // 저장된 선택만 보존하며 Auth 메타데이터의 사진을 자동 선택하지 않는다.
       const storedAvatar=typeof rows[0].avatar_url==='string'&&/^https:\/\/(lh[0-9]+\.googleusercontent\.com|[a-z0-9-]+\.ggpht\.com)\/[^\s\\]+$/.test(rows[0].avatar_url)?rows[0].avatar_url:null;
@@ -133,12 +132,12 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
     try {
       const values={display_name:displayName,avatar_url:avatar,public_profile_enabled:true};
       const rows = firstSetup?[await api.rpc('complete_profile_setup',values)]:await api.request(path('profiles',{id:`eq.${owner}`,select:'display_name,avatar_url,public_profile_enabled'}),'PATCH',values);
-      if (!rows.length) throw new Error('프로필이 저장되지 않았습니다. 다시 시도해 주세요.');
+      if (!rows.length) throw new Error(t('프로필이 저장되지 않았습니다. 다시 시도해 주세요.'));
       if (!active.current) return;
       setName(rows[0].display_name ?? displayName);
       setAvatar(rows[0].avatar_url ?? null);
       setSnapshot({name:rows[0].display_name??displayName,avatar:rows[0].avatar_url??null,enabled:rows[0].public_profile_enabled===true});
-      setPreview(false);if(!firstSetup)setEditing(false);setSuccess('프로필을 저장했어요.');
+      if(!firstSetup)setEditing(false);setSuccess(t('프로필을 저장했어요.'));
       onChanged?.();
     } catch (error) {if (active.current) setError(message(error));}
     finally {savingRef.current = false; if (active.current) setSaving(false);}
@@ -146,71 +145,68 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
 
   const disabled = loading || saving || !loaded;
   if(showStamps&&!editing)return <>{children}</>;
-  const profileName=snapshot?.name||(loading?'불러오는 중…':error?'확인 필요':'여행자');
-  const visitLabel=visits===null?(visitsFailed?'확인 필요':'확인 중'):`${visits} / ${regions.length}`;
-  if(editing&&preview)return <ProfilePreview busy={saving} error={error} onEdit={()=>setPreview(false)} onSave={()=>void save()} saveLabel={firstSetup?'프로필 저장하고 시작':'프로필 저장'}>
-    <View style={s.profileIdentity}><TravelerAvatar url={avatar} size={76}/><View style={s.flex}>
-      <Text accessibilityRole="header" style={s.profileName}>{name.trim()}</Text>
-      <Text selectable style={s.profileSmall}>{identity.code}</Text>
-    </View></View>
-  </ProfilePreview>;
+  const profileName=snapshot?.name||(loading?t('불러오는 중…'):error?t('확인 필요'):t('여행자'));
+  const visitLabel=visits===null?(visitsFailed?t('확인 필요'):t('확인 중')):`${visits} / ${regions.length}`;
   if(!editing)return <View style={s.profilePage}>
     <View style={s.profileCard}>
-      <View style={s.profileHeading}><Text accessibilityRole="header" style={s.profileTitle}>나의 프로필</Text><Button compact label="프로필 수정" disabled={disabled} onPress={()=>{setError('');setSuccess('');setEditing(true);}} secondary/></View>
-      {loading&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}
+      <View style={s.profileHeading}><Text accessibilityRole="header" style={s.profileTitle}>{t("나의 프로필")}</Text><Button compact label={t("프로필 수정")} disabled={disabled} onPress={()=>{setError('');setSuccess('');setEditing(true);}} secondary/></View>
+      {loading&&<ActivityIndicator accessibilityLabel={t("프로필 불러오는 중")}/>}
       <View style={s.profileIdentity}><TravelerAvatar url={snapshot?.avatar} size={76}/><View style={s.flex}>
-        <Text testID="profile-name" accessibilityLabel={`내 프로필 이름 · ${profileName}`} style={s.profileName}>{profileName}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel={`여행 스탬프 보기 · ${visitLabel}`} onPress={onStamps} style={s.visitLink}>
-          <View style={s.visitBadge}><Text testID="profile-visits" accessibilityLabel={`내 방문 지역 수 · ${visitLabel}`} style={s.visitNumber}>{visitLabel}</Text><Text style={s.profileSmall}>지역</Text></View>
-          <Text style={s.profileLink}>여행 스탬프{String.fromCharCode(10)}보러 가기 ›</Text>
+        <Text testID="profile-name" accessibilityLabel={msg`내 프로필 이름 · ${profileName}`} style={s.profileName}>{profileName}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={msg`여행 스탬프 보기 · ${visitLabel}`} onPress={onStamps} style={s.visitLink}>
+          <View style={s.visitBadge}><Text testID="profile-visits" accessibilityLabel={msg`내 방문 지역 수 · ${visitLabel}`} style={s.visitNumber}>{visitLabel}</Text><Text style={s.profileSmall}>{t("지역")}</Text></View>
+          <Text style={s.profileLink}>{t("여행 스탬프")}{String.fromCharCode(10)}{t("보러 가기 ›")}</Text>
         </Pressable>
       </View></View>
-      <Text style={s.profileSmall}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.profileIdentifier}>{identity.code||'불러오는 중…'}</Text>
-      {!!identity.error&&<><Notice error>{identity.error}</Notice><Button label="유저 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
-      <View style={s.profileHeading}><Button compact label="내 팔로잉 보기" onPress={onFollowing} secondary/><Text style={s.profileSmall}>{snapshot?snapshot.enabled?'프로필 공개':'프로필 저장 후 공개':'공개 상태 확인 중'}</Text></View>
-      <Text style={s.profileSmall}>프로필과 여행 기록 공개 범위는 별개예요.</Text>
+      <Text style={s.profileSmall}>{t("유저 ID")}</Text><Text selectable accessibilityLabel={t("유저 ID")} style={s.profileIdentifier}>{identity.code||t('불러오는 중…')}</Text>
+      {!!identity.error&&<><Notice error>{identity.error}</Notice><Button label={t("유저 ID 다시 불러오기")} onPress={identity.retry} secondary/></>}
+      <View style={s.profileHeading}><Button compact label={t("내 팔로잉 보기")} onPress={onFollowing} secondary/><Text style={s.profileSmall}>{snapshot?snapshot.enabled?t('프로필 공개'):t('프로필 저장 후 공개'):t('공개 상태 확인 중')}</Text></View>
+      <Text style={s.profileSmall}>{t("프로필과 여행 기록 공개 범위는 별개예요.")}</Text>
       {!!error&&<Notice error>{error}</Notice>}{!!success&&<Notice>{success}</Notice>}
-      {!loaded&&!loading&&<Button label="프로필 다시 불러오기" onPress={()=>setAttempt(value=>value+1)} secondary/>}
+      {!loaded&&!loading&&<Button label={t("프로필 다시 불러오기")} onPress={()=>setAttempt(value=>value+1)} secondary/>}
     </View>
     {children}
   </View>;
   return <View style={s.sheet}>
-    <Text accessibilityRole="header" style={s.title}>{firstSetup?'여행을 시작할 프로필':'나의 프로필'}</Text>
-    <Text style={s.label}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.identifier}>{identity.code || '불러오는 중…'}</Text>
-    {!!identity.error && <><Notice error>{identity.error}</Notice><Button label="유저 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
-    <Text style={s.hint}>여행 이야기에 함께 표시할 이름과 사진을 골라요.</Text>
-    {loading && <ActivityIndicator color={c.sea} accessibilityLabel="프로필 불러오는 중"/>}
-    <Avatar url={avatar}/>
-    <Text style={s.label}>닉네임</Text>
-    <TextInput accessibilityLabel="닉네임" placeholder="여행자 이름을 입력해 주세요" placeholderTextColor={c.muted} value={name}
+    <Text accessibilityRole="header" style={s.title}>{firstSetup?t('여행을 시작할 프로필'):t('나의 프로필')}</Text>
+    <Text style={s.label}>{t("유저 ID")}</Text><Text selectable accessibilityLabel={t("유저 ID")} style={s.identifier}>{identity.code || t('불러오는 중…')}</Text>
+    {!!identity.error && <><Notice error>{identity.error}</Notice><Button label={t("유저 ID 다시 불러오기")} onPress={identity.retry} secondary/></>}
+    <Text style={s.hint}>{t("여행 이야기에 함께 표시할 이름과 사진을 골라요.")}</Text>
+    {loading && <ActivityIndicator color={c.sea} accessibilityLabel={t("프로필 불러오는 중")}/>}
+    <View testID="profile-preview"><View style={s.profileIdentity}><TravelerAvatar url={avatar} size={76}/><View style={s.flex}>
+      <Text accessibilityRole="header" style={s.profileName}>{name.trim()}</Text>
+      <Text selectable style={s.profileSmall}>{identity.code}</Text>
+    </View></View></View>
+    <Text style={s.label}>{t("닉네임")}</Text>
+    <TextInput accessibilityLabel={t("닉네임")} placeholder={t("여행자 이름을 입력해 주세요")} placeholderTextColor={c.muted} value={name}
       onChangeText={value => {setName(value); setSuccess('');}} editable={!disabled} style={s.input}/>
-    <Text style={s.hint}>앞뒤 공백을 제외한 1~30자. 같은 이름도 사용할 수 있어요.</Text>
+    <Text style={s.hint}>{t("앞뒤 공백을 제외한 1~30자. 같은 이름도 사용할 수 있어요.")}</Text>
     <View style={s.actions}>
-      <Pressable accessibilityRole="radio" accessibilityState={{checked: avatar === null, disabled}} disabled={disabled} onPress={() => {setAvatar(null); setSuccess('');}} style={[s.choice, avatar === null && s.selected]}><Text style={s.choiceText}>기본 아바타</Text></Pressable>
-      {googleAvatar && <Pressable accessibilityRole="radio" accessibilityState={{checked: avatar === googleAvatar, disabled}} disabled={disabled} onPress={() => {setAvatar(googleAvatar); setSuccess('');}} style={[s.choice, avatar === googleAvatar && s.selected]}><Text style={s.choiceText}>Google 사진 사용</Text></Pressable>}
+      <Pressable accessibilityRole="radio" accessibilityState={{checked: avatar === null, disabled}} disabled={disabled} onPress={() => {setAvatar(null); setSuccess('');}} style={[s.choice, avatar === null && s.selected]}><Text style={s.choiceText}>{t("기본 아바타")}</Text></Pressable>
+      {googleAvatar && <Pressable accessibilityRole="radio" accessibilityState={{checked: avatar === googleAvatar, disabled}} disabled={disabled} onPress={() => {setAvatar(googleAvatar); setSuccess('');}} style={[s.choice, avatar === googleAvatar && s.selected]}><Text style={s.choiceText}>{t("Google 사진 사용")}</Text></Pressable>}
     </View>
-    <Text style={s.hint}>닉네임·선택한 사진·유저 ID는 공개 정보예요.</Text>
-    <Text style={s.hint}>Google 사진은 직접 선택한 경우에만 사용하고, 여행 기록의 공개 범위는 기록별로 설정해요.</Text>
+    <Text style={s.hint}>{t("닉네임·선택한 사진·유저 ID는 공개 정보예요.")}</Text>
+    <Text style={s.hint}>{t("Google 사진은 직접 선택한 경우에만 사용하고, 여행 기록의 공개 범위는 기록별로 설정해요.")}</Text>
     {!!error && <Notice error>{error}</Notice>}
     {!!success && <Notice>{success}</Notice>}
-    {!loaded && !loading && <Button label="프로필 다시 불러오기" onPress={() => setAttempt(value => value + 1)} secondary/>}
-    <Button label="미리보기" secondary disabled={disabled||!name.trim()||Array.from(name.trim()).length>30} onPress={()=>setPreview(true)}/>
-    <Button label={saving ? '저장 중…' : firstSetup?'프로필 저장하고 시작':'프로필 저장'} onPress={() => void save()} disabled={disabled}/>
-    {!firstSetup&&<Button label="프로필 수정 취소" disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);}setError('');setSuccess('');setEditing(false);}} secondary/>}
+    {!loaded && !loading && <Button label={t("프로필 다시 불러오기")} onPress={() => setAttempt(value => value + 1)} secondary/>}
+    <Button label={saving ? t('저장 중…') : firstSetup?t('프로필 저장하고 시작'):t('프로필 저장')} onPress={() => void save()} disabled={disabled}/>
+    {!firstSetup&&<Button label={t("프로필 수정 취소")} disabled={saving} onPress={()=>{if(snapshot){setName(snapshot.name);setAvatar(snapshot.avatar);}setError('');setSuccess('');setEditing(false);}} secondary/>}
   </View>;
 }
 
-export function ProfileSetupGate({session,onLogout}:{session:any;onLogout:()=>Promise<void>}) {
+export function ProfileSetupGate({session,onLogout,onReady}:{onReady?:(id:string)=>void;session:any;onLogout:()=>Promise<void>}) {
  const c=useThemeColors(),[complete,setComplete]=useState<boolean|null>(null),[checking,setChecking]=useState(true),[error,setError]=useState(''),[attempt,setAttempt]=useState(0),[unsupported,setUnsupported]=useState(false),[loggingOut,setLoggingOut]=useState(false),[logoutError,setLogoutError]=useState('');
  const active=useRef(true),logoutBusy=useRef(false);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
- useEffect(()=>{let current=true;setChecking(true);setError('');setUnsupported(false);void api.rpc('profile_setup_status',{}).then(result=>{if(current){if(typeof result.profile_setup_complete!=='boolean')throw new Error('Invalid profile setup status');setComplete(result.profile_setup_complete);}}).catch(reason=>{if(!current)return;if(reason instanceof ApiError&&reason.status===404){setUnsupported(true);setError('첫 프로필 설정은 서버 업데이트 후 사용할 수 있어요. My에서 프로필을 설정할 수 있어요.');}else setError('프로필 설정 상태를 확인하지 못했어요. 다시 시도해 주세요.');}).finally(()=>{if(current)setChecking(false);});return()=>{current=false;};},[session.user.id,attempt]);
- async function logout(){if(logoutBusy.current)return;logoutBusy.current=true;setLoggingOut(true);setLogoutError('');try{await onLogout();}catch{if(active.current)setLogoutError('로그아웃하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');}finally{logoutBusy.current=false;if(active.current)setLoggingOut(false);}}
+ useEffect(()=>{let current=true;setChecking(true);setError('');setUnsupported(false);void api.rpc('profile_setup_status',{}).then(result=>{if(current){if(typeof result.profile_setup_complete!=='boolean')throw new Error('Invalid profile setup status');setComplete(result.profile_setup_complete);}}).catch(reason=>{if(!current)return;if(reason instanceof ApiError&&reason.status===404){setUnsupported(true);setError(t('첫 프로필 설정은 서버 업데이트 후 사용할 수 있어요. My에서 프로필을 설정할 수 있어요.'));}else setError(t('프로필 설정 상태를 확인하지 못했어요. 다시 시도해 주세요.'));}).finally(()=>{if(current)setChecking(false);});return()=>{current=false;};},[session.user.id,attempt]);
+ useEffect(()=>{if(complete&&!checking&&!error)onReady?.(session.user.id);},[complete,checking,error,onReady,session.user.id]);
+ async function logout(){if(logoutBusy.current)return;logoutBusy.current=true;setLoggingOut(true);setLogoutError('');try{await onLogout();}catch{if(active.current)setLogoutError(t('로그아웃하지 못했어요. 연결을 확인하고 다시 시도해 주세요.'));}finally{logoutBusy.current=false;if(active.current)setLoggingOut(false);}}
  if(unsupported)return <Text accessibilityLiveRegion="polite" style={{color:c.muted,padding:8}}>{error}</Text>;
  return <Modal visible={checking||complete===false||!!error} animationType="none" onRequestClose={()=>{}}><ScrollView contentContainerStyle={{flexGrow:1,justifyContent:'center',padding:20,backgroundColor:c.paper}} keyboardShouldPersistTaps="handled"><View style={{width:'100%',maxWidth:640,alignSelf:'center'}}>
-  {checking?<ActivityIndicator accessibilityLabel="프로필 설정 확인 중"/>:complete===false?<ProfileForm session={session} firstSetup onChanged={()=>setComplete(true)}/>:<><Notice error>{error}</Notice><Button label="프로필 설정 다시 확인" onPress={()=>setAttempt(value=>value+1)}/></>}
-  {checking&&<Text style={{color:c.muted}}>프로필 설정 확인 중</Text>}
-  {!!logoutError&&<Notice error>{logoutError}</Notice>}<Button label={loggingOut?'로그아웃 중…':'로그아웃'} disabled={loggingOut} onPress={()=>void logout()} secondary/>
+  {checking?<ActivityIndicator accessibilityLabel={t("프로필 설정 확인 중")}/>:complete===false?<ProfileForm session={session} firstSetup onChanged={()=>setComplete(true)}/>:<><Notice error>{error}</Notice><Button label={t("프로필 설정 다시 확인")} onPress={()=>setAttempt(value=>value+1)}/></>}
+  {checking&&<Text style={{color:c.muted}}>{t("프로필 설정 확인 중")}</Text>}
+  {!!logoutError&&<Notice error>{logoutError}</Notice>}<Button label={loggingOut?t('로그아웃 중…'):t('로그아웃')} disabled={loggingOut} onPress={()=>void logout()} secondary/>
  </View></ScrollView></Modal>;
 }
 
@@ -264,7 +260,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
       for (let i = 0; i < people.length; i += 20) {
         if (!active.current || request !== listRequest.current) return;
         const ids = people.slice(i, i + 20);
-        if (!ids.every(id => uuid.test(id))) throw new Error('팔로잉 정보를 확인하지 못했습니다.');
+        if (!ids.every(id => uuid.test(id))) throw new Error(t('팔로잉 정보를 확인하지 못했습니다.'));
         profiles.push(...await api.listPages(path('user_directory', {select: authorFields, id: `in.(${ids.join(',')})`,order:'id.asc'})));
       }
       if (!active.current || request !== listRequest.current) return;
@@ -315,7 +311,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
         : previous.some(row => row.followee_id === target) ? previous : [{followee_id: target, created_at: new Date().toISOString()}, ...previous]);
       const profile = results.find(row => row.id === target);
       if (profile) setAuthors(previous => ({...previous,[target]:{id:profile.id,user_code:profile.user_code,display_name:profile.display_name,avatar_url:profile.avatar_url}}));
-      setSuccess(remove ? '팔로우를 해제했어요.' : '팔로우했어요. 친구의 공개 여행을 만나보세요.');
+      setSuccess(remove ? t('팔로우를 해제했어요.') : t('팔로우했어요. 친구의 공개 여행을 만나보세요.'));
       onChanged?.();
     } catch (error) {if (active.current) setActionError(message(error));}
     finally {busyRef.current = false; if (active.current) setBusy(null);}
@@ -334,17 +330,17 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
       const filter = path('friend_requests', {requester_id: `eq.${pair.requester_id}`, recipient_id: `eq.${pair.recipient_id}`});
       const rows: Connection[] = await (action === 'request' ? contactCode?[await api.rpc('request_friend_by_id',{user_id:contactCode})]:api.request('/rest/v1/friend_requests', 'POST', pair)
         : action === 'accept' ? api.request(filter, 'PATCH', {status: 'accepted'}) : api.request(filter, 'DELETE'));
-      if (!rows.length) throw new Error('친구 요청이 변경되었어요. 목록을 새로고침한 뒤 다시 확인해 주세요.');
+      if (!rows.length) throw new Error(t('친구 요청이 변경되었어요. 목록을 새로고침한 뒤 다시 확인해 주세요.'));
       if (!active.current) return;
       setConnections(previous => [...previous.filter(row => row.requester_id !== target && row.recipient_id !== target), ...(action === 'remove' ? [] : rows)]);
       const profile = results.find(row => row.id === target);
       if (profile) setAuthors(previous => ({...previous,[target]:{id:profile.id,user_code:profile.user_code,display_name:profile.display_name,avatar_url:profile.avatar_url}}));
-      setSuccess(action === 'request' ? '친구 요청을 보냈어요.' : action === 'accept' ? '친구가 되었어요. 공개된 여행을 함께 볼 수 있어요.' : '친구 관계 또는 요청을 삭제했어요. 기존 팔로우는 유지돼요.');
+      setSuccess(action === 'request' ? t('친구 요청을 보냈어요.') : action === 'accept' ? t('친구가 되었어요. 공개된 여행을 함께 볼 수 있어요.') : t('친구 관계 또는 요청을 삭제했어요. 기존 팔로우는 유지돼요.'));
       if (action !== 'remove' && isUserId(inviteCode) && lastQuery.trim().toUpperCase() === inviteCode.toUpperCase() && results.some(row => row.id === target)) onInviteHandled?.();
       onChanged?.();
     } catch (error) {
       if (active.current) {
-        setActionError(error instanceof ApiError && error.serverCode === '23505' ? '이미 요청이나 친구 관계가 있어요. 목록을 새로고침해 주세요.' : message(error));
+        setActionError(error instanceof ApiError && error.serverCode === '23505' ? t('이미 요청이나 친구 관계가 있어요. 목록을 새로고침해 주세요.') : message(error));
       }
     } finally {busyRef.current = false; if (active.current) setBusy(null);}
   }
@@ -352,22 +348,22 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
   function connectionControls(id: string,contactCode?:string) {
     if (id === owner) return null;
     const current = connection(id), disabled = !owner || !loaded || loading || busy !== null;
-    if (!current) return <Button compact label={owner ? '친구 요청' : '로그인 후 친구 요청'} disabled={disabled} onPress={() => void connect(id, 'request',contactCode)}/>;
-    if (current.status === 'accepted') return <><Text style={s.friendHint}>친구</Text><Button compact label="친구 삭제" disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/></>;
-    return current.requester_id === owner ? <Button compact label="요청 취소" disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/>
-      : <><Button compact label="친구 수락" disabled={disabled} onPress={() => void connect(id, 'accept')}/><Button compact label="친구 거절" disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/></>;
+    if (!current) return <Button compact label={owner ? t('친구 요청') : t('로그인 후 친구 요청')} disabled={disabled} onPress={() => void connect(id, 'request',contactCode)}/>;
+    if (current.status === 'accepted') return <><Text style={s.friendHint}>{t("친구")}</Text><Button compact label={t("친구 삭제")} disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/></>;
+    return current.requester_id === owner ? <Button compact label={t("요청 취소")} disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/>
+      : <><Button compact label={t("친구 수락")} disabled={disabled} onPress={() => void connect(id, 'accept')}/><Button compact label={t("친구 거절")} disabled={disabled} onPress={() => void connect(id, 'remove')} secondary/></>;
   }
 
   function row(id: string, profile: Author | undefined, followed: boolean, relationActions=true) {
     const current=connection(id),canMap=!!onMap&&(followed||current?.status==='accepted');
-    const name=profile?.display_name||'여행자',code=profile?.user_code||'유저 ID 비공개';
-    const mapLabel=current?.status==='accepted'?'친구 지도 보기':'지도 보기';
-    const identity=<>{profile?<Avatar url={profile.avatar_url} size={48}/>:<View style={s.anonymousAvatar}><JournalIcon name="account" size={32}/></View>}<View style={s.flex}><Text numberOfLines={2} style={s.friendName}>{name}</Text><Text selectable style={s.friendIdentifier}>{code}</Text>{!profile&&<Text style={s.friendHint}>프로필 정보를 불러오지 못했어요</Text>}{canMap&&<Text style={s.mapLink}>공개 여행 지도 ›</Text>}</View></>;
+    const name=profile?.display_name||t('여행자'),code=profile?.user_code||t('유저 ID 비공개');
+    const mapLabel=current?.status==='accepted'?t('친구 지도 보기'):t('지도 보기');
+    const identity=<>{profile?<Avatar url={profile.avatar_url} size={48}/>:<View style={s.anonymousAvatar}><JournalIcon name="account" size={32}/></View>}<View style={s.flex}><Text numberOfLines={2} style={s.friendName}>{name}</Text><Text selectable style={s.friendIdentifier}>{code}</Text>{!profile&&<Text style={s.friendHint}>{t("프로필 정보를 불러오지 못했어요")}</Text>}{canMap&&<Text style={s.mapLink}>{t("공개 여행 지도 ›")}</Text>}</View></>;
     return <View key={id} testID={`friend-person-${id}`} style={s.person}>
       {canMap?<Pressable accessibilityRole="button" accessibilityLabel={`${mapLabel} · ${name} · ${code}`} disabled={loading||busy!==null} onPress={()=>onMap?.(id,name)} style={({pressed})=>[s.identity,pressed&&{backgroundColor:c.warm}]}>{identity}</Pressable>:<View style={s.identity}>{identity}</View>}
       <View style={s.friendActions}>
         {relationActions&&connectionControls(id,profile?.contact_code)}
-        {id===owner?<Text style={s.friendHint}>내 프로필</Text>:<Button compact label={busy===id?'처리 중…':followed?'팔로우 해제':owner?'팔로우':'로그인 후 팔로우'} disabled={!owner||!loaded||loading||busy!==null} onPress={()=>void toggle(id,followed)} secondary={followed}/>}
+        {id===owner?<Text style={s.friendHint}>{t("내 프로필")}</Text>:<Button compact label={busy===id?t('처리 중…'):followed?t('팔로우 해제'):owner?t('팔로우'):t('로그인 후 팔로우')} disabled={!owner||!loaded||loading||busy!==null} onPress={()=>void toggle(id,followed)} secondary={followed}/>}
       </View>
     </View>;
   }
@@ -375,47 +371,47 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
   if(mapOnly){
     const ids=[...new Set([...follows.map(f=>f.followee_id),...connections.filter(r=>r.status==='accepted').map(r=>r.requester_id===owner?r.recipient_id:r.requester_id)])];
     return <View style={{gap:12}}>
-      {(loading||!loaded&&!listError)&&<ActivityIndicator accessibilityLabel="친구 목록 불러오는 중" color={c.sea}/>}
-      {!!listError&&<><Notice error>{listError}</Notice><Button label="친구 목록 다시 불러오기" onPress={()=>void loadFollows()} disabled={loading} secondary/></>}
-      {loaded&&!loading&&!listError&&<><View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{ids.map(id=><Pressable key={id} accessibilityRole="button" accessibilityLabel={`${authors[id]?.display_name||'여행자'} 지도 선택 · ${authors[id]?.user_code||id}`} accessibilityState={{selected:selectedOwner===id}} onPress={()=>onMap?.(id,authors[id]?.display_name||'여행자')} style={{width:80,alignItems:'center',gap:6,padding:4}}><View style={{borderRadius:28,padding:3,borderWidth:2,borderColor:selectedOwner===id?c.primary:'transparent'}}><Avatar url={authors[id]?.avatar_url} size={48}/></View><Text numberOfLines={2} style={{textAlign:'center',color:c.ink,fontSize:13}}>{authors[id]?.display_name||'여행자'}</Text></Pressable>)}</View>{!ids.length&&<Notice>친구나 팔로우한 여행자가 없어요. 친구 관리에서 추가해 주세요.</Notice>}<Button label="친구 목록 새로고침" onPress={()=>void loadFollows()} secondary/></>}
+      {(loading||!loaded&&!listError)&&<ActivityIndicator accessibilityLabel={t("친구 목록 불러오는 중")} color={c.sea}/>}
+      {!!listError&&<><Notice error>{listError}</Notice><Button label={t("친구 목록 다시 불러오기")} onPress={()=>void loadFollows()} disabled={loading} secondary/></>}
+      {loaded&&!loading&&!listError&&<><View style={{flexDirection:'row',flexWrap:'wrap',gap:12}}>{ids.map(id=><Pressable key={id} accessibilityRole="button" accessibilityLabel={msg`${authors[id]?.display_name||t('여행자')} 지도 선택 · ${authors[id]?.user_code||id}`} accessibilityState={{selected:selectedOwner===id}} onPress={()=>onMap?.(id,authors[id]?.display_name||t('여행자'))} style={{width:80,alignItems:'center',gap:6,padding:4}}><View style={{borderRadius:28,padding:3,borderWidth:2,borderColor:selectedOwner===id?c.primary:'transparent'}}><Avatar url={authors[id]?.avatar_url} size={48}/></View><Text numberOfLines={2} style={{textAlign:'center',color:c.ink,fontSize:13}}>{authors[id]?.display_name||t('여행자')}</Text></Pressable>)}</View>{!ids.length&&<Notice>{t("친구나 팔로우한 여행자가 없어요. 친구 관리에서 추가해 주세요.")}</Notice>}<Button label={t("친구 목록 새로고침")} onPress={()=>void loadFollows()} secondary/></>}
     </View>;
   }
   return <View style={s.container}>
-    <View style={s.friendHeading}><Text accessibilityRole="header" style={s.friendTitle}>친구 관리</Text>{owner&&<View><Text style={s.friendHint}>유저 ID</Text><Text selectable accessibilityLabel="유저 ID" style={s.friendIdentifier}>{identity.code||(identity.error?'확인 필요':'불러오는 중…')}</Text></View>}</View>
-    <View accessibilityRole="tablist" accessibilityLabel="친구 메뉴" style={s.friendTabs}>
-      <Pressable nativeID="friends-following-tab" accessibilityRole="tab" accessibilityState={{selected:pane==='following'}} aria-selected={pane==='following'} aria-controls="friends-following-panel" disabled={!owner} onPress={()=>setPane('following')} style={s.friendTab}><Text style={[s.friendTabText,pane==='following'&&{fontWeight:'700'}]}>팔로잉{owner&&loaded&&!loading&&!listError?` ${follows.length}`:''}</Text><View style={[s.friendTabLine,pane!=='following'&&{opacity:0}]}/></Pressable>
-      <Pressable nativeID="friends-search-tab" accessibilityRole="tab" accessibilityState={{selected:pane==='search'}} aria-selected={pane==='search'} aria-controls="friends-search-panel" onPress={()=>setPane('search')} style={s.friendTab}><Text style={[s.friendTabText,pane==='search'&&{fontWeight:'700'}]}>여행자 찾기</Text><View style={[s.friendTabLine,pane!=='search'&&{opacity:0}]}/></Pressable>
+    <View style={s.friendHeading}><Text accessibilityRole="header" style={s.friendTitle}>{t("친구 관리")}</Text>{owner&&<View><Text style={s.friendHint}>{t("유저 ID")}</Text><Text selectable accessibilityLabel={t("유저 ID")} style={s.friendIdentifier}>{identity.code||(identity.error?t('확인 필요'):t('불러오는 중…'))}</Text></View>}</View>
+    <View accessibilityRole="tablist" accessibilityLabel={t("친구 메뉴")} style={s.friendTabs}>
+      <Pressable nativeID="friends-following-tab" accessibilityRole="tab" accessibilityState={{selected:pane==='following'}} aria-selected={pane==='following'} aria-controls="friends-following-panel" disabled={!owner} onPress={()=>setPane('following')} style={s.friendTab}><Text style={[s.friendTabText,pane==='following'&&{fontWeight:'700'}]}>{t("팔로잉")}{owner&&loaded&&!loading&&!listError?` ${follows.length}`:''}</Text><View style={[s.friendTabLine,pane!=='following'&&{opacity:0}]}/></Pressable>
+      <Pressable nativeID="friends-search-tab" accessibilityRole="tab" accessibilityState={{selected:pane==='search'}} aria-selected={pane==='search'} aria-controls="friends-search-panel" onPress={()=>setPane('search')} style={s.friendTab}><Text style={[s.friendTabText,pane==='search'&&{fontWeight:'700'}]}>{t("여행자 찾기")}</Text><View style={[s.friendTabLine,pane!=='search'&&{opacity:0}]}/></Pressable>
     </View>
-    {!owner&&<Notice>공개 프로필은 누구나 찾을 수 있어요. 팔로우와 내 목록을 사용하려면 My에서 로그인해 주세요.</Notice>}
+    {!owner&&<Notice>{t("공개 프로필은 누구나 찾을 수 있어요. 팔로우와 내 목록을 사용하려면 My에서 로그인해 주세요.")}</Notice>}
     {!!actionError&&<Notice error>{actionError}</Notice>}{!!success&&<Notice>{success}</Notice>}
-    {inviteCode&&<View><Notice>초대한 여행자를 유저 ID로 검색했어요. 친구 요청은 직접 선택해 주세요.</Notice><Button label="초대 검색 닫기" onPress={()=>onInviteHandled?.()} secondary/></View>}
-    {!!identity.error&&<><Notice error>{identity.error}</Notice><Button label="유저 ID 다시 불러오기" onPress={identity.retry} secondary/></>}
-    {owner&&<><View style={s.friendSectionHeading}><Text accessibilityRole="header" style={s.friendSectionTitle}>{pane==='following'?'내가 팔로우한 여행자':'친구 관계 확인'}</Text><Button compact label={loading?'목록 불러오는 중…':'목록 새로고침'} onPress={()=>void loadFollows()} disabled={loading||busy!==null} secondary/></View>{loading&&<ActivityIndicator color={c.sea} accessibilityLabel="팔로잉 목록 불러오는 중"/>}{!!listError&&<Notice error>{listError}</Notice>}</>}
+    {inviteCode&&<View><Notice>{t("초대한 여행자를 유저 ID로 검색했어요. 친구 요청은 직접 선택해 주세요.")}</Notice><Button label={t("초대 검색 닫기")} onPress={()=>onInviteHandled?.()} secondary/></View>}
+    {!!identity.error&&<><Notice error>{identity.error}</Notice><Button label={t("유저 ID 다시 불러오기")} onPress={identity.retry} secondary/></>}
+    {owner&&<><View style={s.friendSectionHeading}><Text accessibilityRole="header" style={s.friendSectionTitle}>{pane==='following'?t('내가 팔로우한 여행자'):t('친구 관계 확인')}</Text><Button compact label={loading?t('목록 불러오는 중…'):t('목록 새로고침')} onPress={()=>void loadFollows()} disabled={loading||busy!==null} secondary/></View>{loading&&<ActivityIndicator color={c.sea} accessibilityLabel={t("팔로잉 목록 불러오는 중")}/>}{!!listError&&<Notice error>{listError}</Notice>}</>}
     {pane==='following'&&owner&&<View nativeID="friends-following-panel" role="tabpanel" aria-labelledby="friends-following-tab" style={s.friendSheet}>
-      <View accessibilityLabel="팔로잉 목록">
-        {loaded&&!loading&&!listError&&!follows.length&&<><Notice>아직 팔로우한 여행자가 없어요. 여행자 찾기에서 닉네임이나 유저 ID로 찾아보세요.</Notice><Button label="여행자 찾기" onPress={()=>setPane('search')} secondary/></>}
+      <View accessibilityLabel={t("팔로잉 목록")}>
+        {loaded&&!loading&&!listError&&!follows.length&&<><Notice>{t("아직 팔로우한 여행자가 없어요. 여행자 찾기에서 닉네임이나 유저 ID로 찾아보세요.")}</Notice><Button label={t("여행자 찾기")} onPress={()=>setPane('search')} secondary/></>}
         {follows.map(follow=>row(follow.followee_id,authors[follow.followee_id],true,false))}
       </View>
-      <View accessibilityLabel="친구와 요청 목록" style={s.friendSheet}>{['내 친구','받은 요청','보낸 요청'].map(label=>{
-        const group=connections.filter(r=>(r.status==='accepted'?'내 친구':r.requester_id===owner?'보낸 요청':'받은 요청')===label);
+      <View accessibilityLabel={t("친구와 요청 목록")} style={s.friendSheet}>{[t('내 친구'),t('받은 요청'),t('보낸 요청')].map(label=>{
+        const group=connections.filter(r=>(r.status==='accepted'?t('내 친구'):r.requester_id===owner?t('보낸 요청'):t('받은 요청'))===label);
         return <View key={label} style={s.friendSheet}><Text accessibilityRole="header" style={s.friendSectionTitle}>{label}</Text>
-         {loaded&&!loading&&!listError&&!group.length&&<Text style={s.friendHint}>{label} 0명</Text>}
+         {loaded&&!loading&&!listError&&!group.length&&<Text style={s.friendHint}>{label} {t("0명")}</Text>}
          {group.map(r=>{const id=r.requester_id===owner?r.recipient_id:r.requester_id;return row(id,authors[id],follows.some(f=>f.followee_id===id));})}
         </View>;
        })}
       </View>
     </View>}
-    {pane==='search'&&<View nativeID="friends-search-panel" role="tabpanel" aria-labelledby="friends-search-tab"><View accessibilityLabel="전체 여행자 목록" style={s.friendSheet}>
-      <View style={s.friendSearch}><TextInput accessibilityLabel="공개 여행자 닉네임 또는 유저 ID" placeholder="닉네임 또는 6자리 유저 ID" placeholderTextColor={c.muted} value={query} onChangeText={setQuery} style={[s.input,s.flex,{fontSize:13}]} returnKeyType="search" onSubmitEditing={()=>void search(query)} autoCapitalize="none"/><Button compact label={searching?'검색 중…':'여행자 검색'} onPress={()=>void search(query)} disabled={searching}/></View>
-      <Text style={s.friendHint}>닉네임이나 유저 ID로 여행자를 찾을 수 있어요.</Text>
-      <View style={s.actions}><Button compact label="전체 여행자 보기" onPress={()=>{setQuery('');void search('');}} disabled={searching} secondary/><Button compact label="여행자 목록 새로고침" onPress={()=>void search(lastQuery,offset)} disabled={searching} secondary/></View>
-      <Text accessibilityRole="header" style={s.friendSectionTitle}>{lastQuery.trim()?'검색 결과':'전체 여행자'}</Text>
-      {searching&&<ActivityIndicator color={c.sea} accessibilityLabel="여행자 검색 중"/>}{!!searchError&&<Notice error>{searchError}</Notice>}
-      {!searched&&!searching&&<Notice>빈 검색어로 공개 여행자를 둘러볼 수 있어요.</Notice>}
-      {searched&&!searching&&!searchError&&!results.length&&<Notice>검색된 여행자가 없어요. 다른 닉네임이나 유저 ID를 입력해 주세요.</Notice>}
+    {pane==='search'&&<View nativeID="friends-search-panel" role="tabpanel" aria-labelledby="friends-search-tab"><View accessibilityLabel={t("전체 여행자 목록")} style={s.friendSheet}>
+      <View style={s.friendSearch}><TextInput accessibilityLabel={t("공개 여행자 닉네임 또는 유저 ID")} placeholder={t("닉네임 또는 6자리 유저 ID")} placeholderTextColor={c.muted} value={query} onChangeText={setQuery} style={[s.input,s.flex,{fontSize:13}]} returnKeyType="search" onSubmitEditing={()=>void search(query)} autoCapitalize="none"/><Button compact label={searching?t('검색 중…'):t('여행자 검색')} onPress={()=>void search(query)} disabled={searching}/></View>
+      <Text style={s.friendHint}>{t("닉네임이나 유저 ID로 여행자를 찾을 수 있어요.")}</Text>
+      <View style={s.actions}><Button compact label={t("전체 여행자 보기")} onPress={()=>{setQuery('');void search('');}} disabled={searching} secondary/><Button compact label={t("여행자 목록 새로고침")} onPress={()=>void search(lastQuery,offset)} disabled={searching} secondary/></View>
+      <Text accessibilityRole="header" style={s.friendSectionTitle}>{lastQuery.trim()?t('검색 결과'):t('전체 여행자')}</Text>
+      {searching&&<ActivityIndicator color={c.sea} accessibilityLabel={t("여행자 검색 중")}/>}{!!searchError&&<Notice error>{searchError}</Notice>}
+      {!searched&&!searching&&<Notice>{t("빈 검색어로 공개 여행자를 둘러볼 수 있어요.")}</Notice>}
+      {searched&&!searching&&!searchError&&!results.length&&<Notice>{t("검색된 여행자가 없어요. 다른 닉네임이나 유저 ID를 입력해 주세요.")}</Notice>}
       {results.map(profile=>row(profile.id,profile,follows.some(follow=>follow.followee_id===profile.id)))}
-      {searched&&<View style={s.actions}>{offset>0&&<Button label="이전 여행자" disabled={searching} onPress={()=>void search(lastQuery,Math.max(0,offset-20))} secondary/>}{more&&<Button label="다음 여행자" disabled={searching} onPress={()=>void search(lastQuery,offset+20)} secondary/>}</View>}
-      {owner&&<View style={s.inviteSheet}><Text accessibilityRole="header" style={s.friendSectionTitle}>유저 ID로 초대하기</Text><Text style={s.hint}>같은 닉네임도 유저 ID로 구분해요. 초대는 검색만 열고 요청과 수락은 직접 선택해요.</Text><Text selectable accessibilityLabel="내 초대 링크" style={s.identifier}>{inviteLink}</Text><Button label="초대 링크 공유" disabled={!identity.code} onPress={()=>{void Share.share({message:`여행가봥 친구 초대\n${inviteLink}`}).catch(error=>{if(active.current)setActionError(message(error));});}} secondary/></View>}
+      {searched&&<View style={s.actions}>{offset>0&&<Button label={t("이전 여행자")} disabled={searching} onPress={()=>void search(lastQuery,Math.max(0,offset-20))} secondary/>}{more&&<Button label={t("다음 여행자")} disabled={searching} onPress={()=>void search(lastQuery,offset+20)} secondary/>}</View>}
+      {owner&&<View style={s.inviteSheet}><Text accessibilityRole="header" style={s.friendSectionTitle}>{t("유저 ID로 초대하기")}</Text><Text style={s.hint}>{t("같은 닉네임도 유저 ID로 구분해요. 초대는 검색만 열고 요청과 수락은 직접 선택해요.")}</Text><Text selectable accessibilityLabel={t("내 초대 링크")} style={s.identifier}>{inviteLink}</Text><Button label={t("초대 링크 공유")} disabled={!identity.code} onPress={()=>{void Share.share({message:msg`여행가봥 친구 초대\n${inviteLink}`}).catch(error=>{if(active.current)setActionError(message(error));});}} secondary/></View>}
     </View></View>}
   </View>;
 }

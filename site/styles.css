@@ -57,7 +57,6 @@ h3 { font-size: clamp(1.55rem, 3vw, 2.5rem); letter-spacing: -.06em; line-height
 .photo-panel { background: #fbefe5; }
 .map-panel { background: #edf5ff; }
 .map-panel > img { width: min(100%, 318px); border-radius: .9rem; }
-.puzzle-panel { background: #f3efff; }
 .closing { display: grid; justify-items: center; text-align: center; gap: 1.25rem; padding: 2.5rem 1rem 3rem; background: var(--lavender); border-radius: 1.6rem; }
 .closing h2 { word-break: keep-all; }
 .footer { padding-block: 2.8rem; color: var(--muted); font-size: .875rem; }

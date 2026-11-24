@@ -1134,3 +1134,5 @@ FR-LEGAL-001. 약관은 서버리스 정적 HTML로 제공한다. 앱은 고정 
 조회 가능 글만 대상으로 작성자별 created_at DESC, id ASC 순번을 매기고 순번·서울 작성일 내림차순·seed 기반 작성자 키·id 순으로 20건씩 읽는다. 팔로잉 및 이미 발급된 구형 커서는 기존 순서를 따른다.
 
 로그인한 계정의 둘러보기·검색·팔로우는 과거 directory_listed 값이나 공개 기록 유무를 조건으로 사용하지 않는다. social_visible_owner와 social_pair_allowed로 양방향 차단·정지를 검사하고, 여행기록은 별도로 social_record_visible을 적용한다. 기존 public_profile_enabled는 DB 제약으로 항상 참이다. 친구 화면의 listed_travelers는 제한된 reader와 기존 최소 필드를 사용하며 로그인하지 않은 사용자의 기존 조회 범위를 넓히지 않는다.
+
+도감·편집·온보딩의 최신 기준은 docs/JOURNAL_UPDATE.md의 FR-JOURNAL-REFRESH-01~05를 따른다. 이전 퍼즐·단일 테마·별도 미리보기 버튼 정책을 대체한다.

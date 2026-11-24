@@ -1,3 +1,4 @@
+import {t,msg} from './translate';
 import {MAP_ATTRIBUTION} from './mapDataVersion';
 import React,{memo,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {View,useWindowDimensions} from 'react-native';
@@ -55,21 +56,21 @@ function DrawMap({active,result,reduced}:{active?:Destination;result?:Destinatio
   if(!districts.length)return null;
   const span=result?Math.max(result.frame[2]-result.frame[0],result.frame[3]-result.frame[1]):0;
   const end=result?frame(result.frame,Math.max(span*.18,1)):nationalFrame;
-  const t=result&&!reduced?progress:1;
-  const box=nationalFrame.map((n,i)=>n+(end[i]-n)*t);
+  const progressRatio=result&&!reduced?progress:1;
+  const box=nationalFrame.map((n,i)=>n+(end[i]-n)*progressRatio);
   const point=active?project(active.point):null,stroke=box[3]*.005;
-  return <Svg width="100%" height="100%" viewBox={box.join(' ')} accessibilityLabel="대한민국 여행지 추첨 지도">
+  return <Svg width="100%" height="100%" viewBox={box.join(' ')} accessibilityLabel={t("대한민국 여행지 추첨 지도")}>
     <Land/>
     {active&&<Path testID="draw-highlight" accessibilityLabel={active.label} d={highlighted}
       fill={result?winnerColor:landColor} fillRule="evenodd" stroke={winnerColor} strokeWidth={stroke}/>}
-    {point&&(!result||t<1)&&<Circle cx={point[0]} cy={point[1]} r={stroke*(result?2+t*9:3)} fill={c.warm} fillOpacity={.28} stroke={c.focus} strokeWidth={stroke*.6}/>}
+    {point&&(!result||progressRatio<1)&&<Circle cx={point[0]} cy={point[1]} r={stroke*(result?2+progressRatio*9:3)} fill={c.warm} fillOpacity={.28} stroke={c.focus} strokeWidth={stroke*.6}/>}
   </Svg>;
 }
 
 type Props={owner?:string;visited:ReadonlySet<string>|null;stamps:readonly string[]|null;failed?:boolean;onRegion:(district:Destination)=>void;onAlbum?:(id:string)=>void;onDrawStart?:()=>void};
 export default function DestinationDraw({owner,visited,stamps,failed,onRegion,onAlbum,onDrawStart}:Props){
   const c=useThemeColors(),reduced=useReducedMotion(),{height}=useWindowDimensions();
-  const [mode,setMode]=useState<DrawMode>('nation'),[area,setArea]=useState('수도권');
+  const [mode,setMode]=useState<DrawMode>('nation'),[area,setArea]=useState(t('수도권'));
   const [active,setActive]=useState<Destination>(),[result,setResult]=useState<Destination>();
   const [running,setRunning]=useState(false);
   const pendingWinner=useRef<Destination|undefined>(undefined);
@@ -110,8 +111,8 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
     accessibilityState={{checked:selected,disabled:disabled||running}} aria-checked={selected} disabled={disabled||running} onPress={choose}
     style={{minHeight:48,justifyContent:'center',paddingHorizontal:12,borderRadius:14,borderWidth:selected?2:1,borderColor:selected?c.focus:c.line,backgroundColor:selected?c.warm:c.sheet}}>
     <Text style={{color:disabled?c.muted:c.ink}}>{label}</Text></Pressable>;
-  const unknown=!owner?'로그인하면 내 방문 기록을 확인할 수 있어요.':failed?'방문 기록을 불러오지 못했어요.':!visited?'방문 기록 확인 중…':'';
-  const label=running?'추첨 중…':result?'다시 뽑기':'여행지 뽑기';
+  const unknown=!owner?t('로그인하면 내 방문 기록을 확인할 수 있어요.'):failed?t('방문 기록을 불러오지 못했어요.'):!visited?t('방문 기록 확인 중…'):'';
+  const label=running?t('추첨 중…'):result?t('다시 뽑기'):t('여행지 뽑기');
   const drawButton=<Pressable accessibilityRole="button" accessibilityLabel={label} disabled={running||!candidates.length} onPress={draw} style={{backgroundColor:c.coral,padding:15,borderRadius:14}}>
       <Text style={{textAlign:'center',fontSize:18,color:c.onPrimary,fontWeight:'600'}}>{label}</Text></Pressable>;
   const stamp=result&&stamps?.includes(result.province);
@@ -122,24 +123,24 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
     </View>
     <Text style={{color:c.muted,fontSize:12}}>{MAP_ATTRIBUTION}</Text>
     {result&&<View accessibilityLiveRegion="polite" style={{padding:16,borderRadius:16,gap:6,backgroundColor:c.sheet}}>
-      <Text style={{color:c.muted}}>이번 여행지는</Text>
+      <Text style={{color:c.muted}}>{t("이번 여행지는")}</Text>
       <Text testID="destination-result" accessibilityRole="header" style={{fontSize:26,color:c.ink,fontWeight:'700'}}>{result.label}</Text>
-      <Text style={{color:c.ink}}>{visited?(isDestinationVisited(result,visited)?'방문 완료 · 다시 떠나볼까요?':visitedCount?'일부 방문 · 아직 가보지 않은 지역을 만나보세요.':'미방문 · 첫 여행을 떠나볼까요?'):'방문 여부 미확인'}</Text>
-      {visited&&result.members.length>1&&<Text style={{color:c.muted}}>하위 지역 방문 · {visitedCount}/{result.members.length}</Text>}
-      <Text style={{color:c.muted}}>{provinceLabels[result.province].name} 스탬프 · {stamps?(stamp?'획득':'미획득 · 여행을 기록하고 모아 보세요.'):'확인 전'}</Text>
-      <View style={{flexDirection:'row',flexWrap:'wrap',gap:14}}><Pressable accessibilityRole="button" onPress={()=>onRegion(result)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>지도에서 보기</Text></Pressable>
-      {onAlbum&&<Pressable accessibilityRole="button" onPress={()=>onAlbum(result.province)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>지역 도감 보기</Text></Pressable>}</View>
+      <Text style={{color:c.ink}}>{visited?(isDestinationVisited(result,visited)?t('방문 완료 · 다시 떠나볼까요?'):visitedCount?t('일부 방문 · 아직 가보지 않은 지역을 만나보세요.'):t('미방문 · 첫 여행을 떠나볼까요?')):t('방문 여부 미확인')}</Text>
+      {visited&&result.members.length>1&&<Text style={{color:c.muted}}>{t("하위 지역 방문 ·")} {visitedCount}/{result.members.length}</Text>}
+      <Text style={{color:c.muted}}>{provinceLabels[result.province].name} {t("스탬프 ·")} {stamps?(stamp?t('획득'):t('미획득 · 여행을 기록하고 모아 보세요.')):t('확인 전')}</Text>
+      <View style={{flexDirection:'row',flexWrap:'wrap',gap:14}}><Pressable accessibilityRole="button" onPress={()=>onRegion(result)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>{t("지도에서 보기")}</Text></Pressable>
+      {onAlbum&&<Pressable accessibilityRole="button" onPress={()=>onAlbum(result.province)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>{t("지역 도감 보기")}</Text></Pressable>}</View>
       {drawButton}
     </View>}
-    <View accessibilityRole="radiogroup" accessibilityLabel="추첨 모드" style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>
-      {option('전국 랜덤',mode==='nation',()=>setMode('nation'))}
-      {option('미방문 지역',mode==='unvisited',()=>setMode('unvisited'),!owner||!visited)}
-      {option('권역 선택',mode==='area',()=>setMode('area'))}
+    <View accessibilityRole="radiogroup" accessibilityLabel={t("추첨 모드")} style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>
+      {option(t('전국 랜덤'),mode==='nation',()=>setMode('nation'))}
+      {option(t('미방문 지역'),mode==='unvisited',()=>setMode('unvisited'),!owner||!visited)}
+      {option(t('권역 선택'),mode==='area',()=>setMode('area'))}
     </View>
-    {mode==='area'&&<View accessibilityRole="radiogroup" accessibilityLabel="추첨 권역" style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>
+    {mode==='area'&&<View accessibilityRole="radiogroup" accessibilityLabel={t("추첨 권역")} style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>
       {Object.keys(areas).map(name=>option(name,area===name,()=>setArea(name)))}</View>}
     {!!unknown&&<Text style={{color:c.muted}}>{unknown}</Text>}
-    <Text accessibilityLiveRegion="polite" style={{color:c.muted}}>{!districts.length?'지도 데이터를 확인할 수 없어요.':!candidates.length&&visited?'후보가 없어요. 전국 랜덤을 선택해 주세요.':`추첨 후보 · ${candidates.length}곳`}</Text>
+    <Text accessibilityLiveRegion="polite" style={{color:c.muted}}>{!districts.length?t('지도 데이터를 확인할 수 없어요.'):!candidates.length&&visited?t('후보가 없어요. 전국 랜덤을 선택해 주세요.'):msg`추첨 후보 · ${candidates.length}곳`}</Text>
     {!result&&drawButton}
   </View>;
 }

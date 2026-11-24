@@ -268,3 +268,21 @@ test('TC-SNS-003 a waiting HTTP reaction rechecks a committed block under the pr
   expect(await admin.request('/rest/v1/social_notifications?record_id=eq.'+id)).toEqual([]);
  }finally{if(child.exitCode===null)child.stdin.end('rollback;\n');await a.api.rpc('social_set_block',{target_id:b.id,enabled:false});}
 });
+
+test('completed journal edits save location and dates together and preserve photos',async()=>{
+ const [author,peer]=users,id=await record('public',author);
+ const before=(await author.api.request('/rest/v1/travel_records?id=eq.'+id))[0];
+ const photos=await author.api.request('/rest/v1/photos?travel_record_id=eq.'+id+'&select=id,is_cover');
+ const place={latitude:35.16,longitude:129.1,source:'manual',place_name:'부산'};
+ const fields={start_date:'2026-11-01',end_date:'2026-11-04',visibility:'public',title:'부산',content:'여행'};
+ const args={record_id:id,fields,place};
+ await expect(peer.api.rpc('edit_journal_record',args)).rejects.toBeDefined();
+ await expect(author.api.rpc('edit_journal_record',{...args,fields:{...fields,end_date:'2026-10-01'}})).rejects.toBeDefined();
+ expect((await author.api.request('/rest/v1/travel_records?id=eq.'+id))[0].location_id).toBe(before.location_id);
+ await author.api.rpc('edit_journal_record',args);
+ const updated=(await author.api.request('/rest/v1/travel_records?id=eq.'+id))[0];locations.push(updated.location_id);
+ await author.api.rpc('edit_journal_record',args);
+ expect((await author.api.request('/rest/v1/travel_records?id=eq.'+id))[0].location_id).toBe(updated.location_id);
+ expect(updated).toMatchObject({...fields,status:'complete'});expect(updated.location_id).not.toBe(before.location_id);
+ expect(await author.api.request('/rest/v1/photos?travel_record_id=eq.'+id+'&select=id,is_cover')).toEqual(photos);
+});

@@ -2541,3 +2541,18 @@ osm-test의 OSM 단일 MapLibre 지도·본인 방문색과 Photon 검색/역조
 로그인 여행자 목록 표시 선택을 제거하고 운영 DB와 명세·개인정보 안내를 동기화했다. 격리 HTTP 14건, Chromium 1건, 타입 검사를 통과했다.
 
 변경 파일은 AGENTS.md, docs/{API_SPEC,PRD,REQUIREMENT,SOCIAL_TRAVEL_SPEC,TEST_CASE,TRD,prompts}.md, backend/supabase/migrations/20261124030000_account_discovery.sql, backend/tests/social-core.test.ts, frontend/src/{Social,SocialSpace}.tsx, frontend/e2e/social-travel.spec.ts, legal/privacy.html, site/legal/privacy.html이다.
+
+### 2026-11-24 20:08 KST
+
+- 요청 원문
+
+  > Implement the plan.
+
+- 결과 요약 · 도감 게시판과 편집 RPC, 6단계 온보딩, 실시간 프로필 미리보기, 사진 편집, 기기별 언어·테마, 비버 캐릭터를 refactor에 반영했다. 상세 검증 범위는 TEST_CASE의 도감·편집 개편 절을 따른다.
+- 변경 파일
+  - `AGENTS.md`
+  - `backend/supabase/migrations/20261124040000_edit_journal_record.sql`, `backend/tests/social-core.test.ts`, `backend/tests/travel-puzzles.test.ts`
+  - `docs/API_SPEC.md`, `docs/JOURNAL_UPDATE.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`
+  - `frontend/assets/ui/guide-jeonju.jpg`, `frontend/assets/ui/puzzles/11.jpg`, `frontend/assets/ui/puzzles/26.jpg`, `frontend/assets/ui/puzzles/27.jpg`, `frontend/assets/ui/puzzles/28.jpg`, `frontend/assets/ui/puzzles/29.jpg`, `frontend/assets/ui/puzzles/30.jpg`, `frontend/assets/ui/puzzles/31.jpg`, `frontend/assets/ui/puzzles/36.jpg`, `frontend/assets/ui/puzzles/41.jpg`, `frontend/assets/ui/puzzles/43.jpg`, `frontend/assets/ui/puzzles/44.jpg`, `frontend/assets/ui/puzzles/46.jpg`, `frontend/assets/ui/puzzles/47.jpg`, `frontend/assets/ui/puzzles/48.jpg`, `frontend/assets/ui/puzzles/50.jpg`, `frontend/assets/ui/puzzles/51.jpg`, `frontend/assets/ui/puzzles/52.jpg`, `frontend/e2e/helpers.ts`, `frontend/e2e/invite-session.spec.ts`, `frontend/e2e/mascot.spec.ts`, `frontend/e2e/profile-preview.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/screens/AppWorkspace.tsx`, `frontend/src/AppFrame.tsx`, `frontend/src/AppSettings.tsx`, `frontend/src/BadgeCabinet.tsx`, `frontend/src/ComposerSheet.tsx`, `frontend/src/DateField.tsx`, `frontend/src/DeferredScreens.tsx`, `frontend/src/DeferredScreens.web.tsx`, `frontend/src/DestinationScreen.tsx`, `frontend/src/FontText.tsx`, `frontend/src/Journal.tsx`, `frontend/src/LegalLink.tsx`, `frontend/src/LocationPicker.tsx`, `frontend/src/MapAttribution.tsx`, `frontend/src/MascotArt.tsx`, `frontend/src/MyTrips.tsx`, `frontend/src/PhotoCrop.tsx`, `frontend/src/PhotoGallery.tsx`, `frontend/src/PhotoSummarySheet.tsx`, `frontend/src/PhotoTray.tsx`, `frontend/src/ProfilePreview.tsx`, `frontend/src/Social.tsx`, `frontend/src/SocialSpace.tsx`, `frontend/src/SocialUI.tsx`, `frontend/src/StampCatalog.tsx`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/ThemeContext.ts`, `frontend/src/TravelDashboard.tsx`, `frontend/src/TravelGuide.tsx`, `frontend/src/TravelMap.web.tsx`, `frontend/src/TravelMascot.tsx`, `frontend/src/TravelSplash.tsx`, `frontend/src/data/maps/README.md`, `frontend/src/english.json`, `frontend/src/feedTimestamp.ts`, `frontend/src/preferences.ts`, `frontend/src/puzzleArtwork.ts`, `frontend/src/translate.ts`, `frontend/src/travelPuzzles.ts`
+  - `site/README.md`, `site/assets/puzzle.webp`, `site/features/index.html`, `site/generate.py`, `site/index.html`, `site/styles.css`
+  - `vitest.sns.config.ts`

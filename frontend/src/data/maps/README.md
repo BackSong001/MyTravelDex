@@ -98,4 +98,4 @@ python3 scripts/load-location-regions.py | psql -X -v ON_ERROR_STOP=1 'service=m
 
 마지막 인자는 로컬 Supabase PostgreSQL을 가리키는 libpq 서비스 설정 예시다. 사용하는 로컬 연결 설정에 맞춰 교체한다. 적재기는 해시를 검증한 시군구 256개, 별도 선택 섬 36개, 4월 스탬프 17개를 비공개 `travel_geo`에 넣고 활성 버전과 기존 위치 파생 필드를 한 트랜잭션에서 갱신한다. 기존 위치가 많으면 이 작업 동안 위치 쓰기가 대기하므로 운영 적용 시 시간을 잡는다. 같은 버전 재실행은 이미 채운 위치를 건드리지 않는다. DB에 기준일이 없는 기존 서버에서는 해당 좌표를 포함할 수 있는 시도의 정밀 자산만 읽어 분류한다. 알 수 없는 기준일의 코드를 현재 행정구역으로 해석하지 않는다.
 
-화면 자산은 Shapely 2.2.0 환경에서 `python3 scripts/build-light-maps.py`와 `node scripts/build-map-display.mjs`, `node --max-old-space-size=6144 frontend/scripts/build-boundary-tiles.mjs` 순서로 생성한다. 출처/버전 변경 시 DB 적재기·화면 자산을 함께 검토한다. 단순화된 해안선은 상세 배율에서 정밀 경계와 차이가 생길 수 있으며 저장 위치·스탬프·퍼즐은 원본 판정을 사용한다.
+화면 자산은 Shapely 2.2.0 환경에서 `python3 scripts/build-light-maps.py`와 `node scripts/build-map-display.mjs`, `node --max-old-space-size=6144 frontend/scripts/build-boundary-tiles.mjs` 순서로 생성한다. 출처/버전 변경 시 DB 적재기·화면 자산을 함께 검토한다. 단순화된 해안선은 상세 배율에서 정밀 경계와 차이가 생길 수 있으며 저장 위치·스탬프은 원본 판정을 사용한다.

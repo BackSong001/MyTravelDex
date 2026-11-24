@@ -1,3 +1,4 @@
+import {t,msg} from './translate';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import React, {type ReactNode, useEffect, useRef, useState} from 'react';
 import Text from './FontText';
@@ -48,17 +49,17 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
   async function search() {
     invalidate();
     setCandidate(null); setSelectedId(null); setResults([]); setSearched(false); setMessage('');
-    if (!query.trim()) {setMessage('장소명이나 주소를 입력해 주세요.'); return;}
+    if (!query.trim()) {setMessage(t('장소명이나 주소를 입력해 주세요.')); return;}
     Keyboard.dismiss();
     const request = version.current;
-    setBusy('장소를 찾고 있어요.');
+    setBusy(t('장소를 찾고 있어요.'));
     try {
       const places = await api.request('/functions/v1/photon-location', 'POST', {query: query.trim()});
       if (!current(request)) return;
       if (!Array.isArray(places) || places.some(place => !validPlace(place) || place.provider !== 'photon' || typeof place.id !== 'string' || !place.id.trim())) throw new Error('EXTERNAL_SERVICE_ERROR');
       setResults(places); setSearched(true);
     } catch (error) {
-      if (current(request)) setMessage(`장소 검색에 실패했어요. ${error instanceof Error ? error.message : 'EXTERNAL_SERVICE_ERROR'}`);
+      if (current(request)) setMessage(msg`장소 검색에 실패했어요. ${error instanceof Error ? error.message : 'EXTERNAL_SERVICE_ERROR'}`);
     } finally {if (current(request)) setBusy('');}
   }
   function selectPlace(place: any) {
@@ -70,7 +71,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
     if (!validPlace({latitude, longitude})) return;
     invalidate(); Keyboard.dismiss(); setCandidate(null); setSelectedId(null); setMessage('');
     const request = version.current;
-    setBusy('선택한 좌표의 주소를 확인하고 있어요.');
+    setBusy(t('선택한 좌표의 주소를 확인하고 있어요.'));
     try {
       const detail = await api.request('/functions/v1/photon-location', 'POST', {latitude, longitude});
       if (!current(request)) return;
@@ -78,20 +79,20 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
       setCandidate({...detail, latitude, longitude, source});
     } catch {
       if (current(request)) {
-        setCandidate({latitude, longitude, source, place_name: source === 'device' ? '현재 위치' : '지도에서 선택한 위치'});
-        setMessage('주소를 확인하지 못했어요. 지도에서 선택한 좌표는 그대로 유지돼요.');
+        setCandidate({latitude, longitude, source, place_name: source === 'device' ? t('현재 위치') : t('지도에서 선택한 위치')});
+        setMessage(t('주소를 확인하지 못했어요. 지도에서 선택한 좌표는 그대로 유지돼요.'));
       }
     } finally {if (current(request)) setBusy('');}
   }
   async function currentPosition() {
     invalidate(); setCandidate(null); setSelectedId(null); setMessage('');
     const request = version.current;
-    setBusy('현재 위치를 확인하고 있어요.');
+    setBusy(t('현재 위치를 확인하고 있어요.'));
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (!current(request)) return;
       if (permission.status !== 'granted') {
-        setMessage('위치 권한이 거부되었습니다. 장소를 검색하거나 지도에서 위치를 선택해 주세요.');
+        setMessage(t('위치 권한이 거부되었습니다. 장소를 검색하거나 지도에서 위치를 선택해 주세요.'));
         return;
       }
       const {coords} = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.Balanced});
@@ -99,7 +100,7 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
       if (!validPlace(coords)) throw new Error('INVALID_COORDINATES');
       await selectCoordinate(coords.latitude, coords.longitude, 'device');
     } catch (error) {
-      if (current(request)) setMessage(`현재 위치를 확인하지 못했어요. ${error instanceof Error ? error.message : 'LOCATION_ERROR'}`);
+      if (current(request)) setMessage(msg`현재 위치를 확인하지 못했어요. ${error instanceof Error ? error.message : 'LOCATION_ERROR'}`);
     } finally {if (current(request)) setBusy('');}
   }
 
@@ -109,42 +110,42 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
   return <Modal visible presentationStyle="fullScreen" animationType="slide" onRequestClose={close}>
     <SafeAreaView testID="location-picker" style={s.safe}>
       <View style={s.header}>
-        <Text accessibilityRole="header" style={s.heading}>위치 선택</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="닫기" onPress={close} style={s.button}><Text style={s.text}>닫기</Text></Pressable>
+        <Text accessibilityRole="header" style={s.heading}>{t("위치 선택")}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={t("닫기")} onPress={close} style={s.button}><Text style={s.text}>{t("닫기")}</Text></Pressable>
       </View>
       <KeyboardAvoidingView style={s.main} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View accessibilityRole="tablist" style={s.tabs}>
-          {([['map', '지도에서 선택'], ['search', '검색']] as const).map(([value, label]) => <Pressable key={value} accessibilityRole="tab" accessibilityState={{selected: tab === value}} aria-selected={tab===value} onPress={() => {setTab(value);scroll.current?.scrollTo({y:0,animated:false});}} style={[s.tab, tab === value && s.activeTab]}><Text style={s.text}>{label}</Text></Pressable>)}
+          {([['map', t('지도에서 선택')], ['search', t('검색')]] as const).map(([value, label]) => <Pressable key={value} accessibilityRole="tab" accessibilityState={{selected: tab === value}} aria-selected={tab===value} onPress={() => {setTab(value);scroll.current?.scrollTo({y:0,animated:false});}} style={[s.tab, tab === value && s.activeTab]}><Text style={s.text}>{label}</Text></Pressable>)}
         </View>
         <ScrollView ref={scroll} style={s.main} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
           <View style={s.search}>
-            <TextInput accessibilityLabel="장소 검색" placeholder="장소명 또는 주소" placeholderTextColor={c.muted} value={query} onChangeText={editQuery} onSubmitEditing={() => void search()} returnKeyType="search" maxLength={200} style={s.input}/>
-            <Pressable accessibilityRole="button" accessibilityLabel="장소 찾기" onPress={() => void search()} style={s.button}><Text style={s.text}>장소 찾기</Text></Pressable>
+            <TextInput accessibilityLabel={t("장소 검색")} placeholder={t("장소명 또는 주소")} placeholderTextColor={c.muted} value={query} onChangeText={editQuery} onSubmitEditing={() => void search()} returnKeyType="search" maxLength={200} style={s.input}/>
+            <Pressable accessibilityRole="button" accessibilityLabel={t("장소 찾기")} onPress={() => void search()} style={s.button}><Text style={s.text}>{t("장소 찾기")}</Text></Pressable>
           </View>
-          <Text style={s.description}>실제 주소와 지도 핀을 비교하고 위치를 확정해 주세요. 지도를 누르면 좌표를 보정할 수 있어요.</Text>
-          {tab === 'map' && <Pressable accessibilityRole="button" accessibilityLabel="현재 위치 사용" onPress={() => void currentPosition()} style={s.button}><Text style={s.text}>현재 위치 사용</Text></Pressable>}
+          <Text style={s.description}>{t("실제 주소와 지도 핀을 비교하고 위치를 확정해 주세요. 지도를 누르면 좌표를 보정할 수 있어요.")}</Text>
+          {tab === 'map' && <Pressable accessibilityRole="button" accessibilityLabel={t("현재 위치 사용")} onPress={() => void currentPosition()} style={s.button}><Text style={s.text}>{t("현재 위치 사용")}</Text></Pressable>}
           <View onLayout={event => {mapY.current = event.nativeEvent.layout.y;}} style={[s.map, tab === 'map' && {flexGrow: 1}]}>
             <TravelMap focus={candidate ?? undefined} records={records} fullScreen onCoordinate={(lat, lng) => void selectCoordinate(lat, lng)} onSelect={record => {
               const place = results.find(result => result.id === record.id);
               if (place) void selectPlace(place);
             }}/>
           </View>
-          {candidate && <View accessibilityLabel="선택한 위치" style={s.result}>
-            <Text style={s.text}>선택한 위치 · {candidate.place_name || candidate.name || '지도에서 선택한 위치'}</Text>
+          {candidate && <View accessibilityLabel={t("선택한 위치")} style={s.result}>
+            <Text style={s.text}>{t("선택한 위치 ·")} {candidate.place_name || candidate.name || t('지도에서 선택한 위치')}</Text>
             {!!candidate.address && <Text style={s.description}>{candidate.address}</Text>}
           </View>}
           {!!busy && <Text accessibilityLiveRegion="polite" style={s.description}>{busy}</Text>}
           {!!message && <Text accessibilityRole="alert" style={s.message}>{message}</Text>}
-          {searched && !results.length && <Text accessibilityRole="alert" style={s.description}>검색 결과가 없어요. 다른 장소명·주소를 검색하거나 지도에서 선택해 주세요.</Text>}
+          {searched && !results.length && <Text accessibilityRole="alert" style={s.description}>{t("검색 결과가 없어요. 다른 장소명·주소를 검색하거나 지도에서 선택해 주세요.")}</Text>}
           {results.map(place => <Pressable key={place.id} accessibilityRole="button" accessibilityLabel={`${place.name} ${place.address}`} accessibilityState={{selected: selectedId === place.id}} onPress={() => void selectPlace(place)} style={[s.result, selectedId === place.id && s.activeTab]}>
             <Text style={s.text}>{place.name}</Text><Text style={s.description}>{place.address}</Text>
           </Pressable>)}
           {(results.length > 0 || candidate?.attribution) && <Text style={s.description}>{candidate?.attribution || '© OpenStreetMap'}</Text>}
         </ScrollView>
-        <Pressable accessibilityRole="button" accessibilityLabel="이 위치로 선택" accessibilityState={{disabled: !candidate || !!busy}} disabled={!candidate || !!busy} onPress={() => {
+        <Pressable accessibilityRole="button" accessibilityLabel={t("이 위치로 선택")} accessibilityState={{disabled: !candidate || !!busy}} disabled={!candidate || !!busy} onPress={() => {
           if (!alive.current || !candidate || busy) return;
           alive.current = false; invalidate(); Keyboard.dismiss(); onConfirm(candidate);
-        }} style={[s.confirm, (!candidate || !!busy) && {opacity: 0.5}]}><Text style={s.confirmText}>이 위치로 선택</Text></Pressable>
+        }} style={[s.confirm, (!candidate || !!busy) && {opacity: 0.5}]}><Text style={s.confirmText}>{t("이 위치로 선택")}</Text></Pressable>
         {footer}
       </KeyboardAvoidingView>
     </SafeAreaView>
