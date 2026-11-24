@@ -330,3 +330,17 @@ test('로그인 후 요청한 My로 복귀하고 로그아웃 후에는 내 도�
  await expect(page.getByText('기록을 찾을 수 없습니다.').first()).toBeVisible();
  await expect(page.getByText(ownRecord.title,{exact:true})).toHaveCount(0);
 });
+
+test('피드에서 도감으로 이동한 뒤 브라우저 뒤로 가면 읽던 위치가 복원된다', async ({page}) => {
+ for(let index=0;index<4;index++)await record(author,'돌아볼 여행 '+index,'public');
+ await login(page);
+ await feed(page);
+ const list=page.getByTestId('social-feed');
+ await list.evaluate(element=>{element.scrollTop=360;});
+ await expect.poll(()=>list.evaluate(element=>element.scrollTop)).toBe(360);
+ await page.getByRole('tab',{name:'도감',exact:true}).click();
+ await expect(page).toHaveURL(/\/dex$/);
+ await page.goBack();
+ await expect(page).toHaveURL(/\/feed$/);
+ await expect.poll(()=>list.evaluate(element=>element.scrollTop)).toBe(360);
+});

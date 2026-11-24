@@ -54,6 +54,7 @@ export default function SocialFeed(props:Props&{seed:React.MutableRefObject<stri
   </View>
   {!!actionError&&<Notice message={actionError}/>}
   <FlatList {...webPull} style={Platform.OS==='web'?{overscrollBehaviorY:'contain'} as any:undefined} ref={list} testID="social-feed" data={page.items} keyExtractor={r=>r.id} initialNumToRender={3} maxToRenderPerBatch={3} windowSize={5} onScroll={e=>{
+   if(!list.current)return;
    const {contentOffset,contentSize,layoutMeasurement}=e.nativeEvent;
    scrollY.current=contentOffset.y;
    if(!page.refreshing&&props.snapshot.current)props.snapshot.current.offset=contentOffset.y;
