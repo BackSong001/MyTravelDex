@@ -362,7 +362,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
     const current=connection(id),canMap=!!onMap&&(followed||current?.status==='accepted');
     const name=profile?.display_name||'여행자',code=profile?.user_code||'유저 ID 비공개';
     const mapLabel=current?.status==='accepted'?'친구 지도 보기':'지도 보기';
-    const identity=<>{profile?<Avatar url={profile.avatar_url} size={48}/>:<View style={s.anonymousAvatar}><JournalIcon name="account" size={32}/></View>}<View style={s.flex}><Text numberOfLines={2} style={s.friendName}>{name}</Text><Text selectable style={s.friendIdentifier}>{code}</Text>{!profile&&<Text style={s.friendHint}>공개 프로필을 사용하지 않는 여행자</Text>}{canMap&&<Text style={s.mapLink}>공개 여행 지도 ›</Text>}</View></>;
+    const identity=<>{profile?<Avatar url={profile.avatar_url} size={48}/>:<View style={s.anonymousAvatar}><JournalIcon name="account" size={32}/></View>}<View style={s.flex}><Text numberOfLines={2} style={s.friendName}>{name}</Text><Text selectable style={s.friendIdentifier}>{code}</Text>{!profile&&<Text style={s.friendHint}>프로필 정보를 불러오지 못했어요</Text>}{canMap&&<Text style={s.mapLink}>공개 여행 지도 ›</Text>}</View></>;
     return <View key={id} testID={`friend-person-${id}`} style={s.person}>
       {canMap?<Pressable accessibilityRole="button" accessibilityLabel={`${mapLabel} · ${name} · ${code}`} disabled={loading||busy!==null} onPress={()=>onMap?.(id,name)} style={({pressed})=>[s.identity,pressed&&{backgroundColor:c.warm}]}>{identity}</Pressable>:<View style={s.identity}>{identity}</View>}
       <View style={s.friendActions}>
@@ -407,7 +407,7 @@ function FriendsList({session, onChanged, onMap, inviteCode, onInviteHandled,map
     </View>}
     {pane==='search'&&<View nativeID="friends-search-panel" role="tabpanel" aria-labelledby="friends-search-tab"><View accessibilityLabel="전체 여행자 목록" style={s.friendSheet}>
       <View style={s.friendSearch}><TextInput accessibilityLabel="공개 여행자 닉네임 또는 유저 ID" placeholder="닉네임 또는 6자리 유저 ID" placeholderTextColor={c.muted} value={query} onChangeText={setQuery} style={[s.input,s.flex,{fontSize:13}]} returnKeyType="search" onSubmitEditing={()=>void search(query)} autoCapitalize="none"/><Button compact label={searching?'검색 중…':'여행자 검색'} onPress={()=>void search(query)} disabled={searching}/></View>
-      <Text style={s.friendHint}>둘러보기에는 목록 공개를 선택한 여행자가 표시돼요. 이름이나 유저 ID로도 찾을 수 있어요.</Text>
+      <Text style={s.friendHint}>닉네임이나 유저 ID로 여행자를 찾을 수 있어요.</Text>
       <View style={s.actions}><Button compact label="전체 여행자 보기" onPress={()=>{setQuery('');void search('');}} disabled={searching} secondary/><Button compact label="여행자 목록 새로고침" onPress={()=>void search(lastQuery,offset)} disabled={searching} secondary/></View>
       <Text accessibilityRole="header" style={s.friendSectionTitle}>{lastQuery.trim()?'검색 결과':'전체 여행자'}</Text>
       {searching&&<ActivityIndicator color={c.sea} accessibilityLabel="여행자 검색 중"/>}{!!searchError&&<Notice error>{searchError}</Notice>}

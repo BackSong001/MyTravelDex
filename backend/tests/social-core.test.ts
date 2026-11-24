@@ -175,21 +175,42 @@ test('TC-SNS-003 moderation is service-only, audited and immediately enforced ac
  await admin.rpc('social_moderate',{report_id:profileReport,decision:'resolved',action:'restore_account',note:'복구',operator:'test'});
  expect(await a.api.request('/rest/v1/profiles?id=eq.'+a.id,'PATCH',{display_name:'복구된 여행자'})).toMatchObject([{display_name:'복구된 여행자'}]);
 });
-test('directory lists consenting travelers without requiring a post and respects blocks',async()=>{
+test('directory includes unlisted travelers and blocks hide both accounts and records', async () => {
  const [a,b]=users;
- const listed=async()=>{const ids:string[]=[];let cursor=null;
-  do{const page=await b.api.rpc('social_people',{kind:'directory',cursor_id:cursor});ids.push(...page.items.map((p:any)=>p.id));cursor=page.next_cursor;}while(cursor);
+ async function listed(api:TravelApi) {
+  const ids:string[]=[];
+  let cursor=null;
+  do {
+   const page=await api.rpc('social_people',{kind:'directory',cursor_id:cursor});
+   ids.push(...page.items.map((p:any)=>p.id));cursor=page.next_cursor;
+  } while(cursor);
   return ids;
- };
- await a.api.rpc('social_set_directory_listing',{enabled:false});
- expect(await listed()).not.toContain(a.id);
- await a.api.rpc('social_set_directory_listing',{enabled:true});
- expect(await listed()).toContain(a.id);expect(await listed()).not.toContain(b.id);
- expect(await b.api.request('/rest/v1/listed_travelers?id=eq.'+a.id)).toHaveLength(1);
+ }
+ for(const [actor,peer] of [[a,b],[b,a]]) {
+  await admin.request('/rest/v1/profiles?id=eq.'+peer.id,'PATCH',{display_name:peer.code+' 여행자',directory_listed:false});
+  expect(await listed(actor.api)).toContain(peer.id);
+  expect(await listed(actor.api)).not.toContain(actor.id);
+  expect(await actor.api.request('/rest/v1/listed_travelers?id=eq.'+peer.id)).toHaveLength(1);
+  expect(await guest.request('/rest/v1/listed_travelers?id=eq.'+peer.id)).toHaveLength(0);
+  expect((await actor.api.rpc('social_search',{query:peer.code+' 여행자'})).items).toMatchObject([{id:peer.id}]);
+  expect(await actor.api.rpc('social_set_follow',{target_id:peer.id,enabled:true})).toEqual({following:true});
+  expect(await peer.api.rpc('social_profile',{target_id:peer.id})).not.toHaveProperty('directory_listed');
+ }
+ const aPost=await record('public',a),bPost=await record('public',b),privatePost=await record('private',a);
+ expect(await b.api.request('/rest/v1/travel_records?id=eq.'+privatePost)).toEqual([]);
  await a.api.rpc('social_set_block',{target_id:b.id,enabled:true});
- expect(await listed()).not.toContain(a.id);
- expect(await b.api.request('/rest/v1/listed_travelers?id=eq.'+a.id)).toEqual([]);
+ for(const [actor,peer,post] of [[a,b,bPost],[b,a,aPost]] as const) {
+  expect(await listed(actor.api)).not.toContain(peer.id);
+  expect(await actor.api.request('/rest/v1/listed_travelers?id=eq.'+peer.id)).toEqual([]);
+  expect((await actor.api.rpc('social_search',{query:peer.code})).items).toEqual([]);
+  expect(await actor.api.rpc('lookup_contact_id',{user_id:peer.code})).toEqual([]);
+  await expect(actor.api.rpc('social_profile',{target_id:peer.id})).rejects.toMatchObject({status:404});
+  await expect(actor.api.rpc('social_set_follow',{target_id:peer.id,enabled:true})).rejects.toBeDefined();
+  expect(await actor.api.request('/rest/v1/travel_records?id=eq.'+post)).toEqual([]);
+  await expect(actor.api.rpc('social_record_item',{record_id:post})).rejects.toMatchObject({status:404});
+ }
  await a.api.rpc('social_set_block',{target_id:b.id,enabled:false});
+ expect(await listed(b.api)).toContain(a.id);
  await expect(guest.rpc('social_people',{kind:'directory'})).rejects.toMatchObject({status:401});
 });
 test('TC-SNS-004 profile projection, literal search, owner-only lists and saved cursor use current permissions',async()=>{

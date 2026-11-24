@@ -558,6 +558,6 @@ social_ranked_feed(mode,seed,after_cursor?)는 기존 공개 항목과 불투명
 
 ## 발견 피드와 관계 관리 (2026-11-24)
 
-social_ranked_feed(public)의 신규 커서는 v=2를 포함한다. social_people(kind=directory)는 로그인 사용자에게 공개 목록 동의·관계 허용 계정을 20명씩 제공한다. 팔로워·팔로잉은 본인만 읽으며 친구 관계는 별도로 관리한다.
+social_ranked_feed(public)의 신규 커서는 v=2를 포함한다. social_people(kind=directory)는 로그인 사용자에게 본인을 제외한 활동 가능·미차단 계정을 20명씩 제공한다. 팔로워·팔로잉은 본인만 읽으며 친구 관계는 별도로 관리한다.
 
-본인 social_profile 응답에는 directory_listed가 포함된다. social_set_directory_listing(enabled boolean)은 활성 로그인 계정의 설정을 변경하고 최종 boolean을 반환한다. listed_travelers는 빈 검색에 사용하는 공개 동의 목록이다.
+social_profile은 directory_listed를 반환하지 않으며 social_set_directory_listing RPC는 종료한다. 친구 화면은 listed_travelers에서 로그인하면 다른 활성·미차단 계정을 조회하고, 익명 접근은 이전 공개 목록 범위만 유지한다. social_search와 social_set_follow는 기존 차단 검사와 호출 권한을 유지한다.

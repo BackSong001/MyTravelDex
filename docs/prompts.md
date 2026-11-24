@@ -2531,3 +2531,13 @@ osm-test의 OSM 단일 MapLibre 지도·본인 방문색과 Photon 검색/역조
 변경 파일 — `AGENTS.md`, `backend/supabase/migrations/20261124020000_discovery_and_people.sql`, `backend/tests/social-core.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/screens/AppWorkspace.tsx`, `frontend/src/AppSettings.tsx`, `frontend/src/Social.tsx`, `frontend/src/SocialSpace.tsx`, `frontend/src/SocialUI.tsx`, `frontend/src/api.ts`
 
 | 2026-11-24 18:53 KST | 확인했어. 메인에 푸쉬하고 운영 DB도 연결되어 모든 유저를 팔로우할 수 있고, 탐색에서 공개된 모든 여행기록을 볼 수 있게해줘 | 발견·팔로우 변경을 main에 병합하고 운영 migration 1건 적용. 공개 기록 25건 전체 일치와 격리 Local 관계·피드 검사 4건 통과 확인. | `docs/TEST_CASE.md`, `docs/prompts.md` |
+
+### 2026-11-24 19:03 KST — 여행자 찾기
+
+> "여행자 둘러보기에 내 프로필 표시" 이런 표시가 필요없어. 모든 유저의 동의없이 모든 유저를 찾고 검색할 수 있게해줘. 내 프로필 공개, 비공개 여부없이 모든 유저를 찾고 팔로우 할 수 있게. 단, 차단한 경우에는 검색하거나 그 사람 프로필, 여행기록 등을 안보이게
+>
+> /feedback 명세서랑 내용이 다르면 명세서를 수정해줘
+
+로그인 여행자 목록 표시 선택을 제거하고 운영 DB와 명세·개인정보 안내를 동기화했다. 격리 HTTP 14건, Chromium 1건, 타입 검사를 통과했다.
+
+변경 파일은 AGENTS.md, docs/{API_SPEC,PRD,REQUIREMENT,SOCIAL_TRAVEL_SPEC,TEST_CASE,TRD,prompts}.md, backend/supabase/migrations/20261124030000_account_discovery.sql, backend/tests/social-core.test.ts, frontend/src/{Social,SocialSpace}.tsx, frontend/e2e/social-travel.spec.ts, legal/privacy.html, site/legal/privacy.html이다.

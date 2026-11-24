@@ -1133,4 +1133,4 @@ FR-LEGAL-001. 약관은 서버리스 정적 HTML로 제공한다. 앱은 고정 
 
 조회 가능 글만 대상으로 작성자별 created_at DESC, id ASC 순번을 매기고 순번·서울 작성일 내림차순·seed 기반 작성자 키·id 순으로 20건씩 읽는다. 팔로잉 및 이미 발급된 구형 커서는 기존 순서를 따른다.
 
-기존 public_profile_enabled는 DB에서 항상 참이다. 새 directory_listed는 기본 false이며 MY에서 본인만 social_set_directory_listing(enabled)으로 변경한다. 공개 글·닉네임·정확 ID 검색과 목록 동의를 분리한다. 빈 검색의 공개 목록은 listed_travelers의 최소 필드와 기존 reader 권한을 사용한다.
+로그인한 계정의 둘러보기·검색·팔로우는 과거 directory_listed 값이나 공개 기록 유무를 조건으로 사용하지 않는다. social_visible_owner와 social_pair_allowed로 양방향 차단·정지를 검사하고, 여행기록은 별도로 social_record_visible을 적용한다. 기존 public_profile_enabled는 DB 제약으로 항상 참이다. 친구 화면의 listed_travelers는 제한된 reader와 기존 최소 필드를 사용하며 로그인하지 않은 사용자의 기존 조회 범위를 넓히지 않는다.

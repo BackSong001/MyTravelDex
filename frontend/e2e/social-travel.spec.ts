@@ -347,7 +347,6 @@ test('피드에서 도감으로 이동한 뒤 브라우저 뒤로 가면 읽던 
 });
 
 test('follow a traveler without public posts and manage the friendship independently',async({page})=>{
- await viewer.api.rpc('social_set_directory_listing',{enabled:true});
  await viewer.api.request('/rest/v1/friend_requests','POST',{requester_id:viewer.id,recipient_id:author.id});
  await login(page,author);
  await page.getByRole('tab',{name:'피드',exact:true}).click();
@@ -357,8 +356,7 @@ test('follow a traveler without public posts and manage the friendship independe
  await expect(row.getByRole('button',{name:'팔로우 해제'})).toBeVisible();
  await page.getByRole('button',{name:'닫기',exact:true}).click();
  await page.getByRole('tab',{name:'My',exact:true}).click();
- await page.getByRole('button',{name:'여행자 둘러보기에 내 프로필 표시',exact:true}).click();
- await expect(page.getByRole('button',{name:'여행자 둘러보기에서 내 프로필 숨기기',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:/여행자 둘러보기.*내 프로필/})).toHaveCount(0);
  await page.getByRole('button',{name:'팔로잉 1명',exact:true}).click();
  await expect(page.getByRole('button',{name:'나의 일기 프로필'})).toBeVisible();
  await page.getByRole('button',{name:'닫기',exact:true}).click();

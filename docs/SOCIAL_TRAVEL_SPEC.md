@@ -9,7 +9,7 @@
 guest는complete/public읽기, 쓰기는로그인필수. 전체/팔로잉은created_at DESC,id DESC 서버필터후20개keyset이다. 팔로잉은follows만, 기존친구지도accepted OR follows는유지한다.
 기존대표사진첫장/나머지display_order,512px공개썸네일/300초URL, 기존content2줄+펼침을재사용한다. 좋아요/저장은복합unique+명시set멱등, 댓글은clientUUID재시도다.
 댓글1000자/답글1단: 같은record 및 parent.parent_id IS NULL 서버검증. 작성자수정/삭제·기록주인삭제. 부모soft삭제는본문을지우고답글유지. private/draft는소셜본문/count/댓글/사진권한차단, 반응보관. record삭제는기존잠금/Storage큐와FKcascade연결. 저장목록본인전용.
-공유는공개기록고정앱URL/Native share/Web Share/복사, 임의HTML실행없음. 사용자검색100자. 원본경로/EXIF/Auth정보를공개projection에추가하지않는다.
+공유는공개기록고정앱URL/Native share/Web Share/복사, 임의HTML실행없음. 사용자검색100자. 로그인한 사용자는 목록 표시 설정 없이 다른 활성 계정을 찾고 팔로우한다. 공개 글이 없는 계정도 포함하고 양방향 차단을 적용한다. 원본경로/EXIF/Auth정보를공개projection에추가하지않는다.
 
 ## FR-SNS-003 차단·알림·신고
 차단은exactID/초대/친구요청보다우선한다. 인증양쪽조회/반응/관계생성은서버거부하고계정쌍정렬잠금으로차단과쓰기직렬화. 차단시양방향팔로우/친구관계·관련알림정리. 해제시과거반응/저장은현재권한으로재표시하되관계자동복원없음.
