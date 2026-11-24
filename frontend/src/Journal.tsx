@@ -41,7 +41,7 @@ export function Welcome({children}:{children?:React.ReactNode}) {
  const iconSize=compact?120:160;
  return <View testID="login-layout" style={{width:'100%',maxWidth:400,alignSelf:'center',alignItems:'center',gap:compact?16:24,paddingVertical:compact?4:24}}>
   <View style={{width:'100%',alignItems:'center',gap:8}}>
-   <Image source={require('../public/lavender-backpack.png')} accessible accessibilityLabel="보라색 여행 배낭" resizeMode="contain" style={{width:iconSize,height:iconSize}}/>
+   <Image source={Platform.OS==='web'?{uri:'/backpack-icon.png'}:require('../public/backpack-icon.png')} accessible accessibilityLabel="보라색 여행 배낭" resizeMode="contain" style={{width:iconSize,height:iconSize}}/>
    <Text accessibilityRole="header" style={{color:c.ink,fontSize:36,lineHeight:46,fontWeight:'700',textAlign:'center'}}>여행가봥</Text>
    <Text style={{color:c.muted,fontSize:16,lineHeight:25,textAlign:'center'}}>여행 사진을 지도에 담고,{width<440?'\n':' '}지역 스탬프를 모아보세요.</Text>
   </View>

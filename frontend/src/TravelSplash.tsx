@@ -1,5 +1,5 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {Animated,Image,StyleSheet,View} from 'react-native';
+import {Animated,Image,Platform,StyleSheet,View} from 'react-native';
 import Text from './FontText';
 import {useReducedMotion} from './Feedback';
 
@@ -19,7 +19,7 @@ export function TravelSplash({label}:{label:string}){
    {rotate:progress.interpolate({inputRange:[0,1],outputRange:['-13deg','0deg']})},
    {scale:progress.interpolate({inputRange:[0,1],outputRange:[.8,1]})}
   ]}}>
-   <Image accessible={false} source={require('../public/lavender-backpack.png')} resizeMode="contain" style={styles.logo}/>
+   <Image accessible={false} source={Platform.OS==='web'?{uri:'/backpack-icon.png'}:require('../public/backpack-icon.png')} resizeMode="contain" style={styles.logo}/>
   </Animated.View>
   <Text style={styles.brand}>여행가봥</Text>
  </View>;

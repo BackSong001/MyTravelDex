@@ -186,7 +186,7 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  await expect.poll(()=>page.evaluate(()=>!!(window as any).renderer?.getLayer('district-names'))).toBe(true);
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
  const time=new Date('2026-11-17T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
- await choose('서울특별시');await page.clock.runFor(600);await canvas.press('+');
+ await choose('서울특별시');await page.clock.runFor(1056);await canvas.press('+');
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await choose('경상남도');await page.clock.runFor(48);
  expect(await page.evaluate(()=>{const n=(window as any).navigation.current;return Math.abs(n.camera.scale-n.fitScale);})).toBeGreaterThan(1);
@@ -198,7 +198,7 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  expect(await page.evaluate(()=>(window as any).navigation.current)).toEqual(state);
  await page.evaluate(()=>(window as any).hide());await expect(canvas).toHaveCount(0);await page.evaluate(()=>(window as any).update({}));
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
- await choose('경상남도');await page.clock.runFor(600);
+ await choose('경상남도');await page.clock.runFor(1056);
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
  await canvas.press('+');expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await canvas.press('-');expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);

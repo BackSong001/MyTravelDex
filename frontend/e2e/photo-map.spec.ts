@@ -283,11 +283,11 @@ test('TC-MAP-HOME-004 both country controls animate and interrupted return never
 for(const target of ['서울 기록 · 1개 지역 확대','해외·지역 미배정'])test('TC-MAP-HOME-004 modal selection cancels country completion: '+target,async({page})=>{
  const time=new Date('2026-11-17T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
  await page.emulateMedia({reducedMotion:'no-preference'});await page.evaluate(()=>(window as any).update({homeMap:true}));const canvas=page.getByTestId('svg-map-canvas');
- await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await page.clock.runFor(600);
+ await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();await page.clock.runFor(1056);
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await page.clock.runFor(32);
  await canvas.focus();await page.keyboard.press('Enter');await page.getByRole('button',{name:target,exact:true}).click();
  const selected=await page.evaluate(()=>(window as any).navigation.current.camera);expect(selected).not.toBeNull();
- await page.clock.runFor(600);
+ await page.clock.runFor(1056);
  const n=await page.evaluate(()=>(window as any).navigation.current);expect(n.camera).not.toBeNull();
  if(target.startsWith('서울')){
   await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);expect(n.province).toBe('11');expect(n.detail).toBe(true);
@@ -346,7 +346,7 @@ test('TC-MAP-SIMPLE-001 nonhome region selection keeps the original fit',async({
  expect(result.camera.scale).toBeCloseTo(result.scale,8);result.camera.center.forEach((n:number,i:number)=>expect(n).toBeCloseTo(result.center[i],8));
 });
 
-test('overview province tap eases into the fit and settles after half a second',async({page})=>{
+test('overview province tap eases into the fit and settles after one second',async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.evaluate(()=>(window as any).update({homeMap:true}));
  const canvas=page.getByTestId('svg-map-canvas');
@@ -363,7 +363,8 @@ test('overview province tap eases into the fit and settles after half a second',
  },start);
  await page.clock.runFor(96);
  const early=await progress();expect(early).toBeGreaterThan(0);expect(early).toBeLessThan(.2);
- await page.clock.runFor(288);
+ await page.clock.runFor(640);
  const later=await progress();expect(later).toBeGreaterThan(.65);expect(later).toBeLessThan(.95);
- await page.clock.runFor(192);expect(await progress()).toBeCloseTo(1,8);
+ await page.clock.runFor(248);expect(await progress()).toBeLessThan(1);
+ await page.clock.runFor(48);expect(await progress()).toBeCloseTo(1,8);
 });

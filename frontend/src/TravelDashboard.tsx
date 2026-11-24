@@ -11,7 +11,7 @@ import {Action,Notice,socialStyles as s} from './SocialUI';
 import {JournalIcon} from './Journal';
 import type {TravelApi} from './api';
 import {puzzleArtwork as art} from './puzzleArtwork';
-type Props={owner?:string;records:any[];covers:Record<string,string>;ready:boolean;error:string;onOpen:(record:any)=>void;onJournal:()=>void;onPuzzle:()=>void;onMap:()=>void;onFeed:()=>void;onDrafts:()=>void;api:TravelApi};
+type Props={owner?:string;records:any[];covers:Record<string,string>;ready:boolean;error:string;onJournal:()=>void;onPuzzle:()=>void;onMap:()=>void;onFeed:()=>void;onDrafts:()=>void;api:TravelApi};
 export default function TravelDashboard(p:Props){
  const puzzles=useMemo(()=>travelPuzzles(p.records,p.owner??null),[p.records,p.owner]),pieces=puzzles.reduce((n,x)=>n+x.pieces.filter(v=>v.records.length).length,0);
  const recent=[...p.records].sort((a,b)=>b.start_date.localeCompare(a.start_date)||a.id.localeCompare(b.id))[0];
@@ -19,8 +19,8 @@ export default function TravelDashboard(p:Props){
  const earned=puzzles.filter(group=>group.pieces.some(piece=>piece.records.length));
  const preview=earned.find(group=>group.pieces.some(piece=>piece.records.some(record=>record.id===recent?.id)))??earned[0];
  return <View style={{gap:22}}>
+  <TravelMascot/>
   {p.error?<Notice message={p.error}/>:!p.ready&&p.owner?<ActivityIndicator accessibilityLabel="내 여행 확인 중"/>:<>
-   <TravelMascot/>
    <View style={{borderTopWidth:1,borderBottomWidth:1,borderColor:'#E7E8EA',paddingVertical:16,flexDirection:'row'}}>
     {([['여행 기록',p.records.length,p.onJournal],['방문 시·도',earned.length,p.onMap],['퍼즐 조각',pieces,p.onPuzzle]] as const).map(([label,count,open])=><Pressable key={label} accessibilityRole="button" accessibilityLabel={label+' '+count} onPress={open} style={{flex:1,alignItems:'center',justifyContent:'center'}}><Text style={s.title}>{count}</Text><Text style={s.muted}>{label}</Text></Pressable>)}
    </View>
