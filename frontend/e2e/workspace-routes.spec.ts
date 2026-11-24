@@ -58,10 +58,12 @@ test('이전 공유 링크는 권한 있는 조회를 사용하고 거부된 기
 test('최초 번들 전송이 실패해도 같은 주소에서 다시 열 수 있다', async ({page}) => {
   test.skip(!process.env.ROUTING_BASE_URL,'정적 내보내기 결과를 검사한다');
   const entry='**/_expo/static/js/web/entry-*.js';
-  await page.route(entry,route=>route.abort('failed'));
+  let attempts=0;
+  await page.route(entry,route=>{attempts++;return route.abort('failed');});
   await page.goto('/dex/KR-11');
   const retry=page.getByRole('button',{name:'연결 후 다시 열기'});
   await expect(retry).toBeVisible();
+  expect(attempts).toBe(2);
   await page.unroute(entry);
   await retry.click();
   await expect(page.getByText('서울 지역 선택됨')).toBeVisible({timeout:20000});

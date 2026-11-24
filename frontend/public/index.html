@@ -12,9 +12,17 @@
       // 최초 번들 전송이 끊겨도 시작 화면에서 복구할 수 있다.
       window.addEventListener('error', function (event) {
         const script = event.target;
-        if (!(script instanceof HTMLScriptElement) || !script.src.includes('/_expo/static/js/')) return;
+        if (!(script instanceof HTMLScriptElement) || !script.src.includes('/_expo/static/js/web/entry-')) return;
         const retry = document.getElementById('boot-retry');
-        if (retry) retry.hidden = false;
+        if (!retry) return;
+        if (script.dataset.retried) {
+          retry.hidden = false;
+          return;
+        }
+        const replacement = document.createElement('script');
+        replacement.src = script.src;
+        replacement.dataset.retried = 'true';
+        script.replaceWith(replacement);
       }, true);
     </script>
     <style id="expo-reset">
