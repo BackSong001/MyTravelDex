@@ -143,12 +143,37 @@ test('TC-SNS-004 same-owner SDK token refresh keeps unsaved profile input mounte
  await page.getByRole('button',{name:'설정',exact:true}).click();await page.getByRole('button',{name:'계정 관리',exact:true}).click();await page.getByLabel('설정과 여행 도구',{exact:true}).getByRole('button',{name:'로그아웃',exact:true}).click();await expect(page.getByLabel('프로필 이름',{exact:true})).toHaveCount(0);await page.unroute('**/rest/v1/rpc/social_capabilities');await login(page,author);await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByRole('heading',{name:'소셜 여행자',exact:true})).toBeVisible();await expect(page.getByLabel('프로필 이름',{exact:true})).toHaveCount(0);
 });
 
-test('TC-SNS-002 a late reaction from an unmounted card still refreshes the same owner feed',async({page})=>{
+test('feed stays visible while likes and periodic visibility checks are pending',async({page})=>{
+ await page.clock.install();
+ const trip=await record(author,'두 장의 여행','public',2);
+ await login(page);await feed(page);
+ const card=page.getByTestId('feed-record-'+trip.id);
+ await card.getByRole('button',{name:'다음 사진'}).click();
+ await expect(card.getByText('2 / 2')).toBeVisible();
+ const original=await card.elementHandle();
+ for(const reason of ['like','timer']){
+  let release!:()=>void,pending=false;
+  const gate=new Promise<void>(resolve=>{release=resolve;});
+  const path='**/rpc/social_ranked_feed';
+  await page.route(path,async route=>{pending=true;await gate;await route.continue();});
+  try{
+   if(reason==='like')await card.getByRole('button',{name:'좋아요',exact:true}).click();
+   else {await author.api.update(trip.id,{visibility:'private'});await page.clock.fastForward(240001);}
+   await expect.poll(()=>pending).toBe(true);
+   expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
+   await expect(card.getByText('2 / 2')).toBeVisible();
+   release();
+   if(reason==='like')await expect(card.getByRole('button',{name:'좋아요 취소'})).toBeVisible();
+   else await expect(card).toHaveCount(0);
+  }finally{release();await page.unroute(path);}
+ }
+});
+test('TC-SNS-002 concurrent card reactions both refresh the same owner feed',async({page})=>{
  const other=await record(author,'두 번째 서울','public');await login(page);await feed(page);
  let release!:()=>void;const gate=new Promise<void>(r=>{release=r;});let pending=false;
  await page.route('**/rest/v1/rpc/social_set_reaction',async route=>{if(route.request().postDataJSON().record_id===other.id){pending=true;await gate;}await route.continue();});
  const a=page.getByTestId('feed-record-'+publicRecord.id),b=page.getByTestId('feed-record-'+other.id);
- try{await b.getByRole('button',{name:'좋아요',exact:true}).click();await expect.poll(()=>pending).toBe(true);await a.getByRole('button',{name:'좋아요',exact:true}).click();await expect(a.getByRole('button',{name:'좋아요 취소',exact:true})).toBeVisible();await expect(b.getByRole('button',{name:'좋아요',exact:true})).toBeEnabled();release();await expect(b.getByRole('button',{name:'좋아요 취소',exact:true})).toBeVisible();expect((await viewer.api.rpc('social_record_item',{record_id:other.id})).liked).toBe(true);}finally{release();}
+ try{await b.getByRole('button',{name:'좋아요',exact:true}).click();await expect.poll(()=>pending).toBe(true);await a.getByRole('button',{name:'좋아요',exact:true}).click();await expect(a.getByRole('button',{name:'좋아요 취소',exact:true})).toBeVisible();await expect(b.getByRole('button',{name:'좋아요',exact:true})).toBeDisabled();release();await expect(b.getByRole('button',{name:'좋아요 취소',exact:true})).toBeVisible();expect((await viewer.api.rpc('social_record_item',{record_id:other.id})).liked).toBe(true);}finally{release();}
 });
 test('TC-SNS-004 My restores after delayed profile/grid data and respects manual scroll cancellation',async({page})=>{
  for(let i=0;i<39;i++)await record(viewer,'개인 기록 '+i,'private');await login(page);await page.getByRole('tab',{name:'My',exact:true}).click();

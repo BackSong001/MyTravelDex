@@ -12,7 +12,7 @@ import {JournalIcon} from './Journal';
 import Pressable from './Feedback';
 import type {TravelApi} from './api';
 import {Action,IconAction,Notice,PageTail,SocialAvatar,SocialModal,SocialPhoto,failure,socialStyles as s,useSocialPage,type PageSnapshot} from './SocialUI';
-type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:()=>void;onLogin:()=>void;onOpen:(record:any)=>void};
+type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:(discardFeed?:boolean)=>void;onLogin:()=>void;onOpen:(record:any)=>void};
 type Overlay={kind:'comments'|'profile'|'report'|'search'|'notifications'|'people';id?:string;record?:any;target?:'record'|'comment'|'profile';people?:string};
 export default function SocialFeed(props:Props&{seed:React.MutableRefObject<string>;snapshot:React.MutableRefObject<PageSnapshot|null>}){
  const [mode,setMode]=useState(props.snapshot.current?.key?.includes('social_saved')?'saved':props.snapshot.current?.key?.includes('following')?'following':'public'),[overlay,setOverlay]=useState<Overlay|null>(null),[actionError,setActionError]=useState('');
@@ -71,7 +71,9 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
  const images=photos.length?photos:[{id:record.cover_photo_id}];
  function showPhoto(index:number){strip.current?.scrollTo({x:index*width,animated:false});setPhotoIndex(index);}
  useEffect(()=>{strip.current?.scrollTo({x:photoIndex*width,animated:false});},[width]);
- useEffect(()=>{alive.current=true;setPhotos([]);setPhotoIndex(0);let active=true;void api.request('/rest/v1/public_photos?'+new URLSearchParams({travel_record_id:`eq.${record.id}`,select:'id,is_cover,display_order',order:'is_cover.desc,display_order.asc,id.asc'})).then(rows=>{if(active)setPhotos(rows);}).catch(e=>{if(active)props.onError(failure(e));});return()=>{active=false;alive.current=false;};},[api,record.id,props.revision]);
+ useEffect(()=>{alive.current=true;let active=true;void api.request('/rest/v1/public_photos?'+new URLSearchParams({travel_record_id:`eq.${record.id}`,select:'id,is_cover,display_order',order:'is_cover.desc,display_order.asc,id.asc'})).then(rows=>{
+  if(active){setPhotos(rows);setPhotoIndex(i=>Math.min(i,Math.max(0,rows.length-1)));}
+ }).catch(e=>{if(active){setPhotos([]);setPhotoIndex(0);props.onError(failure(e));}});return()=>{active=false;alive.current=false;};},[api,record]);
  async function reaction(kind:'like'|'save'|'follow'){
   if(!props.owner){props.onLogin();return;}if(guard.current)return;guard.current=true;setBusy(true);props.onError('');
   try{
@@ -124,7 +126,7 @@ function Comments(props:Props&{record:any;onOverlay:(o:Overlay)=>void}){
 }
 function Report(props:Props&{overlay:Overlay;onClose:()=>void}){
  const [reason,setReason]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),id=useRef(Crypto.randomUUID()),guard=useRef(false),live=useRef(true);useEffect(()=>()=>{live.current=false;},[]);
- async function send(block=false){if(!props.owner){props.onLogin();return;}if(guard.current)return;guard.current=true;setBusy(true);try{if(block)await props.api.rpc('social_set_block',{target_id:props.overlay.record?.owner_id??props.overlay.id,enabled:true});else await props.api.rpc('social_report',{report_id:id.current,target_kind:props.overlay.target,target_id:props.overlay.id,reason});if(live.current){props.onChanged();props.onClose();}}catch(e){if(live.current)setError(failure(e));}finally{guard.current=false;if(live.current)setBusy(false);}}
+ async function send(block=false){if(!props.owner){props.onLogin();return;}if(guard.current)return;guard.current=true;setBusy(true);try{if(block)await props.api.rpc('social_set_block',{target_id:props.overlay.record?.owner_id??props.overlay.id,enabled:true});else await props.api.rpc('social_report',{report_id:id.current,target_kind:props.overlay.target,target_id:props.overlay.id,reason});if(live.current){props.onChanged(block);props.onClose();}}catch(e){if(live.current)setError(failure(e));}finally{guard.current=false;if(live.current)setBusy(false);}}
  const canBlock=props.overlay.target==='profile'||props.overlay.record?.owner_id&&props.overlay.record.owner_id!==props.owner;
  return <ScrollView contentContainerStyle={{padding:20,gap:16}} keyboardShouldPersistTaps="handled"><Text style={s.text}>신고 내용은 다른 여행자에게 공개되지 않습니다. 운영자가 확인할 수 있도록 사유를 적어 주세요.</Text><TextInput accessibilityLabel="신고 사유" multiline maxLength={500} value={reason} onChangeText={value=>{id.current=Crypto.randomUUID();setReason(value);}} editable={!busy} style={[s.input,{minHeight:120}]}/>{error&&<Notice message={error}/>}<Action label="신고 제출" primary disabled={busy||!reason.trim()} onPress={()=>void send()}/>{canBlock&&<><Text style={s.muted}>차단하면 서로의 공개 기록과 반응을 볼 수 없고 팔로우·친구 관계가 해제됩니다.</Text><Action label="이 여행자 차단" disabled={busy} onPress={()=>void send(true)}/></>}</ScrollView>;
 }

@@ -82,7 +82,7 @@ export default function Home(){
  const socialApi=useMemo(()=>{const client=new TravelApi(process.env.EXPO_PUBLIC_SUPABASE_URL??'http://127.0.0.1:54321',process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY??'');client.token=session?.access_token??null;return client;},[session?.access_token]);
  useEffect(()=>{let current=true;setCapabilityError('');void socialApi.rpc('social_capabilities',{}).then(()=>{if(current)setSocialSupported(true);}).catch(e=>{if(!current)return;if(e.status===404||e.serverCode==='PGRST202')setSocialSupported(false);else setCapabilityError('소셜 서버 상태를 확인하지 못했어요. 입력을 유지한 채 다시 확인할 수 있어요.');});return()=>{current=false;};},[socialApi,capabilityAttempt]);
  const socialEpoch=sessionEpoch.current;
- function socialChanged(){if(socialEpoch!==sessionEpoch.current)return;setSocialRevision(x=>x+1);void latestLoad.current().catch(()=>{});}
+ function socialChanged(discardFeed=false){if(socialEpoch!==sessionEpoch.current)return;if(discardFeed)feedSnapshot.current=null;setSocialRevision(x=>x+1);void latestLoad.current().catch(()=>{});}
  const googleIdentity=session?.user?.identities?.find((identity:{provider:string})=>identity.provider==='google')?.identity_data;
  const googlePhoto=googleIdentity?.avatar_url??googleIdentity?.picture;
  const socialProps={googlePhoto:typeof googlePhoto==='string'&&/^https:\/\/(lh[0-9]+\.googleusercontent\.com|[a-z0-9-]+\.ggpht\.com)\/[^\s\\]+$/.test(googlePhoto)?googlePhoto:null,api:socialApi,disabled:busy,owner:session?.user?.id,revision:socialRevision,onChanged:socialChanged,onLogin:()=>setScreen('login'),onOpen:(r:any)=>readDetail(r,'feed')};

@@ -37,10 +37,12 @@ export function useSocialPage(api:TravelApi,name:string|null,args:Record<string,
  const identity=JSON.stringify(args),key=name+identity;
  const [items,setItems]=useState<any[]>([]),[cursor,setCursor]=useState<any>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[unread,setUnread]=useState(0);
  const generation=useRef(0),busy=useRef(false);
- const [appending,setAppending]=useState(false);
+ const [appending,setAppending]=useState(false),[background,setBackground]=useState(false);
  async function load(more=false){if(!name){setItems([]);setCursor(null);setLoading(false);setError('');return;}if(busy.current||(more&&!cursor))return;busy.current=true;setAppending(more);const version=++generation.current;setLoading(true);setError('');
   const restore=snapshot?.current?.key===key?{...snapshot.current}:null;
-  if(!more){setItems([]);setCursor(null);}
+  const keepFeed=!more&&!!restore&&items.length>0&&(name==='social_ranked_feed'||name==='social_saved');
+  setBackground(keepFeed);
+  if(!more&&!keepFeed){setItems([]);setCursor(null);}
   try{let after=more?cursor:null,next:any[]=more?items:[],page:any;
    do{page=name==='social_ranked_feed'?await api.rankedFeed(args,after):await api.rpc(name,{...args,...(after?(typeof after==='string'?{cursor_id:after}:{cursor_time:after.created_at,cursor_id:after.id}):{})});if(version!==generation.current)return;
     if(api.token&&page.items.length&&(name==='social_saved'||name==='social_ranked_feed')){
@@ -54,11 +56,11 @@ export function useSocialPage(api:TravelApi,name:string|null,args:Record<string,
     }
     next=[...next,...page.items.filter((r:any)=>!next.some(x=>x.id===r.id))];after=page.next_cursor;
    }while(!more&&restore&&after&&next.length<restore.count);
-   setItems(next);setCursor(after);setUnread(page.unread_count??0);if(snapshot)snapshot.current={count:next.length,offset:(more?snapshot.current?.offset:restore?.offset)??0,key};
-  }catch(e){if(version===generation.current){setError(failure(e));}}
+   setItems(next);setCursor(after);setUnread(page.unread_count??0);if(snapshot)snapshot.current={count:next.length,offset:((more||keepFeed)?snapshot.current?.offset:restore?.offset)??0,key};
+  }catch(e){if(version===generation.current){if(keepFeed){setItems([]);setCursor(null);}setError(failure(e));}}
   finally{if(version===generation.current){busy.current=false;setLoading(false);}}
  }
  useEffect(()=>{busy.current=false;void load();return()=>{generation.current++;busy.current=false;};},[api,name,identity,revision]);
- return {items,cursor,loading,refreshing:loading&&!appending,appending,error,load,unread};
+ return {items,cursor,loading,background,refreshing:loading&&!appending&&!background,appending,error,load,unread};
 }
-export function PageTail({page,automatic=false}:{page:ReturnType<typeof useSocialPage>;automatic?:boolean}){return <View style={{padding:16,gap:12}}>{page.loading&&<ActivityIndicator accessibilityLabel="목록 불러오는 중"/>}{page.error&&<Notice message={page.error} retry={()=>void page.load(automatic&&page.appending&&!!page.cursor)}/>} {!page.loading&&!page.error&&!page.items.length&&<Text style={socialStyles.muted}>아직 표시할 내용이 없어요.</Text>}{!automatic&&page.cursor&&!page.loading&&<Action label="더 보기" onPress={()=>void page.load(true)}/>}</View>;}
+export function PageTail({page,automatic=false}:{page:ReturnType<typeof useSocialPage>;automatic?:boolean}){return <View style={{padding:16,gap:12}}>{page.loading&&!page.background&&<ActivityIndicator accessibilityLabel="목록 불러오는 중"/>}{page.error&&<Notice message={page.error} retry={()=>void page.load(automatic&&page.appending&&!!page.cursor)}/>} {!page.loading&&!page.error&&!page.items.length&&<Text style={socialStyles.muted}>아직 표시할 내용이 없어요.</Text>}{!automatic&&page.cursor&&!page.loading&&<Action label="더 보기" onPress={()=>void page.load(true)}/>}</View>;}
