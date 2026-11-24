@@ -2529,3 +2529,5 @@ osm-test의 OSM 단일 MapLibre 지도·본인 방문색과 Photon 검색/역조
 작성자별 발견 순번과 목록 공개 설정, 팔로우 창, 친구 관리를 구현하고 격리 DB·웹·Android 에뮬레이터에서 확인했다.
 
 변경 파일 — `AGENTS.md`, `backend/supabase/migrations/20261124020000_discovery_and_people.sql`, `backend/tests/social-core.test.ts`, `docs/API_SPEC.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/e2e/friends.spec.ts`, `frontend/e2e/social-travel.spec.ts`, `frontend/screens/AppWorkspace.tsx`, `frontend/src/AppSettings.tsx`, `frontend/src/Social.tsx`, `frontend/src/SocialSpace.tsx`, `frontend/src/SocialUI.tsx`, `frontend/src/api.ts`
+
+| 2026-11-24 18:53 KST | 확인했어. 메인에 푸쉬하고 운영 DB도 연결되어 모든 유저를 팔로우할 수 있고, 탐색에서 공개된 모든 여행기록을 볼 수 있게해줘 | 발견·팔로우 변경을 main에 병합하고 운영 migration 1건 적용. 공개 기록 25건 전체 일치와 격리 Local 관계·피드 검사 4건 통과 확인. | `docs/TEST_CASE.md`, `docs/prompts.md` |
