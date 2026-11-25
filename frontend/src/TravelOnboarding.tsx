@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, Modal, ScrollView, StyleSheet, View, useWindowDimensions} from 'react-native';
+import {Animated, BackHandler, Modal, Platform, ScrollView, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Pressable, {useReducedMotion} from './Feedback';
 import Text from './FontText';
@@ -61,11 +61,21 @@ type Props = {
 export default function TravelOnboarding({preference, step, anchors, onChoose, onStep, onFinish}: Props) {
   const c = useThemeColors(), insets = useSafeAreaInsets(), size = useWindowDimensions();
   const [draft, setDraft] = useState<Companion>();
-  const [spot, setSpot] = useState<{x: number; y: number; diameter: number}>();
+  const [surfaceHeight, setSurfaceHeight] = useState(size.height);
+  const [measuredSpot, setSpot] = useState<{target: GuideTarget; x: number; y: number; diameter: number}>();
   const surface = useRef<View>(null);
   const guide = guideSteps[step];
   const target = guide?.[0];
+  const spot = measuredSpot?.target === target ? measuredSpot : undefined;
   const companion = preference.companion;
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const back = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (companion) onFinish();
+      return true;
+    });
+    return () => back.remove();
+  }, [companion, onFinish]);
   useEffect(() => {
     setSpot(undefined);
     if (!target) return;
@@ -76,8 +86,8 @@ export default function TravelOnboarding({preference, step, anchors, onChoose, o
         if (!width || !height) return;
         surface.current?.measureInWindow((left, top) => {
           if (!active) return;
-          const next = {x: x - left + width / 2, y: y - top + height / 2, diameter: Math.max(42, Math.min(52, Math.max(width, height) + 10))};
-          setSpot(previous => previous?.x === next.x && previous.y === next.y && previous.diameter === next.diameter ? previous : next);
+          const next = {target, x: x - left + width / 2, y: y - top + height / 2, diameter: Math.max(42, Math.min(52, Math.max(width, height) + 10))};
+          setSpot(previous => previous?.target === next.target && previous.x === next.x && previous.y === next.y && previous.diameter === next.diameter ? previous : next);
         });
       });
     }
@@ -91,12 +101,13 @@ export default function TravelOnboarding({preference, step, anchors, onChoose, o
   const text = !companion ? '이제 ' + preference.name + '님과 함께 여행을 다닐 여행 친구를 선택해주세요.' : guide?.[2] ??
     (step < 0 ? '저는 ' + companions[companion].name + '예요. 지금부터 앱에 대해서 간단히 소개할게요!' :
       '앞으로의 ' + preference.name + '님과의 여행이 기대돼요! 좋은 추억 많이 만들어 봐요!!');
-  const bottomTarget = spot && spot.y > size.height * .72;
-  const top = guide && !bottomTarget && (!spot || spot.y >= size.height / 2);
-  const bottomPadding = bottomTarget ? Math.max(insets.bottom + 12, size.height - spot.y + spot.diameter / 2 + 14) : insets.bottom + 12;
+  const bottomTarget = spot && spot.y > surfaceHeight * .72;
+  const top = guide && !bottomTarget && (!spot || spot.y >= surfaceHeight / 2);
+  const bottomPadding = bottomTarget ? Math.max(insets.bottom + 12, surfaceHeight - spot.y + spot.diameter / 2 + 14) : insets.bottom + 12;
 
-  return <Modal transparent visible animationType="none" onRequestClose={companion ? onFinish : () => undefined}>
-    <View ref={surface} collapsable={false} accessibilityViewIsModal style={[styles.surface, {
+  const content = <View ref={surface} collapsable={false} accessibilityViewIsModal
+    onLayout={event => setSurfaceHeight(event.nativeEvent.layout.height)}
+    style={[styles.surface, Platform.OS === 'android' && styles.inline, {
       paddingTop: insets.top + 12, paddingBottom: bottomPadding, justifyContent: guide ? top ? 'flex-start' : 'flex-end' : 'center',
     }]}>
       {guide && spot && <View pointerEvents="none" testID="onboarding-highlight" style={[styles.spot, {
@@ -126,12 +137,14 @@ export default function TravelOnboarding({preference, step, anchors, onChoose, o
             onPress={() => guide || step < 0 ? onStep(step + 1) : onFinish()}/>
         </View>}
       </ScrollView>
-    </View>
-  </Modal>;
+    </View>;
+  return Platform.OS === 'android' ? content :
+    <Modal transparent visible animationType="none" onRequestClose={companion ? onFinish : () => undefined}>{content}</Modal>;
 }
 
 const styles = StyleSheet.create({
   surface: {flex: 1, paddingHorizontal: 14, backgroundColor: '#21162A26'},
+  inline: {...StyleSheet.absoluteFillObject, zIndex: 100},
   bubble: {width: '100%', maxWidth: 460, alignSelf: 'center', flexGrow: 0, borderWidth: 1, borderRadius: 18},
   content: {padding: 14, gap: 8},
   row: {flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6},

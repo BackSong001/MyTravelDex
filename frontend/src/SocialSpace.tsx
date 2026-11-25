@@ -195,7 +195,8 @@ export function SocialProfile(props:Props&{target:string;onOverlay:(o:Overlay)=>
  </View></View>
  {!!displayBio&&<Text style={s.text}>{displayBio}</Text>}</>;
  if(own&&profile&&edit&&preview)return <ProfilePreview busy={busy} error={error} onEdit={()=>setPreview(false)} onSave={save}>{header}</ProfilePreview>;
- return <View style={{gap:16}}>{!profile&&props.headerActions&&<View style={{alignSelf:'flex-end'}}>{props.headerActions}</View>}{error&&<Notice message={error} retry={()=>setAttempt(x=>x+1)}/>} {!profile&&!error&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}{profile&&<>
+ return <View style={{gap:16}}>{!profile&&props.headerActions&&<View style={{alignSelf:'flex-end'}}>{props.headerActions}</View>}{error&&<Notice message={error} retry={()=>setAttempt(x=>x+1)}/>}
+{!profile&&!error&&<ActivityIndicator accessibilityLabel="프로필 불러오는 중"/>}{profile&&<>
  {header}
  {own?<View style={[s.row,{flexWrap:'wrap'}]}><Action label="프로필 편집" disabled={busy} onPress={()=>{editProfile(!editing.current);setName(profile.display_name);setBio(profile.bio??'');setAvatarMode('keep');setAvatar(null);discardPhoto();setUploadPending(false);}}/><Action label="팔로잉 관리" onPress={()=>props.onOverlay({kind:'people',people:'following'})}/><IconAction icon="bell" label="알림" onPress={()=>props.onOverlay({kind:'notifications'})}/></View>:<View style={[s.row,{flexWrap:'wrap'}]}><Action label={profile.following?'팔로잉 취소':'팔로우'} primary={!profile.following} disabled={busy} onPress={()=>props.owner?void run(async()=>{await props.api.rpc('social_set_follow',{target_id:props.target,enabled:!profile.following});if(live.current)props.onChanged();}):props.onLogin()}/><Action label="신고 및 차단" onPress={()=>props.owner?props.onOverlay({kind:'report',target:'profile',id:props.target}):props.onLogin()}/></View>}
  {edit&&<View style={[s.section,{gap:12}]}>
