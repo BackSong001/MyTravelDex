@@ -7,6 +7,7 @@ const button=(page:Page,name:string)=>page.getByRole('button',{name,exact:true})
 async function fixture(page:Page,signedIn:boolean,social=false){
  let visibility='private';
  if(signedIn)await page.addInitScript(owner=>{
+  localStorage.setItem('guide.v1.'+owner,'done');
   localStorage.setItem('sb-127-auth-token',JSON.stringify({access_token:'ui-fixture',refresh_token:'ui-refresh',token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,user:{id:owner,aud:'authenticated',user_metadata:{},app_metadata:{}}}));
  },owner);
  await page.route('http://127.0.0.1:54321/**',async route=>{
@@ -25,7 +26,7 @@ async function fixture(page:Page,signedIn:boolean,social=false){
 async function openMenu(page:Page){
  await button(page,'설정').click();
  for(const name of ['여행 즐기기','설정','고객 지원'])await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
- for(const name of ['어디로 가봥?','스탬프 도감','계정 관리','개인정보 및 공개 범위','앱 정보'])await expect(button(page,name)).toBeVisible();
+ for(const name of ['어디로 가봥?','스탬프 도감','계정 관리','개인정보 및 공개 범위','앱 정보'])await expect(page.getByRole('dialog').getByRole('button',{name,exact:true})).toBeVisible();
  for(const name of ['뱃지 보관함','스타일 여행'])await expect(button(page,name)).toHaveCount(0);
 }
 for(const width of [320,1280]){

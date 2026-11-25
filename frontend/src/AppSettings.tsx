@@ -2,7 +2,7 @@ import {t} from './translate';
 import {setPreference,usePreferences} from './preferences';
 import LegalLink from './LegalLink';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {Animated,Modal,Platform,Pressable as Backdrop,ScrollView,StyleSheet,useWindowDimensions,View} from 'react-native';
+import {Animated,Image,Modal,Platform,Pressable as Backdrop,ScrollView,StyleSheet,useWindowDimensions,View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {expo} from '../app.json';
 import Text from './FontText';
@@ -14,6 +14,18 @@ import {visitedDistricts,type Destination} from './destinationDraw';
 
 const titles={menu:'여행가봥',discovery:'어디로 가봥?',account:'계정 관리',about:'앱 정보'};
 type Pane=keyof typeof titles;
+const menuImages={
+ tutorial:require('../assets/ui/settings/tutorial.png'),
+ language:require('../assets/ui/settings/language.png'),
+ theme:require('../assets/ui/settings/theme.png'),
+ friends:require('../assets/ui/settings/friends.png'),
+ stamps:require('../assets/ui/settings/stamps.png'),
+ account:require('../assets/ui/navigation/id-card.png'),
+ privacy:require('../assets/ui/settings/privacy.png'),
+ about:require('../assets/ui/settings/about.png'),
+};
+type RowIcon=keyof typeof menuImages|'destination'|'profile'|'next';
+
 type Props={
  owner?:string; tab:JournalTab; onTab:(tab:JournalTab)=>void; onCreate:()=>void;
  onGuide?:()=>void;onAccount:()=>void; onLogout:()=>void; onStamps:()=>void; onPrivacy:()=>void; busy?:boolean;
@@ -49,10 +61,14 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
  }
  function leave(action:()=>void){dismiss();action();}
  function changePane(next:Pane){if(next==='discovery'||next==='menu')onRoutePane?.(next);setPane(next);scroll.current?.scrollTo({y:0,animated:false});}
- function row(label:string,icon:string,action:()=>void,disabled=false){
+ function row(label:string,icon:RowIcon,action:()=>void,disabled=false){
   return <Pressable accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={action}
    style={[s.row,{opacity:disabled?.55:1,borderColor:c.line}]}>
-   <View style={[s.icon,{backgroundColor:c.warm}]}>{icon==='destination'?<DestinationIcon/>:<JournalIcon name={icon} size={20}/>}</View>
+   <View style={s.icon}>
+    {icon==='destination'?<DestinationIcon/>:
+     icon==='profile'||icon==='next'?<View style={[s.subIcon,{backgroundColor:c.warm}]}><JournalIcon name={icon==='profile'?'account':icon} size={20}/></View>:
+     <Image accessible={false} source={menuImages[icon]} resizeMode="contain" style={s.image}/>}
+   </View>
    <Text style={[s.label,{color:c.ink}]}>{label}</Text><JournalIcon name="next" size={16} color={c.muted}/>
   </Pressable>;
  }
@@ -77,16 +93,16 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
       <ScrollView ref={scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
        {open&&pane==='menu'&&<>
         {section(t('화면 설정'),<>
-         {owner&&onGuide&&row(t('튜토리얼 다시 보기'),'home',()=>leave(onGuide))}
-         {row(prefs.language==='ko'?t('언어 · English'):t('Language · 한국어'),'account',()=>setPreference('language',prefs.language==='ko'?'en':'ko'))}
-         {row(prefs.theme==='light'?t('다크 테마'):t('화이트 테마'),'grid',()=>setPreference('theme',prefs.theme==='light'?'dark':'light'))}
+         {owner&&onGuide&&row(t('튜토리얼 다시 보기'),'tutorial',()=>leave(onGuide))}
+         {row(prefs.language==='ko'?t('언어 · English'):t('Language · 한국어'),'language',()=>setPreference('language',prefs.language==='ko'?'en':'ko'))}
+         {row(prefs.theme==='light'?t('다크 테마'):t('화이트 테마'),'theme',()=>setPreference('theme',prefs.theme==='light'?'dark':'light'))}
          </>)}
-        {section(t('여행 즐기기'),<>{row(t(titles.discovery),'destination',()=>changePane('discovery'))}{row(t('친구 관리'),'friends',()=>leave(()=>onTab('friends')))}{row(t('스탬프 도감'),'bookmark',()=>leave(onStamps))}</>)}
-        {section(t('설정'),<>{row(t(titles.account),'account',()=>changePane('account'))}{row(t('개인정보 및 공개 범위'),'lock',()=>leave(onPrivacy))}</>)}
-        {section(t('고객 지원'),row(t(titles.about),'feed',()=>changePane('about')))}
+        {section(t('여행 즐기기'),<>{row(t(titles.discovery),'destination',()=>changePane('discovery'))}{row(t('친구 관리'),'friends',()=>leave(()=>onTab('friends')))}{row(t('스탬프 도감'),'stamps',()=>leave(onStamps))}</>)}
+        {section(t('설정'),<>{row(t(titles.account),'account',()=>changePane('account'))}{row(t('개인정보 및 공개 범위'),'privacy',()=>leave(onPrivacy))}</>)}
+        {section(t('고객 지원'),row(t(titles.about),'about',()=>changePane('about')))}
        </>}
        {open&&pane==='account'&&<View style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>
-        {owner?<>{row(t('내 프로필 관리'),'account',()=>leave(onAccount),busy)}{row(t('로그아웃'),'next',()=>leave(onLogout),busy)}</>:row(t('로그인'),'account',()=>leave(onAccount))}
+        {owner?<>{row(t('내 프로필 관리'),'profile',()=>leave(onAccount),busy)}{row(t('로그아웃'),'next',()=>leave(onLogout),busy)}</>:row(t('로그인'),'profile',()=>leave(onAccount))}
         <LegalLink deletion/>
        </View>}
        {open&&pane==='about'&&<View style={[s.card,{padding:20,gap:8,backgroundColor:c.sheet,borderColor:c.line}]}><Text style={[s.title,{color:c.ink}]}>{expo.name}</Text><Text style={{color:c.muted}}>MyTravelDex</Text><Text style={{color:c.ink}}>{t("버전")} {expo.version}</Text><LegalLink/></View>}
@@ -106,6 +122,8 @@ const s=StyleSheet.create({
  content:{width:'100%',maxWidth:640,alignSelf:'center',padding:18,paddingBottom:32,gap:24},
  card:{borderWidth:1,borderRadius:18,overflow:'hidden'},
  row:{flexDirection:'row',alignItems:'center',paddingHorizontal:14,paddingVertical:9,gap:12,borderBottomWidth:StyleSheet.hairlineWidth},
- icon:{width:34,height:34,borderRadius:12,alignItems:'center',justifyContent:'center'},
+ icon:{width:34,height:34,alignItems:'center',justifyContent:'center'},
+ image:{width:34,height:34},
+ subIcon:{width:34,height:34,borderRadius:12,alignItems:'center',justifyContent:'center'},
  label:{flex:1,fontSize:16,lineHeight:24,fontWeight:'600'},
 });
