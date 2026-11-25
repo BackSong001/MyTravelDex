@@ -29,4 +29,4 @@ Google Search Console과 Bing Webmaster Tools에서 진행 중인 확인 상태�
 
 GA4를 시작할 때 운영자의 웹 데이터 스트림에서 공개 G- 측정 ID를 analytics.js에 설정한다. Google Signals와 자동 외부 링크 측정은 사용하지 않고 동의 후 DebugView에서 web_app_open을 확인한다. 스토어 배포 시 검증한 링크를 추가하고 store_download_click을 따로 확인한다.
 
-robots.txt의 기본 허용 그룹은 Googlebot·Yeti·bingbot·OAI-SearchBot·Claude-SearchBot에 적용된다. GPTBot과 ClaudeBot은 별도로 제한한다. Google-Extended는 Gemini의 답변 근거 제공에도 쓰여 허용했다. 웹앱의 모든 화면에는 별도로 noindex가 적용된다. 홍보 사이트의 사이트맵에는 사용자 기록 URL이 들어가지 않는다.
+홍보사이트의 `robots.txt`는 모든 크롤러에 공개 페이지 접근을 허용하고, OAI-SearchBot·Claude-SearchBot·Google-Extended의 허용 규칙도 명시한다. GPTBot과 ClaudeBot에도 기본 허용 규칙이 적용된다. 사이트맵에는 홍보 콘텐츠와 공개 약관만 포함한다. 별도 도메인의 웹앱에는 기존 noindex 정책을 적용한다.
