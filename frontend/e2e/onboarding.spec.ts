@@ -9,6 +9,9 @@ test('TC-ONBOARD-003: first login requires explicit profile setup; reload preser
  await expect(page.getByRole('heading',{name:'여행을 시작할 프로필',exact:true})).toBeVisible();await expect(page.getByLabel('닉네임',{exact:true})).toHaveValue('여행자');await page.getByLabel('닉네임',{exact:true}).fill('   ');await page.getByRole('button',{name:'프로필 저장하고 시작',exact:true}).click();await expect(page.getByRole('alert')).toContainText('1~30');
  await page.getByLabel('닉네임',{exact:true}).fill('처음 여행자');await page.getByRole('button',{name:'프로필 저장하고 시작',exact:true}).click();await expect(page.getByRole('heading',{name:'여행을 시작할 프로필',exact:true})).toHaveCount(0);
  const profile=(await admin(`/rest/v1/profiles?id=eq.${user.id}`))[0];expect(profile).toMatchObject({display_name:'처음 여행자',avatar_url:null,public_profile_enabled:true,profile_setup_complete:true});
+ await page.getByRole('button',{name:'안경 다람쥐 선택',exact:true}).click();
+ await page.getByRole('button',{name:'이 친구와 함께하기',exact:true}).click();
+ await page.getByRole('button',{name:'건너뛰기',exact:true}).click();
  await page.reload();await expect(page.getByRole('tab',{name:'My',exact:true})).toBeVisible();await page.getByRole('tab',{name:'My',exact:true}).click();await expect(page.getByTestId('profile-name')).toHaveText('처음 여행자');await expect(page.getByRole('heading',{name:'여행을 시작할 프로필',exact:true})).toHaveCount(0);
 });
 

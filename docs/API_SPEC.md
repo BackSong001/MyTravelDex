@@ -1,5 +1,9 @@
 # MyTravelDex API 명세서
 
+## 첫 여행 안내
+
+여행 친구 안내는 기존 profile_setup_status와 complete_profile_setup을 사용한다. 선택과 완료 상태는 기기 설정으로 저장하며 서버 계약은 기존과 같다.
+
 ## 2026-11-21 공통 햄버거 메뉴
 
 FR-MENU-001은 기존 인증·프로필·여행 기록 조회와 공개 범위 변경 계약을 사용한다. 드로어는 badge_inventory·draw_badge를 호출하지 않는다. 기존 배지 RPC·소유권·데이터는 보존한다.

@@ -7,7 +7,7 @@ export const companions = {
   squirrel:{name:'안경 다람쥐', fur:'#DFA674', cream:'#FFE7C3'},
   cat:{name:'배낭 고양이', fur:'#FFF8E6', cream:'#FFFDF3'},
   otter:{name:'탐험 수달', fur:'#CAAC83', cream:'#F5E5BF'},
-  cheeky:{name:'볼빵 다람쥐', fur:'#EEC693', cream:'#FFF1D2'},
+  beaver:{name:'여행 비버', fur:'#BB8968', cream:'#F6DBC0'},
 } as const;
 export type Companion = keyof typeof companions;
 const outline = {stroke:ink, strokeWidth:2.6, strokeLinecap:'round', strokeLinejoin:'round'} as const;
@@ -45,6 +45,14 @@ function MascotFace({kind}:{kind:Companion}) {
     <Path d="M105 101L105 108M84 106Q101 119 124 106M69 95L53 92M69 99L51 100M139 93L154 89M140 98L156 97" fill="none"/>
     <TrailHat/>
   </G>;
+  if (kind==='beaver') return <G {...outline}>
+    <Ellipse cx={69} cy={61} rx={11} ry={10} fill={palette.fur}/><Ellipse cx={138} cy={61} rx={11} ry={10} fill={palette.fur}/>
+    <Path d="M65 79Q68 51 102 51Q137 49 143 77Q156 88 151 105Q143 121 108 122Q70 124 59 109Q49 93 65 79Z" fill={palette.fur}/>
+    <Path d="M77 92Q87 84 103 91Q119 83 131 93Q143 102 132 111Q119 120 103 113Q85 119 73 110Q65 101 77 92Z" fill={palette.cream} stroke="none"/>
+    <Path d="M94 89Q103 85 113 89Q112 96 104 98Q97 96 94 89Z" fill={ink}/>
+    <Path d="M95 105L98 115Q103 117 105 114Q110 116 113 113L114 104Z" fill="#FFF8E8"/><Path d="M104 106L105 114M104 98V102Q99 108 92 102M104 102Q110 108 117 101" fill="none" strokeWidth={1.7}/>
+    <Path d="M76 98l-14 -3m14 7 -14 3m70 -7 14 -3m-14 7 15 3" fill="none" strokeWidth={1.5}/>
+  </G>;
   return <G {...outline}>
         <Path d="M65 67Q55 43 65 38Q77 32 85 53M127 52Q136 32 146 42Q151 50 141 68" fill={palette.fur}/>
         <Path d="M66 55Q60 43 67 43Q73 42 77 51M135 53Q141 41 144 47" fill="#EDAB90" strokeWidth={1.6}/>
@@ -52,17 +60,12 @@ function MascotFace({kind}:{kind:Companion}) {
         <Path d="M56 94Q67 85 77 91Q85 96 93 93Q104 86 115 93Q124 98 133 90Q143 86 150 94Q152 112 126 115Q97 123 72 113Q55 109 56 94Z" fill={palette.cream} stroke="none"/>
         <Ellipse cx={66} cy={98} rx={8} ry={4.6} fill="#EC967F" stroke="none"/><Ellipse cx={141} cy={98} rx={8} ry={4.6} fill="#EC967F" stroke="none"/>
         <Path d="M59 94L49 91M59 100L49 101M146 93L157 89M147 99L158 100" fill="none" strokeWidth={2}/>
-        {kind==='squirrel' && <>
         <Path d="M73 70Q83 66 97 70Q102 70 100 77L98 86Q96 93 85 92Q76 92 74 85L71 75Q70 71 73 70ZM108 71Q119 67 132 69Q138 70 136 76L133 86Q130 92 119 92Q111 91 109 85L106 76Q105 73 108 71Z" fill="#F8D5A4" strokeWidth={3.3}/>
         <Path d="M99 75Q103 72 107 75M66 73L72 75M136 74L142 72" fill="none"/>
-        </>}
         <Path d="M99 94Q104 91 109 94Q108 99 104 99Q101 98 99 94Z" fill={ink}/>
         <Path d="M104 98L104 101M95 100Q99 107 104 101Q109 106 114 99" fill="none" strokeWidth={2}/>
         <Path d="M101 104L103 108Q106 109 107 104" fill="#FFF9EF" strokeWidth={1.4}/>
-    {kind==='squirrel' ? <TrailHat/> : <G fill="none" stroke={ink} strokeWidth={2.2}>
-      <Path d="M89 53q4 5 4 8q2 -2 3 -8q5 5 4 8M81 71l9 2m26 0 9 -3"/>
-      <Path d="M99 103l1 8h8l1 -8Z" fill="#FFFAE9"/><Path d="M104 104v6"/>
-    </G>}
+    <TrailHat/>
   </G>;
 }
 
@@ -99,12 +102,13 @@ export default function MascotArt({kind, idle, wave, photo, hop}:Props) {
             <Path d="M156 104Q153 96 158 93Q165 88 172 109Q167 114 160 112Z" fill="#39372E"/>
           </> : kind==='otter' ?
             <Path d="M127 143Q144 145 157 138Q167 133 178 124Q182 123 180 130C172 147 150 163 128 158Z" fill={fur}/>
+          : kind==='beaver'?<><Path d="M123 142Q140 143 159 119C179 97 200 117 188 135Q172 155 132 157Z" fill="#9F745B"/><Path d="M148 145l21-28m-10 31 21-28m-18 4 16 10m-23-1 15 9" fill="none" stroke="#78533F" strokeWidth={1.6}/></>
           : <><Path d="M123 138C151 146 154 126 151 115C145 91 160 80 174 84C190 88 193 107 186 122C181 134 167 153 145 155Q127 158 120 149Z" fill={fur}/>
           <Path d="M145 147C166 143 179 121 178 108C177 98 164 96 163 106Q162 112 168 112" fill="none" stroke="#986444"/></>}
         </G></Drawing>
       </Animated.View>
       <View style={StyleSheet.absoluteFill}><Drawing><G {...outline}>
-        {kind!=='cheeky' && <>
+        {kind!=='beaver' && <>
         {kind==='otter' && <G><Path d="M78 113L71 69Q69 63 64 66L61 68L65 116ZM65 114L58 80Q55 74 50 78L47 82L52 119Z" fill="#AE997C"/></G>}
         <Path d="M70 102Q54 96 51 114L47 144Q47 152 59 153L83 153L87 110Z" fill={kind==='otter'?'#629B91':'#AD7244'}/>
         <Path d="M50 125L66 127L63 144Q54 148 48 142Z" fill="#DFA455"/>
@@ -113,7 +117,7 @@ export default function MascotArt({kind, idle, wave, photo, hop}:Props) {
         <Path d="M41 104Q40 95 46 98Q49 101 44 104" fill="none" strokeWidth={1.5}/></>}
         <Path d="M71 103Q80 93 103 98Q129 95 140 116Q146 131 138 149L141 156Q147 166 128 165Q119 166 118 156Q106 160 91 155Q91 165 78 165Q65 165 70 155L74 146Q65 130 71 103Z" fill={fur}/>
         <Path d="M86 145Q83 120 101 118Q121 115 126 147Q111 155 90 150Z" fill={cream} stroke="none"/>
-        {kind!=='cheeky' && <Path d="M75 107Q70 119 76 129M131 108L134 119" fill="none" stroke="#845736" strokeWidth={5}/>}
+        {kind!=='beaver' && <Path d="M75 107Q70 119 76 129M131 108L134 119" fill="none" stroke="#845736" strokeWidth={5}/>}
         <Path d="M77 109Q81 133 99 142Q121 133 129 108" fill="none" strokeWidth={2}/>
       </G></Drawing></View>
       <View testID="mascot-face" style={StyleSheet.absoluteFill}><Drawing><MascotFace kind={kind}/></Drawing></View>
