@@ -396,11 +396,11 @@ test('guide, device preferences and English journal navigation survive a reload'
  await expect(page.getByRole('heading',{name:'사진으로 보는 지도'})).toBeVisible();
  await page.getByRole('button',{name:'건너뛰기'}).click();
  await page.getByRole('button',{name:'설정',exact:true}).click();
- await page.getByRole('button',{name:'다크 테마'}).click();
+ await page.getByRole('button',{name:'화면 모드, 라이트'}).click();
  await page.getByRole('button',{name:'언어 · English'}).click();
- await expect(page.getByRole('button',{name:'Light theme'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Display mode, Dark'})).toBeVisible();
  await page.reload();
- await expect(page.getByRole('button',{name:'Light theme'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Display mode, Dark'})).toBeVisible();
  await page.getByRole('button',{name:'Close settings'}).click();
  await page.getByRole('tab',{name:'Journal',exact:true}).click();
  await expect(page.getByText('나만의 서울',{exact:true})).toBeVisible();

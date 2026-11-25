@@ -56,3 +56,65 @@ test('TC-MENU-001 게스트 계정 진입과 닫기',async({page})=>{
  await button(page,'설정 닫기').click();await openMenu(page);
  await button(page,'계정 관리').click();await button(page,'로그인').click();await expect(button(page,'Google 로그인')).toBeVisible();
 });
+
+test('TC-ICON-THEME-001 기기별 선택·탭 미리보기와 화면 모드',async({page})=>{
+ await page.setViewportSize({width:390,height:930});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await fixture(page,true);
+ await openMenu(page);
+ const names=['햇살 피크닉','봄날 산책','밤바다','자두빛 노을'];
+ const nav=page.getByRole('tablist',{name:'주요 탐색',includeHidden:true}).first();
+ const sources=async(locator:ReturnType<Page['locator']>)=>
+  locator.locator('img').evaluateAll(images=>images.map(image=>(image as HTMLImageElement).src));
+ const picker=()=>page.getByRole('button',{name:/^아이콘 테마/});
+ await expect(picker()).toContainText(names[1]);
+ await picker().click();
+ const options=page.getByRole('radio');
+ await expect(options).toHaveCount(4);
+ await expect(options.nth(1)).toBeChecked();
+ const packs=new Set<string>();
+ for(const [index,name] of names.entries()){
+  const option=options.nth(index);
+  await expect(option).toHaveAccessibleName(name);
+  await option.click();
+  await expect(option).toBeChecked();
+  const preview=await sources(option);
+  expect(preview).toHaveLength(5);
+  await expect.poll(()=>sources(nav)).toEqual(preview);
+  packs.add(preview.join(','));
+ }
+ expect(packs.size).toBe(4);
+ await button(page,'여행 도구 뒤로').click();
+ await expect(picker()).toContainText(names[3]);
+ await expect.poll(()=>sources(button(page,'계정 관리'))).toEqual([(await sources(nav))[4]]);
+ await page.getByRole('button',{name:/^화면 모드/}).click();
+ await page.reload();
+ await expect(picker()).toContainText(names[3]);
+ await expect(page.getByRole('button',{name:/^화면 모드/})).toContainText('다크');
+ await picker().click();
+ await expect(options.nth(3)).toBeChecked();
+ await button(page,'설정 닫기').click();
+ await nav.getByRole('tab',{name:'도감',exact:true}).click();
+ await expect(nav.getByRole('tab',{name:'도감',exact:true})).toHaveAttribute('aria-selected','true');
+});
+
+
+test('기존 다크 모드 기기는 유효한 아이콘 선택이 없으면 봄날 산책을 사용한다',async({page})=>{
+ await page.setViewportSize({width:320,height:700});
+ await page.addInitScript(()=>{
+  localStorage.setItem('journal.theme','dark');
+  localStorage.setItem('journal.iconTheme','unknown');
+ });
+ await fixture(page,false);
+ await openMenu(page);
+ await expect(button(page,'화면 모드, 다크')).toBeVisible();
+ await button(page,'아이콘 테마, 봄날 산책').click();
+ await expect(page.getByRole('radio',{name:'봄날 산책'})).toBeChecked();
+ for(const row of await page.getByRole('radio').all()){
+  const fits=await row.evaluate(node=>{
+   const [label,preview,check]=Array.from(node.children).map(child=>child.getBoundingClientRect());
+   return label.right<=preview.left+1 && preview.right<=check.left+1 && node.scrollWidth<=node.clientWidth+1;
+  });
+  expect(fits).toBe(true);
+ }
+});

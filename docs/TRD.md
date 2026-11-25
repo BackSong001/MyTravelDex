@@ -1,5 +1,10 @@
 # MyTravelDex 기술 요구사항 문서
 
+## 아이콘 테마 (2026-11-25)
+
+FR-ICON-THEME-001은 기존 AsyncStorage 환경설정에 journal.iconTheme을 추가한다. picnic, spring, ocean, plum 중 유효한 값만 복원하고 누락·알 수 없는 값은 spring으로 처리한다. journal.theme과 독립적이며 공통 에셋에서 탭·설정·지도·미리보기를 렌더링한다.
+
+
 ## 2026-11-21 공통 햄버거 메뉴
 
 FR-MENU-001은 공통 React Native Modal과 기존 화면 전환을 사용한다. StampCatalog는 본인 완료 기록의 ownGroups를 재사용한다. 계정은 기존 프로필과 로그아웃, 공개 범위는 본인 여행도감의 기록별 전환을 사용한다. 앱 버전은 Expo 설정을 참조한다. 앱 정보와 계정 관리는 기존 LegalLink로 각각 공개 약관 허브와 삭제 요청 안내를 연다.

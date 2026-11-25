@@ -1,3 +1,4 @@
+import {iconAssets,type IconName} from './iconAssets';
 import {t} from './translate';
 import {setPreference,usePreferences} from './preferences';
 import LegalLink from './LegalLink';
@@ -7,24 +8,16 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {expo} from '../app.json';
 import Text from './FontText';
 import Pressable,{useReducedMotion} from './Feedback';
-import {DestinationIcon,JournalIcon,JournalNav,type JournalTab} from './Journal';
+import {JournalIcon,JournalNav,type JournalTab} from './Journal';
 import {useThemeColors} from './ThemeContext';
 import DestinationDraw from './DestinationScreen';
 import {visitedDistricts,type Destination} from './destinationDraw';
 
-const titles={menu:'여행가봥',discovery:'어디로 가봥?',account:'계정 관리',about:'앱 정보'};
+import {iconThemes,themeNames,tabIcons} from './iconThemes';
+
+const titles={icons:'아이콘 테마',menu:'여행가봥',discovery:'어디로 가봥?',account:'계정 관리',about:'앱 정보'};
 type Pane=keyof typeof titles;
-const menuImages={
- tutorial:require('../assets/ui/settings/tutorial.png'),
- language:require('../assets/ui/settings/language.png'),
- theme:require('../assets/ui/settings/theme.png'),
- friends:require('../assets/ui/settings/friends.png'),
- stamps:require('../assets/ui/settings/stamps.png'),
- account:require('../assets/ui/navigation/id-card.png'),
- privacy:require('../assets/ui/settings/privacy.png'),
- about:require('../assets/ui/settings/about.png'),
-};
-type RowIcon=keyof typeof menuImages|'destination'|'profile'|'next';
+type RowIcon=IconName|'profile'|'next';
 
 type Props={
  owner?:string; tab:JournalTab; onTab:(tab:JournalTab)=>void; onCreate:()=>void;
@@ -61,15 +54,14 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
  }
  function leave(action:()=>void){dismiss();action();}
  function changePane(next:Pane){if(next==='discovery'||next==='menu')onRoutePane?.(next);setPane(next);scroll.current?.scrollTo({y:0,animated:false});}
- function row(label:string,icon:RowIcon,action:()=>void,disabled=false){
-  return <Pressable accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={action}
+ function row(label:string,icon:RowIcon,action:()=>void,disabled=false,value?:string){
+  return <Pressable accessibilityRole="button" accessibilityLabel={value?label+', '+value:label} disabled={disabled} onPress={action}
    style={[s.row,{opacity:disabled?.55:1,borderColor:c.line}]}>
    <View style={s.icon}>
-    {icon==='destination'?<DestinationIcon/>:
-     icon==='profile'||icon==='next'?<View style={[s.subIcon,{backgroundColor:c.warm}]}><JournalIcon name={icon==='profile'?'account':icon} size={20}/></View>:
-     <Image accessible={false} source={menuImages[icon]} resizeMode="contain" style={s.image}/>}
+    {icon==='profile'||icon==='next'?<View style={[s.subIcon,{backgroundColor:c.warm}]}><JournalIcon name={icon==='profile'?'account':icon} size={20}/></View>:
+     <Image accessible={false} source={iconAssets[prefs.iconTheme][icon]} resizeMode="contain" style={s.image}/>}
    </View>
-   <Text style={[s.label,{color:c.ink}]}>{label}</Text><JournalIcon name="next" size={16} color={c.muted}/>
+   <Text style={[s.label,{color:c.ink}]}>{label}</Text>{value&&<Text style={{color:c.muted,flexShrink:1}}>{value}</Text>}<JournalIcon name="next" size={16} color={c.muted}/>
   </Pressable>;
  }
  function section(title:string,children:React.ReactNode){
@@ -95,12 +87,25 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
         {section(t('화면 설정'),<>
          {owner&&onGuide&&row(t('튜토리얼 다시 보기'),'tutorial',()=>leave(onGuide))}
          {row(prefs.language==='ko'?t('언어 · English'):t('Language · 한국어'),'language',()=>setPreference('language',prefs.language==='ko'?'en':'ko'))}
-         {row(prefs.theme==='light'?t('다크 테마'):t('화이트 테마'),'theme',()=>setPreference('theme',prefs.theme==='light'?'dark':'light'))}
+         {row(t('화면 모드'),'theme',()=>setPreference('theme',prefs.theme==='light'?'dark':'light'),false,t(prefs.theme==='light'?'라이트':'다크'))}
+         {row(t(titles.icons),'home',()=>changePane('icons'),false,t(themeNames[prefs.iconTheme]))}
          </>)}
         {section(t('여행 즐기기'),<>{row(t(titles.discovery),'destination',()=>changePane('discovery'))}{row(t('친구 관리'),'friends',()=>leave(()=>onTab('friends')))}{row(t('스탬프 도감'),'stamps',()=>leave(onStamps))}</>)}
         {section(t('설정'),<>{row(t(titles.account),'account',()=>changePane('account'))}{row(t('개인정보 및 공개 범위'),'privacy',()=>leave(onPrivacy))}</>)}
         {section(t('고객 지원'),row(t(titles.about),'about',()=>changePane('about')))}
        </>}
+       {open&&pane==='icons'&&<View accessibilityRole="radiogroup" accessibilityLabel={t(titles.icons)} style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>
+        {iconThemes.map(id=>{
+         const selected=id===prefs.iconTheme;
+         const size=width<360?20:26;
+         return <Pressable key={id} accessibilityRole="radio" accessibilityLabel={t(themeNames[id])} accessibilityState={{checked:selected}} aria-checked={selected}
+          onPress={()=>setPreference('iconTheme',id)} style={[s.option,{borderColor:c.line,backgroundColor:selected?c.warm:c.sheet}]}>
+          <Text style={[s.optionName,{color:c.ink}]}>{t(themeNames[id])}</Text>
+          <View style={s.preview}>{tabIcons.map(icon=><Image key={icon} accessible={false} resizeMode="contain" source={iconAssets[id][icon]} style={{width:size,height:size}}/>)}</View>
+          <Text accessible={false} style={{width:18,color:c.ink,fontWeight:'700'}}>{selected?'✓':''}</Text>
+         </Pressable>;
+        })}
+       </View>}
        {open&&pane==='account'&&<View style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>
         {owner?<>{row(t('내 프로필 관리'),'profile',()=>leave(onAccount),busy)}{row(t('로그아웃'),'next',()=>leave(onLogout),busy)}</>:row(t('로그인'),'profile',()=>leave(onAccount))}
         <LegalLink deletion/>
@@ -124,6 +129,9 @@ const s=StyleSheet.create({
  row:{flexDirection:'row',alignItems:'center',paddingHorizontal:14,paddingVertical:9,gap:12,borderBottomWidth:StyleSheet.hairlineWidth},
  icon:{width:34,height:34,alignItems:'center',justifyContent:'center'},
  image:{width:34,height:34},
+ option:{flexDirection:'row',alignItems:'center',paddingHorizontal:8,paddingVertical:12,gap:6,borderBottomWidth:StyleSheet.hairlineWidth},
+ optionName:{flex:1,fontSize:15,fontWeight:'600'},
+ preview:{flexDirection:'row',alignItems:'center',gap:3},
  subIcon:{width:34,height:34,borderRadius:12,alignItems:'center',justifyContent:'center'},
  label:{flex:1,fontSize:16,lineHeight:24,fontWeight:'600'},
 });
