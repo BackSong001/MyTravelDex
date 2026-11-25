@@ -1,3 +1,6 @@
+import {iconAssets} from './iconAssets';
+import {usePreferences} from './preferences';
+import {tabIcons} from './iconThemes';
 import {t,msg} from './translate';
 import {useThemeColors,useThemeStyles,type ThemeColors} from './ThemeContext';
 import Pressable from './Feedback';
@@ -10,7 +13,8 @@ import Avatar from './Avatar';
 
 
 export function DestinationIcon(){
- return <Image accessible={false} source={require('../assets/ui/navigation/destination.png')} resizeMode="contain" style={{width:34,height:34}}/>;
+ const {iconTheme}=usePreferences();
+ return <Image accessible={false} source={iconAssets[iconTheme].destination} resizeMode="contain" style={{width:34,height:34}}/>;
 }
 
 export function AddPhotoIcon({size=34}:{size?:number}){
@@ -93,24 +97,19 @@ export function Collection({records,covers,onOpen,authors={},emptySearch=false,d
  </>;
 }
 
-const tabs = [
-  {id:'home', label:'홈', icon:require('../assets/ui/navigation/backpack.png')},
-  {id:'feed', label:'피드', icon:require('../assets/ui/navigation/camera.png')},
-  {id:'map', label:'지도', icon:require('../assets/ui/navigation/world-map.png')},
-  {id:'album', label:'도감', icon:require('../assets/ui/navigation/book.png')},
-  {id:'account', label:'My', icon:require('../assets/ui/navigation/id-card.png')},
-] as const;
+const tabLabels={home:'홈',feed:'피드',map:'지도',album:'도감',account:'My'} as const;
 export function JournalNav({tab,onTab,onMapFocus,anchors,rail=false}: {tab:JournalTab;onTab:(tab:JournalTab)=>void;onCreate:()=>void;onMapFocus?:()=>void;anchors?:import('./TravelGuide').GuideAnchors;rail?:boolean}){
+ const {iconTheme}=usePreferences();
  const c=useThemeColors(),insets=useSafeAreaInsets();
  return <View accessibilityRole="tablist" accessibilityLabel={t("주요 탐색")} style={rail
    ?{position:'absolute',top:0,bottom:0,left:0,width:184,paddingHorizontal:16,paddingTop:30,backgroundColor:c.paper,borderRightWidth:1,borderColor:c.line,gap:6}
    :{flexDirection:'row',justifyContent:'space-evenly',paddingBottom:Math.max(4,insets.bottom),borderTopWidth:1,borderColor:c.line,backgroundColor:c.paper}}>
    {rail&&<Text style={{fontSize:23,fontWeight:'800',letterSpacing:-1.2,marginBottom:28,marginLeft:12,color:c.ink}}>{t("여행가봥")}</Text>}
-   {tabs.map(item=><Pressable key={item.id} ref={node=>{if(anchors)anchors[item.id]=node;}} accessibilityRole="tab" accessibilityLabel={t(item.label)} accessibilityState={{selected:tab===item.id}} aria-selected={tab===item.id} onFocus={item.id==='map'?onMapFocus:undefined} onPress={()=>onTab(item.id)}
-    style={{flex:rail?undefined:1,minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,gap:14,borderRadius:10,backgroundColor:rail&&tab===item.id?c.warm:c.paper}}>
-     <Image source={item.icon} accessible={false} resizeMode="contain" style={{width:32,height:32}}/>
-     {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===item.id?'700':'400'}}>{t(item.label)}</Text>}
-     {tab===item.id&&<View testID="nav-selection" style={{position:'absolute',bottom:4,width:5,height:5,borderRadius:3,backgroundColor:rail?'transparent':c.ink}}/>}
+   {tabIcons.map(id=><Pressable key={id} ref={node=>{if(anchors)anchors[id]=node;}} accessibilityRole="tab" accessibilityLabel={t(tabLabels[id])} accessibilityState={{selected:tab===id}} aria-selected={tab===id} onFocus={id==='map'?onMapFocus:undefined} onPress={()=>onTab(id)}
+    style={{flex:rail?undefined:1,minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,gap:14,borderRadius:10,backgroundColor:rail&&tab===id?c.warm:c.paper}}>
+     <Image source={iconAssets[iconTheme][id]} accessible={false} resizeMode="contain" style={{width:32,height:32}}/>
+     {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===id?'700':'400'}}>{t(tabLabels[id])}</Text>}
+     {tab===id&&<View testID="nav-selection" style={{position:'absolute',bottom:4,width:5,height:5,borderRadius:3,backgroundColor:rail?'transparent':c.ink}}/>}
    </Pressable>)}
  </View>;
 }

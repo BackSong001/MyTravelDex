@@ -1,3 +1,5 @@
+import {usePreferences} from './preferences';
+import {iconAssets} from './iconAssets';
 import {t,msg} from './translate';
 import TravelMascot from './TravelMascot';
 import React,{useEffect,useState} from 'react';
@@ -12,6 +14,7 @@ import type {TravelApi} from './api';
 
 type Props={owner?:string;records:any[];ready:boolean;error:string;onJournal:()=>void;visited:string[];onStamps:()=>void;onMap:()=>void;onFeed:()=>void;onDrafts:()=>void;api:TravelApi};
 export default function TravelDashboard(p:Props){
+ const {iconTheme}=usePreferences();
  const s=useSocialStyles(),c=useThemeColors();
  const [draftCount,setDraftCount]=useState<number|null>(null);useEffect(()=>{let live=true;setDraftCount(null);if(p.owner)void p.api.drafts(p.owner).then(rows=>{if(live)setDraftCount(rows.length);}).catch(()=>{});return()=>{live=false;};},[p.api,p.owner,p.records]);
  const countsReady=!p.owner||p.ready;
@@ -23,7 +26,7 @@ export default function TravelDashboard(p:Props){
     {([[t('여행 기록'),p.records.length,p.onJournal],[t('방문 시·도'),p.visited.length,p.onMap]] as const).map(([label,count,open])=><Pressable key={label} accessibilityRole="button" accessibilityLabel={label+' '+countLabel(count)} onPress={open} style={{flex:1,alignItems:'center',justifyContent:'center'}}><Text style={s.title}>{countsReady?count:'—'}</Text><Text style={s.muted}>{label}</Text></Pressable>)}
    </View>
    <Pressable accessibilityRole="button" accessibilityLabel={t("지역 스탬프 보기")} onPress={p.onStamps} style={{backgroundColor:c.warm,padding:16,borderRadius:14,gap:8}}>
-     <View style={[s.row,{justifyContent:'space-between'}]}><Text style={s.heading}>{t("여행 스탬프")}</Text><Text style={s.muted}>{countLabel(p.visited.length)} / 17　›</Text></View>
+     <View style={[s.row,{justifyContent:'space-between'}]}><View style={[s.row,{gap:8}]}><Image accessible={false} source={iconAssets[iconTheme].stamps} resizeMode="contain" style={{width:28,height:28}}/><Text style={s.heading}>{t("여행 스탬프")}</Text></View><Text style={s.muted}>{countLabel(p.visited.length)} / 17　›</Text></View>
      {countsReady&&p.visited.length>0&&<View style={[s.row,{flexWrap:'wrap'}]}>{p.visited.slice(0,3).map(code=>{
       const art=uiAssets.stamps[code as keyof typeof uiAssets.stamps];
       return <View key={code} style={[s.row,{gap:4}]}>{!!art&&<Image source={art} resizeMode="contain" style={{width:36,height:36}}/>}<Text style={s.muted}>{provinceLabels[code]?.name}</Text></View>;
