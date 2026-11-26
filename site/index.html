@@ -13,60 +13,67 @@
   <link rel="icon" href="assets/icon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/icon.png">
   <link rel="stylesheet" href="home.css">
+  <script defer src="/home.js"></script>
 <!-- seo --><link rel="canonical" href="https://mytraveldex.pages.dev/"><meta name="description" content="사진으로 여행을 기록하고 지도에서 다시 만나세요. 지역 스탬프과 여행 피드를 함께 즐겨 보세요."><meta property="og:title" content="여행가봥 — 나의 여행 지도"><meta property="og:description" content="사진으로 여행을 기록하고 지도에서 다시 만나세요. 지역 스탬프과 여행 피드를 함께 즐겨 보세요."><meta property="og:url" content="https://mytraveldex.pages.dev/"><meta property="og:type" content="website"><meta property="og:image" content="https://mytraveldex.pages.dev/assets/map.webp"><meta property="og:image:alt" content="예시 여행 사진이 표시된 여행가봥 지도"><meta property="og:locale" content="ko_KR"><meta property="og:site_name" content="여행가봥"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "@id": "https://mytraveldex.pages.dev/", "name": "여행가봥 — 나의 여행 지도", "isPartOf": {"@id": "https://mytraveldex.pages.dev/#website"}}, {"@type": "WebSite", "@id": "https://mytraveldex.pages.dev/#website", "url": "https://mytraveldex.pages.dev/", "name": "여행가봥", "alternateName": "MyTravelDex"}, {"@type": "Brand", "@id": "https://mytraveldex.pages.dev/#brand", "name": "여행가봥", "alternateName": "MyTravelDex", "logo": "https://mytraveldex.pages.dev/assets/icon.png"}, {"@type": "SoftwareApplication", "@id": "https://mytraveldex.pages.dev/#app", "name": "여행가봥", "brand": {"@id": "https://mytraveldex.pages.dev/#brand"}, "url": "https://mytraveldex-app.pages.dev/", "applicationCategory": "TravelApplication", "operatingSystem": "Web, Android"}]}</script><!-- /seo --></head>
 <body>
   <a class="skip" href="#main">본문으로 건너뛰기</a>
-  <header class="masthead wrap">
-    <a class="brand" href="/"><img src="/assets/icon.png" width="36" height="36" alt="">여행가봥</a>
-    <nav aria-label="주 메뉴">
-      <a class="story-link" href="#features">기능 둘러보기</a>
-      <a href="/guide/">사용 가이드</a>
-      <a class="action small" href="https://mytraveldex-app.pages.dev/">웹앱 열기 <span aria-hidden="true">↗</span></a>
-    </nav>
+  <header class="masthead">
+    <div class="wrap bar"><a class="brand" href="/"><img src="/assets/icon.png" width="36" height="36" alt="">여행가봥</a>
+      <nav aria-label="주 메뉴"><a href="#features">기록하는 법</a><a href="#album">풍경 사진첩</a><a class="pill" href="https://mytraveldex-app.pages.dev/">웹앱 열기 <span aria-hidden="true">↗</span></a></nav>
+    </div>
   </header>
   <main id="main" tabindex="-1">
-    <section class="cover" aria-labelledby="hero-title">
-      <img class="landscape" src="/assets/jeonju.webp" width="1280" height="853" fetchpriority="high" alt="전주 한옥마을 골목을 따라 이어진 기와지붕">
-      <div class="cover-inner">
-        <div class="intro">
-          <h1 id="hero-title">사진 한 장으로,<br>나의 여행 지도</h1>
-          <p>사진 속 날짜와 장소를 모아<br>다녀온 여행을 지도 위에 남겨 보세요.</p>
-          <a class="action primary" href="https://mytraveldex-app.pages.dev/">웹앱 열기 <span aria-hidden="true">↗</span></a>
+    <section class="cover" aria-labelledby="cover-title">
+      <div class="covers">
+        <figure class="cover-photo" data-place="설악산 공룡능선"><img src="/assets/seoraksan.webp" width="1280" height="960" alt="노을빛 하늘 아래 층층이 겹친 설악산의 바위 봉우리" fetchpriority="high"></figure>
+        <figure class="cover-photo" data-place="보성 차밭" hidden><img src="/assets/boseong.webp" width="1024" height="768" alt="언덕을 따라 굽이굽이 이어지는 초록 차나무 이랑" loading="lazy"></figure>
+        <figure class="cover-photo" data-place="서울 경회루" hidden><img src="/assets/gyeonghoeru.webp" width="1280" height="853" alt="푸른 저녁 하늘 아래 불 밝힌 경회루와 연못에 비친 누각" loading="lazy"></figure>
+      </div>
+      <div class="wrap cover-content">
+        <div class="cover-copy"><h1 id="cover-title">여행이 끝나도,<br>풍경은 남도록.</h1>
+          <p>사진에 담긴 날짜와 장소로<br>나만의 여행 지도를 펼쳐 보세요.</p>
+          <a class="pill primary" href="https://mytraveldex-app.pages.dev/">여행 기록 시작하기 <span aria-hidden="true">↗</span></a>
         </div>
-        <figure class="postcard">
-          <img src="/assets/map-detail.webp" width="520" height="700" alt="전주 여행 사진이 핀으로 표시된 여행가봥 지도">
-          <figcaption><span class="pin" aria-hidden="true"></span>전주 한옥마을</figcaption>
-        </figure>
+        <div class="cover-device" aria-label="여행가봥 지도 예시">
+          <div class="phone"><img src="/assets/map.webp" width="780" height="1480" alt="전주 사진 핀이 표시된 여행가봥 지도" ></div>
+        </div>
+      </div>
+      <div class="cover-foot wrap">
+        <div class="location" aria-live="polite"><i aria-hidden="true"></i><span id="place">설악산 공룡능선</span></div>
+        <a class="down" href="#features" aria-label="아래로 이동해 기록하는 법 보기">↓</a>
+        <div class="slide-controls" hidden><button type="button" id="prev" aria-label="이전 풍경">←</button><span id="count">01 / 03</span><button type="button" id="next" aria-label="다음 풍경">→</button></div>
       </div>
     </section>
-    <section id="features" class="story wrap" aria-labelledby="story-title">
-      <div class="story-heading">
-        <h2 id="story-title">전주 여행을 기록하는 법</h2>
-        <a href="/blog/first-trip/">첫 기록 가이드 <span aria-hidden="true">↗</span></a>
+    <section class="workflow" id="features" aria-labelledby="work-title">
+      <div class="wrap lead"><h2 id="work-title">사진첩에서 <br>지도까지.</h2>
+        <p>전주 한옥마을에서 찍은 사진 한 장.<br>여행가봥에 그날을 남겨 봅니다.</p>
       </div>
-      <ol class="steps">
-        <li>
-          <div class="plate village"><img src="/assets/jeonju.webp" width="1280" height="853" loading="lazy" alt="전주에서 찍은 한옥마을 풍경"></div>
-          <h3>사진 고르기</h3>
-          <p>골목을 걷다 찍은 풍경처럼, 여행을 떠올리게 하는 사진을 골라요.</p>
-        </li>
-        <li>
-          <div class="plate compose"><img src="/assets/compose.webp" width="780" height="1480" loading="lazy" alt="전주 사진을 선택한 새 여행 기록 화면"></div>
-          <h3>날짜와 장소 확인하기</h3>
-          <p>사진에서 읽어 온 날짜와 장소를 확인해요. 위치가 없다면 장소를 직접 검색할 수 있어요.</p>
-        </li>
-        <li>
-          <div class="plate atlas"><img src="/assets/map.webp" width="780" height="1480" loading="lazy" alt="저장한 여행 기록을 사진 핀으로 보여 주는 지도"></div>
-          <h3>지도에서 다시 열기</h3>
-          <p>지도 위 사진을 누르면 그날의 기록이 열려요. 여행이 쌓일수록 나만의 지도가 완성돼요.</p>
-        </li>
-      </ol>
+      <div class="demo wrap">
+        <div class="demo-preview" aria-hidden="true"><div class="proof-print"><img src="/assets/jeonju.webp" width="1280" height="853" alt="" loading="lazy"></div>
+          <div class="phone"><img src="/assets/compose.webp" width="780" height="1480" alt="" loading="lazy"><img src="/assets/map.webp" width="780" height="1480" alt="" class="map-screen" loading="lazy"></div>
+          <span class="demo-caption">전주 한옥마을 · 앱 사용 예시</span>
+        </div>
+        <div class="stages">
+          <article><span class="folio">01 / 02</span><h3>그날의 사진을<br>한 장 골라요.</h3><p>사진을 고르면 촬영 날짜와 장소를 제안해요. 위치 정보가 비어 있으면 직접 장소를 검색해 넣을 수 있어요.</p><img src="/assets/compose.webp" width="780" height="1480" alt="전주 한옥마을 사진을 선택한 기록 작성 화면" class="inline-shot" loading="lazy"></article>
+          <article><span class="folio">02 / 02</span><h3>다녀온 자리에<br>사진이 남아요.</h3><p>기록을 저장하고 지도 위 사진 핀을 눌러 보세요. 골목에서 찍은 사진과 그날 남긴 한 줄을 다시 열 수 있어요.</p><a class="text-link" href="/blog/first-trip/">첫 여행 기록 가이드 ↗</a><img src="/assets/map.webp" width="780" height="1480" alt="전주 사진 핀이 보이는 여행 지도" class="inline-shot" loading="lazy"></article>
+        </div>
+      </div>
     </section>
-    <aside class="guide wrap" aria-labelledby="guide-title">
-      <img src="/assets/mascot.webp" width="334" height="307" loading="lazy" alt="">
-      <h2 id="guide-title">내 첫 여행을 남겨 볼까요?</h2>
-      <a class="action" href="/blog/first-trip/">첫 기록 가이드 <span aria-hidden="true">↗</span></a>
-    </aside>
+    <section id="album" class="album" aria-labelledby="album-title">
+      <div class="wrap lead"><h2 id="album-title">한국 풍경 <br>사진첩</h2><p>바닷가에서 대숲으로, 다시 골목으로.<br>사진으로 넘겨 보는 여섯 곳의 여행지.</p></div>
+      <div class="spreads wrap">
+        <figure class="print"><div class="print-image"><img src="/assets/seongsan.webp" width="1280" height="853" alt="성산일출봉 절벽 아래 검은 바위와 바다에 뜬 작은 배" loading="lazy" decoding="async"></div><figcaption><span class="folio">01 / 06</span><div><h3>제주 <span>성산일출봉</span></h3><p>절벽 아래, 배 한 척이 머무는 자리.</p></div></figcaption></figure>
+        <figure class="print"><div class="print-image"><img src="/assets/damyang.webp" width="1280" height="960" alt="키 큰 대나무 사이로 이어지는 담양의 오솔길" loading="lazy" decoding="async"></div><figcaption><span class="folio">02 / 06</span><div><h3>담양 <span>소쇄원 옆 대숲</span></h3><p>대나무 사이로 난 좁은 길을 따라.</p></div></figcaption></figure>
+        <figure class="print"><div class="print-image"><img src="/assets/suncheon.webp" width="1280" height="853" alt="갈대밭 사이로 물길이 굽어 흐르는 순천만" loading="lazy" decoding="async"></div><figcaption><span class="folio">03 / 06</span><div><h3>순천 <span>순천만습지</span></h3><p>갈대밭을 크게 돌아나가는 물길.</p></div></figcaption></figure>
+        <figure class="print"><div class="print-image"><img src="/assets/jeonju.webp" width="1280" height="853" alt="전주 한옥마을의 기와지붕" loading="lazy"></div><figcaption><span class="folio">04 / 06</span><div><h3>전주 <span>한옥마을</span></h3><p>낮은 기와지붕 너머로 이어지는 골목.</p></div></figcaption></figure>
+        <figure class="print"><div class="print-image"><img src="/assets/haeundae.webp" width="1280" height="851" alt="해 질 무렵 물결이 밀려오는 해운대 모래사장" loading="lazy" decoding="async"></div><figcaption><span class="folio">05 / 06</span><div><h3>부산 <span>해운대</span></h3><p>모래사장에 가늘게 남은 마지막 빛.</p></div></figcaption></figure>
+        <figure class="print"><div class="print-image"><img src="/assets/wolji.webp" width="1280" height="823" alt="어둠 속에서 조명을 밝힌 전각과 물에 비친 돌담" loading="lazy" decoding="async"></div><figcaption><span class="folio">06 / 06</span><div><h3>경주 <span>동궁과 월지</span></h3><p>해가 지면 물 위에 한 번 더 뜨는 전각.</p></div></figcaption></figure>
+      </div>
+    </section>
+    <section class="close" aria-labelledby="close-title"><img src="/assets/gyeonghoeru.webp" width="1280" height="853" alt="푸른 저녁 하늘 아래 불 밝힌 경회루와 연못에 비친 누각" loading="lazy">
+      <div class="wrap"><h2 id="close-title">당신의 지도에는<br>어디가 남을까요?</h2><a class="pill primary" href="https://mytraveldex-app.pages.dev/">내 여행 지도 열기 <span aria-hidden="true">↗</span></a></div>
+      <small>서울 · 경복궁 경회루</small>
+    </section>
   </main>
   <nav aria-label="서비스 안내" class="wrap resources"><a href="/features/">기능 소개</a> <a href="/guide/">사용 가이드</a> <a href="/faq/">자주 묻는 질문</a> <a href="/about/">여행가봥 소개</a> <a href="/download/">여행가봥 시작하기</a> <a href="/blog/">여행가봥 블로그</a></nav>
 <footer class="footer wrap">
@@ -77,7 +84,20 @@
       <a href="legal/">약관정보</a>
     </div>
     <p>Google 계정은 로그인과 계정 식별에 사용해요.</p>
-    <p>풍경 사진과 앱 예시 사진 <a href="https://commons.wikimedia.org/wiki/File:Jeonju_Hanok_Village_20230408_008.jpg">Mobius6, 전주 한옥마을</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> · 크기 조정·자르기·WebP 변환</p>
+    <details id="photo-credits"><summary>풍경 사진 출처와 이용 조건</summary>
+      <p>사진은 화면에 맞게 축소·자르기·WebP 변환했습니다. 각 사진의 이용 조건은 해당 원작과 같습니다.</p>
+      <ul>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Dinosaur_Ridge_of_Seoraksan.jpg">설악산 공룡능선 원본</a> · Taewangkorea · <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Boseong_tea_field_2.jpg">보성 차밭 원본</a> · Ethan Lee · <a href="https://creativecommons.org/licenses/by-sa/2.0">CC BY-SA 2.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Gyeongbokgung_at_blue_hour_1X7A8069.jpg">서울 경회루 원본</a> · Sjmole · <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Seongsan_Ilchulbong_Boats.jpg">제주 성산일출봉 원본</a> · Yaoshiiscool · <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Korea-Damyang-Bamboo_Forest_near_Soswaewon-05.jpg">담양 소쇄원 인근 원본</a> · UNC - CFC - USFK from Seoul, Republic of Korea · <a href="https://creativecommons.org/licenses/by/2.0">CC BY 2.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Suncheon_Ecological_Bay-_%EC%88%9C%EC%B2%9C%EB%A7%8C%EC%8A%B5%EC%A7%80.jpg">순천만습지 원본</a> · Joycekim77 · <a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Korea-Busan-Haeundae-Beach-07.jpg">부산 해운대 원본</a> · by frakorea · <a href="https://creativecommons.org/licenses/by/2.0">CC BY 2.0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Donggung_Palace_01.jpg">경주 동궁과 월지 원본</a> · Bernard Gagnon · <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a></li>
+        <li><a href="https://commons.wikimedia.org/wiki/File:Jeonju_Hanok_Village_20230408_008.jpg">전주 한옥마을 원본</a> · Mobius6 · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> (앱 화면에 포함된 사진에도 적용)</li>
+      </ul>
+    </details>
     <p>지도 © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap 기여자</a></p>
   <button type="button" id="analytics-choice" hidden>방문 통계 설정</button><script defer src="/analytics.js"></script></footer>
 </body>
