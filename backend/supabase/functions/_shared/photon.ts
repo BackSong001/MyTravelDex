@@ -16,14 +16,16 @@ function place(feature: Feature) {
       !p || !['N', 'W', 'R'].includes(String(p.osm_type)) || !Number.isSafeInteger(p.osm_id)) {
     throw Error('EXTERNAL_SERVICE_ERROR');
   }
-  const address = [...new Set([p.country, p.state, p.city, p.district, p.street, p.housenumber]
+  const countryCode = text(p.countrycode)?.toUpperCase() ?? null;
+  const country = text(p.country) ?? (countryCode === 'KR' ? '대한민국' : null);
+  const address = [...new Set([country, p.state, p.county, p.city, p.district, p.locality, p.street, p.housenumber]
     .map(text).filter(Boolean))].join(' ');
   const id = p.osm_type + ':' + p.osm_id;
   const name = text(p.name) || address || '선택한 위치';
   return {
     id, provider: 'photon', source: 'photon', provider_place_id: id,
     latitude: xy[1], longitude: xy[0], name, place_name: name, address: address || null,
-    country_code: text(p.countrycode)?.toUpperCase() ?? null, country_name: text(p.country),
+    country_code: countryCode, country_name: country,
     region_name: text(p.state), city_name: text(p.city), attribution,
   };
 }

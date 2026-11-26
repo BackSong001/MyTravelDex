@@ -1,4 +1,4 @@
-import React,{useEffect,useRef} from 'react';
+import React,{useEffect,useLayoutEffect,useRef} from 'react';
 import type * as maplibregl from 'maplibre-gl';
 import {scheduleMapRetry} from './mapRetry';
 import type {TileSurfaceProps} from './TileSurface.types';
@@ -27,6 +27,7 @@ export default function TileSurface(props:TileSurfaceProps){
     if(instance.getLayer(backdrop)&&instance.getLayoutProperty(backdrop,'visibility')!==value)
      instance.setLayoutProperty(backdrop,'visibility',value);
    };
+   instance.on('sourcedataloading',event=>{if(active&&event.sourceId==='regions')showBackdrop(true);});
    instance.once('load',()=>{
     clearTimeout(startup);
     if(active)live.current.onReady?.();
@@ -63,6 +64,6 @@ export default function TileSurface(props:TileSurfaceProps){
  useEffect(()=>{if(map.current&&activeStyle.current!==props.style){activeStyle.current=props.style;map.current.setStyle({...props.style,layers:props.style.layers.map(l=>l.type==='symbol'?{...l,layout:{...l.layout,visibility:live.current.labelsVisible===false?'none':'visible'}}:l)});}},[props.style]);
  useEffect(()=>{const instance=map.current;if(instance)for(const l of props.style.layers)if(l.type==='symbol'&&instance.getLayer(l.id))instance.setLayoutProperty(l.id,'visibility',props.labelsVisible===false?'none':'visible');},[props.labelsVisible]);
  useEffect(()=>{const m=map.current;for(const [id,f] of Object.entries(props.filters??{}))if(m?.getLayer(id))m.setFilter(id,f);},[props.filters]);
- useEffect(()=>{map.current?.jumpTo({...props.camera,bearing:0,pitch:0});},[props.camera]);
+ useLayoutEffect(()=>{map.current?.jumpTo({...props.camera,bearing:0,pitch:0});},[props.camera]);
  return <div ref={host} data-testid="tile-surface" aria-hidden style={{position:'absolute',inset:0,pointerEvents:'none'}}/>;
 }

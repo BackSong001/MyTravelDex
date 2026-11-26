@@ -15,7 +15,7 @@ it('uses packaged world borders and domestic terrain with selection as the only 
  expect(s.sources.world.type).toBe('geojson');
  const coast=JSON.parse(readFileSync('frontend/src/data/maps/outline-world.json','utf8'));
  expect(coast.features.every((f:any)=>['Polygon','MultiPolygon'].includes(f.geometry.type)&&!f.properties.code)).toBe(true);
- expect(s.layers.find(l=>l.id==='buildings')?.minzoom).toBe(15);
+ expect(s.layers.find(l=>l.id==='buildings')?.minzoom).toBe(14);
  expect(s.layers.map(l=>l.id)).toEqual(expect.arrayContaining(['parks','river','buildings','streets','province-boundaries','selected-fill']));
  for(const id of ['visited-province','visited-district','forest','world-borders','motorway','road-preview-line'])expect(s.layers.some(l=>l.id===id)).toBe(false);
  expect(osmFilters('26')['selected-fill']).toEqual(['==','code','26']);
@@ -76,4 +76,12 @@ it('routes both operations only to the configured Photon path',async()=>{
   await expect(photonLocation({query:'서울역'},fetcher,invalid)).rejects.toThrow('PHOTON_CONFIGURATION');
  }
  expect(urls).toHaveLength(2);
+});
+
+it('keeps detailed address parts for both suggestions and reverse GPS',async()=>{
+ const properties={osm_type:'N',osm_id:1,countrycode:'KR',state:'서울특별시',city:'서울특별시',county:'용산구',district:'청파동',locality:'서계동',street:'청파로',housenumber:'378',name:'서울역'};
+ const request=async()=>Response.json({features:[{...feature,properties}]});
+ const expected={address:'대한민국 서울특별시 용산구 청파동 서계동 청파로 378',place_name:'서울역'};
+ expect((await photonLocation({query:'서울역'},request))[0]).toMatchObject(expected);
+ expect(await photonLocation({latitude:37,longitude:127},request)).toMatchObject({...expected,latitude:37,longitude:127});
 });

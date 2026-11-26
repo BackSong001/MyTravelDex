@@ -26,7 +26,7 @@ for(const photo of [false,true])test(`TC-MAP-SIMPLE-001 live terrain after one $
  await expect.poll(alignment).toBeLessThan(1);
  await page.setViewportSize({width:430,height:844});await expect.poll(alignment).toBeLessThan(1);
  await page.setViewportSize({width:390,height:844});await expect.poll(alignment).toBeLessThan(1);
- await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
+ await expect.poll(()=>page.evaluate(()=>{const w=window as any;return Math.abs(w.renderer.getZoom()-Math.log2(2*Math.PI*w.navigation.current.fitScale/512));})).toBeLessThan(.001);
  await terrain.catch(async e=>{await test.info().attach('terrain-status',{body:JSON.stringify(responses),contentType:'application/json'});throw e;});
  await expect.poll(()=>page.evaluate(()=>(window as any).renderer.queryRenderedFeatures({layers:['water','river','province-overview','domestic-land']}).length)).toBeGreaterThan(0);
  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return !!r?.getStyle()?.sources?.world&&r.isStyleLoaded()&&r.areTilesLoaded();}),{timeout:30000}).toBe(true);
@@ -79,14 +79,17 @@ test('TC-MAP-SIMPLE-001 자동 복구가 실패한 타일과 WebGL 지도를 현
 
 test('경계 타일 하나가 실패해도 OSM 상세 도로와 건물을 계속 볼 수 있다',async({page})=>{
  let fail=true,blocked=0;
- const tile='**/osm-*/10/873/396.pbf';
- await page.route(tile,route=>{
-  if(!fail)return route.fallback();
+ let failedUrl='';
+ await page.route('**/osm-*/10/*/*.pbf',route=>{
+  failedUrl ||= route.request().url();
+  if(!fail||route.request().url()!==failedUrl)return route.fallback();
   blocked++;return route.fulfill({status:503,body:'Unavailable'});
  });
  const canvas=page.getByTestId('svg-map-canvas');
  await canvas.press('Enter');
  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>{const w=window as any;return Math.abs(w.renderer.getZoom()-Math.log2(2*Math.PI*w.navigation.current.fitScale/512));})).toBeLessThan(.001);
+ for(let i=0;i<4 && await page.evaluate(()=>(window as any).renderer.getZoom())<10;i++)await canvas.press('+');
  const count=(id:string)=>page.evaluate(layer=>{
   const map=(window as any).renderer;
   return map.getLayer(layer)?map.queryRenderedFeatures({layers:[layer]}).length:0;
@@ -95,7 +98,7 @@ test('경계 타일 하나가 실패해도 OSM 상세 도로와 건물을 계속
  await expect.poll(()=>count('arterials'),{timeout:20000}).toBeGreaterThan(0);
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
  await expect.poll(()=>count('province-tile-backdrop')).toBeGreaterThan(0);
- const recovered=page.waitForResponse(r=>r.url().endsWith('/10/873/396.pbf')&&r.url().includes('/osm-')&&r.status()===200);
+ const recovered=page.waitForResponse(r=>r.url()===failedUrl&&r.status()===200);
  fail=false;await recovered;
  await expect.poll(()=>count('province-tile-backdrop'),{timeout:20000}).toBe(0);
  for(let step=0;step<10;step++)await canvas.press('+');
@@ -131,7 +134,7 @@ test('TC-MAP-OFM-001 province fits, other photo navigation and snapshot preserve
  const finder=async()=>{await page.getByTestId('svg-map-canvas').focus();await page.keyboard.press('Enter');};
  for(const name of ['부산광역시','경상남도','경기도','제주특별자치도']){
   await finder();await page.getByRole('button',{name:new RegExp('^'+name+' ·')}).click();
- await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
+ await expect.poll(()=>page.evaluate(()=>{const w=window as any;return Math.abs(w.renderer.getZoom()-Math.log2(2*Math.PI*w.navigation.current.fitScale/512));})).toBeLessThan(.001);
   await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
   await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return !!r?.getStyle()?.sources?.world&&r.isStyleLoaded()&&r.areTilesLoaded();}),{timeout:30000}).toBe(true);
   await expect.poll(()=>page.evaluate(()=>(window as any).renderer.queryRenderedFeatures({layers:['water','river','province-overview','domestic-land']}).length)).toBeGreaterThan(0);
@@ -208,7 +211,7 @@ test('TC-MAP-READABILITY-001 remote island photos and geometry share targets, sn
  const snapshot=await page.evaluate(()=>(window as any).navigation.current);await page.evaluate(()=>(window as any).hide());await expect(canvas).toHaveCount(0);await page.evaluate(()=>(window as any).update({}));await expect(page.getByRole('button',{name:'섬 기록 자세히 보기',exact:true})).toBeVisible();expect(await page.evaluate(()=>(window as any).navigation.current)).toEqual(snapshot);
  await page.getByRole('button',{name:'닫기',exact:true}).click();await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();expect(await page.evaluate(()=>(window as any).navigation.current.island)).toBeNull();
  await page.evaluate(()=>(window as any).update({records:[{id:'ulleung',title:'섬 기록',status:'complete',locations:{latitude:37.4845,longitude:130.9057}}]}));
- const photo=await page.getByTestId('map-photo-ulleung').boundingBox();await page.mouse.click(photo!.x+photo!.width/2,photo!.y+photo!.height/2);await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.island)).toBe(island.code);await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
+ const photo=await page.getByTestId('map-photo-ulleung').boundingBox();await page.mouse.click(photo!.x+photo!.width/2,photo!.y+photo!.height/2);await expect(page.getByTestId('map-region-name')).toHaveText('경상북도');await finder();await page.getByRole('button',{name:island.name+' · 1개',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.island)).toBe(island.code);await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();
  await page.evaluate(()=>(window as any).update({records:[]}));const point=await page.evaluate(()=>(window as any).renderer.project([130.9057,37.4845]));const b=await canvas.boundingBox();await page.mouse.click(b!.x+point.x,b!.y+point.y);await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.island)).toBe(island.code);
 });
@@ -248,7 +251,7 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  await expect.poll(()=>page.evaluate(()=>!!(window as any).renderer?.getLayer('district-names'))).toBe(true);
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
  const time=new Date('2026-11-17T00:00:00Z');await page.clock.install({time});await page.clock.pauseAt(new Date(time.getTime()+1000));
- await choose('서울특별시');await page.clock.runFor(600);await canvas.press('+');
+ await choose('서울특별시');await page.clock.runFor(850);await canvas.press('+');
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await choose('경상남도');await page.clock.runFor(48);
  expect(await page.evaluate(()=>{const n=(window as any).navigation.current;return Math.abs(n.camera.scale-n.fitScale);})).toBeGreaterThan(1);
@@ -256,11 +259,11 @@ test('TC-MAP-READABILITY-001 selection flight hides labels and cancelled navigat
  expect(await page.evaluate(()=>(window as any).renderer.getLayoutProperty('district-names','visibility'))).toBe('none');
  // 이동을 실제 pan으로 취소하고 상세 복귀를 재현한다.
  const b=await canvas.boundingBox();await page.mouse.move(b!.x+b!.width/2,b!.y+b!.height/2);await page.mouse.down();await page.mouse.move(b!.x+b!.width/2+30,b!.y+b!.height/2,{steps:3});await page.mouse.up();
- const state=await page.evaluate(()=>(window as any).navigation.current);await page.clock.runFor(450);
+ const state=await page.evaluate(()=>(window as any).navigation.current);await page.clock.runFor(850);
  expect(await page.evaluate(()=>(window as any).navigation.current)).toEqual(state);
  await page.evaluate(()=>(window as any).hide());await expect(canvas).toHaveCount(0);await page.evaluate(()=>(window as any).update({}));
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
- await choose('경상남도');await page.clock.runFor(600);
+ await choose('경상남도');await page.clock.runFor(850);
  expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
  await canvas.press('+');expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(true);
  await canvas.press('-');expect(await page.evaluate(()=>(window as any).navigation.current.labelRevealed)).toBe(false);
@@ -320,7 +323,7 @@ test('Gyeongnam overview hides inland water and shows only main rivers at city s
   await expect.poll(()=>page.evaluate(z=>{const r=(window as any).renderer;return r?.isStyleLoaded()&&r.areTilesLoaded()&&Math.abs(r.getZoom()-z)<.01;},zoom)).toBe(true);
  }
  const visibleWater=()=>page.evaluate(()=>(window as any).renderer.queryRenderedFeatures().filter((f:any)=>['river','water'].includes(f.properties.kind)).map((f:any)=>f.properties.name));
- await show(9);
+ await show(8.9);
  await page.getByTestId('svg-map-canvas').screenshot({path:info.outputPath('gyeongnam-regional.png')});
  expect(await visibleWater()).toEqual([]);
  await show(11.5);
@@ -437,7 +440,7 @@ for(const [width,height] of [[1100,974],[390,844],[320,640]])test(`TC-MAP-EXTERI
   await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r?.isStyleLoaded()&&r.areTilesLoaded();}),{timeout:30000}).toBe(true);
   await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
   await expect.poll(()=>page.evaluate(()=>{const w=window as any;return w.renderer.queryRenderedFeatures({layers:['selected-fill','selected-detail-fill']}).some((f:any)=>f.properties.code===w.navigation.current.province);})).toBe(true);
- await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
+ await expect.poll(()=>page.evaluate(()=>{const w=window as any;return Math.abs(w.renderer.getZoom()-Math.log2(2*Math.PI*w.navigation.current.fitScale/512));})).toBeLessThan(.001);
   await canvas.screenshot({path:`${directory}/${province.code}-${width}.png`});
   await page.getByRole('button',{name:'지도 홈',exact:true}).click();
   await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
@@ -559,7 +562,7 @@ for(const width of [390,1280])test('East Asia photo stack preserves regional cov
  const markers=page.locator('[data-testid^="map-photo-"]'),canvas=page.getByTestId('svg-map-canvas');
  await expect(markers).toHaveCount(2);await expect(markers.locator('image')).toHaveCount(2);
  await canvas.press('Enter');await page.getByRole('button',{name:'부산광역시 · 1개',exact:true}).click();
- await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getZoom())).toBeGreaterThanOrEqual(9.99999);
+ await expect.poll(()=>page.evaluate(()=>{const w=window as any;return Math.abs(w.renderer.getZoom()-Math.log2(2*Math.PI*w.navigation.current.fitScale/512));})).toBeLessThan(.001);
  await expect(page.getByTestId('map-photo-south')).toBeVisible();
  for(let i=0;i<16&&await markers.locator('text').allTextContents().then(t=>!t.includes('2'));i++)await canvas.press('-');
  await expect(markers).toHaveCount(1);await expect(markers.locator('text')).toHaveText('2');
@@ -579,4 +582,20 @@ for(const width of [390,1280])test('East Asia photo stack preserves regional cov
  await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera)).toBeNull();
  await expect(page.getByTestId('photo-summary-list')).toHaveCount(0);
 
+});
+
+test('an in-flight regional tile keeps land underneath the new camera',async({page})=>{
+ const canvas=page.getByTestId('svg-map-canvas');
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+ let pending=0,release!:()=>void;
+ const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/osm-*/**/*.pbf',async route=>{pending++;await gate;await route.fallback();});
+ await canvas.press('Enter');
+ await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
+ try {
+  await expect.poll(()=>pending).toBeGreaterThan(0);
+  await expect.poll(()=>page.evaluate(()=>(window as any).renderer.queryRenderedFeatures({layers:['province-tile-backdrop']}).length)).toBeGreaterThan(0);
+ } finally {release();}
+ await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r.areTilesLoaded()&&r.queryRenderedFeatures({layers:['domestic-land']}).length>0;})).toBe(true);
+ await expect(page.getByTestId('map-photo-one')).toBeVisible();
 });

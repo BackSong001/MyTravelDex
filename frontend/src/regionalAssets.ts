@@ -2,7 +2,7 @@ import {gunzipSync,strFromU8} from 'fflate';
 import type {Polygon,MultiPolygon} from 'geojson';
 import {mapAssetBytes} from './mapAssetBytes';
 import catalog from './data/maps/light/assets.json';
-import {containsRegion,type Region,REGION_DATE} from './regions';
+import {containsRegion,recordRegion,type Region,REGION_DATE} from './regions';
 
 type Authority={districts:Region[];islands:Region[];stamps:(Region&{ordinal:number})[]};
 const cache=new Map<string,Promise<unknown>>();
@@ -46,8 +46,13 @@ export async function exactLocation(latitude:number,longitude:number){
 export async function resolveLocationRows(rows:any[]){
  for(const row of rows){
   const p=row.locations;
-  if(p&&p.latitude!=null&&p.longitude!=null&&p.boundary_date==null)
+  if(p?.latitude==null || p.longitude==null) continue;
+  if(p.boundary_date==null) {
    Object.assign(p,await exactLocation(Number(p.latitude),Number(p.longitude)));
+  } else if(!recordRegion(p) && !row.mapBoundary) {
+   // 과거 행정코드는 사진 탐색에서만 최신 좌표로 해석한다.
+   row.mapBoundary=await exactLocation(Number(p.latitude),Number(p.longitude)).catch(()=>null);
+  }
  }
  return rows;
 }
