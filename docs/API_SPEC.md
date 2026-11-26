@@ -572,3 +572,8 @@ social_profile은 directory_listed를 반환하지 않으며 social_set_director
 `POST /rest/v1/rpc/edit_journal_record`는 인증 사용자의 완료 기록을 편집한다. 본문은 `record_id`(UUID), `fields`(title, content, start_date, end_date, visibility), 선택 `place`(작성 화면과 같은 대표 위치 필드)다. place를 생략하거나 null로 보내면 기존 location_id를 유지한다. 동일한 위치를 재전송해도 위치 행을 추가하지 않는다. 성공 응답에는 반환 데이터가 없다. 권한 밖의 기록이나 초안은 수정할 수 없으며 날짜·위치 제약 위반 시 전체 트랜잭션을 취소한다. 서버에 RPC가 준비되기 전에 배포한 클라이언트는 저장 오류를 표시하고 편집 입력을 보존한다. 배포 순서는 DB 마이그레이션 후 클라이언트다.
 
 스탬프 미리보기는 번들 자산으로 표시하고, 획득 여부는 기존 본인 완료 기록 조회 결과를 사용한다.
+
+
+## 장소 검색과 사진 지도 선택 (2026-11-26)
+
+photon-location의 검색/역주소에서 address는 country/state/county/city/district/locality/street/housenumber를 보존한다. 한국 코드만 있고 국가명이 없으면 대한민국을 표시한다. name/place_name은 제공자가 반환한 명칭을 우선하고 역주소 좌표는 입력값을 유지한다.

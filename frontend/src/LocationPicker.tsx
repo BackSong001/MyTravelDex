@@ -35,26 +35,41 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
   const [searched, setSearched] = useState(false);
   const version = useRef(0), alive = useRef(true);
   const scroll = useRef<ScrollView>(null), mapY = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const queryInput = useRef<TextInput>(null);
+  const composing = useRef(false);
   useEffect(() => {
     alive.current = true;
-    return () => {alive.current = false; version.current++;};
+    const input = Platform.OS === 'web' ? queryInput.current as unknown as HTMLInputElement : null;
+    const start = () => {composing.current = true; invalidate();};
+    const end = () => {composing.current = false; if (input) editQuery(input.value);};
+    input?.addEventListener('compositionstart', start);
+    input?.addEventListener('compositionend', end);
+    return () => {
+      alive.current = false; version.current++; clearTimeout(timer.current);
+      input?.removeEventListener('compositionstart', start);
+      input?.removeEventListener('compositionend', end);
+    };
   }, []);
 
-  function invalidate() {version.current++; setBusy('');}
+  function invalidate() {clearTimeout(timer.current); version.current++; setBusy('');}
   function current(request: number) {return alive.current && version.current === request;}
   function close() {alive.current = false; invalidate(); Keyboard.dismiss(); onClose();}
   function editQuery(value: string) {
     invalidate(); setQuery(value); setResults([]); setCandidate(null); setSelectedId(null); setSearched(false); setMessage('');
+    if (!composing.current && value.trim().length >= 2)
+      timer.current = setTimeout(() => void search(value, false), 300);
   }
-  async function search() {
+  async function search(value: string, explicit: boolean) {
+    if (composing.current || !alive.current) return;
     invalidate();
     setCandidate(null); setSelectedId(null); setResults([]); setSearched(false); setMessage('');
-    if (!query.trim()) {setMessage(t('장소명이나 주소를 입력해 주세요.')); return;}
-    Keyboard.dismiss();
+    if (!value.trim()) {setMessage(t('장소명이나 주소를 입력해 주세요.')); return;}
+    if (explicit) Keyboard.dismiss();
     const request = version.current;
     setBusy(t('장소를 찾고 있어요.'));
     try {
-      const places = await api.request('/functions/v1/photon-location', 'POST', {query: query.trim()});
+      const places = await api.request('/functions/v1/photon-location', 'POST', {query: value.trim()});
       if (!current(request)) return;
       if (!Array.isArray(places) || places.some(place => !validPlace(place) || place.provider !== 'photon' || typeof place.id !== 'string' || !place.id.trim())) throw new Error('EXTERNAL_SERVICE_ERROR');
       setResults(places); setSearched(true);
@@ -115,13 +130,20 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
       </View>
       <KeyboardAvoidingView style={s.main} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View accessibilityRole="tablist" style={s.tabs}>
-          {([['map', t('지도에서 선택')], ['search', t('검색')]] as const).map(([value, label]) => <Pressable key={value} accessibilityRole="tab" accessibilityState={{selected: tab === value}} aria-selected={tab===value} onPress={() => {setTab(value);scroll.current?.scrollTo({y:0,animated:false});}} style={[s.tab, tab === value && s.activeTab]}><Text style={s.text}>{label}</Text></Pressable>)}
+          {([['map', t('지도에서 선택')], ['search', t('검색')]] as const).map(([value, label]) => <Pressable key={value} accessibilityRole="tab" accessibilityState={{selected: tab === value}} aria-selected={tab===value} onPress={() => {invalidate();setTab(value);scroll.current?.scrollTo({y:0,animated:false});}} style={[s.tab, tab === value && s.activeTab]}><Text style={s.text}>{label}</Text></Pressable>)}
         </View>
         <ScrollView ref={scroll} style={s.main} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
           <View style={s.search}>
-            <TextInput accessibilityLabel={t("장소 검색")} placeholder={t("장소명 또는 주소")} placeholderTextColor={c.muted} value={query} onChangeText={editQuery} onSubmitEditing={() => void search()} returnKeyType="search" maxLength={200} style={s.input}/>
-            <Pressable accessibilityRole="button" accessibilityLabel={t("장소 찾기")} onPress={() => void search()} style={s.button}><Text style={s.text}>{t("장소 찾기")}</Text></Pressable>
+            <TextInput ref={queryInput} accessibilityLabel={t("장소 검색")} placeholder={t("장소명 또는 주소")} placeholderTextColor={c.muted} value={query} onChangeText={editQuery} onSubmitEditing={() => void search(query, true)} returnKeyType="search" maxLength={200} style={s.input}/>
+            <Pressable accessibilityRole="button" accessibilityLabel={t("장소 찾기")} onPress={() => void search(query, true)} style={s.searchAction}><Text style={s.confirmText}>{t("장소 찾기")}</Text></Pressable>
           </View>
+          {!!busy && <Text accessibilityLiveRegion="polite" style={s.description}>{busy}</Text>}
+          {!!message && <Text accessibilityRole="alert" style={s.message}>{message}</Text>}
+          {searched && !results.length && <Text accessibilityRole="alert" style={s.description}>{t("검색 결과가 없어요. 다른 장소명·주소를 검색하거나 지도에서 선택해 주세요.")}</Text>}
+          {results.map(place => <Pressable key={place.id} accessibilityRole="button" accessibilityLabel={[...new Set([place.name,place.address].filter(Boolean))].join(' ')} accessibilityState={{selected: selectedId === place.id}} onPress={() => void selectPlace(place)} style={[s.result, selectedId === place.id && s.activeTab]}>
+            <Text style={s.resultName}>{place.name}</Text>{!!place.address && place.address !== place.name && <Text style={s.description}>{place.address}</Text>}
+          </Pressable>)}
+          {(results.length > 0 || candidate?.attribution) && <Text style={s.description}>{candidate?.attribution || '© OpenStreetMap'}</Text>}
           <Text style={s.description}>{t("실제 주소와 지도 핀을 비교하고 위치를 확정해 주세요. 지도를 누르면 좌표를 보정할 수 있어요.")}</Text>
           {tab === 'map' && <Pressable accessibilityRole="button" accessibilityLabel={t("현재 위치 사용")} onPress={() => void currentPosition()} style={s.button}><Text style={s.text}>{t("현재 위치 사용")}</Text></Pressable>}
           <View onLayout={event => {mapY.current = event.nativeEvent.layout.y;}} style={[s.map, tab === 'map' && {flexGrow: 1}]}>
@@ -132,15 +154,8 @@ export default function LocationPicker({initialPlace, onConfirm, onClose, footer
           </View>
           {candidate && <View accessibilityLabel={t("선택한 위치")} style={s.result}>
             <Text style={s.text}>{t("선택한 위치 ·")} {candidate.place_name || candidate.name || t('지도에서 선택한 위치')}</Text>
-            {!!candidate.address && <Text style={s.description}>{candidate.address}</Text>}
+            {!!candidate.address && candidate.address !== (candidate.place_name || candidate.name) && <Text style={s.description}>{candidate.address}</Text>}
           </View>}
-          {!!busy && <Text accessibilityLiveRegion="polite" style={s.description}>{busy}</Text>}
-          {!!message && <Text accessibilityRole="alert" style={s.message}>{message}</Text>}
-          {searched && !results.length && <Text accessibilityRole="alert" style={s.description}>{t("검색 결과가 없어요. 다른 장소명·주소를 검색하거나 지도에서 선택해 주세요.")}</Text>}
-          {results.map(place => <Pressable key={place.id} accessibilityRole="button" accessibilityLabel={`${place.name} ${place.address}`} accessibilityState={{selected: selectedId === place.id}} onPress={() => void selectPlace(place)} style={[s.result, selectedId === place.id && s.activeTab]}>
-            <Text style={s.text}>{place.name}</Text><Text style={s.description}>{place.address}</Text>
-          </Pressable>)}
-          {(results.length > 0 || candidate?.attribution) && <Text style={s.description}>{candidate?.attribution || '© OpenStreetMap'}</Text>}
         </ScrollView>
         <Pressable accessibilityRole="button" accessibilityLabel={t("이 위치로 선택")} accessibilityState={{disabled: !candidate || !!busy}} disabled={!candidate || !!busy} onPress={() => {
           if (!alive.current || !candidate || busy) return;
@@ -168,7 +183,9 @@ const makeStyles=(c: ThemeColors)=>StyleSheet.create({
   input: {flexGrow: 1, flexShrink: 1, minWidth: 160, minHeight: 48, padding: 12, borderWidth: 1, borderColor: c.line, borderRadius: 12, color: c.ink, fontSize: 16},
   button: {minHeight: 48, padding: 12, justifyContent: 'center', alignItems: 'center'},
   map: {height: 280, minHeight: 220, overflow: 'hidden', borderRadius: 16},
-  result: {padding: 12, gap: 6, borderBottomWidth: 1, borderColor: c.line},
+  resultName: {fontSize:16, fontWeight:"600", color:c.ink},
+  searchAction: {minHeight:48, borderRadius:12, paddingHorizontal:16, backgroundColor:c.coral, justifyContent:"center"},
+  result: {minHeight: 48, paddingVertical: 8, paddingHorizontal: 12, justifyContent:"center", gap: 4, borderBottomWidth: 1, borderColor: c.line},
   confirm: {minHeight: 48, marginHorizontal: 12, marginVertical: 8, padding: 12, backgroundColor: c.coral, borderRadius: 12, alignItems: 'center', justifyContent: 'center'},
   confirmText: {fontSize: 16, fontWeight: '700', color: c.onPrimary},
 });

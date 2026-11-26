@@ -2558,3 +2558,26 @@ osm-test의 OSM 단일 MapLibre 지도·본인 방문색과 Photon 검색/역조
   - `vitest.sns.config.ts`
 
 | 2026-11-24 21:44 KST | 응 main 에 커밋푸쉬하고 운영 배포해줘 | 미획득 회색 도안과 획득 컬러 도안을 표시하는 스탬프 변경을 운영 웹앱 배포 대상으로 확정했다. | 변경 파일: `frontend/src/{StampCatalog.tsx,uiAssets.ts}`, `frontend/assets/ui/stamp-previews/*.png`, `scripts/build-stamp-previews.py`, `backend/tests/stamp-catalog.test.ts`, `frontend/e2e/social-travel.spec.ts`, `AGENTS.md`, `docs/{API_SPEC,JOURNAL_UPDATE,PRD,REQUIREMENT,TEST_CASE,TRD,prompts}.md` |
+
+## 2026-11-26 18:40 KST
+
+> branch를 refactor 로 스위치하고 main 브랜치를 refactor에 push하고 refactor에서 작업해줘
+> # 수정사항
+> 1. 주소자동 선택과 입력해서 선택했을 때, 주소를 요약하지말고 대한민국 OO시 세부주소, 건물 및 장소 명 이렇게 해줘.
+> 2. pothon으로 검색했을 때, 나오는 주소의 세부주소도 적혀있게해줘.
+> 3. 검색어의 오타가 있더라도 자동완성을 해줘
+> 4. 장소 검색 UI를 디자인 전문가로써 편하고 예쁜 UX로 만들어주고, 검색이 끝나면 검색바 바로 밑에 검색 결과가 나오게 해줘.
+> 5. 전국지도에서 특별시, 도나 그 지역의 사진을 선택했을 때, 해당 지역이 전체로 보이게 줌인 해주고, 숫자가 중첩된 사진을 누르면 다시 그 범위로 줌인 해줘.
+> 6. 전국지도의 세부타일 줌인 범위를 조금 늘려서 세부타일이 더 잘보이게 해줘.
+> 7. 웹앱에서 사진을 클릭하면 사진 정보가 안뜸. 해결
+> 8. 웹앱에서 지도 이동속도가 너무 빠름. 0.75로 늦추기
+> 9. 지도를 움직일 때, 깜빡거림이 있음. 해결가능하다면 해결
+> 10. 여수에서 찍은 사진이 있는데, 그 사진을 누르면 전라광주로 줌인되지않음
+>
+> pothon 검색문제가 여기서 작업할 수 없다면, oracle cloude 서버에서 어떤 작업을 해야하는지만 알려주고, 나머지 작업을 진행해줘
+
+> Implement the plan.
+
+결과: 최신 main에서 refactor를 동기화하고 Photon 상세주소·자동완성, 시도/군집 맞춤, 여수 이전 코드 해석과 웹 사진 선택, 750ms 이동 및 상세 타일 로딩 표시를 변경했다. 전용 Photon과 로컬 인증 HTTP 검색·역주소·저장, Chromium, 타입 및 웹·Android 번들을 확인했다. 운영 반영과 Android 실기기 검증은 별도다.
+
+변경 파일: `AGENTS.md`, `backend/supabase/functions/_shared/photon.ts`, `backend/tests/osm-photon.test.ts`, `backend/tests/photon.local.test.mjs`, `docs/API_SPEC.md`, `docs/OSM_TEST.md`, `docs/PRD.md`, `docs/REQUIREMENT.md`, `docs/TEST_CASE.md`, `docs/TRD.md`, `docs/prompts.md`, `frontend/e2e/photo-map.spec.ts`, `frontend/e2e/photon-autocomplete.spec.ts`, `frontend/e2e/simple-map.spec.ts`, `frontend/screens/AppWorkspace.tsx`, `frontend/src/LocationPicker.tsx`, `frontend/src/SvgTravelMap.tsx`, `frontend/src/TileSurface.web.tsx`, `frontend/src/osmMapStyle.ts`, `frontend/src/regionalAssets.ts`

@@ -31,6 +31,8 @@ test('로그인한 사용자가 Photon 후보를 조회하고 원좌표를 보�
     assert.equal(search.status,200);
     const [place] = await search.json();
     assert.equal(place.provider,'photon');
+    assert.ok(place.address?.includes('대한민국'));
+    assert.ok(place.place_name);
     const point = {latitude:37.555, longitude:126.971};
     const reverse = await request(endpoint, access_token, point);
     assert.equal(reverse.status,200);
@@ -38,9 +40,12 @@ test('로그인한 사용자가 Photon 후보를 조회하고 원좌표를 보�
     assert.deepEqual([address.latitude,address.longitude],[point.latitude,point.longitude]);
     const {latitude,longitude,source,place_name,provider_place_id,attribution} = place;
     const saved = await request(cfg.API_URL + '/rest/v1/locations',access_token,
-      {owner_id:id,latitude,longitude,source,place_name,provider_place_id,attribution});
+      {owner_id:id,latitude,longitude,source,place_name,address:place.address,provider_place_id,attribution});
     assert.equal(saved.status,201);
-    assert.equal((await saved.json())[0].source,'photon');
+    const [stored] = await saved.json();
+    assert.equal(stored.source,'photon');
+    assert.equal(stored.address,place.address);
+    assert.equal(stored.place_name,place_name);
   } finally {
     assert.ok((await admin('/rest/v1/locations?owner_id=eq.' + id,undefined,'DELETE')).ok);
     assert.ok((await admin('/auth/v1/admin/users/' + id,undefined,'DELETE')).ok);
