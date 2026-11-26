@@ -347,47 +347,64 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  }
  function locationValues(){return {owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:placeInfo?.source||'manual',place_name:placeInfo?.place_name||null,google_place_id:placeInfo?.google_place_id||null,provider_place_id:placeInfo?.provider_place_id||null,address:placeInfo?.address||null,attribution:placeInfo?.attribution||null,country_code:placeInfo?.country_code||null,country_name:placeInfo?.country_name||null,region_name:placeInfo?.region_name||null,city_name:placeInfo?.city_name||null};}
  async function save(){
-  if(confirmDates||checkingCities||cityOptions.length)throw new Error(t('여행 기간과 대표 위치를 확인해 주세요.'));
-  const epoch=sessionEpoch.current,version=navigationVersion.current;
-  const inSession=async <T,>(action:()=>Promise<T>):Promise<T>=>{
-   if(epoch!==sessionEpoch.current)throw new Error('Session changed');
-   const result=await action();
-   if(epoch!==sessionEpoch.current)throw new Error('Session changed');
-   return result;
-  };
-  if(placeInfo?.source==='google'&&!(pending?.complete&&placeInfo.id===pending.location))throw new RecordValidationError('location',t('기존 Google 위치를 새 장소 검색 또는 지도 선택으로 다시 확인해 주세요.'));
-  validateRecord({start_date:start,end_date:end,latitude:latitude.trim()?Number(latitude):NaN,longitude:longitude.trim()?Number(longitude):NaN},photos.length+(pending?.existing??0));
-  let record=pending;
-  const values={start_date:start,end_date:end,title:title||null,content:content||null,visibility};
-  if(record?.complete){
-   await inSession(()=>api.rpc('edit_journal_record',{record_id:record!.id,fields:values,place:placeInfo?.id===record!.location?null:locationValues()}));
-   setComposer(false);setPending(null);setSocialRevision(x=>x+1);if(navigationVersion.current===version)returnFromDetail();await latestLoad.current();return;
-  }
-  if(!record){const loc=await inSession(()=>api.request('/rest/v1/locations','POST',locationValues()));record={id:Crypto.randomUUID(),location:loc[0].id,existing:0};setPending(record);}
-  const recordId=record.id,location=record.location;
-  const found=await inSession(()=>api.request(`/rest/v1/travel_records?id=eq.${recordId}&select=id`));
-  if(!found.length)await inSession(()=>api.request('/rest/v1/travel_records','POST',{id:recordId,owner_id:session.user.id,location_id:location,...values}));
-  else {const loc=await inSession(()=>api.request('/rest/v1/locations','POST',locationValues()));await inSession(()=>api.update(recordId,{location_id:loc[0].id,...values}));}
-  const registered=new Map<string,any>((await inSession(()=>api.listPages(`/rest/v1/photos?travel_record_id=eq.${recordId}&select=id,owner_id,travel_record_id,original_path,thumbnail_path,display_order&order=display_order.asc,id.asc`))).map((photo:any)=>[photo.id,photo]));
-  validateRecord({start_date:start,end_date:end,latitude:Number(latitude),longitude:Number(longitude)},registered.size+photos.filter(photo=>!registered.has(photo.id)).length);
-  let nextOrder=Math.max(-1,...[...registered.values()].map(photo=>photo.display_order))+1;
-  for(const p of photos){
-   const mime='image/jpeg',root=`${session.user.id}/${recordId}/${p.id}`,originalPath=`${root}/original.jpg`,thumbnailPath=`${root}/thumbnail.jpg`;
-   const samePhoto=(photo:any)=>photo?.id===p.id&&photo.owner_id===session.user.id&&photo.travel_record_id===recordId&&photo.original_path===originalPath&&photo.thumbnail_path===thumbnailPath;
-   if(registered.has(p.id)){
-    if(!samePhoto(registered.get(p.id)))throw new ApiError('VALIDATION_ERROR',409,'Photo registration conflict');
-    continue;
+  let stage='validate';
+  let photoIndex=0;
+  try {
+   if(confirmDates||checkingCities||cityOptions.length)throw new Error(t('여행 기간과 대표 위치를 확인해 주세요.'));
+   const epoch=sessionEpoch.current,version=navigationVersion.current;
+   const inSession=async <T,>(step:string,action:()=>Promise<T>):Promise<T>=>{
+    stage=step;
+    if(epoch!==sessionEpoch.current)throw new Error('Session changed');
+    const result=await action();
+    if(epoch!==sessionEpoch.current)throw new Error('Session changed');
+    return result;
+   };
+   if(placeInfo?.source==='google'&&!(pending?.complete&&placeInfo.id===pending.location))throw new RecordValidationError('location',t('기존 Google 위치를 새 장소 검색 또는 지도 선택으로 다시 확인해 주세요.'));
+   validateRecord({start_date:start,end_date:end,latitude:latitude.trim()?Number(latitude):NaN,longitude:longitude.trim()?Number(longitude):NaN},photos.length+(pending?.existing??0));
+   let record=pending;
+   const values={start_date:start,end_date:end,title:title||null,content:content||null,visibility};
+   if(record?.complete){
+    await inSession('record.edit',()=>api.rpc('edit_journal_record',{record_id:record!.id,fields:values,place:placeInfo?.id===record!.location?null:locationValues()}));
+    setComposer(false);setPending(null);setSocialRevision(x=>x+1);if(navigationVersion.current===version)returnFromDetail();await latestLoad.current();return;
    }
-   const main=await inSession(()=>compressPhoto(p.asset,2048,5*1024*1024)),thumb=await inSession(()=>compressPhoto(p.asset,512,512*1024));
-   for(const [path,bytes] of [[originalPath,main.bytes],[thumbnailPath,thumb.bytes]] as const){try{await inSession(()=>api.request(`/storage/v1/object/travel-photos/${path}`,'POST',bytes,mime));}catch(e:any){if(e.serverCode!=='KeyAlreadyExists')throw e;}}
-   try{await inSession(()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,original_path:originalPath,thumbnail_path:thumbnailPath,display_order:nextOrder++,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude,width:main.width,height:main.height,mime_type:mime,file_size_bytes:main.bytes.byteLength}));}catch(e:any){
-    if(e.serverCode!=='23505')throw e;
-    const rows=await inSession(()=>api.request(`/rest/v1/photos?id=eq.${p.id}&select=id,owner_id,travel_record_id,original_path,thumbnail_path`));
-    if(!samePhoto(rows[0]))throw e;
+   if(!record){const loc=await inSession('location.create',()=>api.request('/rest/v1/locations','POST',locationValues()));record={id:Crypto.randomUUID(),location:loc[0].id,existing:0};setPending(record);}
+   const recordId=record.id,location=record.location;
+   const found=await inSession('record.lookup',()=>api.request(`/rest/v1/travel_records?id=eq.${recordId}&select=id`));
+   if(!found.length)await inSession('draft.create',()=>api.request('/rest/v1/travel_records','POST',{id:recordId,owner_id:session.user.id,location_id:location,...values}));
+   else {const loc=await inSession('location.create',()=>api.request('/rest/v1/locations','POST',locationValues()));await inSession('draft.update',()=>api.update(recordId,{location_id:loc[0].id,...values}));}
+   const registered=new Map<string,any>((await inSession('photo.list',()=>api.listPages(`/rest/v1/photos?travel_record_id=eq.${recordId}&select=id,owner_id,travel_record_id,original_path,thumbnail_path,display_order&order=display_order.asc,id.asc`))).map((photo:any)=>[photo.id,photo]));
+   stage='photo.validate';
+   validateRecord({start_date:start,end_date:end,latitude:Number(latitude),longitude:Number(longitude)},registered.size+photos.filter(photo=>!registered.has(photo.id)).length);
+   let nextOrder=Math.max(-1,...[...registered.values()].map(photo=>photo.display_order))+1;
+   for(const p of photos){
+    photoIndex++;
+    stage='photo.verify';
+    const mime='image/jpeg',root=`${session.user.id}/${recordId}/${p.id}`,originalPath=`${root}/original.jpg`,thumbnailPath=`${root}/thumbnail.jpg`;
+    const samePhoto=(photo:any)=>photo?.id===p.id&&photo.owner_id===session.user.id&&photo.travel_record_id===recordId&&photo.original_path===originalPath&&photo.thumbnail_path===thumbnailPath;
+    if(registered.has(p.id)){
+     if(!samePhoto(registered.get(p.id)))throw new ApiError('VALIDATION_ERROR',409,'Photo registration conflict');
+     continue;
+    }
+    const main=await inSession('compress.original',()=>compressPhoto(p.asset,2048,5*1024*1024)),thumb=await inSession('compress.thumbnail',()=>compressPhoto(p.asset,512,512*1024));
+    for(const [path,bytes] of [[originalPath,main.bytes],[thumbnailPath,thumb.bytes]] as const){try{await inSession(path===originalPath?'upload.original':'upload.thumbnail',()=>api.request(`/storage/v1/object/travel-photos/${path}`,'POST',bytes,mime));}catch(e:any){if(e.serverCode!=='KeyAlreadyExists')throw e;}}
+    try{await inSession('photo.register',()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,original_path:originalPath,thumbnail_path:thumbnailPath,display_order:nextOrder++,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude,width:main.width,height:main.height,mime_type:mime,file_size_bytes:main.bytes.byteLength}));}catch(e:any){
+     if(e.serverCode!=='23505')throw e;
+     const rows=await inSession('photo.verify',()=>api.request(`/rest/v1/photos?id=eq.${p.id}&select=id,owner_id,travel_record_id,original_path,thumbnail_path`));
+     if(!samePhoto(rows[0]))throw e;
+    }
    }
+   photoIndex=0;
+   const complete=await inSession('record.finalize',()=>api.rpc('finalize_travel_record',{record_id:recordId}));setPending(null);setPhotos([]);setComposer(false);setDrafts(false);setSocialRevision(x=>x+1);setSaved(t('여행을 저장했어요.'));
+   await inSession('list.reload',()=>latestLoad.current());if(version===navigationVersion.current&&screenRef.current==='create')await inSession('detail.open',()=>open(complete,version));
+  } catch(error) {
+   const apiError=error instanceof ApiError ? error : undefined;
+   console.warn('[travel.save]', {
+    stage, photoIndex:photoIndex || undefined, status:apiError?.status,
+    code:apiError?.code ?? (error instanceof Error ? error.name : 'UnknownError'),
+    serverCode:apiError?.serverCode, requestId:apiError?.requestId,
+   });
+   throw error;
   }
-  const complete=await inSession(()=>api.rpc('finalize_travel_record',{record_id:recordId}));setPending(null);setPhotos([]);setComposer(false);setDrafts(false);setSocialRevision(x=>x+1);setSaved(t('여행을 저장했어요.'));
-  await inSession(()=>latestLoad.current());if(version===navigationVersion.current&&screenRef.current==='create')await inSession(()=>open(complete,version));
  }
  function renderContent(){return <>
  {replacement&&<View accessibilityRole="alert" style={s.error}><Text style={s.sectionTitle}>{t("작성 중인 입력을 바꿀까요?")}</Text><Text style={s.description}>{t("현재 선택한 사진과 입력은 지워집니다. 서버에 등록한 초안은 임시저장 복구에 남아요.")}</Text>{button(t('기존 입력 버리고 초안 복구'),()=>recoverDraft(replacement,true))}{button(t('기존 작성 유지'),()=>setReplacement(null),true)}</View>}

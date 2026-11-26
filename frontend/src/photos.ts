@@ -6,6 +6,7 @@ import * as Manipulator from 'expo-image-manipulator';
 import {File,Paths} from 'expo-file-system';
 import {readExif,validCoordinates,RecordValidationError} from './domain';
 import {parse} from 'exifr';
+import {compressWebPhoto} from './compressWebPhoto';
 
 export async function photoPermission(request = true) {
   if (!request) {
@@ -144,17 +145,14 @@ export async function photoMetadata(asset: ImagePicker.ImagePickerAsset) {
   return {captured_date:date.captured_date,captured_at:date.captured_at,latitude:gps?.latitude??null,longitude:gps?.longitude??null};
 }
 
-async function imageBytes(uri: string) {
-  return Platform.OS === 'web' ? (await fetch(uri)).arrayBuffer() : new File(uri).arrayBuffer();
-}
-
 export async function compressPhoto(asset: ImagePicker.ImagePickerAsset, edge: number, maxBytes: number) {
+  if (Platform.OS === 'web') return compressWebPhoto(asset, edge, maxBytes);
   const actions = Math.max(asset.width, asset.height) > edge ? [{resize: asset.width >= asset.height ? {width: edge} : {height: edge}}] : [];
   for (const quality of [.8, .6, .4, .2]) {
     let image = await Manipulator.manipulateAsync(asset.uri, actions, {compress: quality, format: Manipulator.SaveFormat.JPEG});
     if (Math.max(image.width,image.height) > edge) image = await Manipulator.manipulateAsync(asset.uri,[{resize:image.width >= image.height ? {width:edge} : {height:edge}}],{compress:quality,format:Manipulator.SaveFormat.JPEG});
     if (Math.max(image.width,image.height) > edge) throw new Error('사진 크기를 줄이지 못했습니다. 다른 사진을 선택해 주세요.');
-    const bytes = await imageBytes(image.uri);
+    const bytes = await new File(image.uri).arrayBuffer();
     if (bytes.byteLength <= maxBytes) return {...image, bytes};
   }
   throw new Error('사진 압축에 실패했습니다. 다른 사진을 선택해 주세요.');
