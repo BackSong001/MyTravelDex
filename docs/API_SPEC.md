@@ -577,3 +577,9 @@ social_profile은 directory_listed를 반환하지 않으며 social_set_director
 ## 장소 검색과 사진 지도 선택 (2026-11-26)
 
 photon-location의 검색/역주소에서 address는 country/state/county/city/district/locality/street/housenumber를 보존한다. 한국 코드만 있고 국가명이 없으면 대한민국을 표시한다. name/place_name은 제공자가 반환한 명칭을 우선하고 역주소 좌표는 입력값을 유지한다.
+
+TourAPI 공개 명소 동기화는 KorService2/areaBasedList2의 contentTypeId=12, pageNo, numOfRows 및 서버 전용 serviceKey를 사용한다. 배포되는 필드는 식별자·명칭·주소·좌표·분류와 지역 코드다. 앱에서는 동봉된 목록을 읽는다.
+
+사진 묶음 확대는 기존 기록 좌표와 클라이언트 카메라만 사용한다.
+
+지도 탭 확대 횟수는 로컬 탐색 상태로 관리하며 서버로 전송하지 않는다.

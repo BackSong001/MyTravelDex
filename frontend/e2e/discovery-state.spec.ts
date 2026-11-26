@@ -87,3 +87,22 @@ test('TC-DRAW-008: each grouped city highlights exactly its members',async({page
   await expect(page.getByTestId('draw-highlight')).toHaveAttribute('d',candidate.path);
  }
 });
+
+test('TC-DRAW-009: recommendations follow the winning city and county',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ const sights=page.getByTestId('destination-attractions');
+ await expect(sights).toHaveCount(0);
+ await page.getByRole('radio',{name:'미방문 지역'}).click();
+ for(const name of ['여수시','기장군']){
+  const winner=destinations.find(d=>d.name===name)!;
+  await page.evaluate(visited=>(window as any).updateDiscovery({visited}),districts.filter(d=>d.id!==winner.members[0].id).map(d=>d.id));
+  await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+  await expect(page.getByTestId('destination-result')).toHaveText(winner.label);
+  const places=sights.getByRole('link');
+  await expect(places).toHaveCount(3);
+  for(const place of await places.all()){
+   await expect(place).toContainText(name);
+   await expect(place).toHaveAttribute('href',/^https:\/\/www\.openstreetmap\.org\/\?mlat=/);
+  }
+ }
+});

@@ -396,6 +396,53 @@ for(const pointer of ['mouse','touch'])test('Yeosu legacy photos fit the merged 
  expect(Math.min(...await page.evaluate(()=>(window as any).mainlandMargins('12')))).toBeGreaterThan(15.9);
  const scale=await page.evaluate(()=>(window as any).navigation.current.camera.scale);
  await tap();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.camera.scale)).toBeGreaterThan(scale);
- await expect(page.getByTestId('map-photo-b')).toBeVisible();
+ const second=page.getByTestId('map-photo-b');
+ await expect(second).toBeVisible();
+ const firstBox=(await marker.boundingBox())!,secondBox=(await second.boundingBox())!;
+ const distance=Math.hypot(firstBox.x-secondBox.x,firstBox.y-secondBox.y);
+ expect(distance).toBeGreaterThan(80);
+ expect(distance).toBeLessThan(92);
  await tap();await expect(page.getByRole('button',{name:'a 자세히 보기'})).toBeVisible();
+});
+
+test('an inseparable Yeosu photo cluster opens both records at the selected region scale',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ const records=['a','b'].map((id,i)=>({id,title:id,status:'complete',locations:{source:'manual',latitude:34.7604+i*.000001,longitude:127.6622,boundary_date:'2018-01-01',district_code:'46130'}}));
+ await page.evaluate(records=>(window as any).update({homeMap:true,records}),records);
+ const marker=page.getByTestId('map-photo-a');
+ const tap=async()=>{const box=(await marker.boundingBox())!;await page.mouse.click(box.x+box.width/2,box.y+box.height/2);};
+ await expect(marker.locator('text')).toHaveText('2');
+ await tap();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.province)).toBe('12');
+ const camera=await page.evaluate(()=>(window as any).navigation.current.camera);
+ await tap();
+ for(const id of ['a','b'])await expect(page.getByRole('button',{name:id+' 자세히 보기'})).toBeVisible();
+ expect(await page.evaluate(()=>(window as any).navigation.current.camera)).toEqual(camera);
+});
+
+test('dense photo groups stop auto zoom after the third tap and keep manual zoom available',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ const records=[0,.00023,.0012,.006].map((offset,i)=>({id:String(i),title:'여수 '+i,status:'complete',locations:{source:'manual',latitude:34.7604+offset,longitude:127.6622,boundary_date:'2018-01-01',district_code:'46130'}}));
+ await page.evaluate(records=>(window as any).update({homeMap:true,records}),records);
+ const marker=page.getByTestId('map-photo-0'),canvas=page.getByTestId('svg-map-canvas');
+ const tap=async()=>{const box=(await marker.boundingBox())!;await page.mouse.click(box.x+box.width/2,box.y+box.height/2);};
+ const camera=()=>page.evaluate(()=>(window as any).navigation.current.camera);
+ for(let run=0;run<2;run++){
+  await expect(marker.locator('text')).toHaveText('4');
+  await tap();await expect.poll(()=>page.evaluate(()=>(window as any).navigation.current.province)).toBe('12');
+  const province=await camera();
+  await tap();await expect(marker.locator('text')).toHaveText('3');
+  const firstCluster=await camera();expect(firstCluster.scale).toBeGreaterThan(province.scale);
+  await tap();await expect(marker.locator('text')).toHaveText('2');
+  const cluster=await camera();expect(cluster.scale).toBeGreaterThan(firstCluster.scale);
+  if(run===0){
+   await page.evaluate(()=>(window as any).hide());await expect(canvas).toHaveCount(0);
+   await page.evaluate(()=>(window as any).update({}));
+   await tools(page);await page.getByRole('button',{name:'여수 0 · 2개 요약',exact:true}).click();
+  }else await tap();
+  for(const i of [0,1])await expect(page.getByRole('button',{name:'여수 '+i+' 자세히 보기'})).toBeVisible();
+  expect(await camera()).toEqual(cluster);
+  await page.getByRole('button',{name:'닫기',exact:true}).click();
+  await canvas.press('+');expect((await camera()).scale).toBeGreaterThan(cluster.scale);
+  await page.getByRole('button',{name:'지도 홈',exact:true}).click();
+ }
 });

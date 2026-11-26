@@ -66,3 +66,28 @@ describe('TC-DRAW-001',()=>{
    });
   });
  });
+
+describe('TC-DRAW-009 TourAPI recommendations',()=>{
+  it('covers every actual draw including Sejong and excludes independently drawn metropolitan counties',async()=>{
+    const {default:catalog}=await import('../../frontend/src/data/draw-attractions.json');
+    const {rankAttractions}=await import('../../frontend/src/rankAttractions');
+    const forDistrict=(code:string)=>catalog[code as keyof typeof catalog]??[];
+    for(const destination of destinations){
+      const members=destination.members.flatMap(d=>forDistrict(d.id));
+      const places=rankAttractions(members,destination.point);
+      expect(places.length,destination.label).toBeGreaterThan(0);
+      expect(places.length).toBeLessThanOrEqual(3);
+      expect(new Set(places.map(p=>p.id)).size).toBe(places.length);
+    }
+    const busan=destinations.find(d=>d.name==='부산광역시')!;
+    expect(busan.members.flatMap(d=>forDistrict(d.id)).some(p=>p.address.includes('기장군'))).toBe(false);
+    expect(forDistrict('36110').every(p=>p.address.includes('세종'))).toBe(true);
+  });
+  it('keeps distinct locations and prioritizes a mix of nearby attractions',async()=>{
+    const {rankAttractions}=await import('../../frontend/src/rankAttractions');
+    const place=(id:string,longitude:number,category:string)=>({id,longitude,latitude:35,name:id,address:'',category});
+    const places=[place('1',127,'park'),place('2',127.01,'park'),place('3',127.02,'coast'),place('4',127,'history')];
+    expect(rankAttractions(places,[127,35]).map(p=>p.id)).toEqual(['1','3','2']);
+    expect(rankAttractions([],[127,35])).toEqual([]);
+  });
+});

@@ -58,6 +58,7 @@ export type MapNavigation = {
   detail?: boolean;
   island?:string|null;
   fitScale?:number|null;
+  tapZoomCount?:number;
   labelRevealed?:boolean;
   summaryIds?:string[];
   summaryExpanded?:boolean;
