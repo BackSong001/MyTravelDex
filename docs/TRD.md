@@ -7,7 +7,7 @@ FR-ICON-THEME-001은 기존 AsyncStorage 환경설정에 journal.iconTheme을 �
 
 ## 2026-11-21 공통 햄버거 메뉴
 
-FR-MENU-001은 공통 React Native Modal과 기존 화면 전환을 사용한다. StampCatalog는 본인 완료 기록의 ownGroups를 재사용한다. 계정은 기존 프로필과 로그아웃, 공개 범위는 본인 여행도감의 기록별 전환을 사용한다. 앱 버전은 Expo 설정을 참조한다. 앱 정보와 계정 관리는 기존 LegalLink로 각각 공개 약관 허브와 삭제 요청 안내를 연다.
+FR-MENU-001은 공통 React Native Modal과 기존 화면 전환을 사용한다. StampCatalog는 본인 완료 기록의 ownGroups를 재사용한다. 드로어 하단은 로그인 상태에서만 기존 로그아웃 핸들러를 호출하는 고정 버튼을 표시한다. 계정은 기존 프로필과 로그아웃, 공개 범위는 본인 여행도감의 기록별 전환을 사용한다. 앱 버전은 Expo 설정을 참조한다. 앱 정보와 계정 관리는 기존 LegalLink로 각각 공개 약관 허브와 삭제 요청 안내를 연다.
 
 ## 실제 Figma 자산 공통 UI (2026-11-09)
 

@@ -113,6 +113,11 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
        {open&&pane==='about'&&<View style={[s.card,{padding:20,gap:8,backgroundColor:c.sheet,borderColor:c.line}]}><Text style={[s.title,{color:c.ink}]}>{expo.name}</Text><Text style={{color:c.muted}}>MyTravelDex</Text><Text style={{color:c.ink}}>{t("버전")} {expo.version}</Text><LegalLink/></View>}
        {open&&full&&<DestinationDraw owner={owner} onDrawStart={()=>scroll.current?.scrollTo({y:0,animated:false})} visited={visits} stamps={owner?visited:null} failed={failed} onRegion={district=>leave(()=>onRegion(district))} onAlbum={onAlbum?id=>leave(()=>onAlbum(id)):undefined}/>}
       </ScrollView>
+      {open&&pane==='menu'&&owner&&<View style={[s.footer,{borderColor:c.line,backgroundColor:c.sheet}]}>
+       <Pressable accessibilityRole="button" disabled={busy} onPress={()=>leave(onLogout)} style={s.logout}>
+        <Text style={{color:busy?c.muted:c.ink,fontSize:16,fontWeight:'600'}}>{t('로그아웃')}</Text>
+       </Pressable>
+      </View>}
       {full&&<JournalNav tab={tab} onTab={next=>leave(()=>onTab(next))} onCreate={()=>leave(onCreate)}/>}
      </SafeAreaView>
     </Animated.View>
@@ -125,6 +130,8 @@ const s=StyleSheet.create({
  header:{flexDirection:'row',alignItems:'center',paddingLeft:18,paddingRight:6,paddingVertical:6,borderBottomWidth:1},
  title:{flexGrow:1,flexShrink:1,fontSize:21,lineHeight:30,fontWeight:'700'},
  content:{width:'100%',maxWidth:640,alignSelf:'center',padding:18,paddingBottom:32,gap:24},
+ footer:{borderTopWidth:StyleSheet.hairlineWidth,paddingHorizontal:18,paddingVertical:4},
+ logout:{minHeight:48,alignItems:'center',justifyContent:'center'},
  card:{borderWidth:1,borderRadius:18,overflow:'hidden'},
  row:{flexDirection:'row',alignItems:'center',paddingHorizontal:14,paddingVertical:9,gap:12,borderBottomWidth:StyleSheet.hairlineWidth},
  icon:{width:34,height:34,alignItems:'center',justifyContent:'center'},

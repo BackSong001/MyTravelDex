@@ -50,8 +50,18 @@ for(const width of [320,1280]){
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  });
 }
+test('TC-MENU-001 짧은 화면에서 메뉴를 열고 바로 로그아웃',async({page})=>{
+ await page.setViewportSize({width:320,height:540});
+ await fixture(page,true);
+ await button(page,'설정').click();
+ const logout=page.getByRole('dialog').getByRole('button',{name:'로그아웃',exact:true});
+ await expect(logout).toBeInViewport({ratio:1,timeout:5000});
+ await logout.click();
+ await expect(button(page,'Google 로그인')).toBeVisible();
+});
 test('TC-MENU-001 게스트 계정 진입과 닫기',async({page})=>{
  await fixture(page,false);await openMenu(page);
+ await expect(button(page,'로그아웃')).toHaveCount(0);
  await button(page,'어디로 가봥?').click();await button(page,'여행지 뽑기').click();await expect(page.getByTestId('destination-result')).toBeVisible();
  await button(page,'설정 닫기').click();await openMenu(page);
  await button(page,'계정 관리').click();await button(page,'로그인').click();await expect(button(page,'Google 로그인')).toBeVisible();
