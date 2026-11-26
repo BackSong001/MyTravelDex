@@ -12,12 +12,12 @@ export const uiAssets = {
   'KR-49': require('../assets/ui/jeju-stamp.png'),
   'KR-28': require('../assets/ui/incheon-seal-stamp-v1.png'),
   'KR-50': require('../assets/ui/sejong-bells-stamp-v1.png'),
-  '41280': require('../assets/ui/goyang-cat-stamp-v1.png'),
  },
  districtStamps: {
-  '48170': {name: '진주', source: require('../assets/ui/jinju-otter-stamp.png')},
-  '48220': {name: '통영', source: require('../assets/ui/tongyeong-oyster-stamp.png')},
-  '48310': {name: '거제', source: require('../assets/ui/geoje-pebble-stamp.png')},
+  '41280': {province: 'KR-41', districtCodes: ['41281', '41285', '41287'], name: '고양시', source: require('../assets/ui/goyang-cat-stamp-v1.png')},
+  '48170': {province: 'KR-48', districtCodes: ['48170'], name: '진주', source: require('../assets/ui/jinju-otter-stamp.png')},
+  '48220': {province: 'KR-48', districtCodes: ['48220'], name: '통영', source: require('../assets/ui/tongyeong-oyster-stamp.png')},
+  '48310': {province: 'KR-48', districtCodes: ['48310'], name: '거제', source: require('../assets/ui/geoje-pebble-stamp.png')},
  },
  stampPreviews: {
   'KR-11': require('../assets/ui/stamp-previews/seoul-gyeongbokgung-stamp.png'),

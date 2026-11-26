@@ -7,7 +7,7 @@ import {ActivityIndicator,Image,Linking,StyleSheet,View} from 'react-native';
 import Svg,{Path} from 'react-native-svg';
 import Pressable from './Feedback';
 import {provinceLabels,legacyStampNames} from './provinces';
-import {districts,regions,legacyCodes,recordRegion,renderFeature,fitProjection} from './regions';
+import {regions,legacyCodes,recordRegion,renderFeature,fitProjection} from './regions';
 import {geoPath} from 'd3-geo';
 import {uiAssets} from './uiAssets';
 const outlines=regions.map(feature=>{
@@ -15,12 +15,6 @@ const outlines=regions.map(feature=>{
  let path:string|undefined;
  return {id,name:provinceLabels[id].name,get path(){return path??=geoPath(fitProjection([feature],163,94)).digits(2)(renderFeature(feature))??'';}};
 });
-const goyangDistricts=districts.filter(({properties})=>['41281','41285','41287'].includes(properties.code));
-const goyang={
- id:'41280',
- name:'고양시',
- path:geoPath(fitProjection(goyangDistricts,163,94)).digits(2)({type:'FeatureCollection',features:goyangDistricts.map(renderFeature)})??'',
-};
 export default function StampCatalog({groups,confirmed,failed,onBack,records=[]}:{records?:any[];groups:Record<string,any[]>;confirmed:boolean;failed:boolean;onBack:()=>void}){
  const themeColors=useThemeColors();
  const c=themeColors.profile;
@@ -28,23 +22,20 @@ export default function StampCatalog({groups,confirmed,failed,onBack,records=[]}
  const [collected,setCollected]=useState(false),count=Object.keys(groups).length;
  const countLabel=confirmed?`${count} / ${regions.length}`:failed?t('확인 필요'):t('확인 중');
  const entries=outlines.filter(region=>!collected||confirmed&&!!groups[region.id]);
- const visitedGoyang=confirmed&&(groups['KR-41']??[]).some(({locations})=>
-  goyangDistricts.some(district=>district===recordRegion(locations)),
- );
- const collectedCount=count+Number(visitedGoyang);
  function renderStamp(region:(typeof outlines)[number],visited:boolean){
    const {name}=region,source=uiAssets.stamps[region.id as keyof typeof uiAssets.stamps];
-   const districtCodes=visited&&region.id==='KR-48'
-    ? new Set(groups[region.id].map(({locations})=>recordRegion(locations)?.properties.code))
-    : new Set();
-   const districtStamps=region.id==='KR-48'&&confirmed
-    ?Object.entries(uiAssets.districtStamps).filter(([code])=>!collected||districtCodes.has(code)):[];
+   const cityStamps=Object.entries(uiAssets.districtStamps).filter(([,stamp])=>stamp.province===region.id);
+   const visitedCodes=new Set(visited&&cityStamps.length
+    ? groups[region.id].map(({locations})=>recordRegion(locations)?.properties.code)
+    : []);
+   const districtStamps=confirmed?cityStamps.map(([code,stamp])=>({
+    code,stamp,earned:stamp.districtCodes.some(district=>visitedCodes.has(district)),
+   })).filter(({earned})=>!collected||earned):[];
    const preview=uiAssets.stampPreviews[region.id as keyof typeof uiAssets.stampPreviews];
    const status=!confirmed?t('확인 전'):visited?t('✓ 내 여행 스탬프'):t('미획득');
    let art:React.ReactNode;
    if(districtStamps.length){
-    art=districtStamps.map(([code,stamp])=>{
-     const earned=districtCodes.has(code);
+    art=districtStamps.map(({code,stamp,earned})=>{
      const label=msg`${stamp.name} 여행 스탬프`;
      return <View key={code} style={s.cityStamp}>
       <Image source={earned?stamp.source:uiAssets.stampPreviews[code as keyof typeof uiAssets.districtStamps]} accessible accessibilityLabel={earned?label:label+', '+t('미획득')} resizeMode="contain" style={s.art}/>
@@ -67,15 +58,11 @@ export default function StampCatalog({groups,confirmed,failed,onBack,records=[]}
   <View style={s.heading}><Pressable accessibilityRole="button" accessibilityLabel={t("여행 기록으로 돌아가기")} onPress={onBack} style={s.back}><Text style={s.link}>{t("‹ 여행 기록")}</Text></Pressable><Text accessibilityRole="header" style={s.title}>{t("여행 스탬프")}</Text></View>
   <View style={s.scope}><View><Text style={s.title}>{t("대한민국")}</Text><Text style={s.small}>{t("완료한 내 여행 기준")}</Text></View><Text testID="stamp-total" accessibilityLabel={msg`스탬프 방문 지역 수 · ${countLabel}`} style={s.link}>{countLabel}</Text></View>
   <View accessibilityRole="tablist" accessibilityLabel={t("스탬프 범위")} style={s.tabs}>
-   {[false,true].map(value=><Pressable key={String(value)} accessibilityRole="tab" accessibilityState={{selected:collected===value}} aria-selected={collected===value} onPress={()=>setCollected(value)} style={[s.tab,collected===value&&s.selected]}><Text style={[s.tabText,collected===value&&{color:c.sheet}]}>{value?msg`모은 스탬프${confirmed?` ${collectedCount}`:''}`:t('모든 지역')}</Text></Pressable>)}
+   {[false,true].map(value=><Pressable key={String(value)} accessibilityRole="tab" accessibilityState={{selected:collected===value}} aria-selected={collected===value} onPress={()=>setCollected(value)} style={[s.tab,collected===value&&s.selected]}><Text style={[s.tabText,collected===value&&{color:c.sheet}]}>{value?msg`모은 스탬프${confirmed?` ${count}`:''}`:t('모든 지역')}</Text></Pressable>)}
   </View>
   {!confirmed&&<View style={s.scope}>{!failed&&<ActivityIndicator accessibilityLabel={t("스탬프 확인 중")}/>}<Text style={s.small}>{t("방문 정보를 확인하고 있어요. 목록 오류가 있으면 다시 불러와 주세요.")}</Text></View>}
-  {confirmed&&collected&&!collectedCount&&<Text style={s.empty}>{t("아직 모은 스탬프가 없어요.")}</Text>}
+  {confirmed&&collected&&!count&&<Text style={s.empty}>{t("아직 모은 스탬프가 없어요.")}</Text>}
   {entries.map(region=>renderStamp(region,confirmed&&!!groups[region.id]))}
-  {(!collected||visitedGoyang)&&<>
-   <View style={s.scope}><Text accessibilityRole="header" style={s.title}>{t("시·군·구 스탬프")}</Text></View>
-   {renderStamp(goyang,visitedGoyang)}
-  </>}
   {confirmed&&<View style={s.scope}><Text style={s.small}>{t("이전 기준 스탬프 (2026-04-01) ·")} {legacyStampNames(records).join(' · ')||t('없음')}</Text></View>}
   <Pressable accessibilityRole="link" accessibilityLabel={t("스탬프 지리 데이터 출처")} onPress={()=>void Linking.openURL(MAP_SOURCE_URL)} style={s.back}><Text style={s.small}>{MAP_ATTRIBUTION}</Text></Pressable>
  </View>;
