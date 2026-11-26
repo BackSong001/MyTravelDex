@@ -131,7 +131,7 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
       <Text style={{color:c.muted}}>{provinceLabels[result.province].name} {t("스탬프 ·")} {stamps?(stamp?t('획득'):t('미획득 · 여행을 기록하고 모아 보세요.')):t('확인 전')}</Text>
       <View style={{flexDirection:'row',flexWrap:'wrap',gap:14}}><Pressable accessibilityRole="button" onPress={()=>onRegion(result)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>{t("지도에서 보기")}</Text></Pressable>
       {onAlbum&&<Pressable accessibilityRole="button" onPress={()=>onAlbum(result.province)} style={{minHeight:48,justifyContent:'center'}}><Text style={{color:c.ink}}>{t("지역 도감 보기")}</Text></Pressable>}</View>
-      <DestinationAttractions destination={result}/>
+      <DestinationAttractions key={result.id} destination={result}/>
       {drawButton}
     </View>}
     <View accessibilityRole="radiogroup" accessibilityLabel={t("추첨 모드")} style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>

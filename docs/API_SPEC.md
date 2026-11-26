@@ -583,3 +583,5 @@ TourAPI 공개 명소 동기화는 KorService2/areaBasedList2의 contentTypeId=1
 사진 묶음 확대는 기존 기록 좌표와 클라이언트 카메라만 사용한다.
 
 지도 탭 확대 횟수는 로컬 탐색 상태로 관리하며 서버로 전송하지 않는다.
+
+KorService2의 areaBasedList2 변경 시각, detailCommon2의 overview·firstimage 및 필요 시 detailImage2를 사용한다. 인증키는 수집기에만 전달한다.
