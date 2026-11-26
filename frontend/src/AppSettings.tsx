@@ -2,6 +2,7 @@ import {iconAssets,type IconName} from './iconAssets';
 import {t} from './translate';
 import {setPreference,usePreferences} from './preferences';
 import LegalLink from './LegalLink';
+import PrivacyNotice from './PrivacyNotice';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {Animated,Image,Modal,Platform,Pressable as Backdrop,ScrollView,StyleSheet,useWindowDimensions,View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -15,18 +16,18 @@ import {visitedDistricts,type Destination} from './destinationDraw';
 
 import {iconThemes,themeNames,tabIcons} from './iconThemes';
 
-const titles={icons:'아이콘 테마',menu:'여행가봥',discovery:'어디로 가봥?',account:'계정 관리',about:'앱 정보'};
+const titles={icons:'아이콘 테마',menu:'여행가봥',discovery:'어디로 가봥?',account:'계정 관리',about:'앱 정보',privacy:'개인정보 및 공개 범위'};
 type Pane=keyof typeof titles;
 type RowIcon=IconName|'profile'|'next';
 
 type Props={
  owner?:string; tab:JournalTab; onTab:(tab:JournalTab)=>void; onCreate:()=>void;
- onGuide?:()=>void;onAccount:()=>void; onLogout:()=>void; onStamps:()=>void; onPrivacy:()=>void; busy?:boolean;
+ onGuide?:()=>void;onAccount:()=>void; onLogout:()=>void; onStamps:()=>void; busy?:boolean;
  visited?:string[]|null; records?:Parameters<typeof visitedDistricts>[0]; failed?:boolean;
  routePane?:'menu'|'discovery'|null; onRoutePane?:(pane:'menu'|'discovery'|null)=>void; drawRequest?:number; onAlbum?:(id:string)=>void; onRegion:(district:Destination)=>void; hideTrigger?:boolean;
 };
 
-export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onTab,onCreate,onAccount,onLogout,onStamps,onPrivacy,busy,visited=null,records,failed,drawRequest=0,onRegion,onAlbum,hideTrigger}:Props){
+export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onTab,onCreate,onAccount,onLogout,onStamps,busy,visited=null,records,failed,drawRequest=0,onRegion,onAlbum,hideTrigger}:Props){
  const prefs=usePreferences();
  const c=useThemeColors(),reduced=useReducedMotion(),{width}=useWindowDimensions();
  const [open,setOpen]=useState(false),[pane,setPane]=useState<Pane>('menu');
@@ -72,7 +73,7 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
  return <>
   {!hideTrigger&&<Pressable ref={trigger} accessibilityRole="button" accessibilityLabel={t("설정")} accessibilityState={{expanded:open}} onPress={()=>{setOpen(true);onRoutePane?.('menu');}} style={s.control}>
    {[0,1,2].map(i=><View key={i} style={{height:2,width:22,borderRadius:2,backgroundColor:c.ink}}/>)}</Pressable>}
-  <Modal visible={open} transparent animationType="none" onRequestClose={close}>
+  <Modal visible={open} transparent animationType="none" onRequestClose={()=>pane==='privacy'?changePane('menu'):close()}>
    <View style={{flex:1,alignItems:'flex-end'}}>
     {!full&&<Backdrop accessible={false} testID="menu-backdrop" onPress={close} style={[StyleSheet.absoluteFill,{backgroundColor:'#102B3552'}]}/>}
     <Animated.View style={{flex:1,width:full?'100%':drawerWidth,backgroundColor:c.paper,borderTopLeftRadius:full?0:24,borderBottomLeftRadius:full?0:24,overflow:'hidden',transform:[{translateX:full?0:slide.interpolate({inputRange:[0,1],outputRange:[0,drawerWidth]})}]}}>
@@ -91,7 +92,7 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
          {row(t(titles.icons),'home',()=>changePane('icons'),false,t(themeNames[prefs.iconTheme]))}
          </>)}
         {section(t('여행 즐기기'),<>{row(t(titles.discovery),'destination',()=>changePane('discovery'))}{row(t('친구 관리'),'friends',()=>leave(()=>onTab('friends')))}{row(t('스탬프 도감'),'stamps',()=>leave(onStamps))}</>)}
-        {section(t('설정'),<>{row(t(titles.account),'account',()=>changePane('account'))}{row(t('개인정보 및 공개 범위'),'privacy',()=>leave(onPrivacy))}</>)}
+        {section(t('설정'),<>{row(t(titles.account),'account',()=>changePane('account'))}{row(t(titles.privacy),'privacy',()=>changePane('privacy'))}</>)}
         {section(t('고객 지원'),row(t(titles.about),'about',()=>changePane('about')))}
        </>}
        {open&&pane==='icons'&&<View accessibilityRole="radiogroup" accessibilityLabel={t(titles.icons)} style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>
@@ -110,6 +111,7 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
         {owner?<>{row(t('내 프로필 관리'),'profile',()=>leave(onAccount),busy)}{row(t('로그아웃'),'next',()=>leave(onLogout),busy)}</>:row(t('로그인'),'profile',()=>leave(onAccount))}
         <LegalLink deletion/>
        </View>}
+       {open&&pane==='privacy'&&<PrivacyNotice/>}
        {open&&pane==='about'&&<View style={[s.card,{padding:20,gap:8,backgroundColor:c.sheet,borderColor:c.line}]}><Text style={[s.title,{color:c.ink}]}>{expo.name}</Text><Text style={{color:c.muted}}>MyTravelDex</Text><Text style={{color:c.ink}}>{t("버전")} {expo.version}</Text><LegalLink/></View>}
        {open&&full&&<DestinationDraw owner={owner} onDrawStart={()=>scroll.current?.scrollTo({y:0,animated:false})} visited={visits} stamps={owner?visited:null} failed={failed} onRegion={district=>leave(()=>onRegion(district))} onAlbum={onAlbum?id=>leave(()=>onAlbum(id)):undefined}/>}
       </ScrollView>
