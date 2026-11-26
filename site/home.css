@@ -1,0 +1,90 @@
+:root {
+  color-scheme: light;
+  --paper: #faf9f6;
+  --ink: #292337;
+  --muted: #625e69;
+  --lavender: #dfd1ff;
+  --line: #dedbe1;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "Apple SD Gothic Neo", "Noto Sans CJK KR", "Malgun Gothic", system-ui, sans-serif;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+* { box-sizing: border-box; }
+body, figure, h1, h2, h3, p { margin: 0; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-underline-offset: .25em; }
+a:focus-visible, button:focus-visible { outline: 3px solid #8355d0; outline-offset: 4px; }
+.wrap { width: min(1248px, 90%); margin-inline: auto; }
+.skip { position: absolute; z-index: 3; top: .5rem; left: 1rem; background: white; padding: .7rem; transform: translateY(-160%); }
+.skip:focus { transform: none; }
+.masthead, .masthead nav, .brand, .action, .story-heading, .guide { display: flex; align-items: center; }
+.masthead { min-height: 76px; justify-content: space-between; gap: 1rem; }
+.masthead nav { gap: clamp(1rem, 2.8vw, 2.75rem); }
+.masthead a, .action { text-decoration: none; }
+.masthead nav a, .story-heading a { font-size: .93rem; font-weight: 700; padding-block: .65rem; }
+.masthead nav a:not(.action):hover, .resources a:hover { text-decoration: underline; }
+.brand { gap: .55rem; font-size: 1.4rem; font-weight: 900; letter-spacing: -.07em; }
+.action { width: fit-content; justify-content: center; gap: 1.1rem; min-height: 48px; padding: .75rem 1.35rem; border-radius: 2rem; background: var(--ink); color: white; font-weight: 750; }
+.action span, .story-heading a span { font-family: system-ui, sans-serif; }
+.action:hover { background: #433457; }
+.cover { position: relative; isolation: isolate; margin-inline: clamp(.5rem, 1.3vw, 1.5rem); border-radius: 1.4rem; overflow: hidden; background: #363038; color: white; }
+.landscape, .cover::after { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
+.landscape { object-fit: cover; object-position: 50% 52%; }
+.cover::after { content: ""; z-index: -1; background: linear-gradient(90deg, #14101bc9, #19152298 44%, #22162608 78%), linear-gradient(0deg, #211a2040, transparent 45%); }
+.cover-inner { min-height: clamp(500px, 42vw, 660px); width: min(1160px, 88%); margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding-block: 3.75rem; }
+h1 { font-size: clamp(3.5rem, 5.65vw, 6.15rem); font-weight: 850; letter-spacing: -.072em; line-height: 1.13; }
+.intro p { font-size: clamp(1rem, 1.35vw, 1.24rem); margin-block: 1.25rem 1.65rem; }
+.primary { background: var(--lavender); color: var(--ink); }
+.primary:hover { background: #f1e9ff; }
+.postcard { flex: none; align-self: flex-end; width: clamp(146px, 15.5vw, 236px); padding: .6rem .6rem 0; border-radius: .35rem; background: #fffefb; color: var(--ink); transform: rotate(5deg); box-shadow: 0 .75rem 2rem #20152845; }
+.postcard img { width: 100%; aspect-ratio: 1.12; object-fit: cover; object-position: center; }
+.postcard figcaption { display: flex; gap: .5rem; align-items: center; justify-content: center; padding: .7rem .15rem; font-size: clamp(.8rem, 1.15vw, 1rem); font-weight: 750; }
+.pin { width: .75em; height: .75em; border: .22em solid #79569b; border-radius: 60% 60% 60% 0; transform: rotate(-45deg); }
+.story { padding-block: clamp(3.5rem, 6.5vw, 6.5rem); }
+.story-heading { justify-content: space-between; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+h2 { font-size: clamp(1.85rem, 3.3vw, 3.2rem); line-height: 1.23; letter-spacing: -.068em; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.1vw, 2rem); margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.steps li { counter-increment: step; }
+.plate { aspect-ratio: 1.48; overflow: hidden; border-radius: .9rem; }
+.plate img { width: 100%; }
+.village img { height: 100%; object-fit: cover; }
+.compose, .atlas { display: flex; justify-content: center; }
+.compose { background: #e7dff4; padding-top: 5%; }
+.atlas { background: #d6e6e0; }
+.compose img, .atlas img { flex: none; width: 61%; align-self: start; border-radius: .9rem; box-shadow: 0 .6rem 1.8rem #21152d26; }
+.atlas img { margin-top: -24%; transform: rotate(5deg); }
+h3 { display: flex; align-items: center; gap: .55rem; margin: 1.15rem 0 .4rem; font-size: clamp(1.25rem, 1.8vw, 1.65rem); letter-spacing: -.055em; }
+h3::before { content: counter(step, decimal-leading-zero); color: #6f5285; font: 600 .86rem/1.5 system-ui, sans-serif; letter-spacing: .02em; }
+.steps p { color: var(--muted); max-width: 38ch; }
+.guide { gap: 1.25rem; background: #e9e2f4; padding: clamp(1.4rem, 3vw, 2.75rem); border-radius: 1rem; }
+.guide img { width: clamp(70px, 7vw, 95px); }
+.guide h2 { font-size: clamp(1.5rem, 2.7vw, 2.4rem); }
+.guide .action { margin-left: auto; flex-shrink: 0; }
+.resources, .footer div { display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; }
+.resources { margin-top: 2.5rem; padding: 1.4rem 0; border-bottom: 1px solid var(--line); }
+.resources a { padding-block: .6rem; font-weight: 650; text-decoration: none; }
+.footer { padding-block: 1.5rem 2.5rem; font-size: .875rem; color: var(--muted); overflow-wrap: anywhere; }
+.footer div { margin-bottom: .7rem; }
+@media (max-width: 700px) {
+  .masthead { min-height: 64px; }
+  .masthead .story-link { display: none; }
+  .masthead nav { gap: .9rem; }
+  .brand { font-size: 1.15rem; gap: .25rem; }
+  .brand img { width: 30px; }
+  .masthead nav a { font-size: .85rem; }
+  .small { min-height: 44px; padding-inline: .9rem; gap: .35rem; }
+  .cover-inner { width: 86%; min-height: 0; padding-block: 2.6rem 1.6rem; align-items: start; flex-direction: column; gap: 2rem; }
+  .cover::after { background: linear-gradient(165deg, #15121de0, #18141bb5 43%, #17141a15 72%); }
+  h1 { font-size: clamp(2.55rem, 9vw, 3.85rem); }
+  .intro p { margin-block: .9rem 1.15rem; }
+  .postcard { width: clamp(120px, 29vw, 156px); padding: .4rem .4rem 0; }
+  .postcard figcaption { padding: .45rem 0; }
+  .story-heading { margin-bottom: 1.4rem; gap: .35rem 1rem; }
+  .steps { grid-template-columns: 1fr; gap: 2.25rem; }
+  .plate { aspect-ratio: 1.85; }
+  .guide { flex-wrap: wrap; gap: .6rem; }
+  .guide img { width: 48px; }
+  .guide .action { margin: .35rem 0 0; }
+}
