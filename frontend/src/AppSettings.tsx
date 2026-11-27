@@ -17,6 +17,32 @@ import {visitedDistricts,type Destination} from './destinationDraw';
 import {iconThemes,themeNames,tabIcons} from './iconThemes';
 
 const titles={icons:'아이콘 테마',menu:'여행가봥',discovery:'어디로 가봥?',account:'계정 관리',about:'앱 정보',privacy:'개인정보 및 공개 범위'};
+function handleIconPickerKey(event:React.KeyboardEvent<HTMLElement>){
+ const {key}=event;
+ if(event.altKey||event.ctrlKey||event.metaKey)return;
+ if(key==='Tab'){
+  // RNWeb 모달이 역순 순환 때 tabindex=-1인 마지막 행에 포커스를 주는 것을 방지한다.
+  const stops=event.currentTarget.querySelectorAll<HTMLElement>('[tabindex="0"],button:not([disabled]):not([tabindex="-1"])');
+  const first=stops[0],last=stops[stops.length-1];
+  if(event.target===(event.shiftKey?first:last)){
+   event.preventDefault();
+   (event.shiftKey?last:first).focus();
+  }
+  return;
+ }
+ let step:number;
+ if(key==='ArrowDown'||key==='ArrowRight')step=1;
+ else if(key==='ArrowUp'||key==='ArrowLeft')step=-1;
+ else return;
+ const radios=Array.from(event.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]'));
+ const index=radios.indexOf(event.target as HTMLElement);
+ if(index<0)return;
+ event.preventDefault();
+ const next=(index+step+radios.length)%radios.length;
+ setPreference('iconTheme',iconThemes[next]);
+ radios[next].focus();
+}
+
 type Pane=keyof typeof titles;
 type RowIcon=IconName|'profile'|'next';
 
@@ -77,7 +103,7 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
    <View style={{flex:1,alignItems:'flex-end'}}>
     {!full&&<Backdrop accessible={false} testID="menu-backdrop" onPress={close} style={[StyleSheet.absoluteFill,{backgroundColor:'#102B3552'}]}/>}
     <Animated.View style={{flex:1,width:full?'100%':drawerWidth,backgroundColor:c.paper,borderTopLeftRadius:full?0:24,borderBottomLeftRadius:full?0:24,overflow:'hidden',transform:[{translateX:full?0:slide.interpolate({inputRange:[0,1],outputRange:[0,drawerWidth]})}]}}>
-     <SafeAreaView accessibilityViewIsModal accessibilityLabel={t("설정과 여행 도구")} style={{flex:1}}>
+     <SafeAreaView {...(Platform.OS==='web'&&pane==='icons'?{onKeyDown:handleIconPickerKey}:{})} accessibilityViewIsModal accessibilityLabel={t("설정과 여행 도구")} style={{flex:1}}>
       <View style={[s.header,{borderColor:c.line}]}>
        {pane!=='menu'&&<Pressable accessibilityRole="button" accessibilityLabel={t("여행 도구 뒤로")} onPress={()=>direct.current?close():changePane('menu')} style={s.control}><JournalIcon name="back" size={20}/></Pressable>}
        <Text accessibilityRole="header" style={[s.title,{color:c.ink}]}>{t(titles[pane])}</Text>
@@ -99,7 +125,7 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
         {iconThemes.map(id=>{
          const selected=id===prefs.iconTheme;
          const size=width<360?20:26;
-         return <Pressable key={id} accessibilityRole="radio" accessibilityLabel={t(themeNames[id])} accessibilityState={{checked:selected}} aria-checked={selected}
+         return <Pressable key={id} accessibilityRole="radio" tabIndex={Platform.OS==='web'?(selected?0:-1):undefined} accessibilityLabel={t(themeNames[id])} accessibilityState={{checked:selected}} aria-checked={selected}
           onPress={()=>setPreference('iconTheme',id)} style={[s.option,{borderColor:c.line,backgroundColor:selected?c.warm:c.sheet}]}>
           <Text style={[s.optionName,{color:c.ink}]}>{t(themeNames[id])}</Text>
           <View style={s.preview}>{tabIcons.map(icon=><Image key={icon} accessible={false} resizeMode="contain" source={iconAssets[id][icon]} style={{width:size,height:size}}/>)}</View>

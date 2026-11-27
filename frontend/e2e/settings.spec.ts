@@ -97,6 +97,11 @@ test('TC-ICON-THEME-001 기기별 선택·탭 미리보기와 화면 모드',asy
   const preview=await sources(option);
   expect(preview).toHaveLength(5);
   await expect.poll(()=>sources(nav)).toEqual(preview);
+  for(const icons of [option,nav]){
+   await expect.poll(()=>icons.locator('img').evaluateAll(images=>images.filter(
+    image=>image instanceof HTMLImageElement&&image.complete&&image.naturalWidth>0
+   ).length)).toBe(5);
+  }
   packs.add(preview.join(','));
  }
  expect(packs.size).toBe(4);
@@ -133,4 +138,28 @@ test('기존 다크 모드 기기는 유효한 아이콘 선택이 없으면 봄
   });
   expect(fits).toBe(true);
  }
+});
+
+test('웹 키보드로 아이콘 테마 선택과 포커스를 함께 이동한다',async({page})=>{
+ await fixture(page,false);
+ await openMenu(page);
+ await button(page,'아이콘 테마, 봄날 산책').click();
+ const options=page.getByRole('radio');
+ await button(page,'설정 닫기').focus();
+ await page.keyboard.press('Tab');
+ await expect(options.nth(1)).toBeFocused();
+ for(const [key,index] of [['ArrowDown',2],['ArrowRight',3],['ArrowDown',0],['ArrowLeft',3],['ArrowUp',2]] as const){
+  await page.keyboard.press(key);
+  await expect(options.nth(index)).toBeFocused();
+  await expect(options.nth(index)).toBeChecked();
+ }
+ await page.keyboard.press('Shift+Tab');
+ await expect(button(page,'설정 닫기')).toBeFocused();
+ await page.keyboard.press('Tab');
+ await expect(options.nth(2)).toBeFocused();
+ await page.keyboard.press('Tab');
+ await expect(button(page,'여행 도구 뒤로')).toBeFocused();
+ await page.keyboard.press('Shift+Tab');
+ await expect(options.nth(2)).toBeFocused();
+ await expect(options.nth(2)).toBeChecked();
 });
