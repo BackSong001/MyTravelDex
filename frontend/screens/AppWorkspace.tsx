@@ -57,6 +57,7 @@ type Selected={id:string;asset:ImagePickerAsset;captured_date:string|null;captur
 export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;linkParams?:{friend?:string;record?:string}}={}){
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
+ const trialLogin=Platform.OS==='web'&&pathname==='/login/moai';
  const localParams=useLocalSearchParams<{friend?:string;record?:string}>();
  const {friend,record:sharedRecord}=linkParams??localParams;
  const [authReady,setAuthReady]=useState(false);
@@ -254,6 +255,8 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   const epoch=sessionEpoch.current;
   const result=await api.request('/auth/v1/token?grant_type=password','POST',{email,password});
   if(epoch!==sessionEpoch.current)return;
+  if(trialLogin&&result.user?.app_metadata?.moai_trial!==true)throw new Error('MOAI 시험 계정을 입력해 주세요.');
+  setPassword('');
   const {error}=await auth.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});if(error)throw error;
  }
  async function photoUrls(record:any){const pairs=await Promise.all(record.photos.map(async(photo:any)=>[photo.id,await api.photoUrl(photo.id)]));return Object.fromEntries(pairs);}
@@ -427,10 +430,13 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  </>}
  {screen==='unavailable'&&<View><Text>{t("페이지를 찾을 수 없습니다.")}</Text>{button(t('홈으로'),()=>navigate('home'))}</View>}
  {screen==='login'&&<Welcome>
+  {!trialLogin&&<>
   <Text style={[s.description,{marginBottom:4,textAlign:'center'}]}>{t("Google 계정으로 사진과 여행 기록을 보관해요")}</Text>
   {button(t('Google 로그인'),()=>perform(async()=>{const epoch=sessionEpoch.current;await googleLogin(()=>epoch===sessionEpoch.current);}))}
   {button(t('대한민국 지도 둘러보기'),()=>{setScope('mine');setTab('map');setScreen('list');},true)}
-  {process.env.EXPO_PUBLIC_APP_ENV==='local'&&<><Text style={[s.description,{textAlign:'center'}]}>{t("로컬 테스트 계정으로 로그인")}</Text>{field(t('이메일'),email,setEmail,{autoCapitalize:'none',keyboardType:'email-address'})}{field(t('비밀번호'),password,setPassword,{secureTextEntry:true})}{button(t('테스트 계정 로그인'),()=>perform(login))}</>}
+  {Platform.OS==='web'&&button('MOAI 시험 계정 로그인',()=>router.push('/login/moai'),true)}
+  </>}
+  {(trialLogin||process.env.EXPO_PUBLIC_APP_ENV==='local')&&<><Text style={[s.description,{textAlign:'center'}]}>{trialLogin?'MOAI 시험 계정 로그인':t("로컬 테스트 계정으로 로그인")}</Text>{field(t('이메일'),email,setEmail,{autoCapitalize:'none',keyboardType:'email-address'})}{field(t('비밀번호'),password,setPassword,{secureTextEntry:true})}{button(t('테스트 계정 로그인'),()=>perform(login))}</>}
   <LegalLink/>
  </Welcome>}
  {screen==='create'&&<><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Pressable accessibilityRole="button" accessibilityLabel={t("잠시 접기")} disabled={busy} onPress={()=>setScreen('list')} style={{alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:26}}>×</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={t("작성 취소")} disabled={busy} onPress={()=>setDiscard(true)} style={{justifyContent:'center'}}><Text style={{color:c.muted}}>{t("작성 취소")}</Text></Pressable></View>{discard&&<View accessibilityRole="alert"><Text style={{color:c.ink}}>{t("작성 중인 입력을 버릴까요? 서버에 등록된 초안은 임시저장 복구에서 이어갈 수 있습니다.")}</Text>{button(t('입력 버리기'),()=>{setComposer(false);setPending(null);setPhotos([]);setDiscard(false);setScreen('list');},true)}{button(t('계속 작성'),()=>setDiscard(false),true)}</View>}{step==='photos'?<PhotoTray onEdited={(id,result)=>setPhotos(items=>items.map(photo=>photo.id===id?{...photo,asset:{...photo.asset,...result,file:undefined,mimeType:'image/jpeg'}}:photo))} photos={photos} limit={limit} existing={pending?.existing??0} canContinue={!!(photos.length||pending?.existing)} disabled={busy} camera={()=>perform(()=>choose('camera'))} library={()=>perform(()=>choose())} onRemove={id=>changePhotos(photos.filter(p=>p.id!==id))} next={()=>setStep('info')} notice={photoNotice} noticeVersion={noticeVersion}/>:<SlidePage>{!pending?.complete&&button(t('사진으로 돌아가기'),()=>setStep('photos'),true)}{photos[0]&&<Image source={{uri:photos[0].asset.uri}} style={{width:84,height:84,borderRadius:8}}/>}<Text style={s.sectionTitle}>{t("여행 정보")}</Text>{field(t('여행 이름'),title,setTitle,{maxLength:100})}{field(t('여행 평'),content,setContent,{multiline:true,maxLength:5000})}{dateField(t('여행 시작일'),start,value=>{edited.current.start=true;setStart(value);})}{dateField(t('여행 종료일'),end,value=>{edited.current.end=true;setEnd(value);})}{confirmDates&&<View accessibilityRole="alert"><Text>{t("이 여행일자가 맞나요?")} {start} — {end}</Text>{button(t('수동 입력'),()=>{edited.current.start=true;edited.current.end=true;setStart('');setEnd('');},true)}{button(t('적용'),()=>setDateConfirmed(rangeKey))}</View>}{checkingCities&&<Text>{t("사진 촬영 위치 확인 중…")}</Text>}{cityOptions.length>0&&<View><Text>{t("여러 도시에서 찍은 사진이에요. 대표 위치를 선택하세요.")}</Text>{cityOptions.map(place=><Pressable key={place.id} accessibilityRole="button" disabled={busy} onPress={()=>applyPlace(place)} style={{flexDirection:'row',padding:8,gap:12,alignItems:'center'}}><Image source={{uri:place.uri}} style={{width:48,height:48}}/><Text style={{flex:1}}>{[...new Set([place.address,place.place_name].filter(Boolean))].join(' · ')}</Text></Pressable>)}</View>}<View style={{marginVertical:12}}><Text style={s.sectionTitle}>{t("위치")}</Text><Pressable accessibilityRole="button" accessibilityLabel={t("여행 위치 검색")} accessibilityHint={t("별도 창에서 장소명이나 주소를 검색하고 지도에서 위치를 확인합니다")} disabled={busy} onPress={()=>setLocationOpen(true)} style={[s.input,{minHeight:56,padding:14,gap:6},invalidField==='장소 검색'&&s.invalidInput]}>
@@ -466,7 +472,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const [drawerRoute,setDrawerRoute]=useState<'menu'|'discovery'|null>(null);
  const regionPath=tab==='album'&&(districtFilter||provinceFilter);
  const viewPath=drawerRoute==='menu'?'/settings':drawerRoute==='discovery'?'/explore/random':
-  screen==='unavailable'?pathname:screen==='login'?'/login':screen==='account'?(editingProfile?'/my/edit':'/my'):screen==='create'?(pending?.complete?'/record/'+pending.id+'/edit':'/record/new'):
+  screen==='unavailable'?pathname:screen==='login'?(trialLogin?'/login/moai':'/login'):screen==='account'?(editingProfile?'/my/edit':'/my'):screen==='create'?(pending?.complete?'/record/'+pending.id+'/edit':'/record/new'):
   (screen==='detail'||screen==='confirm')&&selected?'/record/'+selected.id:regionPath?'/dex/'+regionPath:tabPaths[tab];
  const lastAddress=useRef<string|null>(null),sentAddress=useRef<string|null>(null),lastView=useRef(''),returnOwner=useRef<string|null>(null);
  useEffect(()=>{
@@ -492,7 +498,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
     setDrawerRoute(pathname==='/settings'?'menu':'discovery');return;
    }
    setDrawerRoute(null);
-   if(pathname==='/login'){cancelDetailRead();if(owner)replace('/home');else setScreen('login');return;}
+   if(pathname==='/login'||trialLogin){cancelDetailRead();if(owner)replace('/home');else setScreen('login');return;}
    if(pathname.endsWith('/edit')&&recordIdPattern.test(pathname.slice(8,-5))&&pathname.startsWith('/record/')){readDetail({id:pathname.slice(8,-5)},'album','edit');return;}
    if(pathname==='/my/edit'){navigate('account');setEditingProfile(true);return;}
    if(pathname==='/record/new'){startCreate();return;}

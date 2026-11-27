@@ -808,3 +808,8 @@ FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해
 홈 지도는 한 시도에서 지역/사진 탭으로 최대 세 번 확대한다. 이후 사진 탭은 최신 기록 요약을 연다.
 
 명소 상세는 KR_TourAPI_KEY(인증키)와 KR_TourAPI_END_POINT(HTTPS 주소)를 동기화 단계에서만 읽는다. node --env-file=.env scripts/refresh-attraction-details.mjs 로 추천 목록 갱신 후 실행한다.
+
+
+## MOAI 시험 계정 로그인
+
+MOAI 웹 시험 로그인은 /login/moai를 사용한다. 시험 계정은 서버 관리자가 지정한 일반 회원이며 비밀번호를 저장소에 기록하지 않는다.

@@ -585,3 +585,8 @@ TourAPI 공개 명소 동기화는 KorService2/areaBasedList2의 contentTypeId=1
 지도 탭 확대 횟수는 로컬 탐색 상태로 관리하며 서버로 전송하지 않는다.
 
 KorService2의 areaBasedList2 변경 시각, detailCommon2의 overview·firstimage 및 필요 시 detailImage2를 사용한다. 인증키는 수집기에만 전달한다.
+
+
+## MOAI 시험 계정 로그인
+
+MOAI 웹 로그인은 기존 Supabase Auth password grant를 사용한다. 서버 관리자가 설정한 user.app_metadata.moai_trial 값으로 시험 계정을 구분한다.
