@@ -30,6 +30,12 @@ async function startPhotoInfo(page:Page){
 }
 test('TC-SNS-001 five tabs, dashboard, regional stamps and map compose preserve the draft',async({page})=>{
  await login(page);for(const name of ['홈','피드','지도','도감','My'])await expect(page.getByRole('tab',{name,exact:true})).toBeVisible();
+ await page.getByRole('tab',{name:'My',exact:true}).click();
+ await expect(page.getByRole('button',{name:'프로필 편집',exact:true})).toBeVisible();
+ const avatar=page.locator('img[src*="avatar-bear-v1"]');
+ await expect(avatar).toBeVisible();
+ await expect.poll(()=>avatar.evaluate(node=>node instanceof HTMLImageElement&&node.complete&&node.naturalWidth>0)).toBe(true);
+ await page.getByRole('tab',{name:'홈',exact:true}).click();
  await expect(page.getByTestId('travel-squirrel')).toBeVisible();
  await page.getByRole('button',{name:'지역 스탬프 보기',exact:true}).click();
  await expect(page.getByTestId('stamp-total')).toBeVisible();
