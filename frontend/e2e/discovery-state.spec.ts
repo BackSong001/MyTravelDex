@@ -98,11 +98,39 @@ test('TC-DRAW-009: recommendations follow the winning city and county',async({pa
   await page.evaluate(visited=>(window as any).updateDiscovery({visited}),districts.filter(d=>d.id!==winner.members[0].id).map(d=>d.id));
   await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
   await expect(page.getByTestId('destination-result')).toHaveText(winner.label);
-  const places=sights.getByRole('link');
+  const places=sights.getByRole('button');
   await expect(places).toHaveCount(3);
   for(const place of await places.all()){
    await expect(place).toContainText(name);
-   await expect(place).toHaveAttribute('href',/^https:\/\/www\.openstreetmap\.org\/\?mlat=/);
+   const label=await place.textContent();
+   await place.click();
+   await expect(page.getByTestId('attraction-overview')).not.toHaveText('불러오는 중…');
+   await expect(page.getByTestId('attraction-overview')).not.toBeEmpty();
+   if(label?.includes('여수 선소유적')){
+    await expect(page.getByTestId('attraction-overview')).toContainText('선소');
+    const photo=page.getByTestId('attraction-photo');
+    await expect(photo).toBeVisible();
+    await expect.poll(()=>photo.locator('img').evaluate((image:HTMLImageElement)=>image.naturalWidth)).toBeGreaterThan(0);
+   }
+   await page.keyboard.press('Escape');
+   await expect(page.getByTestId('attraction-overview')).toHaveCount(0);
+   await expect(page.getByTestId('destination-result')).toHaveText(winner.label);
   }
  }
+});
+
+test('TC-DRAW-010: an unavailable photo leaves the description and draw usable',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ const winner=destinations.find(d=>d.name==='여수시')!;
+ await page.evaluate(visited=>(window as any).updateDiscovery({visited}),districts.filter(d=>d.id!==winner.members[0].id).map(d=>d.id));
+ await page.getByRole('radio',{name:'미방문 지역'}).click();
+ await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
+ let failedImage=false;
+ await page.route('https://tong.visitkorea.or.kr/**',route=>{failedImage=true;return route.abort();});
+ await page.getByRole('button',{name:'여수 선소유적 상세 보기'}).click();
+ await expect.poll(()=>failedImage).toBe(true);
+ await expect(page.getByTestId('attraction-photo')).toHaveCount(0);
+ await expect(page.getByTestId('attraction-overview')).toContainText('선소');
+ await page.getByRole('button',{name:'닫기',exact:true}).click();
+ await expect(page.getByTestId('destination-result')).toHaveText(winner.label);
 });

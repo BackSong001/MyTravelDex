@@ -806,3 +806,5 @@ FR-MAP-OSM-002 국내 일반지도(고속도로 제외)·수계 도식화와 해
 선택 지역의 사진 묶음 탭은 실제 좌표에서 마커가 분리될 만큼만 확대한다. 최초 시도 맞춤 및 요약의 전체 보기와 구분한다.
 
 홈 지도는 한 시도에서 지역/사진 탭으로 최대 세 번 확대한다. 이후 사진 탭은 최신 기록 요약을 연다.
+
+명소 상세는 KR_TourAPI_KEY(인증키)와 KR_TourAPI_END_POINT(HTTPS 주소)를 동기화 단계에서만 읽는다. node --env-file=.env scripts/refresh-attraction-details.mjs 로 추천 목록 갱신 후 실행한다.
