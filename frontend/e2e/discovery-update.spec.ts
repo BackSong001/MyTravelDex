@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {destinations} from '../src/destinationDraw';
+import {destinations,eligibleDestinations} from '../src/destinationDraw';
 test('TC-DISCOVERY-001: guest destination draw uses real region candidates and the drawer fits at 320px',async({page})=>{
  await page.setViewportSize({width:320,height:700});await page.goto('/');await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();await page.getByRole('button',{name:'대한민국',exact:true}).click();const entry=page.getByRole('button',{name:'여행지 랜덤 뽑기',exact:true});
  await expect(entry).toHaveText('');
@@ -25,4 +25,22 @@ test('TC-DISCOVERY-001: guest destination draw uses real region candidates and t
  await expect(page.getByRole('button',{name:'여행지 랜덤 뽑기',exact:true})).toBeVisible();
  await page.getByRole('tab',{name:'홈',exact:true}).click();
  await page.getByRole('button',{name:'설정',exact:true}).click();await expect(page.getByRole('button',{name:'스탬프 도감',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+
+test('English area draw starts with the capital region and can switch to Jeju',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('journal.language','en'));
+ await page.goto('/login');
+ await page.getByRole('button',{name:'Explore the map of Korea',exact:true}).click();
+ await page.getByRole('button',{name:'Draw a destination',exact:true}).click();
+ await page.getByRole('radio',{name:'Choose an area'}).click();
+ const group=page.getByRole('radiogroup',{name:'Draw area'});
+ const draw=page.getByRole('button',{name:'Draw a destination',exact:true}).last();
+ await expect(draw).toBeEnabled();
+ await expect(group.getByRole('radio',{name:'Capital region'})).toHaveAttribute('aria-checked','true');
+ await expect(page.getByText(eligibleDestinations('area','수도권',null).length+' destinations in the draw',{exact:true})).toBeVisible();
+ await group.getByRole('radio',{name:'Jeju region'}).click();
+ await expect(page.getByText(eligibleDestinations('area','제주권',null).length+' destinations in the draw',{exact:true})).toBeVisible();
+ await draw.click();
+ const winner=await page.getByTestId('destination-result').innerText();
+ expect(eligibleDestinations('area','제주권',null).map(d=>d.label)).toContain(winner);
 });
