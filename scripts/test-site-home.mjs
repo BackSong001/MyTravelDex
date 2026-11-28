@@ -29,6 +29,27 @@ try {
     console.log(width + 'px OK');
     await page.close();
   }
+  for (const width of [390, 1280]) {
+    const page = await browser.newPage({ viewport: { width, height: 860 } });
+    await page.goto(baseURL);
+    const entry = page.getByRole('link', {name:'로그인 없이 여행지 뽑기'});
+    assert.equal(await entry.getAttribute('href'), 'https://mytraveldex-app.pages.dev/explore/random');
+    assert.ok(await page.getByText('내 기록을 저장할 때는 로그인이 필요해요.', {exact:false}).isVisible());
+    await page.goto(new URL('/faq/',baseURL).href);
+    assert.ok(await page.getByRole('heading',{name:'체험에 결제가 필요한가요?'}).isVisible());
+    if (process.argv[3]) {
+      await page.goto(baseURL);
+      await page.route('https://mytraveldex-app.pages.dev/explore/random', route=>
+        route.fulfill({status:302,headers:{Location:new URL('/explore/random',process.argv[3]).href}}));
+      await entry.click();
+      await page.getByRole('radio',{name:'강원권'}).waitFor();
+      await page.reload();
+      await page.getByRole('radio',{name:'강원권'}).waitFor();
+      await page.goBack();
+      await entry.waitFor();
+    }
+    await page.close();
+  }
   const fallback = await browser.newPage({ javaScriptEnabled: false });
   await fallback.goto(baseURL);
   assert.ok(await fallback.locator('.inline-shot').last().isVisible());
