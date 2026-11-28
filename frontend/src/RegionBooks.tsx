@@ -12,12 +12,12 @@ import type {JournalOperation} from './bulkJournal';
 
 export type BookPosition={region:string;record?:string};
 type Props={
- records:any[];covers:Record<string,string>;owner?:string;loading:boolean;restricted:boolean;
+ records:any[];covers:Record<string,string>;owner?:string;loading:boolean;restricted:boolean;onReload:()=>void;
  position:BookPosition|null;onPosition:(next:BookPosition|null)=>void;onOpen:(record:any)=>void;
  onBulk:(ids:string[],op:JournalOperation)=>Promise<{done:string[];failed:string[]}>;
 };
 
-export default function RegionBooks({records,covers,owner,loading,restricted,position,onPosition,onOpen,onBulk}:Props){
+export default function RegionBooks({records,covers,owner,loading,restricted,onReload,position,onPosition,onOpen,onBulk}:Props){
  const c=useThemeColors(),{width,fontScale}=useWindowDimensions();
  const [all,showAll]=useState(false),[manage,setManage]=useState(false);
  const groups=useMemo(()=>{
@@ -27,7 +27,7 @@ export default function RegionBooks({records,covers,owner,loading,restricted,pos
  },[records]);
  const region=position?.region,items=region?groups.get(region)??[]:[];
  const allRegions=Array.from(new Set([...groups.keys(),...Object.values(provinceLabels).map(p=>p.name)]));
- const names=all||(!groups.size&&!restricted)?allRegions:Array.from(groups.keys());
+ const names=!restricted&&(all||!groups.size)?allRegions:Array.from(groups.keys());
  const cols=width>=900?4:width>=520&&fontScale<=1.4?3:2;
  const heading={fontFamily:bookType,fontSize:24,lineHeight:32,fontWeight:'700' as const,color:c.ink};
  if(!region)return <View style={{gap:12,paddingVertical:14}}>
@@ -53,18 +53,18 @@ export default function RegionBooks({records,covers,owner,loading,restricted,pos
  return <View style={{gap:12,paddingTop:12}}>
   <View style={{flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:6}}>
    <Action label={t('책장으로')} onPress={()=>{setManage(false);onPosition(null);}}/>
-   {owner&&items.some(r=>r.owner_id===owner&&r.status==='complete')&&<Action label={manage?t('관리 닫기'):t('사진첩 관리')} selected={manage} onPress={()=>setManage(!manage)}/>}
+   {owner&&(manage||items.some(r=>r.owner_id===owner&&r.status==='complete'))&&<Action label={manage?t('관리 닫기'):t('사진첩 관리')} selected={manage} onPress={()=>setManage(!manage)}/>}
   </View>
   <Text accessibilityRole="header" style={heading}>{msg`${region} 사진첩`}</Text>
   {manage?<BookManagement key={region} items={items.filter(r=>r.owner_id===owner&&r.status==='complete')} onBulk={onBulk}/>:
-   items.length?<BookReader key={region} records={items} covers={covers} current={position?.record} onChange={id=>onPosition({region,record:id})} onOpen={onOpen}/>:
+   items.length?<BookReader key={region} records={items} covers={covers} current={position?.record} loading={loading} onReload={onReload} onChange={id=>onPosition({region,record:id})} onOpen={onOpen}/>:
    loading?<PaperSkeleton label={t('여행 기록 불러오는 중')}/>:<Text style={{color:c.muted,paddingVertical:24}}>{t('이 지역에는 아직 여행 기록이 없어요.')}</Text>}
  </View>;
 }
 
-function BookReader({records,covers,current,onChange,onOpen}:{records:any[];covers:Record<string,string>;current?:string;onChange:(id:string)=>void;onOpen:(r:any)=>void}){
+function BookReader({records,covers,current,onChange,onOpen,loading,onReload}:{records:any[];covers:Record<string,string>;current?:string;loading:boolean;onReload:()=>void;onChange:(id:string)=>void;onOpen:(r:any)=>void}){
  const c=useThemeColors(),reduced=useReducedMotion(),strip=useRef<ScrollView>(null);
- const [width,setWidth]=useState(0);
+ const [width,setWidth]=useState(0),[failed,setFailed]=useState<Record<string,string>>({});
  const index=Math.max(0,records.findIndex(r=>r.id===current)),record=records[index];
  const listKey=records.map(r=>r.id).join(',');
  useEffect(()=>{if(width)strip.current?.scrollTo({x:width*index,animated:false});},[width,listKey]);
@@ -74,12 +74,13 @@ function BookReader({records,covers,current,onChange,onOpen}:{records:any[];cove
   onChange(records[next].id);
  }
  const height=Math.max(220,Math.min(width*1.05,480));
+ const available=(id:string)=>covers[id]&&failed[id]!==covers[id];
  return <View style={{gap:10,maxWidth:640,width:'100%',alignSelf:'center'}} {...(Platform.OS==='web'?{onKeyDown:(e:any)=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();turn(index+(e.key==='ArrowRight'?1:-1));}}}:{})}>
   <View onLayout={e=>setWidth(e.nativeEvent.layout.width)} style={{height,overflow:'hidden'}}>
    {!!width&&<ScrollView horizontal ref={strip} pagingEnabled showsHorizontalScrollIndicator={false} scrollEventThrottle={32}
     onScroll={e=>{const next=Math.round(e.nativeEvent.contentOffset.x/width);if(next!==index&&records[next])onChange(records[next].id);}}>
     {records.map((r,i)=><View key={r.id} style={{width,height}} aria-hidden={index!==i} importantForAccessibility={index===i?'auto':'no-hide-descendants'} {...(Platform.OS==='web'?{inert:index!==i}:{})}>
-     {Math.abs(i-index)<=1&&<AlbumPage record={r}>{covers[r.id]?<Image accessibilityLabel={msg`${r.title||t('여행')} 대표사진`} source={{uri:covers[r.id]}} resizeMode="cover" style={{width:'100%',height:'100%'}}/>:<View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:c.warm}}><Text style={{color:c.muted}}>{t('대표사진 없음')}</Text></View>}</AlbumPage>}
+     {Math.abs(i-index)<=1&&<AlbumPage record={r}>{available(r.id)?<Image accessibilityLabel={msg`${r.title||t('여행')} 대표사진`} source={{uri:covers[r.id]}} onError={()=>setFailed(previous=>({...previous,[r.id]:covers[r.id]}))} resizeMode="cover" style={{width:'100%',height:'100%'}}/>:<View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:c.warm}}><Text style={{color:c.muted}}>{loading?t('대표사진 불러오는 중'):t('대표사진을 불러오지 못했어요.')}</Text></View>}</AlbumPage>}
     </View>)}
    </ScrollView>}
    <AlbumEntrance title={t('여행 사진첩')}/>
@@ -89,6 +90,7 @@ function BookReader({records,covers,current,onChange,onOpen}:{records:any[];cove
    <Text accessibilityLiveRegion="polite" style={{fontFamily:bookType,color:c.muted}}>{index+1} / {records.length}</Text>
    <Action label={t('다음 장')} disabled={index===records.length-1} onPress={()=>turn(index+1)}/>
   </View>
+  {!available(record.id)&&!loading&&<Action label={t('대표사진 다시 불러오기')} onPress={()=>{setFailed(previous=>{const next={...previous};delete next[record.id];return next;});onReload();}}/>}
   <Text style={{fontSize:20,fontWeight:'700',color:c.ink}}>{record.title||t('제목 없는 여행')}</Text>
   <Text style={{color:c.muted}}>{record.start_date}{record.end_date!==record.start_date?' — '+record.end_date:''}</Text>
   <Action label={t('상세 보기')} onPress={()=>onOpen(record)}/>

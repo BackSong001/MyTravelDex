@@ -541,6 +541,12 @@ for(const hasThumb of [false,true])test('TC-ALBUM-01 cold JPEG draft recovery '+
  for(const file of ['original.jpg','thumbnail.jpg']){files.push(root+'/'+file);if(hasThumb||file==='original.jpg')await viewer.api.request('/storage/v1/object/travel-photos/'+root+'/'+file,'POST',bytes,'image/jpeg');}
  expect(await author.api.rpc('travel_draft_files',{record_id:draft.id})).toEqual([]);
  await expect(author.api.request('/functions/v1/photo-url','POST',{draft_id:draft.id,photo_id:id,variant:'original'})).rejects.toMatchObject({status:404});
+ let signedExportReads=0,checkingExport=true;
+ page.on('request',request=>{
+  const path=new URL(request.url()).pathname;
+  if(path.endsWith('/rpc/finalize_travel_record'))checkingExport=false;
+  if(checkingExport&&request.method()==='GET'&&path.endsWith('/'+root+'/original.jpg'))signedExportReads++;
+ });
  await login(page);
  await page.goto('/dex');
  await page.getByRole('button',{name:'임시저장 복구'}).click();
@@ -558,6 +564,7 @@ for(const hasThumb of [false,true])test('TC-ALBUM-01 cold JPEG draft recovery '+
  const photos=await viewer.api.request('/rest/v1/photos?travel_record_id=eq.'+draft.id);
  expect(photos).toHaveLength(1);
  expect(writes).toEqual(hasThumb?[]:['thumbnail.jpg']);
+ expect(signedExportReads).toBe(1);
  const decoded=await page.evaluate(async(url:string)=>{const image=await createImageBitmap(await(await fetch(url)).blob());return {width:image.width,height:image.height};},await viewer.api.photoUrl(id,'original'));
  expect(photos[0]).toMatchObject({...decoded,id,mime_type:'image/jpeg',file_size_bytes:bytes.length,original_path:root+'/original.jpg',thumbnail_path:root+'/thumbnail.jpg'});
  expect(Buffer.from(await(await fetch(await viewer.api.photoUrl(id,'original'))).arrayBuffer())).toEqual(bytes);
@@ -595,6 +602,36 @@ for(const width of [320,390,1280])test('TC-ALBUM-02 bookshelf, flip, paging and 
  await page.getByRole('button',{name:'책장으로'}).click();
  await expect(shelf).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+});
+
+test('TC-ALBUM-02 the album keeps its new layout while failed cover work is recovered',async({page})=>{
+ await login(page);
+ await page.route('**/functions/v1/photo-url',route=>route.fulfill({status:503,body:'{}'}));
+ await page.getByRole('tab',{name:'도감',exact:true}).click();
+ await page.getByRole('button',{name:'서울 사진첩 열기'}).click();
+ const retry=page.getByRole('button',{name:'대표사진 다시 불러오기'});
+ await expect(retry).toBeVisible();await page.unroute('**/functions/v1/photo-url');
+ await retry.focus();await page.keyboard.press('Enter');
+ await expect.poll(()=>page.getByRole('img',{name:/대표사진$/}).evaluateAll(nodes=>nodes.some(n=>(n as HTMLImageElement).naturalWidth>0))).toBe(true);
+ await expect(retry).toHaveCount(0);
+});
+
+test('TC-ALBUM-03 a profile lookup failure preserves an authorized book, its photo and its map marker',async({page})=>{
+ await login(page);await page.getByRole('tab',{name:'도감',exact:true}).click();
+ await page.getByRole('button',{name:'서울 사진첩 열기'}).click();
+ const details=page.getByRole('button',{name:'상세 보기',exact:true});
+ const photo=page.getByRole('img',{name:'나만의 서울 대표사진'});
+ await expect(photo).toBeVisible();
+ await page.route('**/rest/v1/public_profiles?**',route=>route.fulfill({status:503,json:{message:'Profile unavailable'}}));
+ await page.evaluate(()=>document.dispatchEvent(new Event('visibilitychange')));
+ const retry=page.getByRole('button',{name:'작성자 정보 다시 불러오기'});
+ await expect(retry).toBeVisible();await expect(details).toBeVisible();await expect(photo).toBeVisible();
+ let listReads=0;
+ page.on('request',r=>{if(new URL(r.url()).pathname==='/rest/v1/travel_records')listReads++;});
+ await page.unroute('**/rest/v1/public_profiles?**');await retry.click();
+ await expect(retry).toHaveCount(0);expect(listReads).toBe(0);
+ await page.getByRole('tab',{name:'지도',exact:true}).click();
+ await expect(page.getByTestId('map-photo-'+ownRecord.id)).toBeVisible();
 });
 
 test('TC-ALBUM-03 batch reconciles lost private response, retries remaining and confirms deletion',async({page,browser})=>{

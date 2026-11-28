@@ -87,7 +87,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const [editingProfile,setEditingProfile]=useState(false);
  const [urls,setUrls]=useState<Record<string,string>>({}),[pending,setPending]=useState<{id:string;location:string;existing:number;complete?:boolean}|null>(null),[drafts,setDrafts]=useState(false);
  const [tab,setTab]=useState<JournalTab>('home'),[covers,setCovers]=useState<Record<string,string>>({});
- const albumRecords=useMemo(()=>tab==='album'?journalRecords(rows,journalOrder,journalQuery):[],[tab,rows,journalOrder,journalQuery]);
+ const albumRecords=useMemo(()=>tab==='album'||tab==='map'?journalRecords(rows,journalOrder,journalQuery):[],[tab,rows,journalOrder,journalQuery]);
  const visibilityBusyRef=useRef(new Set<string>()),scopeRef=useRef(scope);scopeRef.current=scope;
  const [visibilityBusy,setVisibilityBusy]=useState<ReadonlySet<string>>(new Set()),[visibilityErrors,setVisibilityErrors]=useState<Record<string,{target:'private'|'public';message:string}>>({});
  useEffect(()=>{if(inviteCode){setTab('friends');setScreen('list');}},[inviteCode,session?.user?.id]);
@@ -182,10 +182,31 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   void perform(()=>open(record,version,origin,intent),true);
  }
 
+ const [extraErrors,setExtraErrors]=useState({covers:false,authors:false});
+ async function loadExtras(part:'covers'|'authors',records:any[],owner:string|undefined,request:number){
+  const token=api.token,current=()=>request===listRequest.current&&api.token===token;
+  try{
+   if(part==='covers'){
+    const result=await recordCovers(api,records,owner,current);
+    if(current()&&result)setCovers(result);
+   }else{
+    const ids=Array.from(new Set(records.map(r=>r.owner_id))),profiles:any[]=[];
+    for(let i=0;i<ids.length&&current();i+=40){
+     profiles.push(...await api.listPages(`/rest/v1/public_profiles?select=id,display_name,avatar_url&id=in.(${ids.slice(i,i+40).join(',')})&order=id.asc`));
+    }
+    if(current())setAuthors(Object.fromEntries(profiles.map(p=>[p.id,p])));
+   }
+   if(current())setExtraErrors(errors=>errors[part]?{...errors,[part]:false}:errors);
+  }catch{
+   if(!current())return;
+   if(part==='covers')setCovers({});else setAuthors({});
+   setExtraErrors(errors=>({...errors,[part]:true}));
+  }
+ }
  const needsCovers=tab==='album'||tab==='map'||screen==='account';
  async function load(current=session){
   let ownReceived=false;
-  const request=++listRequest.current;setLoading(true);setListError('');
+  const request=++listRequest.current;setLoading(true);setListError('');setExtraErrors({covers:false,authors:false});
   try{
   const own=current?await api.list(current.user.id):[];
   if(request!==listRequest.current)return;
@@ -208,13 +229,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   if(districtFilter&&!drafts)result=result.filter(record=>{const region=recordRegion(record.locations);return districtFilter==='other'?!region:region?.properties.code===districtFilter;});
   setRows(result);
   if(!needsCovers)return;
-  const next=await recordCovers(api,result,current?.user.id,()=>request===listRequest.current);if(!next)return;
-  const ids=[...new Set(result.map(r=>r.owner_id))],profiles:any[]=[];
-  for(let index=0;index<ids.length;index+=40){
-   if(request!==listRequest.current)return;
-   profiles.push(...await api.listPages(`/rest/v1/public_profiles?select=id,display_name,avatar_url&id=in.(${ids.slice(index,index+40).join(',')})&order=id.asc`));
-  }
-  if(request===listRequest.current){setCovers(next);setAuthors(Object.fromEntries(profiles.map((p:any)=>[p.id,p])));}
+  await Promise.all([loadExtras('covers',result,current?.user.id,request),loadExtras('authors',result,current?.user.id,request)]);
   }catch(error){const message=error instanceof Error?t(error.message):t('목록을 불러오지 못했습니다.');if(request===listRequest.current){if(!ownReceived)setOwnLoaded(false);setRows([]);setCovers({});setListError(message);}throw new ListLoadError(message,{cause:error});}
   finally{if(request===listRequest.current)setLoading(false);}
  }
@@ -224,7 +239,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   const owner=next?.user?.id??null,changed=owner!==authOwner.current;
   setAuthReady(true);authOwner.current=owner;api.token=next?.access_token??null;setSession(next);
   if(!changed)return;
-  setBook(null);setGuide(null);setPendingGuideOwner(null);setHomeShown(false);
+  setExtraErrors({covers:false,authors:false});setBook(null);setGuide(null);setPendingGuideOwner(null);setHomeShown(false);
   albumScroll.current=0;sessionEpoch.current++;operationVersion.current++;busyRef.current=false;detailRead.current=false;setBusy(false);visibilityBusyRef.current.clear();setVisibilityBusy(new Set());setVisibilityErrors({});
   // 이전 사용자의 진행 중 응답은 개인 상태를 다시 채울 수 없다.
   navigationVersion.current++;listRequest.current++;setCompletedId(null);selectedRef.current=null;screenRef.current=next?'list':'login';
@@ -480,8 +495,10 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  {screen==='list'&&tab==='album'&&<View style={[s.actions,{borderBottomWidth:1,borderColor:c.line}]}>{button(t('여행 기록'),()=>setMyStamps(false),myStamps)}{button(t('스탬프 도감'),()=>setMyStamps(true),!myStamps)}</View>}
  {screen==='list'&&tab==='album'&&!myStamps&&<>
 
+  {!listError&&extraErrors.authors&&button(t('작성자 정보 다시 불러오기'),()=>void perform(()=>loadExtras('authors',rows,session?.user.id,listRequest.current)),true)}
+  {!listError&&extraErrors.covers&&!book&&button(t('대표사진 다시 불러오기'),()=>void perform(()=>loadExtras('covers',rows,session?.user.id,listRequest.current)),true)}
   {!drafts&&!listError&&<RegionBooks key={(session?.user.id??'guest')+scope+friendOwner} records={albumRecords} covers={covers} owner={session?.user.id}
-   loading={loading} restricted={!!(journalQuery||provinceFilter||districtFilter)} position={book} onPosition={p=>{setBook(p);if(p?.region!==book?.region)scroll.current?.scrollTo({y:0,animated:false});}}
+   loading={loading} onReload={()=>void perform(()=>loadExtras('covers',rows,session?.user.id,listRequest.current))} restricted={!!(journalQuery||provinceFilter||districtFilter)} position={book} onPosition={p=>{setBook(p);if(p?.region!==book?.region)scroll.current?.scrollTo({y:0,animated:false});}}
    onOpen={r=>readDetail(r,'album')} onBulk={bulkBook}/>}
   {(!book||drafts||listError)&&<Collection loading={loading} failed={!!listError} disabled={busy||loading} emptySearch={!!journalQuery.trim()} records={albumRecords} groupBy={journalOrder.startsWith('region')?journalRegion:undefined} covers={covers} authors={authors} owner={session?.user?.id} onManage={(record,intent)=>readDetail(record,'album',intent)} onVisibilityChange={(record,target)=>{void changeJournalVisibility(record,target);}} visibilityBusy={visibilityBusy} visibilityErrors={visibilityErrors} onOpen={r=>{if(!visibilityBusyRef.current.has(r.id))readDetail(r);}}>
    {!!listError&&<View><Text style={s.description}>{rows.length?t('이전 목록을 표시하고 있어요.'):t('목록을 불러오지 못했어요.')}</Text>{button(t('목록 다시 불러오기'),()=>perform(()=>load()),true)}</View>}

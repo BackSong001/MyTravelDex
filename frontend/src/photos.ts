@@ -163,6 +163,10 @@ export async function compressPhoto(asset: ImagePicker.ImagePickerAsset, edge: n
       const actual=longest?Math.max(image.width,image.height):image.width;
       if(actual>limit){if(corrected)break;corrected=true;width=image.width;height=image.height;attempt--;continue;}
       const bytes=await new File(image.uri).arrayBuffer();
+      if(format==='webp'){
+        const header=new DataView(bytes);
+        if(bytes.byteLength<12||header.getUint32(0)!==0x52494646||header.getUint32(8)!==0x57454250)throw new Error('WEBP_UNSUPPORTED');
+      }
       if(bytes.byteLength>0&&bytes.byteLength<=maxBytes)return {width:image.width,height:image.height,bytes};
       if(format!=='legacy')limit=Math.max(1,Math.floor(actual*.75));
     }finally{if(image.uri!==asset.uri)cleanupPickedPhotos([image]);}
