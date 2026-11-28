@@ -62,6 +62,13 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  useEffect(()=>{if(owner.current!==navigationOwner){owner.current=navigationOwner;stopAnimation();setSummary([]);change(emptyNavigation());restored.current=false;}},[navigationOwner]);
  const previousFinder=useRef(false),finderOpen=useRef(finder);
  finderOpen.current=finder;
+ useLayoutEffect(()=>{
+  if(!webMap||!finder)return;
+  // 포털의 포커스 트랩이 준비되는 동안에도 Esc로 목록을 닫을 수 있다.
+  const close=(event:KeyboardEvent)=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setFinder(false);}};
+  document.addEventListener('keydown',close,true);
+  return ()=>document.removeEventListener('keydown',close,true);
+ },[finder]);
  useEffect(()=>{
   if(!finder)restored.current=false;
   const closed=previousFinder.current&&!finder;previousFinder.current=finder;
@@ -361,7 +368,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  return <View testID="svg-travel-map" style={{flex:fullScreen?1:undefined,height:fullScreen?undefined:320,minHeight:0,backgroundColor:c.surface,borderRadius:16,overflow:'hidden'}}>
   <View style={{flex:1,minHeight:0,flexDirection:'column'}}>
    <View ref={host} testID="svg-map-canvas" accessible accessibilityRole={Platform.OS!=='web'?'button':undefined} accessibilityLabel={msg`지도 지역 및 사진 목록${Platform.OS==='web'?t('. Enter 또는 Space 키로 열기'):''}`} accessibilityKeyShortcuts={Platform.OS==='web'?'Enter Space':undefined} accessibilityHint={t("활성화하거나 Enter 또는 Space 키로 지도 도구 열기")} accessibilityActions={[{name:'activate',label:'지도 도구 열기'}]} onAccessibilityAction={e=>{if(e.nativeEvent.actionName==='activate')setFinder(true);}} {...responder.panHandlers} onLayout={e=>{const {width,height}=e.nativeEvent.layout;if(width&&height){setMeasured(true);setSize(previous=>previous.width===width&&previous.height===height?previous:{width,height});onCanvasReady?.();}measurePosition();}} onTouchStart={measurePosition} {...(Platform.OS==='web'?{role:'application',tabIndex:0,onClick:(e:any)=>{if(e.detail===0){e.preventDefault();e.stopPropagation();setFinder(true);}},onKeyDown:(e:any)=>{if(['+','=','-'].includes(e.key)){e.preventDefault();zoom(e.key==='-'?1/1.5:1.5);return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(!e.repeat)setFinder(true);}},onPointerDown:measurePosition} as any:{})} style={{flex:1,minHeight:120,height:fullScreen?undefined:260,backgroundColor:'#AED9EC',...(Platform.OS==='web'?{touchAction:'none'} as any:{})}}>
-    {webMap&&<Svg testID={showOutline?'map-overview-cover':undefined} pointerEvents="none" accessible={false} style={{position:'absolute',inset:0}} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`}>{geography}</Svg>}
+    {webMap&&<Svg aria-hidden testID={showOutline?'map-overview-cover':undefined} pointerEvents="none" accessible={false} style={{position:'absolute',inset:0}} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`}>{geography}</Svg>}
     {mountTiles&&tileStyle&&<TileBoundary onFailure={()=>setBackground('failed')}><TileSurface style={tileStyle} filters={filters} labelsVisible={!!view.labelRevealed} camera={tileCamera} onReady={()=>{retryAttempt.current=0;setBackground('ready');}} onFailure={()=>setBackground('failed')}/></TileBoundary>}
     <Svg style={{position:'relative',zIndex:1}} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`} accessible={false}>
      {!webMap&&showOutline&&<><Rect testID="map-overview-cover" width={size.width} height={size.height} fill="#AED9EC"/>{geography}</>}
