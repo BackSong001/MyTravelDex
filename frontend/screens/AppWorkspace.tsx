@@ -498,7 +498,11 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   {!listError&&extraErrors.authors&&button(t('작성자 정보 다시 불러오기'),()=>void perform(()=>loadExtras('authors',rows,session?.user.id,listRequest.current)),true)}
   {!listError&&extraErrors.covers&&!book&&button(t('대표사진 다시 불러오기'),()=>void perform(()=>loadExtras('covers',rows,session?.user.id,listRequest.current)),true)}
   {!drafts&&!listError&&<RegionBooks key={(session?.user.id??'guest')+scope+friendOwner} records={albumRecords} covers={covers} owner={session?.user.id}
-   loading={loading} onReload={()=>void perform(()=>loadExtras('covers',rows,session?.user.id,listRequest.current))} restricted={!!(journalQuery||provinceFilter||districtFilter)} position={book} onPosition={p=>{setBook(p);if(p?.region!==book?.region)scroll.current?.scrollTo({y:0,animated:false});}}
+   loading={loading} onReload={()=>void perform(()=>loadExtras('covers',rows,session?.user.id,listRequest.current))} restricted={!!(journalQuery||provinceFilter||districtFilter)} position={book} onPosition={next=>{
+    // 닫힌 책에서 늦게 도착한 스크롤 이벤트로 책을 다시 열지 않는다.
+    setBook(open=>next?.record&&open?.region!==next.region?open:next);
+    if(!next?.record)scroll.current?.scrollTo({y:0,animated:false});
+   }}
    onOpen={r=>readDetail(r,'album')} onBulk={bulkBook}/>}
   {(!book||drafts||listError)&&<Collection loading={loading} failed={!!listError} disabled={busy||loading} emptySearch={!!journalQuery.trim()} records={albumRecords} groupBy={journalOrder.startsWith('region')?journalRegion:undefined} covers={covers} authors={authors} owner={session?.user?.id} onManage={(record,intent)=>readDetail(record,'album',intent)} onVisibilityChange={(record,target)=>{void changeJournalVisibility(record,target);}} visibilityBusy={visibilityBusy} visibilityErrors={visibilityErrors} onOpen={r=>{if(!visibilityBusyRef.current.has(r.id))readDetail(r);}}>
    {!!listError&&<View><Text style={s.description}>{rows.length?t('이전 목록을 표시하고 있어요.'):t('목록을 불러오지 못했어요.')}</Text>{button(t('목록 다시 불러오기'),()=>perform(()=>load()),true)}</View>}
