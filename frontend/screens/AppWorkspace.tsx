@@ -453,7 +453,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   {!trialLogin&&<>
   <Text style={[s.description,{marginBottom:4,textAlign:'center'}]}>{t("Google 계정으로 사진과 여행 기록을 보관해요")}</Text>
   {button(t('Google 로그인'),()=>perform(async()=>{const epoch=sessionEpoch.current;await googleLogin(()=>epoch===sessionEpoch.current);}))}
-  {button(t('대한민국 지도 둘러보기'),()=>{setScope('mine');setTab('map');setScreen('list');},true)}
+  {button(t('대한민국 지도 둘러보기'),()=>{if(Platform.OS==='web')sessionStorage.removeItem(returnPathKey);setScope('mine');setTab('map');setScreen('list');},true)}
   {Platform.OS==='web'&&button('MOAI 시험 계정 로그인',()=>router.push('/login/moai'),true)}
   </>}
   {(trialLogin||process.env.EXPO_PUBLIC_APP_ENV==='local')&&<><Text style={[s.description,{textAlign:'center'}]}>{trialLogin?'MOAI 시험 계정 로그인':t("로컬 테스트 계정으로 로그인")}</Text>{field(t('이메일'),email,setEmail,{autoCapitalize:'none',keyboardType:'email-address'})}{field(t('비밀번호'),password,setPassword,{secureTextEntry:true})}{button(t('테스트 계정 로그인'),()=>perform(login))}</>}
