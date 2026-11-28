@@ -10,7 +10,10 @@ test('production web requires declared public configuration and preserves produc
 test('Vercel serves existing exports before the SPA callback fallback',()=>{
  const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
  assert.equal(new RegExp('^'+config.routes[1].src+'$').test('/assets/missing.png'),false);
- assert.equal(config.outputDirectory,'frontend/dist');assert.deepEqual(config.routes,[{handle:'filesystem'},{src:'/auth/callback/?',dest:'/index.html'}]);
+ assert.equal(config.outputDirectory,'frontend/dist');assert.deepEqual(config.routes[0],{handle:'filesystem'});
+ const fallback=config.routes.slice(1).map(route=>{assert.equal(route.dest,'/index.html');return new RegExp('^'+route.src+'$');});
+ for(const target of ['/auth/callback/','/explore/random','/record/new','/feed','/dex','/map','/home','/login'])assert.ok(fallback.some(route=>route.test(target)),target);
+ for(const file of ['/assets/missing.png','/record/no.js','/explore/random/file.js'])assert.ok(!fallback.some(route=>route.test(file)),file);
  assert.equal(JSON.parse(readFileSync(new URL('../frontend/app.json',import.meta.url),'utf8')).expo.web.output,'single');
 });
 test('production export omits obsolete map and search credentials',()=>{

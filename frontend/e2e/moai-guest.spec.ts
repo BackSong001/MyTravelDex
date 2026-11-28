@@ -161,7 +161,9 @@ for(const large of [false,true]){
 }
 
 for (const width of [390,1280]) {
- test('강원 추첨부터 공개 여행 날짜와 제주 스탬프까지 '+width,async({page})=>{
+ test.describe(String(width),()=>{
+ test.use({isMobile:width===390,hasTouch:width===390});
+ test('강원 추첨부터 공개 여행 날짜와 제주 스탬프까지',async({page})=>{
   await page.setViewportSize({width,height:860});
   const privateReads:string[]=[];
   page.on('request',req=>{
@@ -191,6 +193,7 @@ for (const width of [390,1280]) {
   await expect(page.getByTestId('stamp-total')).toHaveCount(0);
   expect(privateReads).toEqual([]);
   await page.screenshot({path:test.info().outputPath('preview.png')});
+ });
  });
 }
 

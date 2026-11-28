@@ -36,9 +36,8 @@ test('TC-ADMIN-PERF-002 exported mobile home paints before any terrain initializ
 test('TC-WEB-EXPORT-001: callback serves actual index HTML while JS and PNG keep their MIME and bytes',async()=>{
  const callback=await fetch(origin+'/auth/callback?error=access_denied');expect(callback.status).toBe(200);expect(callback.headers.get('content-type')).toBe('text/html');expect(Buffer.from(await callback.arrayBuffer()).equals(await readFile(path.join(root,'index.html')))).toBe(true);
  const js=(await readdir(path.join(root,'_expo/static/js/web'))).find(f=>f.startsWith('entry-'))!;
- const ocean=(await readdir(path.join(root,'assets/assets/maps'))).find(f=>f.startsWith('ocean-depth.'))!;
  const assets=await readdir(path.join(root,'assets/assets/ui')),png=assets.find(f=>f.startsWith('avatar-bear-v1.'))!;
- for(const [file,mime] of [['vendor/maplibre/maplibre-gl.css','text/css'],['vendor/maplibre/maplibre-gl-worker.mjs','application/javascript'],['vendor/maplibre/maplibre-gl-shared.mjs','application/javascript'],[`_expo/static/js/web/${js}`,'application/javascript'],[`assets/assets/ui/${png}`,'image/png'],[`assets/assets/maps/${ocean}`,'image/png']]){
+ for(const [file,mime] of [['vendor/maplibre/maplibre-gl.css','text/css'],['vendor/maplibre/maplibre-gl-worker.mjs','application/javascript'],['vendor/maplibre/maplibre-gl-shared.mjs','application/javascript'],[`_expo/static/js/web/${js}`,'application/javascript'],[`assets/assets/ui/${png}`,'image/png']]){
   const response=await fetch(`${origin}/${file}`);expect(response.status,file).toBe(200);expect(response.headers.get('content-type')).toBe(mime);expect(Buffer.from(await response.arrayBuffer()).equals(await readFile(path.join(root,file)))).toBe(true);
  }
  for(const missing of ['/assets/missing.png','/vendor/missing.mjs','/_expo/missing.js'])expect((await fetch(origin+missing)).status).toBe(404);
@@ -65,4 +64,20 @@ test('TC-PHOTO-MAP-001: exported guest map shows country and zoom without reques
  await page.getByRole('button',{name:'지도 홈',exact:true}).click();await expect(page.getByTestId('map-region-name')).toHaveText('대한민국');await expect(page.locator('[data-testid^="map-label-"]')).toHaveCount(0);
 
  expect(feed).toEqual([]);expect(errors).toEqual([]);
+});
+
+test('TC-MOAI-003 exported guest entry, reload and first-record login use the real HTML shell',async({page,request})=>{
+ const shell=await readFile(path.join(root,'index.html'));
+ for(const route of ['/explore/random','/login','/map','/feed','/dex','/record/new','/record/00000000-0000-4000-8000-000000000001']){
+  const response=await request.get(origin+route);
+  expect(response.status(),route).toBe(200);
+  expect(await response.body()).toEqual(shell);
+ }
+ for(const missing of ['/explore/missing.js','/record/missing.png','/assets/no-such-font.woff2'])expect((await request.get(origin+missing)).status()).toBe(404);
+ await page.goto(origin+'/explore/random');
+ await expect(page.getByRole('radio',{name:'강원권'})).toBeVisible();
+ await page.reload();
+ await expect(page.getByRole('radio',{name:'강원권'})).toBeVisible();
+ await page.goto(origin+'/record/new');
+ await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
 });
