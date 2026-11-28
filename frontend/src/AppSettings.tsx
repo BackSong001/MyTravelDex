@@ -1,3 +1,4 @@
+import {bookType} from './AlbumPage';
 import {iconAssets,type IconName} from './iconAssets';
 import {t} from './translate';
 import {setPreference,usePreferences} from './preferences';
@@ -66,8 +67,8 @@ export default function AppSettings({onGuide,routePane,onRoutePane,owner,tab,onT
   </Pressable>;
  }
  function section(title:string,children:React.ReactNode){
-  return <View style={{gap:8}}><Text accessibilityRole="header" style={{color:c.muted,fontWeight:'600'}}>{title}</Text>
-   <View style={[s.card,{backgroundColor:c.sheet,borderColor:c.line}]}>{children}</View></View>;
+  return <View style={{gap:8}}><Text accessibilityRole="header" style={{color:c.ink,fontFamily:bookType,fontSize:18,fontWeight:'700'}}>{title}</Text>
+   <View style={[s.card,{backgroundColor:c.sheet,borderColor:c.line,borderLeftWidth:3,borderLeftColor:'#65867B'}]}>{children}</View></View>;
  }
  const full=pane==='discovery';
  return <>

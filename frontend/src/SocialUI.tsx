@@ -1,3 +1,4 @@
+import {PaperSkeleton} from './AlbumPage';
 import {useThemeStyles,useThemeColors,type ThemeColors} from './ThemeContext';
 import {t} from './translate';
 import {recordShareUrl} from './recordShareUrl';
@@ -12,12 +13,12 @@ import type {TravelApi} from './api';
 const makeSocialStyles=(c:ThemeColors)=>StyleSheet.create({
  title:{fontSize:22,lineHeight:28,letterSpacing:-.6,fontWeight:'700',color:c.ink},heading:{fontSize:18,lineHeight:24,letterSpacing:-.4,fontWeight:'700',color:c.ink},text:{fontSize:15,lineHeight:24,color:c.ink},muted:{fontSize:13,lineHeight:21,color:c.muted},
  input:{minHeight:48,borderWidth:1,borderColor:c.line,borderRadius:10,padding:12,fontSize:16,color:c.ink,backgroundColor:c.sheet},row:{flexDirection:'row',alignItems:'center',gap:10},section:{paddingVertical:14,gap:8,borderBottomWidth:1,borderColor:c.line},
- button:{minHeight:48,minWidth:48,paddingHorizontal:14,paddingVertical:12,borderRadius:10,justifyContent:'center',alignItems:'center',backgroundColor:c.warm},error:{padding:16,backgroundColor:c.errorSurface,borderRadius:10,gap:8},grid:{flexDirection:'row',flexWrap:'wrap',gap:2},
+ button:{minHeight:48,minWidth:48,paddingHorizontal:14,paddingVertical:12,borderRadius:8,borderWidth:1,borderColor:c.line,justifyContent:'center',alignItems:'center',backgroundColor:c.sheet},error:{padding:16,backgroundColor:c.errorSurface,borderRadius:10,gap:8},grid:{flexDirection:'row',flexWrap:'wrap',gap:2},
 });
 export const useSocialStyles=()=>useThemeStyles(makeSocialStyles);
 export function Action({label,onPress,disabled=false,primary=false,selected=false}:{label:string;onPress:()=>void;disabled?:boolean;primary?:boolean;selected?:boolean}){
  const socialStyles=useSocialStyles();const c=useThemeColors();
-return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{disabled,selected}} disabled={disabled} onPress={onPress} style={[socialStyles.button,primary&&{backgroundColor:c.ink},disabled&&{opacity:.5}]}><Text style={{fontSize:14,fontWeight:'600',color:primary?c.sheet:c.ink}}>{label}</Text></Pressable>;}
+return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{disabled,selected}} disabled={disabled} onPress={onPress} style={[socialStyles.button,selected&&{backgroundColor:c.warm},primary&&{backgroundColor:'#255B55',borderColor:'#255B55'},disabled&&{opacity:.5}]}><Text style={{fontSize:14,fontWeight:'600',color:primary?'#FFFFFF':c.ink}}>{label}</Text></Pressable>;}
 export function IconAction({label,icon,onPress,selected,disabled,color}:{label:string;icon:string;onPress:()=>void;selected?:boolean;disabled?:boolean;color?:string}){
  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected,disabled}} disabled={disabled} onPress={onPress} style={{alignItems:'center',justifyContent:'center',opacity:disabled?.4:1}}>
   <JournalIcon name={icon} color={color} solid={selected} size={24}/>
@@ -65,7 +66,7 @@ export function SocialAvatar({author,api,size=40}:{author:any;api:TravelApi;size
  const [url,setUrl]=useState<string|null>(null);useEffect(()=>{let live=true;setUrl(null);if(author?.avatar_id)void api.request('/functions/v1/profile-avatar-url','POST',{owner_id:author.id}).then(r=>{if(live)setUrl(new URL(r.signed_url,api.url).href);}).catch(()=>{});return()=>{live=false;};},[api,author?.id,author?.avatar_id]);
  return <Avatar url={author?.avatar_id?url:author?.avatar_url} size={size}/>;
 }
-export function SocialPhoto({id,api,style,label}:{id?:string;api:TravelApi;style:any;label:string}){
+export function SocialPhoto({id,api,style,label,frame}:{id?:string;api:TravelApi;style:any;label:string;frame?:(image:React.ReactNode)=>React.ReactNode}){
  const socialStyles=useSocialStyles();const c=useThemeColors();
 
  const [url,setUrl]=useState(''),[loaded,setLoaded]=useState(false),[error,setError]=useState(false),[attempt,setAttempt]=useState(0);
@@ -75,18 +76,19 @@ export function SocialPhoto({id,api,style,label}:{id?:string;api:TravelApi;style
   if(id)void api.photoUrl(id).then(value=>{if(live)setUrl(value);}).catch(()=>{if(live)setError(true);});
   return ()=>{live=false;};
  },[id,api,attempt]);
+ const image=url&&!error?<Image source={{uri:url}} accessibilityLabel={label} resizeMode="cover" onLoad={()=>setLoaded(true)} onError={()=>setError(true)} style={{width:'100%',height:'100%'}}/>:null;
  return <View style={[{backgroundColor:c.warm,justifyContent:'center',alignItems:'center'},style]}>
-  {!!url&&!error&&<Image source={{uri:url}} accessibilityLabel={label} resizeMode="cover" onLoad={()=>setLoaded(true)} onError={()=>setError(true)} style={{position:'absolute',width:'100%',height:'100%'}}/>}
+  {image&&<View style={StyleSheet.absoluteFill}>{frame?frame(image):image}</View>}
   {error?<Action label={t("사진 다시 불러오기")} onPress={()=>setAttempt(x=>x+1)}/>
    :!id?<Text style={socialStyles.muted}>{t("사진")}</Text>
-   :!loaded&&<View pointerEvents="none" style={{alignItems:'center'}}><ActivityIndicator/><Text style={socialStyles.muted}>{t("사진 불러오는 중")}</Text></View>}
+   :!loaded&&<PaperSkeleton label={t('사진 불러오는 중')}/>}
  </View>;
 }
 export type PageSnapshot={count:number;offset:number;key:string};
 export function useSocialPage(api:TravelApi,name:string|null,args:Record<string,unknown>,revision:number,snapshot?:React.MutableRefObject<PageSnapshot|null>){
  const identity=JSON.stringify(args),key=name+identity;
  const [items,setItems]=useState<any[]>([]),[cursor,setCursor]=useState<any>(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[unread,setUnread]=useState(0);
- const generation=useRef(0),busy=useRef(false);
+ const generation=useRef(0),busy=useRef(false),loadedKey=useRef<string|null>(null);
  const [appending,setAppending]=useState(false),[background,setBackground]=useState(false);
  async function load(more=false){if(!name){setItems([]);setCursor(null);setLoading(false);setError('');return;}if(busy.current||(more&&!cursor))return;busy.current=true;setAppending(more);const version=++generation.current;setLoading(true);setError('');
   const restore=snapshot?.current?.key===key?{...snapshot.current}:null;
@@ -107,13 +109,13 @@ export function useSocialPage(api:TravelApi,name:string|null,args:Record<string,
     }
     next=[...next,...page.items.filter((r:any)=>!next.some(x=>x.id===r.id))];after=page.next_cursor;
    }while(!more&&restore&&after&&next.length<restore.count);
-   setItems(next);setCursor(after);setUnread(page.unread_count??0);if(snapshot)snapshot.current={count:next.length,offset:((more||keepFeed)?snapshot.current?.offset:restore?.offset)??0,key};
+   loadedKey.current=key;setItems(next);setCursor(after);setUnread(page.unread_count??0);if(snapshot)snapshot.current={count:next.length,offset:((more||keepFeed)?snapshot.current?.offset:restore?.offset)??0,key};
   }catch(e){if(version===generation.current){if(keepFeed){setItems([]);setCursor(null);}setError(failure(e));}}
   finally{if(version===generation.current){busy.current=false;setLoading(false);}}
  }
  useEffect(()=>{busy.current=false;void load();return()=>{generation.current++;busy.current=false;};},[api,name,identity,revision]);
- return {items,cursor,loading,background,refreshing:loading&&!appending&&!background,appending,error,load,unread};
+ return {items:loadedKey.current===key?items:[],cursor:loadedKey.current===key?cursor:null,loading,background,refreshing:loading&&!appending&&!background,appending,error,load,unread};
 }
 export function PageTail({page,automatic=false}:{page:ReturnType<typeof useSocialPage>;automatic?:boolean}){
  const socialStyles=useSocialStyles();
-return <View style={{padding:16,gap:12}}>{page.loading&&!page.background&&<ActivityIndicator accessibilityLabel={t("목록 불러오는 중")}/>}{!!page.error&&<Notice message={page.error} retry={()=>void page.load(automatic&&page.appending&&!!page.cursor)}/>}{!page.loading&&!page.error&&!page.items.length&&<Text style={socialStyles.muted}>{t("아직 표시할 내용이 없어요.")}</Text>}{!automatic&&page.cursor&&!page.loading&&<Action label={t("더 보기")} onPress={()=>void page.load(true)}/>}</View>;}
+return <View style={{padding:16,gap:12}}>{page.loading&&!page.background&&(page.items.length?<ActivityIndicator accessibilityLabel={t('목록 불러오는 중')}/>:<PaperSkeleton label={t('목록 불러오는 중')} photo={automatic}/>)}{!!page.error&&<Notice message={page.error} retry={()=>void page.load(automatic&&page.appending&&!!page.cursor)}/>}{!page.loading&&!page.error&&!page.items.length&&<Text style={socialStyles.muted}>{t("아직 표시할 내용이 없어요.")}</Text>}{!automatic&&page.cursor&&!page.loading&&<Action label={t("더 보기")} onPress={()=>void page.load(true)}/>}</View>;}

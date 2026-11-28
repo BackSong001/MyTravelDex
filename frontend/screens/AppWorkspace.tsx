@@ -1,4 +1,6 @@
 import {uploadTripPhoto,readDraftPhoto} from '../src/tripPhotoUpload';
+import RegionBooks,{type BookPosition} from '../src/RegionBooks';
+import {updateBookEntries,type JournalOperation} from '../src/bulkJournal';
 import {t,msg} from '../src/translate';
 import {TravelGuide,guideSteps,type GuideAnchors} from '../src/TravelGuide';
 import {companions,type Companion} from '../src/MascotArt';
@@ -54,7 +56,7 @@ function takeReturnPath(){
 
 class ListLoadError extends Error {}
 
-type Selected={id:string;locked?:boolean;asset:ImagePickerAsset;captured_date:string|null;captured_at:string|null;latitude:number|null;longitude:number|null};
+type Selected={id:string;locked?:boolean;storedOriginal?:boolean;asset:ImagePickerAsset;captured_date:string|null;captured_at:string|null;latitude:number|null;longitude:number|null};
 export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;linkParams?:{friend?:string;record?:string}}={}){
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
@@ -76,6 +78,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const [screen,setScreen]=useState('login'),[session,setSession]=useState<any>(null),[rows,setRows]=useState<any[]>([]),[selected,setSelected]=useState<any>(null);
  const [composer,setComposer]=useState(false),[discard,setDiscard]=useState(false),[saved,setSaved]=useState(''),[loading,setLoading]=useState(false),[listError,setListError]=useState('');
  const [completedId,setCompletedId]=useState<string|null>(null);
+ const [book,setBook]=useState<BookPosition|null>(null);
  const [journalOrder,setJournalOrder]=useState<JournalOrder>('region_asc'),[journalQuery,setJournalQuery]=useState('');
  const [authors,setAuthors]=useState<Record<string,any>>({}),[ownRows,setOwnRows]=useState<any[]>([]),[placeInfo,setPlaceInfo]=useState<any>(null);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false),[scope,setScope]=useState('mine'),[start,setStart]=useState(''),[end,setEnd]=useState(''),[friendOwner,setFriendOwner]=useState(''),[friendName,setFriendName]=useState(''),[provinceFilter,setProvinceFilter]=useState(''),[districtFilter,setDistrictFilter]=useState('');
@@ -84,6 +87,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const [editingProfile,setEditingProfile]=useState(false);
  const [urls,setUrls]=useState<Record<string,string>>({}),[pending,setPending]=useState<{id:string;location:string;existing:number;complete?:boolean}|null>(null),[drafts,setDrafts]=useState(false);
  const [tab,setTab]=useState<JournalTab>('home'),[covers,setCovers]=useState<Record<string,string>>({});
+ const albumRecords=useMemo(()=>tab==='album'?journalRecords(rows,journalOrder,journalQuery):[],[tab,rows,journalOrder,journalQuery]);
  const visibilityBusyRef=useRef(new Set<string>()),scopeRef=useRef(scope);scopeRef.current=scope;
  const [visibilityBusy,setVisibilityBusy]=useState<ReadonlySet<string>>(new Set()),[visibilityErrors,setVisibilityErrors]=useState<Record<string,{target:'private'|'public';message:string}>>({});
  useEffect(()=>{if(inviteCode){setTab('friends');setScreen('list');}},[inviteCode,session?.user?.id]);
@@ -103,7 +107,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const googleIdentity=session?.user?.identities?.find((identity:{provider:string})=>identity.provider==='google')?.identity_data;
  const googlePhoto=googleIdentity?.avatar_url??googleIdentity?.picture;
  const socialProps={googlePhoto:typeof googlePhoto==='string'&&/^https:\/\/(lh[0-9]+\.googleusercontent\.com|[a-z0-9-]+\.ggpht\.com)\/[^\s\\]+$/.test(googlePhoto)?googlePhoto:null,api:socialApi,disabled:busy,owner:session?.user?.id,revision:socialRevision,onChanged:socialChanged,onLogin:()=>setScreen('login'),onOpen:(r:any)=>readDetail(r,'feed')};
- function ownJournal(){setFriendOwner('');setScope('mine');setDrafts(false);setProvinceFilter('');setDistrictFilter('');navigate('album');}
+ function ownJournal(){setBook(null);if(friendOwner||drafts||provinceFilter||districtFilter){++listRequest.current;setRows([]);setCovers({});}setFriendOwner('');setScope('mine');setDrafts(false);setProvinceFilter('');setDistrictFilter('');navigate('album');}
  const [photoNotice,setPhotoNotice]=useState(''),[noticeVersion,setNoticeVersion]=useState(0);
  const [locationOpen,setLocationOpen]=useState(false);
  const [step,setStep]=useState<'photos'|'info'>('photos'),[legacyDraft,setLegacyDraft]=useState(false);
@@ -220,7 +224,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   const owner=next?.user?.id??null,changed=owner!==authOwner.current;
   setAuthReady(true);authOwner.current=owner;api.token=next?.access_token??null;setSession(next);
   if(!changed)return;
-  setGuide(null);setPendingGuideOwner(null);setHomeShown(false);
+  setBook(null);setGuide(null);setPendingGuideOwner(null);setHomeShown(false);
   albumScroll.current=0;sessionEpoch.current++;operationVersion.current++;busyRef.current=false;detailRead.current=false;setBusy(false);visibilityBusyRef.current.clear();setVisibilityBusy(new Set());setVisibilityErrors({});
   // 이전 사용자의 진행 중 응답은 개인 상태를 다시 채울 수 없다.
   navigationVersion.current++;listRequest.current++;setCompletedId(null);selectedRef.current=null;screenRef.current=next?'list':'login';
@@ -254,6 +258,22 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   finally{if(epoch===sessionEpoch.current){visibilityBusyRef.current.delete(id);setVisibilityBusy(new Set(visibilityBusyRef.current));}}
  }
 
+ async function bulkBook(ids:string[],operation:JournalOperation){
+  const owner=session?.user?.id,epoch=sessionEpoch.current,current=()=>epoch===sessionEpoch.current;
+  if(!owner||busyRef.current||visibilityBusyRef.current.size)throw Error('Operation busy');
+  const allowed=new Set(rows.filter(r=>r.owner_id===owner&&r.status==='complete').map(r=>r.id));
+  if(ids.some(id=>!allowed.has(id)))throw Error('Selection changed');
+  busyRef.current=true;setBusy(true);
+  try{
+   const result=await updateBookEntries(socialApi,owner,ids,operation,current);
+   if(current()&&result.done.length){
+    const done=new Set(result.done);
+    const patch=(items:any[])=>items.flatMap(r=>!done.has(r.id)?[r]:operation==='delete'?[]:[{...r,visibility:'private'}]);
+    ++listRequest.current;setLoading(false);setRows(patch);setOwnRows(patch);setSocialRevision(x=>x+1);
+   }
+   return result;
+  }finally{if(current()){busyRef.current=false;setBusy(false);}}
+ }
  async function login(){
   const epoch=sessionEpoch.current;
   const result=await api.request('/auth/v1/token?grant_type=password','POST',{email,password});
@@ -287,7 +307,9 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  }
  async function removeSelected(){
   const record=selectedRef.current,version=navigationVersion.current,epoch=sessionEpoch.current;if(!record)return;
-  await api.rpc('delete_travel_record',{record_id:record.id});if(epoch!==sessionEpoch.current)return;setSocialRevision(x=>x+1);setSelected(null);setUrls({});setRows(previous=>previous.filter(row=>row.id!==record.id));setOwnRows(previous=>previous.filter(row=>row.id!==record.id));
+  await api.rpc('delete_travel_record',{record_id:record.id});if(epoch!==sessionEpoch.current)return;
+  if(pending?.id===record.id){setComposer(false);setPending(null);setPhotos([]);}
+  setSocialRevision(x=>x+1);setSelected(null);setUrls({});setRows(previous=>previous.filter(row=>row.id!==record.id));setOwnRows(previous=>previous.filter(row=>row.id!==record.id));
   if(version===navigationVersion.current)returnFromDetail();await latestLoad.current();
  }
 
@@ -360,7 +382,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
     for(const file of files){
      if(epoch!==sessionEpoch.current||version!==navigationVersion.current)break;
      const asset=await readDraftPhoto(api,record.id,file.photo_id);
-     restored.push({id:file.photo_id,asset,locked:true,captured_date:null,captured_at:null,latitude:null,longitude:null});
+     restored.push({id:file.photo_id,asset,locked:true,storedOriginal:true,captured_date:null,captured_at:null,latitude:null,longitude:null});
     }
    }
    if(epoch!==sessionEpoch.current||version!==navigationVersion.current){cleanupPickedPhotos(restored.map(p=>p.asset));return;}
@@ -428,7 +450,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
      continue;
     }
     setPhotos(items=>items.map(photo=>photo.id===p.id?{...photo,locked:true}:photo));
-    const encoded=await uploadTripPhoto(api,inSession,session.user.id,recordId,p.id,p.asset);
+    const encoded=await uploadTripPhoto(api,inSession,session.user.id,recordId,p.id,p.asset,p.storedOriginal);
     try{await inSession('photo.register',()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,...encoded,display_order:nextOrder++,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude}));}catch(e:any){
      if(e.serverCode!=='23505')throw e;
      const rows=await inSession('photo.verify',()=>api.request(`/rest/v1/photos?id=eq.${p.id}&select=id,owner_id,travel_record_id,original_path,thumbnail_path`));
@@ -458,7 +480,10 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  {screen==='list'&&tab==='album'&&<View style={[s.actions,{borderBottomWidth:1,borderColor:c.line}]}>{button(t('여행 기록'),()=>setMyStamps(false),myStamps)}{button(t('스탬프 도감'),()=>setMyStamps(true),!myStamps)}</View>}
  {screen==='list'&&tab==='album'&&!myStamps&&<>
 
-  <Collection loading={loading} failed={!!listError} disabled={busy||loading} emptySearch={!!journalQuery.trim()} records={journalRecords(rows,journalOrder,journalQuery)} groupBy={journalOrder.startsWith('region')?journalRegion:undefined} covers={covers} authors={authors} owner={session?.user?.id} onManage={(record,intent)=>readDetail(record,'album',intent)} onVisibilityChange={(record,target)=>{void changeJournalVisibility(record,target);}} visibilityBusy={visibilityBusy} visibilityErrors={visibilityErrors} onOpen={r=>{if(!visibilityBusyRef.current.has(r.id))readDetail(r);}}>
+  {!drafts&&!listError&&<RegionBooks key={(session?.user.id??'guest')+scope+friendOwner} records={albumRecords} covers={covers} owner={session?.user.id}
+   loading={loading} restricted={!!(journalQuery||provinceFilter||districtFilter)} position={book} onPosition={p=>{setBook(p);if(p?.region!==book?.region)scroll.current?.scrollTo({y:0,animated:false});}}
+   onOpen={r=>readDetail(r,'album')} onBulk={bulkBook}/>}
+  {(!book||drafts||listError)&&<Collection loading={loading} failed={!!listError} disabled={busy||loading} emptySearch={!!journalQuery.trim()} records={albumRecords} groupBy={journalOrder.startsWith('region')?journalRegion:undefined} covers={covers} authors={authors} owner={session?.user?.id} onManage={(record,intent)=>readDetail(record,'album',intent)} onVisibilityChange={(record,target)=>{void changeJournalVisibility(record,target);}} visibilityBusy={visibilityBusy} visibilityErrors={visibilityErrors} onOpen={r=>{if(!visibilityBusyRef.current.has(r.id))readDetail(r);}}>
    {!!listError&&<View><Text style={s.description}>{rows.length?t('이전 목록을 표시하고 있어요.'):t('목록을 불러오지 못했어요.')}</Text>{button(t('목록 다시 불러오기'),()=>perform(()=>load()),true)}</View>}
    <View style={s.filterBar}><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:8,alignItems:'center'}}>{(session?['mine']:[]).map(x=><View key={x}>{button(({combined:t('함께 보기'),mine:t('내 여행'),following:t('친구 여행'),public:t('공개 여행')} as any)[x],()=>{if(!friendOwner&&scope===x){setScopeOpen(false);return;}++listRequest.current;cancelDetailRead();mapNavigation.current=null;setRows([]);setCovers({});setAuthors({});setFriendOwner('');setScope(x);},scope!==x)}</View>)}</ScrollView><Pressable accessibilityRole="button" accessibilityLabel={t("필터")}  accessibilityState={{expanded:filtersOpen}} aria-expanded={filtersOpen} aria-controls={filtersOpen?'album-filters':undefined} onPress={()=>setFiltersOpen(!filtersOpen)} style={({pressed})=>[s.filterToggle,(filtersOpen||journalOrder!=='region_asc'||provinceFilter)&&{backgroundColor:c.warm},pressed&&{backgroundColor:c.rose}]}><Text style={{color:c.ink,fontWeight:'600'}}>{t("필터")} {filtersOpen?'⌃':'⌄'}</Text></Pressable></View>
    <View style={{flexDirection:'row',alignItems:'center',gap:8}}><View style={{flex:1,minWidth:0}}>{field(t('여행 검색'),journalQuery,setJournalQuery,{placeholder:t('제목, 한줄평, 지역 또는 장소 검색'),returnKeyType:'search'})}</View>{!!journalQuery&&<Pressable accessibilityRole="button" accessibilityLabel={t("검색어 지우기")} onPress={()=>setJournalQuery('')} style={[s.filterToggle,{marginTop:18}]}><Text style={[s.buttonText,{color:c.ink}]}>×</Text></Pressable>}</View>
@@ -468,7 +493,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
     {button(t('정렬·검색 초기화'),()=>{setJournalOrder('start_desc');setJournalQuery('');setProvinceFilter('');setDistrictFilter('');},true)}
    </View>}
    {!!(provinceFilter||districtFilter)&&<View><Text style={s.description}>{districts.find(d=>d.properties.code===districtFilter)?.properties.name??provinceLabels[provinceFilter]?.name} {t("지역 선택됨")}</Text>{button(t('선택 지역 해제'),()=>{setProvinceFilter('');setDistrictFilter('');},true)}</View>}
-  </Collection>
+  </Collection>}
  </>}
  {screen==='unavailable'&&<View><Text>{t("페이지를 찾을 수 없습니다.")}</Text>{button(t('홈으로'),()=>navigate('home'))}</View>}
  {screen==='login'&&<Welcome>
@@ -481,7 +506,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
   {(trialLogin||process.env.EXPO_PUBLIC_APP_ENV==='local')&&<><Text style={[s.description,{textAlign:'center'}]}>{trialLogin?'MOAI 시험 계정 로그인':t("로컬 테스트 계정으로 로그인")}</Text>{field(t('이메일'),email,setEmail,{autoCapitalize:'none',keyboardType:'email-address'})}{field(t('비밀번호'),password,setPassword,{secureTextEntry:true})}{button(t('테스트 계정 로그인'),()=>perform(login))}</>}
   <LegalLink/>
  </Welcome>}
- {screen==='create'&&<><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Pressable accessibilityRole="button" accessibilityLabel={t("잠시 접기")} disabled={busy} onPress={()=>setScreen('list')} style={{alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:26}}>×</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={t("작성 취소")} disabled={busy} onPress={()=>setDiscard(true)} style={{justifyContent:'center'}}><Text style={{color:c.muted}}>{t("작성 취소")}</Text></Pressable></View>{discard&&<View accessibilityRole="alert"><Text style={{color:c.ink}}>{t("작성 중인 입력을 버릴까요? 서버에 등록된 초안은 임시저장 복구에서 이어갈 수 있습니다.")}</Text>{button(t('입력 버리기'),()=>{setComposer(false);setPending(null);setPhotos([]);setDiscard(false);setScreen('list');},true)}{button(t('계속 작성'),()=>setDiscard(false),true)}</View>}{step==='photos'?<PhotoTray onEdited={(id,result)=>setPhotos(items=>items.map(photo=>photo.id===id?{...photo,asset:{...photo.asset,...result,file:undefined,mimeType:'image/jpeg'}}:photo))} photos={photos} limit={limit} existing={pending?.existing??0} canContinue={!!(photos.length||pending?.existing)} disabled={busy} camera={()=>perform(()=>choose('camera'))} library={()=>perform(()=>choose())} onRemove={id=>changePhotos(photos.filter(p=>p.id!==id))} next={()=>setStep('info')} notice={photoNotice} noticeVersion={noticeVersion}/>:<SlidePage>{!pending?.complete&&button(t('사진으로 돌아가기'),()=>setStep('photos'),true)}{photos[0]&&<Image source={{uri:photos[0].asset.uri}} style={{width:84,height:84,borderRadius:8}}/>}<Text style={s.sectionTitle}>{t("여행 정보")}</Text>{!pending&&(!start||!end||!latitude||!longitude)&&<View style={{borderLeftColor:c.sea,borderLeftWidth:3,padding:12,marginVertical:8,backgroundColor:c.warm,gap:4}}>
+ {screen==='create'&&<><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Pressable accessibilityRole="button" accessibilityLabel={t("잠시 접기")} disabled={busy} onPress={()=>setScreen('list')} style={{alignItems:'center',justifyContent:'center'}}><Text style={{fontSize:26}}>×</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel={t("작성 취소")} disabled={busy} onPress={()=>setDiscard(true)} style={{justifyContent:'center'}}><Text style={{color:c.muted}}>{t("작성 취소")}</Text></Pressable></View>{discard&&<View accessibilityRole="alert"><Text style={{color:c.ink}}>{t("작성 중인 입력을 버릴까요? 서버에 등록된 초안은 임시저장 복구에서 이어갈 수 있습니다.")}</Text>{button(t('입력 버리기'),()=>{setComposer(false);setPending(null);setPhotos([]);setDiscard(false);setScreen('list');},true)}{button(t('계속 작성'),()=>setDiscard(false),true)}</View>}{step==='photos'?<PhotoTray onManageDraft={pending&&!pending.complete?()=>readDetail({id:pending.id},'album','delete'):undefined} onEdited={(id,result)=>setPhotos(items=>items.map(photo=>photo.id===id&&!photo.locked?{...photo,asset:{...photo.asset,...result,file:undefined,mimeType:'image/jpeg'}}:photo))} photos={photos} limit={limit} existing={pending?.existing??0} canContinue={!!(photos.length||pending?.existing)} disabled={busy} camera={()=>perform(()=>choose('camera'))} library={()=>perform(()=>choose())} onRemove={id=>changePhotos(photos.filter(p=>p.id!==id||p.locked))} next={()=>setStep('info')} notice={photoNotice} noticeVersion={noticeVersion}/>:<SlidePage>{!pending?.complete&&button(t('사진으로 돌아가기'),()=>setStep('photos'),true)}{photos[0]&&<Image source={{uri:photos[0].asset.uri}} style={{width:84,height:84,borderRadius:8}}/>}<Text style={s.sectionTitle}>{t("여행 정보")}</Text>{!pending&&(!start||!end||!latitude||!longitude)&&<View style={{borderLeftColor:c.sea,borderLeftWidth:3,padding:12,marginVertical:8,backgroundColor:c.warm,gap:4}}>
  {(!start||!end)&&<Text style={{color:c.ink,fontSize:15}}>{t("여행 기간을 직접 입력해 주세요.")}</Text>}
  {(!latitude||!longitude)&&<Text style={{color:c.ink,fontSize:15}}>{t("장소명으로 검색하거나 지도에서 위치를 선택하세요.")}</Text>}
  </View>}{field(t('여행 이름'),title,setTitle,{maxLength:100})}{field(t('여행 평'),content,setContent,{multiline:true,maxLength:5000})}{dateField(t('여행 시작일'),start,value=>{edited.current.start=true;setStart(value);})}{dateField(t('여행 종료일'),end,value=>{edited.current.end=true;setEnd(value);})}{confirmDates&&<View accessibilityRole="alert"><Text>{t("이 여행일자가 맞나요?")} {start} — {end}</Text>{button(t('수동 입력'),()=>{edited.current.start=true;edited.current.end=true;setStart('');setEnd('');},true)}{button(t('적용'),()=>setDateConfirmed(rangeKey))}</View>}{checkingCities&&<Text>{t("사진 촬영 위치 확인 중…")}</Text>}{cityOptions.length>0&&<View><Text>{t("여러 도시에서 찍은 사진이에요. 대표 위치를 선택하세요.")}</Text>{cityOptions.map(place=><Pressable key={place.id} accessibilityRole="button" disabled={busy} onPress={()=>applyPlace(place)} style={{flexDirection:'row',padding:8,gap:12,alignItems:'center'}}><Image source={{uri:place.uri}} style={{width:48,height:48}}/><Text style={{flex:1}}>{[...new Set([place.address,place.place_name].filter(Boolean))].join(' · ')}</Text></Pressable>)}</View>}<View style={{marginVertical:12}}><Text style={s.sectionTitle}>{t("위치")}</Text><Pressable accessibilityRole="button" accessibilityLabel={t("여행 위치 검색")} accessibilityHint={t("별도 창에서 장소명이나 주소를 검색하고 지도에서 위치를 확인합니다")} disabled={busy} onPress={()=>setLocationOpen(true)} style={[s.input,{minHeight:56,padding:14,gap:6},invalidField==='장소 검색'&&s.invalidInput]}>
@@ -496,7 +521,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
 
  {screen==='confirm'&&<><Text accessibilityRole="header" style={s.heading}>{t("기록을 삭제할까요?")}</Text><Text style={s.description}>「{selected?.title||t('제목 없는 여행')}{t("」 기록과 사진")}{selected?.photos.length}{t("장을 삭제합니다. 이 작업은 되돌릴 수 없습니다.")}</Text>{button(t('삭제 확인'),()=>perform(removeSelected))}{button(t('취소'),()=>deleteFromBoard.current?returnFromDetail():setScreen('detail'),true)}</>}
 
- {screen==='list'&&tab==='album'&&!myStamps&&session&&button(drafts?t('완료된 여행 보기'):t('임시저장 복구'),()=>setDrafts(!drafts),true)}
+ {screen==='list'&&tab==='album'&&!myStamps&&session&&button(drafts?t('완료된 여행 보기'):t('임시저장 복구'),()=>{setBook(null);++listRequest.current;setRows([]);setCovers({});setDrafts(!drafts);},true)}
  {screen==='detail'&&selected?.status==='draft'&&selected.owner_id===session?.user?.id&&button(t('이 초안 이어서 작성'),()=>perform(()=>recoverDraft(selected)),true)}
  {screen==='create'&&!!pending?.existing&&<Text style={s.description}>{t("이미 등록된 사진")} {pending.existing}{t("장과 선택한 사진을 함께 저장합니다.")}</Text>}
  {screen==='list'&&tab==='friends'&&<Friends session={session} inviteCode={inviteCode} onInviteHandled={dismissInvite} onChanged={socialChanged} onMap={selectMapOwner}/>}
@@ -598,7 +623,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  </ScrollView>;
  return <SafeAreaView testID="app-shell" edges={['top','left','right']} style={[s.safe,rail&&{paddingLeft:184}]}>
  {screen!=='create'&&!mapHome&&!feedScreen&&!socialMy&&<View style={[s.top,{maxWidth:720,paddingVertical:0,minHeight:52,paddingHorizontal:16},screen==='login'&&{justifyContent:'flex-end'}]}>{screen!=='login'&&<Text accessibilityRole="header" style={s.brand}>{sectionTitle}</Text>}{tools}</View>}
- {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot} seed={feedSeed} onStamps={!session?openStamps:undefined}/>:mapHome?<ScreenEntrance waitForMinimum={false} key="map" label={t("지도 준비 중")}>{onReady=><View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}>{settings}<TravelMap focus={destination} onDraw={()=>setDrawRequest(n=>n+1)} onCanvasReady={onReady} fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
+ {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot} seed={feedSeed} onStamps={!session?openStamps:undefined}/>:mapHome?<ScreenEntrance waitForMinimum={false} key="map" label={t("지도 준비 중")}>{onReady=><View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}>{settings}<TravelMap focus={destination} onDraw={()=>setDrawRequest(n=>n+1)} onCanvasReady={onReady} fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={albumRecords} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
  {destination&&!session&&<View style={{position:'absolute',left:12,bottom:58,right:70,maxWidth:330,zIndex:1,backgroundColor:c.sheet,borderColor:c.line,borderWidth:1,borderRadius:16,padding:12}}>
   <Text accessibilityRole="header" style={{color:c.ink,fontSize:18,fontWeight:'700'}}>{destination.label}</Text>
   {button(t('공개 여행 사진 보기'),()=>navigate('feed'))}
@@ -611,4 +636,4 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  {!!listError&&<><Text style={{color:c.error}}>{listError}</Text>{button(t('목록 다시 불러오기'),()=>perform(()=>load()),true)}</>}
  </View>}{showNav&&<JournalNav anchors={guideAnchors.current} rail={rail} onMapFocus={preloadMap} tab={screen==='account'?'account':tab} onTab={next=>next==='album'?ownJournal():navigate(next)} onCreate={startCreate}/>}{locationOpen&&<LocationPicker initialPlace={latitude&&longitude?{...placeInfo,latitude:Number(latitude),longitude:Number(longitude)}:null} onClose={()=>setLocationOpen(false)} onConfirm={applyPlace} footer={<JournalNav tab={tab} onTab={next=>next==='album'?ownJournal():navigate(next)} onCreate={startCreate}/>}/>}{session&&<ProfileSetupGate onRegistered={id=>{if(authOwner.current===id)setPendingGuideOwner(id);}} key={session.user.id} session={session} onLogout={async()=>{const result=await auth.auth.signOut();if(result.error)throw result.error;}}/>}{guide!==null&&guideOwner&&<TravelGuide step={guide} anchors={guideAnchors.current} companion={companion} next={()=>visitGuide(guide+1)} back={()=>visitGuide(guide-1)} close={finishGuide}/>}</SafeAreaView>;
 }
-const makeStyles=(c: ThemeColors)=>StyleSheet.create({filterBar:{flexDirection:'row',alignItems:'center',gap:12},filterToggle:{paddingHorizontal:16,justifyContent:'center',borderRadius:16,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line},filterPanel:{padding:16,marginTop:12,borderRadius:20,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,maxWidth:640},motto:{fontSize:12,color:c.muted},invalidInput:{borderColor:c.error,borderWidth:2},fieldError:{color:c.error,fontSize:14,lineHeight:22,marginTop:6},stamp:{padding:14,minHeight:48,borderRadius:20,borderWidth:1,borderColor:c.line},mapBadge:{alignSelf:'flex-end',padding:12,backgroundColor:c.sheet,color:c.ink,borderRadius:16,fontWeight:'700'},mapPreview:{position:'absolute',bottom:16,left:16,right:16,maxWidth:440,backgroundColor:c.sheet,padding:20,borderRadius:20,borderWidth:1,borderColor:c.line},loginNote:{textAlign:'center',color:c.muted,fontSize:13,marginTop:12,marginBottom:6},safe:{flex:1,backgroundColor:c.paper},top:{minHeight:64,width:'100%',maxWidth:1120,alignSelf:'center',flexWrap:'wrap',gap:8,paddingHorizontal:20,paddingVertical:10,flexDirection:'row',justifyContent:'space-between',alignItems:'center',backgroundColor:c.paper},brand:{fontSize:21,fontWeight:'800',letterSpacing:-.8,color:c.ink},account:{color:c.ink,fontSize:15},page:{padding:20,maxWidth:720,width:'100%',alignSelf:'center',paddingBottom:48},kicker:{fontSize:14,color:c.sea,marginTop:14,marginBottom:12,fontWeight:'600'},heading:{fontSize:24,lineHeight:34,letterSpacing:-1.2,fontWeight:'800',color:c.ink,marginBottom:14},description:{fontSize:14,lineHeight:23,color:c.muted,marginBottom:14},section:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:24,marginBottom:12},sectionTitle:{fontSize:21,fontWeight:'700',color:c.ink},count:{color:c.sea},button:{minHeight:48,minWidth:48,backgroundColor:c.coral,borderRadius:8,paddingHorizontal:14,paddingVertical:10,marginVertical:3,alignItems:'center'},secondary:{backgroundColor:c.warm},buttonText:{color:c.onPrimary,fontSize:15,fontWeight:'600'},tabs:{flexDirection:'row',gap:8,marginBottom:12},tab:{padding:12,paddingHorizontal:22,borderRadius:22,backgroundColor:c.warm},activeTab:{backgroundColor:c.coral},field:{marginVertical:7},label:{fontSize:13,fontWeight:'600',color:c.ink,marginBottom:6},input:{backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,borderRadius:9,paddingHorizontal:14,paddingVertical:12,fontSize:16,color:c.ink,minHeight:48},empty:{paddingVertical:30},emptyTitle:{color:c.ink,fontWeight:'600',fontSize:18,marginBottom:8},record:{backgroundColor:c.sheet,padding:20,borderRadius:14,marginTop:12,borderLeftWidth:4,borderColor:c.rose},recordTitle:{fontSize:20,fontWeight:'700',color:c.ink,marginBottom:8},place:{fontSize:13,color:c.sea,marginVertical:6},preview:{width:84,height:84,borderRadius:10,marginRight:10},detailPhoto:{width:'100%',height:240,borderRadius:14,marginTop:16},actions:{flexDirection:'row',flexWrap:'wrap',gap:8},error:{backgroundColor:c.errorSurface,padding:16,borderRadius:10,marginTop:12},footer:{padding:12,backgroundColor:c.warm},footerText:{fontSize:11,textAlign:'center',color:c.muted}});
+const makeStyles=(c: ThemeColors)=>StyleSheet.create({filterBar:{flexDirection:'row',alignItems:'center',gap:12},filterToggle:{paddingHorizontal:16,justifyContent:'center',borderRadius:16,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line},filterPanel:{padding:16,marginTop:12,borderRadius:20,backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,maxWidth:640},motto:{fontSize:12,color:c.muted},invalidInput:{borderColor:c.error,borderWidth:2},fieldError:{color:c.error,fontSize:14,lineHeight:22,marginTop:6},stamp:{padding:14,minHeight:48,borderRadius:20,borderWidth:1,borderColor:c.line},mapBadge:{alignSelf:'flex-end',padding:12,backgroundColor:c.sheet,color:c.ink,borderRadius:16,fontWeight:'700'},mapPreview:{position:'absolute',bottom:16,left:16,right:16,maxWidth:440,backgroundColor:c.sheet,padding:20,borderRadius:20,borderWidth:1,borderColor:c.line},loginNote:{textAlign:'center',color:c.muted,fontSize:13,marginTop:12,marginBottom:6},safe:{flex:1,backgroundColor:c.paper},top:{minHeight:64,width:'100%',maxWidth:1120,alignSelf:'center',flexWrap:'wrap',gap:8,paddingHorizontal:20,paddingVertical:10,flexDirection:'row',justifyContent:'space-between',alignItems:'center',backgroundColor:c.paper},brand:{fontSize:21,fontWeight:'800',letterSpacing:-.8,color:c.ink},account:{color:c.ink,fontSize:15},page:{padding:20,maxWidth:720,width:'100%',alignSelf:'center',paddingBottom:48},kicker:{fontSize:14,color:c.sea,marginTop:14,marginBottom:12,fontWeight:'600'},heading:{fontSize:24,lineHeight:34,letterSpacing:-1.2,fontWeight:'800',color:c.ink,marginBottom:14},description:{fontSize:14,lineHeight:23,color:c.muted,marginBottom:14},section:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:24,marginBottom:12},sectionTitle:{fontSize:21,fontWeight:'700',color:c.ink},count:{color:c.sea},button:{minHeight:48,minWidth:48,backgroundColor:'#255B55',borderWidth:1,borderColor:'#255B55',borderRadius:9,paddingHorizontal:16,paddingVertical:10,marginVertical:3,justifyContent:'center',alignItems:'center'},secondary:{backgroundColor:c.sheet,borderColor:c.line},buttonText:{color:'#FFFFFF',fontSize:15,fontWeight:'600'},tabs:{flexDirection:'row',gap:8,marginBottom:12},tab:{padding:12,paddingHorizontal:22,borderRadius:22,backgroundColor:c.warm},activeTab:{backgroundColor:c.coral},field:{marginVertical:7},label:{fontSize:13,fontWeight:'600',color:c.ink,marginBottom:6},input:{backgroundColor:c.sheet,borderWidth:1,borderColor:c.line,borderRadius:9,paddingHorizontal:14,paddingVertical:12,fontSize:16,color:c.ink,minHeight:48},empty:{paddingVertical:30},emptyTitle:{color:c.ink,fontWeight:'600',fontSize:18,marginBottom:8},record:{backgroundColor:c.sheet,padding:20,borderRadius:14,marginTop:12,borderLeftWidth:4,borderColor:c.rose},recordTitle:{fontSize:20,fontWeight:'700',color:c.ink,marginBottom:8},place:{fontSize:13,color:c.sea,marginVertical:6},preview:{width:84,height:84,borderRadius:10,marginRight:10},detailPhoto:{width:'100%',height:240,borderRadius:14,marginTop:16},actions:{flexDirection:'row',flexWrap:'wrap',gap:8},error:{backgroundColor:c.errorSurface,padding:16,borderRadius:10,marginTop:12},footer:{padding:12,backgroundColor:c.warm},footerText:{fontSize:11,textAlign:'center',color:c.muted}});

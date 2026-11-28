@@ -9,7 +9,7 @@ export async function readDraftPhoto(api:TravelApi,record:string,id:string){
  return cacheDraftPhoto(new URL(data.signed_url,api.url).href);
 }
 
-export async function uploadTripPhoto(api:TravelApi,guard:Guard,owner:string,record:string,id:string,asset:ImagePickerAsset){
+export async function uploadTripPhoto(api:TravelApi,guard:Guard,owner:string,record:string,id:string,asset:ImagePickerAsset,storedOriginal=false){
  let objects:Record<string,number>={};
  let oldServer=false;
  let format:'webp'|'jpeg'|'legacy'='webp';
@@ -23,10 +23,10 @@ export async function uploadTripPhoto(api:TravelApi,guard:Guard,owner:string,rec
  const existing=objects['original.jpg']||objects['original.webp'];
  let restored:ImagePickerAsset|undefined;
  try{
-  if(existing)await guard('photo.restore',async()=>{restored=await readDraftPhoto(api,record,id);});
+  if(existing&&!storedOriginal)await guard('photo.restore',async()=>{restored=await readDraftPhoto(api,record,id);});
   const source=restored??asset;
   async function encode(codec:typeof format){
-   const main=restored?{width:source.width,height:source.height,bytes:new ArrayBuffer(0)}:
+   const main=existing?{width:source.width,height:source.height,bytes:new ArrayBuffer(0)}:
     await guard('compress.original',()=>compressPhoto(source,codec==='legacy'?2048:1080,5242880,codec));
    const thumb=objects['thumbnail.jpg']||objects['thumbnail.webp']?null:
     await guard('compress.thumbnail',()=>compressPhoto(source,512,524288,codec));

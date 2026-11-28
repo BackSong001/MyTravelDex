@@ -1,3 +1,4 @@
+import {AlbumPage,AlbumEntrance,bookType,PaperSkeleton} from './AlbumPage';
 import {preferences} from './preferences';
 import {useThemeColors} from './ThemeContext';
 import {t,msg} from './translate';
@@ -11,7 +12,7 @@ import Avatar from './Avatar';
 import {feedTimestamp} from './feedTimestamp';
 import PhotoCrop,{imageSize} from './PhotoCrop';
 import {JournalIcon} from './Journal';
-import Pressable from './Feedback';
+import Pressable,{useReducedMotion} from './Feedback';
 import type {TravelApi} from './api';
 import {Action,IconAction,Notice,PageTail,RecordShare,SocialAvatar,SocialModal,SocialPhoto,failure,useSocialStyles,useSocialPage,type PageSnapshot} from './SocialUI';
 type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:(discardFeed?:boolean)=>void;onLogin:()=>void;onOpen:(record:any)=>void};
@@ -69,6 +70,7 @@ export default function SocialFeed(props:Props&{onStamps?:()=>void;seed:React.Mu
    const remaining=contentSize.height-contentOffset.y-layoutMeasurement.height;
    if(remaining<=1&&page.cursor&&!page.loading&&!page.error)void page.load(true);
   }} scrollEventThrottle={100} keyboardShouldPersistTaps="handled" refreshing={page.refreshing} onRefresh={refresh} renderItem={({item})=><FeedCard {...props} now={now} record={item} onOverlay={setOverlay} onError={setActionError}/>} ListFooterComponent={<PageTail page={page} automatic/>}/>
+  <AlbumEntrance title={t('여행 피드')}/>
   {overlay&&<SocialOverlay {...props} overlay={overlay} onClose={()=>setOverlay(null)} onOverlay={setOverlay}/>}
  </View>;
 }
@@ -80,7 +82,8 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
  const [width,setWidth]=useState(Math.min(initialWidth,512));
  const strip=useRef<ScrollView>(null);
  const images=photos.length?photos:[{id:record.cover_photo_id}];
- function showPhoto(index:number){strip.current?.scrollTo({x:index*width,animated:false});setPhotoIndex(index);}
+ const reduced=useReducedMotion();
+ function showPhoto(index:number){strip.current?.scrollTo({x:index*width,animated:!reduced});setPhotoIndex(index);}
  useEffect(()=>{strip.current?.scrollTo({x:photoIndex*width,animated:false});},[width]);
  useEffect(()=>{alive.current=true;let active=true;void api.request('/rest/v1/public_photos?'+new URLSearchParams({travel_record_id:`eq.${record.id}`,select:'id,is_cover,display_order',order:'is_cover.desc,display_order.asc,id.asc'})).then(rows=>{
   if(active){setPhotos(rows);setPhotoIndex(i=>Math.min(i,Math.max(0,rows.length-1)));}
@@ -93,7 +96,7 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
    props.onChanged();
   }catch(e){if(alive.current)props.onError(failure(e));}finally{if(alive.current)setBusy(false);guard.current=false;}
  }
- return <View testID={`feed-record-${record.id}`} style={{borderBottomWidth:1,borderColor:colors.line,paddingBottom:10}}>
+ return <View testID={`feed-record-${record.id}`} style={{marginHorizontal:6,marginTop:2,marginBottom:12,borderBottomWidth:3,borderColor:colors.line,backgroundColor:colors.sheet,borderTopRightRadius:12,paddingBottom:12}}>
   <View style={[s.row,{paddingHorizontal:12,paddingVertical:4}]}>
    <Pressable accessibilityRole="button" accessibilityLabel={msg`${record.author?.display_name||t('여행자')} 프로필`} onPress={()=>props.onOverlay({kind:'profile',id:record.owner_id})} style={[s.row,{flex:1}]}>
     <SocialAvatar api={api} author={record.author} size={36}/><View style={{flex:1}}><View style={{flexDirection:'row',alignItems:'baseline',flexWrap:'wrap',columnGap:6}}><Text style={[s.text,{fontWeight:'700'}]}>{record.author?.display_name||t('여행자')}</Text>{!!record.created_at&&<Text style={s.muted}>· {feedTimestamp(record.created_at,props.now,preferences().language)}</Text>}</View></View>
@@ -103,9 +106,10 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
   <View onLayout={e=>{const w=e.nativeEvent.layout.width;if(w>0)setWidth(w);}} style={{width:'100%',aspectRatio:4/5,overflow:'hidden'}}>
    <ScrollView horizontal pagingEnabled ref={strip} showsHorizontalScrollIndicator={false} scrollEventThrottle={32}
     onScroll={e=>setPhotoIndex(Math.max(0,Math.min(images.length-1,Math.round(e.nativeEvent.contentOffset.x/width))))}>
-    {images.map((photo,index)=><Pressable key={photo.id??index} accessible={index===photoIndex} importantForAccessibility={index===photoIndex?'yes':'no-hide-descendants'} aria-hidden={index!==photoIndex} tabIndex={index===photoIndex?0:-1} accessibilityRole="button"  accessibilityLabel={msg`${record.title||t('여행 기록')} 상세 보기`} disabled={props.disabled} onPress={()=>props.onOpen(record)} style={{width,height:'100%'}}>
-     {Math.abs(index-photoIndex)<=1&&<SocialPhoto api={api} id={photo.id} label={msg`${record.title||t('여행')} 사진 ${index+1}`} style={{width:'100%',height:'100%'}}/>}
-    </Pressable>)}
+    {images.map((photo,index)=><View key={photo.id??index} aria-hidden={index!==photoIndex} importantForAccessibility={index===photoIndex?'auto':'no-hide-descendants'} {...(Platform.OS==='web'?{inert:index!==photoIndex}:{})} style={{width,height:'100%'}}>
+     {Math.abs(index-photoIndex)<=1&&<SocialPhoto frame={image=><AlbumPage record={record} disabled={props.disabled}>{image}</AlbumPage>} api={api} id={photo.id} label={msg`${record.title||t('여행')} 사진 ${index+1}`} style={{width:'100%',height:'100%'}}/>}
+    </View>)}
+
    </ScrollView>
    {images.length>1&&<View pointerEvents="none" style={{position:'absolute',right:12,top:12,paddingHorizontal:10,paddingVertical:4,borderRadius:14,backgroundColor:'#161616BB'}}><Text style={{fontSize:12,color:'#fff'}}>{photoIndex+1} / {images.length}</Text></View>}
   </View>
@@ -117,7 +121,7 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
     <IconAction icon="bookmark" label={record.saved?t('저장 취소'):t('저장')} selected={record.saved} disabled={busy} onPress={()=>void reaction('save')}/>
    </View>
    <Text style={[s.text,{fontWeight:'600'}]}>{t("좋아요")} {record.like_count}{t("개")}</Text><View style={s.row}>
-    <Text style={[s.text,{flex:1,fontWeight:'700'}]}>{record.title||t('제목 없는 여행')}</Text>
+    <Text style={[s.text,{flex:1,fontFamily:bookType,fontSize:20,lineHeight:27,fontWeight:'700'}]}>{record.title||t('제목 없는 여행')}</Text>
     <Action label={t('상세 보기')} disabled={props.disabled} onPress={()=>props.onOpen(record)}/>
    </View>
    {!!record.content&&<><Text numberOfLines={expanded?undefined:2} style={s.text}>{record.content}</Text>{record.content.length>60&&<Pressable accessibilityRole="button" onPress={()=>setExpanded(!expanded)} style={{justifyContent:'center'}}><Text style={s.muted}>{expanded?t('접기'):t('더 읽기')}</Text></Pressable>}</>}
@@ -250,7 +254,7 @@ export function SocialProfile(props:Props&{target:string;onOverlay:(o:Overlay)=>
  const displayBio=preview?bio:profile?.bio;
  const header=profile&&<><View style={[s.row,{justifyContent:'space-between'}]}><Text selectable style={[s.heading,{letterSpacing:-.5}]}>@{profile.user_code}</Text>{props.headerActions}</View>
  <View style={[s.row,{gap:20}]}>{preview&&(uploadPending||avatarMode!=='keep')?<Avatar size={76} url={uploadPending||avatarMode==='upload'?photoUri.current:avatarMode==='google'?props.googlePhoto:null}/>:<SocialAvatar api={props.api} author={profile} size={76}/>}<View style={{flex:1,gap:6}}>
-  <Text accessibilityRole="header" style={[s.heading,{fontSize:16}]}>{preview?name.trim():profile.display_name}</Text>
+  <Text accessibilityRole="header" style={[s.heading,{fontSize:20,lineHeight:26,fontFamily:bookType}]}>{preview?name.trim():profile.display_name}</Text>
   <View style={[s.row,{justifyContent:'space-between',gap:4}]}>{[[t('여행'),profile.travel_count],[t('팔로워'),profile.follower_count],[t('팔로잉'),profile.following_count]].map(([label,count])=>{
    const stat=<><Text style={s.heading}>{count}</Text><Text style={s.muted}>{label}</Text></>;
    if(own&&!preview&&label!==t('여행'))return <Pressable key={label} accessibilityRole="button" accessibilityLabel={msg`${label} ${count}명`} onPress={()=>props.onOverlay({kind:'people',people:label===t('팔로워')?'followers':'following'})}>{stat}</Pressable>;
@@ -259,13 +263,15 @@ export function SocialProfile(props:Props&{target:string;onOverlay:(o:Overlay)=>
  </View></View>
  {!!displayBio&&<Text style={s.text}>{displayBio}</Text>}</>;
 
- return <View style={{gap:16}}>{!profile&&props.headerActions&&<View style={{alignSelf:'flex-end'}}>{props.headerActions}</View>}{!!error&&<Notice message={error} retry={()=>setAttempt(x=>x+1)}/>}{!profile&&!error&&<ActivityIndicator accessibilityLabel={t("프로필 불러오는 중")}/>}{profile&&<>
+ return <View style={{gap:16}}>{!profile&&props.headerActions&&<View style={{alignSelf:'flex-end'}}>{props.headerActions}</View>}{!!error&&<Notice message={error} retry={()=>setAttempt(x=>x+1)}/>}{!profile&&!error&&<PaperSkeleton label={t("프로필 불러오는 중")}/>}{profile&&<>
  {preview&&<Text accessibilityRole="header" style={s.title}>{t("프로필 편집")}</Text>}
- <View style={{flexDirection:preview&&wide?'row':'column',alignItems:'stretch',gap:16}}><View testID={preview?'profile-preview':undefined} style={preview?{flex:wide?1:undefined,alignSelf:wide?'flex-start':'stretch',gap:12,padding:18,borderRadius:16,borderWidth:1,borderColor:colors.line,backgroundColor:colors.warm}:{gap:12}}>{preview&&<Text style={s.muted}>{t('프로필 미리보기')}</Text>}{header}</View>
+ <View style={{flexDirection:preview&&wide?'row':'column',alignItems:'stretch',gap:16}}><View testID={preview?'profile-preview':undefined} style={preview?{flex:wide?1:undefined,alignSelf:wide?'flex-start':'stretch',gap:12,padding:18,borderRadius:16,borderWidth:1,borderColor:colors.line,backgroundColor:colors.warm}:{gap:12,padding:16,borderRadius:8,borderLeftWidth:5,borderLeftColor:'#547669',backgroundColor:colors.warm}}>{preview&&<Text style={s.muted}>{t('프로필 미리보기')}</Text>}{header}</View>
  {!preview&&(own?<View style={[s.row,{flexWrap:'wrap'}]}><Action label={t("프로필 편집")} disabled={busy} onPress={()=>{editProfile(true);setName(profile.display_name);setBio(profile.bio??'');setAvatarMode('keep');setAvatar(null);discardPhoto();setUploadPending(false);}}/><Action label={t("팔로잉 관리")} onPress={()=>props.onOverlay({kind:'people',people:'following'})}/><IconAction icon="bell" label={t("알림")} onPress={()=>props.onOverlay({kind:'notifications'})}/></View>:<View style={[s.row,{flexWrap:'wrap'}]}><Action label={profile.following?t('팔로잉 취소'):t('팔로우')} primary={!profile.following} disabled={busy} onPress={()=>props.owner?void run(async()=>{await props.api.setFollow(props.target,!profile.following);if(live.current)props.onChanged();}):props.onLogin()}/><Action label={t("신고 및 차단")} onPress={()=>props.owner?props.onOverlay({kind:'report',target:'profile',id:props.target}):props.onLogin()}/></View>)}
  {preview&&<View style={[s.section,{gap:12,flex:wide?1:undefined}]}>
+   <Text style={s.text}>{t("프로필 이름")}</Text>
    <TextInput accessibilityLabel={t("프로필 이름")} value={name} onChangeText={v=>{editing.current=true;setName(v);}} maxLength={30} editable={!busy} style={s.input}/>
-   <TextInput accessibilityLabel={t("프로필 소개")} value={bio} onChangeText={v=>{editing.current=true;setBio(v);}} maxLength={150} multiline editable={!busy} style={s.input}/>
+   <Text style={s.text}>{t("프로필 소개")}</Text>
+   <TextInput accessibilityLabel={t("프로필 소개")} value={bio} onChangeText={v=>{editing.current=true;setBio(v);}} maxLength={150} multiline editable={!busy} style={[s.input,{minHeight:90,textAlignVertical:'top'}]}/>
    <Text style={s.muted}>{bio.length} / 150</Text>
    <Action label={t("프로필 사진 선택")} disabled={busy} onPress={()=>void run(pick)}/>
    {uploadPending&&<Action label={t("사진 업로드 다시 시도")} disabled={busy} onPress={()=>void run(sendUpload)}/>}

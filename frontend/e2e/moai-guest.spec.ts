@@ -233,10 +233,10 @@ test('재진입한 공개 피드에 뒤늦은 이전 목록이 섞이지 않는�
   await feed.click();await started.pending;
   await page.getByRole('button',{name:'지역 스탬프 보기'}).click();
   await feed.click();
-  await expect(page.getByRole('button',{name:'최신 여행 상세 보기'})).toBeVisible();
+  await expect(page.getByTestId('feed-record-'+record.id).filter({hasText:'최신 여행'}).getByRole('button',{name:'상세 보기',exact:true})).toBeVisible();
   pending.release();
   await expect(page.locator('html')).toHaveAttribute('data-old-feed-read','yes');
-  await expect(page.getByRole('button',{name:'최신 여행 상세 보기'})).toBeVisible();
+  await expect(page.getByTestId('feed-record-'+record.id).filter({hasText:'최신 여행'}).getByRole('button',{name:'상세 보기',exact:true})).toBeVisible();
   await expect(page.getByText('이전 응답',{exact:true})).toHaveCount(0);
   await expect(page.getByTestId('stamp-total')).toHaveCount(0);
  }finally{pending.release();}
