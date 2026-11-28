@@ -35,7 +35,9 @@ export default function StampCatalog({groups,confirmed,failed,onBack,records=[],
    const preview=uiAssets.stampPreviews[region.id as keyof typeof uiAssets.stampPreviews];
    const status=!confirmed?t('확인 전'):visited?t('✓ 내 여행 스탬프'):t('미획득');
    let art:React.ReactNode;
-   if(districtStamps.length){
+   if(guest&&preview){
+    art=<Image source={preview} accessible accessibilityLabel={msg`${name} 스탬프 미리보기`} resizeMode="contain" style={s.art}/>;
+   }else if(districtStamps.length){
     art=districtStamps.map(({code,stamp,earned})=>{
      const label=msg`${stamp.name} 여행 스탬프`;
      return <View key={code} style={s.cityStamp}>
@@ -52,21 +54,21 @@ export default function StampCatalog({groups,confirmed,failed,onBack,records=[],
    }
    return <View key={region.id} testID="region-stamp" accessibilityLabel={guest?name:`${name}, ${!confirmed?t('확인 전'):visited?t('방문 완료'):t('미획득')}`} style={s.row}>
     <View style={s.region}><Svg testID="stamp-geography" width="100%" height={94} viewBox="0 0 163 94" preserveAspectRatio="xMidYMid meet" accessible={false}><Path d={region.path} fill={c.tint} stroke={c.accent} strokeWidth={1} fillRule="evenodd"/></Svg><Text style={s.regionName}>{name}</Text></View>
-    {!guest&&<View style={s.region}>{art}<Text style={s.small}>{status}</Text></View>}
+    {(!guest||preview)&&<View style={s.region}>{art}<Text style={s.small}>{guest?t('미리보기'):status}</Text></View>}
    </View>;
  }
  return <View style={s.page}>
   <View style={s.heading}><Pressable accessibilityRole="button" accessibilityLabel={t("여행 기록으로 돌아가기")} onPress={onBack} style={s.back}><Text style={s.link}>{t("‹ 여행 기록")}</Text></Pressable><Text accessibilityRole="header" style={s.title}>{t("여행 스탬프")}</Text></View>
   <View style={s.scope}><View><Text style={s.title}>{t("대한민국")}</Text><Text style={s.small}>{guest?t("로그인하면 내 방문 기록을 확인할 수 있어요."):t("완료한 내 여행 기준")}</Text></View>{!guest&&<Text testID="stamp-total" accessibilityLabel={msg`스탬프 방문 지역 수 · ${countLabel}`} style={s.link}>{countLabel}</Text>}</View>
-  <View accessibilityRole="tablist" accessibilityLabel={t("스탬프 범위")} style={s.tabs}>
+  {!guest&&<View accessibilityRole="tablist" accessibilityLabel={t("스탬프 범위")} style={s.tabs}>
    {[false,true].map(value=><Pressable key={String(value)} accessibilityRole="tab" accessibilityState={{selected:collected===value}} aria-selected={collected===value} onPress={()=>setCollected(value)} style={[s.tab,collected===value&&s.selected]}><Text style={[s.tabText,collected===value&&{color:c.sheet}]}>{value?msg`모은 스탬프${confirmed?` ${count}`:''}`:t('모든 지역')}</Text></Pressable>)}
-  </View>
+  </View>}
   {!collected&&<TextInput accessibilityLabel={t("지역 이름 검색")} placeholder={t("지역 이름 검색")} placeholderTextColor={c.muted} value={query} onChangeText={setQuery} returnKeyType="search" style={s.search}/>}
   {!collected&&!entries.length&&<Text style={s.empty}>{t("검색 결과가 없어요")}</Text>}
   {!guest&&!confirmed&&<View style={s.scope}>{!failed&&<ActivityIndicator accessibilityLabel={t("스탬프 확인 중")}/>}<Text style={s.small}>{t("방문 정보를 확인하고 있어요. 목록 오류가 있으면 다시 불러와 주세요.")}</Text></View>}
   {confirmed&&collected&&!count&&<Text style={s.empty}>{t("아직 모은 스탬프가 없어요.")}</Text>}
   {entries.map(region=>renderStamp(region,confirmed&&!!groups[region.id]))}
-  {confirmed&&<View style={s.scope}><Text style={s.small}>{t("이전 기준 스탬프 (2026-04-01) ·")} {legacyStampNames(records).join(' · ')||t('없음')}</Text></View>}
+  {!guest&&confirmed&&<View style={s.scope}><Text style={s.small}>{t("이전 기준 스탬프 (2026-04-01) ·")} {legacyStampNames(records).join(' · ')||t('없음')}</Text></View>}
   <Pressable accessibilityRole="link" accessibilityLabel={t("스탬프 지리 데이터 출처")} onPress={()=>void Linking.openURL(MAP_SOURCE_URL)} style={s.back}><Text style={s.small}>{MAP_ATTRIBUTION}</Text></Pressable>
  </View>;
 }
