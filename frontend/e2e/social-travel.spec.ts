@@ -282,7 +282,9 @@ test('studio appends five images, confirms date and city, then publishes to the 
  await add(4,true);await expect(page.getByText(/2장은 추가하지 않았어요/)).toBeVisible();
  await page.getByRole('button',{name:'사진 2 빼기',exact:true}).click();await expect(page.getByText('4 / 5',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'다음',exact:true}).click();
- await expect(page.getByRole('radio',{name:'공개',exact:true})).toHaveAttribute('aria-checked','true');
+ await expect(page.getByRole('radio',{name:'비공개',exact:true})).toBeChecked();
+ await page.getByRole('radio',{name:'공개',exact:true}).click();
+ await expect(page.getByRole('radio',{name:'공개',exact:true})).toBeChecked();
  await page.getByRole('button',{name:'적용',exact:true}).click();
  await page.getByRole('button',{name:'서울',exact:true}).click();
  const title='스튜디오 '+randomUUID();await page.getByLabel('여행 이름',{exact:true}).fill(title);

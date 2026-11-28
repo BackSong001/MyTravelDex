@@ -9,8 +9,9 @@ if(status.API_URL!=='http://127.0.0.1:55321')throw new Error('Requires the isola
 const admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);
 admin.token=status.SERVICE_ROLE_KEY;
 
-for(const hasMetadata of [true,false]){
- test('첫 기록 로그인과 '+(hasMetadata?'사진 날짜·GPS 자동 채움':'기간·장소 직접 보완'),async({page})=>{
+for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복구','비공개 저장 후 지도'] as const){
+ const hasMetadata=scenario==='자동 채움·상세 복구',interruptRead=scenario!=='비공개 저장 후 지도';
+ test('첫 기록 '+scenario,async({page})=>{
   await page.setViewportSize({width:hasMetadata?1280:390,height:860});
   const email='moai-first-'+randomUUID()+'@example.test',password=randomUUID()+'Aa1!';
   const user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true});
@@ -19,7 +20,8 @@ for(const hasMetadata of [true,false]){
    await admin.request('/rest/v1/profiles?id=eq.'+user.id,'PATCH',{profile_setup_complete:true});
    await page.route('**/functions/v1/photon-location',route=>route.fulfill({json:route.request().postDataJSON().query?[place]:place}));
    await page.route('**/auth/v1/**',route=>new URL(route.request().url()).origin===status.API_URL?route.continue():route.abort());
-   await page.goto('/record/new');
+   if(hasMetadata){await page.goto('/map');await page.getByRole('button',{name:'여행 기록 추가',exact:true}).click();}
+   else await page.goto('/record/new');
    await expect(page.getByRole('button',{name:'Google 로그인',exact:true})).toBeVisible();
    await expect(page.getByRole('button',{name:'여행 저장',exact:true})).toHaveCount(0);
    await page.getByLabel('이메일',{exact:true}).fill(email);
@@ -68,7 +70,30 @@ for(const hasMetadata of [true,false]){
     await expect(page.getByRole('radio',{name:'공개',exact:true})).toBeChecked();
     await expect(page.getByLabel('여행 이름',{exact:true})).toHaveValue('첫 여행');
    }
+   let committed=false,blocked=0,writes=0;
+   page.on('request',req=>{if(req.method()==='POST'&&req.url().endsWith('/rpc/finalize_travel_record'))writes++;});
+   page.on('response',response=>{if(response.url().endsWith('/rpc/finalize_travel_record')&&response.ok())committed=true;});
+   await page.route('**/rest/v1/travel_records?**',route=>{
+    const params=new URL(route.request().url()).searchParams;
+    const target=hasMetadata?params.has('id'):params.has('owner_id');
+    if(interruptRead&&committed&&target&&blocked===0){blocked++;return route.fulfill({status:503,json:{message:'Read unavailable'}});}
+    return route.continue();
+   });
    await page.getByRole('button',{name:'여행 저장',exact:true}).click();
+   if(interruptRead){
+    await expect(page.getByRole('heading',{name:'여행을 저장했어요.'})).toBeVisible();
+    await expect(page.getByText('저장은 완료됐지만 기록을 불러오지 못했어요.')).toBeVisible();
+    await expect(page.getByRole('button',{name:'여행 저장',exact:true})).toHaveCount(0);
+    await page.getByRole('button',{name:'저장한 기록 다시 불러오기'}).click();
+   }
+   const map=page.getByRole('button',{name:'내 지도에서 보기'});
+   await map.click();
+   await expect(page.getByTestId('map-destination')).toContainText('전주 한옥마을');
+   await expect(page.getByTestId('map-destination')).toBeInViewport();
+   const rows=await admin.request('/rest/v1/travel_records?owner_id=eq.'+user.id);
+   await expect(page.getByTestId('map-photo-'+rows[0].id)).toBeVisible();
+   expect(await admin.request('/rest/v1/photos?owner_id=eq.'+user.id)).toHaveLength(1);
+   expect(writes).toBe(1);expect(blocked).toBe(interruptRead?1:0);
    await expect.poll(async()=>(await admin.request('/rest/v1/travel_records?owner_id=eq.'+user.id)).map((r:any)=>[r.status,r.visibility,r.title,r.end_date])).toEqual([['complete',hasMetadata?'public':'private','첫 여행',hasMetadata?'2026-11-03':'2025-04-04']]);
   }finally{
    const photos=await admin.request('/rest/v1/photos?owner_id=eq.'+user.id);
