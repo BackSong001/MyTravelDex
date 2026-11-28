@@ -1,3 +1,4 @@
+import {uploadTripPhoto} from '../src/tripPhotoUpload';
 import {t,msg} from '../src/translate';
 import {TravelGuide,guideSteps,type GuideAnchors} from '../src/TravelGuide';
 import {companions,type Companion} from '../src/MascotArt';
@@ -20,7 +21,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams,type Href} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {ImagePickerAsset} from 'expo-image-picker';
-import {photoPermission,photoMetadata,compressPhoto,pickPhotos,cleanupPickedPhotos} from '../src/photos';
+import {photoPermission,photoMetadata,pickPhotos,cleanupPickedPhotos} from '../src/photos';
 import * as Crypto from 'expo-crypto';
 import {api} from '../src/runtime';
 import {ApiError} from '../src/api';
@@ -75,6 +76,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const [screen,setScreen]=useState('login'),[session,setSession]=useState<any>(null),[rows,setRows]=useState<any[]>([]),[selected,setSelected]=useState<any>(null);
  const [composer,setComposer]=useState(false),[discard,setDiscard]=useState(false),[saved,setSaved]=useState(''),[loading,setLoading]=useState(false),[listError,setListError]=useState('');
  const [completedId,setCompletedId]=useState<string|null>(null);
+ useEffect(()=>{preloadMap?.();},[]);
  const [journalOrder,setJournalOrder]=useState<JournalOrder>('region_asc'),[journalQuery,setJournalQuery]=useState('');
  const [authors,setAuthors]=useState<Record<string,any>>({}),[ownRows,setOwnRows]=useState<any[]>([]),[placeInfo,setPlaceInfo]=useState<any>(null);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false),[scope,setScope]=useState('mine'),[start,setStart]=useState(''),[end,setEnd]=useState(''),[friendOwner,setFriendOwner]=useState(''),[friendName,setFriendName]=useState(''),[provinceFilter,setProvinceFilter]=useState(''),[districtFilter,setDistrictFilter]=useState('');
@@ -399,15 +401,16 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
    for(const p of photos){
     photoIndex++;
     stage='photo.verify';
-    const mime='image/jpeg',root=`${session.user.id}/${recordId}/${p.id}`,originalPath=`${root}/original.jpg`,thumbnailPath=`${root}/thumbnail.jpg`;
-    const samePhoto=(photo:any)=>photo?.id===p.id&&photo.owner_id===session.user.id&&photo.travel_record_id===recordId&&photo.original_path===originalPath&&photo.thumbnail_path===thumbnailPath;
+    const root=session.user.id+'/'+recordId+'/'+p.id+'/';
+    const samePhoto=(photo:any)=>photo?.id===p.id&&photo.owner_id===session.user.id&&photo.travel_record_id===recordId&&
+     ((photo.original_path===root+'original.webp'&&photo.thumbnail_path===root+'thumbnail.webp')||
+      ([root+'original.jpg',root+'original.png'].includes(photo.original_path)&&photo.thumbnail_path===root+'thumbnail.jpg'));
     if(registered.has(p.id)){
      if(!samePhoto(registered.get(p.id)))throw new ApiError('VALIDATION_ERROR',409,'Photo registration conflict');
      continue;
     }
-    const main=await inSession('compress.original',()=>compressPhoto(p.asset,2048,5*1024*1024)),thumb=await inSession('compress.thumbnail',()=>compressPhoto(p.asset,512,512*1024));
-    for(const [path,bytes] of [[originalPath,main.bytes],[thumbnailPath,thumb.bytes]] as const){try{await inSession(path===originalPath?'upload.original':'upload.thumbnail',()=>api.request(`/storage/v1/object/travel-photos/${path}`,'POST',bytes,mime));}catch(e:any){if(e.serverCode!=='KeyAlreadyExists')throw e;}}
-    try{await inSession('photo.register',()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,original_path:originalPath,thumbnail_path:thumbnailPath,display_order:nextOrder++,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude,width:main.width,height:main.height,mime_type:mime,file_size_bytes:main.bytes.byteLength}));}catch(e:any){
+    const encoded=await uploadTripPhoto(api,inSession,session.user.id,recordId,p.id,p.asset);
+    try{await inSession('photo.register',()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,...encoded,display_order:nextOrder++,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude}));}catch(e:any){
      if(e.serverCode!=='23505')throw e;
      const rows=await inSession('photo.verify',()=>api.request(`/rest/v1/photos?id=eq.${p.id}&select=id,owner_id,travel_record_id,original_path,thumbnail_path`));
      if(!samePhoto(rows[0]))throw e;
@@ -576,7 +579,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  </ScrollView>;
  return <SafeAreaView testID="app-shell" edges={['top','left','right']} style={[s.safe,rail&&{paddingLeft:184}]}>
  {screen!=='create'&&!mapHome&&!feedScreen&&!socialMy&&<View style={[s.top,{maxWidth:720,paddingVertical:0,minHeight:52,paddingHorizontal:16},screen==='login'&&{justifyContent:'flex-end'}]}>{screen!=='login'&&<Text accessibilityRole="header" style={s.brand}>{sectionTitle}</Text>}{tools}</View>}
- {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot} seed={feedSeed} onStamps={!session?openStamps:undefined}/>:mapHome?<ScreenEntrance key="map" label={t("지도 준비 중")}>{onReady=><View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}>{settings}<TravelMap focus={destination} onDraw={()=>setDrawRequest(n=>n+1)} onCanvasReady={onReady} fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
+ {screen==='list'&&tab==='feed'&&error&&<Notice message={error}/ >}{screen==='list'&&tab==='feed'?<SocialFeed key={`feed:${session?.user.id??'guest'}`} {...socialProps} snapshot={feedSnapshot} seed={feedSeed} onStamps={!session?openStamps:undefined}/>:mapHome?<ScreenEntrance waitForMinimum={false} key="map" label={t("지도 준비 중")}>{onReady=><View style={[{flex:1},Platform.OS==='web'&&{width:'100%',maxWidth:homeMapWidth,alignSelf:'center'}]}>{settings}<TravelMap focus={destination} onDraw={()=>setDrawRequest(n=>n+1)} onCanvasReady={onReady} fullScreen homeMap={mapHome} navigation={mapNavigation} navigationOwner={`${session?.user?.id??'guest'}:${friendOwner||'mine'}`} records={journalRecords(rows,journalOrder,journalQuery)} covers={covers} authors={authors} onSelect={record=>{readDetail(record,'map');}} onRegion={(id,_name,district)=>{setDistrictFilter(district??'');setProvinceFilter(id);navigate('album');}}/>{mapHome&&<>
  {destination&&!session&&<View style={{position:'absolute',left:12,bottom:58,right:70,maxWidth:330,zIndex:1,backgroundColor:c.sheet,borderColor:c.line,borderWidth:1,borderRadius:16,padding:12}}>
   <Text accessibilityRole="header" style={{color:c.ink,fontSize:18,fontWeight:'700'}}>{destination.label}</Text>
   {button(t('공개 여행 사진 보기'),()=>navigate('feed'))}

@@ -34,7 +34,7 @@ type Gesture={base:GeoProjection;latest:GeoProjection;points:Point[];ids:string;
 const maxTapZooms=3;
 const emptyNavigation=():MapNavigation=>({province:null,selected:null,camera:null,detail:false,island:null,tapZoomCount:0,fitScale:null,labelRevealed:false,regionOffset:0,recordOffset:0});
 export default function TravelMap({onCanvasReady,records,covers={},authors={},onSelect,onRegion,onCoordinate,focus,onDraw,fullScreen,navigation,navigationOwner,homeMap=false}:TravelMapProps){
- const [background,setBackground]=useState<'initial'|'ready'|'failed'|'recovering'>(Platform.OS==='web'?'initial':'ready');
+ const [background,setBackground]=useState<'initial'|'ready'|'failed'|'recovering'>('initial');
  const retryAttempt=useRef(0);
  const failed=background==='failed',fallback=failed||background==='recovering',showOutline=background!=='ready';
  useEffect(()=>{

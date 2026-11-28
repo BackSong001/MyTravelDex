@@ -21,13 +21,6 @@ export default function TileSurface(props:TileSurfaceProps){
    type TileId={x:number;y:number;z:number};
    const missing=new Map<string,Map<string,TileId>>();
    let cancelRetry:(()=>void)|undefined,attempt=0;
-   const backdrop='province-tile-backdrop';
-   const showBackdrop=(visible:boolean)=>{
-    const value=visible?'visible':'none';
-    if(instance.getLayer(backdrop)&&instance.getLayoutProperty(backdrop,'visibility')!==value)
-     instance.setLayoutProperty(backdrop,'visibility',value);
-   };
-   instance.on('sourcedataloading',event=>{if(active&&event.sourceId==='regions')showBackdrop(true);});
    instance.once('load',()=>{
     clearTimeout(startup);
     if(active)live.current.onReady?.();
@@ -35,7 +28,7 @@ export default function TileSurface(props:TileSurfaceProps){
    instance.on('idle',()=>{
     if(active&&!cancelRetry){
      attempt=0;
-     showBackdrop(false);
+
     }
    });
    instance.on('error',event=>{
@@ -46,7 +39,6 @@ export default function TileSurface(props:TileSurfaceProps){
     const {x,y,z}=tile.tileID.canonical;
     const tiles=missing.get(sourceId)??new Map<string,TileId>();
     tiles.set(z+'/'+x+'/'+y,{z,x,y});missing.set(sourceId,tiles);
-    if(sourceId==='regions')showBackdrop(true);
     if(!cancelRetry)cancelRetry=scheduleMapRetry(attempt++,()=>{
      cancelRetry=undefined;
      if(!active)return;

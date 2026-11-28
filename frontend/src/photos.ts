@@ -145,15 +145,23 @@ export async function photoMetadata(asset: ImagePicker.ImagePickerAsset) {
   return {captured_date:date.captured_date,captured_at:date.captured_at,latitude:gps?.latitude??null,longitude:gps?.longitude??null};
 }
 
-export async function compressPhoto(asset: ImagePicker.ImagePickerAsset, edge: number, maxBytes: number) {
-  if (Platform.OS === 'web') return compressWebPhoto(asset, edge, maxBytes);
-  const actions = Math.max(asset.width, asset.height) > edge ? [{resize: asset.width >= asset.height ? {width: edge} : {height: edge}}] : [];
-  for (const quality of [.8, .6, .4, .2]) {
-    let image = await Manipulator.manipulateAsync(asset.uri, actions, {compress: quality, format: Manipulator.SaveFormat.JPEG});
-    if (Math.max(image.width,image.height) > edge) image = await Manipulator.manipulateAsync(asset.uri,[{resize:image.width >= image.height ? {width:edge} : {height:edge}}],{compress:quality,format:Manipulator.SaveFormat.JPEG});
-    if (Math.max(image.width,image.height) > edge) throw new Error('사진 크기를 줄이지 못했습니다. 다른 사진을 선택해 주세요.');
-    const bytes = await new File(image.uri).arrayBuffer();
-    if (bytes.byteLength <= maxBytes) return {...image, bytes};
+export async function compressPhoto(asset: ImagePicker.ImagePickerAsset, edge: number, maxBytes: number, format:'webp'|'jpeg'|'legacy'='legacy') {
+  if (Platform.OS === 'web') return compressWebPhoto(asset,edge,maxBytes,format);
+  const longest=edge===512||format==='legacy';
+  let {width,height}=asset;
+  const size=()=>longest?Math.max(width,height):width;
+  let limit=edge,corrected=false;
+  for(let attempt=0;attempt<5;attempt++){
+    const actions=size()>limit?[{resize:longest&&height>width?{height:limit}:{width:limit}}]:[];
+    const quality=format==='legacy'?[.8,.6,.4,.2,.2][attempt]:.75;
+    const image=await Manipulator.manipulateAsync(asset.uri,actions,{compress:quality,format:format==='webp'?Manipulator.SaveFormat.WEBP:Manipulator.SaveFormat.JPEG});
+    try {
+      const actual=longest?Math.max(image.width,image.height):image.width;
+      if(actual>limit){if(corrected)break;corrected=true;width=image.width;height=image.height;attempt--;continue;}
+      const bytes=await new File(image.uri).arrayBuffer();
+      if(bytes.byteLength>0&&bytes.byteLength<=maxBytes)return {width:image.width,height:image.height,bytes};
+      if(format!=='legacy')limit=Math.max(1,Math.floor(actual*.75));
+    }finally{if(image.uri!==asset.uri)cleanupPickedPhotos([image]);}
   }
   throw new Error('사진 압축에 실패했습니다. 다른 사진을 선택해 주세요.');
 }

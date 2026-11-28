@@ -16,13 +16,13 @@ for (const type of ['image/jpeg','image/png']) {
       URL.revokeObjectURL(uri);
       const asset = {uri,file,width:3000,height:4000};
       const results = [];
-      for (const [edge,limit] of [[2048,5242880],[512,524288]]) {
-        const image = await (encode.compress as typeof compressWebPhoto)(asset,edge,limit);
+      for (const [edge,limit] of [[1080,5242880],[512,524288]]) {
+        const image = await (encode.compress as typeof compressWebPhoto)(asset,edge,limit,'webp');
         results.push([image.width,image.height,image.bytes.byteLength <= limit,
-          ...new Uint8Array(image.bytes,0,3)]);
+          new TextDecoder().decode(image.bytes.slice(8,12))]);
       }
       return results;
     }, {compress,type});
-    expect(result).toEqual([[1536,2048,true,255,216,255],[384,512,true,255,216,255]]);
+    expect(result).toEqual([[1080,1440,true,'WEBP'],[384,512,true,'WEBP']]);
   });
 }

@@ -1,5 +1,6 @@
 import {expect,test} from '@playwright/test';
 import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {TravelApi} from '../src/api';
 import {metadataPhoto} from '../../backend/tests/fixtures/photo-exif';
@@ -9,8 +10,8 @@ if(status.API_URL!=='http://127.0.0.1:55321')throw new Error('Requires the isola
 const admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);
 admin.token=status.SERVICE_ROLE_KEY;
 
-for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복구','비공개 저장 후 지도'] as const){
- const hasMetadata=scenario==='자동 채움·상세 복구',interruptRead=scenario!=='비공개 저장 후 지도';
+for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복구','비공개 저장 후 지도','이전 JPEG 보관본 복구','이전 JPEG 두 파일 복구'] as const){
+ const hasMetadata=scenario==='자동 채움·상세 복구',legacy=scenario.startsWith('이전 JPEG'),interruptRead=!legacy&&scenario!=='비공개 저장 후 지도';
  test('첫 기록 '+scenario,async({page})=>{
   await page.setViewportSize({width:hasMetadata?1280:390,height:860});
   const email='moai-first-'+randomUUID()+'@example.test',password=randomUUID()+'Aa1!';
@@ -80,6 +81,21 @@ for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복
     await expect(page.getByRole('radio',{name:'공개',exact:true})).toBeChecked();
     await expect(page.getByLabel('여행 이름',{exact:true})).toHaveValue('첫 여행');
    }
+   const stored:string[]=[];
+   if(legacy){
+    await page.route('**/rpc/travel_photo_upload_state',async route=>{
+     const {record_id,photo_id}=route.request().postDataJSON();
+     const client=new TravelApi(status.API_URL,status.ANON_KEY);
+     await client.login(email,password);
+     const files=scenario==='이전 JPEG 두 파일 복구'?['original.jpg','thumbnail.jpg']:['original.jpg'];
+     for(const file of files){
+      const path=user.id+'/'+record_id+'/'+photo_id+'/'+file;
+      await client.request('/storage/v1/object/travel-photos/'+path,'POST',readFileSync('frontend/e2e/fixtures/social-thumbnail.jpg'),'image/jpeg');
+     }
+     await route.continue();
+    },{times:1});
+   }
+   page.on('request',req=>{if(req.method()==='POST'&&req.url().includes('/object/travel-photos/'))stored.push(req.url().split('/').pop()!);});
    let committed=false,blocked=0,writes=0;
    page.on('request',req=>{if(req.method()==='POST'&&req.url().endsWith('/rpc/finalize_travel_record'))writes++;});
    page.on('response',response=>{if(response.url().endsWith('/rpc/finalize_travel_record')&&response.ok())committed=true;});
@@ -109,6 +125,16 @@ for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복
    const rows=await admin.request('/rest/v1/travel_records?owner_id=eq.'+user.id);
    await expect(page.getByTestId('map-photo-'+rows[0].id)).toBeVisible();
    expect(await admin.request('/rest/v1/photos?owner_id=eq.'+user.id)).toHaveLength(1);
+   const client=new TravelApi(status.API_URL,status.ANON_KEY);
+   await client.login(email,password);
+   const photo=(await client.request('/rest/v1/photos?owner_id=eq.'+user.id))[0];
+   const format=legacy?'image/jpeg':'image/webp';
+   expect(photo.mime_type).toBe(format);
+   for(const variant of ['original','thumbnail']){
+    const response=await fetch(await client.photoUrl(photo.id,variant));
+    expect(response.ok).toBe(true);expect(response.headers.get('content-type')).toContain(format);
+   }
+   if(legacy)expect(stored).toEqual(scenario==='이전 JPEG 두 파일 복구'?[]:['thumbnail.jpg']);
    if(beforeRetry)expect(await savedIdentity()).toEqual(beforeRetry);
    expect(writes).toBe(1);expect(blocked).toBe(interruptRead?1:0);
    await expect.poll(async()=>(await admin.request('/rest/v1/travel_records?owner_id=eq.'+user.id)).map((r:any)=>[r.status,r.visibility,r.title,r.end_date])).toEqual([['complete',hasMetadata?'public':'private','첫 여행',hasMetadata?'2026-11-03':'2025-04-04']]);

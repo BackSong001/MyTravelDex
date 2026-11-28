@@ -8,7 +8,7 @@ import {boundaryTileRoot} from './boundaryTileRoot';
 
 const paper = '#F2EFE7';
 const sea = '#AED9EC';
-const border = '#BAC2C1';
+const border = '#A3AEAE';
 const detailZoom = 8;
 export const neighborhoodZoom = 10;
 const inlandWater = '#B7D9E8';
@@ -43,9 +43,9 @@ export function osmMapStyle(): StyleSpecification {
   });
   const name = (id: string, layer: string, minzoom: number): Extract<LayerSpecification,{type:'symbol'}> => ({
     id, type: 'symbol', source: 'regions', 'source-layer': layer, minzoom,
-    layout: {'text-field': ['get','name'], 'text-font': ['Noto Sans Regular'], 'text-size': 12, 'text-padding': 18,
+    layout: {'text-field': ['get','name'], 'text-font': ['Noto Sans Regular'], 'text-size': ['interpolate',['linear'],['zoom'],8,12,14,15], 'text-padding': 8,
       ...(id==='station-names'?{'text-anchor':'top' as const,'text-offset':[0,.55] as [number,number]}:{})},
-    paint: {'text-color': '#697278', 'text-halo-color': paper, 'text-halo-width': 1.4},
+    paint: {'text-color': '#505E66', 'text-halo-color': paper, 'text-halo-width': 1.4},
   });
   const neighborhood = {source:'neighborhood','source-layer':'neighborhood'};
   const road = (id: string, kind: string, minzoom: number, color: string, width: number): LayerSpecification => ({
@@ -56,7 +56,7 @@ export function osmMapStyle(): StyleSpecification {
   return {
     version: 8, glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
-      world: {type:'geojson', data: atlas, tolerance:.25},
+      world: {type:'geojson', data: atlas, tolerance:.25, maxzoom:8},
       regions: {type:'vector', tiles:[boundaryTileRoot()+version+'/{z}/{x}/{y}.pbf'], minzoom:8, maxzoom:11, bounds:[124,33,132,39]},
       neighborhood:{type:'vector',tiles:[boundaryTileRoot()+neighborhoodVersion+'/{z}/{x}/{y}.pbf'],minzoom:neighborhoodZoom,maxzoom:12,bounds:[124,33,132,39]},
     },
@@ -64,9 +64,9 @@ export function osmMapStyle(): StyleSpecification {
       {id:'ocean', type:'background', paint:{'background-color':sea}},
       {id:'world-land', source:'world', type:'fill', filter:['all',['==','$type','Polygon'],['!has','level']], paint:{'fill-color':paper}},
       {id:'province-overview', ...low, type:'fill', filter:['==','level','province'], paint:{'fill-color':paper,'fill-outline-color':border}},
-      {id:'province-tile-backdrop',source:'world',minzoom:detailZoom,type:'fill',filter:['==','level','province'],layout:{visibility:'none'},paint:{'fill-color':paper}},
+      {id:'province-tile-backdrop',source:'world',minzoom:detailZoom,type:'fill',filter:['==','level','province'],paint:{'fill-color':paper,'fill-outline-color':border}},
       {id:'domestic-land', ...high, type:'fill', 'source-layer':'province', paint:{'fill-color':paper}},
-      {id:'parks', ...high, minzoom:11, type:'fill', 'source-layer':'detail', filter:['==','kind','park'], paint:{'fill-color':'#C9DDB6'}},
+      {id:'parks', ...high, minzoom:10, type:'fill', 'source-layer':'detail', filter:['==','kind','park'], paint:{'fill-color':'#C9DDB6'}},
       riverLine('river',9,'in',2),
       riverLine('tributaries',13,'!in',1.25),
       {id:'water', ...high, minzoom:13, type:'fill', 'source-layer':'detail', filter:['==','kind','water'],
@@ -81,13 +81,13 @@ export function osmMapStyle(): StyleSpecification {
       {id:'railways', ...neighborhood, minzoom:13, type:'line', filter:['==','kind','rail'],
         paint:{'line-color':'#ABA9A7','line-width':1.4,'line-dasharray':[3,2]}},
       {id:'province-boundaries', ...high, 'source-layer':'province-line', ...stroke(border,.85)},
-      {id:'district-boundaries', ...high, minzoom:10, 'source-layer':'district-line', ...stroke('#D1D3CC',.65)},
+      {id:'district-boundaries', ...high, minzoom:8, 'source-layer':'district-line', ...stroke('#AAB5B4',.9)},
       {id:'selected-fill', ...low, type:'fill', filter:off, paint:highlight},
       {id:'selected-line', ...low, filter:off, ...stroke('#2563EB',2)},
       {id:'selected-detail-fill', ...high, 'source-layer':'province', type:'fill', filter:off, paint:highlight},
       {id:'selected-detail-line', ...high, 'source-layer':'province-line', filter:off, ...stroke('#2563EB',2)},
-      {...name('major-places','detail',11),filter:['==','kind','place']},
-      name('district-names','district-labels',11),
+      {...name('major-places','detail',10),filter:['==','kind','place']},
+      name('district-names','district-labels',9),
       {...name('river-names','detail',14), filter:['all',['==','kind','river'],['!=','name','']], layout:{
         'symbol-placement':'line','text-field':['get','name'],'text-font':['Noto Sans Regular'],'text-size':11,'symbol-spacing':320}},
       name('mountains','peaks',14),

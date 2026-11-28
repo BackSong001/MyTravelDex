@@ -100,7 +100,8 @@ test('경계 타일 하나가 실패해도 OSM 상세 도로와 건물을 계속
  await expect.poll(()=>count('province-tile-backdrop')).toBeGreaterThan(0);
  const recovered=page.waitForResponse(r=>r.url()===failedUrl&&r.status()===200);
  fail=false;await recovered;
- await expect.poll(()=>count('province-tile-backdrop'),{timeout:20000}).toBe(0);
+ await expect.poll(()=>count('domestic-land'),{timeout:20000}).toBeGreaterThan(0);
+ expect(await count('province-tile-backdrop')).toBeGreaterThan(0);
  for(let step=0;step<10;step++)await canvas.press('+');
  for(const id of ['buildings','streets'])await expect.poll(()=>count(id),{timeout:20000}).toBeGreaterThan(0);
  await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);

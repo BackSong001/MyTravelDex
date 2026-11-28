@@ -37,11 +37,11 @@ export function useSplashMinimumElapsed(){
  return elapsed;
 }
 
-export function ScreenEntrance({label,children,onShown}:{label:string;onShown?:()=>void;children:(onReady:()=>void)=>React.ReactNode}){
+export function ScreenEntrance({label,children,onShown,waitForMinimum=true}:{label:string;onShown?:()=>void;waitForMinimum?:boolean;children:(onReady:()=>void)=>React.ReactNode}){
  const elapsed=useSplashMinimumElapsed();
  const [ready,setReady]=useState(false);
  const onReady=useCallback(()=>setReady(true),[]);
- const covered=!ready||!elapsed;
+ const covered=!ready||(waitForMinimum&&!elapsed);
  useEffect(()=>{if(!covered)onShown?.();},[covered,onShown]);
  return <View style={{flex:1}}>
   <View style={{flex:1}} {...(Platform.OS==='web'?{inert:covered}:{})}
