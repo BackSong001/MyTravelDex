@@ -6,12 +6,10 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {manipulateAsync,SaveFormat,type ImageResult} from 'expo-image-manipulator';
 import {Action} from './SocialUI';
 import Text from './FontText';
-import {cleanupPickedPhotos} from './photos';
+import {cleanupPickedPhotos,imageSize} from './photos';
 import {useThemeColors} from './ThemeContext';
 
-export function imageSize(uri:string){
- return new Promise<{width:number;height:number}>((resolve,reject)=>Image.getSize(uri,(width,height)=>resolve({width,height}),reject));
-}
+export {imageSize} from './photos';
 
 type Props={uri:string;square?:boolean;onCancel:()=>void;onApply:(result:ImageResult)=>void};
 const clamp=(v:number,min:number,max:number)=>Math.max(min,Math.min(max,v));

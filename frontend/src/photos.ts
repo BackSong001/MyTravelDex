@@ -8,6 +8,10 @@ import {readExif,validCoordinates,RecordValidationError} from './domain';
 import {parse} from 'exifr';
 import {compressWebPhoto} from './compressWebPhoto';
 
+export function imageSize(uri:string){
+ return new Promise<{width:number;height:number}>((resolve,reject)=>Image.getSize(uri,(width,height)=>resolve({width,height}),reject));
+}
+
 export async function photoPermission(request = true) {
   if (!request) {
     if (Platform.OS !== 'android') return false;
@@ -61,7 +65,7 @@ export async function pickPhotos(fullAccess: boolean, source: 'system' | 'origin
         if(assets.length>=capacity){overflow++;cleanupPickedPhotos([document]);continue;}
         const file=document.file;
         if(!file||!await validWebPhoto(file)||document.mimeType!==file.type)throw new Error('Invalid photo');
-        const dimensions=await new Promise<{width:number;height:number}>((resolve,reject)=>Image.getSize(document.uri,(width,height)=>resolve({width,height}),reject));
+        const dimensions=await imageSize(document.uri);
         if(!dimensions.width||!dimensions.height||dimensions.width*dimensions.height>40000000)throw new Error('Invalid photo dimensions');
         assets.push({uri:document.uri,file,fileName:document.name,fileSize:file.size,mimeType:document.mimeType,type:'image',...dimensions});
       }catch{rejectedCount++;cleanupPickedPhotos([document]);}
@@ -164,4 +168,21 @@ export async function compressPhoto(asset: ImagePicker.ImagePickerAsset, edge: n
     }finally{if(image.uri!==asset.uri)cleanupPickedPhotos([image]);}
   }
   throw new Error('사진 압축에 실패했습니다. 다른 사진을 선택해 주세요.');
+}
+
+export async function cacheDraftPhoto(url:string):Promise<ImagePicker.ImagePickerAsset>{
+ const response=await fetch(url);
+ if(!response.ok)throw new Error('저장한 사진을 불러오지 못했어요.');
+ const mime=response.headers.get('content-type')?.split(';')[0],bytes=await response.arrayBuffer();
+ if(!['image/jpeg','image/webp'].includes(mime??'')||!bytes.byteLength||bytes.byteLength>20971520)throw new Error('저장한 사진을 확인하지 못했어요.');
+ let uri:string;
+ if(Platform.OS==='web')uri=URL.createObjectURL(new Blob([bytes],{type:mime}));
+ else{
+  const {randomUUID}=await import('expo-crypto');
+  const file=new File(Paths.cache,randomUUID()+(mime==='image/webp'?'.webp':'.jpg'));
+  uri=file.uri;
+  try{file.create();file.write(new Uint8Array(bytes));}catch(error){cleanupPickedPhotos([{uri}]);throw error;}
+ }
+ try{return {uri,...await imageSize(uri),mimeType:mime,type:'image',fileSize:bytes.byteLength};}
+ catch(error){cleanupPickedPhotos([{uri}]);throw error;}
 }

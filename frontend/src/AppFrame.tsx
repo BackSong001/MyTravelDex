@@ -22,6 +22,7 @@ export default function AppFrame({children}:React.PropsWithChildren) {
   const ready = localReady && laidOut && elapsed;
   useEffect(() => {
     let active = true;
+    if(Platform.OS==='web'){const outline=new window.Image();outline.src='/maps/korea-overview.svg';}
     // 로컬 저장소만 준비한다. 세션 갱신·지도·목록 요청은 화면에서 처리한다.
     const storageKey = `sb-${new URL(api.url).hostname.split('.')[0]}-auth-token`;
     void AsyncStorage.getItem(storageKey).catch(() => null).finally(() => {

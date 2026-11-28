@@ -533,3 +533,32 @@ for(const width of [390,1280]){
   }finally{await guest.close();}
  });
 }
+
+for(const hasThumb of [false,true])test('TC-ALBUM-01 cold JPEG draft recovery '+(hasThumb?'both files':'original only'),async({page})=>{
+ const draft=(await viewer.api.request('/rest/v1/travel_records','POST',{owner_id:viewer.id,title:'이전 업로드',location_id:ownRecord.location_id,start_date:'2026-11-01',end_date:'2026-11-02',visibility:'private'}))[0];
+ records.push(draft.id);
+ const id=randomUUID(),root=viewer.id+'/'+draft.id+'/'+id,bytes=readFileSync('frontend/e2e/fixtures/social-thumbnail.jpg');
+ for(const file of ['original.jpg','thumbnail.jpg']){files.push(root+'/'+file);if(hasThumb||file==='original.jpg')await viewer.api.request('/storage/v1/object/travel-photos/'+root+'/'+file,'POST',bytes,'image/jpeg');}
+ expect(await author.api.rpc('travel_draft_files',{record_id:draft.id})).toEqual([]);
+ await expect(author.api.request('/functions/v1/photo-url','POST',{draft_id:draft.id,photo_id:id,variant:'original'})).rejects.toMatchObject({status:404});
+ await login(page);
+ await page.goto('/dex');
+ await page.getByRole('button',{name:'임시저장 복구'}).click();
+ await page.getByText('이전 업로드',{exact:true}).click();
+ await page.getByRole('button',{name:'이 초안 이어서 작성'}).click();
+ await page.getByRole('button',{name:'사진으로 돌아가기'}).click();
+ await expect(page.getByRole('button',{name:'사진 편집'})).toBeDisabled();
+ await page.getByRole('button',{name:'다음',exact:true}).click();
+ const writes:string[]=[];
+ page.on('request',r=>{if(r.method()==='POST'&&r.url().includes('/object/travel-photos/'))writes.push(r.url().split('/').pop()!);});
+ await page.getByRole('button',{name:'여행 저장',exact:true}).click();
+ await expect(page.getByRole('button',{name:'내 지도에서 보기'})).toBeVisible();
+ const photos=await viewer.api.request('/rest/v1/photos?travel_record_id=eq.'+draft.id);
+ expect(photos).toHaveLength(1);
+ expect(writes).toEqual(hasThumb?[]:['thumbnail.jpg']);
+ const decoded=await page.evaluate(async(url:string)=>{const image=await createImageBitmap(await(await fetch(url)).blob());return {width:image.width,height:image.height};},await viewer.api.photoUrl(id,'original'));
+ expect(photos[0]).toMatchObject({...decoded,id,mime_type:'image/jpeg',file_size_bytes:bytes.length,original_path:root+'/original.jpg',thumbnail_path:root+'/thumbnail.jpg'});
+ expect(Buffer.from(await(await fetch(await viewer.api.photoUrl(id,'original'))).arrayBuffer())).toEqual(bytes);
+ const thumbnail=await fetch(await viewer.api.photoUrl(id,'thumbnail'));expect(thumbnail.ok).toBe(true);
+ if(hasThumb)expect(Buffer.from(await thumbnail.arrayBuffer())).toEqual(bytes);
+});

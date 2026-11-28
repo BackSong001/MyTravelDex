@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, {status: 204, headers: corsHeaders});
   if (req.method !== 'POST') return reply({ error: 'Method not allowed' }, 405);
   try {
-    const { photo_id, variant } = await req.json();
+    const { photo_id, variant, draft_id } = await req.json();
     if (typeof photo_id !== 'string' || !/^[0-9a-f-]{36}$/.test(photo_id) || !['original', 'thumbnail'].includes(variant)) return reply({ error: 'Invalid input' }, 400);
     let uid: string | null = null;
     const authorization = req.headers.get('Authorization');
@@ -16,6 +16,15 @@ Deno.serve(async (req) => {
       if (!session.ok) return reply({ error: 'Invalid session' }, 401);
       uid = (await session.json()).id;
     }
+    let path:string;
+    if(draft_id!==undefined){
+      if(!uid||variant!=='original'||typeof draft_id!=='string'||!/^[0-9a-f-]{36}$/.test(draft_id))return reply({error:'Not found'},404);
+      const files=await fetch(base+'/rest/v1/rpc/travel_draft_files',{method:'POST',headers:{...headers,Authorization:authorization!},body:JSON.stringify({record_id:draft_id})});
+      if(!files.ok)return reply({error:'Lookup failed'},503);
+      const file=(await files.json()).find((row:{photo_id:string})=>row.photo_id===photo_id);
+      if(!file)return reply({error:'Not found'},404);
+      path=file.object_path;
+    }else{
     const photos = await fetch(`${base}/rest/v1/photos?id=eq.${photo_id}&select=*,travel_records(*)`, { headers });
     if (!photos.ok) return reply({ error: 'Lookup failed' }, 500);
     const photo = (await photos.json())[0];
@@ -34,7 +43,8 @@ Deno.serve(async (req) => {
         if (!allowed) return reply({ error: 'Not found' }, 404);
       } catch { return reply({ error: 'Access check failed' }, 503); }
     }
-    const path = variant === 'original' ? photo.original_path : photo.thumbnail_path;
+    path = variant === 'original' ? photo.original_path : photo.thumbnail_path;
+    }
     const result = await fetch(`${base}/storage/v1/object/sign/travel-photos/${path}`, {
       method: 'POST', headers, body: JSON.stringify({ expiresIn: 300 }),
     });

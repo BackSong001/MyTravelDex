@@ -1,4 +1,4 @@
-import {uploadTripPhoto} from '../src/tripPhotoUpload';
+import {uploadTripPhoto,readDraftPhoto} from '../src/tripPhotoUpload';
 import {t,msg} from '../src/translate';
 import {TravelGuide,guideSteps,type GuideAnchors} from '../src/TravelGuide';
 import {companions,type Companion} from '../src/MascotArt';
@@ -54,7 +54,7 @@ function takeReturnPath(){
 
 class ListLoadError extends Error {}
 
-type Selected={id:string;asset:ImagePickerAsset;captured_date:string|null;captured_at:string|null;latitude:number|null;longitude:number|null};
+type Selected={id:string;locked?:boolean;asset:ImagePickerAsset;captured_date:string|null;captured_at:string|null;latitude:number|null;longitude:number|null};
 export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;linkParams?:{friend?:string;record?:string}}={}){
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
@@ -76,7 +76,6 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  const [screen,setScreen]=useState('login'),[session,setSession]=useState<any>(null),[rows,setRows]=useState<any[]>([]),[selected,setSelected]=useState<any>(null);
  const [composer,setComposer]=useState(false),[discard,setDiscard]=useState(false),[saved,setSaved]=useState(''),[loading,setLoading]=useState(false),[listError,setListError]=useState('');
  const [completedId,setCompletedId]=useState<string|null>(null);
- useEffect(()=>{preloadMap?.();},[]);
  const [journalOrder,setJournalOrder]=useState<JournalOrder>('region_asc'),[journalQuery,setJournalQuery]=useState('');
  const [authors,setAuthors]=useState<Record<string,any>>({}),[ownRows,setOwnRows]=useState<any[]>([]),[placeInfo,setPlaceInfo]=useState<any>(null);
  const [error,setError]=useState(''),[busy,setBusy]=useState(false),[scope,setScope]=useState('mine'),[start,setStart]=useState(''),[end,setEnd]=useState(''),[friendOwner,setFriendOwner]=useState(''),[friendName,setFriendName]=useState(''),[provinceFilter,setProvinceFilter]=useState(''),[districtFilter,setDistrictFilter]=useState('');
@@ -347,10 +346,26 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  function openStamps(){navigate('album');setMyStamps(true);scroll.current?.scrollTo({y:0,animated:false});}
  function navigate(next:JournalTab){setEditingProfile(false);setMyStamps(false);setDestination(undefined); cancelDetailRead();pendingAccountScroll.current=null;if(next==='account')accountScroll.current=0;setScopeOpen(false);setLocationOpen(false);navigationVersion.current++;setReplacement(null);setInvalidField('');setError('');setSaved('');setTab(next);if(next==='account'){setScreen(session?'account':'login');return;}setScreen('list');}
  function applyPlace(place:any){setCityOptions([]);setCheckingCities(false);edited.current.location=true;setLatitude(String(place.latitude));setLongitude(String(place.longitude));setPlaceInfo(place);setLocationOpen(false);}
- function recoverDraft(record:any,confirmed=false){
+ async function recoverDraft(record:any,confirmed=false){
   if(composer&&pending?.id===record.id){setScreen('create');return;}
   if(composer&&!confirmed){setReplacement(record);requestAnimationFrame(()=>scroll.current?.scrollTo({y:0,animated:false}));return;}
-  navigationVersion.current++;edited.current={start:true,end:true,location:true};setReplacement(null);setStep('info');setLegacyDraft(true);setPhotoNotice('');setInvalidField('');setError('');setPending({id:record.id,location:record.location_id,complete:record.status==='complete',existing:record.photos.length});setPhotos([]);setTitle(record.title??'');setContent(record.content??'');setStart(record.start_date);setEnd(record.end_date);setLatitude(String(record.locations.latitude));setLongitude(String(record.locations.longitude));setVisibility(record.visibility);setPlaceInfo(record.locations);setComposer(true);setScreen('create');
+  const version=++navigationVersion.current,epoch=sessionEpoch.current;
+  const restored:Selected[]=[];
+  try{
+   if(record.status==='draft'){
+    let files:{photo_id:string}[]=[];
+    try{files=await api.rpc('travel_draft_files',{record_id:record.id});}
+    catch(error){if(!(error instanceof ApiError)||error.serverCode!=='PGRST202')throw error;}
+    if(files.length+record.photos.length>20||new Set(files.map(f=>f.photo_id)).size!==files.length)throw new Error(t('저장한 사진을 확인하지 못했어요.'));
+    for(const file of files){
+     if(epoch!==sessionEpoch.current||version!==navigationVersion.current)break;
+     const asset=await readDraftPhoto(api,record.id,file.photo_id);
+     restored.push({id:file.photo_id,asset,locked:true,captured_date:null,captured_at:null,latitude:null,longitude:null});
+    }
+   }
+   if(epoch!==sessionEpoch.current||version!==navigationVersion.current){cleanupPickedPhotos(restored.map(p=>p.asset));return;}
+  }catch(error){cleanupPickedPhotos(restored.map(p=>p.asset));if(epoch===sessionEpoch.current&&version===navigationVersion.current)setError(error instanceof Error?error.message:t('저장한 사진을 확인하지 못했어요.'));return;}
+  edited.current={start:true,end:true,location:true};setReplacement(null);setStep('info');setLegacyDraft(true);setPhotoNotice('');setInvalidField('');setError('');setPending({id:record.id,location:record.location_id,complete:record.status==='complete',existing:record.photos.length});setPhotos(restored);setTitle(record.title??'');setContent(record.content??'');setStart(record.start_date);setEnd(record.end_date);setLatitude(String(record.locations.latitude));setLongitude(String(record.locations.longitude));setVisibility(record.visibility);setPlaceInfo(record.locations);setComposer(true);setScreen('create');
  }
  function locationValues(){return {owner_id:session.user.id,latitude:Number(latitude),longitude:Number(longitude),source:placeInfo?.source||'manual',place_name:placeInfo?.place_name||null,google_place_id:placeInfo?.google_place_id||null,provider_place_id:placeInfo?.provider_place_id||null,address:placeInfo?.address||null,attribution:placeInfo?.attribution||null,country_code:placeInfo?.country_code||null,country_name:placeInfo?.country_name||null,region_name:placeInfo?.region_name||null,city_name:placeInfo?.city_name||null};}
  async function showCompleted(id:string,version:number){
@@ -393,7 +408,10 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
    const recordId=record.id,location=record.location;
    const found=await inSession('record.lookup',()=>api.request(`/rest/v1/travel_records?id=eq.${recordId}&select=id`));
    if(!found.length)await inSession('draft.create',()=>api.request('/rest/v1/travel_records','POST',{id:recordId,owner_id:session.user.id,location_id:location,...values}));
-   else {const loc=await inSession('location.create',()=>api.request('/rest/v1/locations','POST',locationValues()));await inSession('draft.update',()=>api.update(recordId,{location_id:loc[0].id,...values}));}
+   else {
+    const locationId=placeInfo?.id===location?location:(await inSession('location.create',()=>api.request('/rest/v1/locations','POST',locationValues())))[0].id;
+    await inSession('draft.update',()=>api.update(recordId,{location_id:locationId,...values}));
+   }
    const registered=new Map<string,any>((await inSession('photo.list',()=>api.listPages(`/rest/v1/photos?travel_record_id=eq.${recordId}&select=id,owner_id,travel_record_id,original_path,thumbnail_path,display_order&order=display_order.asc,id.asc`))).map((photo:any)=>[photo.id,photo]));
    stage='photo.validate';
    validateRecord({start_date:start,end_date:end,latitude:Number(latitude),longitude:Number(longitude)},registered.size+photos.filter(photo=>!registered.has(photo.id)).length);
@@ -409,6 +427,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
      if(!samePhoto(registered.get(p.id)))throw new ApiError('VALIDATION_ERROR',409,'Photo registration conflict');
      continue;
     }
+    setPhotos(items=>items.map(photo=>photo.id===p.id?{...photo,locked:true}:photo));
     const encoded=await uploadTripPhoto(api,inSession,session.user.id,recordId,p.id,p.asset);
     try{await inSession('photo.register',()=>api.request('/rest/v1/photos','POST',{id:p.id,owner_id:session.user.id,travel_record_id:recordId,...encoded,display_order:nextOrder++,captured_date:p.captured_date,captured_at:p.captured_at,exif_latitude:p.latitude,exif_longitude:p.longitude}));}catch(e:any){
      if(e.serverCode!=='23505')throw e;
@@ -478,7 +497,7 @@ export default function AppWorkspace({pathname='',linkParams}:{pathname?:string;
  {screen==='confirm'&&<><Text accessibilityRole="header" style={s.heading}>{t("기록을 삭제할까요?")}</Text><Text style={s.description}>「{selected?.title||t('제목 없는 여행')}{t("」 기록과 사진")}{selected?.photos.length}{t("장을 삭제합니다. 이 작업은 되돌릴 수 없습니다.")}</Text>{button(t('삭제 확인'),()=>perform(removeSelected))}{button(t('취소'),()=>deleteFromBoard.current?returnFromDetail():setScreen('detail'),true)}</>}
 
  {screen==='list'&&tab==='album'&&!myStamps&&session&&button(drafts?t('완료된 여행 보기'):t('임시저장 복구'),()=>setDrafts(!drafts),true)}
- {screen==='detail'&&selected?.status==='draft'&&selected.owner_id===session?.user?.id&&button(t('이 초안 이어서 작성'),()=>recoverDraft(selected),true)}
+ {screen==='detail'&&selected?.status==='draft'&&selected.owner_id===session?.user?.id&&button(t('이 초안 이어서 작성'),()=>perform(()=>recoverDraft(selected)),true)}
  {screen==='create'&&!!pending?.existing&&<Text style={s.description}>{t("이미 등록된 사진")} {pending.existing}{t("장과 선택한 사진을 함께 저장합니다.")}</Text>}
  {screen==='list'&&tab==='friends'&&<Friends session={session} inviteCode={inviteCode} onInviteHandled={dismissInvite} onChanged={socialChanged} onMap={selectMapOwner}/>}
  {screen==='account'&&capabilityError&&<Notice message={capabilityError} retry={()=>setCapabilityAttempt(x=>x+1)}/>}

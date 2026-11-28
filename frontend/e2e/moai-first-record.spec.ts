@@ -10,8 +10,8 @@ if(status.API_URL!=='http://127.0.0.1:55321')throw new Error('Requires the isola
 const admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);
 admin.token=status.SERVICE_ROLE_KEY;
 
-for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복구','비공개 저장 후 지도','이전 JPEG 보관본 복구','이전 JPEG 두 파일 복구'] as const){
- const hasMetadata=scenario==='자동 채움·상세 복구',legacy=scenario.startsWith('이전 JPEG'),interruptRead=!legacy&&scenario!=='비공개 저장 후 지도';
+for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복구','비공개 저장 후 지도','이전 JPEG 보관본 복구','이전 JPEG 두 파일 복구','JPEG 대체 재시도'] as const){
+ const hasMetadata=scenario==='자동 채움·상세 복구',legacy=scenario.startsWith('이전 JPEG'),jpegRetry=scenario==='JPEG 대체 재시도',interruptRead=!legacy&&!jpegRetry&&scenario!=='비공개 저장 후 지도';
  test('첫 기록 '+scenario,async({page})=>{
   await page.setViewportSize({width:hasMetadata?1280:390,height:860});
   const email='moai-first-'+randomUUID()+'@example.test',password=randomUUID()+'Aa1!';
@@ -39,9 +39,16 @@ for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복
     await page.getByRole('button',{name:'새 여행 기록',exact:true}).click();
    }
    await expect(page.getByRole('heading',{name:'새 여행 기록'})).toBeVisible();
+   const large=jpegRetry?await page.evaluate(()=>{
+    const canvas=document.createElement('canvas');canvas.width=3000;canvas.height=2000;
+    const payload=canvas.toDataURL('image/jpeg').split(',')[1];
+    const encode=HTMLCanvasElement.prototype.toBlob;
+    HTMLCanvasElement.prototype.toBlob=function(cb,format,quality){return encode.call(this,cb,format==='image/webp'?'image/png':format,quality);};
+    return payload;
+   }):null;
    const picker=page.waitForEvent('filechooser');
    await page.getByRole('button',{name:'사진 목록',exact:true}).click();
-   await(await picker).setFiles(hasMetadata?{name:'sample.jpg',mimeType:'image/jpeg',buffer:metadataPhoto()}:'frontend/e2e/fixtures/social-thumbnail.jpg');
+   await(await picker).setFiles(large?{name:'landscape.jpg',mimeType:'image/jpeg',buffer:Buffer.from(large,'base64')}:hasMetadata?{name:'sample.jpg',mimeType:'image/jpeg',buffer:metadataPhoto()}:'frontend/e2e/fixtures/social-thumbnail.jpg');
    await page.getByRole('button',{name:'다음',exact:true}).click();
    await expect(page.getByRole('radio',{name:'비공개',exact:true})).toBeChecked();
    const start=page.getByLabel('여행 시작일',{exact:true}),end=page.getByLabel('여행 종료일',{exact:true});
@@ -105,7 +112,14 @@ for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복
     if(interruptRead&&committed&&target&&blocked===0){blocked++;return route.fulfill({status:503,json:{message:'Read unavailable'}});}
     return route.continue();
    });
+   if(jpegRetry)await page.route('**/object/travel-photos/**/thumbnail.jpg',r=>r.fulfill({status:503,json:{message:'Offline'}}),{times:1});
    await page.getByRole('button',{name:'여행 저장',exact:true}).click();
+   if(jpegRetry){
+    await page.getByRole('button',{name:'사진으로 돌아가기'}).click();
+    await expect(page.getByRole('button',{name:'사진 편집'})).toBeDisabled();
+    await page.getByRole('button',{name:'다음',exact:true}).click();
+    await page.getByRole('button',{name:'여행 저장',exact:true}).click();
+   }
    const savedIdentity=async()=>({
     records:await admin.request('/rest/v1/travel_records?select=id,visibility&owner_id=eq.'+user.id),
     photos:await admin.request('/rest/v1/photos?select=id,travel_record_id,original_path,thumbnail_path&owner_id=eq.'+user.id),
@@ -128,7 +142,12 @@ for(const scenario of ['자동 채움·상세 복구','수동 보완·목록 복
    const client=new TravelApi(status.API_URL,status.ANON_KEY);
    await client.login(email,password);
    const photo=(await client.request('/rest/v1/photos?owner_id=eq.'+user.id))[0];
-   const format=legacy?'image/jpeg':'image/webp';
+   if(jpegRetry){
+    expect([photo.width,photo.height]).toEqual([1080,720]);
+    expect(await page.evaluate(async url=>{const img=await createImageBitmap(await(await fetch(url)).blob());return [img.width,img.height];},await client.photoUrl(photo.id,'original'))).toEqual([1080,720]);
+    expect(stored.filter(n=>n==='original.jpg')).toHaveLength(1);
+   }
+   const format=legacy||jpegRetry?'image/jpeg':'image/webp';
    expect(photo.mime_type).toBe(format);
    for(const variant of ['original','thumbnail']){
     const response=await fetch(await client.photoUrl(photo.id,variant));
