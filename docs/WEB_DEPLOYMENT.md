@@ -4,7 +4,7 @@
 
 ## 빌드·라우팅
 
-Vercel 프로젝트의 Root Directory는 저장소 루트로 둔다. 루트 vercel.json이 installCommand, buildCommand, frontend/dist 출력을 지정한다. 기존 파일을 먼저 제공하고 /auth/callback 및 끝의 /만 index.html로 연결한다. 존재하지 않는 /assets, /vendor, /_expo 경로에는 SPA HTML을 반환하지 않는다.
+Vercel 프로젝트의 Root Directory는 저장소 루트로 둔다. 루트 vercel.json이 installCommand, buildCommand, frontend/dist 출력을 지정한다. 기존 파일을 먼저 제공한다. OAuth 복귀와 MOAI 체험의 직접 진입·새로고침은 `/auth/callback`, `/explore/random`, `/login`, `/home`, `/map`, `/feed`, `/dex`, `/record/new`, `/record/<UUID>`에서 index.html로 연결한다. 끝 슬래시도 허용한다. 존재하지 않는 /assets, /vendor, /_expo 경로에는 SPA HTML을 반환하지 않는다.
 
 배포 환경에는 EXPO_PUBLIC_SUPABASE_URL과 EXPO_PUBLIC_SUPABASE_ANON_KEY만 등록한다. 서버 Secret/service role/Google Secret를 클라이언트 변수에 넣지 않는다. scripts/export-web.mjs는 공개 키/HTTPS URL을 검증하고 local host·누락 환경을 거부하며 production과 EXPO_NO_DOTENV=1을 고정한다. frontend/.env.local은 유지하지만 이 빌드에는 자동 적용하지 않는다.
 
