@@ -219,7 +219,7 @@ function releasePickedPhoto(uri:string){
 }
 
 export function SocialProfile(props:Props&{target:string;onOverlay:(o:Overlay)=>void;editingProfile?:boolean;onEditing?:(value:boolean)=>void;headerActions?:React.ReactNode;onCreate?:()=>void;children?:React.ReactNode;snapshot?:React.MutableRefObject<PageSnapshot|null>;onSummaryReady?:()=>void}){
- const colors=useThemeColors();
+ const s=useSocialStyles(),colors=useThemeColors();
 
  const [profile,setProfile]=useState<any>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[edit,setEdit]=useState(false),[name,setName]=useState(''),[bio,setBio]=useState(''),[avatar,setAvatar]=useState<string|null>(null),[avatarMode,setAvatarMode]=useState('keep'),[attempt,setAttempt]=useState(0),guard=useRef(false),live=useRef(true);
  const [crop,setCrop]=useState<string|null>(null);
