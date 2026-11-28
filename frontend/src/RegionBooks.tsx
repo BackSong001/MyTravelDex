@@ -3,7 +3,8 @@ import {Image,Platform,ScrollView,View,useWindowDimensions} from 'react-native';
 import Text from './FontText';
 import Pressable,{useReducedMotion} from './Feedback';
 import {Action} from './SocialUI';
-import {AlbumEntrance,AlbumPage,bookType,cloth,PaperSkeleton} from './AlbumPage';
+import {AlbumEntrance,AlbumPage,bookType,PaperSkeleton} from './AlbumPage';
+import {EncyclopediaCover} from './EncyclopediaCover';
 import {useThemeColors} from './ThemeContext';
 import {msg,t} from './translate';
 import {journalRegion} from './journalRecords';
@@ -35,17 +36,12 @@ export default function RegionBooks({records,covers,owner,loading,restricted,onR
    <Text accessibilityRole="header" style={heading}>{t('지역 책장')}</Text>
    {!restricted&&groups.size>0&&groups.size<allRegions.length&&<Action label={all?t('기록 있는 지역만 보기'):t('모든 지역 보기')} onPress={()=>showAll(!all)}/>}
   </View>
-  {loading&&!records.length?<PaperSkeleton label={t('여행 기록 불러오는 중')} photo/>:Array.from({length:Math.ceil(names.length/cols)},(_,row)=><View key={row} style={{flexDirection:'row',alignItems:'flex-end',gap:8,paddingHorizontal:6,borderBottomWidth:5,borderBottomColor:'#AC9680'}}>
+  {loading&&!records.length?<PaperSkeleton label={t('여행 기록 불러오는 중')} photo/>:Array.from({length:Math.ceil(names.length/cols)},(_,row)=><View key={row} style={{flexDirection:'row',alignItems:'flex-end',gap:10,paddingHorizontal:8,paddingTop:10,paddingBottom:4,borderBottomWidth:8,borderBottomColor:'#7C533B',backgroundColor:c.warm}}>
    {names.slice(row*cols,row*cols+cols).map(name=>{
-    const entries=groups.get(name)??[],color=cloth[(allRegions.indexOf(name)+cloth.length)%cloth.length],cover=covers[entries[0]?.id];
+    const entries=groups.get(name)??[];
     return <Pressable key={name} accessibilityRole="button" accessibilityLabel={msg`${name} 사진첩 열기`} onPress={()=>{setManage(false);onPosition({region:name});}}
-     style={{flex:1,maxWidth:`${100/cols}%`,minHeight:132,justifyContent:'space-between',padding:12,borderLeftWidth:7,borderLeftColor:'#243832',borderTopRightRadius:7,borderBottomRightRadius:3,borderBottomWidth:3,borderBottomColor:'#D3C7AF',backgroundColor:color}}>
-     <View style={{minHeight:140,gap:11,justifyContent:'space-between'}}>
-      <View style={{alignSelf:'center',width:'85%',maxWidth:120,aspectRatio:1.55,padding:3,paddingBottom:6,backgroundColor:'#F4EBDD',transform:[{rotate:'-3deg'}]}}>
-       {cover?<Image accessible={false} source={{uri:cover}} resizeMode="cover" style={{flex:1}}/>:<View style={{flex:1,backgroundColor:entries.length?c.line:color,alignItems:'center',justifyContent:'center'}}><View style={{width:24,height:2,backgroundColor:'#DDC8A3'}}/></View>}
-      </View>
-      <View style={{borderTopWidth:1,borderColor:'#BDAD88',paddingTop:6,gap:2}}><Text style={{color:'#FFFAEB',fontFamily:bookType,fontSize:22,fontWeight:'700'}}>{name}</Text><Text style={{color:'#FFFAEB',fontSize:12}}>{msg`여행 ${entries.length}개`}</Text></View>
-     </View>
+     style={{flex:1,maxWidth:`${100/cols}%`,justifyContent:'flex-end'}}>
+     <EncyclopediaCover title={name} caption={msg`여행 ${entries.length}개`} photo={covers[entries[0]?.id]}/>
     </Pressable>;
    })}
   </View>)}

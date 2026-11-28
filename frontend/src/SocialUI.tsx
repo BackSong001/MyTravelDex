@@ -34,6 +34,14 @@ export function SocialModal({title,children,onClose}:{title:string;children:Reac
  useEffect(()=>{if(Platform.OS!=='web')return;const close=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();onClose();}};document.addEventListener('keydown',close);return()=>document.removeEventListener('keydown',close);},[onClose]);
  return <Modal visible animationType="none" onRequestClose={onClose}><SafeAreaView style={{flex:1,backgroundColor:c.sheet}}><KeyboardAvoidingView style={{flex:1}} enabled={Platform.OS!=='web'} behavior={Platform.OS==='ios'?'padding':'height'}><View style={[socialStyles.row,{padding:12,borderBottomWidth:1,borderColor:c.line,width:'100%',maxWidth:720,alignSelf:'center'}]}><Text accessibilityRole="header" style={[socialStyles.heading,{flex:1}]}>{title}</Text><IconAction label={t("닫기")} icon="close" onPress={onClose}/></View><View style={{flex:1,width:'100%',maxWidth:720,alignSelf:'center'}}>{children}</View></KeyboardAvoidingView></SafeAreaView></Modal>;
 }
+export function ReadingAction({label,caption=label,selected,disabled,onPress}:{label:string;caption?:string;selected?:boolean;disabled?:boolean;onPress:()=>void}){
+ const c=useThemeColors();
+ return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected,disabled}} aria-pressed={selected} disabled={disabled} onPress={onPress}
+  style={{paddingHorizontal:6,justifyContent:'center',alignItems:'center',opacity:disabled ? 0.55 : 1}}>
+  <Text style={{color:c.ink,fontSize:14,fontWeight:selected?'700':'500',textDecorationLine:selected?'underline':'none'}}>{caption}</Text>
+ </Pressable>;
+}
+
 export function RecordShare({id,title,compact=false}:{id:string;title?:string|null;compact?:boolean}){
  const colors=useThemeColors(),styles=useSocialStyles();
  const [feedback,setFeedback]=useState<'copied'|'manual'|null>(null);
@@ -53,7 +61,7 @@ export function RecordShare({id,title,compact=false}:{id:string;title?:string|nu
   }
  }
  return <>
-  {compact?<IconAction icon="share" label={t('공유')} onPress={()=>void share()}/>:<Action label={t('공개 기록 공유')} onPress={()=>void share()}/>}
+  {compact?<ReadingAction label={t('공유')} onPress={()=>void share()}/>:<Action label={t('공개 기록 공유')} onPress={()=>void share()}/>}
   {feedback==='copied'&&<Text accessibilityLiveRegion="polite" style={[styles.muted,{alignSelf:'center'}]}>{t('공유 링크를 복사했어요.')}</Text>}
   {feedback==='manual'&&<SocialModal title={t('공개 기록 공유')} onClose={()=>setFeedback(null)}>
    <View style={{padding:20,gap:12}}><Text accessibilityLiveRegion="polite" style={styles.heading}>{t('링크를 선택해 복사하세요.')}</Text>

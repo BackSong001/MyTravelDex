@@ -1,5 +1,5 @@
 import {AlbumPage,AlbumEntrance,bookType,PaperSkeleton} from './AlbumPage';
-import {preferences} from './preferences';
+import {preferences,usePreferences} from './preferences';
 import {useThemeColors} from './ThemeContext';
 import {t,msg} from './translate';
 import React,{useEffect,useRef,useState} from 'react';
@@ -14,11 +14,11 @@ import PhotoCrop,{imageSize} from './PhotoCrop';
 import {JournalIcon} from './Journal';
 import Pressable,{useReducedMotion} from './Feedback';
 import type {TravelApi} from './api';
-import {Action,IconAction,Notice,PageTail,RecordShare,SocialAvatar,SocialModal,SocialPhoto,failure,useSocialStyles,useSocialPage,type PageSnapshot} from './SocialUI';
+import {Action,IconAction,Notice,PageTail,ReadingAction,RecordShare,SocialAvatar,SocialModal,SocialPhoto,failure,useSocialStyles,useSocialPage,type PageSnapshot} from './SocialUI';
 type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:(discardFeed?:boolean)=>void;onLogin:()=>void;onOpen:(record:any)=>void};
 type Overlay={kind:'comments'|'profile'|'report'|'search'|'notifications'|'people';id?:string;record?:any;target?:'record'|'comment'|'profile';people?:string};
 export default function SocialFeed(props:Props&{onStamps?:()=>void;seed:React.MutableRefObject<string>;snapshot:React.MutableRefObject<PageSnapshot|null>}){
- const s=useSocialStyles(),colors=useThemeColors();
+ const colors=useThemeColors();
 
  const [mode,setMode]=useState(props.snapshot.current?.key?.includes('social_saved')?'saved':props.snapshot.current?.key?.includes('following')?'following':'public'),[overlay,setOverlay]=useState<Overlay|null>(null),[actionError,setActionError]=useState('');
  const [seed,setSeed]=useState(()=>props.seed.current||(props.seed.current=Crypto.randomUUID()));
@@ -48,14 +48,22 @@ export default function SocialFeed(props:Props&{onStamps?:()=>void;seed:React.Mu
  useEffect(()=>{const timer=setInterval(()=>setNow(new Date()),60000);return()=>clearInterval(timer);},[]);
  const list=useRef<FlatList>(null);
  useEffect(()=>{if(!page.refreshing&&page.items.length)list.current?.scrollToOffset({offset:props.snapshot.current?.offset??0,animated:false});},[page.refreshing]);
- return <View style={{flex:1,width:'100%',maxWidth:512,alignSelf:'center',backgroundColor:colors.sheet}}>
-  <View style={[s.row,{paddingHorizontal:8,gap:0,borderBottomWidth:1,borderColor:colors.line}]}>
-   {([['public',t('발견')],['following',t('팔로잉')],['saved',t('저장됨')]] as const).map(([value,label])=><Pressable key={value} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:mode===value}}
-    onPress={()=>{if(value!=='public'&&!props.owner){props.onLogin();return;}props.snapshot.current=null;setMode(value);}}
-    style={{justifyContent:'center',paddingHorizontal:8,borderBottomWidth:2,borderColor:mode===value?colors.ink:'transparent'}}>
-    <Text style={mode===value?[s.heading,{fontSize:17}]:s.muted}>{label}</Text>
-   </Pressable>)}
-   <View style={{flex:1}}/><IconAction icon="search" label={t("여행자 찾기")} onPress={()=>props.owner?setOverlay({kind:'search'}):props.onLogin()}/><IconAction icon="bell" label={t("알림")} onPress={()=>props.owner?setOverlay({kind:'notifications'}):props.onLogin()}/>
+ const dark=usePreferences().theme==='dark';
+ const paper=dark?'#292521':'#FAF6ED',ink=dark?'#FAE7C8':'#422C22',rule=dark?'#8F7460':'#A37C5B';
+ return <View style={{flex:1,width:'100%',maxWidth:944,alignSelf:'center',backgroundColor:paper}}>
+  <View style={{paddingHorizontal:18,backgroundColor:paper}}>
+   <View style={{flexDirection:'row',alignItems:'center',borderBottomWidth:2,borderColor:ink,gap:10}}>
+    <View aria-hidden style={{width:8,height:32,backgroundColor:'#995B3F',alignSelf:'flex-start'}}/>
+    <Text accessibilityRole="header" style={{flex:1,fontFamily:bookType,fontWeight:'700',fontSize:27,lineHeight:37,color:ink}}>{t('여행 열람실')}</Text>
+    <IconAction icon="search" label={t('여행자 찾기')} onPress={()=>props.owner?setOverlay({kind:'search'}):props.onLogin()}/><IconAction icon="bell" label={t('알림')} onPress={()=>props.owner?setOverlay({kind:'notifications'}):props.onLogin()}/>
+   </View>
+   <View style={{flexDirection:'row',flexWrap:'wrap',borderBottomWidth:1,borderColor:rule,columnGap:8}}>
+    {([['public',t('발견')],['following',t('팔로잉')],['saved',t('저장됨')]] as const).map(([value,label])=><Pressable key={value} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:mode===value}}
+     onPress={()=>{if(value!=='public'&&!props.owner){props.onLogin();return;}props.snapshot.current=null;setMode(value);}}
+     style={{justifyContent:'center',paddingHorizontal:6,borderBottomWidth:3,borderColor:mode===value?ink:'transparent'}}>
+     <Text style={{fontSize:15,color:ink,fontWeight:mode===value?'700':'400'}}>{label}</Text>
+    </Pressable>)}
+   </View>
   </View>
   {props.onStamps&&<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:12,gap:8,backgroundColor:colors.warm}}>
    <Text style={{flexShrink:1,color:colors.ink,fontSize:16,fontWeight:'600'}}>{t("공개 여행 사진")}</Text>
@@ -70,15 +78,14 @@ export default function SocialFeed(props:Props&{onStamps?:()=>void;seed:React.Mu
    const remaining=contentSize.height-contentOffset.y-layoutMeasurement.height;
    if(remaining<=1&&page.cursor&&!page.loading&&!page.error)void page.load(true);
   }} scrollEventThrottle={100} keyboardShouldPersistTaps="handled" refreshing={page.refreshing} onRefresh={refresh} renderItem={({item})=><FeedCard {...props} now={now} record={item} onOverlay={setOverlay} onError={setActionError}/>} ListFooterComponent={<PageTail page={page} automatic/>}/>
-  <AlbumEntrance title={t('여행 피드')}/>
+  <AlbumEntrance title={t('여행 열람실')}/>
   {overlay&&<SocialOverlay {...props} overlay={overlay} onClose={()=>setOverlay(null)} onOverlay={setOverlay}/>}
  </View>;
 }
 function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;onError:(s:string)=>void}){
- const s=useSocialStyles(),colors=useThemeColors();
-
  const {record,api}=props,[photos,setPhotos]=useState<any[]>([]),[photoIndex,setPhotoIndex]=useState(0),[expanded,setExpanded]=useState(false),[busy,setBusy]=useState(false),guard=useRef(false),alive=useRef(true);
- const initialWidth=useWindowDimensions().width;
+ const {width:initialWidth,fontScale}=useWindowDimensions();
+ const [spread,setSpread]=useState(false);
  const [width,setWidth]=useState(Math.min(initialWidth,512));
  const strip=useRef<ScrollView>(null);
  const images=photos.length?photos:[{id:record.cover_photo_id}];
@@ -96,36 +103,51 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
    props.onChanged();
   }catch(e){if(alive.current)props.onError(failure(e));}finally{if(alive.current)setBusy(false);guard.current=false;}
  }
- return <View testID={`feed-record-${record.id}`} style={{marginHorizontal:6,marginTop:2,marginBottom:12,borderBottomWidth:3,borderColor:colors.line,backgroundColor:colors.sheet,borderTopRightRadius:12,paddingBottom:12}}>
-  <View style={[s.row,{paddingHorizontal:12,paddingVertical:4}]}>
-   <Pressable accessibilityRole="button" accessibilityLabel={msg`${record.author?.display_name||t('여행자')} 프로필`} onPress={()=>props.onOverlay({kind:'profile',id:record.owner_id})} style={[s.row,{flex:1}]}>
-    <SocialAvatar api={api} author={record.author} size={36}/><View style={{flex:1}}><View style={{flexDirection:'row',alignItems:'baseline',flexWrap:'wrap',columnGap:6}}><Text style={[s.text,{fontWeight:'700'}]}>{record.author?.display_name||t('여행자')}</Text>{!!record.created_at&&<Text style={s.muted}>· {feedTimestamp(record.created_at,props.now,preferences().language)}</Text>}</View></View>
-   </Pressable>{record.owner_id!==props.owner&&<Pressable accessibilityRole="button" accessibilityLabel={record.following?t('팔로우 취소'):t('팔로우')} disabled={busy||(!!props.owner&&record.following===undefined)} onPress={()=>void reaction('follow')} style={{minHeight:48,justifyContent:'center',paddingHorizontal:4}}><Text style={{fontSize:14,fontWeight:'600',color:record.following?colors.muted:colors.sea}}>{record.following?t('팔로잉'):t('팔로우')}</Text></Pressable>}<IconAction icon="more" label={t("신고 및 차단")} onPress={()=>props.owner?props.onOverlay({kind:'report',id:record.id,target:'record',record}):props.onLogin()}/>
+ const dark=usePreferences().theme==='dark',ink=dark?'#F2E5D3':'#362921',muted=dark?'#CDBDA8':'#685749',rule=dark?'#726253':'#C4AB8E';
+ const title=record.title||t('제목 없는 여행'),author=record.author?.display_name||t('여행자');
+ return <View testID={`feed-record-${record.id}`} onLayout={e=>setSpread(e.nativeEvent.layout.width>=680&&fontScale<1.5)}
+  style={{paddingHorizontal:spread?30:18,paddingTop:20,paddingBottom:22,borderBottomWidth:2,borderColor:rule}}>
+  <View style={{gap:5,paddingBottom:12}}>
+   <Text accessibilityRole="header" style={{fontFamily:bookType,fontWeight:'700',fontSize:spread?38:29,lineHeight:spread?50:40,color:ink}}>{title}</Text>
+   <Text style={{color:muted,fontSize:16}}>{t('여행')} {record.start_date}{record.end_date!==record.start_date&&' — '+record.end_date}</Text>
   </View>
-  <Text style={{color:colors.ink,paddingHorizontal:12,paddingBottom:6,fontSize:16,fontWeight:'600'}}>{t("여행")} {record.start_date}{record.end_date!==record.start_date&&' — '+record.end_date}</Text>
-  <View onLayout={e=>{const w=e.nativeEvent.layout.width;if(w>0)setWidth(w);}} style={{width:'100%',aspectRatio:4/5,overflow:'hidden'}}>
-   <ScrollView horizontal pagingEnabled ref={strip} showsHorizontalScrollIndicator={false} scrollEventThrottle={32}
-    onScroll={e=>setPhotoIndex(Math.max(0,Math.min(images.length-1,Math.round(e.nativeEvent.contentOffset.x/width))))}>
-    {images.map((photo,index)=><View key={photo.id??index} aria-hidden={index!==photoIndex} importantForAccessibility={index===photoIndex?'auto':'no-hide-descendants'} {...(Platform.OS==='web'?{inert:index!==photoIndex}:{})} style={{width,height:'100%'}}>
-     {Math.abs(index-photoIndex)<=1&&<SocialPhoto frame={image=><AlbumPage record={record} disabled={props.disabled}>{image}</AlbumPage>} api={api} id={photo.id} label={msg`${record.title||t('여행')} 사진 ${index+1}`} style={{width:'100%',height:'100%'}}/>}
-    </View>)}
-
-   </ScrollView>
-   {images.length>1&&<View pointerEvents="none" style={{position:'absolute',right:12,top:12,paddingHorizontal:10,paddingVertical:4,borderRadius:14,backgroundColor:'#161616BB'}}><Text style={{fontSize:12,color:'#fff'}}>{photoIndex+1} / {images.length}</Text></View>}
+  <View style={{flexDirection:spread?'row':'column',gap:spread?22:12,alignItems:'stretch'}}>
+   <View style={spread?{flex:1.45,minWidth:0}:{width:'100%'}}>
+    <View onLayout={e=>{const w=e.nativeEvent.layout.width;if(w>0)setWidth(w);}} style={{width:'100%',aspectRatio:spread?1.24:1.15,overflow:'hidden'}}>
+     <ScrollView horizontal pagingEnabled ref={strip} showsHorizontalScrollIndicator={false} scrollEventThrottle={32}
+      onScroll={e=>setPhotoIndex(Math.max(0,Math.min(images.length-1,Math.round(e.nativeEvent.contentOffset.x/width))))}>
+      {images.map((photo,index)=><View key={photo.id??index} aria-hidden={index!==photoIndex} importantForAccessibility={index===photoIndex?'auto':'no-hide-descendants'} {...(Platform.OS==='web'?{inert:index!==photoIndex}:{})} style={{width,height:'100%'}}>
+       {Math.abs(index-photoIndex)<=1&&<SocialPhoto frame={image=><AlbumPage record={record} publicApi={api} disabled={props.disabled}>{image}</AlbumPage>} api={api} id={photo.id} label={msg`${title} 사진 ${index+1}`} style={{width:'100%',height:'100%'}}/>}
+      </View>)}
+     </ScrollView>
+    </View>
+    {images.length>1&&<View style={{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:8}}>
+     <IconAction icon="back" label={t("이전 사진")} disabled={photoIndex===0} onPress={()=>showPhoto(photoIndex-1)}/>
+     <Text style={{fontFamily:bookType,color:muted}}>{photoIndex+1} / {images.length}</Text>
+     <IconAction icon="next" label={t("다음 사진")} disabled={photoIndex===images.length-1} onPress={()=>showPhoto(photoIndex+1)}/>
+    </View>}
+   </View>
+   <View style={[spread?{flex:1,minWidth:0,borderLeftWidth:2,paddingLeft:20}:{borderTopWidth:1,paddingTop:12},{borderColor:rule,gap:10}]}>
+    {!!record.content&&<View><Text numberOfLines={expanded?undefined:4} style={{fontFamily:bookType,fontSize:18,lineHeight:29,color:ink}}>{record.content}</Text>
+     {record.content.length>60&&<ReadingAction label={expanded?t('접기'):t('더 읽기')} onPress={()=>setExpanded(!expanded)}/>}</View>}
+    <View style={{flexDirection:'row',alignItems:'center',columnGap:8,flexWrap:'wrap'}}>
+     <Pressable accessibilityRole="button" accessibilityLabel={msg`${author} 프로필`} onPress={()=>props.onOverlay({kind:'profile',id:record.owner_id})} style={{flexShrink:1,justifyContent:'center'}}>
+      <Text style={{color:ink,fontWeight:'600',fontSize:15}}>{t('글·사진')}  {author}</Text>
+      {!!record.created_at&&<Text style={{fontSize:13,color:muted}}>{feedTimestamp(record.created_at,props.now,preferences().language)}</Text>}
+     </Pressable>
+     {record.owner_id!==props.owner&&<ReadingAction label={record.following?t('팔로우 취소'):t('팔로우')} selected={record.following} disabled={busy||(!!props.owner&&record.following===undefined)} onPress={()=>void reaction('follow')}/>}
+    </View>
+    <Pressable accessibilityRole="button" accessibilityLabel={t('상세 보기')} disabled={props.disabled} onPress={()=>props.onOpen(record)} style={{alignSelf:'flex-start',minHeight:48,paddingHorizontal:14,borderWidth:1,borderColor:rule,justifyContent:'center'}}>
+     <Text style={{color:ink,fontWeight:'600'}}>{t('상세 보기')}  →</Text>
+    </Pressable>
+   </View>
   </View>
-  <View style={{paddingHorizontal:12}}>
-   <View style={[s.row,{gap:0,marginHorizontal:-4,flexWrap:'wrap'}]}><IconAction icon="heart" label={record.liked?t('좋아요 취소'):t('좋아요')} selected={record.liked} color={record.liked?'#CD344C':undefined} disabled={busy} onPress={()=>void reaction('like')}/>
-    <IconAction icon="comment" label={t("댓글")}  onPress={()=>props.onOverlay({kind:'comments',record})}/>
-    <RecordShare key={record.id} id={record.id} title={record.title} compact/>
-    <View style={{flex:1}}/>{images.length>1&&<><IconAction icon="back" label={t("이전 사진")} disabled={photoIndex===0} onPress={()=>showPhoto(photoIndex-1)}/><IconAction icon="next" label={t("다음 사진")} disabled={photoIndex===images.length-1} onPress={()=>showPhoto(photoIndex+1)}/></>}
-    <IconAction icon="bookmark" label={record.saved?t('저장 취소'):t('저장')} selected={record.saved} disabled={busy} onPress={()=>void reaction('save')}/>
-   </View>
-   <Text style={[s.text,{fontWeight:'600'}]}>{t("좋아요")} {record.like_count}{t("개")}</Text><View style={s.row}>
-    <Text style={[s.text,{flex:1,fontFamily:bookType,fontSize:20,lineHeight:27,fontWeight:'700'}]}>{record.title||t('제목 없는 여행')}</Text>
-    <Action label={t('상세 보기')} disabled={props.disabled} onPress={()=>props.onOpen(record)}/>
-   </View>
-   {!!record.content&&<><Text numberOfLines={expanded?undefined:2} style={s.text}>{record.content}</Text>{record.content.length>60&&<Pressable accessibilityRole="button" onPress={()=>setExpanded(!expanded)} style={{justifyContent:'center'}}><Text style={s.muted}>{expanded?t('접기'):t('더 읽기')}</Text></Pressable>}</>}
-   <Pressable accessibilityRole="button" onPress={()=>props.onOverlay({kind:'comments',record})} style={{alignSelf:'flex-start',justifyContent:'center'}}><Text style={s.muted}>{t("댓글")} {record.comment_count}{t("개 보기")}</Text></Pressable>
+  <View style={{flexDirection:'row',alignItems:'center',flexWrap:'wrap',marginTop:12,borderTopWidth:1,borderColor:rule}}>
+   <ReadingAction label={record.liked?t('좋아요 취소'):t('좋아요')} caption={(record.liked?t('좋아요 취소'):t('좋아요'))+' '+(record.like_count??0)} selected={record.liked} disabled={busy} onPress={()=>void reaction('like')}/>
+   <ReadingAction label={t('댓글')} caption={t('댓글')+' '+(record.comment_count??0)} onPress={()=>props.onOverlay({kind:'comments',record})}/>
+   <ReadingAction label={record.saved?t('저장 취소'):t('저장')} selected={record.saved} disabled={busy} onPress={()=>void reaction('save')}/>
+   <RecordShare key={record.id} id={record.id} title={record.title} compact/>
+   <View style={{flex:1}}/><IconAction icon="more" label={t('신고 및 차단')} onPress={()=>props.owner?props.onOverlay({kind:'report',id:record.id,target:'record',record}):props.onLogin()}/>
   </View>
  </View>;
 }
@@ -197,7 +219,7 @@ function releasePickedPhoto(uri:string){
 }
 
 export function SocialProfile(props:Props&{target:string;onOverlay:(o:Overlay)=>void;editingProfile?:boolean;onEditing?:(value:boolean)=>void;headerActions?:React.ReactNode;onCreate?:()=>void;children?:React.ReactNode;snapshot?:React.MutableRefObject<PageSnapshot|null>;onSummaryReady?:()=>void}){
- const s=useSocialStyles(),colors=useThemeColors();
+ const colors=useThemeColors();
 
  const [profile,setProfile]=useState<any>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[edit,setEdit]=useState(false),[name,setName]=useState(''),[bio,setBio]=useState(''),[avatar,setAvatar]=useState<string|null>(null),[avatarMode,setAvatarMode]=useState('keep'),[attempt,setAttempt]=useState(0),guard=useRef(false),live=useRef(true);
  const [crop,setCrop]=useState<string|null>(null);

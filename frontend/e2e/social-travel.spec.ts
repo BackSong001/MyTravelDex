@@ -23,6 +23,12 @@ async function record(user:any,title:string,visibility:string,photoCount=1,photo
 test.beforeEach(async({page})=>{page.on('pageerror',error=>console.log('Web runtime:',error.name,error.message.replace(/https?:\/\/\S+/g,'[URL]')));records=[];locations=[];files=[];author=await account('소셜 여행자');viewer=await account('나의 일기');publicRecord=await record(author,'함께 보는 서울','public');privateRecord=await record(author,'비공개 서울','private');ownRecord=await record(viewer,'나만의 서울','private');});
 test.afterEach(async()=>{for(const id of records)await admin.request('/rest/v1/travel_records?id=eq.'+id,'DELETE');if(files.length)await admin.request('/storage/v1/object/travel-photos','DELETE',{prefixes:files});for(const id of locations)await admin.request('/rest/v1/locations?id=eq.'+id,'DELETE');for(const u of [author,viewer])if(u)await admin.request('/auth/v1/admin/users/'+u.id,'DELETE');await admin.request('/functions/v1/cleanup-avatars','POST',{});});
 async function login(page:Page,user=viewer,needsSetup=false){await page.route('**/auth/v1/**',route=>new URL(route.request().url()).origin===status.API_URL?route.continue():route.abort());await page.goto('/');await page.getByLabel('이메일',{exact:true}).fill(user.email);await page.getByLabel('비밀번호',{exact:true}).fill(user.password);const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/v1/token');await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();const logged=await response;expect(new URL(logged.url()).origin).toBe(status.API_URL);expect(logged.status()).toBe(200);if(needsSetup){await expect(page.getByRole('heading',{name:'여행을 시작할 프로필'})).toBeVisible();return;}await expect(page.getByRole('button',{name:'새 여행 기록',exact:true})).toBeVisible();await expect(page.getByText('프로필 설정 확인 중',{exact:true})).toHaveCount(0);}
+async function switchAccount(page:Page,account:typeof viewer){
+  const code=buildSync({stdin:{contents:"import {createClient} from '@supabase/supabase-js';window.switchLocalAccount=async(url,key,session)=>{const c=createClient(url,key);const result=await c.auth.setSession(session);await c.auth.stopAutoRefresh();return !result.error;};",resolveDir:process.cwd()+'/frontend'},bundle:true,write:false,format:'iife',platform:'browser'}).outputFiles[0].text;
+  await page.addScriptTag({content:code});
+  const tokens=await account.api.login(account.email,account.password);
+  expect(await page.evaluate(([url,key,session])=>(window as any).switchLocalAccount(url,key,session),[status.API_URL,status.ANON_KEY,{access_token:tokens.access_token,refresh_token:tokens.refresh_token}])).toBe(true);
+}
 async function feed(page:Page,firstId=publicRecord.id){await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+firstId)).toBeVisible();await expect.poll(()=>page.getByTestId('feed-record-'+firstId).locator('img').evaluateAll(images=>images.some(image=>image instanceof HTMLImageElement&&image.src.includes('/storage/')&&image.complete&&image.naturalWidth>0))).toBe(true);}
 async function startPhotoInfo(page:Page){
  const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'사진 목록',exact:true}).click();
@@ -112,8 +118,87 @@ test('pulling the feed from its top requests a new order and keeps trip dates se
  await expect.poll(()=>seeds.at(-1)).not.toBe(afterMouse);
  await expect(card).toBeVisible();
 });
+test('TC-ALBUM-05 reading room opens only the visible trip location and can retry it',async({page})=>{
+ const card=page.getByTestId('feed-record-'+publicRecord.id),flip=card.getByRole('button',{name:/여행 위치 보기$/});
+ let reads=0,fail=true;
+ await page.route('**/rest/v1/travel_records?**',async route=>{
+  const q=new URL(route.request().url()).searchParams;
+  if(q.get('id')!=='eq.'+publicRecord.id||!q.get('select')?.includes('locations('))return route.continue();
+  expect(q.get('visibility')).toBe('eq.public');expect(q.get('status')).toBe('eq.complete');
+  expect(q.get('select')).not.toMatch(/latitude|longitude|exif|\*/i);reads++;
+  if(fail)return route.fulfill({status:503,json:{message:'temporarily unavailable'}});
+  return route.continue();
+ });
+ await login(page);await feed(page);
+ await expect(page.getByRole('heading',{name:'여행 열람실',exact:true})).toBeVisible();
+ expect(reads).toBe(0);await flip.focus();await page.keyboard.press('Enter');
+ const back=card.getByRole('group',{name:'사진 정보'}),retry=back.getByRole('button',{name:'위치 다시 불러오기'});
+ await expect(retry).toBeVisible();fail=false;await retry.click();
+ await expect(back.getByText('서울 시청',{exact:true})).toBeVisible();expect(reads).toBe(2);
+ await expect(back.getByText(publicRecord.title,{exact:true})).toHaveCount(0);
+ await expect(back.getByText('사진으로 남긴 여행 이야기',{exact:true})).toHaveCount(0);
+ await card.getByRole('button',{name:'사진 앞면 보기'}).click();
+ await author.api.update(publicRecord.id,{visibility:'private'});
+ await flip.click();
+ await expect(back.getByText('위치 정보 없음',{exact:true})).toBeVisible();
+ await expect(back.getByText('서울 시청',{exact:true})).toHaveCount(0);
+ await card.getByRole('button',{name:'사진 앞면 보기'}).click();
+ await author.api.update(publicRecord.id,{visibility:'public'});
+ await author.api.rpc('social_set_block',{target_id:viewer.id,enabled:true});
+ await flip.click();
+ await expect(back.getByText('위치 정보 없음',{exact:true})).toBeVisible();
+ await expect(back.getByText('서울 시청',{exact:true})).toHaveCount(0);
+
+});
+test('TC-ALBUM-05 a late place cannot replace the next reading or invent a missing address',async({page})=>{
+ const other=await record(author,'주소 없는 여행','public',1,'frontend/assets/ui/guide-jeonju.jpg',{latitude:35.8,longitude:127.15,place_name:''});
+ await viewer.api.setFollow(author.id,true);
+ await login(page);await page.getByRole('tab',{name:'피드',exact:true}).click();
+ await page.getByRole('button',{name:'팔로잉',exact:true}).click();
+ const first=page.getByTestId('feed-record-'+publicRecord.id),next=page.getByTestId('feed-record-'+other.id);
+ let release!:()=>void,started!:()=>void,finished!:()=>void;
+ const gate=new Promise<void>(r=>release=r),inFlight=new Promise<void>(r=>started=r),delivered=new Promise<void>(r=>finished=r);
+ await page.route('**/rest/v1/travel_records?**',async route=>{
+  const q=new URL(route.request().url()).searchParams;
+  if(q.get('id')!=='eq.'+publicRecord.id||!q.get('select')?.startsWith('locations('))return route.continue();
+  const response=await route.fetch();started();await gate;await route.fulfill({response});finished();
+ });
+ try{
+  await first.getByRole('button',{name:/여행 위치 보기$/}).click();await inFlight;
+  await first.getByRole('button',{name:'사진 앞면 보기'}).click();
+  await next.getByRole('button',{name:/여행 위치 보기$/}).click();
+  const back=next.getByRole('group',{name:'사진 정보'});
+  await expect(back.getByText('위치 정보 없음')).toBeVisible();release();await delivered;
+  await expect(back.getByText('서울 시청')).toHaveCount(0);
+  await expect(first.getByRole('group',{name:'사진 정보'})).toHaveCount(0);
+ }finally{release();}
+});
+
+test('TC-ALBUM-05 a location from the guest session cannot appear after a blocked account signs in',async({page})=>{
+ await author.api.rpc('social_set_block',{target_id:viewer.id,enabled:true});
+ await page.goto('/');await page.getByRole('button',{name:'대한민국 지도 둘러보기',exact:true}).click();
+ await feed(page);
+ const card=page.getByTestId('feed-record-'+publicRecord.id);
+ const flip=card.getByRole('button',{name:/여행 위치 보기$/});
+ await flip.click();
+ await expect(card.getByRole('group',{name:'사진 정보'}).getByText('서울 시청',{exact:true})).toBeVisible();
+ await card.getByRole('button',{name:'사진 앞면 보기'}).click();
+ let begin!:()=>void,release!:()=>void,end!:()=>void;
+ const started=new Promise<void>(r=>begin=r),gate=new Promise<void>(r=>release=r),finished=new Promise<void>(r=>end=r);
+ await page.route('**/rest/v1/travel_records?**',async route=>{
+  const q=new URL(route.request().url()).searchParams;
+  if(q.get('id')!=='eq.'+publicRecord.id||!q.get('select')?.startsWith('locations('))return route.continue();
+  const response=await route.fetch();begin();await gate;try{await route.fulfill({response});}finally{end();}
+ });
+ try{
+  await flip.click();await started;await switchAccount(page,viewer);
+  await expect(card).toHaveCount(0);release();await finished;
+  await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByRole('heading',{name:'여행 열람실'})).toBeVisible();
+  await expect(card).toHaveCount(0);await expect(page.getByText('서울 시청',{exact:true})).toHaveCount(0);
+ }finally{release();}
+});
 test('TC-SNS-002 live public feed, like/save, comments and reply survive refresh without private leaks',async({page})=>{
- await login(page);await feed(page);await expect(page.getByTestId('social-feed')).toHaveCount(1);const photo=page.getByTestId('feed-record-'+publicRecord.id).getByRole('button',{name:'함께 보는 서울 · 사진 뒤집기',exact:true}).first();const frame=await photo.boundingBox();expect(frame!.y).toBeLessThanOrEqual(150);expect(frame!.height/frame!.width).toBeCloseTo(1.25,1);await page.screenshot({path:'/tmp/sns-feed-mobile.png'});await expect(page.getByText('비공개 서울',{exact:true})).toHaveCount(0);const card=page.getByTestId('feed-record-'+publicRecord.id);
+ await login(page);await feed(page);await expect(page.getByTestId('social-feed')).toHaveCount(1);const photo=page.getByTestId('feed-record-'+publicRecord.id).getByRole('button',{name:'함께 보는 서울 · 여행 위치 보기',exact:true}).first();const frame=await photo.boundingBox();const titleBox=await page.getByTestId('feed-record-'+publicRecord.id).getByRole('heading',{name:'함께 보는 서울'}).boundingBox();expect(titleBox!.y).toBeLessThan(frame!.y);expect(frame!.width).toBeGreaterThan(270);expect(frame!.y).toBeLessThan(360);await page.screenshot({path:'/tmp/sns-feed-mobile.png'});await expect(page.getByText('비공개 서울',{exact:true})).toHaveCount(0);const card=page.getByTestId('feed-record-'+publicRecord.id);
  await card.getByRole('button',{name:'좋아요',exact:true}).click();await expect(card.getByRole('button',{name:'좋아요 취소',exact:true})).toBeVisible();await expect(page.getByTestId('social-feed')).toHaveCount(1);await card.getByRole('button',{name:'저장',exact:true}).click();await expect(card.getByRole('button',{name:'저장 취소',exact:true})).toBeVisible();
  await card.getByRole('button',{name:'댓글',exact:true}).click();await page.getByLabel('댓글 내용',{exact:true}).fill('실제 댓글');await page.getByRole('button',{name:'댓글 보내기',exact:true}).click();await expect(page.getByText('실제 댓글',{exact:true})).toBeVisible();await page.getByRole('button',{name:'답글 쓰기',exact:true}).click();await page.getByLabel('댓글 내용',{exact:true}).fill('실제 답글');await page.getByRole('button',{name:'댓글 보내기',exact:true}).click();await expect(page.getByText('실제 답글',{exact:true})).toBeVisible();await page.getByRole('button',{name:'닫기',exact:true}).click();
  await page.getByRole('button',{name:'저장됨',exact:true}).click();await expect(card).toBeVisible();expect((await viewer.api.rpc('social_comments',{record_id:publicRecord.id})).items).toHaveLength(2);await page.reload();await feed(page);await expect(card.getByRole('button',{name:'좋아요 취소',exact:true})).toBeVisible();await expect(card.getByRole('button',{name:'저장 취소',exact:true})).toBeVisible();
@@ -225,7 +310,7 @@ test('TC-SOCIAL-PHOTO-UI-001 photo paging, My thumbnails and desktop navigation'
  await expect(card.getByRole('button',{name:'다음 사진'})).toBeDisabled();
  await card.getByRole('button',{name:'이전 사진'}).click();
  await expect(card.getByText('1 / 2')).toBeVisible();
- await card.getByRole('button',{name:'두 장의 여행 · 사진 뒤집기',exact:true}).hover();
+ await card.getByRole('button',{name:'두 장의 여행 · 여행 위치 보기',exact:true}).hover();
  await page.mouse.wheel(440,0);
  await expect(card.getByText('2 / 2')).toBeVisible();
  await page.setViewportSize({width:390,height:844});
@@ -588,10 +673,11 @@ for(const width of [320,390,1280])test('TC-ALBUM-02 bookshelf, flip, paging and 
  const next=page.getByRole('button',{name:'다음 장',exact:true});
  await expect(next).toBeEnabled();await next.click();
  await expect(page.getByText('2 / 2',{exact:true})).toBeVisible();
- const flip=page.getByRole('button',{name:/사진 뒤집기$/});
+ const flip=page.getByRole('button',{name:/사진 정보·위치 보기$/});
  await expect(flip).toHaveCount(1);await flip.focus();await page.keyboard.press('Space');
- const front=page.getByRole('button',{name:'사진 앞으로'});await expect(front).toBeFocused();
+ const front=page.getByRole('button',{name:'사진 앞면 보기'});await expect(front).toBeFocused();
  await expect(page.getByRole('group',{name:'사진 정보',exact:true}).getByText('사진으로 남긴 여행 이야기',{exact:true})).toBeVisible();
+ await expect(page.getByRole('group',{name:'사진 정보',exact:true}).getByText('서울 시청',{exact:true})).toBeVisible();
  await page.keyboard.press('Enter');await expect(flip).toBeFocused();
  await page.screenshot({path:test.info().outputPath('album.png')});
  await page.getByRole('button',{name:'상세 보기',exact:true}).click();
@@ -694,13 +780,13 @@ test('TC-ALBUM-02 large type, swipe and keyboard each turn one page',async()=>{
   const book=page.getByRole('button',{name:'서울 사진첩 열기'});
   const label=book.getByText('서울',{exact:true});const height=await label.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el);return r.getBoundingClientRect().height;});
   expect(height).toBeGreaterThan(24);await book.click();
-  const flip=page.getByRole('button',{name:/사진 뒤집기$/});await flip.scrollIntoViewIfNeeded();
+  const flip=page.getByRole('button',{name:/사진 정보·위치 보기$/});await flip.scrollIntoViewIfNeeded();
   const bounds=(await flip.boundingBox())!,x=Math.round(bounds.x+bounds.width*.82),y=Math.round(bounds.y+bounds.height*.5);
   const touch=await page.context().newCDPSession(page);
   await touch.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
   for(const part of [.15,.3,.5,.68])await touch.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x-Math.round(bounds.width*part),y:y+2}]});
   await touch.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-  await expect(page.getByText('2 / 2',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'사진 앞으로'})).toHaveCount(0);
+  await expect(page.getByText('2 / 2',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'사진 앞면 보기'})).toHaveCount(0);
   await page.getByRole('button',{name:'이전 장'}).focus();await page.keyboard.press('Enter');
   await expect(page.getByText('1 / 2',{exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
@@ -727,10 +813,7 @@ test('TC-ALBUM-03 account replacement stops the previous book batch',async({page
  try{
   await page.getByRole('button',{name:'선택 비공개'}).click();await page.getByRole('button',{name:'비공개 확인'}).click();
   await started;
-  const code=buildSync({stdin:{contents:"import {createClient} from '@supabase/supabase-js';window.switchLocalAccount=async(url,key,session)=>{const c=createClient(url,key);const result=await c.auth.setSession(session);await c.auth.stopAutoRefresh();return !result.error;};",resolveDir:process.cwd()+'/frontend'},bundle:true,write:false,format:'iife',platform:'browser'}).outputFiles[0].text;
-  await page.addScriptTag({content:code});
-  const tokens=await author.api.login(author.email,author.password);
-  expect(await page.evaluate(([url,key,session])=>(window as any).switchLocalAccount(url,key,session),[status.API_URL,status.ANON_KEY,{access_token:tokens.access_token,refresh_token:tokens.refresh_token}])).toBe(true);
+  await switchAccount(page,author);
   await expect(page.getByRole('checkbox',{name:title})).toHaveCount(0);
   release();await end;
   await page.getByRole('tab',{name:'도감',exact:true}).click();await expect(page.getByText('함께 보는 서울',{exact:true}).first()).toBeVisible();

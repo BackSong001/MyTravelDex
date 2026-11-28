@@ -1,6 +1,6 @@
 # MyTravelDex 기술 요구사항 문서
 
-여행 사진 보관·사진첩·지도 표시의 최신 계약은 [FR-ALBUM-01~04](TRAVEL_ALBUM.md)를 따른다.
+여행 사진 보관·사진첩·지도 표시의 최신 계약은 [FR-ALBUM-01~05](TRAVEL_ALBUM.md)를 따른다.
 
 ## MOAI 첫 여행 체험 (2026-11-28)
 
