@@ -1,7 +1,10 @@
 {
+  "여행 기간을 직접 입력해 주세요.": "Enter your travel dates.",
+  "장소명으로 검색하거나 지도에서 위치를 선택하세요.": "Search for a place or pick its location on the map.",
+  "비공개 기록은 나만 볼 수 있어요.": "Only you can see a private trip.",
+  "사진에 촬영 날짜와 위치가 있으면 여행 정보에 채워 드려요. 없는 정보는 다음 화면에서 입력할 수 있어요.": "Photo dates and locations fill in your trip details. You can add anything missing on the next screen.",
   "공개 여행 사진 보기": "Explore public trip photos",
   "공개 여행 사진": "Public trip photos",
-  "지역 스탬프 보기": "Explore regional stamps",
   "{0} 스탬프 미리보기": "{0} stamp preview",
   "추천 명소": "Places to visit",
   "이 지역에 등록된 추천 명소가 아직 없어요.": "No recommended sights are listed for this destination yet.",

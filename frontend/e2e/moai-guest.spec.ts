@@ -206,3 +206,35 @@ test('공개 목록 오류 재시도와 빈 결과에서도 도감 이동',async
  await page.getByRole('button',{name:'지역 스탬프 보기'}).click();
  await expect(page.getByRole('textbox',{name:'지역 이름 검색'})).toBeVisible();
 });
+
+test('재진입한 공개 피드에 뒤늦은 이전 목록이 섞이지 않는다',async({page})=>{
+ const pending=gate(),started=gate();
+ await page.addInitScript(()=>{
+  const read=Response.prototype.json;
+  Response.prototype.json=async function(){
+   const result=await read.call(this);
+   if(result?.items?.[0]?.title==='이전 응답')setTimeout(()=>document.documentElement.dataset.oldFeedRead='yes',0);
+   return result;
+  };
+ });
+ await enterAsGuest(page);
+ let calls=0;
+ await page.route('**/rest/v1/rpc/social_ranked_feed',async route=>{
+  const old=++calls===1;
+  if(old){started.release();await pending.pending;}
+  return route.fulfill({json:{items:[{...record,title:old?'이전 응답':'최신 여행',start_date:old?'2020-01-02':'2023-10-12'}],next_cursor:null}});
+ });
+ await page.route('**/functions/v1/photo-url',route=>route.fulfill({status:503,json:{error:'Unavailable'}}));
+ try{
+  const feed=page.getByRole('tab',{name:'피드',exact:true});
+  await feed.click();await started.pending;
+  await page.getByRole('button',{name:'지역 스탬프 보기'}).click();
+  await feed.click();
+  await expect(page.getByRole('button',{name:'최신 여행 상세 보기'})).toBeVisible();
+  pending.release();
+  await expect(page.locator('html')).toHaveAttribute('data-old-feed-read','yes');
+  await expect(page.getByRole('button',{name:'최신 여행 상세 보기'})).toBeVisible();
+  await expect(page.getByText('이전 응답',{exact:true})).toHaveCount(0);
+  await expect(page.getByTestId('stamp-total')).toHaveCount(0);
+ }finally{pending.release();}
+});
