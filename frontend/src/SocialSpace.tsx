@@ -2,8 +2,7 @@ import {preferences} from './preferences';
 import {useThemeColors} from './ThemeContext';
 import {t,msg} from './translate';
 import React,{useEffect,useRef,useState} from 'react';
-import {ActivityIndicator,FlatList,Platform,ScrollView,Share,TextInput,View,useWindowDimensions} from 'react-native';
-import * as Linking from 'expo-linking';
+import {ActivityIndicator,FlatList,Platform,ScrollView,TextInput,View,useWindowDimensions} from 'react-native';
 import * as Crypto from 'expo-crypto';
 import * as DocumentPicker from 'expo-document-picker';
 import {File} from 'expo-file-system';
@@ -14,7 +13,7 @@ import PhotoCrop,{imageSize} from './PhotoCrop';
 import {JournalIcon} from './Journal';
 import Pressable from './Feedback';
 import type {TravelApi} from './api';
-import {Action,IconAction,Notice,PageTail,SocialAvatar,SocialModal,SocialPhoto,failure,useSocialStyles,useSocialPage,type PageSnapshot} from './SocialUI';
+import {Action,IconAction,Notice,PageTail,RecordShare,SocialAvatar,SocialModal,SocialPhoto,failure,useSocialStyles,useSocialPage,type PageSnapshot} from './SocialUI';
 type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:(discardFeed?:boolean)=>void;onLogin:()=>void;onOpen:(record:any)=>void};
 type Overlay={kind:'comments'|'profile'|'report'|'search'|'notifications'|'people';id?:string;record?:any;target?:'record'|'comment'|'profile';people?:string};
 export default function SocialFeed(props:Props&{onStamps?:()=>void;seed:React.MutableRefObject<string>;snapshot:React.MutableRefObject<PageSnapshot|null>}){
@@ -113,7 +112,7 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
   <View style={{paddingHorizontal:12}}>
    <View style={[s.row,{gap:0,marginHorizontal:-4,flexWrap:'wrap'}]}><IconAction icon="heart" label={record.liked?t('좋아요 취소'):t('좋아요')} selected={record.liked} color={record.liked?'#CD344C':undefined} disabled={busy} onPress={()=>void reaction('like')}/>
     <IconAction icon="comment" label={t("댓글")}  onPress={()=>props.onOverlay({kind:'comments',record})}/>
-    <IconAction icon="share" label={t("공유")} onPress={()=>{const url=Linking.createURL('/',{queryParams:{record:record.id}});void Share.share({message:`${record.title||t('여행 기록')}\n${url}`,url}).catch(e=>props.onError(failure(e)));}}/>
+    <RecordShare key={record.id} id={record.id} title={record.title} compact/>
     <View style={{flex:1}}/>{images.length>1&&<><IconAction icon="back" label={t("이전 사진")} disabled={photoIndex===0} onPress={()=>showPhoto(photoIndex-1)}/><IconAction icon="next" label={t("다음 사진")} disabled={photoIndex===images.length-1} onPress={()=>showPhoto(photoIndex+1)}/></>}
     <IconAction icon="bookmark" label={record.saved?t('저장 취소'):t('저장')} selected={record.saved} disabled={busy} onPress={()=>void reaction('save')}/>
    </View>

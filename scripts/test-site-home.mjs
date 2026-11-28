@@ -37,6 +37,8 @@ try {
     assert.ok(await page.getByText('내 기록을 저장할 때는 로그인이 필요해요.', {exact:false}).isVisible());
     await page.goto(new URL('/faq/',baseURL).href);
     assert.ok(await page.getByRole('heading',{name:'체험에 결제가 필요한가요?'}).isVisible());
+    const sharing = page.locator('section').filter({has:page.getByRole('heading',{name:'가족이나 친구에게 여행 기록을 어떻게 보내나요?'})});
+    assert.match(await sharing.innerText(), /공개 기록 공유.*로그인 없이.*링크를 받지 않은 사람도 발견 피드/s);
     if (process.argv[3]) {
       await page.goto(baseURL);
       await page.route('https://mytraveldex-app.pages.dev/explore/random', route=>

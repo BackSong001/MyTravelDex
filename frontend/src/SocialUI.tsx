@@ -1,7 +1,8 @@
 import {useThemeStyles,useThemeColors,type ThemeColors} from './ThemeContext';
 import {t} from './translate';
+import {recordShareUrl} from './recordShareUrl';
 import React,{useEffect,useRef,useState} from 'react';
-import {ActivityIndicator,Image,KeyboardAvoidingView,Modal,Platform,ScrollView,StyleSheet,View} from 'react-native';
+import {ActivityIndicator,Image,KeyboardAvoidingView,Modal,Platform,ScrollView,Share,StyleSheet,TextInput,View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Text from './FontText';
 import Pressable from './Feedback';
@@ -31,6 +32,34 @@ export function SocialModal({title,children,onClose}:{title:string;children:Reac
 
  useEffect(()=>{if(Platform.OS!=='web')return;const close=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();onClose();}};document.addEventListener('keydown',close);return()=>document.removeEventListener('keydown',close);},[onClose]);
  return <Modal visible animationType="none" onRequestClose={onClose}><SafeAreaView style={{flex:1,backgroundColor:c.sheet}}><KeyboardAvoidingView style={{flex:1}} enabled={Platform.OS!=='web'} behavior={Platform.OS==='ios'?'padding':'height'}><View style={[socialStyles.row,{padding:12,borderBottomWidth:1,borderColor:c.line,width:'100%',maxWidth:720,alignSelf:'center'}]}><Text accessibilityRole="header" style={[socialStyles.heading,{flex:1}]}>{title}</Text><IconAction label={t("닫기")} icon="close" onPress={onClose}/></View><View style={{flex:1,width:'100%',maxWidth:720,alignSelf:'center'}}>{children}</View></KeyboardAvoidingView></SafeAreaView></Modal>;
+}
+export function RecordShare({id,title,compact=false}:{id:string;title?:string|null;compact?:boolean}){
+ const colors=useThemeColors(),styles=useSocialStyles();
+ const [feedback,setFeedback]=useState<'copied'|'manual'|null>(null);
+
+ async function share(){
+  const url=recordShareUrl(id);
+  setFeedback(null);
+  try{
+   if(Platform.OS!=='web'){
+    await Share.share(Platform.OS==='ios'?{url}:{message:url});return;
+   }
+   if(navigator.share){await navigator.share({url,title:title||t('여행 기록')});return;}
+   await navigator.clipboard.writeText(url);
+   setFeedback('copied');
+  }catch(error){
+   if((error as Error)?.name!=='AbortError')setFeedback('manual');
+  }
+ }
+ return <>
+  {compact?<IconAction icon="share" label={t('공유')} onPress={()=>void share()}/>:<Action label={t('공개 기록 공유')} onPress={()=>void share()}/>}
+  {feedback==='copied'&&<Text accessibilityLiveRegion="polite" style={[styles.muted,{alignSelf:'center'}]}>{t('공유 링크를 복사했어요.')}</Text>}
+  {feedback==='manual'&&<SocialModal title={t('공개 기록 공유')} onClose={()=>setFeedback(null)}>
+   <View style={{padding:20,gap:12}}><Text accessibilityLiveRegion="polite" style={styles.heading}>{t('링크를 선택해 복사하세요.')}</Text>
+   <Text style={styles.text}>{t('로그인 없이 이 공개 여행 기록을 볼 수 있어요.')}</Text>
+   <TextInput accessibilityLabel={t('공유 링크')} readOnly selectTextOnFocus value={recordShareUrl(id)} style={{color:colors.ink,padding:12,minHeight:48,borderColor:colors.line,borderWidth:1,borderRadius:8}}/>
+   </View></SocialModal>}
+ </>;
 }
 export function SocialAvatar({author,api,size=40}:{author:any;api:TravelApi;size?:number}){
  const [url,setUrl]=useState<string|null>(null);useEffect(()=>{let live=true;setUrl(null);if(author?.avatar_id)void api.request('/functions/v1/profile-avatar-url','POST',{owner_id:author.id}).then(r=>{if(live)setUrl(new URL(r.signed_url,api.url).href);}).catch(()=>{});return()=>{live=false;};},[api,author?.id,author?.avatar_id]);

@@ -1,4 +1,9 @@
 {
+  "공개 기록 공유": "Share public trip",
+  "공유 링크를 복사했어요.": "Link copied.",
+  "링크를 선택해 복사하세요.": "Select the link to copy it.",
+  "로그인 없이 이 공개 여행 기록을 볼 수 있어요.": "Anyone can view this public trip without signing in.",
+  "공유 링크": "Share link",
   "저장은 완료됐지만 기록을 불러오지 못했어요.": "Your trip was saved. Its details could not be loaded.",
   "저장한 기록 다시 불러오기": "Reload saved trip",
   "내 지도에서 보기": "View on my map",

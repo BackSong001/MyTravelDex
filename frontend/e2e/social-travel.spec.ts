@@ -473,3 +473,63 @@ test('trip crop applies to the displayed image while retaining the photo date',a
  await page.getByRole('button',{name:'다음',exact:true}).click();
  await expect(page.getByLabel('여행 시작일',{exact:true})).toHaveValue('2023-04-08');
 });
+
+for(const width of [390,1280]){
+ test('TC-MOAI-006 공개 기록 링크와 재공개 방지 '+width,async({page,browser,context})=>{
+  await page.setViewportSize({width,height:860});
+  await login(page,author);
+  const origin=new URL(page.url()).origin;
+  const button=page.getByRole('button',{name:'공개 기록 공유'});
+  await page.goto(origin+'/record/'+privateRecord.id);
+  await expect(page.getByTestId('photo-gallery')).toBeVisible();
+  await expect(button).toHaveCount(0);
+  const unpublished=(await author.api.request('/rest/v1/travel_records','POST',{owner_id:author.id,title:'미완성',location_id:privateRecord.location_id,start_date:'2026-11-01',end_date:'2026-11-02',visibility:'public'}))[0];
+  records.push(unpublished.id);
+  await page.goto(origin+'/record/'+unpublished.id);
+  await expect(page.getByRole('button',{name:'이 초안 이어서 작성'})).toBeVisible();
+  await expect(button).toHaveCount(0);
+  await page.goto(origin+'/record/'+publicRecord.id);
+  await expect(button).toBeVisible();
+  const url=origin+'/record/'+publicRecord.id;
+  // 모바일 공유 시트 호출·취소와 수동 복사 경로, 데스크톱 실제 브라우저 클립보드.
+  let link:string;
+  if(width===390){
+   await page.evaluate(()=>Object.defineProperty(navigator,'share',{configurable:true,value:async(data:ShareData)=>{
+    document.documentElement.dataset.sharedUrl=data.url;throw new DOMException('Cancelled','AbortError');
+   }}));
+   await button.click();
+   await expect(page.locator('html')).toHaveAttribute('data-shared-url',url);
+   await expect(page.getByRole('textbox',{name:'공유 링크'})).toHaveCount(0);
+   await page.evaluate(()=>{
+    Object.defineProperty(navigator,'share',{configurable:true,value:undefined});
+    Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new DOMException('Denied','NotAllowedError');}}});
+   });
+   await button.click();
+   const manual=page.getByRole('textbox',{name:'공유 링크'});
+   await expect(manual).toBeVisible();link=await manual.inputValue();
+   await expect(page.getByText('공유 링크를 복사했어요.')).toHaveCount(0);
+  }else{
+   await context.grantPermissions(['clipboard-read','clipboard-write'],{origin});
+   await page.evaluate(()=>Object.defineProperty(navigator,'share',{configurable:true,value:undefined}));
+   await expect.poll(()=>page.getByTestId('photo-gallery').locator('img').evaluateAll(imgs=>imgs.some(img=>(img as HTMLImageElement).naturalWidth>0))).toBe(true);
+   await expect(page.getByRole('progressbar',{name:'여행가봥 시작 중'})).toHaveCount(0);
+   await expect.poll(()=>button.evaluate(el=>el.closest('[inert]')===null)).toBe(true);
+   await button.focus();await expect(button).toBeFocused();await page.keyboard.press('Enter');
+   await expect(page.getByText('공유 링크를 복사했어요.')).toBeVisible();
+   link=await page.evaluate(()=>navigator.clipboard.readText());
+  }
+  expect(link).toBe(url);
+  const guest=await browser.newContext({viewport:{width,height:860}});
+  try{
+   const recipient=await guest.newPage();await recipient.goto(link);
+   await expect(recipient.getByText('함께 보는 서울',{exact:true})).toBeVisible();
+   await expect(recipient.getByText('2026-11-01 — 2026-11-02')).toBeVisible();
+   await expect.poll(()=>recipient.getByTestId('photo-gallery').locator('img').evaluateAll(imgs=>imgs.some(img=>(img as HTMLImageElement).naturalWidth>0))).toBe(true);
+   await author.api.update(publicRecord.id,{visibility:'private'});
+   await recipient.reload();
+   await expect(recipient.getByRole('alert')).toContainText('기록을 찾을 수 없습니다.');
+   await expect(recipient.getByTestId('photo-gallery')).toHaveCount(0);
+   await expect(recipient.getByRole('button',{name:'공개 기록 공유'})).toHaveCount(0);
+  }finally{await guest.close();}
+ });
+}
