@@ -71,7 +71,7 @@ function DrawMap({active,result,reduced}:{active?:Destination;result?:Destinatio
 type Props={owner?:string;visited:ReadonlySet<string>|null;stamps:readonly string[]|null;failed?:boolean;onRegion:(district:Destination)=>void;onAlbum?:(id:string)=>void;onDrawStart?:()=>void};
 export default function DestinationDraw({owner,visited,stamps,failed,onRegion,onAlbum,onDrawStart}:Props){
   const c=useThemeColors(),reduced=useReducedMotion(),{height}=useWindowDimensions();
-  const [mode,setMode]=useState<DrawMode>('nation'),[area,setArea]=useState(t('수도권'));
+  const [mode,setMode]=useState<DrawMode>('nation'),[area,setArea]=useState('수도권');
   const [active,setActive]=useState<Destination>(),[result,setResult]=useState<Destination>();
   const [running,setRunning]=useState(false);
   const pendingWinner=useRef<Destination|undefined>(undefined);
@@ -137,10 +137,11 @@ export default function DestinationDraw({owner,visited,stamps,failed,onRegion,on
     <View accessibilityRole="radiogroup" accessibilityLabel={t("추첨 모드")} style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>
       {option(t('전국 랜덤'),mode==='nation',()=>setMode('nation'))}
       {option(t('미방문 지역'),mode==='unvisited',()=>setMode('unvisited'),!owner||!visited)}
-      {option(t('권역 선택'),mode==='area',()=>setMode('area'))}
+      {Object.keys(areas).map(name=>option(t(name),mode==='area'&&area===name,()=>{
+        setArea(name);
+        setMode('area');
+      }))}
     </View>
-    {mode==='area'&&<View accessibilityRole="radiogroup" accessibilityLabel={t("추첨 권역")} style={{flexDirection:'row',flexWrap:'wrap',gap:6}}>
-      {Object.keys(areas).map(name=>option(name,area===name,()=>setArea(name)))}</View>}
     {!!unknown&&<Text style={{color:c.muted}}>{unknown}</Text>}
     <Text accessibilityLiveRegion="polite" style={{color:c.muted}}>{!districts.length?t('지도 데이터를 확인할 수 없어요.'):!candidates.length&&visited?t('후보가 없어요. 전국 랜덤을 선택해 주세요.'):msg`추첨 후보 · ${candidates.length}곳`}</Text>
     {!result&&drawButton}

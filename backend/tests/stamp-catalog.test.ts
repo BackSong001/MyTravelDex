@@ -1,7 +1,7 @@
 import {expect,test,vi} from 'vitest';
 import React from '../../frontend/node_modules/react';
 import {renderToStaticMarkup} from '../../frontend/node_modules/react-dom/server';
-vi.mock('../../frontend/node_modules/react-native',()=>({Platform:{OS:'android'},useWindowDimensions:()=>({fontScale:1}),View:({children}:any)=>React.createElement('div',null,children),Text:({children}:any)=>React.createElement('span',null,children),Image:({accessibilityLabel,source}:any)=>React.createElement('img',{alt:accessibilityLabel,'data-source':source}),ActivityIndicator:()=>null,Linking:{openURL:()=>{}},StyleSheet:{create:(s:any)=>s}}));
+vi.mock('../../frontend/node_modules/react-native',()=>({Platform:{OS:'android'},useWindowDimensions:()=>({fontScale:1}),View:({children}:any)=>React.createElement('div',null,children),Text:({children}:any)=>React.createElement('span',null,children),Image:({accessibilityLabel,source}:any)=>React.createElement('img',{alt:accessibilityLabel,'data-source':source}),TextInput:()=>React.createElement('input'),ActivityIndicator:()=>null,Linking:{openURL:()=>{}},StyleSheet:{create:(s:any)=>s}}));
 vi.mock('../../frontend/src/Feedback',()=>({default:({children}:any)=>React.createElement('button',null,children)}));
 vi.mock('../../frontend/src/uiAssets',()=>({uiAssets:{stamps:{'KR-11':11},stampPreviews:{'KR-11':111,'48170':170,'48310':310},districtStamps:{
  '41280':{province:'KR-41',districtCodes:['41281','41285','41287'],name:'고양시',source:3},

@@ -27,7 +27,6 @@ test('TC-DRAW-001: draw stays on the national map until it settles and cancels o
  await page.evaluate(()=>(window as any).updateDiscovery({mode:'settings'}));
  await page.evaluate(()=>(window as any).updateDiscovery({mode:'draw'}));
  await expect(draw).toBeEnabled();
- await page.getByRole('radio',{name:'권역 선택'}).click();
  await page.getByRole('radio',{name:'제주권'}).click();
  await draw.click();
  const result=await page.getByTestId('destination-result').innerText();

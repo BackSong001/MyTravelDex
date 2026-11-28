@@ -7,7 +7,7 @@ function deferred<P extends object>(load:()=>Promise<{default:ComponentType<P>}>
  return (props:P)=><Suspense fallback={<ActivityIndicator accessibilityLabel={t("화면 준비 중")}/>}><Screen {...props}/></Suspense>;
 }
 export const TravelDashboard=deferred(()=>import('./TravelDashboard'));
-export const StampCatalog=deferred(()=>import('./StampCatalog'));
+export {default as StampCatalog} from './StampCatalog';
 export const LocationPicker=deferred(()=>import('./LocationPicker'));
 export const SocialFeed=deferred(()=>import('./SocialSpace'));
 export const SocialAccount=deferred(async()=>({default:(await import('./SocialSpace')).SocialAccount}));

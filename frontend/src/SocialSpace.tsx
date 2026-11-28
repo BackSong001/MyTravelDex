@@ -17,7 +17,7 @@ import type {TravelApi} from './api';
 import {Action,IconAction,Notice,PageTail,SocialAvatar,SocialModal,SocialPhoto,failure,useSocialStyles,useSocialPage,type PageSnapshot} from './SocialUI';
 type Props={googlePhoto?:string|null;api:TravelApi;owner?:string;disabled?:boolean;revision:number;onChanged:(discardFeed?:boolean)=>void;onLogin:()=>void;onOpen:(record:any)=>void};
 type Overlay={kind:'comments'|'profile'|'report'|'search'|'notifications'|'people';id?:string;record?:any;target?:'record'|'comment'|'profile';people?:string};
-export default function SocialFeed(props:Props&{seed:React.MutableRefObject<string>;snapshot:React.MutableRefObject<PageSnapshot|null>}){
+export default function SocialFeed(props:Props&{onStamps?:()=>void;seed:React.MutableRefObject<string>;snapshot:React.MutableRefObject<PageSnapshot|null>}){
  const s=useSocialStyles(),colors=useThemeColors();
 
  const [mode,setMode]=useState(props.snapshot.current?.key?.includes('social_saved')?'saved':props.snapshot.current?.key?.includes('following')?'following':'public'),[overlay,setOverlay]=useState<Overlay|null>(null),[actionError,setActionError]=useState('');
@@ -57,6 +57,10 @@ export default function SocialFeed(props:Props&{seed:React.MutableRefObject<stri
    </Pressable>)}
    <View style={{flex:1}}/><IconAction icon="search" label={t("여행자 찾기")} onPress={()=>props.owner?setOverlay({kind:'search'}):props.onLogin()}/><IconAction icon="bell" label={t("알림")} onPress={()=>props.owner?setOverlay({kind:'notifications'}):props.onLogin()}/>
   </View>
+  {props.onStamps&&<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:12,gap:8,backgroundColor:colors.warm}}>
+   <Text style={{flexShrink:1,color:colors.ink,fontSize:16,fontWeight:'600'}}>{t("공개 여행 사진")}</Text>
+   <Action label={t("지역 스탬프 보기")} onPress={props.onStamps}/>
+  </View>}
   {!!actionError&&<Notice message={actionError}/>}
   <FlatList {...webPull} style={Platform.OS==='web'?{overscrollBehaviorY:'contain'} as any:undefined} ref={list} testID="social-feed" data={page.items} keyExtractor={r=>r.id} initialNumToRender={3} maxToRenderPerBatch={3} windowSize={5} onScroll={e=>{
    if(!list.current)return;
@@ -93,9 +97,10 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
  return <View testID={`feed-record-${record.id}`} style={{borderBottomWidth:1,borderColor:colors.line,paddingBottom:10}}>
   <View style={[s.row,{paddingHorizontal:12,paddingVertical:4}]}>
    <Pressable accessibilityRole="button" accessibilityLabel={msg`${record.author?.display_name||t('여행자')} 프로필`} onPress={()=>props.onOverlay({kind:'profile',id:record.owner_id})} style={[s.row,{flex:1}]}>
-    <SocialAvatar api={api} author={record.author} size={36}/><View style={{flex:1}}><View style={{flexDirection:'row',alignItems:'baseline',flexWrap:'wrap',columnGap:6}}><Text style={[s.text,{fontWeight:'700'}]}>{record.author?.display_name||t('여행자')}</Text>{!!record.created_at&&<Text style={s.muted}>· {feedTimestamp(record.created_at,props.now,preferences().language)}</Text>}</View><Text style={s.muted}>{t("여행")} {record.start_date}{record.end_date!==record.start_date&&' — '+record.end_date}</Text></View>
+    <SocialAvatar api={api} author={record.author} size={36}/><View style={{flex:1}}><View style={{flexDirection:'row',alignItems:'baseline',flexWrap:'wrap',columnGap:6}}><Text style={[s.text,{fontWeight:'700'}]}>{record.author?.display_name||t('여행자')}</Text>{!!record.created_at&&<Text style={s.muted}>· {feedTimestamp(record.created_at,props.now,preferences().language)}</Text>}</View></View>
    </Pressable>{record.owner_id!==props.owner&&<Pressable accessibilityRole="button" accessibilityLabel={record.following?t('팔로우 취소'):t('팔로우')} disabled={busy||(!!props.owner&&record.following===undefined)} onPress={()=>void reaction('follow')} style={{minHeight:48,justifyContent:'center',paddingHorizontal:4}}><Text style={{fontSize:14,fontWeight:'600',color:record.following?colors.muted:colors.sea}}>{record.following?t('팔로잉'):t('팔로우')}</Text></Pressable>}<IconAction icon="more" label={t("신고 및 차단")} onPress={()=>props.owner?props.onOverlay({kind:'report',id:record.id,target:'record',record}):props.onLogin()}/>
   </View>
+  <Text style={{color:colors.ink,paddingHorizontal:12,paddingBottom:6,fontSize:16,fontWeight:'600'}}>{t("여행")} {record.start_date}{record.end_date!==record.start_date&&' — '+record.end_date}</Text>
   <View onLayout={e=>{const w=e.nativeEvent.layout.width;if(w>0)setWidth(w);}} style={{width:'100%',aspectRatio:4/5,overflow:'hidden'}}>
    <ScrollView horizontal pagingEnabled ref={strip} showsHorizontalScrollIndicator={false} scrollEventThrottle={32}
     onScroll={e=>setPhotoIndex(Math.max(0,Math.min(images.length-1,Math.round(e.nativeEvent.contentOffset.x/width))))}>
@@ -112,7 +117,10 @@ function FeedCard(props:Props&{now:Date;record:any;onOverlay:(v:Overlay)=>void;o
     <View style={{flex:1}}/>{images.length>1&&<><IconAction icon="back" label={t("이전 사진")} disabled={photoIndex===0} onPress={()=>showPhoto(photoIndex-1)}/><IconAction icon="next" label={t("다음 사진")} disabled={photoIndex===images.length-1} onPress={()=>showPhoto(photoIndex+1)}/></>}
     <IconAction icon="bookmark" label={record.saved?t('저장 취소'):t('저장')} selected={record.saved} disabled={busy} onPress={()=>void reaction('save')}/>
    </View>
-   <Text style={[s.text,{fontWeight:'600'}]}>{t("좋아요")} {record.like_count}{t("개")}</Text><Text style={[s.text,{fontWeight:'700',marginTop:3}]}>{record.title||t('제목 없는 여행')}</Text>
+   <Text style={[s.text,{fontWeight:'600'}]}>{t("좋아요")} {record.like_count}{t("개")}</Text><View style={s.row}>
+    <Text style={[s.text,{flex:1,fontWeight:'700'}]}>{record.title||t('제목 없는 여행')}</Text>
+    <Action label={t('상세 보기')} disabled={props.disabled} onPress={()=>props.onOpen(record)}/>
+   </View>
    {!!record.content&&<><Text numberOfLines={expanded?undefined:2} style={s.text}>{record.content}</Text>{record.content.length>60&&<Pressable accessibilityRole="button" onPress={()=>setExpanded(!expanded)} style={{justifyContent:'center'}}><Text style={s.muted}>{expanded?t('접기'):t('더 읽기')}</Text></Pressable>}</>}
    <Pressable accessibilityRole="button" onPress={()=>props.onOverlay({kind:'comments',record})} style={{alignSelf:'flex-start',justifyContent:'center'}}><Text style={s.muted}>{t("댓글")} {record.comment_count}{t("개 보기")}</Text></Pressable>
   </View>

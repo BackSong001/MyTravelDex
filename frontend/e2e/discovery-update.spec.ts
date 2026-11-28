@@ -14,7 +14,7 @@ test('TC-DISCOVERY-001: guest destination draw uses real region candidates and t
  expect(rect!.y+rect!.height).toBeLessThanOrEqual(nav!.y);
  await entry.click();await expect(page.getByRole('heading',{name:'어디로 가봥?',exact:true})).toBeVisible();
  await expect(page.getByRole('radio',{name:'미방문 지역'})).toBeDisabled();
- await page.getByRole('radio',{name:'권역 선택'}).click();await page.getByRole('radio',{name:'제주권'}).click();
+ await page.getByRole('radio',{name:'제주권'}).click();
  await page.getByRole('button',{name:'여행지 뽑기',exact:true}).click();
  const name=await page.getByTestId('destination-result').innerText();
  expect(destinations.filter(d=>d.province==='KR-49').map(d=>d.label)).toContain(name);

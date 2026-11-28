@@ -39,9 +39,19 @@ export function SocialAvatar({author,api,size=40}:{author:any;api:TravelApi;size
 export function SocialPhoto({id,api,style,label}:{id?:string;api:TravelApi;style:any;label:string}){
  const socialStyles=useSocialStyles();const c=useThemeColors();
 
- const [url,setUrl]=useState(''),[error,setError]=useState(false),[attempt,setAttempt]=useState(0);
- useEffect(()=>{let live=true;setUrl('');setError(false);if(id)void api.photoUrl(id).then(value=>{if(live)setUrl(value);}).catch(()=>{if(live)setError(true);});return()=>{live=false;};},[id,api,attempt]);
- return <View style={[{backgroundColor:c.warm,justifyContent:'center',alignItems:'center'},style]}>{url&&!error?<Image source={{uri:url}} accessibilityLabel={label} resizeMode="cover" onError={()=>setError(true)} style={{width:'100%',height:'100%'}}/>:error?<Action label={t("사진 다시 불러오기")} onPress={()=>setAttempt(x=>x+1)}/>:id?<ActivityIndicator accessibilityLabel={t("사진 불러오는 중")}/>:<Text style={socialStyles.muted}>{t("사진")}</Text>}</View>;
+ const [url,setUrl]=useState(''),[loaded,setLoaded]=useState(false),[error,setError]=useState(false),[attempt,setAttempt]=useState(0);
+ useEffect(()=>{
+  let live=true;
+  setUrl('');setLoaded(false);setError(false);
+  if(id)void api.photoUrl(id).then(value=>{if(live)setUrl(value);}).catch(()=>{if(live)setError(true);});
+  return ()=>{live=false;};
+ },[id,api,attempt]);
+ return <View style={[{backgroundColor:c.warm,justifyContent:'center',alignItems:'center'},style]}>
+  {!!url&&!error&&<Image source={{uri:url}} accessibilityLabel={label} resizeMode="cover" onLoad={()=>setLoaded(true)} onError={()=>setError(true)} style={{position:'absolute',width:'100%',height:'100%'}}/>}
+  {error?<Action label={t("사진 다시 불러오기")} onPress={()=>setAttempt(x=>x+1)}/>
+   :!id?<Text style={socialStyles.muted}>{t("사진")}</Text>
+   :!loaded&&<View pointerEvents="none" style={{alignItems:'center'}}><ActivityIndicator/><Text style={socialStyles.muted}>{t("사진 불러오는 중")}</Text></View>}
+ </View>;
 }
 export type PageSnapshot={count:number;offset:number;key:string};
 export function useSocialPage(api:TravelApi,name:string|null,args:Record<string,unknown>,revision:number,snapshot?:React.MutableRefObject<PageSnapshot|null>){

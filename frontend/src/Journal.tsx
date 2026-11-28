@@ -106,10 +106,10 @@ export function JournalNav({tab,onTab,onMapFocus,anchors,rail=false}: {tab:Journ
    :{flexDirection:'row',justifyContent:'space-evenly',paddingBottom:Math.max(4,insets.bottom),borderTopWidth:1,borderColor:c.line,backgroundColor:c.paper}}>
    {rail&&<Text style={{fontSize:23,fontWeight:'800',letterSpacing:-1.2,marginBottom:28,marginLeft:12,color:c.ink}}>{t("여행가봥")}</Text>}
    {tabIcons.map(id=><Pressable key={id} ref={node=>{if(anchors)anchors[id]=node;}} accessibilityRole="tab" accessibilityLabel={t(tabLabels[id])} accessibilityState={{selected:tab===id}} aria-selected={tab===id} onFocus={id==='map'?onMapFocus:undefined} onPress={()=>onTab(id)}
-    style={{flex:rail?undefined:1,minHeight:52,flexDirection:'row',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,gap:14,borderRadius:10,backgroundColor:rail&&tab===id?c.warm:c.paper}}>
+    style={{flex:rail?undefined:1,minHeight:52,flexDirection:rail?'row':'column',alignItems:'center',justifyContent:rail?'flex-start':'center',paddingHorizontal:rail?12:0,paddingVertical:rail?0:5,gap:rail?14:2,borderRadius:10,backgroundColor:rail&&tab===id?c.warm:c.paper}}>
      <Image source={iconAssets[iconTheme][id]} accessible={false} resizeMode="contain" style={{width:32,height:32}}/>
-     {rail&&<Text style={{fontSize:16,color:c.ink,fontWeight:tab===id?'700':'400'}}>{t(tabLabels[id])}</Text>}
-     {tab===id&&<View testID="nav-selection" style={{position:'absolute',bottom:4,width:5,height:5,borderRadius:3,backgroundColor:rail?'transparent':c.ink}}/>}
+     <Text style={{fontSize:rail?16:14,color:c.ink,textAlign:'center',maxWidth:'100%',fontWeight:tab===id?'700':'400'}}>{t(tabLabels[id])}</Text>
+     {tab===id&&<View testID="nav-selection" style={{position:'absolute',top:0,width:18,height:2,borderRadius:1,backgroundColor:rail?'transparent':c.ink}}/>}
    </Pressable>)}
  </View>;
 }
