@@ -27,6 +27,7 @@ import {usePhotoGroupMotion} from './usePhotoGroupMotion';
 import {regionLabelAnchor,layoutMapLabels} from './mapLabels';
 
 const osmProvinces=osmOutlines as Region[];
+const webMap=Platform.OS==='web';
 type Point=[number,number];
 const eastAsiaCoasts:Point[]=[[120.38,36.07],[130.4,33.59]]; // 칭다오와 후쿠오카
 type Touch={identifier:string|number;pageX:number;pageY:number};
@@ -64,8 +65,8 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  useEffect(()=>{
   if(!finder)restored.current=false;
   const closed=previousFinder.current&&!finder;previousFinder.current=finder;
-  if(!closed||summary.length)return;
-  const frame=requestAnimationFrame(()=>{if(Platform.OS==='web')host.current?.focus();else {const node=findNodeHandle(host.current);if(node!=null)AccessibilityInfo.setAccessibilityFocus(node);}});
+  if(webMap||!closed||summary.length)return;
+  const frame=requestAnimationFrame(()=>{const node=findNodeHandle(host.current);if(node!=null)AccessibilityInfo.setAccessibilityFocus(node);});
   return()=>cancelAnimationFrame(frame);
  },[finder,summary.length]);
  const entries=useMemo(()=>mapRecords(records,!!onCoordinate),[records,!!onCoordinate]);
@@ -87,9 +88,9 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  const tileCamera=useMemo(()=>({center:p.invert!([size.width/2,size.height/2]) as Point,zoom:scaleToZoom(p.scale())}),[p,size]);
  const ratio=p.scale()/base.scale(),origin=p([0,0])!,baseOrigin=base([0,0])!,tx=origin[0]-baseOrigin[0]*ratio,ty=origin[1]-baseOrigin[1]*ratio;
  const geometryBounds=useMemo(()=>{return new Map((measured?[...regions,...(finder?districts:[])]:[]).map(f=>[f.properties.code,projectedBounds(f,base)]));},[base,finder,measured]);
- const intersects=(code:string)=>{const b=geometryBounds.get(code);if(!b)return false;return b[1][0]*ratio+tx>=0&&b[0][0]*ratio+tx<=size.width&&b[1][1]*ratio+ty>=0&&b[0][1]*ratio+ty<=size.height;};
+ const intersects=(b:number[][]|undefined)=>!!b&&b[1][0]*ratio+tx>=0&&b[0][0]*ratio+tx<=size.width&&b[1][1]*ratio+ty>=0&&b[0][1]*ratio+ty<=size.height;
  const mountTiles=measured&&!failed;
- const tileStyle=useMemo(()=>mountTiles?osmMapStyle():null,[mountTiles]);
+ const tileStyle=useMemo(()=>mountTiles?osmMapStyle(webMap):null,[mountTiles]);
  const filters=useMemo(()=>osmFilters(province),[province]);
  const detailCodes=useRef(new Set<string>());
  const visibleDistricts=useMemo(()=>{
@@ -103,7 +104,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
    }
    detailCodes.current=next;
   }
-  return districts.filter(f=>detailCodes.current.has(f.properties.parentCode!)&&intersects(f.properties.code));
+  return districts.filter(f=>detailCodes.current.has(f.properties.parentCode!)&&intersects(geometryBounds.get(f.properties.code)));
  },[finder,geometryBounds,ratio,tx,ty,size,moving]);
  // 전국 맞춤 화면에서는 가로로 넓은 기기도 지역별 사진을 유지한다.
  const eastAsiaOverview=homeMap&&measured&&ratio<=0.75&&regions.every(region=>{
@@ -144,7 +145,16 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   return feature?layoutMapLabels([feature],p,size.width,size.height,photoGroups.map(g=>({x:g.x,y:g.y,width:60,height:60})),labelFont,false):[];
  },[province,island,p,size,photoGroups,labelFont]);
  const groupsRef=useRef(photoGroups);groupsRef.current=photoGroups;
- const paths=useMemo(()=>(measured&&showOutline?(fallback?osmProvinces:regions):[]).map(f=>({f,...regionPath(f,base)})),[base,showOutline,fallback,measured]);
+ const outlineFeatures=webMap||fallback?osmProvinces:regions;
+ const drawOutline=webMap||showOutline;
+ const paths=useMemo(()=>(measured&&drawOutline?outlineFeatures:[]).map(f=>({f,...regionPath(f,base),bounds:projectedBounds(f,base)})),[base,drawOutline,outlineFeatures,measured]);
+ const geography=drawOutline&&measured&&<>
+  {(webMap||fallback)&&<WorldOverview base={base} scale={ratio} x={tx} y={ty} width={size.width} height={size.height}/>}
+  <G transform={`translate(${tx},${ty}) scale(${ratio})`}>
+   {paths.filter(({bounds})=>intersects(bounds)).map(({f,d,transform,strokeScale})=><Path key={f.properties.code} testID={`map-region-${f.properties.code}`} d={d} transform={transform} fill="#F2EFE7" stroke="#B2C0C1" strokeWidth={1/(ratio*strokeScale)} fillRule="evenodd"/>)}
+   {province&&paths.filter(({f})=>f.properties.code===province).map(({f,d,transform,strokeScale})=><Path key={f.properties.code} testID="map-selection" pointerEvents="none" d={d} transform={transform} fill="#3B82F6" fillOpacity={.18} stroke="#2563EB" strokeWidth={2/(ratio*strokeScale)} fillRule="evenodd"/>)}
+  </G>
+ </>;
  // 공통 Mercator 변환으로 제스처마다 경계 경로를 다시 생성하지 않는다.
  const current=useRef({p,size,onCoordinate,onSelect,entries,reduced});current.current={p,size,onCoordinate,onSelect,entries,reduced};
  const gesture=useRef<Gesture|null>(null),position=useRef({x:0,y:0});
@@ -319,7 +329,21 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
   }
  },[lat,lng,!!onCoordinate,destination,homeMap,destination?.bounds?size.width:0,destination?.bounds?size.height:0]);
  const destinationPoint=destination?p([destination.longitude,destination.latitude]):null;
- const zoom=(factor:number)=>{stopAnimation();const center=p.invert!([size.width/2,size.height/2])!;saveCamera(geoMercator().center(center).scale(Math.max(30,Math.min(zoomToScale(18),p.scale()*factor))).translate([size.width/2,size.height/2]),true);};
+ const zoom=(factor:number)=>{stopAnimation();const projection=current.current.p,center=projection.invert!([size.width/2,size.height/2])!;saveCamera(geoMercator().center(center).scale(Math.max(30,Math.min(zoomToScale(18),projection.scale()*factor))).translate([size.width/2,size.height/2]),true);};
+ const wheelZoom=useRef(zoom);wheelZoom.current=zoom;
+ useEffect(()=>{
+  if(!webMap)return;
+  const canvas=host.current as unknown as HTMLElement;
+  const wheel=(event:WheelEvent)=>{
+   event.preventDefault();
+   if(!event.deltaY)return;
+   const unit=event.deltaMode===1?16:event.deltaMode===2?canvas.clientHeight:1;
+   const delta=Math.max(-120,Math.min(120,event.deltaY*unit));
+   wheelZoom.current(1.25**(-delta/120));
+  };
+  canvas.addEventListener('wheel',wheel,{passive:false});
+  return ()=>canvas.removeEventListener('wheel',wheel);
+ },[]);
  const activeName=island?homeIslands.find(f=>f.properties.code===island)?.properties.name:selected==='other'?t('해외·지역 미배정'):selected?districts.find(d=>d.properties.code===selected)?.properties.name:province?regions.find(r=>r.properties.code===province)?.properties.name:t('대한민국');
  const button=(label:string,action:()=>void,active=false,display=label)=><Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{selected:active}} onPress={action} style={{minWidth:48,minHeight:48,padding:10,borderRadius:10,justifyContent:'center',backgroundColor:active?c.primary:c.surface,borderWidth:1,borderColor:c.line}}><Text style={{color:active?c.onPrimary:c.ink,fontSize:13,textAlign:'center'}}>{display}</Text></Pressable>;
  const restoreRegionScroll=()=>{if(!restored.current){restored.current=true;regionList.current?.scrollTo({y:live.current.regionOffset,animated:false});}};
@@ -336,23 +360,21 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
  </>;
  return <View testID="svg-travel-map" style={{flex:fullScreen?1:undefined,height:fullScreen?undefined:320,minHeight:0,backgroundColor:c.surface,borderRadius:16,overflow:'hidden'}}>
   <View style={{flex:1,minHeight:0,flexDirection:'column'}}>
-   <View ref={host} testID="svg-map-canvas" accessible accessibilityRole={Platform.OS!=='web'?'button':undefined} accessibilityLabel={msg`지도 지역 및 사진 목록${Platform.OS==='web'?t('. Enter 또는 Space 키로 열기'):''}`} accessibilityKeyShortcuts={Platform.OS==='web'?'Enter Space':undefined} accessibilityHint={t("활성화하거나 Enter 또는 Space 키로 지도 도구 열기")} accessibilityActions={[{name:'activate',label:'지도 도구 열기'}]} onAccessibilityAction={e=>{if(e.nativeEvent.actionName==='activate')setFinder(true);}} {...responder.panHandlers} onLayout={e=>{const {width,height}=e.nativeEvent.layout;if(width&&height){setMeasured(true);setSize({width,height});onCanvasReady?.();}measurePosition();}} onTouchStart={measurePosition} {...(Platform.OS==='web'?{role:'application',tabIndex:0,onClick:(e:any)=>{if(e.detail===0){e.preventDefault();e.stopPropagation();setFinder(true);}},onKeyDown:(e:any)=>{if(['+','=','-'].includes(e.key)){e.preventDefault();zoom(e.key==='-'?1/1.5:1.5);return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(!e.repeat)setFinder(true);}},onPointerDown:measurePosition,onWheel:(e:any)=>zoom(e.deltaY>0?.8:1.25)} as any:{})} style={{flex:1,minHeight:120,height:fullScreen?undefined:260,backgroundColor:'#AED9EC',...(Platform.OS==='web'?{touchAction:'none'} as any:{})}}>
+   <View ref={host} testID="svg-map-canvas" accessible accessibilityRole={Platform.OS!=='web'?'button':undefined} accessibilityLabel={msg`지도 지역 및 사진 목록${Platform.OS==='web'?t('. Enter 또는 Space 키로 열기'):''}`} accessibilityKeyShortcuts={Platform.OS==='web'?'Enter Space':undefined} accessibilityHint={t("활성화하거나 Enter 또는 Space 키로 지도 도구 열기")} accessibilityActions={[{name:'activate',label:'지도 도구 열기'}]} onAccessibilityAction={e=>{if(e.nativeEvent.actionName==='activate')setFinder(true);}} {...responder.panHandlers} onLayout={e=>{const {width,height}=e.nativeEvent.layout;if(width&&height){setMeasured(true);setSize(previous=>previous.width===width&&previous.height===height?previous:{width,height});onCanvasReady?.();}measurePosition();}} onTouchStart={measurePosition} {...(Platform.OS==='web'?{role:'application',tabIndex:0,onClick:(e:any)=>{if(e.detail===0){e.preventDefault();e.stopPropagation();setFinder(true);}},onKeyDown:(e:any)=>{if(['+','=','-'].includes(e.key)){e.preventDefault();zoom(e.key==='-'?1/1.5:1.5);return;}if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(!e.repeat)setFinder(true);}},onPointerDown:measurePosition} as any:{})} style={{flex:1,minHeight:120,height:fullScreen?undefined:260,backgroundColor:'#AED9EC',...(Platform.OS==='web'?{touchAction:'none'} as any:{})}}>
+    {webMap&&<Svg testID={showOutline?'map-overview-cover':undefined} pointerEvents="none" accessible={false} style={{position:'absolute',inset:0}} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`}>{geography}</Svg>}
     {mountTiles&&tileStyle&&<TileBoundary onFailure={()=>setBackground('failed')}><TileSurface style={tileStyle} filters={filters} labelsVisible={!!view.labelRevealed} camera={tileCamera} onReady={()=>{retryAttempt.current=0;setBackground('ready');}} onFailure={()=>setBackground('failed')}/></TileBoundary>}
     <Svg style={{position:'relative',zIndex:1}} width="100%" height="100%" viewBox={`0 0 ${size.width} ${size.height}`} accessible={false}>
-     {showOutline&&<Rect testID="map-overview-cover" width={size.width} height={size.height} fill={'#AED9EC'}/>}
-     {fallback&&<WorldOverview base={base} scale={ratio} x={tx} y={ty} width={size.width} height={size.height}/>}
-     <G transform={`translate(${tx},${ty}) scale(${ratio})`}>
-     {showOutline&&paths.filter(({f})=>intersects(f.properties.code)).map(({f,d,transform,strokeScale})=><Path key={f.properties.code} testID={`map-region-${f.properties.code}`} d={d} transform={transform} fill="#F2EFE7" stroke="#B2C0C1" strokeWidth={1/(ratio*strokeScale)} fillRule="evenodd"/>)}
-     {province&&paths.filter(({f})=>f.properties.code===province).map(({f,d,transform,strokeScale})=><Path key={f.properties.code} testID="map-selection" pointerEvents="none" d={d} transform={transform} fill="#3B82F6" fillOpacity={.18} stroke="#2563EB" strokeWidth={2/(ratio*strokeScale)} fillRule="evenodd"/>)}</G><G pointerEvents="none" accessible={false}>{labels.map(label=><G key={label.code}>
+     {!webMap&&showOutline&&<><Rect testID="map-overview-cover" width={size.width} height={size.height} fill="#AED9EC"/>{geography}</>}
+     <G pointerEvents="none" accessible={false}>{labels.map(label=><G key={label.code}>
      {Math.hypot(label.x-label.anchor[0],label.y-label.anchor[1])>label.fontSize&&<Line x1={label.anchor[0]} y1={label.anchor[1]} x2={label.x} y2={label.y} stroke={c.muted} strokeWidth={.7} opacity={.5}/>}
      {[true,false].map(halo=><SvgText key={String(halo)} testID={halo?undefined:`map-label-${label.code}`} x={label.x} y={label.y-(label.lines.length-1)*(label.fontSize+2)/2+label.fontSize*.35} fontSize={label.fontSize} fontFamily="sans-serif" fontWeight="500" textAnchor="middle" fill={halo?'#FFFFFF':'#7D868B'} stroke={halo?'#FFFFFF':'none'} strokeWidth={halo?3:0} strokeLinejoin="round">{label.lines.map((line,i)=><TSpan key={i} x={label.x} dy={i?label.fontSize+2:0}>{line}</TSpan>)}</SvgText>)}
-    </G>)}</G>{onCoordinate||!fullScreen?<>{entries.map(record=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)]);return point?<Circle key={record.id} testID={`map-location-${record.id}`} cx={point[0]} cy={point[1]} r={6} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/>:null;})}{lat!=null&&lng!=null&&!entries.some(r=>Number(r.locations.latitude)===Number(lat)&&Number(r.locations.longitude)===Number(lng))&&p([Number(lng),Number(lat)])&&<Circle cx={p([Number(lng),Number(lat)])![0]} cy={p([Number(lng),Number(lat)])![1]} r={9} fill={c.primary} stroke="#FFFFFF" strokeWidth={3}/>}</>:null}{photoGroups.map(g=><G key={g.records.map(r=>r.id).join('/')} pointerEvents="none" opacity={g.opacity} testID={`map-photo-${g.records[0].id}`} transform={pressedPhoto===g.records[0].id&&!reduced?`translate(${g.x},${g.y}) scale(1.04) translate(${-g.x},${-g.y})`:undefined}><Rect x={g.x-27} y={g.y-24} width={54} height={54} rx={10} fill="#244753" opacity={.14}/><Rect x={g.x-27} y={g.y-27} width={54} height={54} rx={10} fill="#FFFFFF" stroke={c.line}/>{covers[g.records[0].id]?<SvgImage href={{uri:covers[g.records[0].id]}} x={g.x-24} y={g.y-24} width={48} height={48} preserveAspectRatio="xMidYMid slice"/>:<Rect x={g.x-24} y={g.y-24} width={48} height={48} fill={c.map.landDefault}/>}{g.records.length>1&&<><Rect x={g.x-24} y={g.y-24} width={48} height={48} fill="#000000" opacity={.35}/><SvgText x={g.x} y={g.y+8} textAnchor="middle" fill="#FFFFFF" fontSize={22} fontWeight="700">{g.records.length}</SvgText></>}</G>)}{destinationPoint&&<G pointerEvents="none" testID="map-destination"><Circle cx={destinationPoint[0]} cy={destinationPoint[1]} r={7} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/><SvgText x={destinationPoint[0]} y={destinationPoint[1]-14} textAnchor="middle" fill={c.ink} stroke={c.sheet} strokeWidth={.3} fontSize={16}>◎ {destination?.label}</SvgText></G>}</Svg>
+    </G>)}</G>{onCoordinate||!fullScreen?<>{entries.map(record=>{const point=p([Number(record.locations.longitude),Number(record.locations.latitude)]);return point?<Circle key={record.id} testID={`map-location-${record.id}`} cx={point[0]} cy={point[1]} r={6} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/>:null;})}{lat!=null&&lng!=null&&!entries.some(r=>Number(r.locations.latitude)===Number(lat)&&Number(r.locations.longitude)===Number(lng))&&p([Number(lng),Number(lat)])&&<Circle cx={p([Number(lng),Number(lat)])![0]} cy={p([Number(lng),Number(lat)])![1]} r={9} fill={c.primary} stroke="#FFFFFF" strokeWidth={3}/>}</>:null}{photoGroups.map(g=><G key={g.records[0].id} pointerEvents="none" opacity={g.opacity} testID={`map-photo-${g.records[0].id}`} transform={pressedPhoto===g.records[0].id&&!reduced?`translate(${g.x},${g.y}) scale(1.04) translate(${-g.x},${-g.y})`:undefined}><Rect x={g.x-27} y={g.y-24} width={54} height={54} rx={10} fill="#244753" opacity={.14}/><Rect x={g.x-27} y={g.y-27} width={54} height={54} rx={10} fill="#FFFFFF" stroke={c.line}/>{covers[g.records[0].id]?<SvgImage href={{uri:covers[g.records[0].id]}} x={g.x-24} y={g.y-24} width={48} height={48} preserveAspectRatio="xMidYMid slice"/>:<Rect x={g.x-24} y={g.y-24} width={48} height={48} fill={c.map.landDefault}/>}{g.records.length>1&&<><Rect x={g.x-24} y={g.y-24} width={48} height={48} fill="#000000" opacity={.35}/><SvgText x={g.x} y={g.y+8} textAnchor="middle" fill="#FFFFFF" fontSize={22} fontWeight="700">{g.records.length}</SvgText></>}</G>)}{destinationPoint&&<G pointerEvents="none" testID="map-destination"><Circle cx={destinationPoint[0]} cy={destinationPoint[1]} r={7} fill={c.primary} stroke="#FFFFFF" strokeWidth={2}/><SvgText x={destinationPoint[0]} y={destinationPoint[1]-14} textAnchor="middle" fill={c.ink} stroke={c.sheet} strokeWidth={.3} fontSize={16}>◎ {destination?.label}</SvgText></G>}</Svg>
 
    </View>
     <View style={{position:'absolute',bottom:3,left:4,right:66,alignItems:'flex-start',zIndex:1}}><MapAttribution/></View>
     <View pointerEvents="box-none" style={{position:'absolute',zIndex:1,top:10,left:10,right:66,flexDirection:'row',alignItems:'center',gap:8}}>{button(t('대한민국'),country)}<Text testID="map-region-name" numberOfLines={2} style={{color:c.map.mapLabel,fontSize:13,flex:1}}>{activeName}</Text></View>
     <View style={{position:'absolute',zIndex:1,right:10,bottom:10,gap:6}}>{button(t('지도 홈'),country,false,t('홈'))}</View>
-    <Modal visible={finder} transparent animationType="none" onRequestClose={()=>setFinder(false)}><View style={{flex:1,justifyContent:'flex-end',backgroundColor:'#102B3540'}}><Pressable accessibilityRole="button" accessibilityLabel={t("지역 찾기 닫기")} onPress={()=>setFinder(false)} style={{flex:1}}/><View accessibilityViewIsModal style={{maxHeight:'75%',width:'100%',maxWidth:480,alignSelf:'center',backgroundColor:c.surface,padding:12,borderTopLeftRadius:20,borderTopRightRadius:20}}><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text accessibilityRole="header">{t("지역 찾기")}</Text>{button(t('닫기'),()=>setFinder(false))}</View><ScrollView ref={regionList} testID="map-region-options" keyboardShouldPersistTaps="handled" onContentSizeChange={restoreRegionScroll} scrollEventThrottle={16} onScroll={e=>{if(finderOpen.current)remember({regionOffset:e.nativeEvent.contentOffset.y});}}>{panel}</ScrollView></View></View></Modal>
+    <Modal visible={finder} transparent animationType="none" onDismiss={()=>{if(webMap&&!finderOpen.current&&!live.current.summaryIds?.length)host.current?.focus();}} onRequestClose={()=>setFinder(false)}><View style={{flex:1,justifyContent:'flex-end',backgroundColor:'#102B3540'}}><Pressable accessibilityRole="button" accessibilityLabel={t("지역 찾기 닫기")} onPress={()=>setFinder(false)} style={{flex:1}}/><View accessibilityViewIsModal style={{maxHeight:'75%',width:'100%',maxWidth:480,alignSelf:'center',backgroundColor:c.surface,padding:12,borderTopLeftRadius:20,borderTopRightRadius:20}}><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text accessibilityRole="header">{t("지역 찾기")}</Text>{button(t('닫기'),()=>setFinder(false))}</View><ScrollView ref={regionList} testID="map-region-options" keyboardShouldPersistTaps="handled" onContentSizeChange={restoreRegionScroll} scrollEventThrottle={16} onScroll={e=>{if(finderOpen.current)remember({regionOffset:e.nativeEvent.contentOffset.y});}}>{panel}</ScrollView></View></View></Modal>
   </View>
   {homeMap&&onDraw&&<MapDrawButton onPress={onDraw}/>}
   {!!summary.length&&<PhotoSummarySheet expanded={view.summaryExpanded??false} offset={view.summaryOffset??0} onExpanded={value=>change({summaryExpanded:value})} onScroll={value=>remember({summaryOffset:value})} ids={summary} records={entries} covers={covers} authors={authors} onClose={()=>setSummary([])} onSelect={record=>onSelect?.(record)} onFit={()=>{const chosen=entries.filter(r=>summary.includes(r.id));if(chosen.length){const {longitude,latitude}=chosen[0].locations;const target=photoExtent(chosen)??geoMercator().center([Number(longitude),Number(latitude)]).scale(Math.max(base.scale(),p.scale())).translate([size.width/2,size.height/2]);fly(target);}setSummary([]);}}/>}

@@ -24,7 +24,7 @@ export function osmFilters(selection: string | null): Record<string, FilterSpeci
   return {'selected-fill': filter, 'selected-line': filter, 'selected-detail-fill': filter, 'selected-detail-line': filter};
 }
 
-export function osmMapStyle(): StyleSpecification {
+export function osmMapStyle(transparentOcean=false): StyleSpecification {
   const high = {source: 'regions', minzoom: detailZoom};
   const low = {source: 'world', maxzoom: detailZoom};
   const off: FilterSpecification = ['==', 'code', ''];
@@ -61,10 +61,13 @@ export function osmMapStyle(): StyleSpecification {
       neighborhood:{type:'vector',tiles:[boundaryTileRoot()+neighborhoodVersion+'/{z}/{x}/{y}.pbf'],minzoom:neighborhoodZoom,maxzoom:12,bounds:[124,33,132,39]},
     },
     layers: [
-      {id:'ocean', type:'background', paint:{'background-color':sea}},
+      {id:'ocean', type:'background', paint:{'background-color':sea,'background-opacity':transparentOcean?0:1}},
       {id:'world-land', source:'world', type:'fill', filter:['all',['==','$type','Polygon'],['!has','level']], paint:{'fill-color':paper}},
       {id:'province-overview', ...low, type:'fill', filter:['==','level','province'], paint:{'fill-color':paper,'fill-outline-color':border}},
       {id:'province-tile-backdrop',source:'world',minzoom:detailZoom,type:'fill',filter:['==','level','province'],paint:{'fill-color':paper,'fill-outline-color':border}},
+      // 정밀 육지가 도착하면 그 타일 안에서만 아래의 번들 선택색을 교체한다.
+      {id:'selected-fill',source:'world',type:'fill',filter:off,paint:highlight},
+      {id:'selected-line',source:'world',filter:off,...stroke('#2563EB',2)},
       {id:'domestic-land', ...high, type:'fill', 'source-layer':'province', paint:{'fill-color':paper}},
       {id:'parks', ...high, minzoom:10, type:'fill', 'source-layer':'detail', filter:['==','kind','park'], paint:{'fill-color':'#C9DDB6'}},
       riverLine('river',9,'in',2),
@@ -82,8 +85,6 @@ export function osmMapStyle(): StyleSpecification {
         paint:{'line-color':'#ABA9A7','line-width':1.4,'line-dasharray':[3,2]}},
       {id:'province-boundaries', ...high, 'source-layer':'province-line', ...stroke(border,.85)},
       {id:'district-boundaries', ...high, minzoom:8, 'source-layer':'district-line', ...stroke('#AAB5B4',.9)},
-      {id:'selected-fill', ...low, type:'fill', filter:off, paint:highlight},
-      {id:'selected-line', ...low, filter:off, ...stroke('#2563EB',2)},
       {id:'selected-detail-fill', ...high, 'source-layer':'province', type:'fill', filter:off, paint:highlight},
       {id:'selected-detail-line', ...high, 'source-layer':'province-line', filter:off, ...stroke('#2563EB',2)},
       {...name('major-places','detail',10),filter:['==','kind','place']},

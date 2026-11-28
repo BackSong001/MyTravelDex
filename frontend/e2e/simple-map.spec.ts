@@ -1,5 +1,5 @@
 import {boundaryTilePath,openMapFixture} from './map-fixture';
-import {test,expect} from '@playwright/test';
+import {test,expect,type Page} from '@playwright/test';
 import {build} from 'esbuild';
 import {readFileSync,mkdirSync} from 'node:fs';
 import path from 'node:path';
@@ -599,4 +599,93 @@ test('an in-flight regional tile keeps land underneath the new camera',async({pa
  } finally {release();}
  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r.areTilesLoaded()&&r.queryRenderedFeatures({layers:['domestic-land']}).length>0;})).toBe(true);
  await expect(page.getByTestId('map-photo-one')).toBeVisible();
+});
+
+async function frameColorCoverage(page:Page,frames:Buffer[],rgb:number[],point?:[number,number]){
+ return page.evaluate(async({images,rgb,point})=>{
+  const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true})!;
+  const values:number[]=[];
+  for(const image of images){
+   const img=new Image();img.src='data:image/png;base64,'+image;await img.decode();
+   canvas.width=img.width;canvas.height=img.height;ctx.drawImage(img,0,0);
+   const pixels=point?ctx.getImageData(point[0],point[1],1,1):ctx.getImageData(0,0,img.width,img.height);
+   let count=0;
+   for(let i=0;i<pixels.data.length;i+=4)if(rgb.every((v,c)=>Math.abs(pixels.data[i+c]-v)<=3))count++;
+   values.push(count/(pixels.width*pixels.height));
+  }
+  return values;
+ },{images:frames.map(frame=>frame.toString('base64')),rgb,point});
+}
+
+for(const width of [390,1280])test('TC-ALBUM-04 selected land stays painted through rapid camera changes at '+width,async({page},info)=>{
+ await page.setViewportSize({width,height:800});
+ const canvas=page.getByTestId('svg-map-canvas');
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+ let release!:()=>void,requests=0;
+ const gate=new Promise<void>(done=>release=done);
+ await page.route('**/boundary-tiles/**/*.pbf',async route=>{requests++;await gate;await route.fallback();});
+ const cdp=await page.context().newCDPSession(page);
+ const frames:Buffer[]=[];
+ cdp.on('Page.screencastFrame',event=>{
+  frames.push(Buffer.from(event.data,'base64'));
+  void cdp.send('Page.screencastFrameAck',{sessionId:event.sessionId}).catch(()=>{});
+ });
+ try {
+  await canvas.press('Enter');
+  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
+  await expect.poll(()=>requests).toBeGreaterThan(0);
+  await expect.poll(()=>page.evaluate(()=>{const n=(window as any).navigation.current;return Math.abs((n.camera?.scale??0)-n.fitScale);})).toBeLessThan(.01);
+  frames.push(await page.screenshot());
+  await cdp.send('Page.startScreencast',{format:'png',maxWidth:520,maxHeight:600});
+  const b=(await canvas.boundingBox())!,x=b.x+b.width/2,y=b.y+b.height/2;
+  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+46,y+34,{steps:6});await page.mouse.up();
+  for(const delta of [-80,-80,-80,65,-55])await page.mouse.wheel(0,delta);
+  await expect(page.getByTestId('map-photo-one')).toBeVisible();
+  release();
+  await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r.areTilesLoaded()&&r.queryRenderedFeatures({layers:['domestic-land']}).length>0;})).toBe(true);
+  await cdp.send('Page.stopScreencast');
+  frames.push(await page.screenshot());
+  expect(frames.length).toBeGreaterThan(3);
+  const coverage=await frameColorCoverage(page,frames,[209,219,234]);
+  await info.attach('selected-land-frame-coverage',{body:JSON.stringify(coverage),contentType:'application/json'});
+  expect(Math.min(...coverage)).toBeGreaterThan(.01);
+ } finally {release();await cdp.detach();}
+});
+
+test('TC-ALBUM-04 a horizontal wheel gesture keeps the camera and small wheel deltas scale proportionally',async({page})=>{
+ const canvas=page.getByTestId('svg-map-canvas');
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+ await canvas.hover();
+ const zoom=()=>page.evaluate(()=>(window as any).renderer.getZoom());
+ const start=await zoom();
+ await canvas.dispatchEvent('wheel',{deltaX:12,deltaY:0,deltaMode:0});
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+ expect(await zoom()).toBeCloseTo(start,6);
+ await canvas.dispatchEvent('wheel',{deltaY:-1,deltaMode:0});
+ await expect.poll(zoom).toBeGreaterThan(start);
+ expect(await zoom()-start).toBeLessThan(.02);
+});
+
+test('TC-ALBUM-04 land follows a new camera before its local outline worker returns',async({page})=>{
+ const canvas=page.getByTestId('svg-map-canvas');
+ await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+ await page.evaluate(()=>{
+  const w=window as any,source=w.renderer.getSource('world'),load=source.loadTile.bind(source);
+  const gate=new Promise<void>(resolve=>w.releaseOutline=resolve);
+  w.waitingOutlines=0;
+  source.loadTile=async(tile:unknown)=>{w.waitingOutlines++;await gate;return load(tile);};
+  return w.update({homeMap:false,fullScreen:false,records:[{id:'tokyo',status:'complete',locations:{source:'manual',latitude:35.69,longitude:139.70}}]});
+ });
+ try{
+  await expect.poll(()=>page.evaluate(()=>(window as any).waitingOutlines)).toBeGreaterThan(0);
+  await expect.poll(()=>page.evaluate(()=>(window as any).renderer.getCenter().lng)).toBeCloseTo(139.70,3);
+  const pin=page.getByTestId('map-location-tokyo');
+  for(const step of [0,1]){
+   if(step)await canvas.press('+');
+   const screen=await canvas.boundingBox(),dot=await pin.boundingBox();
+   const x=Math.round(dot!.x+dot!.width/2-screen!.x+18),y=Math.round(dot!.y+dot!.height/2-screen!.y);
+   expect(await frameColorCoverage(page,[await canvas.screenshot()],[242,239,231],[x,y])).toEqual([1]);
+  }
+ }finally{await page.evaluate(()=>(window as any).releaseOutline());}
+ await expect.poll(()=>page.evaluate(()=>(window as any).renderer.areTilesLoaded())).toBe(true);
 });
