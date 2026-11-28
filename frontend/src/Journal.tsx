@@ -17,6 +17,11 @@ export function DestinationIcon(){
  return <Image accessible={false} source={iconAssets[iconTheme].destination} resizeMode="contain" style={{width:34,height:34}}/>;
 }
 
+export function MapDrawButton({onPress}:{onPress:()=>void}){
+ const c=useThemeColors();
+ return <Pressable accessibilityRole="button" accessibilityLabel={t("여행지 랜덤 뽑기")} onPress={onPress} style={{alignSelf:'flex-end',width:48,height:48,borderRadius:16,alignItems:'center',justifyContent:'center',backgroundColor:c.warm,borderWidth:1,borderColor:c.line}}><DestinationIcon/></Pressable>;
+}
+
 export function AddPhotoIcon({size=34}:{size?:number}){
  return <Image accessible={false} source={require('../assets/ui/navigation/add-photo.png')} resizeMode="contain" style={{width:size,height:size}}/>;
 }

@@ -4,7 +4,7 @@ import {View,Modal,ScrollView,PanResponder,Platform,useWindowDimensions,Accessib
 import Svg,{Path,G,Circle,Line,Rect,Image as SvgImage,Text as SvgText,TSpan} from 'react-native-svg';
 import {geoMercator,type GeoProjection} from 'd3-geo';
 import Text from './FontText';
-import {DestinationIcon} from './Journal';
+import {MapDrawButton} from './Journal';
 import Pressable,{useReducedMotion} from './Feedback';
 import PhotoSummarySheet from './PhotoSummarySheet';
 import {clusterPhotos,latestRecords,photoClusterDistance} from './photoMap';
@@ -354,7 +354,7 @@ export default function TravelMap({onCanvasReady,records,covers={},authors={},on
     <View style={{position:'absolute',zIndex:1,right:10,bottom:10,gap:6}}>{button(t('지도 홈'),country,false,t('홈'))}</View>
     <Modal visible={finder} transparent animationType="none" onRequestClose={()=>setFinder(false)}><View style={{flex:1,justifyContent:'flex-end',backgroundColor:'#102B3540'}}><Pressable accessibilityRole="button" accessibilityLabel={t("지역 찾기 닫기")} onPress={()=>setFinder(false)} style={{flex:1}}/><View accessibilityViewIsModal style={{maxHeight:'75%',width:'100%',maxWidth:480,alignSelf:'center',backgroundColor:c.surface,padding:12,borderTopLeftRadius:20,borderTopRightRadius:20}}><View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}><Text accessibilityRole="header">{t("지역 찾기")}</Text>{button(t('닫기'),()=>setFinder(false))}</View><ScrollView ref={regionList} testID="map-region-options" keyboardShouldPersistTaps="handled" onContentSizeChange={restoreRegionScroll} scrollEventThrottle={16} onScroll={e=>{if(finderOpen.current)remember({regionOffset:e.nativeEvent.contentOffset.y});}}>{panel}</ScrollView></View></View></Modal>
   </View>
-  {homeMap&&onDraw&&<Pressable accessibilityRole="button" accessibilityLabel={t("여행지 랜덤 뽑기")} onPress={onDraw} style={{alignSelf:'flex-end',width:48,height:48,borderRadius:16,alignItems:'center',justifyContent:'center',backgroundColor:c.warm,borderWidth:1,borderColor:c.line}}><DestinationIcon/></Pressable>}
+  {homeMap&&onDraw&&<MapDrawButton onPress={onDraw}/>}
   {!!summary.length&&<PhotoSummarySheet expanded={view.summaryExpanded??false} offset={view.summaryOffset??0} onExpanded={value=>change({summaryExpanded:value})} onScroll={value=>remember({summaryOffset:value})} ids={summary} records={entries} covers={covers} authors={authors} onClose={()=>setSummary([])} onSelect={record=>onSelect?.(record)} onFit={()=>{const chosen=entries.filter(r=>summary.includes(r.id));if(chosen.length){const {longitude,latitude}=chosen[0].locations;const target=photoExtent(chosen)??geoMercator().center([Number(longitude),Number(latitude)]).scale(Math.max(base.scale(),p.scale())).translate([size.width/2,size.height/2]);fly(target);}setSummary([]);}}/>}
 
  </View>;
