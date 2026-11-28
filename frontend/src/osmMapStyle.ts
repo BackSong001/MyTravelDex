@@ -65,8 +65,8 @@ export function osmMapStyle(transparentOcean=false): StyleSpecification {
       {id:'world-land', source:'world', type:'fill', filter:['all',['==','$type','Polygon'],['!has','level']], paint:{'fill-color':paper}},
       {id:'province-overview', ...low, type:'fill', filter:['==','level','province'], paint:{'fill-color':paper,'fill-outline-color':border}},
       {id:'province-tile-backdrop',source:'world',minzoom:detailZoom,type:'fill',filter:['==','level','province'],paint:{'fill-color':paper,'fill-outline-color':border}},
-      // 정밀 육지가 도착하면 그 타일 안에서만 아래의 번들 선택색을 교체한다.
-      {id:'selected-fill',source:'world',type:'fill',filter:off,paint:highlight},
+      // 종이 위에 파랑 18%를 한 번 합성한 색이다. 뒤의 SVG 선택과 겹쳐도 짙어지지 않는다.
+      {id:'selected-fill',source:'world',type:'fill',filter:off,paint:{'fill-color':'#D1DBEA'}},
       {id:'selected-line',source:'world',filter:off,...stroke('#2563EB',2)},
       {id:'domestic-land', ...high, type:'fill', 'source-layer':'province', paint:{'fill-color':paper}},
       {id:'parks', ...high, minzoom:10, type:'fill', 'source-layer':'detail', filter:['==','kind','park'], paint:{'fill-color':'#C9DDB6'}},

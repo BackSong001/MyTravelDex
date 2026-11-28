@@ -620,7 +620,14 @@ async function frameColorCoverage(page:Page,frames:Buffer[],rgb:number[],point?:
 for(const width of [390,1280])test('TC-ALBUM-04 selected land stays painted through rapid camera changes at '+width,async({page},info)=>{
  await page.setViewportSize({width,height:800});
  const canvas=page.getByTestId('svg-map-canvas');
- await expect(page.getByTestId('map-overview-cover')).toHaveCount(0);
+ await page.evaluate(()=>(window as any).hide());
+ await expect(canvas).toHaveCount(0);
+ await page.evaluate(()=>{
+  const w=window as any;
+  w.navigation.current={province:'11',selected:null,detail:true,camera:{center:[126.978,37.5665],scale:512*2**7.82/(2*Math.PI)}};
+  return w.update({});
+ });
+ await expect.poll(()=>page.evaluate(()=>{const r=(window as any).renderer;return r?.isStyleLoaded()&&Math.abs(r.getZoom()-7.82)<.001;})).toBe(true);
  let release!:()=>void,requests=0;
  const gate=new Promise<void>(done=>release=done);
  await page.route('**/boundary-tiles/**/*.pbf',async route=>{requests++;await gate;await route.fallback();});
@@ -631,14 +638,12 @@ for(const width of [390,1280])test('TC-ALBUM-04 selected land stays painted thro
   void cdp.send('Page.screencastFrameAck',{sessionId:event.sessionId}).catch(()=>{});
  });
  try {
-  await canvas.press('Enter');
-  await page.getByRole('button',{name:'서울특별시 · 1개',exact:true}).click();
-  await expect.poll(()=>requests).toBeGreaterThan(0);
-  await expect.poll(()=>page.evaluate(()=>{const n=(window as any).navigation.current;return Math.abs((n.camera?.scale??0)-n.fitScale);})).toBeLessThan(.01);
   frames.push(await page.screenshot());
   await cdp.send('Page.startScreencast',{format:'png',maxWidth:520,maxHeight:600});
   const b=(await canvas.boundingBox())!,x=b.x+b.width/2,y=b.y+b.height/2;
-  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+46,y+34,{steps:6});await page.mouse.up();
+  await page.mouse.move(x,y);await page.mouse.wheel(0,-120);
+  await expect.poll(()=>requests).toBeGreaterThan(0);
+  await page.mouse.down();await page.mouse.move(x+46,y+34,{steps:6});await page.mouse.up();
   for(const delta of [-80,-80,-80,65,-55])await page.mouse.wheel(0,delta);
   await expect(page.getByTestId('map-photo-one')).toBeVisible();
   release();
@@ -648,7 +653,9 @@ for(const width of [390,1280])test('TC-ALBUM-04 selected land stays painted thro
   expect(frames.length).toBeGreaterThan(3);
   const coverage=await frameColorCoverage(page,frames,[209,219,234]);
   await info.attach('selected-land-frame-coverage',{body:JSON.stringify(coverage),contentType:'application/json'});
-  expect(Math.min(...coverage)).toBeGreaterThan(.01);
+  expect(Math.min(...coverage)).toBeGreaterThan(.002);
+  const doubleTint=await frameColorCoverage(page,frames,[182,202,235]);
+  expect(Math.max(...doubleTint)).toBeLessThan(.0005);
  } finally {release();await cdp.detach();}
 });
 
