@@ -17,6 +17,8 @@ test('TC-ONBOARD-001: only the owner completion action can atomically finish val
 });
 test('TC-ONBOARD-002: retries and concurrent completion preserve the first committed profile; anonymous and GET mutation are denied',async()=>{
  for(const rpc of ['profile_setup_status','complete_profile_setup'])await expect(guest.rpc(rpc,rpc==='profile_setup_status'?{}:{display_name:'이름',avatar_url:null,public_profile_enabled:true})).rejects.toMatchObject({status:401});
- const api=users[1].api;const result=await Promise.all(['첫 이름','다른 이름'].map(display_name=>api.rpc('complete_profile_setup',{display_name,avatar_url:null,public_profile_enabled:true})));expect(result[1]).toEqual(result[0]);expect(await api.rpc('complete_profile_setup',{display_name:'재시도 이름',avatar_url:null,public_profile_enabled:true})).toEqual(result[0]);
+ const api=users[1].api;const result=await Promise.all(['첫 이름','다른 이름'].map(display_name=>api.rpc('complete_profile_setup',{display_name,avatar_url:null,public_profile_enabled:true})));const first=result.find(r=>r.first_completion===true);
+ expect(first).toBeDefined();expect(result.filter(r=>r.first_completion===false)).toEqual([{...first,first_completion:false}]);
+ expect(await api.rpc('complete_profile_setup',{display_name:'재시도 이름',avatar_url:null,public_profile_enabled:true})).toEqual({...first,first_completion:false});
  await expect(api.request('/rest/v1/rpc/complete_profile_setup?display_name=Other&avatar_url=null&public_profile_enabled=true')).rejects.toMatchObject({status:405});
 });

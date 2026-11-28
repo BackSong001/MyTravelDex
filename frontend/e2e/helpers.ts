@@ -3,12 +3,10 @@ import {expect,type Page} from '@playwright/test';
 export const status=localSupabaseStatus();
 if(status.API_URL!=='http://127.0.0.1:54321')throw new Error('Only local Supabase is allowed');
 export const headers={apikey:status.SERVICE_ROLE_KEY,Authorization:`Bearer ${status.SERVICE_ROLE_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'};
-const returningAccounts=new Map<string,string>();
 export async function admin(path:string,method='GET',body?:unknown){const r=await fetch(`${status.API_URL}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw new Error(`Local fixture request failed (${r.status})`);const t=await r.text();const result=t?JSON.parse(t):null;
  // 기존 흐름의 테스트 계정은 설정을 마친 fixture다. 최초 설정 검사는 직접 새 Auth 계정을 생성한다.
  if(path==='/auth/v1/admin/users'&&method==='POST'&&result?.id){
   await admin(`/rest/v1/profiles?id=eq.${result.id}`,'PATCH',{profile_setup_complete:true});
-  if(result.email)returningAccounts.set(result.email,result.id);
  }
  return result;}
 export const jpeg=Buffer.from('/9j/4AAQSkZJRgABAgAAAQABAAD//gAQTGF2YzYwLjMxLjEwMgD/2wBDAAgEBAQEBAUFBQUFBQYGBgYGBgYGBgYGBgYHBwcICAgHBwcGBgcHCAgICAkJCQgICAgJCQoKCgwMCwsODg4RERT/xABLAAEBAAAAAAAAAAAAAAAAAAAABwEBAAAAAAAAAAAAAAAAAAAAABABAAAAAAAAAAAAAAAAAAAAABEBAAAAAAAAAAAAAAAAAAAAAP/AABEIAAIAAgMBIgACEQADEQD/2gAMAwEAAhEDEQA/AL+AD//Z','base64');
@@ -35,8 +33,6 @@ export async function choosePlace(page:Page) {
  expect(calls).toEqual([{query:'제주 시청'}]);
 }
 export async function login(page:Page,email:string,password:string) {
- const account=returningAccounts.get(email);
- if(account)await page.addInitScript(id=>localStorage.setItem('guide.v1.'+id,'done'),account);
  await page.route('https://maps.googleapis.com/**',r=>r.abort());
  await page.goto('/');
  await page.getByLabel('이메일',{exact:true}).fill(email);await page.getByLabel('비밀번호',{exact:true}).fill(password);

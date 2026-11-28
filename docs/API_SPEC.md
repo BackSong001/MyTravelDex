@@ -571,6 +571,8 @@ social_profile은 directory_listed를 반환하지 않으며 social_set_director
 
 `POST /rest/v1/rpc/edit_journal_record`는 인증 사용자의 완료 기록을 편집한다. 본문은 `record_id`(UUID), `fields`(title, content, start_date, end_date, visibility), 선택 `place`(작성 화면과 같은 대표 위치 필드)다. place를 생략하거나 null로 보내면 기존 location_id를 유지한다. 동일한 위치를 재전송해도 위치 행을 추가하지 않는다. 성공 응답에는 반환 데이터가 없다. 권한 밖의 기록이나 초안은 수정할 수 없으며 날짜·위치 제약 위반 시 전체 트랜잭션을 취소한다. 서버에 RPC가 준비되기 전에 배포한 클라이언트는 저장 오류를 표시하고 편집 입력을 보존한다. 배포 순서는 DB 마이그레이션 후 클라이언트다.
 
+`complete_profile_setup`의 반환값에 `first_completion`을 추가한다. 기존 행 잠금 안에서 최초 설정을 저장한 요청에만 true이고 동시 호출의 나머지 응답과 재시도는 false다.
+
 스탬프 미리보기는 번들 자산으로 표시하고, 획득 여부는 기존 본인 완료 기록 조회 결과를 사용한다.
 
 

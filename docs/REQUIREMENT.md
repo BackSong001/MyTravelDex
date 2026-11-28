@@ -638,6 +638,8 @@ FR-WEB-DISCOVERY-001. 홍보 콘텐츠는 정적 본문, 정식 주소, 공유 �
 
 도감·편집·온보딩의 최신 기준은 docs/JOURNAL_UPDATE.md의 FR-JOURNAL-REFRESH-01~05를 따른다. 이전 퍼즐·단일 테마·별도 미리보기 버튼 정책을 대체한다.
 
+FR-JOURNAL-REFRESH-02 자동 실행은 가입 최초 설정을 완료한 세션 한 번으로 한정한다. 이후에는 설정에서 다시 본다.
+
 FR-JOURNAL-REFRESH-01의 미획득 스탬프도 도감에서 회색 도안으로 확인할 수 있다.
 
 

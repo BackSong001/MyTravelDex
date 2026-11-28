@@ -8,7 +8,7 @@ const status=JSON.parse(execFileSync('node_modules/.bin/supabase',['status','--w
 if(status.API_URL!=='http://127.0.0.1:55321')throw new Error('Only isolated SNS Local is allowed');
 const admin=new TravelApi(status.API_URL,status.SERVICE_ROLE_KEY);admin.token=status.SERVICE_ROLE_KEY;
 let author:any,viewer:any,publicRecord:any,privateRecord:any,ownRecord:any;let records:string[]=[],locations:string[]=[],files:string[]=[];
-async function account(name:string){const email=`sns-ui-${randomUUID()}@example.test`,password=randomUUID()+'Aa1!',user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true}),api=new TravelApi(status.API_URL,status.ANON_KEY);await api.login(email,password);await admin.request('/rest/v1/profiles?id=eq.'+user.id,'PATCH',{display_name:name,profile_setup_complete:true});return {id:user.id,email,password,api};}
+async function account(name:string,completed=true){const email=`sns-ui-${randomUUID()}@example.test`,password=randomUUID()+'Aa1!',user=await admin.request('/auth/v1/admin/users','POST',{email,password,email_confirm:true}),api=new TravelApi(status.API_URL,status.ANON_KEY);await api.login(email,password);if(completed)await admin.request('/rest/v1/profiles?id=eq.'+user.id,'PATCH',{display_name:name,profile_setup_complete:true});return {id:user.id,email,password,api};}
 async function record(user:any,title:string,visibility:string,photoCount=1){
  const location=(await user.api.request('/rest/v1/locations','POST',{owner_id:user.id,latitude:37.5665,longitude:126.978,source:'manual',place_name:'서울 시청'}))[0];locations.push(location.id);
  const record=(await user.api.request('/rest/v1/travel_records','POST',{owner_id:user.id,title,content:'사진으로 남긴 여행 이야기',location_id:location.id,start_date:'2026-11-01',end_date:'2026-11-02',visibility}))[0];records.push(record.id);
@@ -21,7 +21,7 @@ async function record(user:any,title:string,visibility:string,photoCount=1){
 }
 test.beforeEach(async({page})=>{page.on('pageerror',error=>console.log('Web runtime:',error.name,error.message.replace(/https?:\/\/\S+/g,'[URL]')));records=[];locations=[];files=[];author=await account('소셜 여행자');viewer=await account('나의 일기');publicRecord=await record(author,'함께 보는 서울','public');privateRecord=await record(author,'비공개 서울','private');ownRecord=await record(viewer,'나만의 서울','private');});
 test.afterEach(async()=>{for(const id of records)await admin.request('/rest/v1/travel_records?id=eq.'+id,'DELETE');if(files.length)await admin.request('/storage/v1/object/travel-photos','DELETE',{prefixes:files});for(const id of locations)await admin.request('/rest/v1/locations?id=eq.'+id,'DELETE');for(const u of [author,viewer])if(u)await admin.request('/auth/v1/admin/users/'+u.id,'DELETE');await admin.request('/functions/v1/cleanup-avatars','POST',{});});
-async function login(page:Page,user=viewer,firstVisit=false){if(!firstVisit)await page.addInitScript(id=>localStorage.setItem('guide.v1.'+id,'done'),user.id);await page.route('**/auth/v1/**',route=>new URL(route.request().url()).origin===status.API_URL?route.continue():route.abort());await page.goto('/');await page.getByLabel('이메일',{exact:true}).fill(user.email);await page.getByLabel('비밀번호',{exact:true}).fill(user.password);const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/v1/token');await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();const logged=await response;expect(new URL(logged.url()).origin).toBe(status.API_URL);expect(logged.status()).toBe(200);await expect(page.getByRole('button',{name:'새 여행 기록',exact:true})).toBeVisible();await expect(page.getByText('프로필 설정 확인 중',{exact:true})).toHaveCount(0);}
+async function login(page:Page,user=viewer,needsSetup=false){await page.route('**/auth/v1/**',route=>new URL(route.request().url()).origin===status.API_URL?route.continue():route.abort());await page.goto('/');await page.getByLabel('이메일',{exact:true}).fill(user.email);await page.getByLabel('비밀번호',{exact:true}).fill(user.password);const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/v1/token');await page.getByRole('button',{name:'테스트 계정 로그인',exact:true}).click();const logged=await response;expect(new URL(logged.url()).origin).toBe(status.API_URL);expect(logged.status()).toBe(200);if(needsSetup){await expect(page.getByRole('heading',{name:'여행을 시작할 프로필'})).toBeVisible();return;}await expect(page.getByRole('button',{name:'새 여행 기록',exact:true})).toBeVisible();await expect(page.getByText('프로필 설정 확인 중',{exact:true})).toHaveCount(0);}
 async function feed(page:Page,firstId=publicRecord.id){await page.getByRole('tab',{name:'피드',exact:true}).click();await expect(page.getByTestId('feed-record-'+firstId)).toBeVisible();await expect.poll(()=>page.getByTestId('feed-record-'+firstId).locator('img').evaluateAll(images=>images.some(image=>image instanceof HTMLImageElement&&image.src.includes('/storage/')&&image.complete&&image.naturalWidth>0))).toBe(true);}
 async function startPhotoInfo(page:Page){
  const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'사진 목록',exact:true}).click();
@@ -389,8 +389,32 @@ test('follow a traveler without public posts and manage the friendship independe
  await expect(friend).toHaveCount(0);
 });
 
+test('new registration opens the guide once and a returning login on a fresh device uses settings',async({page,browser})=>{
+ const newcomer=await account('신규 여행자',false);
+ const second=await browser.newContext({baseURL:'http://localhost:8086'});
+ try{
+  await login(page,newcomer,true);
+  const complete=page.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/rpc/complete_profile_setup')&&r.ok());
+  await page.getByRole('button',{name:'프로필 저장하고 시작',exact:true}).click();
+  expect((await (await complete).json()).first_completion).toBe(true);
+  await expect(page.getByRole('heading',{name:'내 여행 한눈에'})).toBeVisible();
+  await page.reload();
+  await page.getByRole('button',{name:'설정',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'내 여행 한눈에'})).toHaveCount(0);
+  const returning=await second.newPage();
+  await login(returning,newcomer);
+  await returning.getByRole('button',{name:'설정',exact:true}).click();
+  await returning.getByRole('button',{name:'튜토리얼 다시 보기',exact:true}).click();
+  await expect(returning.getByRole('heading',{name:'내 여행 한눈에'})).toBeVisible();
+  await returning.getByRole('button',{name:'건너뛰기'}).click();
+  await expect(returning.getByRole('heading',{name:'내 여행 한눈에'})).toHaveCount(0);
+ }finally{await second.close();await admin.request('/auth/v1/admin/users/'+newcomer.id,'DELETE');}
+});
+
 test('guide, device preferences and English journal navigation survive a reload',async({page})=>{
- await login(page,viewer,true);
+ await login(page);
+ await page.getByRole('button',{name:'설정',exact:true}).click();
+ await page.getByRole('button',{name:'튜토리얼 다시 보기',exact:true}).click();
  await expect(page.getByRole('heading',{name:'내 여행 한눈에'})).toBeVisible();
  await page.getByRole('button',{name:'다음',exact:true}).click();
  await expect(page.getByRole('heading',{name:'사진으로 보는 지도'})).toBeVisible();

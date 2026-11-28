@@ -77,7 +77,7 @@ function Notice({children, error = false}: {children: string; error?: boolean}) 
 
 function Avatar({url,size=44}: {url: string | null;size?:number}) {return <TravelerAvatar url={url} size={size}/>;}
 
-type ProfileProps=Props & {onSummaryReady?:()=>void;visits?:number|null;visitsFailed?:boolean;onStamps?:()=>void;onFollowing?:()=>void;showStamps?:boolean;children?:React.ReactNode;firstSetup?:boolean};
+type ProfileProps=Props & {onSummaryReady?:()=>void;visits?:number|null;visitsFailed?:boolean;onStamps?:()=>void;onFollowing?:()=>void;showStamps?:boolean;children?:React.ReactNode;firstSetup?:boolean;onSetupSaved?:(firstCompletion:boolean)=>void};
 
 export function ProfileEditor(props: ProfileProps) {
  const s=useThemeStyles(makeStyles);
@@ -85,7 +85,7 @@ export function ProfileEditor(props: ProfileProps) {
     : <View style={s.sheet}><Text accessibilityRole="header" style={s.title}>{t("나의 프로필")}</Text><Notice>{t("로그인하면 닉네임과 공개 프로필을 설정할 수 있어요. My에서 로그인해 주세요.")}</Notice></View>;
 }
 
-function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps=()=>{},onFollowing=()=>{},showStamps=false,children,onSummaryReady,firstSetup=false}: ProfileProps) {
+function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps=()=>{},onFollowing=()=>{},showStamps=false,children,onSummaryReady,firstSetup=false,onSetupSaved}: ProfileProps) {
  const c=useThemeColors();
  const s=useThemeStyles(makeStyles);
   const [editing,setEditing]=useState(firstSetup);
@@ -138,7 +138,8 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
       setAvatar(rows[0].avatar_url ?? null);
       setSnapshot({name:rows[0].display_name??displayName,avatar:rows[0].avatar_url??null,enabled:rows[0].public_profile_enabled===true});
       if(!firstSetup)setEditing(false);setSuccess(t('프로필을 저장했어요.'));
-      onChanged?.();
+      if(firstSetup)onSetupSaved?.(rows[0].first_completion===true);
+      else onChanged?.();
     } catch (error) {if (active.current) setError(message(error));}
     finally {savingRef.current = false; if (active.current) setSaving(false);}
   }
@@ -195,16 +196,15 @@ function ProfileForm({session, onChanged,visits=null,visitsFailed=false,onStamps
   </View>;
 }
 
-export function ProfileSetupGate({session,onLogout,onReady}:{onReady?:(id:string)=>void;session:any;onLogout:()=>Promise<void>}) {
+export function ProfileSetupGate({session,onLogout,onRegistered}:{onRegistered:(id:string)=>void;session:any;onLogout:()=>Promise<void>}) {
  const c=useThemeColors(),[complete,setComplete]=useState<boolean|null>(null),[checking,setChecking]=useState(true),[error,setError]=useState(''),[attempt,setAttempt]=useState(0),[unsupported,setUnsupported]=useState(false),[loggingOut,setLoggingOut]=useState(false),[logoutError,setLogoutError]=useState('');
  const active=useRef(true),logoutBusy=useRef(false);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
  useEffect(()=>{let current=true;setChecking(true);setError('');setUnsupported(false);void api.rpc('profile_setup_status',{}).then(result=>{if(current){if(typeof result.profile_setup_complete!=='boolean')throw new Error('Invalid profile setup status');setComplete(result.profile_setup_complete);}}).catch(reason=>{if(!current)return;if(reason instanceof ApiError&&reason.status===404){setUnsupported(true);setError(t('첫 프로필 설정은 서버 업데이트 후 사용할 수 있어요. My에서 프로필을 설정할 수 있어요.'));}else setError(t('프로필 설정 상태를 확인하지 못했어요. 다시 시도해 주세요.'));}).finally(()=>{if(current)setChecking(false);});return()=>{current=false;};},[session.user.id,attempt]);
- useEffect(()=>{if(complete&&!checking&&!error)onReady?.(session.user.id);},[complete,checking,error,onReady,session.user.id]);
  async function logout(){if(logoutBusy.current)return;logoutBusy.current=true;setLoggingOut(true);setLogoutError('');try{await onLogout();}catch{if(active.current)setLogoutError(t('로그아웃하지 못했어요. 연결을 확인하고 다시 시도해 주세요.'));}finally{logoutBusy.current=false;if(active.current)setLoggingOut(false);}}
  if(unsupported)return <Text accessibilityLiveRegion="polite" style={{color:c.muted,padding:8}}>{error}</Text>;
  return <Modal visible={checking||complete===false||!!error} animationType="none" onRequestClose={()=>{}}><ScrollView contentContainerStyle={{flexGrow:1,justifyContent:'center',padding:20,backgroundColor:c.paper}} keyboardShouldPersistTaps="handled"><View style={{width:'100%',maxWidth:640,alignSelf:'center'}}>
-  {checking?<ActivityIndicator accessibilityLabel={t("프로필 설정 확인 중")}/>:complete===false?<ProfileForm session={session} firstSetup onChanged={()=>setComplete(true)}/>:<><Notice error>{error}</Notice><Button label={t("프로필 설정 다시 확인")} onPress={()=>setAttempt(value=>value+1)}/></>}
+  {checking?<ActivityIndicator accessibilityLabel={t("프로필 설정 확인 중")}/>:complete===false?<ProfileForm session={session} firstSetup onSetupSaved={first=>{setComplete(true);if(first)onRegistered(session.user.id);}}/>:<><Notice error>{error}</Notice><Button label={t("프로필 설정 다시 확인")} onPress={()=>setAttempt(value=>value+1)}/></>}
   {checking&&<Text style={{color:c.muted}}>{t("프로필 설정 확인 중")}</Text>}
   {!!logoutError&&<Notice error>{logoutError}</Notice>}<Button label={loggingOut?t('로그아웃 중…'):t('로그아웃')} disabled={loggingOut} onPress={()=>void logout()} secondary/>
  </View></ScrollView></Modal>;

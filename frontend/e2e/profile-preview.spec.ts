@@ -7,7 +7,6 @@ async function openMy(page:Page){
 
 const profile={id:'00000000-0000-4000-8000-000000000031',user_code:'A10001',display_name:'기존 이름',bio:'기존 소개',travel_count:3,follower_count:2,following_count:1};
 test.beforeEach(async({page})=>{
- await page.addInitScript(id=>localStorage.setItem('guide.v1.'+id,'done'),profile.id);
  const user={id:profile.id,email:'preview@example.test',aud:'authenticated',role:'authenticated',app_metadata:{},user_metadata:{}};
  const exp=Math.floor(Date.now()/1000)+3600;
  const token=[{alg:'HS256'},{sub:user.id,role:'authenticated',exp},{fixture:true}].map(x=>Buffer.from(JSON.stringify(x)).toString('base64url')).join('.');
